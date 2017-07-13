@@ -1,2 +1,92 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 
-src/core/settings
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Django
+src/core/settings.py
+*.sqlite3
+*.db
+/src/files/articles
+/src/files/journals
+/src/files/journal
+/src/files/press
+/src/files/temp
+/src/files/import_cache
+/src/files/data_backup
+/src/media/django-summernote
+/src/media/*
+/src/collected-static
+
+mydatabase
+node_modules/
+src/plugins/*
+src/media/profile_images/*
+
+# PyCharm
+.idea
+
+# gulp
+/src/static/OLH/*
+
+src/urls\.txt
+
+src/files/styling/
+src/static/OLH
+src/utils/management/commands/import_news\.py
+src/themes/OLH/
+src/core/settings/
+src/utils/management/commands/redirects\.py
