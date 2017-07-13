@@ -52,6 +52,7 @@ class Command(BaseCommand):
         call_command('build_assets')
         call_command('install_plugins')
         call_command('install_cron')
+        call_command('loaddata', 'utils/install/roles.json')
 
         print('Create a super user.')
         call_command('createsuperuser')
