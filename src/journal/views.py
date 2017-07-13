@@ -1127,7 +1127,6 @@ def manage_article_log(request, article_id):
 
 
 def new_note(request, article_id):
-    print('where the f is this 404?')
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
     if request.POST:
