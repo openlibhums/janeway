@@ -39,4 +39,5 @@ We welcome all code contributions via Pull Requests where they can be reviewed a
 If you wish to get in touch about Janeway, contact information is provided below.
 
 Project Lead - Martin Paul Eve, martin.eve@bbk.ac.uk
+
 Lead Developer - Andy Byers, a.byers@bbk.ac.uk
