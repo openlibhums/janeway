@@ -254,14 +254,4 @@
 
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
-    <script src="{% static "admin/js/tabs.js" %}"></script>
-    <script>
-        var myTabs = tabs({
-            el: '#tabs',
-            tabNavigationLinks: '.c-tabs-nav__link',
-            tabContentContainers: '.c-tab'
-        });
-
-        myTabs.init();
-    </script>
 {% endblock js %}

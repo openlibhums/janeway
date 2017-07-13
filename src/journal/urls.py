@@ -27,6 +27,7 @@ urlpatterns = [
         views.replace_article_file,
         name='article_file_replace'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
+
     url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/edit/$', views.edit_article, name='article_edit'),
     url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/print/$', views.print_article,
         name='article_print_article'),
@@ -42,6 +43,7 @@ urlpatterns = [
         name='file_reinstate'),
     url(r'^(?P<article_id>\d+)/file/(?P<file_id>\d+)/makegalley/$', views.article_file_make_galley,
         name='article_file_make_galley'),
+    url(r'^note/(?P<article_id>\d+)/new/$', views.new_note, name='article_new_note'),
 
 
     # Publication

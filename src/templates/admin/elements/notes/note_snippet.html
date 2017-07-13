@@ -1,9 +1,15 @@
 {% load markdown_deux_tags %}
 
-<div class="large-2 columns">
+<div class="large-1 columns">
+	{% if request.user.profile_image %}
+	<span class="avatar">
+		<img src="{{ request.user.profile_image.url }}" />
+	</span>
+	{% else %}
 	<img src="http://placehold.it/58/55C1E7/fff&text={{ note.creator.initials }}" />
+	{% endif %}
 </div>
-<div class="large-10 columns">
+<div class="large-11 columns end">
 	<div class="panel  callout radius" style="margin-bottom: 0px;">
 	{{ note.text|markdown }}
 	</div>

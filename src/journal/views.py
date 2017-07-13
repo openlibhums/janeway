@@ -1124,3 +1124,36 @@ def manage_article_log(request, article_id):
     }
 
     return render(request, template, context)
+
+
+def new_note(request, article_id):
+    print('where the f is this 404?')
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+
+    if request.POST:
+
+        note = request.POST.get('note')
+
+        sav_note = submission_models.Note.objects.create(
+            article=article,
+            creator=request.user,
+            text=note,
+        )
+
+        return_dict = {'id': sav_note.pk, 'note': sav_note.text, 'initials': sav_note.creator.initials(),
+                       'date_time': str(sav_note.date_time),
+                       'html': logic.create_html_snippet(sav_note)}
+
+    else:
+
+        return_dict = {'error': 'This request must be made with POST'}
+
+    return HttpResponse(json.dumps(return_dict), content_type="application/json")
+
+
+@editor_user_required
+def delete_note(request, article_id, note_id):
+    note = get_object_or_404(submission_models.Note, pk=note_id)
+    note.delete()
+
+    return HttpResponse

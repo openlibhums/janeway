@@ -42,7 +42,7 @@ function submit_note(article_id){
     $.ajax({
             "type": "POST",
             "dataType": "json",
-            "url": "/kanban/article/" + article_id + "/note/new/",
+            "url": "/note/" + article_id + "/new/ ",
             "data": data,
             "success": function(data) { 
                 $('#' + article_id + '_new_note').val("")

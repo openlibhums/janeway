@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.template.loader import get_template
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -311,3 +312,10 @@ def handle_notification(notifications, type, **kwargs):
                                                                       notification.user.email,
                                                                       {'article': article,
                                                                        'notification': notification})
+
+
+def create_html_snippet(note):
+    template = get_template('elements/notes/note_snippet.html')
+    html_content = template.render({'note': note})
+
+    return html_content
