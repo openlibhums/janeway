@@ -1,9 +1,9 @@
 {% load markdown_deux_tags %}
 
 <div class="large-1 columns">
-	{% if request.user.profile_image %}
+	{% if note.creator.profile_image %}
 	<span class="avatar">
-		<img src="{{ request.user.profile_image.url }}" />
+		<img src="{{ note.creator.profile_image.url }}" />
 	</span>
 	{% else %}
 	<img src="http://placehold.it/58/55C1E7/fff&text={{ note.creator.initials }}" />
