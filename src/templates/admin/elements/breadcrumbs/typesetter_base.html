@@ -1,0 +1,2 @@
+<li><a href="{% url 'typesetter_requests' %}">Typesetter Requests</a></li>
+{% if typeset_task %}<li><a href="{% url 'do_typeset_task' typeset_task.pk %}">Task #{{ typeset_task.pk }}</a></li>{% endif %}

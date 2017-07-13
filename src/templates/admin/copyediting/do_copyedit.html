@@ -1,0 +1,91 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load files %}
+
+{% block title %}Article Copyediting{% endblock %}
+{% block title-section %}Article Copyediting{% endblock %}
+
+{% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/copyeditor_base.html" %}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Guidelines</h2>
+        </div>
+        <div class="content">
+            {{ journal_settings.general.copyediting_guidelines|safe }}
+        </div>
+
+        <div class="title-area">
+            <h2>Article Files</h2>
+        </div>
+        <div class="content">
+            <table class="table table-bordered table-condensed small">
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    <th>Download</th>
+                </tr>
+                {% for file in copyedit.files_for_copyediting.all %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    <td><a href="{% url 'copyeditor_file' copyedit.id file.id %}"><i class="fa fa-download">&nbsp;</i></a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="title-area">
+            <h2>Copy-edited Files</h2>
+            <a href="{% url 'do_copyedit_add_file' copyedit.pk %}" class="button"><i class="fa fa-upload">&nbsp</i>Upload File</a>
+        </div>
+        <div class="content">
+            <table class="table table-bordered table-condensed small">
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    <th>Download</th>
+                </tr>
+                {% for file in copyedit.copyeditor_files.all %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    <td><a href=""><i class="fa fa-download">&nbsp;</i></a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">There are no copy-edited files. Upload one.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="title-area">
+            <h2>Complete Task</h2>
+        </div>
+        <div class="content">
+            {% include "elements/forms/errors.html" with form=form %}
+            <p>You can add a note to the editor, they can pass any requests on to the Author for review.</p>
+            <form method="POST">
+            {% csrf_token %}
+            {{ form.copyeditor_note|foundation }}
+            <button type="submit" class="button success" name="send"><i class="fa fa-check">&nbsp;</i>Complete Copyedit Task</button>
+            </form>
+        </div>
+
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/jqte.html" %}
+{% endblock js %}

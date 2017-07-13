@@ -1,0 +1,93 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Featured Articles Manager{% endblock title %}
+{% block admin-header %}Featured Articles Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'home_settings_index' %}">Journal Home Settings</a></li>
+    <li>Featured Articles Manager</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="content">
+        <div class="row expanded">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="large-6 columns">
+                    <h4>Active Featured Articles</h4>
+                    <ul class="list-group" id="sortable">
+                        {% for fa in featured_articles %}
+                            <li class="list-group-item" id="article-{{ fa.pk }}">
+                                <div class="float-right">
+                                    <button type="submit" name="delete" value="{{ fa.article.pk }}"
+                                            class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                </div>
+                                <small>
+                                    {{ fa.article.title|safe }}<br/>
+                                    Added on {{ fa.added }} by {{ fa.added_by.full_name }}<br/>
+                                </small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="large-6 columns">
+                    <h4>Add New Featured Article</h4>
+                    <table id="featured" class="small">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date Pub</th>
+                            <th>Authors</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for article in articles %}
+                            <tr>
+                                <td>{{ article.title|safe }}</td>
+                                <td>{{ article.date_published }}</td>
+                                <td>{{ article.author_list }}</td>
+                                <td>
+                                    <button class="tiny succes button" type="submit" name="article_id"
+                                            value="{{ article.pk }}">Add
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#featured" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'featured_order' %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+    </script>
+{% endblock js %}
+
+

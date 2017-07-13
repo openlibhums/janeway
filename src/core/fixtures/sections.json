@@ -1,0 +1,10 @@
+[
+{
+    "model": "submission.section",
+    "pk": 1,
+    "fields": {
+        "journal": 1,
+        "name": "Research Articles"
+    }
+}
+]

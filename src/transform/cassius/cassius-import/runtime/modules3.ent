@@ -1,0 +1,414 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Journal Article Module of Modules                 -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Module of Modules v3.0 20080202//EN"
+     Delivered as file "modules3.ent"                              -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    For naming all the external modules (except       -->
+<!--             this module itself and the customization modules) -->
+<!--             that are part of the Archiving and Interchange DTD-->
+<!--             Suite modular DTD library. A specific DTD will    -->
+<!--             select from these modules by referencing the      -->
+<!--             external Parameter Entities defined below that    -->
+<!--             name the modules of the suite. To include a set   -->
+<!--             of elements (such as all the lists or the MathML  -->
+<!--             elements), reference the external Parameter Entity-->
+<!--             of the module that contains these declarations,   -->
+<!--             then modify the classes or content models to use  -->
+<!--             the new elements.                                 -->
+<!--                                                               -->
+<!-- CONTAINS:   1)  Entity declarations and public names for all  -->
+<!--                 the external modules. Note: The modules       -->
+<!--                 are NOT referenced (called/invoked) in this   -->
+<!--                 module, they are merely defined.  The DTD or  -->
+<!--                 a setup module (such as for the XHTML tables) -->
+<!--                 will invoke the external parameter entity to  -->
+<!--                 call the module.                              -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    DEFAULT CLASSES AND MIXES                  -->
+<!-- ============================================================= -->
+
+
+<!--                    DEFAULT ELEMENT CLASSES MODULE             -->
+<!--                    Set up the Parameter Entities and element
+                        class definitions that will be used to
+                        establish the content models for the 
+                        Archiving and Interchange DTD.             -->
+<!ENTITY % default-classes.ent
+                        PUBLIC  
+"-//NLM//DTD Default Element Classes Module v3.0 20080202//EN"
+"default-classes3.ent"                                               >
+
+
+<!--                    DEFAULT ELEMENT MIXES MODULE               -->
+<!--                    Set up the Parameter Entities and element
+                        mix definitions that will be used in
+                        content models for the Archiving and 
+                        Interchange DTD.                           -->
+<!ENTITY % default-mixes.ent
+                        PUBLIC  
+"-//NLM//DTD Default Element Mixes Module v3.0 20080202//EN"
+"default-mixes3.ent"                                                 >
+                                                                    
+
+<!-- ============================================================= -->
+<!--                    COMMON ELEMENTS SHARED BY MANY MODULES     -->
+<!-- ============================================================= -->
+
+
+<!--                    COMMON (SHARED) ELEMENT DECLARATIONS       -->
+<!ENTITY % common.ent
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Common (Shared) Elements Module v3.0 20080202//EN"
+"common3.ent"                                                        >
+
+
+<!-- ============================================================= -->
+<!--                    CLASS MODULES (ALPHABETICAL ORDER)         -->
+<!-- ============================================================= -->
+
+
+<!--                    ARTICLE METADATA ELEMENTS                  -->
+<!ENTITY % articlemeta.ent
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Journal Article Metadata Elements v3.0 20080202//EN"
+"articlemeta3.ent"                                                   >
+
+
+<!--                    BACK MATTER ELEMENTS                       -->
+<!ENTITY % backmatter.ent
+                        PUBLIC  
+"-//NLM//DTD Archiving and Interchange DTD Suite Back Matter Elements v3.0 20080202//EN"
+"backmatter3.ent"                                                    >
+
+
+<!--                    DISPLAY (GRAPHICAL) ELEMENTS INVOCATION    -->
+<!ENTITY % display.ent
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Display Class Elements v3.0 20080202//EN"
+"display3.ent"                                                       >
+
+
+<!--                    FORMATTING ELEMENTS                        -->
+<!--                    Elements that change rendition/display. This
+                        module includes the Appearance Class, the
+                        Break Class, and the Emphasis Class        -->
+<!ENTITY % format.ent
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Formatting Element Classes v3.0 20080202//EN"
+"format3.ent"                                                        >
+
+
+<!--                    FUNDING ELEMENTS                           -->
+<!--                    Elements that model open access, grant,
+                        sponsorship, or other funding information,
+                        for example the grant number (<award-id>)
+                        and the <principal-investigator>           -->
+<!ENTITY % funding.ent
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Funding Elements v3.0 20080202//EN"
+"funding3.ent"                                                        >
+
+
+<!--                    JOURNAL METADATA ELEMENTS                  -->
+<!ENTITY % journalmeta.ent PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Journal Metadata Elements v3.0 20080202//EN"
+"journalmeta3.ent"                                                         >
+
+
+<!--                    LINK ELEMENTS                              -->
+<!ENTITY % link.ent  PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Link Class Elements v3.0 20080202//EN"
+"link3.ent"                                                          >
+
+
+<!--                    LIST ELEMENTS                              -->
+<!ENTITY % list.ent  PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite List Class Elements v3.0 20080202//EN"
+"list3.ent"                                                          >
+
+
+<!--                    MATH ELEMENTS                              -->
+<!ENTITY % math.ent  PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Math Class Elements v3.0 20080202//EN"
+"math3.ent"                                                          >
+
+
+<!--                    PARAGRAPH-LEVEL ELEMENTS                   -->
+<!ENTITY % para.ent  PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Paragraph-Like Elements v3.0 20080202//EN"
+"para3.ent"                                                          >
+
+
+<!--                    PHRASE-LEVEL CONTENT ELEMENTS              -->
+<!ENTITY % phrase.ent
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Subject Phrase Class Elements v3.0 20080202//EN"
+"phrase3.ent"                                                        >
+
+
+<!--                    BIBLIOGRAPHY REFERENCES (CITATION) ELEMENTS-->
+<!ENTITY % references.ent     
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Bibliographic Reference (Citation) Class Elements v3.0 20080202//EN"
+"references3.ent"                                                    >
+ 
+
+<!--                    RELATED OBJECT ELEMENT                     -->
+<!--                    Defines the <related-object> element to
+                        describe a related object such as a
+                        related book or a dataset.                 -->
+<!ENTITY % related-object.ent
+                       PUBLIC  
+"-//NLM//DTD Archiving and Interchange DTD Suite Related Object Element v3.0 20080202//EN" 
+"related-object3.ent"                                            >
+
+
+<!--                    SECTION ELEMENTS                           -->
+<!ENTITY % section.ent     
+                        PUBLIC  
+"-//NLM//DTD Archiving and Interchange DTD Suite Section Class Elements v3.0 20080202//EN"
+"section3.ent"                                                       >
+
+
+<!-- ============================================================= -->
+<!--                    TABLES: XHTML TABLE MODULES                -->
+<!-- ============================================================= -->
+
+
+<!--                    XHTML TABLE SETUP MODULE                   -->
+<!--                    Set all Parameter Entities needed by the
+                        HTML 4.0 (XHTML) table model, and then
+                        call the module containing that model.                           
+                        Authoring Note: If wanted, this module
+                        will be invoked in the DTD module          -->
+<!ENTITY % XHTMLtablesetup.ent 
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite XHTML Table Setup Module v3.0 20080202//EN"
+"XHTMLtablesetup3.ent"                                               >
+
+
+<!--                    XHTML TABLE MODEL                          -->
+<!--                    The public XML version of the XHTML 1.1
+                        table model. This module is invoked in the
+                         module %XHTMLtablesetup3.ent;             -->
+<!ENTITY % xhtml-table-1.mod 
+                        PUBLIC
+"-//W3C//ELEMENTS XHTML Tables 1.0//EN"
+"xhtml-table-1.mod"                                                  >
+
+
+<!--                    XHTML TABLE INLINE STYLE MODULE            -->
+<!--                    The public XML version of the XHTML 1.1
+                        inline style module for use in XHTML tables.
+                        This module is invoked in the
+                         module %XHTMLtablesetup3.ent;             -->
+<!ENTITY % xhtml-inlstyle-1.mod 
+                        PUBLIC
+"-//W3C//ENTITIES XHTML Inline Style 1.0//EN"
+"xhtml-inlstyle-1.mod"                                                  >
+
+
+<!-- ============================================================= -->
+<!--                    TABLES: OASIS EXCHANGE TABLE MODULES       -->
+<!-- ============================================================= -->
+
+
+<!--                    OASIS XML TABLE SETUP MODULE               -->
+<!--                    Set all Parameter Entities needed by the
+                        OASIS (CALS) Table Exchange table model, and 
+                        then call the module containing that model.                           
+                        Authoring Note: If wanted, this module
+                        will be invoked in the DTD module          -->
+<!ENTITY % oasis-tablesetup.ent 
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite OASIS XML Table Setup Module v1.2 20040830//EN"
+"oasis-tablesetup3.ent"                                              >
+
+
+<!--                    OASIS XML TABLE MODEL                      -->
+<!--                    The OASIS (CALS) Table Exchange table model
+                        This module is invoked in 
+                        %OASIStablesetup3.ent;                     -->
+<!ENTITY % oasis-exchange.ent 
+                        PUBLIC
+"-//OASIS//DTD XML Exchange Table Model 19990315//EN" 
+"oasis-exchange.ent"                                                 >
+
+
+<!-- ============================================================= -->
+<!--                    SPECIAL CHARACTER MODULES                  -->
+<!-- ============================================================= -->
+
+
+<!--                    SPECIAL CHARACTERS DECLARATIONS            -->
+<!--                    Declares any standard XML special character 
+                        entities used in this DTD                  -->
+<!ENTITY % xmlspecchars.ent   
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite XML Special Characters Module v3.0 20080202//EN"
+"xmlspecchars3.ent"                                                  >
+
+
+<!--                    CUSTOM SPECIAL CHARACTERS DECLARATIONS     -->
+<!--                    Declares any custom special character 
+                        entities created for this Suite            -->
+<!ENTITY % chars.ent PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite Custom Special Characters Module v3.0 20080202//EN"
+"chars3.ent"                                                         > 
+
+
+<!-- ============================================================= -->
+<!--                    MATH: MATHML MODULES                       -->
+<!-- ============================================================= -->
+
+
+<!--                    MATHML SETUP MODULE                        -->
+<!--                    Called from the DTD to include the MathML
+                        elements in the tag set.                   -->
+<!ENTITY % mathmlsetup.ent 
+                        PUBLIC
+"-//NLM//DTD Archiving and Interchange DTD Suite MathML Setup Module v3.0 20080202//EN"
+"mathmlsetup3.ent"                                                   >
+
+
+<!--                    MATHML 2.0 QUALIFIED NAMES                 -->
+<!ENTITY % mathml-qname.mod 
+                        PUBLIC
+"-//W3C//ENTITIES MathML 2.0 Qualified Names 1.0//EN" 
+"mathml2-qname-1.mod"                                                >
+
+
+<!--                    MATHML 2.0 DTD                             -->
+<!ENTITY % mathml.dtd   PUBLIC
+"-//W3C//DTD MathML 2.0//EN"
+"mathml2.dtd"                                                        >
+
+
+<!--                    MATHML 2.0 EXTRA ENTITIES                  -->
+<!ENTITY % ent-mmlextra 
+                        PUBLIC
+"-//W3C//ENTITIES Extra for MathML 2.0//EN" 
+"mathml/mmlextra.ent"                                               >
+
+
+<!--                    MATHML 2.0 ALIASES                         -->
+<!ENTITY % ent-mmlalias 
+                        PUBLIC
+"-//W3C//ENTITIES Aliases for MathML 2.0//EN" 
+"mathml/mmlalias.ent"                                               >
+
+
+<!-- ============================================================= -->
+<!--                     NOTATIONS MODULE                          -->
+<!-- ============================================================= -->
+
+
+<!--                    NOTATION DECLARATIONS MODULE               -->
+<!--                    Container module for the Notation Declarations
+                        to be used with this DTD suite.  Placed in
+                        their own module for easy expansion or
+                        replacement.                               -->
+<!ENTITY % notat.ent PUBLIC 
+"-//NLM//DTD Archiving and Interchange DTD Suite Notation Declarations v3.0 20080202//EN"
+"notat3.ent"                                                         >
+
+
+<!-- =================== End Journal Article Module of Modules === -->

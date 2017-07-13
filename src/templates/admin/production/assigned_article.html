@@ -1,0 +1,314 @@
+{% extends "admin/core/base.html" %}
+{% load files %}
+{% load securitytags %}
+{% load static from staticfiles %}
+
+{% block title %}Article - {{ article.pk }}{% endblock title %}
+{% block admin-header %}Article - {{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/production_manager_base.html" %}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+
+    <div class="large-8 columns">
+        <div class="box">
+            <ul class="tabs" data-tabs id="round-tabs">
+                {% for task in typeset_tasks %}
+                    <li class="tabs-title {% if forloop.first %} is-active{% endif %}"><a
+                            href="#tab{{ task.pk }}"
+                            aria-selected="true">Task # {{ task.pk }}</a></li>
+                {% endfor %}
+            </ul>
+            <div class="tabs-content" data-tabs-content="round-tabs">
+                {% for task in typeset_tasks %}
+                    <div class="tabs-panel{% if forloop.first %} is-active{% endif %}"
+                         id="tab{{ task.pk }}">
+                        <div class="content">
+                            <div class="title-area">
+                                <h2>Typesetter {{ task.typesetter.full_name }}</h2>
+                            </div>
+                            <div class="content">
+
+                                <table class="small">
+                                    <tr>
+                                        <th>Typesetter</th>
+                                        <th>Assigned</th>
+                                        <th>Notified</th>
+                                        <th>Status</th>
+                                        <th></th>
+
+                                    </tr>
+                                    <tr>
+                                        <td>{{ task.typesetter.full_name }}</td>
+                                        <td>{{ task.assigned|date:"Y-m-d" }}</td>
+                                        <td>{% if task.notified %}
+                                            <i style="color: green;" class="fa fa-check-circle info">
+                                                &nbsp;</i>{% else %}
+                                            <i style="color: red;" class="fa fa-times-circle info">&nbsp;</i>{% endif %}
+                                        </td>
+                                        <td>{{ task.status.friendly|safe }}</td>
+                                    <td>
+                                        <div class="button-group">
+                                            <a href="{% url 'edit_typesetter_assignment' task.pk %}"
+                                               class="button">Edit</a>
+                                            {% if task.status.slug == 'completed' %}
+                                            <a class="dropdown button arrow-only"
+                                               data-toggle="review-dropdown-{{ task.pk }}"><span
+                                                    class="show-for-sr">Show menu</span></a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="dropdown-pane right"
+                                             id="review-dropdown-{{ task.pk }}"
+                                             data-dropdown data-close-on-click="true">
+                                            <ul class="menu vertical actions">
+                                                <form method="POST">
+                                                    {% csrf_token %}
+                                                    <li>
+                                                        <a href="{% url 'review_typeset_task' article.pk task.pk %}"
+                                                   class="button success tiny">Mark as Reviewed</a>
+                                                    </li>
+                                                </form>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    </tr>
+                                    {% if task.status.slug == 'completed' or task.status.slug == 'closed' %}
+                                        <tr>
+                                            <th colspan="5">Notes from Typesetter</th>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5">{{ task.note_from_typesetter|safe }}</td>
+                                        </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Files Uploaded for Production</h2>
+            </div>
+            <div class="content">
+                <table class="table table-bordered table-condensed small">
+                    <tr style="text-align: left">
+                        <th>Label</th>
+                        <th width="25%">Filename</th>
+                        <th>Type</th>
+                        <th>Download</th>
+                        <th>Make galley</th>
+                    </tr>
+                    {% for file in manuscripts %}
+                        {% can_view_file file as can_view_file_flag %}
+                        {% can_edit_file file article as can_edit_file_flag %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
+                        <tr>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>Manuscript</td>
+                            <td>{% if can_view_file_flag %}
+                                <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                    {% for file in data_files %}
+                        {% can_view_file file as can_view_file_flag %}
+                        {% can_edit_file file article as can_edit_file_flag %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
+                        <tr>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>Data/Figure</td>
+                            <td>{% if can_view_file_flag %}
+                                <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>{% if can_view_file_flag %}<a
+                                    href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-share-square-o">&nbsp;</i></a>{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% for file in copyedit_files %}
+                        {% can_view_file file as can_view_file_flag %}
+                        {% can_edit_file file article as can_edit_file_flag %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
+                        <tr>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>Copyedit</td>
+                            <td>{% if can_view_file_flag %}
+                                <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>{% if can_view_file_flag %}<a
+                                    href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-share-square-o">&nbsp;</i></a>{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br/>
+        <div class="box">
+            <div class="title-area">
+                <h2>Current galleys and data/figure files</h2>
+            </div>
+            <div class="content">
+                <table class="table table-bordered table-condensed small">
+                    <tr style="text-align: left">
+                        <th>Label</th>
+                        <th width="25%">Filename</th>
+                        <th>Type</th>
+                        <th>Edit</th>
+                        <th>Download</th>
+                        <th>History</th>
+                        <th>Create PDF</th>
+                        <th>Create EPUB</th>
+                    </tr>
+                    {% for galley in galleys %}
+                        {% can_view_file galley.file as can_view_file_flag %}
+                        {% can_edit_file galley.file article as can_edit_file_flag %}
+                        {% can_view_file_history galley.file article as can_view_file_history_flag %}
+                        <tr>
+                            <td>{{ galley.label }}</td>
+                            <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+                            <td>Galley</td>
+                            <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
+                            <td>{% if can_view_file_flag %}
+                                <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>{% if can_view_file_history_flag %}
+                                <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
+                                        class="fa fa-history">
+                                    &nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>
+                                {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
+                                    <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
+                                        <i class="fa fa-file-text-o">&nbsp;</i>
+                                    </a>
+                                {% elif not galley.file.mime_type == 'application/xml' %}
+                                    Function for XML only.
+                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
+                                             data-disable-hover="false"
+                                             tabindex="2"
+                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
+                                    <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
+                                        <i class="fa fa-book">&nbsp;</i>
+                                    </a>
+                                {% elif not galley.file.mime_type == 'application/xml' %}
+                                    Function for XML only.
+                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
+                                             data-disable-hover="false"
+                                             tabindex="2"
+                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9">No galleys have been uploaded.</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="float-right"><a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">
+                    &nbsp;</i>Upload a new galley</a>
+                </div>
+                <br/>
+            </div>
+        </div>
+    </div>
+
+    {% include "elements/production/new_galley.html" %}
+
+    <div class="large-4 columns">
+
+        <div class="box">
+        <div class="title-area">
+            <h2>Status</h2>
+        </div>
+        <div class="content">
+            <small>
+                <ol>
+                    <li>
+                        Assign a Typesetter {% if production_assignment.typeset_tasks %}
+                        <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
+                    </li>
+                    {% for task in production_assignment.typeset_tasks %}
+                        <li>
+                            Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}
+                            <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
+                        </li>
+                    {% endfor %}
+                    <li>Have at lease one Galley {% if article.has_galley %}
+                        <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i>{% endif %}
+                    </li>
+                </ol>
+            </small>
+        </div>
+        </div>
+        <div class="box">
+            <div class="title-area">
+                <h2>Actions</h2>
+            </div>
+            <div class="content">
+            <ul class="menu vertical actions">
+                <li><a data-open="summarymodal">
+                    <i class="fa fa-server action-icon">&nbsp;</i>View Metadata
+                </a></li>
+                {% if not production_assignment.closed %}
+                    <li><a href="{% url 'assign_typesetter' article.pk production_assignment.pk %}">
+                        <i class="fa fa-plus-circle action-icon">&nbsp;</i>Add New Typesetter
+                    </a></li>
+                {% endif %}
+                {% if galleys or production_assignment.typeset_tasks and not production_assignment.closed %}
+                    <li><a data-open="productionmodal">
+                    <i class="fa fa-check action-icon">&nbsp;</i>Mark production as complete
+                </a><li>
+                {% endif %}
+            </ul>
+            </div>
+        </div>
+
+    </div>
+
+    {% include "elements/summary_modal.html" %}
+    {% if article.has_galley and production_assignment.typeset_tasks %}
+        {% include "elements/production/complete.html" %}
+    {% endif %}
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+    <script src="{% static "admin/js/modal.js" %}"></script>
+    <script src="{% static "admin/js/tabs.js" %}"></script>
+    <script>
+        var myTabs = tabs({
+            el: '#tabs',
+            tabNavigationLinks: '.c-tabs-nav__link',
+            tabContentContainers: '.c-tab'
+        });
+
+        myTabs.init();
+    </script>
+{% endblock js %}

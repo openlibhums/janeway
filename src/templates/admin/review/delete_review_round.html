@@ -1,0 +1,39 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Delete Review Round{% endblock title %}
+{% block title-section %}Delete Review Round{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Delete Review Round</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                Delete Round {{ round.round_number }}
+            </div>
+            <div class="content">
+                <p>Are you sure you wish to delete review round {{ round.round_number }} for
+                    article {{ article.title|safe }}. Deleting this review round will also delete the following review
+                    assignments:</p>
+                <ul>
+                    {% for assignment in round.reviewassignment_set.all %}
+                        <li>{{ assignment.reviewer.full_name }}, due on {{ assignment.date_due }}</li>
+                    {% empty %}
+                        <li>This round has no review assignments.</li>
+                    {% endfor %}
+                </ul>
+                <br/>
+                <form method="POST">
+                    {% csrf_token %}
+                    <button class="button alert" name="delete" type="submit">Delete</button>
+                    <a href="{% url 'review_in_review' article.pk %}" class="button warning" name="cancel"
+                       type="submit">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

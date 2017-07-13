@@ -1,0 +1,56 @@
+[
+{
+    "model": "submission.licence",
+    "fields": {
+        "name": "Creative Commons Attribution 4.0",
+        "short_name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0",
+        "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."
+    }
+},
+{
+    "model": "submission.licence",
+    "fields": {
+        "name": "Creative Commons Attribution-ShareAlike 4.0",
+        "short_name": "CC BY-SA 4.0",
+        "url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nShareAlike \u2014 If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."
+    }
+},
+{
+    "model": "submission.licence",
+    "fields": {
+        "name": "Creative Commons Attribution-NoDerivs  4.0",
+        "short_name": "CC BY-ND 4.0",
+        "url": "https://creativecommons.org/licenses/by-nd/4.0",
+        "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nNoDerivatives \u2014 If you remix, transform, or build upon the material, you may not distribute the modified material.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."
+    }
+},
+{
+    "model": "submission.licence",
+    "fields": {
+        "name": "Creative Commons Attribution-NonCommercial  4.0",
+        "short_name": "CC BY-NC 4.0",
+        "url": "https://creativecommons.org/licenses/by-nc/4.0",
+        "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nNonCommercial \u2014 You may not use the material for commercial purposes.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."
+    }
+},
+{
+    "model": "submission.licence",
+    "fields": {
+        "name": "Creative Commons Attribution-NonCommercial-NoDerivs  4.0",
+        "short_name": "CC BY-NC-ND 4.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/4.0",
+        "text": "Attribution \u2014 You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.\r\n\r\nNonCommercial \u2014 You may not use the material for commercial purposes.\r\n\r\nNoDerivatives \u2014 If you remix, transform, or build upon the material, you may not distribute the modified material.\r\n\r\nNo additional restrictions \u2014 You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits."
+    }
+},
+    {
+    "model": "submission.licence",
+    "fields": {
+        "name": "All rights reserved",
+        "short_name": "Copyright",
+        "url": "https://creativecommons.org/licenses/authors",
+        "text": "© the author(s). All rights reserved."
+    }
+}
+]

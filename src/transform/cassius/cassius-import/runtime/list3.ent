@@ -1,0 +1,314 @@
+<!-- ============================================================= -->
+<!--  MODULE:    List Element Classes                              -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite List Class Elements v3.0 20080202//EN"
+     Delivered as file "list3.ent"                                 -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Names all elements in the list class. These are   -->
+<!--             all lists except the lists of bibliographic       -->
+<!--             references (citations). Lists are considered      -->
+<!--             to be composed of items.                          -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Default definition of the list class           -->
+<!--             2) Definition List attributes                     -->
+<!--             3) Definition Lists <def-list>                    -->
+<!--             4) Ordinary lists (number, bullet, plain) <l>     -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    DEFAULT PE FOR ATTRIBUTE LISTS             -->
+<!-- ============================================================= -->
+
+                                                                
+<!--                    DEFINITION LIST: DEFINITION ITEM ATTRIBUTES-->
+<!--                    Attributes for the <def-item> element      -->
+<!ENTITY % def-item-atts                                
+             "id        ID                                 #IMPLIED" >
+
+
+<!--                    DEFAULT DEFINITION LIST ATTRIBUTES         -->
+<!--                    Default attribute lists to be used for 
+                        Definition (2-part) lists                  -->
+<!ENTITY % def-list-atts
+             ""                                                      >
+             
+
+<!--                    DEFAULT LIST CLASS ATTRIBUTES              -->
+<!--                    Default attribute lists to be used for most
+                        of the types of lists.                     -->
+<!ENTITY % list-atts
+             "id        ID                                 #IMPLIED 
+              list-type CDATA                              #IMPLIED 
+              prefix-word
+                        CDATA                              #IMPLIED
+              list-content
+                        CDATA                              #IMPLIED
+              specific-use
+                        CDATA                              #IMPLIED
+              continued-from
+                        IDREF                              #IMPLIED" >
+
+
+<!--                    DEFAULT LIST ITEM ATTRIBUTES               -->
+<!--                    Default attribute for list items           -->
+<!ENTITY % list-item-atts
+             "id        ID                                 #IMPLIED" >
+
+                                                                
+<!--                    DEFINITION LIST: TERM ATTRIBUTES           -->
+<!--                    Attributes for the <term> element          -->
+<!ENTITY % term-atts
+            "rid        IDREFS                             #IMPLIED 
+             id         ID                                 #IMPLIED" >
+
+
+<!-- ============================================================= -->
+<!--                    DEFINITION LIST                            -->
+<!-- ============================================================= -->
+
+
+<!--                    DEFINITION LIST MODEL                      -->
+<!--                    Content model for the <def-list> element   -->
+<!ENTITY % def-list-model   
+                        "(label?, title?, term-head?, def-head?, 
+                          def-item*, def-list*)"                     > 
+
+
+<!--                    DEFINITION LIST                            -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=def-list
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=def-list
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=def-list
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=def-list
+                                                                   -->
+<!ELEMENT  def-list     %def-list-model;                             >
+<!ATTLIST  def-list
+             %list-atts;                                             
+             %def-list-atts;                                         >
+
+
+<!--                    DEFINITION LIST HEAD ELEMENTS              -->
+<!--                    Elements for use in the <def-list> heading
+                        elements <term-head> and <def-head>. 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % def-list-head-elements
+                        "%simple-phrase;"                            >
+                         
+                         
+<!--                    DEFINITION LIST: TERM HEAD                 -->
+<!--                    Title over the first (term) column of a
+                        two-part list 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=term-head
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=term-head
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=term-head
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=term-head
+                                                                   -->
+<!ELEMENT  term-head    (#PCDATA %def-list-head-elements;)*          >
+
+
+<!--                    DEFINITION LIST: DEFINITION HEAD           -->
+<!--                    Title over the second (definition) column 
+                        of a two-part list
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=def-head
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=def-head
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=def-head
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=def-head
+                                                                   -->
+<!ELEMENT  def-head     (#PCDATA %def-list-head-elements;)*          >
+
+
+<!--                    DEFINITION LIST: DEFINITION ITEM MODEL     -->
+<!--                    The content model of a <def-item>          -->
+<!ENTITY % def-item-model 
+                        "(label?, term, def*)"                       >
+                         
+                         
+<!--                    DEFINITION LIST: DEFINITION ITEM           -->
+<!--                    A term and definition pair inside a
+                        definition or two-part list               
+                        of a two-part list 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=def-item
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=def-item
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=def-item
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=def-item
+                                                                   -->
+<!ELEMENT  def-item     %def-item-model;                             >
+<!ATTLIST  def-item                                
+             %def-item-atts;                                         >
+             
+
+<!--ELEM   def          Defined in %common.ent;                    -->
+
+
+<!--                    DEFINITION LIST: TERM ELEMENTS             -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <term>. 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % term-elements
+                        "%simple-phrase; | %block-math.class; |
+                         %simple-display-noalt.class;"               >
+
+
+<!--                    DEFINITION LIST: TERM                      -->
+<!--                    The word, phrase, picture, or other noun
+                        being defined or description that occupies
+                        the first column of a definition or 2-part
+                        list and is the subject of the definition or
+                        description.  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=term
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=term
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=term
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=term
+                                                                   -->
+<!ELEMENT  term         (#PCDATA %term-elements;)*                   >
+<!ATTLIST  term
+             %term-atts;                                             >
+
+
+<!-- ============================================================= -->
+<!--                    LIST ELEMENTS (PARAGRAPH-LEVEL ELEMENTS)   -->
+<!-- ============================================================= -->
+
+
+<!--                    LIST MODEL                                 -->
+<!--                    Content model for the <list> element       -->
+<!ENTITY % list-model   "(label?, title?, list-item+)"               >
+
+
+<!--                    LIST                                       -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=list
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=list
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=list
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=list
+                                                                   -->
+<!ELEMENT  list         %list-model;                                 >
+<!ATTLIST  list
+             %list-atts;                                             >
+
+
+<!--                    LIST ITEM ELEMENTS                         -->
+<!--                    The content model of a <list-item>.        -->
+<!ENTITY % list-item-model 
+                        "(label?, 
+                          (%just-para.class; | %list.class;)+ )"     >
+                         
+ 
+<!--                    LIST ITEM                                  -->
+<!--                    One item in a list  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=list-item
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=list-item
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=list-item
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=list-item
+                                                                   -->
+<!ELEMENT  list-item    %list-item-model;                            >
+<!ATTLIST  list-item
+             %list-item-atts;                                        >
+             
+
+<!-- ================== End List Class Module ==================== -->

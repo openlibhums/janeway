@@ -1,0 +1,12 @@
+{% load markdown_deux_tags %}
+<div class="row epanded columns" id="note-{{ note.pk }}">
+    <div class="large-1 columns">
+        {% include "elements/avatar.html" with user=note.creator %}
+    </div>
+    <div class="large-11 columns">
+        <div class="panel  callout radius" style="margin-bottom: 0px;">
+        {{ note.text|markdown }}
+        </div>
+        <p class="pull-right" style="margin-top: 0px;"><small>Added {{ note.date_time }} by {{ note.creator.full_name }} - <button type="submit" onclick="delete_note({{ proofing_task.pk }}, {{ galley.pk }}, {{note.pk}})"><i class="fa fa-trash">&nbsp;</i></button></small></p>
+    </div>
+</div>

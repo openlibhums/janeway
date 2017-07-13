@@ -1,0 +1,33 @@
+<div class="card">
+    <div class="card-divider">
+        <h4>{{ task.assignment.article.title|safe }}</h4>
+    </div>
+    <div class="card-section">
+        {% if type == "new" %}
+            <p>Awaiting your decision.</p>
+        {% elif type == "active" %}
+            <p>Production in progress.</p>
+        {% else %}
+            <p>Production Complete</p>
+        {% endif %}
+        <p>Task: {{ task.typeset_task|safe }}</p>
+        <div class="button-group">
+            {% if type == "new" %}
+                <a class="button tiny success" href="{% url 'typesetter_requests_decision' task.pk 'accept' %}">Accept Task</a>
+                <a class="button tiny " href="{% url 'typesetter_requests_decision' task.pk 'decline' %}">Decline Task</a>
+            {% elif type == 'active' %}
+                <a class="button tiny success" href="{% url 'do_typeset_task' task.pk %}">View Task</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        {% if task.assignment.production_manager%}
+        {% include "elements/avatar.html" with user=task.assignment.production_manager role="PM" %}
+        {% endif %}
+        {% include "elements/avatar.html" with user=task.assignment.article.correspondence_author role="Author" %}
+
+        {% for task in task.assignment.typeset_tasks %}
+            {% include "elements/avatar.html" with user=task.typesetter role="TS" %}
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,16 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+    <hr>
+    {% for article in articles %}
+        {% include "elements/article_listing.html" with article=article %}
+    {% empty %}
+        <p>No articles to display.</p>
+    {% endfor %}
+{% endblock %}

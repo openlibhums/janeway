@@ -1,0 +1,20 @@
+{% load foundation %}
+
+<div class="reveal" id="deleteme" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>Delete Issue</h4>
+        </div>
+        <div class="card-section">
+            {% include "elements/forms/errors.html" with form=form %}
+            <form method="POST">
+                {% csrf_token %}
+                <p><strong>Warning: </strong> deleting this issue will unlink all articles from this issue.</p>
+                <button name="delete_issue" type="submit" class="button alert">Delete Issue</button>
+            </form>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

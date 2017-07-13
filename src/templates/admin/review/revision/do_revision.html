@@ -1,0 +1,101 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load files %}
+
+{% block title %}Revision for {{ revision_request.article.title }}{% endblock title %}
+{% block title-section %}Revision for {{ revision_request.article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Revisions for {{ revision_request.article.title }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <p>You can update or delete any of the existing files for your submission, and you can upload new files.
+                    Please note, your actions on this page will be logged
+                    for the editor to review.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="title-area">
+                    <h2>Reviews</h2>
+                </div>
+                <div class="content">
+                    {% include "elements/review/view_reviews.html" %}
+                </div>
+
+                <div class="title-area">
+                    <h2>Note from Editor</h2>
+                </div>
+                <div class="content">
+                    {{ revision_request.editor_note|safe }}
+                    <br/><br/>
+                    {% include "elements/forms/errors.html" with form=form %}
+                </div>
+                <div class="title-area">
+                    <h2>Files</h2>
+                    <a href="{% url 'revisions_upload_new_file' article.pk revision_request.pk %}"
+                                 class="button"><i class="fa fa-upload">&nbsp;</i>Add New File</a>
+                </div>
+                <div class="content">
+                    <table class="table table-bordered table-condensed small">
+                        <tr>
+                            <th>Label</th>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Download</th>
+                            <th>Replace</th>
+                            <th>Delete</th>
+                        </tr>
+                        {% for file in article.manuscript_files.all %}
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file.original_filename }}</td>
+                                <td>Manuscript</td>
+                                <td>{% file_size file article %}</td>
+                                <td><a href="?file_id={{ file.id }}"><i class="fa fa-download">&nbsp;</i></a></td>
+                                <td><a href="{% url 'revisions_replace_file' article.pk revision_request.pk file.pk %}"><i
+                                        class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                                <td>
+                                    <button type="submit" name="delete" value="{{ file.id }}"
+                                            onclick="return confirm('Are you sure you want to delete this item?');"><i
+                                            class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for file in article.data_figure_files.all %}
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file.original_filename }}</td>
+                                <td>Data/Figure</td>
+                                <td>{% file_size file article %}</td>
+                                <td><a href="?file_id={{ file.id }}"><i class="fa fa-download">&nbsp;</i></a></td>
+                                <td><a href="{% url 'revisions_replace_file' article.pk revision_request.pk file.pk %}"><i
+                                        class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                                <td>
+                                    <button type="submit" name="delete" value="{{ file.id }}"
+                                            onclick="return confirm('Are you sure you want to delete this item?');"><i
+                                            class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    {{ form.author_note|foundation }}
+
+                    <button class="button success">Complete Revisions</button>
+                </div>
+            </form>
+        </div>
+
+    </div><!--/col-lg-12 -->
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

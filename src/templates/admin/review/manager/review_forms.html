@@ -1,0 +1,56 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Review Forms{% endblock title %}
+{% block title-section %}Review Forms{% endblock %}
+
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'review_review_forms' %}">Review Forms</a></li>
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal's Forms</h2>
+            </div>
+            <div class="content">
+                <ul class="list-group">
+                    {% for form in form_list %}
+                        <li class="list-group-item">
+                            {{ form.name }}
+                            <div class="float-right">
+                                <a href="{% url 'edit_review_form' form.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Add New Form</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" name="review_form" class="success button">Add Form</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#files" %}
+{% endblock js %}

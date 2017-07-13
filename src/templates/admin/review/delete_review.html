@@ -1,0 +1,30 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Delete Review{% endblock title %}
+{% block title-section %}Delete Review{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/review_base.html" %}
+<li>Delete Review</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>You are deleting a review assigned to {{ review.reviewer.full_name }} on article {{ article.title }}</h2>
+        </div>
+        <div class="content">
+            <p>You can add a note that will be logged next to this deletion: </p>
+            <form method="POST">
+                {% csrf_token %}
+                <textarea name="delete_rationale" rows="5" placeholder="Enter information for log here."></textarea>
+                <button name="delete" type="submit" class="button alert">Delete Review</button> <a href="{% url 'review_in_review' article.pk %}" class="button success" type="submit">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}

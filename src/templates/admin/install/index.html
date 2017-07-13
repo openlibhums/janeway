@@ -1,0 +1,33 @@
+{% extends "install/base.html" %}
+{% load svg from press_url %}
+
+{% block title %}Install{% endblock %}
+{% block title-section %}Install{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Press</h2>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                <div class="large-4 columns">
+                    <p>You can select a logo for your press.</p>
+                    <label for="press_logo">Press Logo</label>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" name="press_logo">
+                        <button type="submit" class="button"><i class="fa fa-upload">&nbsp;</i>Upload</button>
+                    </form>
+                </div>
+                <div class="large-4 columns">
+                    {% svg request.press_cover %}
+                </div>
+                <div class="float-right">
+                    <a href="{% url 'install_journal' %}" class="button">Move to Next Step</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

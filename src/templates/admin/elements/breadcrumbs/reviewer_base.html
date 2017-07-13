@@ -1,0 +1,2 @@
+<li><a href="{% url 'review_requests' %}">Review Requests</a></li>
+{% if review or assignment %}<li>Review #{% if review %}{{ review.pk }}{% elif assignment %}{{ assignment.pk }}{% endif %}</li>{% endif %}

@@ -1,0 +1,2268 @@
+[
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Display of feeds for this journal. Displayed on the About and the Submission pages.",
+            "is_translatable": true,
+            "name": "publication_fees",
+            "pretty_name": "Publication Fees",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>You should update this section to show any fees that your journal charges.</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "URL of the Journal's Publisher.",
+            "is_translatable": false,
+            "name": "publisher_url",
+            "pretty_name": "Publisher URL",
+            "type": "char"
+        },
+        "value": {
+            "default": "Janeway Journal"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
+            "is_translatable": false,
+            "name": "publisher_name",
+            "pretty_name": "Publisher Name",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "<p>Displayed on the About and Submission pages. You should update this to display the Journal's copyright requirements.",
+            "is_translatable": true,
+            "name": "copyright_notice",
+            "pretty_name": "Copyright Notice",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Displayed on the About and Submission pages. You should update this with an ordered list of submission requirements.",
+            "is_translatable": true,
+            "name": "submission_checklist",
+            "pretty_name": "Submission Checklist",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "System emails are sent From this address.",
+            "is_translatable": false,
+            "name": "from_address",
+            "pretty_name": "From Address",
+            "type": "char"
+        },
+        "value": {
+            "default": "janeway@voyager.com"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when they are assigned to a submission.",
+            "is_translatable": true,
+            "name": "editor_assignment",
+            "pretty_name": "Editor Assignment",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the <a href=\"{{ request.journal_base_url }}{% url 'review_in_review' article.pk %}\">journal site</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to authors when they have submitted an article.",
+            "is_translatable": true,
+            "name": "submission_acknowledgement",
+            "pretty_name": "Submission Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ article.correspondence_author.full_name }}, <br><br>Thank you for submitting \"{{ article }}\" to {{ article.journal }}.<br><br> Your work will now be reviewed by an editor and we will be in touch as the peer-review process progresses.<br><br>Regards,<br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when a reviewer accepts or declines a review.",
+            "is_translatable": true,
+            "name": "review_acknowledgement",
+            "pretty_name": "Review Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ review_assignment.editor.full_name }},<br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated. You can view more information on the <a href=\"{{request.journal_base_url}}{% url 'review_in_review' article.pk %}\">journal site</a>.<br><br>Regards,"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when requesting revisions.",
+            "is_translatable": true,
+            "name": "request_revisions",
+            "pretty_name": "Request Revisions",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access you revision here: <a href=\"{{ request.journal_base_url }}{% url 'do_revisions' article.pk revision.pk %}\">{{ request.journal_base_url }}{% url 'do_revisions' article.pk revision.pk %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to reviewers when they agree to undertake a review.",
+            "is_translatable": true,
+            "name": "review_accept_acknowledgement",
+            "pretty_name": "Review Acceptance Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{{ request.journal_base_url }}{% url 'do_review' review_assignment.id %}\">{{ request.journal_base_url }}{% url 'do_review' review_assignment.id %}</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to reviewers when they complete a review.",
+            "is_translatable": true,
+            "name": "review_complete_reviewer_acknowledgement",
+            "pretty_name": "Review Complete Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ review_assignment.reviewer.full_name }}, </p><p>Thank you for completing your review of \"{{ article.title }}\" in {{ article.journal.name }}. </p><p>We are extremely grateful for the work of reviewers, which greatly enhances the quality of the journal. </p><p>Thank you again and regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when a reviewer request is sent.",
+            "is_translatable": true,
+            "name": "review_request_sent",
+            "pretty_name": "Review Complete Update",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been <a href=\"{{ request.journal_base_url }}{% url 'review_in_review' review_assignment.article.pk %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when a reviewer complete a review.",
+            "is_translatable": true,
+            "name": "review_complete_acknowledgement",
+            "pretty_name": "Review Complete Update",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the <a href=\"{{request.journal_base_url}}{% url 'review_in_review' article.pk %}\">journal site</a>. <br><br>Regards,"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to reviewers when they agree to undertake a review.",
+            "is_translatable": true,
+            "name": "review_decline_acknowledgement",
+            "pretty_name": "Review Declination Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, \n\nThank you for letting us know that you are unable to review \"{{ article.title }}\" in {{ article.journal.name }}.\n\n We are most grateful for your time.\n\nRegards,\n{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to reviewers to request a review.",
+            "is_translatable": true,
+            "name": "review_assignment",
+            "pretty_name": "Review Assignment",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision making processes.<br><br>You can let us know your decision or decline to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to authors when an article is accepted.",
+            "is_translatable": true,
+            "name": "review_decision_accept",
+            "pretty_name": "Article Review Accept",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are happy to inform you that your article, \"{{ article.title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br></p><p>Peer review reports and feedback on the manuscript can be viewed at: <a href=\"{{ review_url }}\">{{ review_url }}</a>.</p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br>Regards,</p><p><br>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to authors when an article is declined.",
+            "is_translatable": true,
+            "name": "review_decision_decline",
+            "pretty_name": "Article Review Decline",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }}<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to reviewers when a review request is withdrawn.",
+            "is_translatable": true,
+            "name": "review_withdrawl",
+            "pretty_name": "Review Withdrawl",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ review_assignment.reviewer.full_name }},</p><p>We are writing to let you know that the review request for \"{{ article.title }}\" in {{ article.journal.name }} has been cancelled.</p><p>We thank you for your time but your review is no longer required.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Primary contact for the journal.",
+            "is_translatable": true,
+            "name": "main_contact",
+            "pretty_name": "Main Contact",
+            "type": "text"
+        },
+        "value": {
+            "default": "{{ request.journal_settings.general.main_contact }}\n{{ request.journal.name }}"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Tacked onto the end of system automated emails where there is no actor.",
+            "is_translatable": true,
+            "name": "auto_signature",
+            "pretty_name": "Auto Signature",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "{{ request.journal_settings.general.main_contact }}\n{{ request.journal.name }}"
+        }
+    },
+    {
+        "group": {
+            "name": "Preprints"
+        },
+        "setting": {
+            "description": "The maximum number of preprint DOIs that are allowed each month without the author paying.",
+            "is_translatable": false,
+            "name": "max_dois",
+            "pretty_name": "Maximum preprint DOIs per month",
+            "type": "integer"
+        },
+        "value": {
+            "default": "100"
+        }
+    },
+    {
+        "group": {
+            "name": "Preprints"
+        },
+        "setting": {
+            "description": "Allow authors to select to make their works publicly available during ongoing review.",
+            "is_translatable": false,
+            "name": "enable_preprints",
+            "pretty_name": "Enable Preprints",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "False"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When enabled, we will send all log entries to slack.",
+            "is_translatable": false,
+            "name": "slack_logging",
+            "pretty_name": "Slack Logging",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "False"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Whether or not to use Crossref DOIs.",
+            "is_translatable": false,
+            "name": "use_crossref",
+            "pretty_name": "Use Crossref DOIs",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "True"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Whether or not to use Crossref's test server.",
+            "is_translatable": false,
+            "name": "crossref_test",
+            "pretty_name": "Use Crossref test deposit server",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "False"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The username to login to Crossref's deposit API.",
+            "is_translatable": false,
+            "name": "crossref_username",
+            "pretty_name": "Crossref username",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The password to login to Crossref's deposit API.",
+            "is_translatable": false,
+            "name": "crossref_password",
+            "pretty_name": "Crossref password",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The prefix for this journal on Crossref's system.",
+            "is_translatable": false,
+            "name": "crossref_prefix",
+            "pretty_name": "Crossref prefix",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The name of the depositor for this journal on Crossref's system.",
+            "is_translatable": false,
+            "name": "crossref_name",
+            "pretty_name": "Crossref depositor name",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The email of the depositor for this journal on Crossref's system.",
+            "is_translatable": false,
+            "name": "crossref_email",
+            "pretty_name": "Crossref depositor email",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "The name of the registrant for this journal on Crossref's system.",
+            "is_translatable": false,
+            "name": "crossref_registrant",
+            "pretty_name": "Crossref registrant name",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Text to prepend to DOIs. Also used to generate URLs.",
+            "is_translatable": false,
+            "name": "doi_display_prefix",
+            "pretty_name": "DOI display prefix",
+            "type": "char"
+        },
+        "value": {
+            "default": "https://doi.org/"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "Text to append to DOIs. Also used to generate URLs.",
+            "is_translatable": false,
+            "name": "doi_display_suffix",
+            "pretty_name": "DOI display suffix",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Name of the journal.",
+            "is_translatable": true,
+            "name": "journal_name",
+            "pretty_name": "Journal Name",
+            "type": "char"
+        },
+        "value": {
+            "default": "Janeway JS"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The ISSN of the journal.",
+            "is_translatable": true,
+            "name": "journal_issn",
+            "pretty_name": "Journal ISSN",
+            "type": "char"
+        },
+        "value": {
+            "default": "0000-0000"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The HTML theme set to use for the journal.",
+            "is_translatable": false,
+            "name": "journal_theme",
+            "pretty_name": "Journal Theme",
+            "type": "select"
+        },
+        "value": {
+            "default": "OLH"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guide shown to Copyeditors.",
+            "is_translatable": true,
+            "name": "copyediting_guidelines",
+            "pretty_name": "Copyediting Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Here are some guidelines."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guide shown to Author during Copyediting.",
+            "is_translatable": true,
+            "name": "author_copyediting_guidelines",
+            "pretty_name": "Author Copyediting Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Here are some guidelines."
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to copyeditors.",
+            "is_translatable": true,
+            "name": "copyeditor_assignment_notification",
+            "pretty_name": "Copyedit Notify Copyeditor",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br><br>This assignment is due on {{ assignment.due }}. You can access this task on the&nbsp;<a href=\"{{request.journal_base_url}}{% url 'copyedit_requests' %}\">journal site</a>.</p><p><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editor when copyedits are complete.",
+            "is_translatable": true,
+            "name": "copyeditor_notify_editor",
+            "pretty_name": "Copyedit Notify Editor",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ assignment.editor.full_name }},<br><br>The copyedit task is now complete. You can view more information in the <a href=\"{% url 'article_copyediting' assignment.article.pk %}\">journal site</a>.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Author asking them to review copyedits.",
+            "is_translatable": true,
+            "name": "copyeditor_notify_author",
+            "pretty_name": "Copyedit Notify Author",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>The copyeditor has completed their task, you can review the <a href=\"{{request.journal_base_url}}{{ url }}\">copyedits</a>.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Copyeditor asking them to undertake further copyedits.",
+            "is_translatable": true,
+            "name": "copyeditor_reopen_task",
+            "pretty_name": "Copyedit Reopen Task",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the&nbsp;<a href=\"{{request.journal_base_url}}{% url 'copyedit_requests' %}\">journal site</a>.<br><br>[ADD FEEDBACK HERE].<br><br>Regards, <br>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Copyeditor to thank them.",
+            "is_translatable": true,
+            "name": "copyeditor_ack",
+            "pretty_name": "Copyedit Acknowledge",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},</p><p></p><p>Thank you for your efforts in copyediting this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Editor when an author copyedit review is complete.",
+            "is_translatable": true,
+            "name": "author_copyedit_complete",
+            "pretty_name": "Author Copyediting Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ copyedit.editor.full_name }},<br><br>The author {{ author_review.author.full_name }} has completed their review.<br><br>Their comments can be accessed <a href=\"{% url 'editor_review' copyedit.article.id copyedit.id %}\">here</a>.<br>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guidelines displayed to the typesetter.",
+            "is_translatable": true,
+            "name": "typesetting_guide",
+            "pretty_name": "Typesetting Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Here are some guidelines."
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Production Manager on assignment.",
+            "is_translatable": true,
+            "name": "production_manager_notification",
+            "pretty_name": "Production Manager Assignment Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ production_assignment.production_manager.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ production_assignment.article.title }}. You can view further information on this <a href=\"{% url 'production_article' production_assignment.article.pk }\">here</a>.</p><p>Regards,</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Typesetter on task assignment.",
+            "is_translatable": true,
+            "name": "typesetter_notification",
+            "pretty_name": "Typesetter Assignment Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this <a href=\"{{ request.journal_base_url }}{% url 'typesetter_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Production Manager on typeset task complete.",
+            "is_translatable": true,
+            "name": "typesetter_complete_notification",
+            "pretty_name": "Typesetter Complete Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.title }} has been completed. You can view further information <a href=\"{% url 'production_article' production_assignment.article.pk }\">on the journal site.</a></p><p>Regards,<br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Typesetter to acknowledge a completed task.",
+            "is_translatable": true,
+            "name": "typeset_ack",
+            "pretty_name": "Typesetter Acknowledgement",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ production_assignment.editor.full_name }},</p><p>Production for article {{ article.title }} has been completed.</p><p>Regards</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Editors when Production is Complete.",
+            "is_translatable": true,
+            "name": "production_complete",
+            "pretty_name": "Production Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.editor.full_name }},</p><p>This is an automatic notification to inform you that Production is complete for article \"{{ article.title}}\".</p><p>This article is now in the <a href=\"{% url 'proofing_list' %}\">Proofing workflow</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Typesetter to inform them that a task has been re-opened.",
+            "is_translatable": true,
+            "name": "typeset_reopened",
+            "pretty_name": "Typeset Task Reopened",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }}</p><p>Thanks for your efforts typesetting the article, {{ typeset_task.article }}. This task has now been <a href=\"{% url 'proofing_requests' %}\">re-opened for further work</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Auto email sent to Proofing Manager when they are assigned.",
+            "is_translatable": true,
+            "name": "notify_proofing_manager",
+            "pretty_name": "Notify Proofing Manager",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ proofing_assignment.proofing_manager.full_name }},</p><p>You have been <a href=\"{{request.journal_base_url}}{% url 'proofing_article' article.pk %}\">assigned as the Proofing Manager</a> for {{ article.title }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the proofing manager on completion.",
+            "is_translatable": true,
+            "name": "notify_proofreader_complete",
+            "pretty_name": "Notify Proofreader Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ proofing_task.round.assignment.proofing_manager.full_name }},<br><br>I have completed <a href=\"{{request.journal_base_url}}{% url 'proofing_article' proofing_task.round.assignment.article.pk %}\">proofreading</a> for \"{{ proofing_task.round.assignment.article.title }}\".<br></p><p><br>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "is_translatable": true,
+            "name": "notify_proofreader_assignment",
+            "pretty_name": "Notify Proofreader of Assignment",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>You have been assigned a <a href=\"{{request.journal_base_url}}{% url 'proofing_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">proofreading task</a> for \"{{ article.title }}\". We would be most grateful for your assistance in proofreading this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "is_translatable": true,
+            "name": "notify_typesetter_proofing_changes",
+            "pretty_name": "Notify Typesetter of Proofreading Feedback",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the <a href=\"{{ request.journal_base_url }}{% url 'proofing_requests' %}\">requests page</a></p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the typesetter and proofreaders thanking them.",
+            "is_translatable": true,
+            "name": "thank_proofreaders_and_typesetters",
+            "pretty_name": "Thank Proofreaders and Typesetters",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}</p><p>Thank you for your efforts during the production of \"{{ article.title }}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the Editor when Proofing is complete.",
+            "is_translatable": true,
+            "name": "notify_editor_proofing_complete",
+            "pretty_name": "Notify Editor that Proofreading is Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ proofing_assignment.editor.full_name }},</p><p>Proofing for \"{{ article.title }}\" is now <a href=\"{% url 'publish' %}\">complete</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the proofreader when the manager cancels their task.",
+            "is_translatable": true,
+            "name": "notify_proofreader_cancelled",
+            "pretty_name": "Notify Proofreader of Cancellation",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},<br><br>The proofreading task for \"{{ proofing_task.round.assignment.article.title }}\" that was due on {{ proofing_task.due }} has been cancelled.</p><p><br>{% if user_content_message %}{{ user_content_message|safe }}{% endif %}</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Notify the proofing manager that corrections are complete.",
+            "is_translatable": true,
+            "name": "typesetter_corrections_complete",
+            "pretty_name": "Corrections Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.proofingassignment.proofing_manager.full_name }}</p><p>I have completed the <a href=\"{% url 'proofing_article' article.pk %}\">proofing corrections</a> requested on \"{{ article }}\".</p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Notify the proofing manager that corrections are complete.",
+            "is_translatable": true,
+            "name": "author_publication",
+            "pretty_name": "Corrections Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guidelines displayed to the proofreader.",
+            "is_translatable": true,
+            "name": "proofreading_guide",
+            "pretty_name": "Proofreading Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Here are some guidelines."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When enabled, non staff will not be able to access the site.",
+            "is_translatable": false,
+            "name": "maintenance_mode",
+            "pretty_name": "Enable Maintenance Mode",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Message displayed when maintenance mode is enabled.",
+            "is_translatable": true,
+            "name": "maintenance_message",
+            "pretty_name": "Maintenance Mode Message",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "This server has been set to Maintenance Mode. It will be back shortly."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If checked, Editorial Team images will display.",
+            "is_translatable": false,
+            "name": "enable_editorial_images",
+            "pretty_name": "Enable Editorial Team Image Display",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If checked, editorial team link will display in Navigation.",
+            "is_translatable": false,
+            "name": "enable_editorial_display",
+            "pretty_name": "Enable Editorial Team Display",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when user requests a password reset.",
+            "is_translatable": true,
+            "name": "password_reset",
+            "pretty_name": "Password Reset",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ reset_token.account.full_name }},<br><br>A password reset for your account has been requested. You can reset your password at the following link:</p><p><a href=\"{{ request.journal_base_url }}{% url 'core_reset_password' reset_token.token %}\">{{ request.journal_base_url }}{% url 'core_reset_password' reset_token.token %}</a><br><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when user registers.",
+            "is_translatable": true,
+            "name": "new_user_registration",
+            "pretty_name": "New User Registration",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}<br><br>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br><a href=\"{{ request.journal_base_url }}{% url 'core_confirm_account' user.confirmation_code %}\">{{ request.journal_base_url }}{% url 'core_confirm_account' user.confirmation_code %}</a><br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, Sections Editors can only make a draft of a decision for a Senior Editor to review.",
+            "is_translatable": false,
+            "name": "draft_decisions",
+            "pretty_name": "Draft Decisions",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when a section editor makes a draft decision.",
+            "is_translatable": true,
+            "name": "draft_message",
+            "pretty_name": "Draft Decisions Message",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "A section editor has <a href=\"{% url 'review_in_review' article.pk %}\">made a draft decision</a> regarding an article in your section: {{ article.title }}.<br><br>The draft decision is [[DECISION TEXT ]].<br><br>Regards,<br><br>{{ request.user.signature|safe }} "
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the Editor when a section editor makes a draft decision.",
+            "is_translatable": true,
+            "name": "draft_editor_message",
+            "pretty_name": "Draft Decisions Editor Message",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the&nbsp;<a href=\"{{ request.journal_base_url }}{% url 'review_edit_draft_decision' article.pk draft.pk %}\">journal site</a>.<br></p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the Editor when there is a new submission.",
+            "is_translatable": true,
+            "name": "editor_new_submission",
+            "pretty_name": "New Submission for Editor",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "A new article, {{ article.title }}, has been submitted.<br><br>You can assign an editor <a href=\"{{ request.journal_base_url }}{% url 'review_unassigned_article' article.pk%}\">Here</a>.<br><br>Regards, <br>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, only Doc, Docx, RTF and ODT files will be accepted during submission.",
+            "is_translatable": false,
+            "name": "limit_manuscript_types",
+            "pretty_name": "Limit Manuscript Types",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the Section Editor when article is published.",
+            "is_translatable": true,
+            "name": "section_editor_pub_notification",
+            "pretty_name": "Section Editor Publication Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ editor.full_name }},</p><p>An article that you served as section editor for, {{ article.title }}, has been set for publication.<br><br>The article will be published on {{ article.date_published }}<br><br>Regards,"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the Peer Reviewer when article is published.",
+            "is_translatable": true,
+            "name": "peer_reviewer_pub_notification",
+            "pretty_name": "Peer Reviewer Publication Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{reviewer.full_name}}</p><p>An article that you served as peer reviewer for, \"{{ article.title }}\", has been set for publication.<br><br>The article will be published on {{ article.date_published }}.<br><br>Regards,"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, one click access links are emailed to reviewers.",
+            "is_translatable": false,
+            "name": "enable_one_click_access",
+            "pretty_name": "Enable One Click Review Access",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Editors.",
+            "is_translatable": true,
+            "name": "editor_digest",
+            "pretty_name": "Editor Digest",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Unassigned Articles:</p><ul>{% for article in unassigned_articles %}<li>{{ article.title }}</li>{% endfor %}</ul><p>Overdue Reviews</p><ul>{% for review in overdue_reviews %}<li>{{ review.reviewer.full_name }} for article {{ review.article.title }}.</li>{% endfor %}</ul><p>Overdue Revisions</p><ul>{% for revision in overdue_revisions %}<li>{{ revision.article.correspondence_author.full_name }} for article {{ review.article.title }}.</li>{% endfor %}</ul><p>Overdue Proofing</p><ul>{% for proofing in overdue_proofing %}<li>{{ proofing.proofreader.full_name }} for article {{ proofing.round.assignment.article.title }}</li>{% endfor %}</ul><p>Awaiting Publication</p><ul>{% for article in awaiting_publication %}<li>{{ article.title }}</li>{% endfor %}</ul>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Reviewers.",
+            "is_translatable": true,
+            "name": "reviewer_digest",
+            "pretty_name": "Review Digest",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Review Requests</p><ul>{% for review in pending_requests %}<li>{{ review.article.title }} due on {{ review.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for review in overdue_requests %}<li>{{ review.article.title }} due on {{ review.date_due }}</li>{% endfor %}</ul>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to Revision People.",
+            "is_translatable": true,
+            "name": "revision_digest",
+            "pretty_name": "Revision Digest",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Revision Requests</p><ul>{% for revision in pending_requests %}<li>{{ revision.article.title }} due on {{ revision.date_due }}</li>{% endfor %}</ul><p>Overdue Requests</p><ul>{% for revision in overdue_requests %}<li>{{ revision.article.title }} due on {{ revision.date_due }}</li>{% endfor %}</ul>"
+        }
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "You can set your DOI pattern, fallback is 10.xxxx/{{ article.pk }}",
+            "is_translatable": true,
+            "name": "doi_pattern",
+            "pretty_name": "DOI Pattern",
+            "type": "char"
+        },
+        "value": {
+            "default": "{{ article.journal.code }}.{{ article.pk }}"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Used for URL generation.",
+            "is_translatable": false,
+            "name": "is_secure",
+            "pretty_name": "Journal Uses HTTPS",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "crosscheck"
+        },
+        "setting": {
+            "description": "Used to submit files for review",
+            "is_translatable": false,
+            "name": "username",
+            "pretty_name": "Username for crosscheck/ithenticate",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "crosscheck"
+        },
+        "setting": {
+            "description": "If enabled, links to crosscheck reports will be displayed",
+            "is_translatable": false,
+            "name": "enable",
+            "pretty_name": "Enable Crosscheck",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "crosscheck"
+        },
+        "setting": {
+            "description": "Used to submit files for review",
+            "is_translatable": false,
+            "name": "password",
+            "pretty_name": "Password for crosscheck/ithenticate",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Selected Editors will receive a submission notification. If None, all Editors are emailed.",
+            "is_translatable": false,
+            "name": "editors_for_notification",
+            "pretty_name": "Editors Notified on Submission",
+            "type": "json"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "A set of generic guidelines that reviewers should follow whilst undertaking review for this journal.",
+            "is_translatable": true,
+            "name": "reviewer_guidelines",
+            "pretty_name": "Reviewer Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p><em>Open Library of Humanities </em>operates a two-stage, double-blind peer review process. The author and reviewer should be anonymous at all stages of the review. After accepting the invitation to complete the review of this article, please refer to the information set out below to assist you in your feedback. The peer review form is available above (section 5). You can also upload additional files containing further comments relevant to the review on this page:</p><p>General guide to aid the review:</p><p><strong>1) General comments and summary of recommendation</strong><br/>Does the article fit within the scope of the journal? To read more on the journal scope, please visit <a href=\"https://www.openlibhums.org/\">https://www.openlibhums.org/</a></p><p><strong></strong> <strong>2) Content:</strong><br/> Please consider the originality, relevance and rigour of the submission and the author\u0092s depth of understanding of the issues being researched. Please comment on the adequacy of the author\u0092s referencing and whether or not the existing knowledge base has been explored and built upon. Please comment on methodologies used and their appropriateness, and the author\u0092s use of the evidential base. Does the conclusion reflect the argument in the main body text and bring something new to the debate?</p><p><strong>3) Structure and argument:</strong><br/>Please consider whether the abstract summarises the arguments in a succinct and accurate way.\u00a0 Is the manuscript logically structured and do the arguments flow coherently? Is there enough reference to methodology in the introduction and are the arguments fully evidenced and substantiated ? \u00a0Does the introduction signpost the arguments in a logical way and does the conclusion adequately summarise them?</p><p><strong>4) Figures/tables:</strong><br/>Please comment on the author\u0092s use of tables, charts, figures or maps \u0096 their relevance in terms of illustrating the arguments and supporting the evidential base, the quality of the formatting and presentation.</p><p><strong>5) Formatting</strong>: does the submitted file adhere to the general <a href=\"/about/submissions#authorGuidelines\">author guidelines listed for the journal</a>? Are the citations and references formatted to house-style?</p><p><strong>5) Language:</strong><br/>Is the text well written? Please comment on the quality of language and need for grammatical improvement</p><p>Provide comments and suggestions for improvement, if required, with additional references or possible clarification of arguments, etc. <strong>You can also add comments to the text of the article and upload your comments, if you see fit</strong>.</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Sets Open, Blind or Double Blind as the default for the visibility drop down when creating a review assignment.",
+            "is_translatable": false,
+            "name": "default_review_visibility",
+            "pretty_name": "Default Review Visibility",
+            "type": "select"
+        },
+        "value": {
+            "default": "blind"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The default number of days before a review assignment is due.",
+            "is_translatable": false,
+            "name": "default_review_days",
+            "pretty_name": "Default Number of Days for Review",
+            "type": "number"
+        },
+        "value": {
+            "default": "56"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Sent when a user is assigned to production.",
+            "is_translatable": true,
+            "name": "production_assign_article",
+            "pretty_name": "Production Assign Article",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}<br><br>This is an automatic notification from {{ request.journal.name }} that you have been assigned to the production of article {{ article.title }}. You can view further information on this <a href=\"{{ url }}\">on the journal site</a>.</p><p>Regards,</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Webhook for sending slack messages.",
+            "is_translatable": false,
+            "name": "slack_webhook",
+            "pretty_name": "Slack Webhook",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Send to a user specified in notification manager.",
+            "is_translatable": true,
+            "name": "notification_submission",
+            "pretty_name": "Submission Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ notification.user.full_name }},<br><br>This email is to notify you that {{ article.correspondence_author.full_name }} has submitted article \"{{ article.title }}\" to  {{ article.journal.name }}.</p><p>You can <a href=\"{% url 'review_unassigned' %}\">review the metadata in the journal site</a>.</p><p>Regards,</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Send to a user specified in notification manager.",
+            "is_translatable": true,
+            "name": "notification_acceptance",
+            "pretty_name": "Acceptance Notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ notification.user.full_name }},<br><br>This email is to notify you that article \"{{ article.title }}\" with corresponding author&nbsp;{{ article.correspondence_author.full_name }} in {{ article.journal.name }} has been accepted for publication.</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Localised description of the journal.",
+            "is_translatable": true,
+            "name": "journal_description",
+            "pretty_name": "Journal Description",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "A journal."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Enables the CI submission field.",
+            "is_translatable": false,
+            "name": "submission_competing_interests",
+            "pretty_name": "Competing Interests",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Journal's twitter handle.",
+            "is_translatable": false,
+            "name": "twitter_handle",
+            "pretty_name": "Twitter Handle",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Default Review Form.",
+            "is_translatable": false,
+            "name": "default_review_form",
+            "pretty_name": "Default Review Form",
+            "type": "select"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Journal's Focus and Scope, displayed on the Submissions page.",
+            "is_translatable": true,
+            "name": "focus_and_scope",
+            "pretty_name": "Focus and Scope",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "This should be updated to reflect your journals focus."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Journal's publication schedule, displayed on the Submissions page.",
+            "is_translatable": true,
+            "name": "publication_cycle",
+            "pretty_name": "Publication Cycle",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "This journal published continuously all year round/publishes in issues every x months."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Peer Review Information, displayed on the Submissions page.",
+            "is_translatable": true,
+            "name": "peer_review_info",
+            "pretty_name": "Peer Review Information",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "This journal operates a open/blind/double blind peer review policy."
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Allow users to change their language.",
+            "is_translatable": true,
+            "name": "switch_language",
+            "pretty_name": "Switch Language",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Allows journals to track usage with Google Analytics.",
+            "is_translatable": true,
+            "name": "google_analytics_code",
+            "pretty_name": "Google Analytics Code",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Sent when an existing user updates their email address.",
+            "is_translatable": true,
+            "name": "user_email_change",
+            "pretty_name": "User Email Change",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: <a href=\"{{ request.journal_base_url }}{% url 'core_confirm_account' user.confirmation_code %}\">confirm account</a>.</p><p>Regards,</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Sent when a copyediting assignment is updated.",
+            "is_translatable": true,
+            "name": "copyedit_updated",
+            "pretty_name": "Copyediting Request Updated",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.title }}\" has been updated. The due date is set to: {{ copyedit_assignment.due }}.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Sent when a copyediting assignment is deleted.",
+            "is_translatable": true,
+            "name": "copyedit_deleted",
+            "pretty_name": "Copyediting Request Deleted",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ copyedit_assignment.copyeditor.full_name }},</p><p>Your copyediting assignment for article \"{{ copyedit_assignment.article.title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Sent when a typesetting assignment is deleted.",
+            "is_translatable": true,
+            "name": "typeset_deleted",
+            "pretty_name": "Typesetting Request Deleted",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>Your typesetting assignment for article \"{{ typeset_task.assignment.article.title }}\" has been deleted. We no longer require you to undertake this task.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Sent when a proofing assignment is edited.",
+            "is_translatable": true,
+            "name": "notify_proofreader_edited",
+            "pretty_name": "Proofing Task Edited",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>Your proofing assignment for article \"{{ proofing_task.assignment.article.title }}\" has been updated. Its due it is now {{ proofing_task.due }}. If you cannot completed the task in this time, please get in touch by replying to this email.</p><p>Regards, {{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Review Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Author Copyediting Complete",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Editor when an author copyedit review is complete.",
+            "name": "subject_author_copyedit_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article Publication"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Article Publication",
+            "is_translatable": true,
+            "description": "Subject for Notify the proofing manager that corrections are complete.",
+            "name": "subject_author_publication"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Task Acknowledgement"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyedit Acknowledge",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Copyeditor to thank them.",
+            "name": "subject_copyeditor_ack"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Task"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyedit Notify Copyeditor",
+            "is_translatable": true,
+            "description": "Subject for Email sent to copyeditors.",
+            "name": "subject_copyeditor_assignment_notification"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Review"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyedit Notify Author",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Author asking them to review copyedits.",
+            "name": "subject_copyeditor_notify_author"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyedit Notify Editor",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editor when copyedits are complete.",
+            "name": "subject_copyeditor_notify_editor"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Task Reopened"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyedit Reopen Task",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Copyeditor asking them to undertake further copyedits.",
+            "name": "subject_copyeditor_reopen_task"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Task Deleted"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyediting Request Deleted",
+            "is_translatable": true,
+            "description": "Subject for Sent when a copyediting assignment is deleted.",
+            "name": "subject_copyedit_deleted"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Copyediting Task Updated"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Copyediting Request Updated",
+            "is_translatable": true,
+            "description": "Subject for Sent when a copyediting assignment is updated.",
+            "name": "subject_copyedit_updated"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Section Editor Draft Decision"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Draft Decisions Editor Message",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the Editor when a section editor makes a draft decision.",
+            "name": "subject_draft_editor_message"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Draft Decision"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Draft Decisions Message",
+            "is_translatable": true,
+            "description": "Subject for Email sent when a section editor makes a draft decision.",
+            "name": "subject_draft_message"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article Assignment"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Editor Assignment",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when they are assigned to a submission.",
+            "name": "subject_editor_assignment"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Journal Digest"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Editor Digest",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Editors.",
+            "name": "subject_editor_digest"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "New Article Submitted"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "New Submission for Editor",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the Editor when there is a new submission.",
+            "name": "subject_editor_new_submission"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "New Registration"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "New User Registration",
+            "is_translatable": true,
+            "description": "Subject for Email sent when user registers.",
+            "name": "subject_new_user_registration"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Acceptance Notification",
+            "is_translatable": true,
+            "description": "Subject for Send to a user specified in notification manager.",
+            "name": "subject_notification_acceptance"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Submission Notification",
+            "is_translatable": true,
+            "description": "Subject for Send to a user specified in notification manager.",
+            "name": "subject_notification_submission"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofreading Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Notify Editor that Proofreading is Complete",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the Editor when Proofing is complete.",
+            "name": "subject_notify_editor_proofing_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofing Manager Assignment"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Notify Proofing Manager",
+            "is_translatable": true,
+            "description": "Subject for Auto email sent to Proofing Manager when they are assigned.",
+            "name": "subject_notify_proofing_manager"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofreading Assignment"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Notify Proofreader of Assignment",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "name": "subject_notify_proofreader_assignment"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofreading Assignment Cancelled"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Notify Proofreader of Cancellation",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the proofreader when the manager cancels their task.",
+            "name": "subject_notify_proofreader_cancelled"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofreading Assignment Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Notify Proofreader Complete",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the proofing manager on completion.",
+            "name": "subject_notify_proofreader_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofreading Assignment Edited"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Proofing Task Edited",
+            "is_translatable": true,
+            "description": "Subject for Sent when a proofing assignment is edited.",
+            "name": "subject_notify_proofreader_edited"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Proofreading Corrections"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Notify Typesetter of Proofreading Feedback",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "name": "subject_notify_typesetter_proofing_changes"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Password Reset"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Password Reset",
+            "is_translatable": true,
+            "description": "Subject for Email sent when user requests a password reset.",
+            "name": "subject_password_reset"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article You Reviewed"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Peer Reviewer Publication Notification",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the Peer Reviewer when article is published.",
+            "name": "subject_peer_reviewer_pub_notification"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Production Assignment"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Production Assign Article",
+            "is_translatable": true,
+            "description": "Subject for Sent when a user is assigned to production.",
+            "name": "subject_production_assign_article"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Production Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Production Complete",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Editors when Production is Complete.",
+            "name": "subject_production_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Production Manager Assignment"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Production Manager Assignment Notification",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Production Manager on assignment.",
+            "name": "subject_production_manager_notification"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article Requires Revisions"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Request Revisions",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when requesting revisions.",
+            "name": "subject_request_revisions"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Reviewer Digest"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Digest",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Reviewers.",
+            "name": "subject_reviewer_digest"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Acknowledgement"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Assignment Accepted",
+            "is_translatable": true,
+            "description": "Subject for Email sent to reviewers when they agree to undertake a review.",
+            "name": "subject_review_accept_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Updated"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when a reviewer accepts or declines a review.",
+            "name": "subject_review_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Request"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Assignment",
+            "is_translatable": true,
+            "description": "Subject for Email sent to reviewers to request a review.",
+            "name": "subject_review_assignment"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Complete Update",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when a reviewer complete a review.",
+            "name": "subject_review_complete_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Complete Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to reviewers when they complete a review.",
+            "name": "subject_review_complete_reviewer_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article Accepted"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Article Review Accept",
+            "is_translatable": true,
+            "description": "Subject for Email sent to authors when an article is accepted.",
+            "name": "subject_review_decision_accept"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article Declined"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Article Review Decline",
+            "is_translatable": true,
+            "description": "Subject for Email sent to authors when an article is declined.",
+            "name": "subject_review_decision_decline"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Accepted"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Declination Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to reviewers when they agree to undertake a review.",
+            "name": "subject_review_decline_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Request"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Complete Update",
+            "is_translatable": true,
+            "description": "Subject for Email sent to editors when a reviewer request is sent.",
+            "name": "subject_review_request_sent"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Assignment Withdrawn"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Review Withdrawl",
+            "is_translatable": true,
+            "description": "Subject for Email sent to reviewers when a review request is withdrawn.",
+            "name": "subject_review_withdrawl"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Revision Digest"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Revision Digest",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Revision People.",
+            "name": "subject_revision_digest"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article You Edited"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Section Editor Publication Notification",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the Section Editor when article is published.",
+            "name": "subject_section_editor_pub_notification"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Article Submission"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Submission Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to authors when they have submitted an article.",
+            "name": "subject_submission_acknowledgement"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Task Acknowledgement"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Thank Proofreaders and Typesetters",
+            "is_translatable": true,
+            "description": "Subject for Email sent to the typesetter and proofreaders thanking them.",
+            "name": "subject_thank_proofreaders_and_typesetters"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Typesetting Assignment Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Typesetter Complete Notification",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Production Manager on typeset task complete.",
+            "name": "subject_typesetter_complete_notification"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Corrections Complete"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Corrections Complete",
+            "is_translatable": true,
+            "description": "Subject for Notify the proofing manager that corrections are complete.",
+            "name": "subject_typesetter_corrections_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Typesetting Assignment"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Typesetter Assignment Notification",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Typesetter on task assignment.",
+            "name": "subject_typesetter_notification"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Typesetting Task Acknowledgement"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Typesetter Acknowledgement",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Typesetter to acknowledge a completed task.",
+            "name": "subject_typeset_ack"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Typesetting Task Deleted"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Typesetting Request Deleted",
+            "is_translatable": true,
+            "description": "Subject for Sent when a typesetting assignment is deleted.",
+            "name": "subject_typeset_deleted"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Typesetting Task Reopened"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Typeset Task Reopened",
+            "is_translatable": true,
+            "description": "Subject for Email sent to Typesetter to inform them that a task has been re-opened.",
+            "name": "subject_typeset_reopened"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Email Change Notification"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "User Email Change",
+            "is_translatable": true,
+            "description": "Subject for Sent when an existing user updates their email address.",
+            "name": "subject_user_email_change"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    }
+]

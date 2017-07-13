@@ -1,0 +1,33 @@
+
+<div class="card">
+    <div class="card-divider">
+        {% if task.assignment %}
+            <h4>{{ task.assignment.article.title|safe }}</h4>
+        {% else %}
+            <h4>{{ task.proofing_task.assignment.article.title|safe }}</h4>
+        {% endif %}
+    </div>
+    <div class="card-section">
+        {% if type == "assignment" %}
+            <p>Awaiting your decision.</p>
+        {% elif type == "assigned" %}
+            <p>Proofing in progress.</p>
+        {% else %}
+            <p>Proofing complete.</p>
+        {% endif %}
+        <div class="button-group">
+            {% if type == "assignment" %}
+                <a class="button tiny success" href="{% url 'proofing_requests_decision' task.pk 'accept' %}">Accept Task</a>
+                <a class="button tiny " href="{% url 'proofing_requests_decision' task.pk 'decline' %}">Decline Task</a>
+            {% elif type == 'assigned' %}
+               <a class="button tiny success" href="{% url 'do_proofing' task.pk %}">View Task</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        {% if task.assignment.proofing_manager %}
+        {% include "elements/avatar.html" with user=task.assignment.proofing_manager role="PM" %}
+        {% endif %}
+        {% include "elements/avatar.html" with user=task.assignment.article.correspondence_author role="Author" %}
+    </div>
+</div>

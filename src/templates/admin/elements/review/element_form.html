@@ -1,0 +1,21 @@
+{% load foundation %}
+
+<div class="reveal small" id="element" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% if modal %}<i class="fa fa-edit">&nbsp;</i>Edit Element{% else %}<i class="fa fa-plus">&nbsp;</i>Add New Element{% endif %}</h4>
+        </div>
+        <div class="card-section">
+            {% include "elements/forms/errors.html" with form=element_form %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ element_form|foundation }}
+                 <button type="submit" name="element" class="button success">Add Element</button>
+            </form>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

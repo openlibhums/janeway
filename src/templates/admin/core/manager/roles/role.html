@@ -1,0 +1,96 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+
+{% block title %}{{ role.name }}{% endblock title %}
+{% block title-section %}Roles{% endblock %}
+{% block title-sub %}{{ role.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_roles' %}">Roles</a></li>
+    <li><a href="{% url 'core_manager_role' role.slug %}">{{ role.name }}</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Users without this role</h2>
+                <a href="{% url 'core_manager_roles' %}" class="button">< Go back</a>
+            </div>
+            <div class="content">
+                <table class="small" cellspacing="0" width="100%" id='users-without'>
+                    <thead>
+                    <tr>
+                        <th width="25%">First Name</th>
+                        <th width="25%">Last Name</th>
+                        <th width="30%">Email</th>
+                        <th width="20%"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td width="20%"><a class="tiny success button" href="{% url 'core_manager_role_action' role.slug user.id 'add' %}"><i
+                                    class="fa fa-plus"></i>&nbsp;&nbsp; Add Role</a></td>
+                        </tr>
+                    {% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Users with this role</h2>
+            </div>
+            <div class="content">
+                <table class="small" cellspacing="0" width="100%" id='users-with'>
+                    <thead>
+                    <tr>
+                        <th width="25%">First Name</th>
+                        <th width="25%">Last Name</th>
+                        <th width="30%">Email</th>
+                        <th width="20%"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for assignment in account_roles %}
+                        <tr>
+                            <td>{{ assignment.user.first_name }}</td>
+                            <td>{{ assignment.user.last_name }}</td>
+                            <td>{{ assignment.user.email }}</td>
+                            <td width="20%"><a class="tiny alert button"
+                                               href="{% url 'core_manager_role_action' role.slug assignment.user.id 'remove' %}"><i
+                                    class="fa fa-times"></i> &nbsp;&nbsp;Remove Role</a></td>
+                        </tr>
+                    {% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#unassigned" %}
+    <script>
+        $(document).ready(function () {
+            $('#users-without').DataTable({
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+            });
+        });
+
+        $(document).ready(function () {
+            $('#users-with').DataTable({
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+            });
+        });
+    </script>
+
+
+{% endblock js %}

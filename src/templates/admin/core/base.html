@@ -1,0 +1,107 @@
+{% load static from staticfiles %}
+{% load press_url from press_url %}
+{% load svg from press_url %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
+
+    {% block head %}{% endblock head %}
+    <link href="{% static "admin/css/app.css" %}" rel="stylesheet">
+    <link href="{% static "admin/css/admin.css" %}" rel="stylesheet">
+    <link href="{% static "common/css/font-awesome.css" %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+    <script src="https://use.typekit.net/lff8ikn.js"></script>
+    <script>try {
+        Typekit.load({async: true});
+    } catch (e) {
+    }</script>
+    {% block css %}{% endblock %}
+
+    {% if journal.favicon %}
+        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon" />
+    {% elif press.favicon %}
+        <link rel="icon" href="{{ press.favicon.url }}" type="image/vnd.microsoft.icon" />
+    {% endif %}
+</head>
+<body>
+
+{% block nav %}
+    {% if request.journal %}
+        {% include "admin/core/nav.html" %}
+    {% else %}
+        {% include "admin/press/nav.html" %}
+    {% endif %}
+{% endblock nav %}
+
+<div class="content large-12 columns">
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            {% if article.pk %}
+                {% include "elements/article_jump.html" %}
+            {% endif %}
+            <nav aria-label="You are here:" role="navigation">
+                <ul class="breadcrumbs">
+                    {% block breadcrumbs %}
+                        <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
+                    {% endblock breadcrumbs %}
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+    <section class="title">
+        <div class="row expanded column">
+            <h1>{% block title-section %}{% endblock %}</h1>
+            <p>{% block title-sub %}{% endblock %}</p>
+        </div>
+    </section>
+
+    {% block body %}
+    {% endblock body %}
+</div>
+
+<script src="{% static "admin/js/app.min.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": true,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "20000",
+        "hideDuration": "3000",
+        "timeOut": "8000",
+        "extendedTimeOut": "60000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+    {% for message in messages %}
+        {% ifequal message.tags "warning" %}
+            toastr.warning("{{ message }}");
+        {% endifequal%}
+        {% ifequal message.tags "info" %}
+            toastr.info("{{ message }}");
+        {% endifequal%}
+        {% ifequal message.tags "danger" %}
+            toastr.error("{{ message }}");
+        {% endifequal%}
+        {% ifequal message.tags "success" %}
+            toastr.success("{{ message }}")
+        {% endifequal%}
+    {% endfor %}
+</script>
+
+{% block js %}{% endblock %}
+</body>
+</html>

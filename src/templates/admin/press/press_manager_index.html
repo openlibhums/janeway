@@ -1,0 +1,151 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Press Manager{% endblock %}
+{% block title-section %}Press Manager{% endblock %}
+
+{% block nav %}
+{% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+    <section>
+    <div class="row expanded" data-equalizer>
+        <div class="large-3 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Settings</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
+                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
+                        <a class="button" href="{% url 'core_journal_contacts' %}">Contact Manager</a>
+                        <a class="button" href="{% url 'press_edit_press' %}">Edit Press Details</a>
+                        <a class="button" href="{% url 'home_settings_index' %}">Homepage Elements</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="large-9 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Journals</h2>
+                    <a class="button" data-open="new-journal">Add New Journal</a>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Sort</th>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Domain</th>
+                            <th></th>
+                        </tr>
+                        <tbody id="sortable">
+                            {% for journal in journals %}
+                            <tr id="journal-{{ journal.pk }}">
+                                <td><i class="fa fa-sort"></i></td>
+                                <td>{{ journal.name }}</td>
+                                <td>{{ journal.code }}</td>
+                                <td>{{ journal.domain }}</td>
+                                <td><a class="" href="{% url 'core_edit_settings_group' "journal" %}?journal={{ journal.pk }}">Edit Settings</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Latest Publications</h2>
+                </div>
+                <div class="content">
+                    <div class="table-scroll">
+                        <table id="latest-pubs" class="small">
+                            <thead>
+                            <tr>
+                                <th width="50%">Title</th>
+                                <th>Journal</th>
+                                <th>Publication Date</th>
+                                <th>Links</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for article in published_articles %}
+                                <tr>
+                                    <td>{{ article.title|safe }}</td>
+                                    <td>{{ article.journal.name }}</td>
+                                    <td>{{ article.date_published }}</td>
+                                    <td><h5><a href="https://www.facebook.com/share.php?p[url]={{ article.url }}"
+                                               target="_blank"><i class="fa fa-facebook"></i></a>
+                                        <a href="https://twitter.com/intent/tweet?text={{ article.title }} {{ article.url }}"
+                                           target="_blank"><i class="fa fa-twitter"></i></a>
+                                        <a href="https://plus.google.com/share?url={{ article.url }}"><i
+                                                class="fa fa-google-plus"></i></a>
+                                        <a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}"><i
+                                                class="fa fa-linkedin"></i></a></h5>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+    <div class="reveal small" id="new-journal" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-plus">&nbsp;</i>New Journal</h4>
+            </div>
+            <div class="card-section">
+                <p class="lead">First, we need you to set the journal's code and domain, you'll then be directed to the full setup form.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="button success">Add New Journal</button>
+                </form>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#latest-pubs" sort=2 %}
+    {% if modal %}
+    {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'press_journal_order' %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
+    <script type="text/javascript" src="{% static "admin/js/csrf.js" %}"></script>
+{% endblock js %}

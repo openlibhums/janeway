@@ -1,0 +1,40 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}{{ group|capfirst }} Settings{% endblock title %}
+{% block title-section %}{{ group|capfirst }} Settings{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_settings_index' %}">Settings</a></li>
+    <li><a href="{% url 'core_edit_settings_group' group %}">{{ group|capfirst }} Settings</a></li>
+{% endblock %}
+
+{% block body %}
+    <section>
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <div class="box">
+                    {% include "elements/forms/errors.html" with form=edit_form %}
+                    <form action="" method="POST" enctype="multipart/form-data">
+
+                        {% csrf_token %}
+                        {% include "elements/forms/submission.html" with form=edit_form %}
+                        {% if group == 'journal' %}
+                        {% include "elements/forms/submission.html" with form=attr_form %}
+                        {% endif %}
+
+                        <button type="submit" class="button success">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock %}

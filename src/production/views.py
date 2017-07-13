@@ -1,0 +1,431 @@
+__copyright__ = "Copyright 2017 Birkbeck, University of London"
+__author__ = "Martin Paul Eve & Andy Byers"
+__license__ = "AGPL v3"
+__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.contrib import messages
+from django.views.decorators.http import require_POST
+
+from events import logic as event_logic
+from core import models as core_models
+from cron import models as cron_task
+from production import logic, models, forms
+from security.decorators import editor_user_required, production_user_or_editor_required, \
+    article_production_user_required, article_stage_production_required, has_journal, \
+    typesetter_or_editor_required, typesetter_user_required
+from submission import models as submission_models
+
+
+@production_user_or_editor_required
+def production_list(request):
+    assigned_table = models.ProductionAssignment.objects.all()
+    my_table = models.ProductionAssignment.objects.values_list('article_id', flat=True).filter(
+        production_manager=request.user)
+
+    assigned = [assignment.article.pk for assignment in assigned_table]
+    unassigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING).exclude(
+        id__in=assigned)
+    assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING).exclude(
+        id__in=unassigned_articles)
+
+    my_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING, id__in=my_table)
+
+    prod_managers = core_models.AccountRole.objects.filter(role__slug='production', journal=request.journal)
+
+    template = 'production/index.html'
+    context = {
+        'production_articles': unassigned_articles,
+        'assigned_articles': assigned_articles,
+        'production_managers': prod_managers,
+        'my_articles': my_articles,
+    }
+
+    return render(request, template, context)
+
+
+@has_journal
+@editor_user_required
+@article_stage_production_required
+def production_assign_article(request, user_id, article_id):
+    article = submission_models.Article.objects.get(id=article_id)
+    user = core_models.Account.objects.get(id=user_id)
+
+    url = request.journal_base_url + reverse('production_article', kwargs={'article_id': article.id})
+    html = logic.get_production_assign_content(user, request, article, url)
+
+    prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
+    prod.save()
+
+    cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request)
+
+    return redirect('production_list')
+
+
+@editor_user_required
+@article_stage_production_required
+def production_unassign_article(request, article_id):
+    article = submission_models.Article.objects.get(id=article_id)
+
+    models.ProductionAssignment.objects.filter(article=article).delete()
+
+    return redirect('production_list')
+
+
+@require_POST
+@article_production_user_required
+@article_stage_production_required
+def production_done(request, article_id):
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article.stage = submission_models.STAGE_PROOFING
+    article.save()
+
+    assignment = models.ProductionAssignment.objects.get(article=article)
+    assignment.closed = timezone.now()
+
+    for task in assignment.typesettask_set.all():
+        task.completed = timezone.now()
+        task.editor_reviewed = timezone.now()
+
+        task.save()
+
+    assignment.save()
+
+    kwargs = {
+        'request': request,
+        'article': article,
+        'assignment': assignment,
+        'user_content_message': request.POST.get('user_content_message'),
+        'skip': True if 'skip' in request.POST else False
+    }
+    event_logic.Events.raise_event(event_logic.Events.ON_PRODUCTION_COMPLETE, **kwargs)
+
+    return redirect('proofing_list')
+
+
+@production_user_or_editor_required
+def production_article(request, article_id):
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    production_assignment = models.ProductionAssignment.objects.get(article=article)
+    galleys = logic.get_all_galleys(production_assignment.article)
+
+    if request.POST:
+
+        if 'xml' in request.POST:
+            for uploaded_file in request.FILES.getlist('xml-file'):
+                logic.save_galley(article, request, uploaded_file, True, "XML", False)
+
+        if 'pdf' in request.POST:
+            for uploaded_file in request.FILES.getlist('pdf-file'):
+                logic.save_galley(article, request, uploaded_file, True, "PDF", False)
+
+        if 'other' in request.POST:
+            for uploaded_file in request.FILES.getlist('other-file'):
+                logic.save_galley(article, request, uploaded_file, True, "Other", True)
+
+        return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+
+    manuscripts = article.manuscript_files.filter(is_galley=False)
+    data_files = article.data_figure_files.filter(is_galley=False)
+    copyedit_files = logic.get_copyedit_files(article)
+
+    template = 'production/assigned_article.html'
+    context = {
+        'article': article,
+        'manuscripts': manuscripts,
+        'data_files': data_files,
+        'production_assignment': production_assignment,
+        'copyedit_files': copyedit_files,
+        'typeset_tasks': production_assignment.typesettask_set.all().order_by('-id'),
+        'galleys': galleys,
+        'complete_message': logic.get_complete_template(request, article, production_assignment)
+    }
+
+    return render(request, template, context)
+
+
+@production_user_or_editor_required
+def assign_typesetter(request, article_id, production_assignment_id):
+    production_assignment = get_object_or_404(models.ProductionAssignment,
+                                              pk=production_assignment_id,
+                                              closed__isnull=True)
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    copyedit_files = logic.get_copyedit_files(article)
+    typesetters = logic.get_typesetters(article)
+    errors, _dict = None, None
+
+    if request.POST.get('typesetter_id'):
+        task = logic.handle_self_typesetter_assignment(production_assignment, request)
+        return redirect(reverse('do_typeset_task', kwargs={'typeset_id': task.id}))
+
+    if request.POST:
+        task, errors, _dict = logic.handle_assigning_typesetter(production_assignment, request)
+
+        if not errors and task:
+            return redirect(reverse('notify_typesetter', kwargs={'typeset_id': task.pk}))
+
+    template = 'production/assign_typesetter.html'
+    context = {
+        'production_assignment': production_assignment,
+        'article': article,
+        'copyedit_files': copyedit_files,
+        'typesetters': typesetters,
+        'errors': errors,
+        'dict': _dict,
+    }
+
+    return render(request, template, context)
+
+
+@production_user_or_editor_required
+def notify_typesetter(request, typeset_id):
+    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
+    user_message_content = logic.get_typesetter_notification(typeset, request)
+
+    if request.POST:
+        user_message_content = request.POST.get('user_message_content')
+        kwargs = {
+            'user_message_content': user_message_content,
+            'typeset_task': typeset,
+            'request': request,
+            'skip': True if 'skip' in request.POST else False
+        }
+        typeset.notified = True
+        typeset.save()
+        event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_TASK_ASSIGNED, **kwargs)
+        return redirect(reverse('production_article', kwargs={'article_id': typeset.assignment.article.pk}))
+
+    template = 'production/notify_typesetter.html'
+    context = {
+        'typeset_task': typeset,
+        'user_message_content': user_message_content,
+    }
+
+    return render(request, template, context)
+
+
+@production_user_or_editor_required
+def edit_typesetter_assignment(request, typeset_id):
+    """
+    Allows the editor to edit an incomplete typesetting assignment.
+    :param request: django request object
+    :param typeset_id: Typesetting Assignment PK
+    :return: HTML
+    """
+    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
+    article = typeset.assignment.article
+
+    if request.POST:
+        if 'delete' in request.POST:
+            messages.add_message(request, messages.SUCCESS, 'Typeset task {0} has been deleted'.format(typeset.pk))
+            kwargs = {'typeset': typeset, 'request': request}
+            event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_TASK_DELETED, **kwargs)
+            typeset.delete()
+        elif 'update' in request.POST:
+            logic.update_typesetter_task(typeset, request)
+
+        return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+
+    template = 'production/edit_typesetter_assignment.html'
+    context = {
+        'typeset': typeset,
+        'article': article,
+    }
+
+    return render(request, template, context)
+
+
+@typesetter_user_required
+def typesetter_requests(request, typeset_id=None, decision=None):
+    if typeset_id and decision:
+        typeset_task = get_object_or_404(models.TypesetTask,
+                                         pk=typeset_id,
+                                         typesetter=request.user,
+                                         assignment__article__journal=request.journal)
+
+        if decision == 'accept':
+            typeset_task.accepted = timezone.now()
+        elif decision == 'decline':
+            typeset_task.accepted = None
+            typeset_task.completed = timezone.now()
+
+        typeset_task.save()
+
+        kwargs = {'decision': decision, 'typeset_task': typeset_task, 'request': request}
+        event_logic.Events.raise_event(event_logic.Events.ON_TYPESETTER_DECISION, **kwargs)
+        return redirect(reverse('typesetter_requests'))
+
+    typeset_tasks = models.TypesetTask.objects.filter(accepted__isnull=True,
+                                                      completed__isnull=True,
+                                                      typesetter=request.user,
+                                                      assignment__article__journal=request.journal)
+
+    in_progress_tasks = models.TypesetTask.objects.filter(accepted__isnull=False,
+                                                          completed__isnull=True,
+                                                          typesetter=request.user,
+                                                          assignment__article__journal=request.journal)
+
+    completed_tasks = models.TypesetTask.objects.filter(accepted__isnull=False,
+                                                        completed__isnull=False,
+                                                        typesetter=request.user,
+                                                        assignment__article__journal=request.journal)
+
+    template = 'production/typesetter_requests.html'
+    context = {
+        'typeset_tasks': typeset_tasks,
+        'in_progress_tasks': in_progress_tasks,
+        'completed_tasks': completed_tasks,
+    }
+
+    return render(request, template, context)
+
+
+@typesetter_or_editor_required
+def do_typeset_task(request, typeset_id):
+    typeset_task = get_object_or_404(models.TypesetTask,
+                                     pk=typeset_id,
+                                     accepted__isnull=False,
+                                     completed__isnull=True)
+
+    article = typeset_task.assignment.article
+    galleys = core_models.Galley.objects.filter(article=article)
+    form = forms.TypesetterNote(instance=typeset_task)
+
+    if request.POST:
+
+        if 'complete' in request.POST:
+            form = forms.TypesetterNote(request.POST, instance=typeset_task)
+            if form.is_valid():
+                task = form.save()
+                task.completed = timezone.now()
+                task.save()
+
+                kwargs = {'typeset_task': typeset_task, 'request': request}
+                event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_COMPLETE, **kwargs)
+
+                messages.add_message(request, messages.INFO, 'Typeset assignment complete.')
+                return redirect(reverse('typesetter_requests'))
+
+        new_galley = None
+        if 'xml' in request.POST:
+            for uploaded_file in request.FILES.getlist('xml-file'):
+                new_galley = logic.save_galley(article, request, uploaded_file, True, "XML", False)
+
+        if 'pdf' in request.POST:
+            for uploaded_file in request.FILES.getlist('pdf-file'):
+                new_galley = logic.save_galley(article, request, uploaded_file, True, "PDF", False)
+
+        if 'other' in request.POST:
+            for uploaded_file in request.FILES.getlist('other-file'):
+                new_galley = logic.save_galley(article, request, uploaded_file, True, "Other", True)
+
+        if new_galley:
+            typeset_task.galleys_loaded.add(new_galley.file)
+
+        return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_task.pk}))
+
+    manuscripts = article.manuscript_files.filter(is_galley=False)
+    data_files = article.data_figure_files.filter(is_galley=False)
+    copyedit_files = logic.get_copyedit_files(article)
+
+    template = 'production/typeset_task.html'
+    context = {
+        'typeset_task': typeset_task,
+        'article': article,
+        'manuscripts': manuscripts,
+        'data_files': data_files,
+        'production_assignment': typeset_task.assignment,
+        'copyedit_files': copyedit_files,
+        'galleys': galleys,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@typesetter_or_editor_required
+def edit_galley(request, galley_id, typeset_id=None, article_id=None):
+    if typeset_id:
+        typeset_task = get_object_or_404(models.TypesetTask,
+                                         pk=typeset_id,
+                                         accepted__isnull=False,
+                                         completed__isnull=True)
+        article = typeset_task.assignment.article
+    else:
+        typeset_task = None
+        article = get_object_or_404(submission_models.Article,
+                                    pk=article_id)
+    galley = get_object_or_404(core_models.Galley,
+                               pk=galley_id,
+                               article=article)
+
+    if request.POST:
+
+        if 'delete' in request.POST:
+            if typeset_task:
+                logic.handle_delete_request(request, galley, typeset_task=typeset_task, page="edit")
+                return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_task.pk}))
+            else:
+                logic.handle_delete_request(request, galley, article=article, page="pm_edit")
+                return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+
+        label = request.POST.get('label')
+        if 'fixed-image-upload' in request.POST:
+            for uploaded_file in request.FILES.getlist('image'):
+                logic.save_galley_image(galley, request, uploaded_file, label, fixed=True)
+        if 'image-upload' in request.POST:
+            for uploaded_file in request.FILES.getlist('image'):
+                logic.save_galley_image(galley, request, uploaded_file, label, fixed=False)
+        elif 'css-upload' in request.POST:
+            for uploaded_file in request.FILES.getlist('css'):
+                logic.save_galley_css(galley, request, uploaded_file, 'galley-{0}.css'.format(galley.id), label)
+        if 'galley-label' in request.POST:
+            galley.label = request.POST.get('galley_label')
+            galley.save()
+        if 'replace-galley' in request.POST:
+            logic.replace_galley_file(article, request, galley, request.FILES.get('galley'))
+
+        if typeset_task:
+            return redirect(reverse('edit_galley', kwargs={'typeset_id': typeset_id, 'galley_id': galley_id}))
+        else:
+            return redirect(reverse('pm_edit_galley', kwargs={'article_id': article.pk, 'galley_id': galley_id}))
+
+    template = 'production/edit_galley.html'
+    context = {
+        'typeset_task': typeset_task,
+        'galley': galley,
+        'article': galley.article,
+        'image_names': logic.get_image_names(galley)
+    }
+
+    return render(request, template, context)
+
+
+@production_user_or_editor_required
+def review_typeset_task(request, article_id, typeset_id):
+    """
+    Allows an editor to view a Typeset task
+    :param request: django request object
+    :param article_id: Article PK
+    :param typeset_id: TypesetTask PK
+    :return: contextualised django template
+    """
+    typeset_task = get_object_or_404(models.TypesetTask, pk=typeset_id)
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+
+    typeset_task.editor_reviewed = timezone.now()
+    typeset_task.save()
+
+    return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+
+
+@typesetter_or_editor_required
+def delete_galley(request, typeset_id, galley_id):
+    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    galley.file.unlink_file()
+    galley.delete()
+
+    return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_id}))

@@ -1,0 +1,157 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Journal Publishing DTD Customize Classes Module   -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Journal Publishing DTD Customize Classes Module v3.0 20080202//EN"
+Delivered as file "journalpubcustom-classes3.ent"                  -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Journal Publishing DTD of the                     -->
+<!--             Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    To declare the Parameter Entities (PEs) used to   -->
+<!--             over-ride the named element classes for the       -->
+<!--             journal Publishing DTD, which was developed from  -->
+<!--             the Archiving and Interchange DTD Suite.          -->
+<!--                                                               -->
+<!--             This DTD (in contrast to the Journal Archiving    -->
+<!--             and Interchange DTD) is a more prescriptive       -->
+<!--             DTD than is the Archiving DTD. There are fewer    -->
+<!--             choices in the models within this DTD, and some   -->
+<!--             XML structures that were provided simply to       -->
+<!--             facilitate conversion of existing materials from  -->
+<!--             other DTDs into this format have not been included-->
+<!--             in this version of the DTD.                       -->
+<!--                                                               -->
+<!--             Similarly, this is also a tighter DTD. Some of the-->
+<!--             attributes that have type CDATA values in the     -->
+<!--             Archiving DTD, and can thus accept any value,     -->
+<!--             have been given explicit value lists in this DTD. --> 
+<!--                                                               -->
+<!--             Note: Since PEs must be declared before they      -->
+<!--             are used, this module must be called before the   -->
+<!--             content modules that declare elements, and before -->
+<!--             the default classes module.                       -->
+<!--                                                               -->
+<!-- CONTAINS:   1) PEs for changing the contents of the default   -->
+<!--                element classes                                -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital Archive of Journal Articles               -->
+<!--             National Center for Biotechnology Information     -->
+<!--                (NCBI)                                         -->
+<!--             National Library of Medicine (NLM)                -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             September 2004                                    -->
+<!--                                                               -->
+<!-- CREATED BY: Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             B. Tommie Usdin (Mulberry Technologies, Inc.)     -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             this DTD should be sent in email to:              -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR CLASS OVER-RIDES    -->
+<!-- ============================================================= -->
+                            
+
+<!-- ============================================================= -->
+<!--                    OVER-RIDE FORMATTING CLASS (format.ent)    -->
+<!-- ============================================================= -->
+   
+
+<!--                    EMPHASIS RENDITION ELEMENTS                -->
+<!ENTITY % emphasis.class   
+                        "bold | italic | monospace | overline | 
+                         roman |  sans-serif | sc | strike | 
+                         underline"                                  >
+
+
+<!-- ============================================================= -->
+<!--                    OVER-RIDE INLINE CLASSES                   -->
+<!-- ============================================================= -->
+
+
+<!--                    CITATION CLASS ELEMENTS                    -->
+<!--                    Reference to an external document, as used 
+                        within, for example, the text of a 
+                        paragraph                                  -->
+<!ENTITY % citation.class   
+                        "element-citation | mixed-citation | 
+                         nlm-citation"                               >
+
+
+<!--                    CONTRIBUTOR INFORMATION                    -->
+<!--                    Metadata about a contributor               -->
+<!ENTITY % contrib-info.class
+                        "address | aff | author-comment | bio |  
+                         email | ext-link | on-behalf-of |
+                         role | uri | xref"                          >
+                        
+                        
+<!--                    DATE CLASS ELEMENTS                        -->
+<!--                    Dates and other matters of history         -->
+<!ENTITY % date.class   "date"                                       >
+
+
+<!--                    NAMES CLASS                                -->
+<!--                    The elements used to name the personal names
+                        for individuals and the collaboration names
+                        for groups  
+                        Removed <string-name>                      -->
+<!ENTITY % name.class   "anonymous | collab | name"                  >
+
+
+<!-- ============================================================= -->
+<!--                    OVER-RIDE PARAGRAPH-LIKE ELEMENTS          -->
+<!-- ============================================================= -->
+
+
+<!--                    REST OF PARAGRAPH CLASS (MINUS PARAGRAPH)  -->
+<!--                    Information for the reader that is at the
+                        same structural level as a Paragraph.
+                        Contains all paragraph-level objects that are
+                        not also used inside tables and excepting
+                        also the paragraph element itself.         -->
+<!ENTITY % rest-of-para.class   
+                        "disp-quote | speech | statement | 
+                         verse-group"                                >
+              
+              
+<!-- ================== End Publishing Classes Customization ===== -->

@@ -1,0 +1,278 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Journal Metadata Elements                         -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Journal Metadata Elements v3.0 20080202//EN"
+     Delivered as file "journalmeta3.ent"                          -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Names all elements used to describe the journal   -->
+<!--             in which the journal article is published.        -->
+<!--                                                               -->
+<!-- CONTAINS:   1. Default values for attribute lists             -->
+<!--             2. Journal metadata content model                 -->
+<!--             3. Journal metadata elements in the order used in -->
+<!--                the journal metadata element                   -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+                        
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  2. Changed default @xml:lang from "EN" from "en" to match latest
+     RFC 4646/W3C/IANA Subtag Registry recommendations
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    DEFAULTS FOR ATTRIBUTE LISTS               -->
+<!-- ============================================================= -->
+
+
+<!--                    ABBREVIATED JOURNAL TITLE ATTRIBUTES       -->
+<!--                    Attribute list for Abbreviated Journal Title 
+                        <abbrev-journal-title> element             -->
+<!ENTITY % abbrev-journal-title-atts
+             "abbrev-type  
+                        CDATA                              #IMPLIED 
+              xml:lang  NMTOKEN                            'en'"     >
+                                                                
+                                                                 
+<!--                    JOURNAL TITLE ATTRIBUTES                   -->
+<!--                    Attributes for the <journal-title> 
+                        element                                    -->
+<!ENTITY % journal-title-atts
+             "content-type
+                        CDATA                              #IMPLIED 
+              xml:lang  NMTOKEN                            'en'"     >
+                                                                
+                                                                 
+<!--                    JOURNAL TITLE GROUP ATTRIBUTES             -->
+<!--                    Attributes for the <journal-title-group> 
+                        element                                    -->
+<!ENTITY % journal-title-group-atts
+             "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    JOURNAL SUBTITLE GROUP ATTRIBUTES          -->
+<!--                    Attributes for the <journal-subtitle> 
+                        element                                    -->
+<!ENTITY % journal-subtitle-atts
+             "content-type
+                        CDATA                              #IMPLIED 
+              xml:lang  NMTOKEN                            'en'"     >
+
+
+<!-- ============================================================= -->
+<!--                    JOURNAL METADATA                           -->
+<!-- ============================================================= -->
+
+ 
+<!--                    JOURNAL METADATA MODEL                     -->
+<!--                    Content model for the journal metadata
+                        element <journal-meta>                     -->
+<!ENTITY % journal-meta-model  
+                        "(journal-id*, journal-title-group*, issn*, 
+                          isbn*, publisher?, notes?, 
+                          custom-meta-group?)"                       >
+ 
+ 
+<!--ELEM   journal-id   Defined in %common3.ent"                   -->
+<!--ELEM   issn         Defined in %common3.ent"                   -->
+<!--ELEM   publisher    Defined in %common3.ent"                   -->
+<!--ELEM   notes        Defined in %common3.ent"                   -->
+<!--ELEM   custom-meta-group
+                        Defined in %common3.ent"                   -->
+
+
+<!--                    JOURNAL METADATA                           -->
+<!--                    Metadata that identifies the journal in which
+                        the article was published
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=journal-meta
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=journal-meta
+                                                                   -->
+<!ELEMENT  journal-meta %journal-meta-model;                         >
+  
+
+<!-- ============================================================= -->
+<!--                    JOURNAL TITLE ELEMENTS                     -->
+<!-- ============================================================= -->
+
+ 
+<!--                    JOURNAL TITLE GROUP MODEL                  -->
+<!--                    Content model for the element  
+                        <journal-title-group>                      -->
+<!ENTITY % journal-title-group-model  
+                        "(journal-title*, journal-subtitle*,
+                          trans-title-group*, abbrev-journal-title*)">
+
+
+<!--ELEM   trans-title-group
+                        Defined in %common3.ent"                   -->
+
+
+<!--                    JOURNAL TITLE GROUP                        -->
+<!--                    A container element to hold the title and
+                        its subtitle (if any) for the journal in which
+                        the article was published.    
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=journal-title-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=journal-title-group
+                                                                   -->
+<!ELEMENT  journal-title-group
+                        %journal-title-group-model;                  >
+<!ATTLIST  journal-title-group
+             %journal-title-group-atts;                              >
+
+
+<!--                    JOURNAL TITLE ELEMENTS                     -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <journal-title>
+                        Design Note: This PE begins with an OR
+                        bar because %just-rendition; begins with an
+                        OR bar.                                    -->
+<!ENTITY % journal-title-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    JOURNAL TITLE (FULL)                       -->
+<!--                    The title of the journal in which the
+                        article is published.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=journal-title
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=journal-title
+                                                                   -->
+<!ELEMENT  journal-title 
+                        (#PCDATA %journal-title-elements;)*          >
+<!ATTLIST  journal-title
+             %journal-title-atts;                                    >
+
+
+<!--                    JOURNAL SUBTITLE                           -->
+<!--                    The subtitle of the journal in which the
+                        article is published.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=journal-subtitle
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=journal-subtitle
+                                                                   -->
+<!ELEMENT  journal-subtitle 
+                        (#PCDATA %journal-title-elements;)*          >
+<!ATTLIST  journal-subtitle
+             %journal-subtitle-atts;                                 >
+
+
+<!--                    ABBREVIATED JOURNAL TITLE ELEMENTS         -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <abbrev-journal-title> 
+                        Design Note: This PE begins with an OR
+                        bar because %just-rendition; begins with an
+                        OR bar.                                    -->
+<!ENTITY % abbrev-journal-title-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    ABBREVIATED JOURNAL TITLE                  -->
+<!--                    A short form of the title of the journal
+                        in which the article is published. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=abbrev-journal-title
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=abbrev-journal-title
+                                                                   -->
+<!ELEMENT  abbrev-journal-title 
+                        (#PCDATA %abbrev-journal-title-elements;)*   >
+<!ATTLIST  abbrev-journal-title
+             %abbrev-journal-title-atts;                             >
+
+
+<!-- ================== End Journal Metadata Elements  =========== -->

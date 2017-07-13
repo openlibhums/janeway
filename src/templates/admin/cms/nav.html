@@ -1,0 +1,32 @@
+{% extends "admin/core/base.html" %}
+{% load markdown_deux_tags %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block admin-header %}Edit Navigation{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'cms_index' %}">Content Manager</a></li>
+    <li>Edit Navigation</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|foundation }}
+                <button type="submit" name="submit" class="success button">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <p>Your custom navigation currently looks like this: </p>
+            {% include "elements/cms_nav.html" %}
+        </div>
+    </div>
+{% endblock body %}

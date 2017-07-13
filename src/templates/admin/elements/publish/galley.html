@@ -1,0 +1,20 @@
+<div class="reveal small" id="galley" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-file-o">&nbsp;</i>Select Render Galley</h4>
+        </div>
+        <div class="card-section">
+            <form method="POST">
+                {% csrf_token %}
+                {% for galley in article.galley_set.all %}
+                <input {% if article.render_galley == galley %}checked="checked"{% endif %} required="required" type="radio" name="render_galley" id="{{ galley.pk }}" value="{{ galley.pk }}">&nbsp;#{{ galley.pk}} - {{ galley.label }}, {{ galley.file.original_filename }} ({{ galley.file.mime_type }})<br />
+                {% endfor %}
+                <button type="submit" name="galley" class="small success button">Set Galley</button>
+            </form>
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>

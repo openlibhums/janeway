@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="card-divider">
+        <h4>{{ request.article.title|safe }}</h4>
+    </div>
+    <div class="card-section">
+        <p>A request for review has been made.</p>
+        {% if type == 'active' or type == 'new' %}
+            <p>Due: {{ request.date_due }}</p>
+        {% else %}
+            <p>Completed: {{ request.date_complete }}</p>
+        {% endif %}
+        <div class="button-group">
+            {% if type == "new" %}
+                <a class="button" href="{% url 'accept_review' request.pk %}">Accept Task</a>
+                <a class="button secondary" href="{% url 'decline_review' request.pk %}">Decline Task</a>
+            {% elif type == 'active' %}
+                <a class="button" href="{% url 'do_review' request.pk %}">View Task</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        Editor:
+        <span class="avatar" data-tooltip aria-haspopup="true" class="has-tip" tabindex="1"
+              title="{{ request.editor.full_name }}">
+            {% if request.editor.profile_image %}
+                <img src="{{ request.editor.profile_image.url }}" alt="{{ request.editor.full_name }}">{% else %}
+                {{ request.editor.initials }}{% endif %}
+        </span>
+
+    </div>
+</div>

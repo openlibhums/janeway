@@ -1,0 +1,26 @@
+<div class="title-area">
+    <h2>{{ field.label }}</h2>
+</div>
+<div class="content">
+    <p>{{ field.help_text }}</p>
+    <table class="usertable">
+        <thead>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in queryset %}
+            <tr>
+                <td><input type="radio" name="{{ field.name }}" id="user-{{ user.id }}" value="{{ user.id }}" {% if user == notification.user %}checked="checked"{% endif %} /></td>
+                <td>{{ user.id }}</td>
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.email }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

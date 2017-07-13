@@ -1,0 +1,124 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Manage Guest Editors{% endblock title %}
+{% block title-section %}Manage Guest Editors{% endblock title-section %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/issue_management.html" %}
+    <li>Add Guest Editor</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Issue</h2>
+                </div>
+                <div class="content">
+                    <table>
+                        <tr>
+                            <th>Title</th>
+                            <th>Volume</th>
+                            <th>Number</th>
+                            <th>Date</th>
+                            <th>No. Articles</th>
+                        </tr>
+                        <tr>
+                            <td>{{ issue.issue_title }}</td>
+                            <td>{{ issue.volume }}</td>
+                            <td>{{ issue.issue }}</td>
+                            <td>{{ issue.date|date:"Y-m-d" }}</td>
+                            <td>{{ issue.manage_issue_list|length }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Guest Editors</h2>
+                </div>
+                <div class="content">
+                    <table class="small table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for user in guest_editors %}
+                            <tr id="articles-{{ dict.article.pk }}">
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <button type="submit" name="user_remove" value="{{ user.pk }}"><i class="fa fa-chain-broken">
+                                        &nbsp;</i>Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Journal Users</h2>
+                </div>
+                <div class="content">
+                    <table class="small table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for user in users %}
+                            {% if user not in guest_editors %}
+                                <tr id="articles-{{ dict.article.pk }}">
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <button type="submit" name="user" value="{{ user.pk }}"><i class="fa fa-plus">
+                                        &nbsp;</i>Add
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target=".table" %}
+{% endblock %}

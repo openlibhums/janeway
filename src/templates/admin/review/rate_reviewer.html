@@ -1,0 +1,43 @@
+{% extends "admin/core/base.html" %}}
+
+{% block title %}Rate Reviewer{% endblock title %}
+{% block title-section %}Rate Review{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Rate Reviewer</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <p>You can rate {{ review.reviewer.full_name }} from 1 to 10. The reviewer's average review rating will
+                    be displayed on the Select a
+                    Reviewer table.</p>
+            </div>
+            <div class="content">
+                {% if review.review_rating %}<p>You have previously rated this reviewer and given them a score
+                    of {{ review.review_rating.rating }}</p>{% endif %}
+                <div class="row">
+                    <form method="POST">
+                        <div class="small-5 columns">
+                            <div class="slider" data-slider data-initial-start="{% if review.review_rating.rating %}{{ review.review_rating.rating }}{% else %}1{% endif %}"
+                                 data-step="1" data-start="1" data-end="10">
+                                <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="sliderOutput2"></span>
+                                <span class="slider-fill" data-slider-fill></span>
+                            </div>
+                            <button type="submit" class="button success">Rate Reviewer</button>
+                        </div>
+
+                        {% csrf_token %}
+                        <div class="small-1 columns float-left">
+                            <input type="number" name="rating_number" id="sliderOutput2">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

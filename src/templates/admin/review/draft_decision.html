@@ -1,0 +1,84 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load roles %}
+
+{% block title %}Draft Decision{% endblock title %}
+{% block admin-header %}Draft Decision{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Draft a Decisions</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    {% user_has_role request 'editor' as user_is_editor %}
+    <div class="large-8 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Add a Draft</h2>
+            </div>
+            <div class="content">
+                <form method="POST"
+                      {% if draft and user_is_editor %}action="{% url 'review_manage_draft' article.pk draft.pk %}"{% endif %}>
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">{% if not draft %}Submit Draft for Review{% else %}
+                        Save{% endif %}</button>
+                    {% if draft and user_is_editor %}
+                        <div class="float-right">
+                            <button name="accept_draft" type="submit" class="success button">Accept Draft</button>
+                            <button name="decline_draft" type="submit" class="alert button">Decline Draft</button>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-4 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Existing Drafts</h2>
+            </div>
+            <div class="content">
+                <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for draft in article.decisiondraft_set.all %}
+                            <li class="accordion-item{% if forloop.first %} is-active{% endif %}" data-accordion-item>
+                                <a href="#"
+                                   class="accordion-title">{{ forloop.counter }}. {{ draft.get_decision_display }}</a>
+                                <div class="accordion-content" data-tab-content>
+                                    <p>
+                                        <small>
+                                            Section Editor: {{ draft.section_editor.full_name }}<br/>
+                                            Editor: {{ draft.editor.full_name }}<br/>
+                                            Drafted: {{ draft.drafted }}<br/>
+                                            {% if draft.editor_decision %}Editor Decision:
+                                                {{ draft.get_editor_decision_display }}{% endif %}
+                                        </small>
+                                    </p>
+                                    {% if not draft.editor_decision %}
+                                        <div class="float-right">
+                                            <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}"
+                                               class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                            <button type="submit" name="delete" value="{{ draft.pk }}"
+                                                    class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                        </div>
+                                    {% endif %}
+                                    <br/>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </form>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

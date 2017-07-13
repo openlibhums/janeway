@@ -1,0 +1,13 @@
+{% load foundation %}
+
+{% for field in form %}
+<div class="form-group">
+        {% if field.field.widget.attrs.is_checkbox %}
+        {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br/>{% endif %}
+        {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
+        {% else %}
+        {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span>{% endif %}
+        {{ field|foundation }}
+        {% endif %}
+</div>
+{% endfor %}

@@ -1,0 +1,19 @@
+{% extends "core/base.html" %}
+
+{% load truncate %}
+
+
+{% block page_title %}Journal Home{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+
+    {% for element in homepage_elements %}
+        {% include element.template_path %}
+    {% endfor %}
+
+{% endblock body %}
+
+{% block js %}
+{% endblock js %}

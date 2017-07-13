@@ -1,0 +1,238 @@
+<!-- ============================================================= -->
+<!--  MODULE:    MathML DTD SETUP MODULE                           -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite MathML Setup Module v3.0 20080202//EN"
+     Delivered as file "mathmlsetup3.ent"                          -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Provides the organization for using the           -->
+<!--             MathML DTD                                        -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Overrides to standard parameter entities used  -->
+<!--                in the MathML 2.0 DTD                          -->
+<!--             2) Call to MathML 2.0 DTD                         -->
+<!--                                                               -->
+<!-- MODULES REQUIRED:                                             -->
+<!--             1) mathml2.dtd           MathML 2.0 DTD           -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--             important contributions.                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    SET UP FOR THE MathML MODULE               -->
+<!-- ============================================================= -->
+
+
+<!--                    MathML DTD                                 -->
+<!--                    The official version of the MathML 2.0 can 
+                        be found at: http://www.w3.org/TR/MathML2/
+
+                        See also Mathematical Markup Language  
+                        (MathML) Version 2.0
+                       
+                        A. Parsing MathML
+                        A.6 The MathML DTD
+            http://www.w3.org/TR/MathML2/appendixa.html#parsing-dtd
+
+                        A zip file with entity declarations is 
+                        available from
+            http://www.w3.org/TR/MathML2/DTD-MathML-20010221.zip   -->
+
+
+<!-- ============================================================= -->
+<!--                    SET UP W3C XML SCHEMA                      -->
+<!-- ============================================================= -->
+
+
+<!--                    MAKE PREFIX EQUAL "xsi" (same as MathML)   -->
+<!ENTITY % Schema.prefix         
+                        "xsi"                                        >    
+
+<!--                    SET UP NAMESPACE FOR SCHEMA
+                           (same as MathML)                        -->
+<!ENTITY % Schema.xmlns "http://www.w3.org/2001/XMLSchema-instance"  >
+
+
+<!--                    OVER-RIDE MATHML DTD TO MAKE EXPLICIT NS   -->
+<!--                    MathML sets this up but then lets the
+                        attribute be a CDATA one, not the real
+                        namespace URI                              -->
+<!ENTITY % Schema.xmlns.attrib
+     "xmlns:%Schema.prefix;  CDATA          #FIXED '%Schema.xmlns;'" >
+
+
+<!-- ============================================================= -->
+<!--                    SET UP "mml" AS THE MATH PREFIX            -->
+<!-- ============================================================= -->
+
+
+<!--                    MAKE MATH PREFIX PARAMETER ENTITY HAPPEN   -->
+<!ENTITY % MATHML.prefixed "INCLUDE"                                 >
+
+
+<!--                    MAKE PREFIX EQUAL "mml"                    -->
+<!ENTITY % MATHML.prefix   "mml"                                     >
+
+
+<!--                    SET UP "pfx"                               -->
+<![%MATHML.prefixed;[
+<!ENTITY % MATHML.pfx      "%MATHML.prefix;:"                        >
+]]>
+
+
+<!--                    USE "pfx" TO SET THE MATH ELEMENT NAME     -->
+<!ENTITY % math.qname      "%MATHML.pfx;math"                        >
+
+
+
+
+<!-- ============================================================= -->
+<!--                    CALL THE MATHML ENTITIES                   -->
+<!-- ============================================================= -->
+
+
+<!--                    MATHML CHARACTER ENTITIES                  -->
+<!--                    Set the "INCLUDE" or "IGNORE" marked section
+                        switch for the MATHML 2.0 DTD. This switch
+                        determines whether the math processing in 
+                        the -%mathml.dtd; module or the
+                        -%xmlspecchars.ent; module in this DTD Suite 
+                        will invoke the sets of special characters 
+                        that are defined AND INVOKED in the
+                        -%xmlspecchars.ent; module.
+                        A value of "IGNORE" turns off the second
+                        invocation from the MathML DTD.            -->
+<!ENTITY % mathml-charent.module 
+                        "IGNORE"                                     >
+
+
+<!--                    MATHML-SPECIFIC CHARACTER ENTITIES         -->
+<!--                    Because the MATHML invocation is canceled
+                        using the parameter entity just defined,
+                        the two external entities below must be
+                        invoked from here, as neither XMLspecchars
+                        nor the MathML DTD will invoke them.       -->
+
+<!--                    New characters defined by MathML           -->
+%ent-mmlextra;
+
+
+<!--                    MathML aliases for characters defined above-->
+%ent-mmlalias;
+
+
+<!-- ============================================================= -->
+<!--                    RESTRICT CONTENT OF ANNOTATION             -->
+<!-- ============================================================= -->
+
+<!--                    MATHML ANNOTATION MODEL                    -->
+<!--                    The MathML DTD establishes the content of the
+                        <mml:annotation> element as ANY. This is
+                        unnecessarily broad, causing inconvenience for
+                        conversion. The model has been restricted to
+                        one or more paragraphs.                    -->
+<!ENTITY % Annotation-xml.content
+                        "(p+)"                                       >
+                        
+
+<!-- ============================================================= -->
+<!--                    MathML 2.0 INVOCATION                      -->
+<!-- ============================================================= -->
+
+%mathml.dtd;
+
+
+<!-- ================== End MATHML Setup Module ================== -->

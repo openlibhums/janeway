@@ -1,0 +1,106 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Article Images Manager{% endblock title %}
+{% block admin-header %}Article Images Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_article_images' %}">Article Images Manager</a></li>
+    <li>Image for {{ article.title|safe }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Current Large Image</h2>
+                </div>
+                <div class="content">
+                    {% if not article.large_image_file %}
+                        No Image file.
+                    {% else %}
+                        <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}" class="thumbnail">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name="delete" value="{{ article.large_image_file.id }}" class="tiny alert button">
+                                Delete File
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% if article.large_image_file %}Replace Image{% else %}Upload Image{% endif %}</h2>
+                </div>
+                <div class="content">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" name="image_file">
+                        <button name="large" type="submit" class="success button">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row expanded">
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Current Thumbnail</h2>
+                </div>
+                <div class="content">
+                    {% if not article.thumbnail_image_file %}
+                        No Image file.
+                    {% else %}
+                        <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}" class="thumbnail">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name="delete" value="{{ article.thumbnail_image_file.id }}" class="tiny alert button">
+                                Delete File
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% if article.thumbnail_image_file %}Replace Image{% else %}Upload Image{% endif %}</h2>
+                </div>
+                <div class="content">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" name="image_file">
+                        <button name="thumb" type="submit" class="success button">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="large-6 columns">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Article Meta Image</h2>
+                    </div>
+                    <div class="content">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ article_meta_image_form.as_p }}
+                            <button name="meta" type="submit" class="success button">Upload</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+{% endblock body %}

@@ -1,0 +1,37 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Edit Review Answer{% endblock title %}
+{% block admin-header %}Edit Review Answer{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Edit Review Answer</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Reviewer Answer</h2>
+            </div>
+            <div class="content">
+                {{ answer.answer }}
+            </div>
+        </div>
+    </div>
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Editor Version</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% include "elements/single_field_generate_form.html" with form=form %}
+                    <button type="submit" class="button success">Save Editor Version</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,108 @@
+
+/* Main layout control */
+
+* { margin: 0; padding: 0; }
+
+@page {
+  size: 8.3in 11.7in;
+  margin: 0;
+}
+
+#cassius-content {
+  flow-into: article;
+}
+
+.page {
+  position: relative;
+  background: #fff;
+}
+
+@media screen {
+  .page {
+    width: 8.3in;
+    height: 11.7in;
+    margin: 1rem auto 2rem auto;
+    background-color: #fff;
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0, 0.25);
+  }
+}
+
+.content {
+  flow-from: article;
+  overflow: hidden;
+  position: relative;
+  top: 1.8in;
+  bottom: 1.5in;
+  right: 0;
+  margin: 0 1.6in 0 1.6in;
+  height: 8.3in;
+}
+
+/* Header and Footer styles */
+
+.header {
+  position: absolute;
+  top: 0.4in;
+  right: 0.5in;
+  left: 0.5in;
+  display: block;
+  width: 7.5in;
+  height: 0.375in;
+  border-bottom: 1px solid #003366;
+
+}
+
+.header img {
+  position: relative;
+  top: -0.1in;
+  max-width: 20%;
+  max-height: 0.36in;
+}
+
+.footer {
+  position: absolute;
+  right: 0.5in;
+  bottom: 0;
+  left: 0.5in;
+  height: 0.75in;
+  padding-top: 0.5rem;
+  font-size: 0.7rem;
+  border-top: 1px solid #333;
+}
+
+.pagination {
+  float: right;
+}
+
+/* Styles specific to printing */
+
+@media print {
+  .page {
+    width: 8.3in;
+    height: 11.7in;
+  }
+
+  .content {
+    height: 11.7in;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Styles specific to the first page */
+
+.page-1 .header {
+  border-bottom: 4px solid #003366;
+}
+
+.page-1 .header span {
+  display: none;
+}
+
+.page-1 .content {
+  margin: 0 1.4in 0 1.4in;
+  padding-bottom: 0in;
+}

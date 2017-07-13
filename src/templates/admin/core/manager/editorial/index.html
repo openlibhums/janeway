@@ -1,0 +1,81 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Editorial Groups Manager{% endblock title %}
+{% block title-section %}Editorial Team{% endblock %}
+{% block title-sub %}Group Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_editorial_team' %}">Editorial Group Manager</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Editorial Groups</h2>
+                <a class="button" href="{% url 'core_editorial_team' %}">Add New Group</a>
+            </div>
+            <div class="box">
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group" id="sortable">
+                        {% for group in editorial_groups %}
+                        <li class="list-group-item" id="group-{{ group.pk }}">
+                            <div class="float-right">
+                                <a href="{% url 'core_editorial_member_to_group' group.pk %}" class="tiny success button"><i class="fa fa-users" ></i></a>
+                                <a href="{% url 'core_edit_editorial_team' group.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                <button type="submit" name="delete" value="{{ group.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
+                            </div>
+                            <small>
+                                {{ group.name }}<br />
+                            </small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Add New Group</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button class="success button" type="submit">{% if group %}Edit Group{% else %}Add New Group{% endif %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#featured" %}
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script>
+    $( "#sortable" ).sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            console.log(data);
+            // POST to server using $.post or $.ajax
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{% url 'core_editorial_ordering' 'group' %}'
+            });
+        }
+    });
+    $( "#sortable" ).disableSelection();
+</script>
+{% endblock js %}
+
+

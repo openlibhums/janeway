@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Editorial Team{% endblock title %}
+
+{% block body %}
+	<section id="content">
+		<div class="row column">
+            <h4>Editorial Team</h4>
+            {% for group in editorial_groups %}
+                <h6>{{ group.name }}</h6>
+                {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
+                <div class="row" data-equalizer data-equalize-on="medium">
+                    {% for member in group.members %}
+                    <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
+                        <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout" data-equalizer-watch>
+                            {% if journal_settings.general.enable_editorial_images %}
+                            <img class="thumbnail editorial-image" src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Photo of Uranus.">
+                            {% endif %}
+                            <strong>{{ member.user.full_name }}</strong><br />
+                            <i><small>{{ member.user.affiliation }}</small></i><br />
+                            {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                        </div>
+                    </div>
+                    {% if forloop.counter|divisibleby:4 %}
+                    </div>
+                    <div class="row">
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <hr />
+            {% endfor %}
+		</div>
+	</section>
+{% endblock body %}

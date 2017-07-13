@@ -1,0 +1,87 @@
+{% extends "core/base.html" %}
+{% load foundation %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Register" %}{% endblock page_title %}
+
+{% block css %}
+    <style>
+        .login {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+    </style>
+{% endblock css %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="medium-12 medium-centered large-12 large-centered columns login">
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="callout">
+                    <div class="row column log-in-form">
+                        <h5>{%  trans "Regsiter for" %} {% if request.journal %}{{ request.journal.name }}{% else %}
+                            {{ request.press.name }}{% endif %}</h5>
+                        <p>{% blocktrans %}Your password should be at minimum 12 characters long. It does not need to contain specific characters but you should make it as long as possible. For more information read on <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
+
+                        {% include "elements/forms/errors.html" with form=form %}
+
+                        <div class="row">
+                            <div class="large-12 columns">
+                                {{ form.email|foundation }}
+                            </div>
+                            <div class="large-3 columns">
+                                {{ form.salutation|foundation }}
+                            </div>
+                            <div class="large-3 columns">
+                                {{ form.first_name|foundation }}
+                            </div>
+                            <div class="large-3 columns">
+                                {{ form.middle_name|foundation }}
+                            </div>
+                            <div class="large-3 columns">
+                                {{ form.last_name|foundation }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="large-4 columns">
+                                {{ form.department|foundation }}
+                            </div>
+                            <div class="large-4 columns">
+                                {{ form.institution|foundation }}
+                            </div>
+                            <div class="large-4 columns">
+                                {{ form.country|foundation }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="large-6 columns">
+                                {{ form.password_1|foundation }}
+                            </div>
+                            <div class="large-6 columns">
+                                {{ form.password_2|foundation }}
+                            </div>
+                        </div>
+                        <p>
+                            <button type="submit" class="success button float-right">{% trans "Register" %}</button>
+                        </p>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="reveal" id="password-modal" data-reveal>
+        <h1>Password Guide</h1>
+        <p class="lead">When it comes to passwords, length is better than complexity.</p>
+        <p>Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and uncomplicated password (our awesome moon base rocks).</p>
+        <p>We recommend selecing a long, but easy to remember password such as <i>our awesome moon base rocks</i> which would take an estimated septillion years to crack as opposed to a complex one like <i>Jfjfy&65^87</i> which would take just over 600 years on a standard computer.</p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+{% endblock body %}

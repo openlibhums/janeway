@@ -1,0 +1,80 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% load securitytags %}
+
+{% block title %}Proofing Requests{% endblock title %}
+{% block title-section %}Proofing Requests{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/proofreader_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="row expanded column">
+        <div class="kanban">
+            <div class="inner">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Awaiting Decision</h2>
+                    </div>
+                    <div class="content">
+                        {% for task in new_requests %}
+                            {% include "elements/proofing/proofreader_card.html" with type="assignment" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>In Progress</h2>
+                    </div>
+                    <div class="content">
+                        {% for task in active_requests %}
+                            {% include "elements/proofing/proofreader_card.html" with type="assigned" %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Completed</h2>
+                    </div>
+                    <div class="content">
+                        {% for task in completed_requests %}
+                            {% include "elements/proofing/proofreader_card.html" with type="complete" %}
+                        {% endfor %}
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row expanded column">
+        <div class="kanban">
+            <div class="inner">
+                <div class="box">
+                    <h5>Awaiting Decision</h5>
+                    {% for task in new_typesetting_requests %}
+                        {% include "elements/proofing/proofreader_correction_card.html" with type="assignment" %}
+                    {% endfor %}
+                </div>
+                <div class="box">
+                    <h5>In Progress</h5>
+                    {% for task in active_typesetting_requests %}
+                        {% include "elements/proofing/proofreader_correction_card.html" with type="assigned" %}
+                    {% endfor %}
+                </div>
+                <div class="box">
+                    <h5>Completed</h5>
+                    {% for task in completed_typesetting_requests %}
+                        {% include "elements/proofing/proofreader_correction_card.html" with type="complete" %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock body %}

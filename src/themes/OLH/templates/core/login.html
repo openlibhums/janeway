@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Login" %}{% endblock page_title %}
+
+{% block css %}
+<style>
+    .login {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+</style>
+{% endblock css %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="medium-6 medium-centered large-4 large-centered columns login">
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="callout">
+                    <div class="row column log-in-form">
+                        <h4 class="text-center">{% trans "Log in with your account" %}</h4>
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/" class="success button expanded">{% trans "Log in with ORCiD" %}</a>
+                        <label>Email
+                            <input name="user_name" type="text" placeholder="somebody@example.com">
+                        </label>
+                        <label>Password
+                            <input type="password" placeholder="Password" name="user_pass">
+                        </label>
+                        <p><button type="submit" class="button expanded">{% trans "Log in" %}</button></p>
+                        <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgotten your password?" %}</a></p>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock body %}

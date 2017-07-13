@@ -1,0 +1,120 @@
+<!-- ============================================================= -->
+<!--  MODULE:    NLM Citation                                      -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD NLM Citation v3.0 20080202//EN"
+Delivered as file "nlmcitation3.ent"                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Journal Publishing DTD of the                     -->
+<!--             Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    This new DTD Suite module adds the model for the  -->
+<!--             NLM Structured bibliographic citation. This model -->
+<!--             The model loosely reflects the NLM's style, in    -->
+<!--             that it allows the tagging of all "legal" NLM     --> 
+<!--             citations and enforces the sequence in which      -->
+<!--             content must appear if it is present. However,    -->
+<!--             this model does not provide guidance on what      -->
+<!--             information is required for each type of cited    -->
+<!--             content.                                          -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Content model for <nlm-citation>               -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital Archive of Journal Articles               -->
+<!--             National Center for Biotechnology Information     -->
+<!--                (NCBI)                                         -->
+<!--             National Library of Medicine (NLM)                -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             September 2004                                    -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             B. Tommie Usdin (Mulberry Technologies, Inc.)     -->
+<!--             Deborah A. Lapeyre (Mulberry Technologies, Inc.)  -->
+<!--                                                               -->
+<!--             The Journal Publishing DTD is built from the      -->
+<!--             Archiving and Interchange DTD Suite.              -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             this DTD should be sent in email to:              -->
+<!--                 publishing-dtd@ncbi.nlm.nih.gov               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+
+  Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+             
+             
+<!-- ============================================================= -->
+<!--                    NEW ELEMENT DECLARATIONS                   -->
+<!--                    Declarations of elements that are new to   -->
+<!--                    this DTD.                                  -->
+<!--                    NOTE: All new structures must be mappable  -->
+<!--                    to the archiving/interchange DTD and the   -->
+<!--                    mapping should be described when the new   -->
+<!--                    element is declared.                       -->
+<!-- ============================================================= -->
+
+                                                   
+<!--                    NLM CITATION MODEL                         -->
+<!--                    This structured citation model is loosely 
+                        reflects the NLM's house style, in that
+                        it allows the tagging of all "legal" NLM 
+                        citations and enforces the sequence in which
+                        content must appear if it is present.
+                        This model assumes that punctuation between
+                        the parts of a citation will be generated 
+                        on display or on export.
+                        (Deprecated after Versino 3.0) 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=nlm-citation
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=nlm-citation
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=nlm-citation
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=nlm-citation
+                                                                   -->
+<!ELEMENT  nlm-citation   
+                        ((person-group | collab)*, 
+                         (article-title | trans-title)*, 
+                         source?, patent?, trans-source?, year?, 
+                         ((month?, day?, time-stamp?) | season?), 
+                         access-date?, volume?, edition?, 
+                         conf-name?, conf-date?, conf-loc?, 
+                         (issue | supplement)*, publisher-loc?, 
+                         publisher-name?, (fpage?, lpage?)*, 
+                         page-count?, series?, comment*, pub-id*, 
+                         annotation?)                                > 
+
+<!ATTLIST  nlm-citation
+             %citation-atts;                                         >
+
+
+<!-- ================== End NLM Citation Module ================== -->

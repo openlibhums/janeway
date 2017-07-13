@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}}
+
+{% block title %}Review Complete{% endblock title %}
+{% block title-section %}Review Complete{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/reviewer_base.html" %}
+<li>Review Complete</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="content">
+            <p>{{ assignment.form.thanks }}</p>
+        </div>
+        <div class="title-area">
+            <h2>Your Recommendation</h2>
+        </div>
+        <div class="content">
+            <p>{{ assignment.get_decision_display }}</p>
+        </div>
+        <div class="title-area">
+            <h2>Summary of Review</h2>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                {% for answer in assignment.review_form_answers %}
+                    <div class="{{ answer.element.width }}">
+                        <b>{{ answer.element.name }}</b>
+                        <br />
+                        {{ answer.answer }}
+                        <br /><br />
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if assignment.comments_for_editor %}
+            <div class="title-area">
+                <h2>Comments for the Editor</h2>
+            </div>
+            <div class="content">
+                <p>{{ assignment.comments_for_editor|linebreaksbr }}</p>
+            </div>
+        {% endif %}
+        {% if assignment.review_file %}
+            <div class="title-area">
+                <h2>Review File</h2>
+            </div>
+            <div class="content">
+               {{ assignment.review_file.original_filename }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

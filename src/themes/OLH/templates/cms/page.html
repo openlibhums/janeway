@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+{% load markdown_deux_tags %}
+
+{% block title %}{{ page.display_name }}{% endblock title %}
+
+{% block page_title %}{{ page.display_name }}{% endblock %}
+
+{% block body %}
+	<section id="content">
+		<div class="row column">
+            <h3>{{ page.display_name }}</h3>
+            <hr />
+			{% if page.is_markdown %}
+				{{ page.content|markdown }}
+			{% else %}
+				{{ page.content|safe }}
+			{% endif %}
+		</div>
+	</section>
+{% endblock body %}

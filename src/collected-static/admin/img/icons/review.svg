@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="23px" height="18px" viewBox="0 0 23 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 1337</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="Icons" transform="translate(-841.000000, -3219.000000)" stroke="#000000">
+            <g id="Group-1337" transform="translate(841.000000, 3219.000000)">
+                <path d="M19.5,14.5 C19.5,16.158 18.156,17.5 16.5,17.5 L6.5,17.5 C4.843,17.5 3.5,16.158 3.5,14.5 L3.5,6.5" id="Stroke-7061"></path>
+                <path d="M3.5,3.5 C3.5,1.844 4.843,0.5 6.5,0.5 L16.5,0.5 C18.156,0.5 19.5,1.844 19.5,3.5 L19.5,11.5" id="Stroke-7062"></path>
+                <polyline id="Stroke-7063" points="0.5 8.5 3.5 6.5 6.5 8.5"></polyline>
+                <polyline id="Stroke-7064" points="16.5 9.5 19.5 11.5 22.5 9.5"></polyline>
+                <path d="M11.5,3.5 L11.5,10.48" id="Stroke-7065"></path>
+                <path d="M12,12.9805 C12,13.2575 11.776,13.4805 11.5,13.4805 C11.224,13.4805 11,13.2575 11,12.9805 C11,12.7055 11.224,12.4805 11.5,12.4805 C11.776,12.4805 12,12.7055 12,12.9805 L12,12.9805 Z" id="Stroke-7066"></path>
+            </g>
+        </g>
+    </g>
+</svg>

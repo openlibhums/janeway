@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Login" %}{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-block">
+                    <div class="col-md-12">
+                        <h2 class="text-center">{% trans "Log in with your account" %}</h2>
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/"
+                           class="btn btn-primary btn-block">{% trans "Log in with ORCiD" %}</a>
+                        <br/>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input name="user_name" type="text" placeholder="janeway@voyager.com"
+                                       class="form-control">
+
+                                <label>Password</label>
+                                <input type="password" placeholder="Password" name="user_pass" class="form-control">
+                            </div>
+                            <p>
+                                <button type="submit"
+                                        class="btn btn-primary btn-block">{% trans "Log in" %}</button>
+                            </p>
+                        </form>
+                        <p class="text-center"><a
+                                href="{% url 'core_get_reset_token' %}">{% trans "Forgotten your password?" %}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

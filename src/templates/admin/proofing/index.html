@@ -1,0 +1,141 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+
+{% block page_title %}Proofing{% endblock page_title %}
+{% block title-section %}Proofing{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/proofing_manager_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="row expanded column">
+        <div class="kanban">
+            <div class="inner">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Awaiting Assignment</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in proofing_articles %}
+                            {% include "elements/proofing/card.html" with article=article type="assignment" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>In Progress</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in assigned_articles %}
+                            {% include "elements/proofing/card.html" with request=request type="assigned" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Assigned to Me</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in my_articles %}
+                            {% include "elements/proofing/card.html" with request=request type="assigned" %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% for article in proofing_articles %}
+        <div class="reveal small" id="modal{{ article.pk }}" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-pencil-square">&nbsp;</i>{{ article.title|safe }}</h4>
+            </div>
+            <div class="card-section">
+                <div class="large-10 columns">
+                    <h4>Summary</h4>
+                    <div class="hline"></div>
+                    <table>
+                        <tr>
+                            <th>Authors</th>
+                            <th>Section</th>
+                            <th>License</th>
+                            <th>Language</th>
+                        </tr>
+                        <tr>
+                            <td>{{ article.author_list }}</td>
+                            <td>{{ article.section.name }}</td>
+                            <td>{{ article.license }}</td>
+                            <td>{{ article.get_language_display }}</td>
+                        </tr>
+                    </table>
+                    <h4>Tasks</h4>
+                    <p>Below is a list of tasks that are required to be complete in order to move the article to the
+                        next stage.</p>
+                    <p><i class="fa fa-check-circle">&nbsp;</i>Assign production manager: </p>
+                        {% for role in production_managers %}
+                             <div class="line-item">
+                                <span class="title"><a href="{% url 'proofing_assign_article_with_user' article.pk role.user.id %}">{{ role.user.full_name }}</a></span>
+                             </div>
+                        {% endfor %}
+                </div>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+
+        <div class="reveal" id="modal{{ article.pk }}" data-reveal style="width:100%">
+            <h4 class="modal-title">{{ article.title|safe }}<br/>
+                <small>{{ article.section.name }}, submitted {{ article.date_submitted }}</small>
+            </h4>
+
+            <div class="row">
+                <div class="large-10 columns">
+                    <h4>Summary</h4>
+                    <div class="hline"></div>
+                    <table>
+                        <tr style="text-align: left">
+                            <th>Authors</th>
+                            <th>Section</th>
+                            <th>License</th>
+                            <th>Language</th>
+                        </tr>
+                        <tr>
+                            <td>{{ article.author_list }}</td>
+                            <td>{{ article.section.name }}</td>
+                            <td>{{ article.license }}</td>
+                            <td>{{ article.get_language_display }}</td>
+                        </tr>
+                    </table>
+                    <h4>Tasks</h4>
+                    <div class="hline"></div>
+                    <p>Below is a list of tasks that are required to be complete in order to move the article to the
+                        next stage.</p>
+                    <h5><i class="fa fa-check-circle">&nbsp;</i>Assign proofing manager: </h5>
+                    <ul>
+                        {% for role in production_managers %}
+                            <li>
+                                <a href="{% url 'proofing_assign_article_with_user' article.pk role.user.id %}">{{ role.user.full_name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+
+{% endblock body %}

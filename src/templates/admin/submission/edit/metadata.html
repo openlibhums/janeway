@@ -1,0 +1,144 @@
+{% extends "admin/core/base.html" %}}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
+
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Edit</li>
+    <li>{{ article.title }}</li>
+    <li>Metadata</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns box">
+        <div class="row expanded">
+            <form method="POST">
+                <div class="title-area">
+                    <h2>Edit Metadata</h2>
+                    <a class="button" href="{{ return }}"><i class="fa fa-arrow-left"></i>Back</a>
+                </div>
+                <div class="content">
+                    {% include "elements/forms/errors.html" with form=info_form %}
+                    {% csrf_token %}
+                    <div class="large-6 columns">
+                        {{ info_form.title|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ info_form.subtitle|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        {{ info_form.abstract|foundation }}
+                    </div>
+                    <div class="large-3 columns">
+                        {{ info_form.language|foundation }}
+                    </div>
+                    <div class="large-3 columns">
+                        {{ info_form.section|foundation }}
+                    </div>
+                    <div class="large-3 columns">
+                        {{ info_form.license|foundation }}
+                    </div>
+                    <div class="large-3 columns">
+                        {{ info_form.page_numbers|foundation }}
+                    </div>
+                    <div class="large-4 columns">
+                        <div class="large-12 columns">
+                            <label>{{ info_form.is_remote.label }}</label>
+                            {{ info_form.is_remote }} {{ info_form.is_remote.field.help_text }}
+                        </div>
+                    </div>
+                    <div class="large-4 columns">
+                        {{ info_form.remote_url|foundation }}
+                    </div>
+                    <div class="large-4 columns">
+                        {{ info_form.primary_issue|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        <label for="id_keywords">Keywords</label>
+                        <input type="text" id="id_keywords" name="keywords" value="
+                                {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                        Hit Enter to add a new keyword.
+                    </div>
+                </div>
+                <div class="title-area">
+                    <h2>Authors</h2>
+                    {% if not frozen_author %}<a href="#" class="button" data-open="author">Add Author</a>{% endif %}
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Institution</th>
+                            <th>Correspondence Author</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for f_author in article.frozen_authors %}
+                            <tr id="authors-{{ f_author.pk }}">
+                                <td><i class="fa fa-sort"></i></td>
+                                <td>{{ f_author.full_name }}</td>
+                                <td>{{ f_author.author.email }}</td>
+                                <td>{{ f_author.institution }}</td>
+                                <td>{% if f_author.author == article.correspondence_author %}
+                                    <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
+                                <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
+                                        class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                                <td>
+                                    <form method="POST">{% csrf_token %}
+                                        <button type="submit" name="delete" value="{{ f_author.pk }}"><i
+                                                class="fa fa-trash">&nbsp;</i>Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="submit" name="metadata" class="small success button">Update Metadata</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% include "admin/elements/submission/edit_author.html" %}
+{% endblock body %}
+
+
+{% block js %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "admin/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+    <script src="{% static "dist/js/admin/csrf.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'order_authors' article.pk %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
+{% endblock js %}

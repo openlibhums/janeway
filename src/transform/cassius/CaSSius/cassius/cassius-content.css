@@ -1,0 +1,264 @@
+
+/* Main body styles */
+
+html, body, h1, h2, h3, h4. h5, h6, p, table, blockquote {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: #C8C8C8;
+}
+
+/* Styles specific to printing */
+
+@media print {
+  html, body {
+    background: #fff;
+  }
+}
+
+/* Text formatting */
+
+sup {
+  font-size: 0.83em;
+  vertical-align: super;
+  line-height: 0;
+  color: #000;
+}
+
+a:link {
+  text-decoration: none;
+  color: #000;
+}
+
+h1, h2, h3, h4 {
+  font-family: "nimbus-sans";
+}
+
+h1 {
+  margin-top: 0.5in;
+  margin-bottom: 0.9rem;
+  font-size: 1.75rem;
+  font-weight: normal;
+  line-height: 135%;
+}
+
+div.main p {
+	text-indent: 0.4in;
+}
+
+div.main p.continuedparagraph {
+	text-indent: 0in;
+}
+
+div h1 ~ p:first-of-type {
+	text-indent: 0in;
+}
+
+div.footnote {
+	padding:0px;
+}
+
+h2 {
+  margin-bottom: 0.5rem;
+  padding-top: 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+p {
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+  font-family: "source-sans-pro", serif;
+  line-height: 130%;
+  text-align: justify;
+}
+
+a {
+  color: #34539C;
+}
+
+.footer {
+    font-family: helvetica, arial, sans-serif;
+}
+
+div .blockquote p {
+	margin-left: 0.3in;
+	text-indent: 0in;
+}
+
+
+.affiliations {
+
+  font-family: helvetica, arial, sans-serif;
+  font-size: 0.7rem;
+}
+
+.emails {
+
+  font-family: helvetica, arial, sans-serif;
+  font-size: 0.7rem;
+}
+
+.abstract {
+  margin-bottom: 1rem;
+  break-after: region;
+}
+
+.abstract h2 {
+  font-size: 1.35rem;
+  font-weight: normal;
+}
+
+.abstract p {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 140%;
+}
+
+.abstract p.oa-info {
+  text-align: justify;
+  font-size: 0.5rem;
+	margin-top: 3rem;
+}
+
+/* Header formatting */
+
+.header span {
+  position: relative;
+  top: 0.5rem;
+  float: right;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 0.75rem;
+}
+
+/* Footnotes */
+
+li.ref-content {
+  margin-top: 0.2in;
+	text-indent:-0.2in;
+  padding-left:0.2in;
+}
+
+div.footnote p {
+	text-indent: 0in;
+}
+
+
+/* Images */
+img {
+  max-width: 95%;
+}
+
+figure {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+figcaption {
+  text-align: center;
+  padding-top: 20px;
+  display: block;
+}
+
+/* Tables */
+
+table {
+  max-width: 100%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+th {
+  color:#D5DDE5;;
+  background:#1b1e24;
+  border-bottom:4px solid #9ea7af;
+  border-right: 1px solid #343a45;
+  text-align:left;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  vertical-align:middle;
+}
+
+th:first-child {
+  border-top-left-radius:3px;
+}
+ 
+th:last-child {
+  border-top-right-radius:3px;
+  border-right:none;
+}
+  
+tr {
+  border-top: 1px solid #C1C3D1;
+  border-bottom-: 1px solid #C1C3D1;
+  color:#000000;
+  font-weight:normal;
+  text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
+}
+
+ 
+tr:first-child {
+  border-top:none;
+}
+
+tr:last-child {
+  border-bottom:none;
+}
+ 
+tr:nth-child(odd) td {
+  background:#EBEBEB;
+}
+ 
+
+tr:last-child td:first-child {
+  border-bottom-left-radius:3px;
+}
+ 
+tr:last-child td:last-child {
+  border-bottom-right-radius:3px;
+}
+ 
+td {
+  background:#FFFFFF;
+  text-align:left;
+  vertical-align:middle;
+  text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #C1C3D1;
+}
+
+td:last-child {
+  border-right: 0px;
+}
+
+th.text-left {
+  text-align: left;
+}
+
+th.text-center {
+  text-align: center;
+}
+
+th.text-right {
+  text-align: right;
+}
+
+td.text-left {
+  text-align: left;
+}
+
+td.text-center {
+  text-align: center;
+}
+
+td.text-right {
+  text-align: right;
+}
+
+/* Flow control */
+
+div.main, div.notes {
+  break-after: region;
+}
+

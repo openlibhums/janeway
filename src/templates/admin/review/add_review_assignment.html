@@ -1,0 +1,162 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Add Review Assignment{% endblock title %}
+{% block title-section %}Add Review Assignment{% endblock %}
+{% block title-sub %}Select the Reviwer you'd like to review this article.{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Add Review Assignment</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <form method="POST">
+            {% include "elements/forms/errors.html" with form=form %}
+            {% csrf_token %}
+            <div class="box">
+                <div class="title-area">
+                    <h2>1. Select Reviewer</h2>
+
+                        <a href="{% if journal_settings.general.enable_one_click_access %}#{% else %}{% url 'core_add_user' %}?role=reviewer&return={{ request.path }}{% endif %}" class="button" data-open="reviewer"><i class="fa fa-plus">&nbsp;</i>Add New Reviewer</a>
+                        <a href="#" class="button" data-open="enroll"><i class="fa fa-users">&nbsp;</i>Enroll Exising User</a>
+                </div>
+                <div class="content">
+
+                    <h5></h5>
+                    <table class="small" id="reviewers">
+                        <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Name</th>
+                            <th>Email Address</th>
+                            <th>Active Reviews</th>
+                            <th>Interests</th>
+                            <th>Average Score</th>
+                            <th>Quick Assign</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for reviewer_role in reviewers %}
+                            <tr>
+                                <td><input type="radio" name="reviewer" value="{{ reviewer_role.user.id }}"></td>
+                                <td>{{ reviewer_role.user.full_name }}</td>
+                                <td>{{ reviewer_role.user.email }}</td>
+                                <td>{{ reviewer_role.user.active_reviews|length }}</td>
+                                <td>{% for interest in reviewer_role.user.interest.all %}{{ interest.name }}
+                                    {% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td>{{ reviewer_role.user.average_reviewer_score }}</td>
+                                <td><button type="submit" name="quick_assign" value="{{ reviewer_role.user.id }}" class="small success button">Assign with Defaults</button></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td>No suitable reviewers.</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>2. Set Options</h2>
+                </div>
+                <div class="content">
+                    <div class="row expanded">
+                    <div class="large-6 columns">{{ form.review_type|foundation }}</div>
+                    <div class="large-6 columns">{{ form.visibility|foundation }}</div>
+                    <div class="large-6 columns">{{ form.form|foundation }}</div>
+                    <div class="large-6 columns">{{ form.date_due|foundation }}</div>
+                    <div class="large-12 columns">
+                        <button class="button success" name="delete" type="submit">Add Reviewer</button>
+                        &nbsp;</div>
+                    </div>
+                </div>
+            </div>        &nbsp;&nbsp;
+        </form>
+    </div>
+
+    {% if journal_settings.general.enable_one_click_access %}
+    <div class="reveal large" id="reviewer" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-plus">&nbsp;</i>Add New Reviewer</h4>
+            </div>
+            <div class="card-section">
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="content">
+                    <p>This form allows you to quickly create a new reviewer without having to input a full user's data.</p>
+                    <form method="POST">
+                        {% include "elements/forms/errors.html" with form=new_reviewer_form %}
+                        {% csrf_token %}
+                        {{ new_reviewer_form|foundation }}
+                        <button type="submit" class="button success" name="assign" id="assign">Add Reviewer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="reveal large" id="enroll" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-users">&nbsp;</i>Enroll Existing User as Reviewer</h4>
+            </div>
+            <div class="card-section">
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="content">
+                    <form method="POST">
+                        {% include "elements/forms/errors.html" with form=new_reviewer_form %}
+                        {% csrf_token %}
+                        <table class="small" id="enrolluser">
+                            <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email Address</th>
+                                <th>Interests</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in user_list %}
+                                <tr>
+                                    <td><input type="checkbox" name="user_id" value="{{ user.pk }}"></td>
+                                    <td>{{ user.first_name }}</td>
+                                    <td>{{ user.last_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.interests.all }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" class="button success" name="enrollusers" id="enrollusers">Enroll as Reviewer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#reviewers" %}
+    {% include "elements/datepicker.html" with target="#id_date_due" %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+    {% include "elements/datatables.html" with target="#enrolluser" %}
+{% endblock js %}

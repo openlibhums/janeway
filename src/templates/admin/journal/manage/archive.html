@@ -1,0 +1,79 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Article Archive{% endblock title %}
+{% block title-section %}Article Archive{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Article Archive</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Published Articles</h2>
+            </div>
+            <div class="content">
+                <table class="small article_list">
+                    <thead>
+                    <tr>
+                        <td>Title</td>
+                        <td>Published</td>
+                        <td>Identifier</td>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for article in published_articles %}
+                        <tr>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
+                            <td>{{ article.date_published }}</td>
+                            <td>{{ article.identifier }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Rejected Articles</h2>
+            </div>
+            <div class="content">
+                <table class="small article_list">
+                    <thead>
+                    <tr>
+                        <td>Title</td>
+                        <td>Declined</td>
+                        <td>Identifier</td>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for article in rejected_articles %}
+                        <tr>
+                            <td>{{ article.title|safe }}</td>
+                            <td>{{ article.date_declined }}</td>
+                            <td>{{ article.identifier }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target=".article_list" %}
+{% endblock %}

@@ -1,0 +1,314 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+
+{% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
+
+{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+
+{% block head %}
+
+    <!-- Commented out meta fields are TODO -->
+
+    <!-- <meta name="DC.Coverage.spatial" xml:lang="en" content="London"/> -->
+
+    <!-- <meta name="DC.Coverage.temporal" xml:lang="en" content="long-eighteenth century"/> -->
+
+
+    <meta name="DC.Date.created" scheme="ISO8601" content="{{ article.date_published }}"/>
+    <meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ article.date_submitted }}"/>
+    <meta name="DC.Date.issued" scheme="ISO8601" content="{{ article.date_published }}"/>
+    <meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published }}"/>
+
+
+    <meta name="DC.Description" xml:lang="en" content="{{ article.abstract | striptags }}"/>
+
+    <meta name="DC.Format" scheme="IMT" content="xml"/>
+    <meta name="DC.Format" scheme="IMT" content="pdf"/>
+    <meta name="DC.Identifier.pageNumber" content="{{ article.page_number }}"/>{% if article.identifier.id_type == "doi" %}
+    <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>{% endif %}
+
+    <meta name="DC.Identifier.URI" content="{{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
+    <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
+    <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
+    <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
+    <meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>
+    <meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>
+    <meta name="DC.Source.URI" content="{{ request.journal_base_url }}{% url 'website_index' %}"/>
+    <meta name="DC.Title" content="{{ article.title | striptags }}"/>
+
+    <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
+    <meta name="citation_issn" content="{{ journal_settings.general.issn }}"/>{% for author in article.frozen_authors.all %}
+    <meta name="citation_author" content="{{ author.full_name }}"/>
+    {% if not '@journal.org' in author.author.email %}<meta name="citation_author_email" content="{{ author.author.email }}"/>{% endif %}
+    <meta name="citation_author_institution" content="{{ author.institution }}"/>{% endfor %}
+    <meta name="citation_title" content="{{ article.title | striptags }}"/>
+    <meta name="citation_publication_date" content="{{ article.date_published }}"/>
+    <meta name="citation_volume" content="{{ article.issue.volume }}"/>
+    <meta name="citation_issue" content="{{ article.issue.issue }}"/>{% if article.identifier.id_type == "doi" %}
+    <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
+    <meta name="citation_abstract_html_url" content="{{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="citation_language" content="{{ article.language }}"/>
+
+    {% if article.keywords %}
+    <meta name="citation_keywords" xml:lang="en" content="{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
+    {% endif %}
+
+    {% for pdf in pdfs %}
+        <meta name="citation_pdf_url" content="{% url 'article_file_download' identifier_type identifier pdf.id %}"/>
+    {% endfor %}
+    {% include "elements/journal/social_meta.html" %}
+{% endblock %}
+
+{% block body %}
+
+    <article>
+        <section class="no-padding meta">
+            <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
+                <ul class="orbit-container article-orbit">
+                    <li class="is-active orbit-slide overlay">
+                        {% if article.large_image_file.id %}
+                            <img class="orbit-image"
+                                 src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                                 alt="{{ article.title | urlencode }}">
+                        {% elif journal.default_large_image %}
+                            <img class="orbit-image"
+                                 src="{{ journal.default_large_image.url }}"
+                                 alt="{{ article.title | urlencode }}">
+                        {% else %}
+                            <img class="orbit-image"
+                                 src=""
+                                 alt="{{ article.title | urlencode }}">
+                        {% endif %}
+                        <div class="row column">
+                            <figcaption class="orbit-caption">
+                                <p class="uppercase">{{ article.section.name }}</p>
+                                <h3>{{ article.title|safe }}</h3>
+                                <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
+                                    {% for author in article.frozen_authors.all %}
+                                        <span>{% if forloop.first == False %}, {% endif %}<span itemscope
+                                                                                                itemtype="http://schema.org/Person"
+                                                                                                itemprop="author"
+                                                                                                href="#"
+                                                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}"><a
+                                                itemprop="name" class="author-name">{{ author.full_name }}</a>{% if author.institution %}
+                                            <span itemprop="worksFor" itemscope
+                                                  itemtype="http://schema.org/CollegeOrUniversity"><span
+                                                    itemprop="name">({{ author.institution }})</span></span>{% endif %}
+                                            {% if not '@journal.org' in author.author.email %}<a itemprop="email" href="mailto:{{ author.author.email }}"
+                                               class="fa fa-envelope email-link"></a>{% endif %}</span></span>
+                                    {% endfor %}
+                            </figcaption>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        {% for author in article.authors.all %}
+            {% if author.biography %}
+                <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
+                     data-hover-pane="true">
+                    {{ author.biography }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div data-sticky-container>
+            <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                <div class="row">
+                    <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
+                        <button class="menu-icon" type="button" data-toggle></button>
+                        <div class="title-bar-title">Options</div>
+                    </div>
+                    <div id="options-menu">
+                        <div class="large-6 columns">
+                            <ul class="menu vertical medium-horizontal"
+                                data-responsive-menu="drilldown medium-dropdown">
+                                <li>{% trans "Share" %}:</li>
+                                <li><a href="https://www.facebook.com/share.php?p[url]={{ request.journal_base_url }}{{ request.path }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {{ article.url }}" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="https://plus.google.com/share?url={{ article.url }}"><i class="fa fa-google-plus"></i></a></li>
+                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}"><i class="fa fa-linkedin"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="large-6 columns">
+                            <ul class="menu vertical medium-horizontal align-right"
+                                data-responsive-menu="drilldown medium-dropdown">
+                                {% hook 'article_buttons' %}
+                                <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
+                                <li><a href="javascript:resizeText(-1)">A-</a></li>
+                                <li><a href="javascript:resizeText(1)">A+</a></li>
+                                {% if article.correspondence_author.email %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
+                                <li>
+                                    <a><i class="fa fa-comments"></i></a>
+                                    <ul class="menu">
+                                        <li><a data-open="HarvardModal">{% trans "View" %} Harvard Citation Style</a></li>
+                                        <li><a data-open="VancouverModal">{% trans "View" %} Vancouver Citation Style</a></li>
+                                        <li><a data-open="APAModal">{% trans "View" %} APA Citation Style</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="content" class="no-padding">
+            <div class="row">
+                <div class="large-8 columns border-right">
+                    <div class="row">
+                        <div id="article" class="large-10 columns">
+                            {% if article.abstract != '' %}
+                                <h2>{% trans "Abstract" %}</h2>
+                                <p>{{ article.abstract | safe }}</p>
+                            {% endif %}
+                            {% if article.keywords and article.keywords|length > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            <p><strong>{% trans "How to Cite" %}:</strong>
+                            {% include "elements/journal/how_to_cite.html" with article=article %}
+                            {% if article.publisher_notes.all %}
+                                <div class="callout primary">
+                                    <h2>{% trans "Publisher Notes" %}</h2>
+                                    <ul>
+                                        {% for note in article.publisher_notes.all %}
+                                            <li>{{ note.text }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+
+                            <div class="summary">
+                                <div class="top">
+                                    <div class="row">
+                                        <div class="large-4 columns">
+                                            <h4 class="number">
+                                                {{ article.metrics.views }}
+                                                <span>{% trans "Views" %}</span>
+                                            </h4>
+                                        </div>
+                                        <div class="large-4 columns">
+                                            <h4 class="number">
+                                                {{ article.metrics.downloads }}
+                                                <span>{% trans "Downloads" %}</span>
+                                            </h4>
+                                        </div>
+                                        <div class="large-4 columns">
+                                            <h4 class="number">
+                                                <div class='altmetric-embed' data-badge-type='medium-bar' data-badge-popover="right" data-doi="{{ article.identifier.identifier }}" data-hide-no-mentions="false" class="altmetric-embed"></div>
+                                                <span>{% trans "Altmetrics" %}</span>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bottom">
+                                    <div class="row" data-equalizer>
+                                        <div class="large-4 columns" data-equalizer-watch>
+                                            <h5>{% trans "Published on" %} <br> {{ article.date_published|date:"d M Y" }}</h5>
+                                        </div>
+                                        <div class="large-4 columns" data-equalizer-watch>
+                                            {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
+                                        </div>
+                                        <div class="large-4 columns" data-equalizer-watch>
+                                            <h5>{% trans "License" %}</h5>
+                                            <a class="has-tip scroll-link" rel="footnote" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if article_content %}
+                            <h2>{% trans "Article" %}</h2>
+                            <div itemprop="articleBody">
+                                {{ article_content|safe }}
+                                {% hook 'article_footer_block' %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <aside class="large-4 columns" data-sticky-container>
+                    <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                        <div class="section">
+                            <h3>{% trans "Download" %}</h3>
+                            <ul>
+                                {% for galley in galleys %}
+                                    <li>
+                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="section hide-for-small-only">
+                            <h3>{% trans "Jump to" %}</h3>
+                            <ul id="toc">
+
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </article>
+
+    <!-- article citation modals -->
+    <div id="HarvardModal" class="reveal" data-reveal aria-labelledby="HarvardModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="HarvardModalTitle">Harvard-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+            ({{ article.date_published.year }}) '{{ article.title|safe }}',
+            <i>{{ journal.name }}</i>. {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="VancouverModal">Vancouver Citation Style</a> | <a data-open="APAModal">APA Citation
+            Style</a></p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div id="VancouverModal" class="reveal" data-reveal aria-labelledby="VancouverModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="VancouverModalTitle">Vancouver-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+            {{ article.title|safe }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};{{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="APAModal">APA Citation Style</a>
+        </p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div id="APAModal" class="reveal" data-reveal aria-labelledby="APAModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="APAModalTitle">APA-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if forloop.last %}{% if not forloop.first %}
+            &amp; {% endif %}{% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+            <i>{{ journal.name }}</i> {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="VancouverModal">Vancouver
+            Citation Style</a></p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="hline"></div>
+    <br/>
+
+    </div>
+
+
+{% endblock body %}
+
+{% block js %}
+    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    {% hook 'article_js_block' %}
+{% endblock js %}

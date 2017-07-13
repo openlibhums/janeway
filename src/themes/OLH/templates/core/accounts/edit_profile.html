@@ -1,0 +1,64 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block page_title %}Login{% endblock page_title %}
+
+{% block css %}
+<style>
+    .login {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+</style>
+{% endblock css %}
+
+{% block body %}
+    <div class="row">
+        <div class="medium-12 medium-centered large-12 large-centered columns login">
+            <div class="callout">
+                <h5>Change Your Email Address</h5>
+                <p>If you want to change your email address you may do so below, however, you will be logged out and your
+                account will be marked as inactive until you follow the instructions in the verfication email. <strong>Note: </strong>
+                Changing your email address will also change your username as these are one and the same.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="email" name="email_address" placeholder="janeway@voyager.com">
+                    <button type="submit" name="email" class="warning button">Update Email Address</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="medium-12 medium-centered large-12 large-centered columns login">
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="callout">
+                    <div class="row column log-in-form">
+
+                        {% include "elements/forms/errors.html" with form=form %}
+                        {% include "elements/accounts/user_form.html" with form=form %}
+                        <p><button type="submit" name="edit_profile" class="success button float-right">Update</button></p>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="{% static "admin/js/tagit.js" %}"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+      $("#id_interests").tagit(
+        {allowSpaces: true});
+  });
+</script>
+{% include "elements/jqte.html" %}
+{% endblock %}

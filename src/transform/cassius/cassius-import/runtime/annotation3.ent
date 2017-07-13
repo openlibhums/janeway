@@ -1,0 +1,267 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Historical Book DTD Annotation Elements           -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD NCBI Historical Book DTD Annotation Elements v3.0 20080202//EN"
+Delivered as file "annotation3.ent"                                -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     NCBI BOOK DTD of the                              -->
+<!--             Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Defines elements that describe the variety of     -->
+<!--             added material seen in older books and historical -->
+<!--             editions, for example editorial emendations and   -->
+<!--             additions as well as the need to record the page  -->
+<!--             numbers.                                          -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Page start elements                            -->
+<!--             2) Alternative terms                              -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             NLM Bookshelf                                     -->
+<!--             National Center for Biotechnology Information     -->
+<!--                (NCBI)                                         -->
+<!--             National Library of Medicine (NLM)                -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2004                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Bart Trawick    (NCBI)                            -->
+<!--             Jeff Beck       (NCBI)                            -->
+<!--             Michael North   (NLM)                             -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             B. Tommie Usdin (Mulberry Technologies, Inc.)     -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             this DTD should be sent in email to:              -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION\CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    Design Note: HISTORICAL ANNOTATIONS        -->
+<!-- ============================================================= -->
+
+<!--                    For the purposes of this DTD, annotations of 
+                        historical material are considered to be of
+                        two types: those with content, that is, those 
+                        which add words to the text (for example, a
+                        penciled marginal note) and those that merely
+                        decorate words already in the text, for 
+                        example, a phrase underlined in pencil.
+                          Text-bearing annotations, whether inline
+                        or block-level, use the <annotation> or the
+                        <alt-text> elements. Decorations use the
+                        <named-content> element with the attribute
+                        "content-type" taking values like "underline"
+                        and "yellow highlighter".
+                           The <annotation> and <named-content>
+                        elements are not defined in this module, since
+                        they were already part of the NLM Archiving 
+                        and Interchange DTD Suite when this DTD was
+                        was written. No changes were needed to the
+                        <named-content> element except that it is
+                        allowed in a few more places through the
+                        modification of the %phrase.class; and
+                        %emphasis.class; Parameter Entities.
+                           In the Suite, however, the <annotation>
+                        element is only used within citations. In 
+                        this DTD, it is a block-level element at the 
+                        same level as a paragraph (%para-level;) as 
+                        well as an inline-element inside textual 
+                        passages (%emphasis.class;). New attributes 
+                        were  added to <annotation> to describe some 
+                        of these new roles/purposes.               -->
+                        
+
+<!-- ============================================================= -->
+<!--                    PAGE NUMBER ELEMENTS                       -->
+<!-- ============================================================= -->
+
+
+<!--                    PAGE START ATTRIBUTES                      -->
+<!--                    Milestone element that marks the start of a 
+                        physical page in the printed edition of a
+                        historical work. For display on the web,
+                        a typical behavior for this element would be
+                        to cause the display of a horizontal rule and
+                        display the page number, so that print page 
+                        breaks may be seen in flowing webpages.
+                           The identifier attribute allows cross
+                        references <xref> to the page to be made.
+                                                                   -->
+<!ENTITY % page-start-atts
+            "id         ID                                 #IMPLIED" >
+
+
+<!--                    PAGE START GROUP                           -->
+<!--                    Milestone element that marks the start of a 
+                        physical page in the printed edition of a
+                        historical work. 
+                           This element may also hold any running
+                        heads, catchwords, or the page number(s) 
+                        that are present on the printed page, whatever 
+                        their physical location. Page numbers may be 
+                        printed, hand-written, perfed, etc., and 
+                        there may be more than one number per page.
+                        Remarks: 
+                        A typical behavior for this element would be
+                        to cause the display of a horizontal rule and
+                        the page number, so that print page breaks 
+                        may be seen in flowing webpages.
+                           This information may be physically located
+                        almost anywhere on a page, so this element
+                        can be placed within or between most
+                        paragraph-level elements.                  -->
+<!ELEMENT  page-start   ((page-num | running-head)* )                >
+<!--         id         Identifier for the container, to provide a
+                        target so that references to the page may be
+                        made into live links in the electronic form.
+                        This reference can be made even to blank pages
+                        which contain no page number.              -->
+<!ATTLIST  page-start    
+             %page-start-atts;                                       >
+
+
+<!--                    PAGE NUMBER ATTRIBUTES                     -->
+<!--                    The page number type is a hook for book-
+                        specific processing, for example, to allow one
+                        page number to be marked as primary; to 
+                        distinguish between printed numbers provided
+                        by the publisher and penciled numbers added
+                        by a library; or to make other pagination
+                        distinctions.                              -->
+<!ENTITY % page-num-atts
+            "page-num-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    PAGE NUMBER                                -->
+<!--                    A pagination number (potentially one of many)
+                        present on a physical page.                -->
+<!ELEMENT  page-num     (#PCDATA)                                    >
+<!--         page-num-type          
+                        The page number type is a hook for book-
+                        specific processing, for example, to allow one
+                        page number to be marked as primary; to 
+                        distinguish between printed numbers provided
+                        by the publisher and penciled numbers added
+                        by a library; or to make other pagination
+                        distinctions.                              -->
+<!ATTLIST  page-num    
+             %page-num-atts;                                         >
+
+
+<!--                    RUNNING HEAD TEXT                          -->
+<!--                    The contents of a running head or foot
+                        when those have content other than the
+                        ordinary metadata for the book
+                        Remarks: In most modern editions, the
+                        running heads and feet can be derived from
+                        the book's metadata, for example the title
+                        of the work, the publication date, the
+                        publisher, the heading of the most
+                        recently encountered section. ent. In some
+                        historical material, new information, not
+                        derivable from the metadata, is presented in
+                        the running head, and this element can be
+                        used to preserve it.                       -->
+<!ELEMENT  running-head (#PCDATA)                                    >
+
+
+<!-- ============================================================= -->
+<!--                    SEARCHABLE WORD ELEMENTS                   -->
+<!-- ============================================================= -->
+
+
+<!--                    ALTERNATIVE TERM ATTRIBUTES                -->
+<!--                    Attribute list for the element that holds
+                        words placed into the text to provide
+                        complete words for searching, modernized
+                        versions for searching, or other
+                        interpolations.
+                           The words may be displayed with the
+                        text, in which case they would be visually set
+                        apart, for example in square brackets. The
+                        "display" attribute controls whether or not the
+                        term shows to the user.
+                            The "alt-term-type" attribute is used to
+                        provide a reason/explanation for the
+                        added word, for example, if a word in text
+                        was "small-pox", the modern spelling might
+                        be added, tagged as
+                           <alt-term display="yes" 
+                            alt-term-type="modernization">
+                            smallpox</alt-term>
+                        to provide both the older form and the
+                        modern equivalent to a search engine.      -->
+<!ENTITY % alt-term-atts
+            "display    (yes | no)                         'yes'
+             alt-term-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    ALTERNATIVE VERSION OF A TERM              -->
+<!--                    An element that offers a second version 
+                        of a word or phrase in the text, for example, 
+                        a more modern version of an out-dated 
+                        historical term. The word is added to the
+                        historical text for searching and may also be
+                        displayed next to the term, possibly pointed
+                        out by a mechanism such as square brackets,
+                        as an aid to the reader. For example, to 
+                        show the modern spelling of a disease name
+                             small-pox [smallpox]
+                        and to make sure that searches for the modern
+                        term find the page, the following tagging 
+                        could be used:
+                           ...small-pox <alt-term display="yes">
+                              smallpox</alt-term>
+                           Another use for <alt-term> is to complete
+                        words that are elided, illegible, or
+                        hyphenated across structural boundaries in the
+                        text. The shortened word can be displayed with
+                        the page, but the full term can also be 
+                        provided for search engines and increased 
+                        user understanding.                        -->
+<!ELEMENT  alt-term     (#PCDATA)                                    >
+<!ATTLIST  alt-term    
+             %alt-term-atts;                                         >
+
+
+<!-- ================== End Annotation Elements  ================= -->

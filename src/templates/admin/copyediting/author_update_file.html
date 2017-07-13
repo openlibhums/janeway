@@ -1,0 +1,75 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+
+{% block title %}Revisions for {{ revision_request.article.title }}{% endblock title %}
+{% block title-section %}Revisions for {{ revision_request.article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/copyeditor_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    {% csrf_token %}
+    <div class="large-12 columns">
+        {% if error %}
+            <div class="alert alert-warning" role="alert">{{ error }}</div>
+        {% endif %}
+        <p><strong>Submission guidelines</strong>: To upload a file, select it using one of the "Choose file" buttons,
+            then upload it with the "Upload file" button. You can add a label to help the editor identify the file.</p>
+        <h5>Replacement File</h5>
+        <p>Please upload your replacement file.</p>
+        <div class="row">
+            <div class="large-6 columns">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <h4></h4>
+                    <input name="label" type="text" placeholder="Add a file label">
+                    <input name="replacement-file" type="file" class="filestyle" data-placeholder="No file"
+                           data-buttonName="btn-primary">
+                    <br/>
+                    <button type="submit" class="button success" name="replacement"><i class="fa fa-upload">&nbsp;</i>Upload
+                    </button>
+                </form>
+            </div>
+            <div class="large-6 columns">
+                <table class="table table-condensed small">
+                    <tr>
+                        <th>Label</th>
+                        <th>File Name</th>
+                    </tr>
+                    <tr>
+                        <td>{{ file.label }}</td>
+                        <td><a href="?file_id={{ file.id }}"><i
+                                class="fa fa-download">&nbsp;{{ file }}</i></a></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="large-4 columns"></div>
+        </div>
+
+
+        <div class="large-12 columns">
+            <form method="POST">
+                {% csrf_token %}
+                <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-check">
+                    &nbsp;</i>Save &amp; Continue
+                </button>
+            </form>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    <script type="text/javascript" src="{% static "js/bootstrap-filestyle.min.js" %}"></script>
+    <script type="text/javascript">
+        $(":file").filestyle({
+            placeholder: "No file",
+            buttonName: "btn-primary",
+            buttonBefore: true,
+            buttonText: "&nbsp; Choose file"
+        });
+    </script>
+{% endblock %}

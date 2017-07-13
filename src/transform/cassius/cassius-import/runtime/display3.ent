@@ -1,0 +1,799 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Display Class Elements                            -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Display Class Elements v3.0 20080202//EN"
+     Delivered as file "display3.ent"                              -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Describes display-related elements such as        -->
+<!--             Figures, Graphics, Math, Chemical Structures,     -->
+<!--             Graphics, etc.                                    -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Parameter Entities for attribute lists         -->
+<!--             2) Parameter Entities for content models          -->
+<!--             3) The display class elements (alpha order)       -->
+<!--                a) Array                                       -->
+<!--                b) Boxed text                                  -->
+<!--                c) Chemical Structure                          -->
+<!--                d) Figure                                      -->
+<!--                e) Graphic                                     -->
+<!--                f) Inline Graphic                              -->
+<!--                g) Pre-formatted text                          -->
+<!--                e) Supplementary Information                   -->
+<!--                h) Table Group                                 -->
+<!--                i) Table Wrapper                               -->
+<!--                j) Table (invoked module)                      -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    ATTRIBUTES FOR MULTIPLE ELEMENTS           -->
+<!-- ============================================================= -->
+
+                                                                
+<!--                    DISPLAY ATTRIBUTES                         -->
+<!--                    Attributes used for several of the block
+                        display elements                           -->
+<!ENTITY % display-atts
+             "position  (anchor | float | margin)        'float' 
+              orientation
+                        (portrait | landscape)           'portrait'" >
+
+
+<!-- ============================================================= -->
+<!--                    SPECIFIC ATTRIBUTE LISTS                   -->
+<!-- ============================================================= -->
+
+                                                                
+<!--                    ARRAY ATTRIBUTES                           -->
+<!--                    Attributes for the <array> element         -->
+<!ENTITY % array-atts
+            "id         ID                                 #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED 
+             specific-use
+                        CDATA                              #IMPLIED
+             orientation
+                        (portrait | landscape)             'portrait' 
+             xml:lang   NMTOKEN                            #IMPLIED" >
+
+                                                                
+<!--                    CAPTION ATTRIBUTES                         -->
+<!--                    Attributes for the <caption> element       -->
+<!ENTITY % caption-atts
+            "specific-use
+                        CDATA                              #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" > 
+
+                                                                
+<!--                    BOXED TEXT ATTRIBUTES                      -->
+<!--                    Attributes for the <boxed-text> element    -->
+<!ENTITY % boxed-text-atts
+             "id        ID                                #IMPLIED
+              %display-atts;
+              content-type
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED
+              xml:lang  NMTOKEN                           #IMPLIED"  >
+                                                                
+
+<!--                    CHEMICAL STRUCTURE ATTRIBUTES              -->
+<!--                    Attributes for <chem-struct>, a wrapper
+                        around one (typically inline) chemical
+                        structure, or one of several structures in
+                        a <chem-struct-wrap>                       -->
+<!ENTITY % chem-struct-atts
+             "id        ID                                #IMPLIED
+              content-type 
+                        CDATA                             #IMPLIED
+              specific-use
+                        CDATA                             #IMPLIED
+              %might-link-atts;"                                     >
+ 
+                                                                
+<!--                    CHEMICAL STRUCTURE WRAPPER ATTRIBUTES      -->
+<!--                    Attributes for the <chem-struct-wrap> 
+                        element, the outer wrapper around one or more
+                        block-level chemical structures            -->
+<!ENTITY % chem-struct-wrap-atts
+             "id        ID                                #IMPLIED
+              %display-atts;
+              content-type
+                        CDATA                             #IMPLIED
+              specific-use
+                        CDATA                             #IMPLIED"  >
+
+
+<!--                    FIGURE ATTRIBUTES                          -->
+<!--                    Attributes for Figures <fig>               -->
+<!ENTITY % fig-atts
+             "id        ID                                #IMPLIED
+              %display-atts;                                       
+              fig-type  CDATA                             #IMPLIED
+              specific-use
+                        CDATA                             #IMPLIED
+              xml:lang  NMTOKEN                           #IMPLIED"  >
+
+                                                                
+<!--                    FIGURE GROUP ATTRIBUTES                    -->
+<!--                    Attributes for Figure Groups <fig-group>   -->
+<!ENTITY % fig-group-atts
+             "id        ID                                #IMPLIED
+              %display-atts;
+              content-type
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED"  >
+                                                                
+                                                                
+<!--                    GRAPHIC ATTRIBUTES                         -->
+<!--                    Attributes for the <graphic> element       -->
+<!ENTITY % graphic-atts
+             "id        ID                                #IMPLIED
+              %display-atts;                                       
+              content-type  
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED
+              mime-subtype  
+                        CDATA                             #IMPLIED 
+              mimetype  CDATA                             #IMPLIED
+              %link-atts;"                                           >
+
+                                                                
+<!--                    INLINE GRAPHIC ATTRIBUTES                  -->
+<!--                    Attributes for the <inline-graphic> element-->
+<!ENTITY % inline-graphic-atts
+             "id        ID                                #IMPLIED
+              content-type  
+                        CDATA                             #IMPLIED 
+              baseline-shift
+                        CDATA                             #IMPLIED
+              mimetype  CDATA                             #IMPLIED
+              mime-subtype
+                        CDATA                             #IMPLIED
+              %link-atts;"                                           >
+
+
+<!--                    MEDIA ATTRIBUTES                           -->
+<!--                    Attributes for the <media> element         -->
+<!ENTITY % media-atts
+             "id        ID                                #IMPLIED
+              %display-atts;                                       
+              content-type  
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED
+              mimetype  CDATA                             #IMPLIED
+              mime-subtype
+                        CDATA                             #IMPLIED 
+              %link-atts;"                                           >
+
+
+<!--                   PREFORMATTED TEXT ATTRIBUTES                -->
+<!--                   Attributes for the <preformat> element      -->
+<!ENTITY % preformat-atts
+             "id        ID                                #IMPLIED
+              %display-atts;                                     
+              preformat-type
+                        CDATA                             #IMPLIED
+              specific-use
+                        CDATA                             #IMPLIED
+              xml:space (default | preserve)     #FIXED 'preserve'  
+              xml:lang  NMTOKEN                           #IMPLIED"  > 
+
+                                                                
+<!--                    SUPPLEMENTARY INFORMATION ATTRIBUTES       -->
+<!--                    Attributes for Supplementary Material
+                        <supplementary-material>                   -->
+<!ENTITY % supplementary-material-atts
+             "id        ID                                #IMPLIED
+              %display-atts;                                       
+              content-type
+                        CDATA                             #IMPLIED
+              specific-use
+                        CDATA                             #IMPLIED
+              mimetype  CDATA                             #IMPLIED
+              mime-subtype
+                        CDATA                             #IMPLIED 
+              %might-link-atts;                                              
+              xml:lang  NMTOKEN                           #IMPLIED"  > 
+
+
+<!-- ============================================================= -->
+<!--                    TABLE ATTRIBUTES                           -->
+<!-- ============================================================= -->
+                          
+
+<!--                    TABLE WRAPPER ATTRIBUTES                   -->
+<!--                    Attributes to be added to the regular NLM
+                        table attributes, for example, when the
+                        Elsevier or OASIS Exchange table models are
+                        used.                                      -->
+<!ENTITY % other-table-wrap-atts
+             ""                                                      > 
+
+                                                                
+<!--                    TABLE GROUP ATTRIBUTES                     -->
+<!--                    Attributes for groups of <table-wrap>
+                        elements <table-wrap-group>                -->
+<!ENTITY % table-wrap-group-atts
+             "id        ID                                #IMPLIED
+              %display-atts;
+              content-type
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED
+              %other-table-wrap-atts;"                               > 
+
+                                                                
+<!--                    TABLE WRAPPER ATTRIBUTES                   -->
+<!--                    Attributes for the <table-wrap> element,
+                        the container for <table>s                 -->
+<!ENTITY % table-wrap-atts
+             "id        ID                                #IMPLIED
+              %display-atts;                                       
+              content-type
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED
+              %other-table-wrap-atts;
+              xml:lang  NMTOKEN                           #IMPLIED"  >
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR CONTENT MODELS      -->
+<!-- ============================================================= -->
+
+
+<!--                    FIGURE-LIKE CONTENT MODEL                  -->
+<!--                    Content model for the Figure element and any
+                        similarly structured elements              -->
+<!ENTITY % fig-model    "((%id.class;)*, label?, (%caption.class;)*, 
+                          (%access.class; | %address-link.class;)*,  
+                          (%block-math.class; |
+                           %chem-struct-wrap.class; | 
+                           %intable-para.class; |
+                           %just-table.class; | %just-para.class; |
+                           %list.class; | %simple-display.class;)*,
+                          (%display-back-matter.class;)* )"          >
+
+
+<!-- ============================================================= -->
+<!--                    ARRAY ELEMENTS                             -->
+<!-- ============================================================= -->
+
+
+<!--                    ARRAY CONTENT MODEL                        -->
+<!--                    Content model for the <array> element      -->
+<!ENTITY % array-model  "(label?, 
+                          (%access.class; | %address-link.class;)*,  
+                          ( (%just-base-display.class;)* | 
+                            %tbody.class; ), 
+                          (%display-back-matter.class;)* )"          >
+
+
+<!--                    ARRAY (SIMPLE TABULAR ARRAY)               -->
+<!--                    Used to define in-text table-like (columnar) 
+                        material.  Uses the XHTML table body element
+                        or a graphic to express the rows and columns.
+                        These have neither labels nor captions,
+                        arrays with labels and captions are table
+                        wrappers.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=array
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=array
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=array
+                                                                   -->
+<!ELEMENT  array        %array-model;                                >
+<!ATTLIST  array
+             %array-atts;                                            >
+             
+
+<!-- ============================================================= -->
+<!--                    BOXED TEXT ELEMENTS                        -->
+<!-- ============================================================= -->
+
+
+<!--                    BOXED TEXT MODEL                           -->
+<!--                    Complete content model for the boxed text
+                        element <boxed-text>                       -->
+<!ENTITY % boxed-text-model
+                        "((%id.class;)*, sec-meta?, label?, caption?, 
+                          (%para-level;)*, (%sec-level;)*, 
+                          (%sec-back-matter-mix;)*,
+                          (%display-back-matter.class;)* )"          >
+                                                 
+
+<!--                    BOXED TEXT                                 -->
+<!--                    Textual material that is outside the flow
+                        of the narrative text, for example, a 
+                        sidebar, marginalia, text insert, caution or
+                        note box, etc. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=boxed-text
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=boxed-text
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=boxed-text
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=boxed-text
+                                                                   -->
+<!ELEMENT  boxed-text   %boxed-text-model;                           >
+<!ATTLIST  boxed-text
+             %boxed-text-atts;                                       > 
+
+
+<!-- ============================================================= -->
+<!--                    CHEMICAL STRUCTURE ELEMENTS                -->
+<!-- ============================================================= -->
+
+
+<!--                    CHEMICAL STRUCTURE WRAPPER MODEL           -->
+<!--                    Content model for the Chemical Structure
+                        Wrapper <chem-struct-wrap> element         -->
+<!ENTITY % chem-struct-wrap-model
+                        "((%id.class;)*, label?, 
+                          (%caption.class;)?, 
+                          (%access.class; | %address-link.class;)*,  
+                          (%inside-chem-struct-wrap.class;)+,
+                          (%display-back-matter.class;)* )"          >
+
+
+<!--                    CHEMICAL STRUCTURE WRAPPER                 -->
+<!--                    A chemical expression, reaction, equation,
+                        etc. that is set apart within the text.
+                        These may be numbered.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=chem-struct-wrap
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=chem-struct-wrap
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=chem-struct-wrap
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=chem-struct-wrap
+                                                                   -->
+<!ELEMENT  chem-struct-wrap            
+                        %chem-struct-wrap-model;                     >
+<!ATTLIST  chem-struct-wrap
+             %chem-struct-wrap-atts;                                 >
+
+
+<!--                    CHEMICAL STRUCTURE ELEMENTS                -->
+<!--                    Those elements that may mix with the data
+                        characters inside a Chemical Structure
+                        <chem-struct>                              -->
+<!ENTITY % chem-struct-elements
+                        "| %access.class; | %address-link.class; | 
+                         %break.class; | 
+                         %emphasis.class; | %label.class; |
+                         %list.class; | %math.class; |
+                         %phrase-content.class; | 
+                         %simple-display.class; | 
+                         %simple-link.class; | %subsup.class; "      >
+
+
+<!--                    CHEMICAL STRUCTURE MODEL                   -->
+<!--                    A chemical expression, reaction, equation,
+                        etc. that is set apart within the text     
+                                                                   -->
+<!ENTITY % chem-struct-model
+                        "(#PCDATA %chem-struct-elements;)* "         >
+
+
+<!--                    CHEMICAL STRUCTURE (DISPLAY)               -->
+<!--                    A chemical expression, reaction, equation,
+                        etc. that is set apart within the text.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=chem-struct
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=chem-struct
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=chem-struct
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=chem-struct
+                                                                   -->
+<!ELEMENT  chem-struct  %chem-struct-model;                          >
+<!ATTLIST  chem-struct 
+             %chem-struct-atts;                                      >
+
+
+<!-- ============================================================= -->
+<!--                    FIGURE ELEMENTS                            -->
+<!-- ============================================================= -->
+
+
+<!--                    FIGURE GROUP MODEL                         -->
+<!--                    Content model for a Figure Group element   -->
+<!ENTITY % fig-group-model 
+                        "(label?, (%caption.class;)?, 
+                          (%access.class; | %address-link.class;)*,  
+                          (%fig-display.class; | 
+                           %just-base-display.class;)* )"            >
+
+
+<!--                    FIGURE GROUP                               -->
+<!--                    Used for a group of figures that must be 
+                        displayed together   
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=fig-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=fig-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=fig-group
+                                                                   -->
+<!ELEMENT  fig-group    %fig-group-model;                            >
+<!ATTLIST  fig-group
+             %fig-group-atts;                                        >
+
+
+<!--                    FIGURE                                     -->
+<!--                    A block of graphic or textual material that
+                        is identified as a "Figure", usually with
+                        a caption and a label such as "Figure" or
+                        "Figure 3.".The content of a Figure need not 
+                        be graphical in nature,.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=fig
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=fig
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=fig
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=fig
+                                                                   -->
+<!ELEMENT  fig          %fig-model;                                  >
+<!ATTLIST  fig
+             %fig-atts;                                              >
+
+
+<!--                    CAPTION BODY PARTS                         -->
+<!--                    Elements that may be included in the body of
+                        the <caption> element                      -->
+<!ENTITY % caption-body-parts  
+                        "(%just-para.class;)*"                       > 
+
+
+<!--                    CAPTION MODEL                              -->
+<!--                    Content model for the <caption> element    -->
+<!ENTITY % caption-model   
+                        "(title?, %caption-body-parts;)"             > 
+
+
+<!--                    CAPTION OF A FIGURE, TABLE, ETC.           -->
+<!--                    Wrapper element for the textual description
+                        associated with a figure, table, etc. In
+                        some source document captions, the first 
+                        sentence is set off from the rest as a title.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=caption
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=caption
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=caption
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=caption
+                                                                   -->
+<!ELEMENT  caption      %caption-model;                              >
+<!ATTLIST  caption
+             %caption-atts;                                          > 
+
+                        
+<!--ELEM  title        Defined in %common.ent;                     -->
+<!--ELEM  p            Defined in %common.ent;                     -->
+
+
+<!-- ============================================================= -->
+<!--                    THE GRAPHIC AND MEDIA OBJECT ELEMENTS      -->
+<!-- ============================================================= -->
+
+
+<!--                    GRAPHIC MODEL                              -->
+<!--                    Content model for the <graphic> element    -->
+<!ENTITY % graphic-model   
+                        "(%access.class; | %address-link.class; | 
+                          %id.class; | %label.class; | 
+                          %caption.class; | 
+                          %display-back-matter.class;)* "            > 
+
+
+<!--                    GRAPHIC                                    -->
+<!--                    An external file that holds a picture,
+                        illustration, etc., usually as some form of
+                        binary object. The "content" of the <graphic>
+                        element is not the object, but merely
+                        information about the object. The "href"
+                        attribute points to the file containing
+                        the object.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=graphic
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=graphic
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=graphic
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=graphic
+                                                                   -->
+<!ELEMENT  graphic      %graphic-model;                              >
+<!ATTLIST  graphic
+             %graphic-atts;                                          >
+
+
+<!--                    MEDIA OBJECT                               -->
+<!--                    An external file that holds a media object,
+                        such as an animation or a movie. The 
+                        "content" of the <media> element is not the 
+                        object, but merely information about the 
+                        object. The "href" attribute points to the 
+                        file containing the object.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=media
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=media
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=media
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=media
+                                                                   -->
+<!ELEMENT  media        %graphic-model;                              >
+<!ATTLIST  media
+             %media-atts;                                            >
+
+
+<!-- ============================================================= -->
+<!--                    INLINE GRAPHIC                             -->
+<!-- ============================================================= -->
+
+
+<!--                    INLINE GRAPHIC MODEL                       -->
+<!--                    Content model for the <inline-graphic> 
+                        element                                    -->
+<!ENTITY % inline-graphic-model 
+                        "(alt-text?)"                                > 
+
+
+<!--                    INLINE GRAPHIC                             -->
+<!--                    A small graphic such as an icon or a small
+                        picture symbol that is displayed or set
+                        in the same line as the text.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=inline-graphic
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=inline-graphic
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=inline-graphic
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=inline-graphic
+                                                                   -->
+<!ELEMENT  inline-graphic
+                        %inline-graphic-model;                       >
+<!ATTLIST  inline-graphic
+             %inline-graphic-atts;                                   >
+
+
+<!-- ============================================================= -->
+<!--                    PRESERVE THE WHITESPACE TEXT               -->
+<!-- ============================================================= -->
+
+
+<!--                    PREFORMATTED TEXT ELEMENTS                 -->
+<!--                    Elements that may be used, along with data
+                        characters, inside the content model for the
+                        <preformat> element                        -->
+<!ENTITY % preformat-elements
+                        "| %access.class; | %address-link.class; |
+                         %display-back-matter.class; | 
+                         %emphasis.class; | %id.class; | 
+                         %phrase.class; | %subsup.class;"            >
+
+
+<!--                    PREFORMAT MODEL                            -->
+<!--                    Content model for the <preformat> element  -->
+<!ENTITY % preformat-model   
+                        "(#PCDATA %preformat-elements;)*"            > 
+
+
+<!--                    PREFORMATTED TEXT                          -->
+<!--                    Used for preformatted text such as 
+                        computer code in which whitespace, such as
+                        tabs, line feeds, and spaces, should be
+                        preserved.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=preformat
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=preformat
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=preformat
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=preformat
+                                                                   -->
+<!ELEMENT  preformat    %preformat-model;                            >
+<!ATTLIST  preformat
+             %preformat-atts;                                        >
+
+
+<!-- ============================================================= -->
+<!--                    SUPPLEMENTARY MATERIAL                     -->
+<!-- ============================================================= -->
+
+
+<!--                    SUPPLEMENTARY MATERIAL MODEL               -->
+<!--                    Content model for the 
+                        <supplementary-material> element           -->
+<!ENTITY % supplementary-material-model 
+                        "%fig-model;"                                > 
+
+
+<!--                    SUPPLEMENTARY MATERIAL                     -->
+<!--                    Additional data files that contain
+                        information directly supportive of the item,
+                        for example, an audio clip, movie, database,
+                        spreadsheet, applet, or other external file.  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=supplementary-material
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=supplementary-material
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=supplementary-material
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=supplementary-material
+                                                                   -->
+<!ELEMENT  supplementary-material     
+                        %supplementary-material-model;               >
+<!ATTLIST  supplementary-material
+             %supplementary-material-atts;                           >
+
+
+<!-- ============================================================= -->
+<!--                    TABLE ELEMENTS                             -->
+<!-- ============================================================= -->
+
+
+<!--                    TABLE WRAPPER GROUP MODEL                  -->
+<!--                    Content model for the <table-wrap-group> 
+                        element                                    -->
+<!ENTITY % table-wrap-group-model 
+                        "(label?, caption?, 
+                          (%access.class; | %address-link.class;)*,  
+                          (%just-table.class;)+ )"                   > 
+
+
+<!--                    TABLE WRAPPER GROUP                        -->
+<!--                    Used as a wrapper tag to contain a group of
+                        tables that must be displayed together
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=table-wrap-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=table-wrap-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=table-wrap-group
+                                                                   -->
+<!ELEMENT  table-wrap-group       
+                        %table-wrap-group-model;                     >
+<!ATTLIST  table-wrap-group
+             %table-wrap-group-atts;                                 >
+
+
+<!--                    TABLE WRAPPER CONTENT MODEL                -->
+<!--                    Content model for the container element that
+                        surrounds the standard table models for row
+                        and columns.                               -->
+<!ENTITY % table-wrap-model    
+                        "((%id.class;)*, label?, (%caption.class;)?, 
+                          (%access.class; | %address-link.class;)*,  
+                          (%inside-table-wrap;)*, 
+                          (%table-foot.class; |
+                           %display-back-matter.class;)* )"          >
+
+
+<!--                    TABLE WRAPPER                              -->
+<!--                    Used to hold a complete table, that is, not
+                        only the rows and columns that make up a
+                        table, but also the table captions, list
+                        of table footnotes, alternative descriptions
+                        for accessibility, etc.  Within the Table
+                        Wrapper element, the row and column tags that
+                        describe the table cells are defined by one
+                        of the popular "standard" table models, for
+                        example the XHTML table model, OASIS Exchange 
+                        (CALS) table model, of the Elsevier Science 
+                        Full Length Article table body <tblbody> 
+                        model, et al.)
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=table-wrap
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=table-wrap
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=table-wrap
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=table-wrap
+                                                                   -->
+<!ELEMENT  table-wrap   %table-wrap-model;                           >
+<!ATTLIST  table-wrap
+             %table-wrap-atts;                                       >
+
+
+<!--                    TABLE WRAP FOOTER MODEL                    -->
+<!--                    Content model for the <table-wrap-foot> 
+                        element                                    -->
+<!ENTITY % table-wrap-foot-model   
+                        "(title?, 
+                          (%just-para.class; |  %fn-group.class; |
+                           %fn-link.class; | 
+                           %display-back-matter.class;)+ )"          > 
+
+
+<!--                    TABLE WRAP FOOTER                          -->
+<!--                    Wrapper element to hold a group of footnotes 
+                        or other notes or general paragraphs at the
+                        end of a table.  Not the same as the
+                        Table Foot <tfoot>, which contains rows
+                        and columns like the rest of the table. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=table-wrap-foot
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=table-wrap-foot
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=table-wrap-foot
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=table-wrap-foot
+                                                                   -->
+<!ELEMENT  table-wrap-foot      
+                        %table-wrap-foot-model;                      >
+
+
+<!-- ================== End Display Class Module ================= -->

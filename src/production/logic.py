@@ -1,0 +1,228 @@
+__copyright__ = "Copyright 2017 Birkbeck, University of London"
+__author__ = "Martin Paul Eve & Andy Byers"
+__license__ = "AGPL v3"
+__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from django.utils import timezone
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+
+from production import models
+from core import files, models as core_models
+from copyediting import models as copyediting_models
+from utils import render_template
+
+
+def get_production_managers(article):
+    production_assignments = models.ProductionAssignment.objects.filter(article=article)
+    production_managers = [assignment.copyeditor.pk for assignment in production_assignments]
+
+    return core_models.AccountRole.objects.filter(role__slug='production').exclude(user__pk__in=production_managers)
+
+
+def get_typesetters(article):
+    typeset_assignments = models.TypesetTask.objects.filter(assignment__article=article,
+                                                            completed__isnull=True)
+    typesetters = [task.typesetter.pk for task in typeset_assignments]
+
+    return core_models.AccountRole.objects.filter(role__slug='typesetter').exclude(user__pk__in=typesetters)
+
+
+def get_all_galleys(article):
+    return [galley for galley in article.galley_set.all()]
+
+
+def save_galley(article, request, uploaded_file, is_galley, label, is_other):
+    new_file = files.save_file_to_article(uploaded_file, article, request.user)
+    new_file.is_galley = is_galley
+    new_file.label = label
+
+    if is_other:
+        article.data_figure_files.add(new_file)
+    else:
+        article.manuscript_files.add(new_file)
+
+    new_file.save()
+    article.save()
+    new_galley = core_models.Galley.objects.create(
+        article=article, file=new_file, label=label, type=label.lower(), sequence=article.get_next_galley_sequence()
+    )
+
+    return new_galley
+
+
+def replace_galley_file(article, request, galley, uploaded_file):
+    if uploaded_file:
+        new_file = files.save_file_to_article(uploaded_file, article, request.user)
+        new_file.is_galley = True
+        new_file.label = galley.file.label
+        new_file.parent = galley.file
+        new_file.save()
+        galley.file = new_file
+        galley.save()
+    else:
+        messages.add_message(request, messages.WARNING, 'No file was selected.')
+
+
+def save_galley_image(galley, request, uploaded_file, label="Galley Image", fixed=False):
+    new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
+    new_file.is_galley = False
+    new_file.label = label
+
+    if fixed:
+        new_file.original_filename = request.POST.get('file_name')
+
+    new_file.save()
+
+    galley.images.add(new_file)
+
+    return new_file
+
+
+def save_galley_css(galley, request, uploaded_file, filename, label="Galley Image"):
+    new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
+    new_file.is_galley = False
+    new_file.label = label
+    new_file.original_filename = filename
+    new_file.save()
+
+    galley.css_file = new_file
+    galley.save()
+
+    return new_file
+
+
+def get_copyedit_files(article):
+    c_files = []
+    copyedits = copyediting_models.CopyeditAssignment.objects.filter(article=article)
+
+    for copyedit in copyedits:
+        for file in copyedit.copyeditor_files.all():
+            c_files.append(file)
+
+    return c_files
+
+
+def handle_self_typesetter_assignment(production_assignment, request):
+    user = get_object_or_404(core_models.Account, pk=request.POST.get('typesetter_id'))
+    typeset_task = models.TypesetTask(
+        assignment=production_assignment,
+        typesetter=user,
+        notified=True,
+        accepted=timezone.now(),
+        typeset_task='This is a self assignment.',
+    )
+
+    typeset_task.save()
+
+    messages.add_message(request, messages.SUCCESS, 'You have been assigned as a typesetter to this article.')
+
+    return typeset_task
+
+
+def handle_assigning_typesetter(production_assignment, request):
+    errors = []
+
+    user = request.POST.get('typesetter_role', None)
+    file = request.POST.getlist('files', [])
+    task = request.POST.get('typeset_task', None)
+
+    _dict = {'user': int(user) if user else None,
+             'files': [int(f) for f in file] if file else None,
+             'task': task}
+
+    if not user:
+        errors.append('You must select a user.')
+    if not file:
+        errors.append('You must select at least one file.')
+
+    if errors:
+        return None, errors, _dict
+
+    else:
+        user = core_models.Account.objects.get(pk=user)
+        typeset_task = models.TypesetTask(
+            assignment=production_assignment,
+            typesetter=user,
+            typeset_task=task,
+        )
+        typeset_task.save()
+
+        for f in file:
+            typeset_task.files_for_typesetting.add(f)
+
+        messages.add_message(request, messages.SUCCESS, "{0} assigned as a typesetter for {1}".format(
+            typeset_task.typesetter.full_name(),
+            production_assignment.article.title
+        ))
+
+        return typeset_task, None, _dict
+
+
+def update_typesetter_task(typeset, request):
+
+    file_ints = request.POST.getlist('files', [])
+    files = [core_models.File.objects.get(pk=f) for f in file_ints]
+
+    for file in files:
+        typeset.files_for_typesetting.add(file)
+
+    for file in typeset.files_for_typesetting.all():
+        if file not in files:
+            typeset.files_for_typesetting.remove(file)
+
+    typeset.typeset_task = request.POST.get('typeset_task', '')
+    typeset.save()
+
+
+def get_typesetter_notification(typeset_task, request):
+    context = {
+        'typeset_task': typeset_task,
+    }
+    return render_template.get_message_content(request, context, 'typesetter_notification')
+
+
+def get_complete_template(request, article, production_assignment):
+    context = {
+        'article': article,
+        'production_assignment': production_assignment,
+    }
+    return render_template.get_message_content(request, context, 'typeset_ack')
+
+
+def get_image_names(galley):
+    return [image.original_filename for image in galley.images.all()]
+
+
+def handle_delete_request(request, galley, typeset_task=None, article=None, page=False):
+    if typeset_task:
+        article = typeset_task.assignment.article
+
+    file_id = request.POST.get('delete', None)
+
+    if file_id:
+        try:
+            file_to_delete = core_models.File.objects.get(pk=file_id)
+            if file_to_delete.pk in galley.article.all_galley_file_pks():
+                messages.add_message(request, messages.INFO, 'File deleted')
+                file_to_delete.delete()
+        except core_models.File.DoesNotExist:
+            messages.add_message(request, messages.WARNING, 'File not found')
+
+    if page == 'edit':
+        return redirect(reverse('edit_galley', kwargs={'typeset_id': typeset_task.pk, 'galley_id': galley.pk}))
+    elif page == 'pm_edit':
+        return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+    elif page == 'typeset':
+        return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_task.pk}))
+    else:
+        return redirect(reverse('assigned_article', kwargs={'article_id': article.pk}))
+
+
+def get_production_assign_content(user, request, article, url):
+    context = {
+        'user': user,
+        'url': url,
+        'article': article,
+    }
+    return render_template.get_message_content(request, context, 'production_assign_article')

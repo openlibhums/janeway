@@ -1,0 +1,261 @@
+<!-- ============================================================= -->
+<!--  MODULE:    OASIS XML TABLE SETUP MODULE                      -->
+<!--  VERSION:   1.1                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite OASIS XML Table Setup Module v1.2 20040830//EN"
+     Delivered as file "oasis-tablesetup3.ent"                     -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Provides the organization for using the           -->
+<!--             OASIS Open exchange CALS table model (XML         -->
+<!--             version)                                          -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Overrides to standard parameter entities used  -->
+<!--                in the OASIS-Open exchange CALS table model    -->
+<!--             2) Call to OASIS-Open table exchange model (XML)  -->
+<!--                (XML version)                                  -->
+<!--                                                               -->
+<!-- MODULES REQUIRED:                                             -->
+<!--             1) %exchange.ent;      OASIS exchange table model -->
+<!--                                      (XML version)            -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--             important contributions.                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+                         
+<!-- ============================================================= -->
+<!--                    SET UP FOR THE PUBLIC TABLE MODULE         -->
+<!-- ============================================================= -->
+
+
+<!--                    OVER-RIDES FOR STANDARD PARAMETER ENTITIES -->
+<!--                    In order to use the OASIS-OPEN (CALS)
+                        Exchange table model, various Parameter 
+                        ENTITY declarations are required.  Brief 
+                        descriptions of the Parameter Entities in 
+                        the exchange table model that this module 
+                        will over-ride are given below: 
+                        (adapted from the Exchange module itself)
+
+     ENTITY NAME        WHERE USED       WHAT IT IS
+
+     %yesorno           In ATTLIST of:   An attribute declared 
+                        almost all       value for a "boolean" 
+                        table elements   attribute
+
+     %titles            In content of:    The "title" part of the 
+                        table element     table model has been set 
+                                          to the empty string,  
+                                          since the title is in the 
+                                          Table Wrapper element 
+
+     %tbl.table-titles.mdl 
+                        In content of:    The model group for the 
+                        table elements    "title" part of the  
+                                          content model for table 
+                                          element
+
+     %paracon           In content of:    The "text" (logical 
+                        <entry>           content) of the model for 
+                                          <entry>
+
+     %tbl.table.att     In ATTLIST of:    Additional attributes on 
+                        table element     the table element 
+                        
+     %tbl.entry.att     In ATTLIST of:    Additional attributes on 
+                        <entry>           the <entry> element      -->
+                         
+                         
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR ELEMENT NAMES       -->
+<!-- ============================================================= -->
+
+
+<!--                    TABLE ELEMENT NAME                         -->
+<!ENTITY % tbl.table.name
+                        "oasis:table"                                >
+                         
+                         
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITY FOR ATTRIBUTES            -->
+<!-- ============================================================= -->
+
+                                                                
+<!--                    DEFAULT NAMESPACE-OASIS TABLE EXCHANGE     -->
+<!--                    The default namespace to be used when
+                        calling in the OASIS Open Exchange (CALS)
+                        Table Model                                -->
+<!ENTITY % oasis.xmlns.attrib
+             "xmlns:oasis
+                        CDATA      #FIXED
+              'http://docs.oasis-open.org/ns/oasis-exchange/table'"  > 
+
+
+<!--                    YES OR NO                                  -->
+<!--                    The boolean value, "0" to indicate "no", 
+                        any other number, usually "1", to indicate
+                        "yes"                                      -->
+<!ENTITY % yesorno      "NMTOKEN"                                    > 
+
+
+<!--                    TABLE ATTRIBUTES                           -->
+<!--                    Additional attributes on the table element -->
+<!ENTITY % tbl.table.att
+             "%oasis.xmlns.attrib;
+              id        ID                                #IMPLIED
+              content-type
+                        CDATA                             #IMPLIED"  >
+
+
+<!--                    TABLE ENTRY ATTRIBUTES                     -->
+<!--                    Additional attributes on the table entry
+                        element, that is, attributes for a table
+                        cell                                       -->
+<!ENTITY % tbl.entry.att
+            ""                                                       > 
+                         
+                         
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR CONTENT MODELS      -->
+<!-- ============================================================= -->
+
+
+<!--                    TITLE OF THE TABLE                         -->
+<!--                    The "title" part of the table element has 
+                        been set to the empty string, since the
+                        title is contained within the Table
+                        Wrapper element                            -->
+<!ENTITY % titles       ""                                           > 
+<!ENTITY % tbl.table-titles.mdl 
+                        ""                                           >
+
+
+<!--                    CONTENTS OF AN ENTRY (TABLE CELL)          -->
+<!--                    Names all the elements that may occur 
+                        inside a table cell (<entry>)              -->
+<!ENTITY % paracon      "#PCDATA | %inside-cell;"                    >
+
+
+<!--                    CONTENTS OF TABLE                          -->
+<!--                    Names all the elements that may occur 
+                        inside a table (<table>)                   -->
+<!ENTITY % tbl.table-main.mdl   
+                        "oasis:tgroup+"                              >
+
+
+<!--                    CONTENTS OF TABLE GROUP (ORIGINAL OASIS)   -->
+<!--                    Names all the elements that may occur 
+                        inside a Table Group (<tgroup>)            -->
+<!ENTITY % tbl.tgroup.mdl       
+                        "oasis:colspec*, oasis:thead?, oasis:tbody"  >
+
+
+<!--                    CONTENTS OF TABLE ROW                      -->
+<!--                    Names all the elements that may occur 
+                        inside a Table Row (<row>)                 -->
+<!ENTITY % tbl.row.mdl  "oasis:entry+"                               >
+
+
+<!-- ============================================================= -->
+<!--                    THE OASIS CALS TABLE INVOCATION            -->
+<!-- ============================================================= -->
+
+
+<!--                    OASIS XML TABLE MODEL                      -->
+<!--                    ENTITY % oasis-exchange.ent PUBLIC
+"-//OASIS//DTD MD copy XML Exchange Table Model 19990315//EN"      -->
+%oasis-exchange.ent;  
+
+
+<!-- ================== End OASIS Table Setup Module ============= -->

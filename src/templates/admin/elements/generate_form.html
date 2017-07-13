@@ -1,0 +1,17 @@
+{% load foundation %}
+
+{% for field in form %}
+<div class="form-group">
+    <div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}large-12 columns{% endif %}">
+        {% if field.field.widget.attrs.is_checkbox %}
+        {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br/>{% endif %}
+        {{ field }} &nbsp;{% if field.help_text %}{{ field.help_text|safe }}{% endif %}
+        {% else %}
+
+        {{ field.label }}<br />
+            {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
+            {% if field.help_text %}<small>{{ field.help_text|safe }}</small>{% endif %} {{ field }}
+        {% endif %}
+    </div>
+</div>
+{% endfor %}

@@ -1,0 +1,22 @@
+{% load static from staticfiles %}
+
+<div class="reveal small" id="productionmodal" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-check">&nbsp;</i>Production Complete</h4>
+        </div>
+        <div class="card-section">
+            <p class="lead">You can inform the Editors that Production is complete, or skip the message.</p>
+            <form method="POST" action="{% url 'production_done' article.pk %}">
+                {% csrf_token %}
+                <textarea name="user_content_message">{{ complete_message|safe|linebreaksbr }}</textarea>
+                <button name="production" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+                <button name="skip" type="submit" class="button alert"><i class="fa fa-fast-forward">&nbsp;</i>Skip</button>
+            </form>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

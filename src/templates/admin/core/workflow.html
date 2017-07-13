@@ -1,0 +1,73 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Journal Workflow{% endblock title %}
+{% block title-section %}Journal Workflow{% endblock title-section %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Current Workflow</h2>
+            </div>
+            <div class="content">
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group"  id="sortable">
+                        {% for element in workflow.elements.all %}
+                            <li class="list-group-item" id="element-{{ element.pk }}"><i class="fa fa-sort">
+                                &nbsp;</i>{{ element.element_name|capfirst }}
+                                <button type="submit" name="delete" value="{{ element.pk }}"
+                                        class="tiny alert button pull-right"><i class="fa fa-trash">&nbsp;</i>Remove
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Available Elements</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group">
+                        {% for element in available_elements %}
+                            <li class="list-group-item">{{ element.name|capfirst }}
+                                <button type="submit" name="element_name" value="{{ element.name }}"
+                                        class="tiny button pull-right"><i class="fa fa-plus">&nbsp;</i>Add
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'core_order_workflow_elements' %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+    </script>
+{% endblock js %}

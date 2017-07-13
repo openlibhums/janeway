@@ -1,0 +1,66 @@
+<div class="card">
+    <div class="card-divider">
+        <h5>{{ article.title|safe }}</h5>
+    </div>
+    <div class="card-section">
+        {% if type == "unassigned" %}
+            <p>New article, awaiting Editor assignment.</p>
+        {% elif type == "assigned" %}
+            <p>Review in progress.</p>
+        {% elif type == "copyedit" %}
+            <p>Copyedit in process.</p>
+        {% elif type == "production_unassigned" %}
+            <p>Awaiting assignment of Production Manager</p>
+        {% elif type == "production_assigned" %}
+            <p>Production in process.</p>
+        {% elif type == 'proof_unassigned' %}
+            <p>Awaiting assignment of Proofing Manager</p>
+        {% elif type == 'proof_assigned' %}
+            <p>Proofing in process.</p>
+        {% elif type == 'prepublication' %}
+            <p>Awaiting completion of pre-pub checklist.</p>
+        {% endif %}
+        <div class="button-group">
+            {% if type == "unassigned" %}
+                <a class="button tiny" href="{% url 'review_unassigned_article' article.pk %}">Assign Editor</a>
+            {% elif type == 'assigned' %}
+                <a class="button tiny" href="{% url 'review_in_review' article.pk %}">View Review Detail</a>
+            {% elif type == "copyedit" %}
+                <a class="button tiny" href="{% url 'article_copyediting' article.pk %}">View Copyediting Detail</a>
+            {% elif type == 'production_unassigned' %}
+                <a class="button tiny" href="{% url 'production_list' %}">Assign Production Manager</a>
+            {% elif type == 'production_assigned' %}
+                <a class="button tiny" href="{% url 'production_article' article.pk %}">View Production Detail</a>
+            {% elif type == 'proof_unassigned' %}
+                <a class="button tiny" href="{% url 'proofing_list' %}">Assign Proofing Manager</a>
+            {% elif type == 'proof_assigned' %}
+                <a class="button tiny" href="{% url 'proofing_article' article.pk %}">View Proofing Detail</a>
+            {% elif type == 'prepublication' %}
+                <a class="button tiny" href="{% url 'publish_article' article.pk %}">Pre-publication</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        {% include "elements/avatar.html" with user=article.correspondence_author role="Author" %}
+
+        {% for assignment in article.editors %}
+            {% include "elements/avatar.html" with user=assignment.editor role=assignment.editor_type %}
+        {% endfor %}
+
+        {% if type == "copyedit" %}
+        {% for copyedit in article.copyeditassignment_set.all %}
+            {% include "elements/avatar.html" with user=copyedit.copyeditor role="Copyeditor" %}
+        {% endfor %}
+        {% endif %}
+
+        {% if article.productionassignment.production_manager %}
+            {% include "elements/avatar.html" with user=article.productionassignment.production_manager role="PM" %}
+        {% endif %}
+
+        {% if type == "production_assigned" %}
+        {% for typeset in article.productionassignment.typesettask_set.all %}
+            {% include "elements/avatar.html" with user=typeset.typesetter role="Typesetter" %}
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>

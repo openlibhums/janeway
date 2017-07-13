@@ -1,0 +1,51 @@
+{% extends "admin/core/base.html" %}
+
+
+{% block title %}Unassigned Articles{% endblock %}
+{% block title-section %}Unassigned Articles{% endblock %}
+{% block title-sub %}List{% endblock %}
+
+{% block body %}
+
+		<div class="large-12 columns">
+            <div class="box">
+                <div class="content">
+                    <table class="table table-bordered" id="unassigned">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Submitted</th>
+                                <th>Main Author</th>
+                                <th>Section</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in articles %}
+                            <tr>
+                                <td>{{ article.title }}</td>
+                                <td>{{ article.date_submitted }}</td>
+                                <td>{{ article.correspondence_author.full_name }}</td>
+                                <td>{{ article.section.name }}</td>
+                                <td><a href="{% url 'review_unassigned_article' article.pk %}">View</a></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td>No articles in this stage</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+		</div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#unassigned" %}
+{% endblock js %}

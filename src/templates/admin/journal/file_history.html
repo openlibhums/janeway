@@ -1,0 +1,77 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% load securitytags %}
+
+{% block title %}File History and Metadata{% endblock title %}
+{% block title-section %}File History and Metadata{% endblock %}
+
+{% block body %}
+    {% csrf_token %}
+    <div class="row expanded box">
+        <div class="large-12 columns">
+        <div class="title-area">
+            {{ file }}
+        </div>
+            <table>
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    <th>Download</th>
+                    <th>Replace</th>
+                    <th>Delete</th>
+                    <th>Re-instate</th>
+                </tr>
+
+                {% can_edit_file file article as can_edit_file_flag %}
+                {% can_view_file file as can_view_file_flag %}
+                {% for file_history in file.history.all %}
+                    {% can_view_file file_history as can_view_historic_file_flag %}
+                    <tr>
+                        <td>{{ file_history.label }} ({{ file_history.history_seq }})</td>
+                        <td>{{ file_history.original_filename }}</td>
+                        <td>{% if can_view_historic_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk file_history.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{% if can_edit_file_flag %}
+                        <a href="{% url 'file_reinstate' article.pk file.pk file_history.pk %}?return={% url 'file_history' article.pk file.pk %}%3Freturn%3D{{ request.GET.return|urlencode }}"><i class="fa fa-recycle">
+                            &nbsp;</i></a>{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">No younger versions of this file</td>
+                    </tr>
+                {% endfor %}
+
+                <tr class="active">
+                    <td>{{ file.label }}</td>
+                    <td>{{ file }}</td>
+                    <td>{% if can_view_file_flag %}
+                        <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download">
+                            &nbsp;</i></a>{% endif %}</td>
+                    <td>{% if can_edit_file_flag %}<a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
+                            class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
+                    <td>{% if can_edit_file_flag %}
+                        <a href="{% url 'file_delete' article.pk file.pk %}"><i class="fa fa-trash">
+                            &nbsp;</i></a>{% endif %}</td>
+                    <td>Current File</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+
+
+    <div class="large-12 columns">
+        <form method="POST">
+            {% csrf_token %}
+            <button class="button success float-right" type="submit" name="next_step"><i class="fa fa-check">&nbsp;</i>Return</button>
+        </form>
+    </div>
+    </div>
+
+
+{% endblock body %}

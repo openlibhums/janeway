@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+
+{% block page_title %}Copyediting{% endblock %}
+{% block admin-header %}Articles in Copyediting{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyediting_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns box">
+        <div class="title-area">
+            <h2>Articles in Copyediting</h2>
+        </div>
+        <div class="content">
+            <table class="table table-bordered" id="unassigned">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Submitted</th>
+                    <th>Main Author</th>
+                    <th>Section</th>
+                    <th>Stage</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for article in articles_in_copyediting %}
+                    <tr>
+                        <td>{{ article.title }}</td>
+                        <td>{{ article.date_submitted }}</td>
+                        <td>{{ article.correspondence_author.full_name }}</td>
+                        <td>{{ article.section.name }}</td>
+                        <td>{{ article.stage }}</td>
+                        <td><a href="{% url 'article_copyediting' article.pk %}">View</a></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td>No articles in this stage</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#unassigned" %}
+{% endblock js %}

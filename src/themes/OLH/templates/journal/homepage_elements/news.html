@@ -1,0 +1,22 @@
+{% load svg from press_url %}
+{% load truncate %}
+{% load i18n %}
+
+<section>
+    <div class="row">
+        <div class="large-12 columns">
+            <div class="row column text-center">
+                <h2 class="title">{% trans "Latest News" %}</h2>
+            </div>
+            {% for item in news_items %}
+            <h5>{{ item.title }}</h5>
+            <h6>{% trans "Posted by" %} {{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</h6>
+            <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+            <a href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+            <hr />
+            {% empty %}
+            <h4>{% trans "This journal currently has no news items to display" %}.</h4>
+            {% endfor %}
+        </div>
+    </div>
+</section>

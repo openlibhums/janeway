@@ -1,0 +1,108 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Add Copyeditor{% endblock %}
+{% block title-section %}Add Copyeditor{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyediting_base.html" %}
+    <li>Add Copyedit Assignment</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="title-area">
+                <h2>1. Select Copyeditor</h2>
+            </div>
+            <div class="content">
+                {% include "elements/forms/errors.html" with form=form %}
+                <table class="table table-bordered small" id="reviewers">
+                    <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Name</th>
+                        <th>Email Address</th>
+                        <th>Active Copyedits</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for copyeditor_role in copyeditors %}
+                        <tr>
+                            <td><input type="radio" name="copyeditor" value="{{ copyeditor_role.user.id }}"></td>
+                            <td>{{ copyeditor_role.user.full_name }}</td>
+                            <td>{{ copyeditor_role.user.email }}</td>
+                            <td>{{ copyeditor_role.user.active_copyedits|length }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>No suitable copyeditors.</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="title-area">
+                <h2>2. Select Files</h2>
+            </div>
+            <div class="content">
+                <p>You can select which files are available to the Copyeditor.</p>
+                <table class="table table-bordered table-condensed small">
+                    <tr>
+                        <th></th>
+                        <th>Label</th>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th>Download</th>
+                    </tr>
+                    {% for file in article.manuscript_files.all %}
+                        <tr>
+                            <td><input type="checkbox" name="files" value="{{ file.id }}"
+                                       {% if file.id in files %}checked="checked"{% endif %}></td>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename }}</td>
+                            <td>Manuscript</td>
+                            <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
+                        </tr>
+                    {% endfor %}
+                    {% for file in article.data_figure_files.all %}
+                        <tr>
+                            <td><input type="checkbox" name="files" value="{{ file.id }}"
+                                       {% if file.id in files %}checked="checked"{% endif %}></td>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename }}</td>
+                            <td>Data/Figure</td>
+                            <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="title-area">
+                <h2>3. Set Options</h2>
+            </div>
+            <div class="content">
+                <div class="row expanded">
+                    <div class="large-6 columns">{{ form.editor_note|foundation }}</div>
+                    <div class="large-6 columns">{{ form.due|foundation }}</div>
+                    <div class="large-12 columns">
+                        <button class="button success" type="submit">Add Copyeditor</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div><!--/col-lg-12 -->
+
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#reviewers" %}
+    {% include "elements/datepicker.html" with target="#id_due" %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

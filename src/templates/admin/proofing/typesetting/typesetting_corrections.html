@@ -1,0 +1,93 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}}
+{% load files %}
+{% load securitytags %}
+{% load foundation %}
+
+{% block title %}Proofing Corrections{% endblock title %}
+{% block title-section %}Proofing Corrections{% endblock %}
+{% block title-sub %}{{ article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/proofreader_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+    <div class="box">
+        <div class="content">
+            <p>The Proofing Manager has requested that you make the changes to the Galleys listed below. If the proofreader has supplied any notes, they will be available using the notes button.</p>
+        </div>
+        <div class="title-area">
+            <h2>Task Detail</h2>
+        </div>
+        <div class="content">
+            {{ typeset_task.task|safe }}
+        </div>
+
+        <div class="title-area">
+            <h2>Galleys</h2>
+        </div>
+        <div class="content">
+            <table class="table table-bordered table-condensed small">
+                <tr style="text-align: left">
+                    <th>Label</th>
+                    <th width="25%">Filename</th>
+                    <th>Type</th>
+                    <th>Download</th>
+                    <th>Replace</th>
+                    <th>History</th>
+                    <td>Notes</td>
+                </tr>
+                {% for galley in typeset_task.galleys.all %}
+                    {% can_view_file galley.file as can_view_file_flag %}
+                    {% can_edit_file galley.file article as can_edit_file_flag %}
+                    {% can_view_file_history galley.file article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ galley.label }}</td>
+                        <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+                        <td>Galley</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'article_file_replace' 'id' article.pk galley.file.pk %}?return={{ request.path|urlencode }}&full_replace=true"><i
+                                    class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_view_file_history_flag %}
+                            <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-history">
+                                &nbsp;</i></a>{% endif %}
+                        </td>
+                    <td><a href="#" data-open="galley-{{ galley.pk }}"><i class="fa fa-sticky-note"></i></a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <div class="row expanded">
+                <div class="large-8 columns">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.notes|foundation }}
+                        <button type="submit" class="button success" data-open="uploadbox"><i
+                                class="fa fa-check">&nbsp;</i>Complete Corrections
+                        </button>
+                    </form>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for galley in typeset_task.galleys.all %}
+        {% include "elements/proofing/typesetter_notes.html" with galley=galley %}
+    {% endfor %}
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script src="{% static "admin/js/proofing_note.js" %}"></script>
+{% endblock js %}

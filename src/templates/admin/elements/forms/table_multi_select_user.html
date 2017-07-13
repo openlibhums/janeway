@@ -1,0 +1,22 @@
+<div class="title-area">
+    <h2>{{ field.label }}</h2>
+</div>
+<div class="content">
+    <p>{{ field.help_text }}</p>
+    <table>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        {% for user in queryset %}
+            <tr>
+                <td><input type="checkbox" name="{{ field.name }}" id="user-{{ user.id }}" value="{{ user.id }}" {% if user.string_id in field.field.initial %}checked="checked"{% endif %} /></td>
+                <td>{{ user.id }}</td>
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.email }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>

@@ -1,0 +1,120 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Journal Publishing DTD Customize Mixes Module     -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Journal Publishing DTD Customize Mixes Module v3.0 20080202//EN"
+Delivered as file "journalpubcustom-mixes3.ent"                    -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Journal Publishing DTD of the                     -->
+<!--             Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Declares over-ride values for the default element -->
+<!--             mixes in the Suite. These over-rides are specific -->
+<!--             to the Journal Publishing DTD.                    -->
+<!--                                                               -->
+<!--             Note: Since PEs must be declared before they      -->
+<!--             are used, this module must be called before the   -->
+<!--             default mixes modules (%default-mixes;)           -->
+<!--                                                               -->
+<!-- CONTAINS:   1) PEs that define the element mixes to be        -->
+<!--                over-ridden                                    -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital Archive of Journal Articles               -->
+<!--             National Center for Biotechnology Information     -->
+<!--                (NCBI)                                         -->
+<!--             National Library of Medicine (NLM)                -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             September 2004                                    -->
+<!--                                                               -->
+<!-- CREATED BY: Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             B. Tommie Usdin (Mulberry Technologies, Inc.)     -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             this DTD should be sent in email to:              -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+                          
+                                                
+<!-- ============================================================= -->
+<!--                    INLINE MIXES FOR USE IN CONTENT MODELS     -->
+<!--                    (MIXES ARE COMPOSED USING CLASSES)         -->
+<!-- ============================================================= -->
+
+
+<!--                    EMPHASIS MIX ELEMENTS                      -->
+<!--                    Elements that may be used inside most of the
+                        emphasis class elements                    -->
+<!ENTITY % emphasized-text  
+                        "| %address-link.class; | 
+                         %article-link.class; | %emphasis.class;  | 
+                         %inline-display.class; |
+                         %inline-math.class; |  %math.class; | 
+                         %phrase.class; | %simple-link.class; | 
+                         %subsup.class;"                             >
+                          
+
+<!--                    JUST RENDITION                             -->
+<!--                    Only the simplest of the typographic 
+                        emphasis elements, as well as subscript and
+                        superscript.  Usually used in a model that
+                        allows #PCDATA and this restricted mixture.
+                        This mix may be stripped down to only
+                        subscript and superscript by some, more
+                        restrictive DTDs.                         
+                        MAINTENANCE NOTE: This Parameter Entity
+                        and the related PE "rendition-plus" have
+                        been put in place to restrict the amount of
+                        variability that a person modifying the DTD
+                        through PE redefinition can achieve. Some
+                        elements have been set #PCDATA plus one PE
+                        and some have been set to #PCDATA plus the
+                        other in an effort to allow designers to
+                        modify entire groups of elements, but not
+                        to change similar models individually .    -->
+<!ENTITY % just-rendition
+                        ""                                           >
+
+
+<!--                    SECTION BACK MATTER ELEMENTS               -->
+<!--                    Back matter elements used inside smaller
+                        structures, such as sections and sidebars  -->
+<!ENTITY % sec-back-matter-mix
+                        "%sec-back.class;"                           >
+
+
+<!-- ================== End Publishing DTD Mixes Customization === -->

@@ -1,0 +1,267 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load roles %}
+
+{% block title %}Review {{ article.title }}{% endblock %}
+{% block title-section %}Peer Review{% endblock %}
+{% block title-sub %}Breakdown{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+
+    <div class="row expanded">
+        <div class="large-8 columns">
+            <div class="box">
+                <ul class="tabs" data-tabs id="round-tabs">
+                    {% for round in review_rounds %}
+                        <li class="tabs-title {% if forloop.first %} is-active{% endif %}"><a
+                                href="#tab{{ round.round_number }}"
+                                aria-selected="true">Round {{ round.round_number }}</a></li>
+                    {% endfor %}
+                </ul>
+                <div class="tabs-content" data-tabs-content="round-tabs">
+                    {% for round in review_rounds %}
+                        <div class="tabs-panel{% if forloop.first %} is-active{% endif %}"
+                             id="tab{{ round.round_number }}">
+                            <div class="content">
+                                <div class="row">
+                                    <div class="title-area">
+                                        <h2>Files</h2>
+                                        {% if round.round_number == article.current_review_round %}<a
+                    href="{% url 'review_delete_review_round' article.id round.id %}"
+                    class="small button alert">Delete Round</a><a href="{% url 'review_add_files' article.id round.id %}" class="button">Add Files</a>{% endif %}
+                                    </div>
+                                    <div class="row" data-equalizer data-equalize-on="medium">
+                                    {% for file in round.review_files.all %}
+                                        <div class="large-3 columns{% if forloop.last %} end{% endif %}" >
+                                            <div class="callout breakdown file" data-equalizer-watch>
+                                                <div class="callout-title">
+                                                    <h4>{{ file.label }}</h4>
+                                                </div>
+                                                <p>{{ file.original_filename }}</p>
+                                                <ul class="menu">
+                                                    <li>
+                                                        <a href="{% url 'editor_file_download' article.id file.id %}"><span
+                                                                data-tooltip aria-haspopup="true" class="has-tip bottom"
+                                                                data-disable-hover="false" tabindex="2"
+                                                                title="Download"><i class="fa fa-download action-icon">&nbsp;</i></span></a></li>
+                                                    <li>
+                                                        <a href="{% url 'review_remove_file' article.id round.id file.id %}"><span
+                                                                data-tooltip aria-haspopup="true" class="has-tip bottom"
+                                                                data-disable-hover="false" tabindex="2"
+                                                                title="Remove"><i class="fa fa-trash action-icon">&nbsp;</i></span></a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="title-area">
+                                    <h2>Reviewers</h2>
+                                    {% if round.round_number == article.current_review_round %}<a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add Reviewer</a>{% endif %}
+                                </div>
+                                {% for review in round.reviewassignment_set.all %}
+                                    <div class="callout breakdown reviewer">
+                                        <div class="title-area">
+                                            <h4>{{ review.reviewer.full_name }}</h4>
+                                        </div>
+                                        <div class="table-scroll">
+                                            <table>
+                                                <tbody>
+                                                <tr>
+                                                    <th>Requested</th>
+                                                    <th>Request Decision</th>
+                                                    <th>Due</th>
+                                                    <th>Decision</th>
+                                                    <th>Completed</th>
+                                                    <th width="150px"></th>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ review.date_requested|date:"Y-m-d" }}</td>
+                                                    <td>{% if review.decision == 'withdrawn' %}Withdrawn
+                                                        {{ review.date_complete|date:"Y-m-d" }}
+                                                    {% elif review.date_accepted %}Accepted
+                                                        {{ review.date_accepted|date:"Y-m-d" }}
+                                                    {% elif review.date_declined %}Declined
+                                                        {{ review.date_declined|date:"Y-m-d" }}
+                                                    {% else %}Awaiting acknowledgement{% endif %}
+                                                    </td>
+                                                    <td>{{ review.date_due|date:"Y-m-d" }}</td>
+                                                    <td>{% if review.decision %}
+                                                        {{ review.get_decision_display|capfirst }}{% else %}
+                                                        --{% endif %}</td>
+                                                    <td>{% if review.date_complete %}
+                                                        {{ review.date_complete }}{% else %}--{% endif %}</td>
+                                                    <td>
+                                                        <div class="button-group">
+                                                            <a href="{% url 'review_view_review' article.pk review.pk %}"
+                                                               class="button">View</a>
+                                                            <a class="dropdown button arrow-only"
+                                                               data-toggle="review-dropdown-{{ review.pk }}"><span
+                                                                    class="show-for-sr">Show menu</span></a>
+                                                        </div>
+                                                        <div class="dropdown-pane right"
+                                                             id="review-dropdown-{{ review.pk }}"
+                                                             data-dropdown data-close-on-click="true">
+                                                            <ul class="menu vertical actions">
+                                                                {% if review.decision == 'withdrawn' or review.date_declined %}
+                                                                    <li>
+                                                                        <a href="{% url 'review_reset_review' article.pk review.pk %}"><i class="fa fa-retweet action-icon">&nbsp;</i>Reset</a></li>
+                                                                {% endif %}
+                                                                <li>
+                                                                    <a href="{% url 'review_edit_review' article.pk review.pk %}"><i class="fa fa-pencil action-icon">&nbsp;</i>Edit</a></li>
+                                                                <li>
+                                                                    <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i class="fa fa-star action-icon">&nbsp;</i>Rate</a></li>
+                                                                <li>
+                                                                    <a href="{% url 'review_withdraw_review' article.pk review.pk %}"><i class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a></li>
+                                                                <li>
+                                                                    <a href="{% url 'review_delete_review' article.pk review.pk %}"><i class="fa fa-trash action-icon">&nbsp;</i>Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if revisions_requests %}
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Revision Requests</h2>
+                    </div>
+                    <div class="content">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Date Requested</th>
+                                <th>Date Due</th>
+                                <th>Type</th>
+                                <th>Date Completed</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for revision_request in revisions_requests %}
+                                <tr>
+                                    <td>{{ revision_request.date_requested|date:"Y-m-d" }}</td>
+                                    <td>{{ revision_request.date_due|date:"Y-m-d" }}</td>
+                                    <td>{{ revision_request.get_type_display }}</td>
+                                    <td>{% if revision_request.date_completed %}
+                                        {{ revision_request.date_completed|date:"Y-m-d" }}{% else %}
+                                        Underway{% endif %}</td>
+                                    <td>
+                                        {% if revision_request.date_completed %}
+                                            <a class="button"
+                                               href="{% url 'view_revision' article.pk revision_request.pk %}"><b>View</b></a>
+                                        {% else %}
+                                            <div class="button-group">
+                                                <a href="{% url 'view_revision' article.pk revision_request.pk %}"
+                                                   class="button">View</a>
+                                                <a class="dropdown button arrow-only"
+                                                   data-toggle="revision-drop-{{ revision.pk }}"><span
+                                                        class="show-for-sr">Show menu</span></a>
+                                            </div>
+                                            <div class="dropdown-pane right" id="revision-drop-{{ revision.pk }}"
+                                                 data-dropdown data-close-on-click="true">
+                                                <ul class="menu vertical actions">
+                                                    <li>
+                                                        <a href="{% url 'edit_revision_request' article.id revision_request.pk %}"><i class="fa fa-pencil action-icon">&nbsp;</i>Edit</a></li>
+                                                    <li>
+
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+
+        </div>
+
+        <div class="large-4 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Status</h2>
+                </div>
+                <div class="content">
+                    <div class="callout warning">
+                        <small>This article is currently {{ article.stage }}.
+                            {% if article.stage == 'Under Review' and article.is_under_revision %} This article also has
+                                active
+                                Revision Requests.</small>{% endif %}
+                        {% if article.date_accepted %}
+                            <small>This article was accepted on {{ article.date_accepted }}</small>
+                        {% elif article.date_declined %}
+                            <small>This article was rejected on {{ article.date_declined }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Actions</h2>
+                </div>
+                <div class="content">{% user_has_role request 'editor' as editor %}
+                    <ul class="menu vertical actions">
+
+
+                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
+                        <li>
+                            <form method="POST">{% csrf_token %}
+                                <button name="new_review_round" type="submit" class="expanded"><i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
+                                </button>
+                            </form>
+                        </li>
+                        {% if journal_settings.general.draft_decisions %}
+                            <li><a href="{% url 'review_draft_decision' article.pk %}"><i class="fa fa-pencil-square action-icon">&nbsp;</i>Draft a
+                                Decision</a></li>
+                        {% endif %}
+                        {% if not journal_settings.general.draft_decisions or editor %}
+                            <li><a href="{% url 'review_request_revisions' article.pk %}"><i class="fa fa-inbox action-icon">&nbsp;</i>Request
+                                Revisions</a></li>
+                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' %}
+                                <li><a href="{% url 'review_decision' article.id 'accept' %}"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
+                                </li>
+                                <li><a href="{% url 'review_decision' article.id 'decline' %}"><i class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
+                                    Article</a></li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div><!--/col-lg-12 -->
+    </div>
+    {% include "elements/summary_modal.html" %}
+
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/modal.js" %}"></script>
+    <script src="{% static "admin/js/tabs.js" %}"></script>
+    <script>
+        var myTabs = tabs({
+            el: '#tabs',
+            tabNavigationLinks: '.c-tabs-nav__link',
+            tabContentContainers: '.c-tab'
+        });
+
+        myTabs.init();
+    </script>
+{% endblock js %}

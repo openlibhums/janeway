@@ -1,0 +1,133 @@
+{% extends "admin/core/base.html" %}}
+
+{% block title %}View Review{% endblock title %}
+{% block title-section %}View Review{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <form method="POST">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Review by {{ review.reviewer.full_name }}</h2>
+                </div>
+
+                <div class="content">
+
+                    {% csrf_token %}
+                    <table class="table small table-bordered">
+                        <tr>
+                            <th>Reviewer</th>
+                            <th>Requested</th>
+                            <th>Request Decision</th>
+                            <th>Due</th>
+                            <th>Access Code</th>
+                            <th>Decision</th>
+                            <th>Completed</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <td>{{ review.reviewer.full_name }}</td>
+                            <td>{{ review.date_requested|date:"Y-m-d" }}</td>
+                            <td>{% if review.decision == 'withdrawn' %}Withdrawn {{ review.date_complete|date:"Y-m-d" }}
+                            {% elif review.date_accepted %}Accepted {{ review.date_accepted|date:"Y-m-d" }}
+                            {% elif review.date_declined %}Declined {{ review.date_declined|date:"Y-m-d" }}
+                            {% else %}Awaiting acknowledgement{% endif %}
+                            </td>
+                            <td>{{ review.date_due|date:"Y-m-d" }}</td>
+                            <td><a href="{% url 'do_review' review.pk %}?access_code={{ review.access_code }}">{{ review.access_code }}</a></td>
+                            <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}{% else %}
+                                --{% endif %}</td>
+                            <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
+                            <td>{% if review.is_complete %}
+                                <button class="button success" type="submit" name="author_consumption">
+                                    {% if review.for_author_consumption %}Hide from Author{% else %}Allow Author to
+                                        See{% endif %}</button>
+                            {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Summary of Review</h2>
+                </div>
+                <div class="content">
+                    {% if review.decision == 'withdrawn' or review.date_declined %}
+                        <p>No review was undertaken.</p>
+                    {% elif review.is_complete %}
+                        <div class="row expanded">
+                            {% for answer in review.review_form_answers %}
+                                <div class="{{ answer.element.width }}">
+                                    <div class="callout" style="padding-bottom:0px;">
+                                        <b>{{ answer.element.name }}</b>
+                                        <br/>
+                                        {{ answer.answer }}
+                                        <br/>
+                                        {% if answer.edited_answer %}
+                                            <br/>
+                                            <b>Edited Answer</b>
+                                            <br/>
+                                            {{ answer.edited_answer }}
+                                            <br/>
+                                        {% endif %}
+                                        <br/>
+                                        {% if review.for_author_consumption %}
+                                            <small><input id="{{ answer.pk }}" name="answer_viewable"
+                                                          value="{{ answer.pk }}" type="checkbox"
+                                                          {% if answer.author_can_see %}checked="checked"{% endif %}><label
+                                                    for="{{ answer.pk }}">Allow author to view</label></small>|
+                                            <a href="{% url 'review_edit_review_answer' article.pk review.pk answer.pk %}"><i
+                                                    class="fa fa-edit">&nbsp;</i></a>Edit{% endif %}
+                                        {% if answer.edited_answer %} |
+                                            <form method="POST">{% csrf_token %}
+                                                <button name="reset" type="submit"><input name="pk" type="hidden"
+                                                                                          value="{{ answer.pk }}"><i
+                                                        class="fa fa-refresh">&nbsp;</i></button>
+                                                Reset
+                                            </form>{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <button class="button success" type="submit" name="individual_author_consumption">Update Individual
+                        View Options
+                    </button>
+                </div>
+                {% if review.comments_for_editor %}
+                    <div class="title-area">
+                        <h2>Comments for the Editor</h2>
+                    </div>
+                    <div class="content">
+                        <p>{{ review.comments_for_editor|linebreaksbr }}</p>
+                    </div>
+                {% endif %}
+
+                {% if review.review_file %}
+                    <div class="title-area">
+                        <h2>Review File<</h2>
+                    </div>
+                    <div class="content">
+                        <a href="{% url 'editor_file_download' review.article.id review.review_file.id %}"><i
+                                class="fa fa-download">&nbsp;</i>{{ review.review_file.original_filename }}</a>
+                    </div>
+                {% endif %}
+
+                {% if review.date_declined %}
+                    <div class="title-area">
+                        <h2>Suggested Reviewers</h2>
+                    </div>
+                    <div class="content">
+                        {{ review.suggested_reviewers|safe }}
+                    </div>
+                {% endif %}
+            </div>
+
+    </form>
+    </div>
+{% endblock %}

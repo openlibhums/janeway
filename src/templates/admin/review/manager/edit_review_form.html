@@ -1,0 +1,66 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Review Forms{% endblock title %}
+{% block title-section %}Review Forms{% endblock %}
+
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'review_review_forms' %}">Review Forms</a></li>
+    <li><a href="{% url 'edit_review_form' edit_form.pk %}">{{ edit_form.name }}</a></li>
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Form's Elements</h2>
+                <a href="#" data-open="element" class="button">Add Element</a>
+            </div>
+            <div class="content">
+                <ul class="list-group">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for element in edit_form.elements.all %}
+                        <li class="list-group-item">
+                            {{ element.name }}
+                            <div class="float-right">
+                                <a class="tiny warning button" href="{% url 'edit_review_form_element' edit_form.pk element.pk %}"><i class="fa fa-edit"></i></a>
+                                <button type="submit" name="delete" value="{{ element.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </form>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Edit Form Detail</h2>
+                <a href="{% url 'preview_form' edit_form.pk %}" target="_blank" class="button"><i class="fa fa-search">&nbsp;</i>Preview</a>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" name="review_form" class="success button">Edit Form</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% include "elements/review/element_form.html" %}
+{% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+{% endblock %}

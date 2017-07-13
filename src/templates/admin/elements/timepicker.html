@@ -1,0 +1,9 @@
+{% load static from staticfiles %}
+<link type='text/css' href="{% static "common/css/jq-ui-timepicker.css" %}" rel="stylesheet">
+<script type="text/javascript" src="{% static "common/js/jq-ui-timepicker.js" %}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('{{ target }}').timepicker({}).val();
+    });
+</script>

@@ -1,0 +1,34 @@
+<div class="card">
+    <div class="card-divider">
+        <h4>{{ article.title|safe }}</h4>
+    </div>
+    <div class="card-section">
+        {% if type == "assignment" %}
+            <p>Awaiting production manager assignment.</p>
+        {% elif type == "assigned" %}
+            <p>Production in progress.</p>
+        {% endif %}
+        <div class="button-group">
+            {% if type == "assignment" %}
+                <a class="button tiny" data-open="modal{{ article.pk }}">Assign production manager</a>
+                <a class="button tiny warning" href="{% url 'production_assign_article' article.pk user.id %}">Assign
+                    self</a>
+            {% elif type == 'assigned' %}
+                <a class="button tiny alert" href="{% url 'production_unassign_article' article.pk %}">Unassign</a>
+                {% if user_is_editor %}
+                    <a class="button tiny success" href="{% url 'production_article' article.pk %}">Go to production
+                        page</a>{% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        {% if article.productionassignment.production_manager %}
+        {% include "elements/avatar.html" with user=article.productionassignment.production_manager role="PM" %}
+        {% endif %}
+        {% include "elements/avatar.html" with user=article.correspondence_author role="Author" %}
+
+        {% for task in article.productionassignment.typeset_tasks %}
+            {% include "elements/avatar.html" with user=task.typesetter role="TS" %}
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,15 @@
+{% extends "press/core/base.html" %}
+{% load truncate %}
+{% load i18n %}
+
+{% block page_title %}Home{% endblock page_title %}
+{% block title %}{{ press.name }}{% endblock title %}
+{% block navbarbrand %}{{ press.name }}{% endblock navbarbrand %}
+
+{% block body %}
+
+    {% for element in homepage_elements %}
+        {% include element.template_path %}
+    {% endfor %}
+
+{% endblock body %}

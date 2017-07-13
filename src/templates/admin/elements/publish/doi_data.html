@@ -1,0 +1,46 @@
+<div class="reveal small" id="doimodal" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-external-link">&nbsp;</i>DOI Data<
+            <a href="{% url 'edit_identifiers' article.pk %}?return={{ request.path|urlencode }}" class="float-right"><i
+                    class="fa fa-edit">&nbsp;</i>Edit</a></h4>
+        </div>
+        <div class="card-section">
+            <p>This card shows information related to your assigned DOI and how it resolves itself.</p>
+            <div class="line-item">
+                <span class="title">DOI: {{ doi.identifier }}</span>
+            </div>
+            <div class="line-item">
+                <span class="title">Resolves to: {{ doi_data.url }}</span>
+            </div>
+            <div class="line-item">
+                <span class="title">Status:
+                    {% if doi_data.history|length > 1 %}
+                        <i class="fa fa-exclamation-triangle" style="color: orange;">&nbsp;</i>More than 1 hop detected.
+                    {% elif doi_data.status_code == 200 %}
+                        <i class="fa fa-check-square" style="color: green;"></i>
+                    {% else %}
+                        <i class="fa fa-times-circle-o" style="color: red;"></i>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="line-item">
+                <span class="title">Hops:
+                    <ul>
+                        {% for request in doi_data.history %}
+                            <li>{{ request.url }} (Status Code: {{ request.status_code }})</li>
+                        {% endfor %}
+                        <li>{{ doi_data.url }} (Status Code: {{ doi_data.status_code }})</li>
+                    </ul>
+                </span>
+            </div>
+
+            <p>If the DOI only has two hops this is perfect, otherwise, you may have additional redirects that are not
+                required.</p>
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>

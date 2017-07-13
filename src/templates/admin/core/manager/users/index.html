@@ -1,0 +1,68 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_users' %}">Users</a></li>
+{% endblock %}
+
+{% block title-section %}Users{% endblock %}
+{% block title-sub %}List{% endblock %}
+
+
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal Users</h2>
+                <a href="{% url 'core_add_user' %}" class="button"><i class="fa fa-plus">&nbsp;</i>Add New User</a>
+                <a href="{% url 'core_manager_index' %}" class="button">Go back</a>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="medium-4 columns">
+                        <select name="role">
+                            {% for role in roles %}
+                                <option value="{{ role.pk }}">{{ role.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="medium-2 columns">
+                        <button name="add_users" class="success button">Add Users to Role</button>
+                    </div>
+                    <table class="small" id='users'>
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th width="15%">Username</th>
+                            <th width="15%">First Name</th>
+                            <th width="15%">Last Name</th>
+                            <th width="30%">Email</th>
+                            <th width="20%"></th>
+                        </tr>
+                        </thead>
+                        {% for user in users %}
+                            <tr>
+                                <td><input type="checkbox" name="users" value="{{ user.pk }}"></td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td><a class="btn btn-primary btn-round-half" style="width:75px"
+                                       href="{% url 'core_user_edit' user.id %}">Edit</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#users" %}
+{% endblock js %}

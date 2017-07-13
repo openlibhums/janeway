@@ -1,0 +1,84 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% load article %}
+
+<!-- NOTE: this page is deprecated for now. Doing the task/event wireup was deemed too massive a task for v1-->
+
+{% block page_title %}Kanban Board{% endblock page_title %}
+
+{% block body %}
+
+    <div class="row expanded column">
+        <div class="kanban">
+            <div class="inner">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Review</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in unassigned_articles %}
+                            {% include "elements/core/kanban/card.html" with article=article type='unassigned' %}
+                        {% endfor %}
+                        {% for article in in_review %}
+                            {% include "elements/core/kanban/card.html" with article=article type='assigned' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Copyediting</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in copyediting %}
+                            {% include "elements/core/kanban/card.html" with article=article type='copyedit' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Production</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in production %}
+                            {% include "elements/core/kanban/card.html" with article=article type='production_unassigned' %}
+                        {% endfor %}
+                        {% for article in production_assigned %}
+                            {% include "elements/core/kanban/card.html" with article=article type='production_assigned' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Proofing</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in proofing %}
+                            {% include "elements/core/kanban/card.html" with article=article type='proof_unassigned' %}
+                        {% endfor %}
+                        {% for article in proofing_assigned %}
+                            {% include "elements/core/kanban/card.html" with article=article type='proof_assigned' %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Pre Publication</h2>
+                    </div>
+                    <div class="content">
+                        {% for article in prepubs %}
+                            {% include "elements/core/kanban/card.html" with article=article type='prepublication' %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+<script>
+  kanbanInit();
+</script>
+{% endblock js %}

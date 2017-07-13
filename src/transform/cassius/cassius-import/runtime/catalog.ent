@@ -1,0 +1,163 @@
+--              ARCHIVING AND INTERCHANGE DTD SUITE             --
+--              MODULAR LIBRARY (Version 3.0)                   --
+--              OASIS SOCAT FILE                                --
+--                                                              --
+--              With DTDs for Publishing, Archiving, Authoring, --
+--              Book and  Book Collection DTDs     				--
+--                                                              --
+--   Change History:                                            --
+--                                                              --
+--   Feb 2008:                                                  -- 
+--   1. fpi "...         v3.0 20080202"                         --
+--                                                              --
+--   *********************************************************  --
+--                                                              --
+--              JOURNAL PUBLISHING DTD (BLUE)                   --
+PUBLIC  "-//NLM//DTD Journal Publishing DTD v3.0 20080202//EN" "journalpublishing3.dtd" 
+
+PUBLIC  "-//NLM//DTD Journal Publishing DTD-Specific Modules v3.0 20080202//EN" "journalpubcustom-modules3.ent"
+PUBLIC  "-//NLM//DTD Journal Publishing DTD Customize Classes Module v3.0 20080202//EN" "journalpubcustom-classes3.ent"
+PUBLIC  "-//NLM//DTD Journal Publishing DTD Customize Mixes Module v3.0 20080202//EN" "journalpubcustom-mixes3.ent"
+PUBLIC  "-//NLM//DTD Journal Publishing DTD Customize Content and Attributes Module v3.0 20080202//EN" "journalpubcustom-models3.ent"
+
+PUBLIC  "-//NLM//DTD NLM Citation v3.0 20080202//EN" "nlmcitation3.ent"
+
+--   *********************************************************  --
+
+
+--              JOURNAL ARCHIVING AND INTERCHANGE DTD (Green)    --
+PUBLIC  "-//NLM//DTD Journal Archiving and Interchange DTD v3.0 20080202//EN" "archivearticle3.dtd" 
+
+--              JOURNAL ARCHIVING AND INTERCHANGE DTD CUSTOMIZATIONS --
+
+PUBLIC  "-//NLM//DTD Journal Archiving DTD-Specific Modules v3.0 20080202//EN" "archivecustom-modules3.ent"
+PUBLIC  "-//NLM//DTD Journal Archiving DTD Customize Classes Module v3.0 20080202//EN" "archivecustom-classes3.ent"
+PUBLIC  "-//NLM//DTD Journal Archiving DTD Customize Mixes Module v3.0 20080202//EN" "archivecustom-mixes3.ent"
+PUBLIC  "-//NLM//DTD Journal Archiving DTD Customize Content and Attributes Module v3.0 20080202//EN" "archivecustom-models3.ent"
+
+--   *********************************************************  --
+--                                                              --
+--              JOURNAL AUTHORING DTD (PUMPKIN)                 --
+PUBLIC  "-//NLM//DTD Article Authoring DTD v3.0 20080202//EN" "articleauthoring3.dtd" 
+
+--              JOURNAL AUTHORING DTD CUSTOMIZATIONS            --
+
+PUBLIC "-//NLM//DTD Article Authoring DTD-Specific Modules v3.0 20080202//EN" "articleauthcustom-modules3.ent"
+PUBLIC "-//NLM//DTD Article Authoring DTD Over-ride Classes Module v3.0 20080202//EN" "articleauthcustom-classes3.ent" 
+PUBLIC "-//NLM//DTD Article Authoring DTD Over-ride Mixes Module v3.0 20080202//EN" "articleauthcustom-mixes3.ent" 
+PUBLIC "-//NLM//DTD Article Authoring DTD Over-ride Content and Attribute Module v3.0 20080202//EN" "articleauthcustom-models3.ent"
+
+--   *********************************************************  --
+--                                                              --
+--              NCBI BOOK DTD AND BOOK COLLECTION DTD (PURPLE)  --
+PUBLIC  "-//NLM//DTD Book DTD v3.0 20080202//EN" "book3.dtd" 
+PUBLIC  "-//NLM//DTD NCBI Book Collection DTD v3.0 20080202//EN" "bookcollection3.dtd" 
+
+PUBLIC  "-//NLM//DTD Book DTD Module of Modules v3.0 20080202//EN" "bookcustom-modules3.ent"       
+PUBLIC  "-//NLM//DTD NCBI Book DTD Over-ride Classes Module v3.0 20080202//EN" "bookcustom-classes3.ent"
+PUBLIC  "-//NLM//DTD NCBI Book DTD Over-ride Mixes Module v3.0 20080202//EN" "bookcustom-mixes3.ent"
+PUBLIC  "-//NLM//DTD NCBI Book DTD Content and Attribute Over-ride Module v3.0 20080202//EN" "bookcustom-models3.ent"
+
+PUBLIC  "-//NLM//DTD NCBI Book Image Map Elements v3.0 20080202//EN" "bookimagemap3.ent"
+
+PUBLIC  "-//NLM//DTD NCBI Book DTD Book Metadata Elements v3.0 20080202//EN" "bookmeta3.ent"
+PUBLIC  "-//NLM//DTD NCBI Book Multi-link Elements v3.0 20080202//EN" "bookmultilink3.ent"
+PUBLIC  "-//NLM//DTD NCBI Book DTD Book Component Metadata Elements v3.0 20080202//EN" "bookpart3.ent"
+
+
+--   *********************************************************  --
+--                                                              --
+--              JOURNAL ARTICLE ARCHIVING OASIS DTD             -- 
+PUBLIC  "-//NLM//DTD Journal Archiving with OASIS Tables v3.0 20080202//EN" "archive-oasis-article3.dtd"
+
+PUBLIC  "-//NLM//DTD Journal Archiving with OASIS Tables-Specific Modules v3.0 20080202//EN" "archive-oasis-custom-modules3.ent"
+
+PUBLIC  "-//NLM//DTD Journal Archiving with OASIS Tables Customize Classes Module v3.0 20080202//EN" "archive-oasis-custom-classes3.ent"
+
+PUBLIC  "-//NLM//DTD Journal Archiving with OASIS Tables Customize Mixes Module v3.0 20080202//EN" "archive-oasis-custom-mixes3.ent"
+
+--   *********************************************************  --
+
+--                                                              --
+--              ARCHIVING AND INTERCHANGE DTD SUITE             --
+--              MODULAR LIBRARY                                 --
+--              DEFINE CLASSES, MIXES, AND MODULES              --
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Module of Modules v3.0 20080202//EN" "modules3.ent"
+--                                                              --
+--              CLASSES AND MIXES                               --
+PUBLIC  "-//NLM//DTD Default Element Classes Module v3.0 20080202//EN" "default-classes3.ent"
+PUBLIC  "-//NLM//DTD Default Element Mixes Module v3.0 20080202//EN" "default-mixes3.ent"
+--                                                              --
+--              ELEMENT COMMON (SHARED) ELEMENTS                --
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Common (Shared) Elements Module v3.0 20080202//EN" "common3.ent"                   
+PUBLIC "-//NLM//DTD Archiving and Interchange DTD Suite Funding Elements v3.0 20080202//EN" "funding3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Notation Declarations v3.0 20080202//EN" "notat3.ent"                                                      
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite XML Special Characters Module v3.0 20080202//EN" "xmlspecchars3.ent"                                                      
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Custom Special Characters Module v3.0 20080202//EN" "chars3.ent"                                                      
+--                                                              --
+--              DEFINE A CLASS MODULES                          --
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Back Matter Elements v3.0 20080202//EN" "backmatter3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Display Class Elements v3.0 20080202//EN" "display3.ent"   
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Formatting Element Classes v3.0 20080202//EN" "format3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Journal Article Metadata Elements v3.0 20080202//EN" "articlemeta3.ent" 
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Journal Metadata Elements v3.0 20080202//EN" "journalmeta3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Link Class Elements v3.0 20080202//EN" "link3.ent" 
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite List Class Elements v3.0 20080202//EN" "list3.ent" 
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Math Class Elements v3.0 20080202//EN" "math3.ent" 
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Paragraph-Like Elements v3.0 20080202//EN" "para3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Section Class Elements v3.0 20080202//EN" "section3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Bibliographic Reference (Citation) Class Elements v3.0 20080202//EN" "references3.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Related Object Element v3.0 20080202//EN" "related-object3.ent" 
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite Subject Phrase Class Elements v3.0 20080202//EN" "phrase3.ent"
+--                                                              --
+--              XHTML TABLE ENTITIES                            --
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite XHTML Table Setup Module v3.0 20080202//EN" "XHTMLtablesetup3.ent"
+PUBLIC  "-//W3C//ELEMENTS XHTML Tables 1.0//EN" "xhtml-table-1.mod" 
+PUBLIC  "-//W3C//ENTITIES XHTML Inline Style 1.0//EN" "xhtml-inlstyle-1.mod" 
+--                                                              --
+--              MATHML MODULES                                  --
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite MathML Setup Module v3.0 20080202//EN" "mathmlsetup3.ent"                                                      
+PUBLIC  "-//W3C//DTD MathML 2.0//EN" "mathml2.dtd"
+PUBLIC  "-//W3C//ENTITIES MathML 2.0 Qualified Names 1.0//EN" "mathml2-qname-1.mod"
+PUBLIC  "-//W3C//ENTITIES Extra for MathML 2.0//EN" "mathml/mmlextra.ent"     
+PUBLIC  "-//W3C//ENTITIES Aliases for MathML 2.0//EN" "mathml/mmlalias.ent"          
+--                                                              --
+--              ISO SPECIAL CHARACTER ENTITIES (MATHML SET)     --
+--                                                              --
+--                ENTITIES FROM SGML NOT USED IN MATHML         --
+PUBLIC  "-//W3C//ENTITIES Greek Letters//EN" "xmlchars/isogrk1.ent"
+PUBLIC  "-//W3C//ENTITIES Monotoniko Greek//EN" "xmlchars/isogrk2.ent"
+PUBLIC  "-//W3C//ENTITIES Alternative Greek Symbols//EN" "xmlchars/isogrk4.ent"
+--                                                              --
+--                ENTITIES FROM SGML (ISO 8879)USED IN MATHML   --
+--                                                              --
+PUBLIC  "-//W3C//ENTITIES Box and Line Drawing for MathML 2.0//EN" "iso8879/isobox.ent" 
+PUBLIC  "-//W3C//ENTITIES Russian Cyrillic for MathML 2.0//EN" "iso8879/isocyr1.ent"
+PUBLIC  "-//W3C//ENTITIES Non-Russian Cyrillic for MathML 2.0//EN" "iso8879/isocyr2.ent"
+PUBLIC  "-//W3C//ENTITIES Diacritical Marks for MathML 2.0//EN" "iso8879/isodia.ent"
+PUBLIC  "-//W3C//ENTITIES Added Latin 1 for MathML 2.0//EN" "iso8879/isolat1.ent"
+PUBLIC  "-//W3C//ENTITIES Added Latin 2 for MathML 2.0//EN" "iso8879/isolat2.ent"
+PUBLIC  "-//W3C//ENTITIES Numeric and Special Graphic for MathML 2.0//EN" "iso8879/isonum.ent"
+PUBLIC  "-//W3C//ENTITIES Publishing for MathML 2.0//EN" "iso8879/isopub.ent"
+--                                                              --
+--                ENTITIES FROM ISO 9573-13 USED IN MATHML      --
+--                                                              --
+PUBLIC  "-//W3C//ENTITIES General Technical for MathML 2.0//EN" "iso9573-13/isotech.ent"
+PUBLIC  "-//W3C//ENTITIES Greek Symbols for MathML 2.0//EN" "iso9573-13/isogrk3.ent"
+PUBLIC  "-//W3C//ENTITIES Math Alphabets: Script for MathML 2.0//EN" "iso9573-13/isomscr.ent"
+PUBLIC  "-//W3C//ENTITIES Added Math Symbols: Arrow Relations for MathML 2.0//EN" "iso9573-13/isoamsa.ent" 
+PUBLIC  "-//W3C//ENTITIES Added Math Symbols: Binary Operators for MathML 2.0//EN" "iso9573-13/isoamsb.ent" 
+PUBLIC  "-//W3C//ENTITIES Added Math Symbols: Delimiters for MathML 2.0//EN" "iso9573-13/isoamsc.ent" 
+PUBLIC  "-//W3C//ENTITIES Added Math Symbols: Negated Relations for MathML 2.0//EN" "iso9573-13/isoamsn.ent"
+PUBLIC  "-//W3C//ENTITIES Added Math Symbols: Ordinary for MathML 2.0//EN" "iso9573-13/isoamso.ent" 
+PUBLIC  "-//W3C//ENTITIES Added Math Symbols: Relations for MathML 2.0//EN" "iso9573-13/isoamsr.ent" 
+PUBLIC  "-//W3C//ENTITIES Math Alphabets: Fraktur for MathML 2.0//EN" "iso9573-13/isomfrk.ent" 
+PUBLIC  "-//W3C//ENTITIES Math Alphabets: Open Face for MathML 2.0//EN" "iso9573-13/isomopf.ent"
+--                                                                     --
+--              OASIS EXCHANGE TABLE ENTITIES (UNUSED IN VERSION 2.0)  --
+PUBLIC  "-//OASIS//DTD XML Exchange Table Model 19990315//EN" "oasis-exchange.ent"
+PUBLIC  "-//NLM//DTD Archiving and Interchange DTD Suite OASIS XML Table Setup Module v1.2 20040830//EN" "oasis-tablesetup3.ent"
+
+--                                                                           --
+-- ******** END NLM-NCBI PUBLISHING, ARCHIVING, BOOK, AUTHORING CATALOG **** --
+             

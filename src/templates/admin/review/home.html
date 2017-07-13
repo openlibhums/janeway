@@ -1,0 +1,61 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Articles in Review{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/review_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Articles in Review</h2>
+        </div>
+        <div class="content">
+            <table class="table table-bordered" id="unassigned">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Submitted</th>
+                        <th>Main Author</th>
+                        <th>Section</th>
+                        <th>No. Active Reviews</th>
+                        <th>No. Complete Reviews</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td>{{ article.title }}</td>
+                        <td>{{ article.date_submitted }}</td>
+                        <td>{{ article.correspondence_author.full_name }}</td>
+                        <td>{{ article.section.name }}</td>
+                        <td>{{ article.active_reviews|length }}</td>
+                        <td>{{ article.complete_reviews|length }}</td>
+                        <td><a href="{% url 'review_in_review' article.pk %}">View</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>No articles in this stage</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#unassigned" %}
+{% endblock js %}

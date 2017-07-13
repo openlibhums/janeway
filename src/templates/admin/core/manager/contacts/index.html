@@ -1,0 +1,79 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Contact Manager{% endblock title %}
+{% block title-section %}Contact Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_journal_contacts' %}">Contact Manager</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Current Contacts</h2>
+                <a class="float-right small button success" href="{% url 'core_journal_contacts' %}"><i
+                class="fa fa-plus">&nbsp;</i>Add New Contact</a>
+            </div>
+            <div class="content">
+                <ul class="list-group" id="sortable">
+                        {% for contact in contacts %}
+                            <li class="list-group-item" id="contact-{{ contact.pk }}">
+                                <div class="float-right">
+                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
+                                            class="fa fa-edit">&nbsp;</i>Edit</a>
+                                    <button type="submit" name="delete" value="{{ contact.pk }}"
+                                       class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                </div>
+
+                                {{ contact.name }}, {{ contact.email }}<br/>
+                                <small>
+                                    {{ contact.role }}<br/>
+                                </small>
+                            </li>
+                        {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if action == 'new' %}Add New Contact{% else %}Edit Contact{% endif %}</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button class="success button" type="submit">{% if action == 'new' %}Add Item{% else %}Update
+                        Item{% endif %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'core_journal_contacts_order' %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+    </script>
+{% endblock js %}

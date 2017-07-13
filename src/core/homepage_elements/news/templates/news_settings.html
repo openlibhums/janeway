@@ -1,0 +1,30 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}News Config{% endblock title %}
+{% block admin-header %}News Config{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'home_settings_index' %}">Journal Home Settings</a></li>
+    <li>News Config</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <form method="POST">
+            {% csrf_token %}
+            <small>You can set the number of news articles to display.</small>
+            <input type="number" name="number_of_articles" value="{{ number_of_articles }}">
+            <button type="submit" class="success button">Save</button>
+        </form>
+    </div>
+{% endblock body %}
+
+{% block js %}
+{% include "elements/jqte.html" %}
+{% endblock js %}
+
+

@@ -1,0 +1,104 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}{% trans "Articles" %}{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block body %}
+
+    <section id="content">
+        <div class="row">
+            <div class="large-8 columns border-right">
+                <h4>{% trans "Articles" %}</h4>
+                {% for article in articles %}
+                    <div class="box article">
+                        <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}"
+                           class="box-link"></a>
+                        <div class="clearfix">
+                            <div class="large-2 columns">
+                                {% if article.thumbnail_image_file %}
+                                    <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
+                                         alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
+                                    {% elif request.journal.thumbnail_image %}
+                                        <img src="{% url 'journal_cover_download' %}" class="article-thumbnail">
+                                {% else %}
+                                    <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
+                                         class="article-thumbnail"> {% endif %}
+                            </div>
+                            <div class="large-10 columns end">
+                                <h2>{{ article.title|safe }}</h2>
+                               {% include "elements/journal/authors_block.html" %}
+                                <p><span class="date"><i
+                                        class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
+                                        class="fa fa-book"></i> {% trans "Volume" %} {{ article.issue.volume }},
+                                    {% trans "Issue" %} {{ article.issue.issue }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <h3>There are no articles published in this journal yet.</h3>
+                {% endfor %}
+
+                <div class="pagination-block">
+                    <ul class="pagination">
+                        {% if articles.has_previous %}
+                            <li class="arrow"><a href="?page={{ articles.previous_page_number }}">&laquo;</a>
+                            </li>{% endif %}
+                        {{ articles.page.page_range }}
+                        {% for page in articles.paginator.page_range %}
+                            <li class="{% if articles.number == page %}current{% endif %}"><a
+                                    href="?page={{ page }}">{{ page }}</a></li>
+                        {% endfor %}
+                        {% if articles.has_next %}
+                            <li class="arrow"><a href="?page={{ articles.next_page_number }}">&raquo;</a>
+                            </li>{% endif %}
+                    </ul>
+                </div>
+            </div>
+            <aside class="large-4 columns" data-sticky-container>
+                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="section">
+                            <label>{% trans "Show" %}
+                                <select name="show">
+                                    <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
+                                    <option value="20"{% if show == 20 %} selected="selected"{% endif %}>20</option>
+                                    <option value="50"{% if show == 50 %} selected="selected"{% endif %}>50</option>
+                                    <option value="100"{% if show == 100 %} selected="selected"{% endif %}>100</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="section">
+                            <label>{% trans "Sort" %}
+                                <select name="sort">
+                                    <option value="-date_published"{% if sort == "date_published" %}
+                                            selected="selected"{% endif %}>{% trans "Date" %}</option>
+                                    <option value="title"{% if sort == "title" %}
+                                            selected="selected"{% endif %}>{% trans "Title" %}</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="section">
+                            <label>{% trans "Filter" %}</label>
+                            {% for section in sections %}
+                                <label for="section-{{ section.id }}"><input id="section-{{ section.id }}"
+                                                                             value="{{ section.id }}" type="checkbox"
+                                                                             name="filter[]"
+                                                                             {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
+                                </label>
+                            {% endfor %}
+                            <button type="submit" class="button">{% trans "Filter" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </aside>
+        </div>
+
+    </section>
+
+{% endblock body %}

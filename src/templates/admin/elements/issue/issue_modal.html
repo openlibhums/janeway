@@ -1,0 +1,45 @@
+{% load foundation %}
+
+<div class="reveal" id="issue" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% if issue %}Edit Issue{% else %}Create Issue{% endif %}</h4>
+        </div>
+        <div class="card-section">
+            {% include "elements/forms/errors.html" with form=form %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="large-12 columns">
+                        {{ form.issue_title|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.volume|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.issue|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.date|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.cover_image|foundation }}
+                        {{ form.large_image|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        {{ form.issue_description|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        {{ form.issue_type|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        <button name="new_issue" type="submit" class="button success">{% if issue %}Edit{% else %}Add{% endif %} Issue</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

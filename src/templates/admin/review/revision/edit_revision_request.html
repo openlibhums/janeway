@@ -1,0 +1,60 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Revision{% endblock title %}
+{% block title-section %}Edit Revision{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Edit Revision</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Due Date</h2>
+                </div>
+                <div class="content">
+                    <p>You can edit the due date of the revision request below, mark it as complete, delete it.</p>
+                    {{ form.date_due }}
+                    <button name="update_due" class="button success">Update Due Date</button>
+                </div>
+            </div>
+        </div>
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Delete Request</h2>
+                </div>
+                <div class="content">
+                    <textarea name="delete_rationale"></textarea>
+                    <p>If you want to delete the revision request, complete the box above, this info will be
+                        logged.</p>
+                    <button name="delete_revision" class="button alert">Delete Revision Request</button>
+                </div>
+            </div>
+        </div>
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Mark Complete</h2>
+                </div>
+                <div class="content">
+                    <input type="checkbox" name="mark_as_complete"> Check to mark as complete<br/>
+                    <button name="mark_complete" class="button warning">Mark Revision as Complete</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datepicker.html" with target="#id_date_due" %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

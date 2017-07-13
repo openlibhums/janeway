@@ -1,0 +1,96 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Journal Home Page Manager{% endblock title %}
+{% block title-section %}Journal Home Page Manager{% endblock %}
+{% block title-sub %}Settings{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li>Journal Home Page Settings</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="large-6 columns">
+            <div class="box">
+            <div class="title-area">
+                    <h2>Active Home Page Features</h2>
+                </div>
+                <div class="content">
+                    {% csrf_token %}
+                    <ul class="list-group" id="active">
+                        {% for item in active_elements %}
+                            <li class="list-group-item" id="element-{{ item.pk }}">
+                                <div class="float-right">
+                                    <button type="submit" name="delete" value="{{ item.id }}" class="tiny alert button"><i
+                                            class="fa fa-trash"></i></button>
+                                </div>
+                                <small>{{ item.name }} {% if item.has_config %}[
+                                    <a href="{% url item.configure_url %}">configure</a>]{% endif %}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-6 columns">
+            <div class="box">
+            <div class="title-area">
+                    <h2>Add Home Page Features</h2>
+                </div>
+                <div class="content">
+                    <table id="featured" class="small">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in elements %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>
+                                    <button class="tiny success button float-right" type="submit" name="add"
+                                            value="{{ item.id }}">Add
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#featured" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#active").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'journal_home_order' %}'
+                });
+            }
+        });
+        $("#active").disableSelection();
+    </script>
+{% endblock js %}
+
+

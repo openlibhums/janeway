@@ -1,0 +1,89 @@
+{% extends "admin/core/base.html" %}
+
+
+{% block title %}Manager{% endblock title %}
+{% block title-section %}Manager{% endblock %}
+{% block title-sub %}Account{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+{% endblock %}
+
+
+{% block body %}
+    <section>
+    <div class="row expanded" data-equalizer>
+        <div class="large-3 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Settings</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'home_settings_index' %}">Journal Home Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">Journal Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "review" %}">Review Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
+                        <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="large-3 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Managers</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
+                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
+                        <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
+                        <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
+                        <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
+                        <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
+                        <a class="button" href="{% url 'review_review_forms' %}">Review Forms</a>
+                        <a class="button" href="{% url 'core_manager_sections' %}">Article Sections</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="large-3 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Users</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_manager_users' %}">Users</a>
+                        <a class="button" href="{% url 'core_manager_inactive_users' %}">Inactive Users</a>
+                        <a class="button" href="{% url 'core_manager_roles' %}">Roles</a>
+                        <a class="button" href="{% url 'core_logged_in_users' %}">Authenticated Users</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="large-3 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Cache, Cron &amp; Emails</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_flush_cache' %}">Clear Cache</a>
+                        <a class="button" href="{% url 'cron_reminders' %}">Scheduled Reminders</a>
+                        <a class="button" href="{% url 'core_email_templates' %}">Email Templates</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+{% endblock body %}

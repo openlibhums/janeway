@@ -1,0 +1,34 @@
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Guest Editors</h2>
+            <a href="{% url 'manage_add_guest_editor' issue.pk %}" class="small success button float-right"><i class="fa fa-plus">&nbsp;</i>Manage</a>
+        </div>
+        <div class="content">
+            <table class="small">
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                </tr>
+                <tbody id="sortable">
+                {% for editor in issue.guest_editors.all %}
+                <tr>
+                    <td>{{ editor.pk }}</td>
+                    <td>{{ editor.first_name }}</td>
+                    <td>{{ editor.last_name }}</td>
+                    <td>{{ editor.email }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">There are no guest editors.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+

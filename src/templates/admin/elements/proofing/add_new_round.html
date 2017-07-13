@@ -1,0 +1,34 @@
+<div class="reveal small" id="add_round" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-plus">&nbsp;</i>Add New Round</h4>
+        </div>
+        <div class="card-section">
+            <form method="POST">
+        {% csrf_token %}
+        {% if article.proofingassignment.current_proofing_round.has_active_tasks %}
+            <p>In order to add a new round, you will automatically close the following proofing requests. You
+                can add a note
+                that will be attached to the automatic email sent to them.</p>
+            <ul>
+                {% for task in article.proofingassignment.current_proofing_round.proofingtask_set.all %}
+                    {% if not task.completed %}
+                        <li>{{ task }}</li>{% endif %}
+                {% endfor %}
+            </ul>
+            <label for="note_to_proofreaders">Note to Proofreaders</label>
+            <textarea name="note_to_proofreaders" id="note_to_proofreaders"></textarea>
+        {% else %}
+            <ul>
+                <li>This round has no tasks to close.</li>
+            </ul>
+        {% endif %}
+        <button type="submit" name="new-round" class="button success">Confirm</button>
+    </form>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

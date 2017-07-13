@@ -1,0 +1,57 @@
+{% extends "admin/core/base.html" %}
+
+{% block page_title %}Pre Pubication{% endblock %}
+{% block admin-header %}Pre Publication{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Pre Publication</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns box">
+        <div class="title-area">
+            <h2>Pre-Publication</h2>
+        </div>
+        <div class="content">
+            <table class="small" id="prepub">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Submitted</th>
+                    <th>Main Author</th>
+                    <th>Section</th>
+                    <th>Accepted</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for article in articles %}
+                    <tr>
+                        <td>{{ article.title }}</td>
+                        <td>{{ article.date_submitted }}</td>
+                        <td>{{ article.correspondence_author.full_name }}</td>
+                        <td>{{ article.section.name }}</td>
+                        <td>{{ article.date_accepted }}</td>
+                        <td><a href="{% url 'publish_article' article.pk %}">View</a></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td>No articles in this stage</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div><!--/col-lg-12 -->
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#prepub" %}
+{% endblock js %}

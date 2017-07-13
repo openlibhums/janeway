@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 50</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="Icons" transform="translate(-432.000000, -192.000000)" stroke="#000000">
+            <g id="Group-50" transform="translate(432.000000, 192.000000)">
+                <polyline id="Stroke-8067" points="7 5 4 8 2.5 6.5"></polyline>
+                <polyline id="Stroke-8068" points="7 10.5 4 13.5 2.5 12"></polyline>
+                <polygon id="Stroke-8069" points="9.5 21.5 0.5 21.5 0.5 2.5 14.5 2.5 14.5 16.5"></polygon>
+                <polyline id="Stroke-8070" points="9.5 21.5 9.5 16.5 14.5 16.5"></polyline>
+                <polygon id="Stroke-8071" points="17.499 19 21.5 19 21.499 8.5 17.498 8.5"></polygon>
+                <path d="M21.498,1.501 C22.603,1.501 23.498,2.396 23.498,3.5 L23.5,11.5" id="Stroke-8072"></path>
+                <path d="M19.5,21 L19.5,23.5" id="Stroke-8073"></path>
+                <polygon id="Stroke-8074" points="21.499 0.5 17.5 0.5 17.498 8.5 21.499 8.5"></polygon>
+                <polygon id="Stroke-8075" points="18.5 21 20.5 21 20.5 19 18.5 19"></polygon>
+                <path d="M8.5,7.5 L12,7.5" id="Stroke-8076"></path>
+                <path d="M8.5,12.5 L12,12.5" id="Stroke-8077"></path>
+            </g>
+        </g>
+    </g>
+</svg>

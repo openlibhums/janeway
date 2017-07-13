@@ -1,0 +1,24 @@
+{% extends "core/base.html" %}
+{% load foundation %}
+
+{% block title %}Login{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+
+            {% if account %}
+            <h4>Account Active</h4>
+            <p>Your account is now active. You can now <a href="{% url 'core_login' %}">login</a></p>
+            <p><small>Please note, you will not be able to refresh this page.</small></p>
+            {% else %}
+            <h4>Error</h4>
+            <p>There was no inactive account with this activation code found. It is possible that your account is
+            already active, you can check by attempting to <a href="{% url 'core_login' %}">login</a>.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock body %}

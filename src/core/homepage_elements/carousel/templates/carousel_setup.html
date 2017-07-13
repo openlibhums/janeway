@@ -1,0 +1,28 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Journal Homepage Settings{% endblock title %}
+{% block admin-header %}Carousel Settings{% endblock admin-header %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'home_settings_index' %}">Journal Home Settings</a></li>
+    <li>Carousel Setup</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns box">
+		<form action="" method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			
+			{{ home_form.as_p }}
+
+            <button type="submit" class="button alert float-right" name="cancel" value="cancel">
+                     Cancel
+            </button>
+            <button type="submit" class="button success float-right"style="margin-right:5px">
+                Submit
+            </button>
+        </form>
+    </div>
+{% endblock body %}

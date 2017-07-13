@@ -1,0 +1,32 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title %}Reset Review{% endblock title %}
+{% block title-section %}Reset Review{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/review_base.html" %}
+<li>Reset Review</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+<div class="large-12 columns">
+    <div class="box">
+        <div class="content">
+            <p>You are resetting a review by {{ review.reviewer.full_name }} for {{ article.title }}. It was due on {{ review.date_due }}.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="button success" name="send"><i class="fa fa-repeat">&nbsp;</i>Reset Review</button>&nbsp <a href="{% url 'review_in_review' article.pk %}" class="button warning" type="submit">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

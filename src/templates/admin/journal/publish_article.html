@@ -1,0 +1,229 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Pre Publication - {{ article.pk }}{% endblock title %}
+{% block title-section %}Pre Publication Checklist{% endblock %}
+{% block title-sub %}{{ article.title|safe }}{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'publish' %}">Pre Publication</a></li>
+<li>Checklist</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+<div class="large-8 columns">
+
+    <div id="metadatabox" class="box {% if article.fixedpubcheckitems.metadata %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-server pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Confirm Metadata is Correct</h2>
+                <p>You should confirm that the Metadata supplied is correct before publishing, and edit if there are any
+                    changes required.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'metadata', this)" type="checkbox" id="metadata" {% if article.fixedpubcheckitems.metadata %}checked="checked"{% endif %}><label class="toggle" for="metadata">{% if article.fixedpubcheckitems.metadata %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="summarymodal" class="button small success pub-button">View Metadata</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="verify_doibox" class="box {% if article.fixedpubcheckitems.verify_doi %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-external-link pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Verify DOI</h2>
+                <p>You should verify the article has a DOI set and that it is resolving correctly to the article's stub page created upon acceptance.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'verify_doi', this)" type="checkbox" id="verify_doi" {% if article.fixedpubcheckitems.verify_doi %}checked="checked"{% endif %}><label class="toggle" for="verify_doi">{% if article.fixedpubcheckitems.verify_doi %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="doimodal" class="button small success pub-button">View DOI Data</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="select_render_galleybox" class="box {% if article.fixedpubcheckitems.select_render_galley %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-file-o pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Select a Galley for Rendering</h2>
+                <p>If you have HTML or XML galleys, you can select which one will render by default.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'verify_doi', this)" type="checkbox" id="select_render_galley" {% if article.fixedpubcheckitems.select_render_galley %}checked="checked"{% endif %}><label class="toggle" for="select_render_galley">{% if article.fixedpubcheckitems.select_render_galley %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="galley" class="button small success pub-button">Select Galley</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="select_issuebox" class="box {% if article.fixedpubcheckitems.select_issue %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-folder-open-o pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Select an Issue</h2>
+                <p>Only select an issue if you are doing issue based publishing.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'select_issue', this)" type="checkbox" id="select_issue" {% if article.fixedpubcheckitems.select_issue %}checked="checked"{% endif %}><label class="toggle" for="select_issue">{% if article.fixedpubcheckitems.select_issue %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="issue" class="button small success pub-button">Set Issue</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="set_pub_datebox" class="box {% if article.fixedpubcheckitems.set_pub_date %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-calendar-check-o pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Set a Publication Date</h2>
+                <p>Select a date for the Article to be published, default is today which means it will be available immediatley.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'set_pub_date', this)" type="checkbox" id="set_pub_date" {% if article.fixedpubcheckitems.set_pub_date %}checked="checked"{% endif %}><label class="toggle" for="set_pub_date">{% if article.fixedpubcheckitems.set_pub_date %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="pubdate" class="button small success pub-button">Set Publication Date</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="select_article_imagebox" class="box {% if article.fixedpubcheckitems.select_article_image %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-image pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Select Article Image</h2>
+                <p>Select an image that will appear in the article orbit, featured articles and the header of the article page.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'select_article_image', this)" type="checkbox" id="select_article_image" {% if article.fixedpubcheckitems.select_article_image %}checked="checked"{% endif %}><label class="toggle" for="select_article_image">{% if article.fixedpubcheckitems.select_article_image %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="article_image" class="button small success pub-button">Select Image</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notify_the_authorbox" class="box {% if article.fixedpubcheckitems.notify_the_author %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-envelope-o pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Notify the Author of Publication</h2>
+                <p>You can notify the Author(s) of publication so they can publicise their work. <i>NB. This requires that the publication date is already set.</i></p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'notify_the_author', this)" type="checkbox" id="notify_the_author" {% if article.fixedpubcheckitems.notify_the_author %}checked="checked"{% endif %}><label class="toggle" for="notify_the_author">{% if article.fixedpubcheckitems.notify_the_author %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="author" class="button small success pub-button">Notify Author</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for item in article.prepublicationchecklistitem_set.all %}
+    <div id="notify_the_authorbox" class="box {% if item.completed %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-envelope-o pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>{{ item.title }}</h2>
+                <p>{{ item.text|safe }}</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('defined', {{ item.pk }}, this)" id="{{ item.pk }}" type="checkbox" id="{{ item.pk }}" {% if item.completed %}checked="checked"{% endif %}><label class="toggle" for="notify_the_author">{% if item.completed %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="author" class="button small success pub-button">Notify Author</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+
+<div class="large-4 columns">
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Confirm Article Set for Publication</h2>
+        </div>
+        <div class="content">
+            {% if not article.stage == 'Published' %}
+            <p>Finally, confirm that you are ready for this article to be set for publication.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button name="publish" class="small success button" type="submit">Publish this Article</button>
+            </form>
+            {% else %}
+            <p>This article is already marked as published. It will be available on {{ article.date_published|date:"Y-m-d @ H:i" }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% include "elements/summary_modal.html" %}
+{% include "elements/publish/doi_data.html" %}
+{% include "elements/publish/issues.html" %}
+{% include "elements/publish/pubdate.html" %}
+{% include "elements/publish/author.html" %}
+{% include "elements/publish/galley.html" %}
+{% include "elements/publish/images.html" %}
+
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/modal.js" %}"></script>
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script>
+    function submit_check_item(task_type, id, item){
+        if ($(item).is(":checked")) {
+            var value = 1
+        } else {
+            var value = 0
+        }
+
+        data = {
+            'task_type': task_type,
+            'id': id,
+            'value': value,
+        }
+        $.ajax({
+            "type": "POST",
+            "dataType": "json",
+            "url": "/publish/article/" + {{ article.pk }} + "/check/",
+            "data": data,
+            "success": function(data) {
+                console.log(item.id)
+                console.log(data)
+                if (data.id == true) {
+                    $("label[for='" + item.id +"']").wrapInner("<s></s>");
+                    $("#"+ item.id + "box").removeClass("warning");
+                    $("#"+ item.id + "box").addClass("success");
+                } else {
+                    $("label[for='" + item.id +"']").text("Mark as Complete");
+                    $("#"+ item.id + "box").removeClass("success");
+                    $("#"+ item.id + "box").addClass("warning");
+                }
+            },
+        });
+    }
+    </script>
+
+    {% if modal %}
+    {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+    {% include "elements/jqte.html" %}
+    {% include "elements/datepicker.html" with target="#date" %}
+    {% include "elements/timepicker.html" with target="#time" %}
+{% endblock js %}

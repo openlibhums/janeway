@@ -1,0 +1,31 @@
+<div class="reveal small" id="article_image" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-image">&nbsp;</i>Article Image</h4>
+        </div>
+        <div class="card-section">
+            {% if not article.large_image_file %}
+                No Image file.
+            {% else %}
+                <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}" class="thumbnail">
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="delete_image" value="{{ article.large_image_file.id }}" class="tiny alert button">
+                        Delete File
+                    </button>
+                </form>
+            {% endif %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="image_file">
+                <button name="image" type="submit" class="success button">Upload</button>
+            </form>
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+

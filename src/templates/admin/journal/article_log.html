@@ -1,0 +1,68 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Article Log{% endblock %}
+{% block title-section %}Article Log{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Log Entries</h2>
+        </div>
+        <div class="content">
+            <table id="log">
+                <thead>
+                    <tr>
+                        <th>Entry Type</th>
+                        <th>Date</th>
+                        <th>Actor</th>
+                        <th>Level</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in log_entries %}
+                        <tr>
+                        <td>{{ entry.types }}</td>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.actor.full_name }}</td>
+                        <td>{{ entry.get_level_display }}</td>
+                        <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Article Stage log</h2>
+        </div>
+        <div class="box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Entered Stage</th>
+                        <th>Date/Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in article.articlestagelog_set.all %}
+                        <tr>
+                            <td>{{ entry.stage_to }}</td>
+                            <td>{{ entry.date_time }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% for entry in log_entries %}
+    {% include "elements/journal/log_description.html" with entry=entry %}
+    {% endfor %}
+{% endblock %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#log" sort=1 %}
+{% endblock %}

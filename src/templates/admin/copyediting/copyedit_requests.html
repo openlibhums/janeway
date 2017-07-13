@@ -1,0 +1,54 @@
+{% extends "admin/core/base.html" %}
+
+
+{% block title %}Copyedit Requests{% endblock title %}
+{% block title-section %}Copyedit Requests{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/copyediting_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row expanded column">
+        <div class="kanban">
+            <div class="inner">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Awaiting Initial Decision</h2>
+                    </div>
+                    <div class="content">
+                        {% for request in new_requests %}
+                        {% include "elements/copyediting/card.html" with request=request type="new" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>In Progress</h2>
+                    </div>
+                    <div class="content">
+                        {% for request in active_requests %}
+                        {% include "elements/copyediting/card.html" with request=request type="active" %}
+                        {% endfor %}
+                        {% for request in reopened_requests %}
+                        {% include "elements/copyediting/card.html" with request=request type="active" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Completed</h2>
+                    </div>
+                    <div class="content">
+                        {% for request in completed_requests %}
+                        {% include "elements/copyediting/card.html" with request=request type="complete" %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Withdraw Review Request{% endblock title %}
+{% block title-section %}Withdraw Review Request{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Withdraw Review Request</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <p>You are withdrawing a review by {{ review.reviewer.full_name }} from {{ article.title }}. It was due
+                    on {{ review.date_due }}.</p>
+                <p>If you select Skip, the reviewer will not be notified.</p>
+
+                <div class="card">
+                    <div class="card-divider">
+                        <h4>To {{ review.reviewer.full_name }}</h4>
+                        <h5>From {{ request.user.full_name }}</h5>
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="card-section">
+                            <p>Subject: <strong>Review Withdrawl</strong></p>
+                            <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
+                        </div>
+                        <div class="card-divider">
+                            <div class="button-group">
+                                <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send
+                    </button>
+                    &nbsp;&nbsp;
+                    <button type="submit" class="button alert" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
+                    </button>
+                    <a href="{% url 'review_in_review' article.pk %}" class="button warning" type="submit">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

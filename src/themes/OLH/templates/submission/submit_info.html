@@ -1,0 +1,81 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load i18n %}
+
+{% block title %}{% trans "Submit an Article" %}{% endblock title %}
+
+{% block body %}
+    <article>
+        <div class="row">
+        <form method="POST">
+            <h1>{% trans "Article Info" %}</h1>
+            {% csrf_token %}
+
+            {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
+                {% include "submission/timeline.html" with data=article %}
+            </div>
+            <div class="row">
+                {% include "elements/forms/errors.html" with form=form %}
+                <div class="large-6 columns">
+                    <label for="id_title">{% trans "Title" %}</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+                <div class="large-6 columns">
+                    <label for="id_subtitle">{% trans "Subtitle" %}</label>
+                    {{ form.subtitle }}
+                    {{ form.subtitle.errors }}
+                </div>
+                <div class="large-12 columns">
+                    <label for="id_abstract">{% trans "Abstract" %}{% if form.abstract.field.required %}*{% endif %}</label>
+                    {{ form.abstract }}
+                    {{ form.abstract.errors }}
+                </div>
+                <div class="large-4 columns">
+                    <label for="id_language">{% trans "Language" %}</label>
+                    {{ form.language }}
+                    {{ form.language.errors }}
+                </div>
+                <div class="large-4 columns">
+                    <label for="id_section">{% trans "Section" %}</label>
+                    {{ form.section }}
+                    {{ form.section.errors }}
+                </div>
+                <div class="large-4 columns error">
+                    <label for="id_license">{% if form.license.errors %}<span style="color: red;">{% endif %}{% trans "License" %}{% if form.license.errors %}</span>{% endif %}{% if form.license.field.required %}*{% endif %}</label>
+                    {{ form.license }}
+                    {{ form.license.errors }}
+                </div>
+                <hr/>
+
+                <div class="large-12 columns">
+                    <label for="id_keywords">Keywords</label>
+                    <input type="text" id="id_keywords" name="keywords" value="{% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/> Hit Enter to add a new keyword.
+                </div>
+
+                <div class="large-12 columns">
+                    <button class="success button pull-right" type="submit" name="start_submission"><i
+                            class="fa fa-check">&nbsp;</i>{% trans "Save and Continue" %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </article>
+
+{% endblock body %}
+
+
+
+{% block js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="{% static "admin/js/tagit.js" %}"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+      $("#id_keywords").tagit(
+        {allowSpaces: true});
+  });
+</script>
+{% endblock %}

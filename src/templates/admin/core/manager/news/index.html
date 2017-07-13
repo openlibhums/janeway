@@ -1,0 +1,78 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}News Manager{% endblock title %}
+{% block title-section %}News Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_news' %}">News Manager</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Active News Items</h2>
+                <a class="float-right small button success" href="{% url 'core_manager_news' %}"><i class="fa fa-plus">
+                    &nbsp;</i>Add News Item</a>
+            </div>
+            <div class="content">
+                <ul class="list-group">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for item in news_items %}
+                            <li class="list-group-item">
+                                <div class="float-right">
+                                    <a href="{% url 'core_manager_edit_news' item.pk %}" class="tiny warming button"><i
+                                            class="fa fa-edit">&nbsp;</i>Edit</a>
+                                    <button type="submit" name="delete" value="{{ item.pk }}" class="tiny alert button">
+                                        <i class="fa fa-trash"></i></button>
+                                </div>
+
+                                {{ item.title }}<br/>
+                                <small>
+                                    Posted on {{ item.posted }}{% if item.posted_by %} by {{ item.posted_by.full_name }}
+                                    <br/>{% endif %}
+                                </small>
+                            </li>
+                        {% endfor %}
+                    </form>
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if action == 'new' %}Add New News Item{% else %}Edit News Item{% endif %}</h2>
+            </div>
+            <div class="content">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+
+                    {% if not action == 'new' and news_item.large_image_file %}
+                        <p>Existing image: {{ news_item.large_image_file }} -
+                            <button type="submit" name="delete_image" value="{{ news_item.large_image_file.id }}"
+                                    class="tiny alert button">Delete
+                            </button>
+                        </p>
+                    {% endif %}
+                    <button class="success button" type="submit">{% if action == 'new' %}Add Item{% else %}Update
+                        Item{% endif %}</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datepicker.html" with target="#id_start_display" %}
+    {% include "elements/datepicker.html" with target="#id_end_display" %}
+{% endblock js %}

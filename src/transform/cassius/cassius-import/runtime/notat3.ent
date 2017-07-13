@@ -1,0 +1,164 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Notation Declarations                             -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Notation Declarations v3.0 20071031//EN
+     Delivered as file "notat3.ent"                                -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    To name all the allowable notations               -->
+<!--                                                               -->
+<!-- CONTAINS:   Notation Declarations                             -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--             important contributions.                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--               NOTATION DECLARATIONS                           -->
+<!-- ============================================================= -->
+
+ 
+<!--               LATEX (for Mathematics)                         -->
+<!NOTATION  LaTeX  PUBLIC
+           "+//ISBN 3-893-196463::Goosens//NOTATION Der LaTeX Begleiter//DE"  >
+
+ 
+<!--               TEX (for Mathematics)                           -->
+<!NOTATION  TEX  PUBLIC
+           "+//ISBN 0-201-13448-9::Knuth//NOTATION The TeXbook//EN"  >
+<!NOTATION  tex  PUBLIC
+           "+//ISBN 0-201-13448-9::Knuth//NOTATION The TeXbook//EN"  >
+<!NOTATION  TeX  PUBLIC
+           "+//ISBN 0-201-13448-9::Knuth//NOTATION The TeXbook//EN"  >
+
+
+<!-- ============================================================= -->
+<!--               POTENTIAL NOTATION DECLARATIONS                 -->
+<!-- ============================================================= -->
+
+
+<!--               CGM (Computer Graphics Metafile)                -->
+<!NOTATION cgmchar PUBLIC 
+"ISO 8632/2//NOTATION Character encoding//EN"
+                                                                     >
+<!NOTATION cgmclear PUBLIC 
+"ISO 8632/4//NOTATION Clear text encoding//EN"
+                                                                     >
+
+
+<!--               GIF (Graphic Interchange Format)                -->
+<!NOTATION gif     PUBLIC
+"-//ISBN 0-7923-9432-1::Graphic Notation//NOTATION CompuServe 
+Graphic Interchange Format//EN"                                      
+                                                                     >
+
+<!--               EPS (Adobe's Encapsulate Postscript)            -->
+<!NOTATION eps     PUBLIC
+"+//ISBN 0-201-18127-4::Adobe//NOTATION PostScript Language Reference Manual//EN" 
+                                                                     >
+
+
+<!--               JPEG (Joint Photographic Experts Group raster)  -->
+<!NOTATION jpeg    PUBLIC
+"+//ISBN 0-7923-9432-1::Graphic Notation//NOTATION Joint Photographic Experts Group raster//EN"                               
+                                                                     >
+
+<!--               TIFF (Uncompressed)                             -->
+<!NOTATION tiff    PUBLIC
+"+//ISBN 0-7923-9432-1::Graphic Notation//NOTATION Aldus/Microsoft 
+Tagged Interchange File Format//EN"                                  >
+
+
+<!-- ================== End Notation Module ====================== -->

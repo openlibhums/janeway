@@ -1,0 +1,2766 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Common (Shared) Elements Module                   -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Common (Shared) Elements Module v3.0 20080202//EN"
+Delivered as file "common3.ent"                                    -->
+<!-- ============================================================= -->
+
+
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Defines the common parameter entities, calls the  -->
+<!--             shared modules (such as special characters and    -->
+<!--             notations) and provides declarations for elements -->
+<!--             that do not properly fit into one class, since    -->
+<!--             they can be used at more than one structural level-->
+<!--                                                               -->
+<!-- CONTAINS:   1) Default classes for elements defined in this   -->
+<!--                module.  May be overridden by values in the    -->
+<!--                DTD's Customization Module                     -->
+<!--             2) Parameter Entities for attribute values        -->
+<!--             3) Parameter Entities for content models          -->
+<!--             4) Parameter Entities for attribute lists         -->
+<!--             5) Elements used in many modules/classes          -->
+<!--                  - Address elements                           -->
+<!--                  - Date elements                              -->
+<!--                  - Personal name elements                     -->
+<!--                  - Common metadata elements (shared by both   -->
+<!--                      article metadata and bibliographic       -->
+<!--                      reference metadata                       -->
+<!--                                                               -->
+<!-- MODULES REQUIRED:                                             -->
+<!--             1) Standard XML Special Characters Module         -->
+<!--                                       (%xmlspecchars.ent;)    -->
+<!--             2) Custom XML Special Characters (%chars.ent;)    -->
+<!--             3) Notation Declarations    (%notat.ent;)         -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--             important contributions.                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR ATTRIBUTE VALUES    -->
+<!-- ============================================================= -->
+
+
+<!--                    ARTICLE/PUBLICATION IDENTIFIER TYPES       -->
+<!--                    The "pub-id-type" attribute names the
+                        type of identifier, or the organization or 
+                        system that defined this identifier for the 
+                        identifier of the journal article or a 
+                        cited publication.                         -->
+<!ENTITY % pub-id-types  "art-access-id | coden | doaj | doi |
+                          manuscript | medline | other | pii | 
+                          pmcid |  pmid | publisher-id | sici"       >
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR FULL CONTENT MODELS -->
+<!-- ============================================================= -->
+
+
+<!--                    DATE ELEMENTS MODEL                        -->
+<!--                    The content models for elements that describe
+                        dates, such as Publication Date <pub-date>
+                        and History Dates <date>.                  -->
+<!ENTITY % date-model   "( ( (day?, month?) | season)?,
+                          year?, string-date?)"                      >
+
+
+<!--                    CONTENT MODEL FOR A STRUCTURAL SECTION     -->
+<!--                    The model for a section that requires that a
+                        section title be present, used for elements
+                        such as Section and Appendix.              -->
+<!ENTITY % sec-model    "(sec-meta?, label?, title, (%para-level;)*, 
+                          (%sec-level;)*, 
+                          (%sec-back-matter-mix;)* )"                >
+
+
+<!--                    CONTENT MODEL FOR A SECTION METADATA       -->
+<!--                    In some works, each section has a different
+                        author or some sections are authored by 
+                        different contributors from the enclosing
+                        article. This wrapper element for 
+                        section-level metadata is used to capture
+                        information such as those contributors.
+                                                                   -->
+<!ENTITY % sec-meta-model
+                        "(contrib-group*, kwd-group*, 
+                          permissions?)"                             >
+
+
+<!--                    CONTENT MODEL FOR AN UNTITLED SECTION      -->
+<!--                    The model for a section-like structure that
+                        may or may not have an initial title       -->
+<!ENTITY % sec-opt-title-model
+                        "(sec-meta?, label?, title?, (%para-level;)*,  
+                          (%sec-level;)*, 
+                          (%sec-back-matter-mix;)* )"                >
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR MIXED CONTENT       -->
+<!-- ============================================================= -->
+
+
+<!--                    LINK ELEMENTS                              -->
+<!--                    Elements for use in the linking elements
+                        such as <xref>, <target>, and <ext-link>   -->
+<!ENTITY % link-elements 
+                        "| %emphasis.class; | %phrase-content.class; |
+                         %subsup.class;"                             > 
+
+
+<!--                    PARAGRAPH ELEMENTS                         -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a paragraph <p>. 
+                        Design Note: There is a major overlap between 
+                        this parameter entity and the mix for elements
+                        that are at the same level as a paragraph.
+                        Inline elements appear only inside a 
+                        paragraph, but block elements such as quotes 
+                        and lists may appear either within a 
+                        paragraph or at the same level as a 
+                        paragraph. This serves a requirement in a 
+                        repository DTD, since some incoming material 
+                        will have restricted such elements to only 
+                        inside a paragraph, some incoming material 
+                        will have restricted them to only outside a 
+                        paragraph and some may allow them in both
+                        places. Thus the DTD must allow for them to
+                        be in either or both.                      
+                        Design Note: Inline mixes begin with an
+                        OR bar                                     -->
+<!ENTITY % p-elements   "| %address-link.class; | 
+                         %article-link.class; |
+                         %block-display.class; | %block-math.class; | 
+                         %citation.class; |  %emphasis.class; | 
+                         %funding.class; |  %inline-math.class; | 
+                         %inline-display-noalt.class; | 
+                         %list.class; | %math.class; | 
+                         %phrase.class; | %rest-of-para.class; | 
+                         %simple-link.class; | 
+                         %subsup.class;"                             >
+
+
+<!--                    TITLE ELEMENTS                             -->
+<!--                    Elements for use in all the title elements
+                        such as <title>, <subtitle>, <trans-title>,
+                        etc.                       
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % title-elements   
+                        "%simple-phrase; | %break.class;"            > 
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR LINKING ATTRIBUTES  -->
+<!-- ============================================================= -->
+              
+
+<!--                    XLINK LINK ATTRIBUTES                      -->
+<!--                    Used for elements that are a link by
+                        definition, such as the <xref> element.    -->       
+<!ENTITY % link-atts
+            "xmlns:xlink CDATA                            #FIXED
+                                     'http://www.w3.org/1999/xlink'
+             xlink:type  (simple)                   #FIXED 'simple'
+             xlink:href  CDATA                            #REQUIRED 
+             xlink:role  CDATA                            #IMPLIED
+             xlink:title CDATA                            #IMPLIED
+             xlink:show  (embed | new | none | other | replace)
+                                                          #IMPLIED
+             xlink:actuate   
+                         (none | onLoad | onRequest | other)          
+                                                           #IMPLIED" >
+
+
+<!--                    MIGHT LINK XLINK ATTRIBUTES                -->
+<!--                    Used for elements which may need to link to
+                        external sources or other objects within
+                        the document, but may not necessarily act 
+                        as a link at all.  The attribute
+                        "xlink:href" identifies the object to which 
+                        the link points.                           -->
+<!ENTITY % might-link-atts
+            "xmlns:xlink CDATA                             #FIXED
+                                     'http://www.w3.org/1999/xlink'
+             xlink:type  (simple)                   #FIXED 'simple'
+             xlink:href  CDATA                             #IMPLIED 
+             xlink:role  CDATA                             #IMPLIED
+             xlink:title CDATA                             #IMPLIED
+             xlink:show  (embed | new | none | other | replace)
+                                                           #IMPLIED
+             xlink:actuate   
+                         (none | onLoad | onRequest | other)          
+                                                           #IMPLIED" >
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR ATTRIBUTES LISTS    -->
+<!--                    (ALPHABETICAL ORDER)                       -->
+<!-- ============================================================= -->
+                                                                
+                                                                 
+<!--                    AFFILIATION ATTRIBUTES                     -->
+<!--                    Attributes for the <ack> element           -->
+<!ENTITY % ack-atts                                
+            "id         ID                                 #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    ADDRESS ATTRIBUTES                         -->
+<!--                    Attributes for the <address> element       -->
+<!ENTITY % address-atts
+            "id         ID                                 #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    ADDRESS LINE ATTRIBUTES                    -->
+<!--                    Attributes for the <addr-line> element     -->
+<!ENTITY % addr-line-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    AFFILIATION ATTRIBUTES                     -->
+<!--                    Attributes for the Affiliation <aff> 
+                        element                                    -->
+<!ENTITY % aff-atts
+            "id         ID                                 #IMPLIED
+             content-type   
+                        CDATA                              #IMPLIED
+             rid        IDREFS                             #IMPLIED" >
+                                                                
+                                                                 
+<!--                    ALTERNATE TEXT ATTRIBUTES                  -->
+<!--                    Attributes for the <alt-text> element      -->
+<!ENTITY % alt-text-atts
+            "id         ID                                 #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" > 
+                                                                
+                                                                 
+<!--                    ARTICLE TITLE ATTRIBUTES                   -->
+<!--                    Attributes for the <article-title> element -->
+<!ENTITY % article-title-atts
+            "id         ID                                 #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" > 
+                                                                
+                                                                 
+<!--                    ATTRIBUTION ATTRIBUTES                     -->
+<!--                    Attributes for the <attrib> element        -->
+<!ENTITY % attrib-atts                                
+            "id         ID                                 #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED" >
+
+                                                                
+<!--                    BIOGRAPHY ATTRIBUTES                       -->
+<!--                    Attributes for <bio> element               -->
+<!ENTITY % bio-atts
+            "id         ID                                 #IMPLIED
+             rid        IDREFS                             #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             %might-link-atts;"                                     >
+
+                                                                
+<!--                    CITATION ATTRIBUTES                        -->
+<!--                    Attributes for all three types of
+                        citations (<mixed-citation>, 
+                        <element-citation>, and <nlm-citation>).   -->
+<!ENTITY % citation-atts
+             "id        ID                                 #IMPLIED
+              publication-type   
+                        CDATA                              #IMPLIED  
+              publisher-type   
+                        CDATA                              #IMPLIED  
+              publication-format   
+                        CDATA                              #IMPLIED  
+              %might-link-atts;"                                     >
+
+                                                                
+<!--                    COLLABORATION ATTRIBUTES                   -->
+<!--                    Attributes for <collab>                    -->
+<!ENTITY % collab-atts
+            "collab-type       
+                        CDATA                             #IMPLIED  
+             id         ID                                #IMPLIED
+             %might-link-atts;"                                      >
+                                                                                                                                
+                                                                 
+<!--                    CONFERENCE ACRONYM ATTRIBUTES              -->
+<!--                    Attributes for the <conf-acronym> element  -->
+<!ENTITY % conf-acronym-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE DATE ATTRIBUTES                 -->
+<!--                    Attributes for the <conf-date> element     -->
+<!ENTITY % conf-date-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE LOCATION ATTRIBUTES             -->
+<!--                    Attributes for the <conf-loc> element      -->
+<!ENTITY % conf-loc-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE NAME ATTRIBUTES                 -->
+<!--                    Attributes for the <conf-name> element     -->
+<!ENTITY % conf-name-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE NUMBER ATTRIBUTES               -->
+<!--                    Attributes for the <conf-num> element      -->
+<!ENTITY % conf-num-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE SPONSOR ATTRIBUTES              -->
+<!--                    Attributes for the <conf-sponsor> element  -->
+<!ENTITY % conf-sponsor-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE THEME ATTRIBUTES                -->
+<!--                    Attributes for the <conf-theme> element    -->
+<!ENTITY % conf-theme-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    CONFERENCE ATTRIBUTES                      -->
+<!--                    Attributes for the <conference> element    -->
+<!ENTITY % conference-atts
+            "content-type
+                        CDATA                              #IMPLIED
+             %might-link-atts;"                                      >
+                                                                
+                                                                                                                                     
+<!--                    COPYRIGHT HOLDER ATTRIBUTES                -->
+<!--                    Attributes for the <copyright-holder> 
+                        element                                    -->
+<!ENTITY % copyright-holder-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    COPYRIGHT STATEMENT ATTRIBUTES             -->
+<!--                    Attributes for the <copyright-statement> 
+                        element                                    -->
+<!ENTITY % copyright-statement-atts
+            "content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    COPYRIGHT YEAR ATTRIBUTES                  -->
+<!--                    Attributes for the <copyright-year> 
+                        element                                    -->
+<!ENTITY % copyright-year-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    COUNTRY ATTRIBUTES                         -->
+<!--                    Attributes for the <country> element       -->
+<!ENTITY % country-atts
+            "content-type
+                        CDATA                              #IMPLIED
+             country    CDATA                              #IMPLIED" >
+
+             
+<!--                    CUSTOM METADATA ATTRIBUTES                 -->
+<!--                    Attributes for the <custom-meta> element   -->
+<!ENTITY % custom-meta-atts
+            "id         ID                                 #IMPLIED 
+             specific-use
+                        CDATA                              #IMPLIED
+             %might-link-atts;"                                      >
+
+
+<!--                    DATE (HISTORICAL) ATTRIBUTES               -->
+<!--                    Attributes for the <date> element          -->
+<!ENTITY % date-atts
+             "date-type CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    DAY ATTRIBUTES                             -->
+<!--                    Attributes for the <day> element           -->
+<!ENTITY % day-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    DEFINITION LIST: DEFINITION ATTRIBUTES     -->
+<!--                    Attribute list for the <def> element       -->
+<!ENTITY % def-atts                                
+            "rid        IDREFS                             #IMPLIED 
+             id         ID                                 #IMPLIED" >
+
+
+<!--                    ELECTRONIC LOCATION IDENTIFIER ATTRIBUTES  
+                        Attribute list for the <elocation-id> 
+                        element                                    -->
+<!ENTITY % elocation-id-atts
+            "content-type
+                        CDATA                              #IMPLIED 
+             seq        CDATA                              #IMPLIED" >
+
+
+<!--                    EMAIL ATTRIBUTES                           --> 
+<!--                    Attribute list for the <email> element     -->
+<!ENTITY % email-atts
+            "content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             %might-link-atts;"                                      >
+
+
+<!--                    EXTERNAL LINK ATTRIBUTES                   -->
+<!--                    Attribute list for external links, such as
+                        <ext-link>                                 -->
+<!ENTITY % ext-link-atts
+             "id        ID                                 #IMPLIED
+              ext-link-type 
+                        CDATA                              #IMPLIED
+              specific-use
+                        CDATA                              #IMPLIED
+              %might-link-atts;"                                     >
+
+
+<!--                    FAX ATTRIBUTES                             --> 
+<!--                    Attribute list for the <fax> element       -->
+<!ENTITY % fax-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    FIRST PAGE ATTRIBUTES                      -->
+<!--                    Attribute list for the <fpage> element     -->
+<!ENTITY % fpage-atts
+            "content-type
+                        CDATA                              #IMPLIED 
+              seq       CDATA                              #IMPLIED" >
+
+
+<!--                    GIVEN NAMES ATTRIBUTES                     -->
+<!--                    Attribute list for the <given-names> element
+                                                                   -->
+<!ENTITY % given-names-atts
+             "initials  CDATA                              #IMPLIED" >
+
+
+<!--                    INSTITUTION ATTRIBUTES                     -->
+<!--                    Attribute list for <institution>           -->
+<!ENTITY % institution-atts
+            "id         ID                                 #IMPLIED  
+             content-type
+                        CDATA                              #IMPLIED 
+             %might-link-atts;"                                      > 
+                                                                
+                                                                 
+<!--                    ISBN ATTRIBUTES                            -->
+<!--                    Attributes for the <isbn> element          -->
+<!ENTITY % isbn-atts
+             "content-type
+                        CDATA                             #IMPLIED"  >
+
+
+<!--                    ISSN ATTRIBUTES                            -->
+<!--                    Attribute list for <issn> (and <isbn> in
+                        Book)                                      -->
+<!ENTITY % issn-atts
+             "pub-type   CDATA                           #IMPLIED"   >
+
+
+<!--                    ISSUE ATTRIBUTES                           -->
+<!--                    Attribute list for the <issue> element     -->
+<!ENTITY % issue-atts
+             "content-type
+                        CDATA                              #IMPLIED 
+              seq       CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    ISSUE IDENTIFIER ATTRIBUTES                -->
+<!--                    Attributes for the <issue-id> element      -->
+<!ENTITY % issue-id-atts
+             "pub-id-type
+                        CDATA                              #IMPLIED
+              content-type
+                        CDATA                              #IMPLIED" > 
+
+
+<!--                    ISSUE SPONSOR ATTRIBUTES                   -->
+<!--                    Attribute list for <issue-sponsor> element -->
+<!ENTITY % issue-sponsor-atts
+             "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    ISSUE TITLE ATTRIBUTES                     -->
+<!--                    Attribute list for <issue-title> element   -->
+<!ENTITY % issue-title-atts
+             "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    JOURNAL IDENTIFIER ATTRIBUTES              -->
+<!--                    Attribute list for journal identifier 
+                        <journal-id> element                       -->
+<!ENTITY % journal-id-atts
+             "journal-id-type  
+                        CDATA                            #IMPLIED  " > 
+                                                                
+                                                                 
+<!--                    LICENSE ATTRIBUTES                         -->
+<!--                    Attributes for the <license> element       -->
+<!ENTITY % license-atts
+            "license-type  
+                        CDATA                              #IMPLIED
+             %might-link-atts;"                                      >
+
+
+<!--                    LONG DESCRIPTION ATTRIBUTES                -->
+<!--                    Attributes for the <long-desc> element     -->
+<!ENTITY % long-desc-atts                                
+            "id         ID                                 #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" > 
+                                                                
+                                                                 
+<!--                    LPAGE ATTRIBUTES                           -->
+<!--                    Attributes for the <lpage> element         -->
+<!ENTITY % lpage-atts                                
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    MONTH ATTRIBUTES                           -->
+<!--                    Attributes for the <month> element         -->
+<!ENTITY % month-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    NAME ATTRIBUTES                            -->
+<!--                    Attribute list for the <name> element      -->
+<!ENTITY % name-atts
+            "content-type
+                        CDATA                              #IMPLIED
+             name-style (western | eastern | islensk)     'western'" >
+
+
+<!--                    NOTES ATTRIBUTES                           -->
+<!--                    Attribute list for the <note> element      -->
+<!ENTITY % notes-atts
+            "id         ID                                #IMPLIED
+             notes-type CDATA                             #IMPLIED
+             specific-use
+                        CDATA                             #IMPLIED"  >
+                                                                
+                                                                 
+<!--                    OBJECT IDENTIFIER ATTRIBUTES               -->
+<!--                    Attributes for the <object-id> element     -->
+<!ENTITY % object-id-atts
+            "pub-id-type
+                        CDATA                              #IMPLIED
+             content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    PAGE RANGE ATTRIBUTES                      -->
+<!--                    Attributes for the <page-range> element    -->
+<!ENTITY % page-range-atts                                
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    PHONE ATTRIBUTES                           -->
+<!--                    Attributes for the <phone> element         -->
+<!ENTITY % phone-atts                                
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                                                                                 
+<!--                    PRICE ATTRIBUTES                           -->
+<!--                    Attributes for the <price> element         -->
+<!ENTITY % price-atts                                
+            "currency   CDATA                              #IMPLIED 
+             content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                                                                                 
+<!--                    PUBLISHER ATTRIBUTES                       -->
+<!--                    Attributes for the <publisher> element     -->
+<!ENTITY % publisher-atts                                
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+                                                                
+<!--                    RELATED ARTICLE ATTRIBUTES                 -->
+<!--                    Attributes for <related-article>           -->
+<!ENTITY % related-article-atts
+             "id        ID                                #IMPLIED
+              related-article-type
+                        CDATA                             #REQUIRED
+              ext-link-type 
+                        CDATA                             #IMPLIED
+              specific-use
+                        CDATA                             #IMPLIED
+              vol       CDATA                             #IMPLIED
+              page      CDATA                             #IMPLIED  
+              issue     CDATA                             #IMPLIED
+              elocation-id
+                        CDATA                             #IMPLIED
+              journal-id
+                        CDATA                             #IMPLIED  
+              %journal-id-atts;
+              %might-link-atts;"                                     >
+                                                                
+                                                                 
+<!--                    ROLE ATTRIBUTES                            -->
+<!--                    Attributes for the <role> element          -->
+<!ENTITY % role-atts                                
+            "content-type
+                        CDATA                              #IMPLIED" >
+                                                                
+                                                                 
+<!--                    SEASON ATTRIBUTES                          -->
+<!--                    Attributes for the <season> element        -->
+<!ENTITY % season-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+                                                                
+<!--                    SIGNATURE ATTRIBUTES                       -->
+<!--                    Attributes for the <sig> element           -->
+<!ENTITY % sig-atts
+             "id        ID                                #IMPLIED
+              rid       IDREFS                            #IMPLIED
+              content-type
+                        CDATA                             #IMPLIED"  >
+
+                                                                
+<!--                    SIGNATURE BLOCK ATTRIBUTES                 -->
+<!--                    Attributes for the <sig-block> element     -->
+<!ENTITY % sig-block-atts
+             "id        ID                                #IMPLIED
+              rid       IDREFS                            #IMPLIED
+              content-type
+                        CDATA                             #IMPLIED 
+              specific-use
+                        CDATA                             #IMPLIED"  >
+
+<!--                    SIZE ATTRIBUTES                            -->
+<!--                    Attribute list for the <size> element      -->
+<!ENTITY % size-atts
+             "units     CDATA                             #REQUIRED" >
+
+                                                                
+<!--                    STRING DATE ATTRIBUTES                     -->
+<!--                    Attributes for the <string-date> element   -->
+<!ENTITY % string-date-atts
+             "content-type
+                        CDATA                             #IMPLIED" >
+                                                                
+                                                                 
+<!--                    SUFFIX ATTRIBUTES                          -->
+<!--                    Attributes for the <suffix> element        -->
+<!ENTITY % suffix-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!--                    SURNAME ATTRIBUTES                         -->
+<!--                    Attribute list for the <surname> element   -->
+<!ENTITY % surname-atts
+             "initials  CDATA                             #IMPLIED"  >
+
+                                                                
+<!--                    TITLE ATTRIBUTES                           -->
+<!--                    Attributes for the <title> and similar
+                        elements                                   -->
+<!ENTITY % title-atts
+             "id        ID                                #IMPLIED
+              content-type
+                        CDATA                             #IMPLIED"  >
+
+
+<!--                    TRANSLATED TITLE ATTRIBUTES                -->
+<!--                    Attribute list for the <trans-title>       -->
+<!ENTITY % trans-title-atts
+             "id        ID                                 #IMPLIED 
+              content-type
+                        CDATA                              #IMPLIED
+              xml:lang  NMTOKEN                            #IMPLIED">
+
+
+<!--                    TRANSLATED TITLE GROUP ATTRIBUTES          -->
+<!--                    Attribute list for the <trans-title-group> -->
+<!ENTITY % trans-title-group-atts
+             "id        ID                                 #IMPLIED 
+              content-type
+                        CDATA                              #IMPLIED
+              xml:lang  NMTOKEN                            #REQUIRED">
+
+                                                                
+<!--                    URI ATTRIBUTES                             -->
+<!--                    Attributes for the <uri> element           -->
+<!ENTITY % uri-atts
+             "content-type
+                        CDATA                             #IMPLIED
+              %might-link-atts;"                                     >
+
+
+<!--                    VOLUME NUMBER ATTRIBUTES                   -->
+<!--                    Attribute list for the <volume> element    -->
+<!ENTITY % volume-atts
+             "seq        CDATA                             #IMPLIED
+              content-type
+                         CDATA                             #IMPLIED" > 
+                                                                
+                                                                 
+<!--                    VOLUME IDENTIFIER ATTRIBUTES               -->
+<!--                    Attributes for the <volume-id> element     -->
+<!ENTITY % volume-id-atts
+             "pub-id-type
+                        CDATA                              #IMPLIED
+              content-type
+                         CDATA                             #IMPLIED" > 
+
+
+<!--                    VOLUME SERIES ATTRIBUTES                   -->
+<!--                    Attribute list for the <volume-series> 
+                        element                                    -->
+<!ENTITY % volume-series-atts
+             "content-type
+                         CDATA                             #IMPLIED" > 
+                                                                
+                                                                 
+<!--                    YEAR ATTRIBUTES                            -->
+<!--                    Attributes for the <year> element          -->
+<!ENTITY % year-atts                                
+             "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!-- ============================================================= -->
+<!--                    METADATA USED BY MORE THAN ONE CLASS       -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    COMMON COPYRIGHT/PERMISSION ELEMENTS       -->
+<!-- ============================================================= -->
+
+
+<!--                    COPYRIGHT HOLDER ELEMENTS                  -->
+<!--                    Elements to be mixed with data characters
+                        inside the content model for the 
+                        <copyright-holder> element.                -->
+<!ENTITY % copyright-holder-elements 
+                        "| %subsup.class;"                           > 
+
+
+<!--                    COPYRIGHT HOLDER                           -->
+<!--                    Name of the organizational or personal
+                        entity that holds the copyright.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=copyright-holder
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=copyright-holder
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=copyright-holder
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=copyright-holder
+                                                                   -->
+<!ELEMENT  copyright-holder
+                        (#PCDATA %copyright-holder-elements;)*       >
+<!ATTLIST  copyright-holder
+             %copyright-holder-atts;                                 >
+
+
+<!--                    COPYRIGHT STATEMENT ELEMENTS               -->
+<!--                    Content model for <copyright-statement>    -->
+<!ENTITY % copyright-statement-elements 
+                        "| %address-link.class; | %emphasis.class; | 
+                         %phrase-content.class; | %subsup.class;"    > 
+
+
+<!--                    COPYRIGHT STATEMENT                        -->
+<!--                    Copyright notice or statement, suitable for
+                        printing or display. Within the statement the
+                        copyright year should be identified, if
+                        expected to be displayed.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=copyright-statement
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=copyright-statement
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=copyright-statement
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=copyright-statement
+                                                                   -->
+<!ELEMENT  copyright-statement
+                        (#PCDATA %copyright-statement-elements;)*    >
+<!ATTLIST  copyright-statement
+             %copyright-statement-atts;                              >
+
+
+<!--                    COPYRIGHT YEAR                             -->
+<!--                    Year of the copyright. Need not be used, if,
+                        for example, having the year as part of the 
+                        copyright statement is sufficient.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=copyright-year
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=copyright-year
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=copyright-year
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=copyright-year
+                                                                   -->
+<!ELEMENT  copyright-year    
+                        (#PCDATA)                                    >
+<!ATTLIST  copyright-year
+             %copyright-year-atts;                                   >
+
+
+<!--                    LICENSE MODEL                              -->
+<!--                    Content model for an <license> element     -->
+<!ENTITY % license-model
+                        "((%license-p.class;)+)"                     > 
+
+
+<!--                    LICENSE INFORMATION                        -->
+<!--                    The set of conditions under which people are
+                        allowed to use this article or other
+                        license-related information or restrictions.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=license
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=license
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=license
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=license
+                                                                   -->
+<!ELEMENT  license      %license-model;                              >
+<!ATTLIST  license  
+             %license-atts;                                          >
+
+
+<!--                    LICENSE PARAGRAPH ELEMENTS                 -->
+<!--                    Elements that can be included with the text
+                        inside a <license-p> element. 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %p-elements; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % license-p-elements
+                        "%p-elements; | %price.class;"               > 
+ 
+
+<!--                    LICENSE PARAGRAPH                          -->
+<!--                    Paragraphs of text within the description of 
+                        a <license>. Not defined as an ordinary
+                        paragraph, so that it can have special
+                        content.  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=license-p
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=license-p
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=license-p
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=license-p
+                                                                   -->
+<!ELEMENT  license-p    (#PCDATA %license-p-elements;)*              >
+
+
+<!--                    PERMISSIONS MODEL                          -->
+<!--                    Model for <permissions> wrapper element    -->
+<!ENTITY % permissions-model 
+                        "(copyright-statement*, copyright-year*, 
+                          copyright-holder*, license*)"              > 
+
+
+<!--                    PERMISSIONS                                -->
+<!--                    Wrapper element to hold the copyright
+                        information, license material, and any 
+                        future similar metadata.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=permissions
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=permissions
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=permissions
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=permissions
+                                                                   -->
+<!ELEMENT  permissions
+                        %permissions-model;                          >
+
+
+<!-- ============================================================= -->
+<!--                    COMMON METADATA/BIBLIOGRAPHIC ELEMENTS     -->
+<!-- ============================================================= -->
+
+
+<!--                    ARTICLE TITLE ELEMENTS                     -->
+<!--                    Elements that can be included with the text
+                        inside an <article-title> element.  
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % article-title-elements   
+                        "%simple-phrase; | %break.class;"            > 
+
+
+<!--                    ARTICLE TITLE                              -->
+<!--                    The title of the article in the language
+                        in which the article was originally
+                        published          
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=article-title
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=article-title
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=article-title
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=article-title
+                                                                   -->
+<!ELEMENT  article-title       
+                        (#PCDATA %article-title-elements;)*          >
+<!ATTLIST  article-title
+             %article-title-atts;                                    > 
+
+
+<!--                    AFFILIATION ELEMENTS                       -->
+<!--                    Elements for use in the <aff> element      -->
+<!ENTITY % aff-elements "| %address.class; | %address-link.class; |
+                         %article-link.class; | %break.class; | 
+                         %emphasis.class; | %label.class; |
+                         %simple-link.class; | %subsup.class;"       > 
+
+
+<!--                    AFFILIATION                                -->
+<!--                    Name of a institution or organization such as
+                        a university or corporation. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=aff
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=aff
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=aff
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=aff
+                                                                   -->
+<!ELEMENT  aff          (#PCDATA %aff-elements;)*                    >
+<!ATTLIST  aff
+             %aff-atts;                                              >
+
+
+<!--                    COLLABORATIVE (GROUP) AUTHOR ELEMENTS      -->
+<!--                    Elements for use in the <collab> element
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-text; is an inline
+                        mix, the OR bar is already there.          -->
+<!ENTITY % collab-elements 
+                        "%simple-text; | %address.class; | 
+                         %contrib-group.class; | 
+                         %contrib-info.class; | %fn-link.class;"     > 
+
+
+<!--                    COLLABORATIVE (GROUP) AUTHOR               -->
+<!--                    Used for groups of authors credited under 
+                        one name, either as a collaboration in the
+                        strictest sense, or when an organization, 
+                        institution, or corporation is the group.  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=collab
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=collab
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=collab
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=collab
+                                                                   -->
+<!ELEMENT  collab       (#PCDATA %collab-elements;)*                 >
+<!ATTLIST  collab
+             %collab-atts;                                           >
+
+
+<!--                    CONFERENCE DATE ELEMENTS                   -->
+<!--                    Elements for use in the <conf-date> element-->
+<!ENTITY % conf-date-elements 
+                        "  "                                         > 
+             
+
+<!--                    CONFERENCE DATE                            -->
+<!--                    The date(s) on which the conference was held.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=conf-date
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=conf-date
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=conf-date
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=conf-date
+                                                                   -->
+<!ELEMENT  conf-date    (#PCDATA %conf-date-elements;)*              >
+<!ATTLIST  conf-date
+             %conf-date-atts;                                        >
+
+
+<!--                    CONFERENCE LOCATION ELEMENTS               -->
+<!--                    Elements for use in the <conf-loc> element 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-text; is an inline
+                        mix, the OR bar is already there.          -->
+<!ENTITY % conf-loc-elements 
+                        "%simple-text;"                            > 
+ 
+
+<!--                    CONFERENCE LOCATION                        -->
+<!--                    The physical location(s) of the conference.
+                        This may include a city, a country, or a
+                        campus or organization location if that is
+                        the only location available.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=conf-loc
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=conf-loc
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=conf-loc
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=conf-loc
+                                                                   -->
+<!ELEMENT  conf-loc     (#PCDATA %conf-loc-elements;)*               >
+<!ATTLIST  conf-loc
+             %conf-loc-atts;                                         >
+
+
+<!--                    CONFERENCE NAME ELEMENTS                   -->
+<!--                    Elements for use in the <conf-name> element.
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-text; is an inline
+                        mix, the OR bar is already there.          -->
+<!ENTITY % conf-name-elements 
+                        "%simple-text;"                            > 
+
+
+<!--                    CONFERENCE NAME                            -->
+<!--                    The full name of the conference, including any
+                        qualifiers such as "43rd Annual".
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=conf-name
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=conf-name
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=conf-name
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=conf-name
+                                                                   -->
+<!ELEMENT  conf-name    (#PCDATA %conf-name-elements;)*              >
+<!ATTLIST  conf-name
+             %conf-name-atts;                                        >
+
+
+<!--                    OBJECT IDENTIFIER                          -->
+<!--                    Used to record an identifier such as a DOI
+                        for an interior element such as an <abstract>
+                        or <figure>.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=object-id
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=object-id
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=object-id
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=object-id
+                                                                   -->
+<!ELEMENT  object-id    (#PCDATA)                                    >  
+<!ATTLIST  object-id
+             %object-id-atts;                                        >
+
+
+<!--                    ISBN ELEMENTS                              -->
+<!--                    Elements for use with data characters inside
+                        the model for the <isbn> element           -->
+<!ENTITY % isbn-elements 
+                        ""                                           > 
+
+
+<!--                    ISSN                                       -->
+<!--                    International Standard Book Number 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=isbn
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=isbn
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=isbn
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=isbn
+                                                                   -->
+<!ELEMENT  isbn         (#PCDATA %isbn-elements;)*                   >
+<!ATTLIST  isbn
+             %isbn-atts;                                             >
+
+
+<!--                    ISSN ELEMENTS                              -->
+<!--                    Elements for use with data characters inside
+                        the model for the <issue> element          -->
+<!ENTITY % issn-elements 
+                        ""                                           > 
+
+
+<!--                    ISSN                                       -->
+<!--                    International Standard Serial Number
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=issn
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=issn
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=issn
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=issn
+                                                                   -->
+<!ELEMENT  issn         (#PCDATA %issn-elements;)*                   >
+<!ATTLIST  issn
+             %issn-atts;                                             >
+
+
+<!--                    ISSUE ELEMENTS                             -->
+<!--                    Elements for use with data characters inside
+                        the model for the <issue> element          -->
+<!ENTITY % issue-elements 
+                        "%just-rendition;"                           > 
+
+
+<!--                    ISSUE NUMBER                               -->
+<!--                    The issue number, issue name, or other 
+                        identifier of an issue of a journal that
+                        is displayed or printed with the issue. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=issue
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=issue
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=issue
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=issue
+                                                                   -->
+<!ELEMENT  issue        (#PCDATA %issue-elements;)*                  >  
+<!ATTLIST  issue
+             %issue-atts;                                            >
+
+
+<!--                    ISSUE IDENTIFIER                           -->
+<!--                    Used to record an identifier such as a DOI
+                        that describes an entire issue of a 
+                        journal     
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=issue-id
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=issue-id
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=issue-id
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=issue-id
+                                                                   -->
+<!ELEMENT  issue-id     (#PCDATA)                                    >  
+<!ATTLIST  issue-id
+             %issue-id-atts;                                         >
+
+
+<!--                    ISSUE PART ELEMENTS                        -->
+<!--                    Elements that can be added to the text
+                        within the element <issue-part>            -->
+<!ENTITY % issue-part-elements 
+                        "%just-rendition;"                           > 
+
+
+<!--                    ISSUE PART                         -->
+<!--                    A publisher may split an issue into two or 
+                        more separately bound or separately issued 
+                        parts. This element holds the identifiers
+                        (titles, part numbers, etc.) for those
+                        publishing components.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=issue-part
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=issue-part
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=issue-part
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=issue-part
+                                                                   -->
+<!ELEMENT  issue-part   (#PCDATA %issue-part-elements;)*             >  
+
+
+<!--                    ISSUE SPONSOR ELEMENTS                     -->
+<!--                    Elements for use in the <issue-sponsor> 
+                        element                                    -->
+<!ENTITY % issue-sponsor-elements 
+                        "%just-rendition;"                           > 
+
+
+<!--                    ISSUE TITLE                                -->
+<!--                    Used to record the sponsor for an issue of 
+                        the journal
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=issue-sponsor
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=issue-sponsor
+                                                                   -->
+<!ELEMENT  issue-sponsor  
+                        (#PCDATA %issue-sponsor-elements;)*          >  
+<!ATTLIST  issue-sponsor
+             %issue-sponsor-atts;                                      >
+
+
+<!--                    ISSUE TITLE ELEMENTS                       -->
+<!--                    Elements for use in the <issue-title> element
+                                                                   -->
+<!ENTITY % issue-title-elements 
+                        "%just-rendition;"                           > 
+
+
+<!--                    ISSUE TITLE                                -->
+<!--                    Used to record the theme or special issue
+                        title for an issue of the journal
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=issue-title
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=issue-title
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=issue-title
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=issue-title
+                                                                   -->
+<!ELEMENT  issue-title  (#PCDATA %issue-title-elements;)*            >  
+<!ATTLIST  issue-title
+             %issue-title-atts;                                      >
+
+
+<!--                    JOURNAL IDENTIFIER                         -->
+<!--                    Short code that represents the journal; used
+                        as an alternative to or short form of the
+                        journal title; used for identification of 
+                        the journal domain.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=journal-id
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=journal-id
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=journal-id
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=journal-id
+                                                                   -->
+<!ELEMENT  journal-id   (#PCDATA)                                    >
+<!ATTLIST  journal-id
+             %journal-id-atts;                                       >
+
+
+<!--                    ROLE ELEMENTS                              -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <role>                    
+                        Design Note: All inline mixes begin with an
+                        OR bar; since %rendition-plus; is an 
+                        inline mix, the OR bar is already there.   -->  
+<!ENTITY % role-elements
+                        "%rendition-plus;"                           >
+
+
+<!--                    ROLE OR FUNCTION TITLE OF CONTRIBUTOR      -->
+<!--                    A title or the role of a contributor
+                        (such as an author) in this work. For example,
+                        Editor-in-Chief, Contributor, Chief
+                        Scientist, Photographer, Research Associate,
+                        etc.              
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=role
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=role
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=role
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=role
+                                                                   -->
+<!ELEMENT  role         (#PCDATA %role-elements;)*                   >
+<!ATTLIST  role
+             %role-atts;                                             >
+
+ 
+<!--                    TRANSLATED TITLE GROUP MODEL               -->
+<!--                    Content model for the element  
+                        <trans-title-group>                        -->
+<!ENTITY % trans-title-group-model    
+                        "(trans-title, trans-subtitle*)"             >
+
+
+<!--                    TRANSLATED TITLE GROUP                     -->
+<!--                    Container element for all translated, and 
+                        transliterated journal titles.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=trans-title-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=trans-title-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=trans-title-group
+                                                                   -->
+<!ELEMENT  trans-title-group
+                        %trans-title-group-model;                    >
+<!ATTLIST  trans-title-group
+             %trans-title-group-atts;                                >
+
+
+<!--                    TRANSLATED SUBTITLE                        -->
+<!--                    An alternate version of an article subtitle 
+                        that has been translated out of the original 
+                        language of the article subtitle <subtitle>  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=trans-subtitle
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=trans-subtitle
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=trans-subtitle
+                                                                   -->
+<!ELEMENT  trans-subtitle  
+                        (#PCDATA %title-elements;)*                  >
+
+
+<!--                    TRANSLATED TITLE                           -->
+<!--                    An alternate version of the title that has
+                        been translated into a language other than
+                        that of the original article title 
+                        <article-title>  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=trans-title
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=trans-title
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=trans-title
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=trans-title
+                                                                   -->
+<!ELEMENT  trans-title  (#PCDATA %title-elements;)*                  >
+<!ATTLIST  trans-title
+            %trans-title-atts;                                       >
+
+
+<!--                    VOLUME NUMBER ELEMENTS                     -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <volume>                                 -->
+<!ENTITY % volume-elements
+                        "%just-rendition; "                          >
+
+
+<!--                    VOLUME NUMBER                              -->
+<!--                    NEW DEFINITION FOR RELEASE 2.0:
+                        The volume number, volume name, or other 
+                        identifier of an volume of a journal that
+                        is displayed or printed with the volume. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=volume
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=volume
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=volume
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=volume
+                                                                   -->
+<!ELEMENT  volume       (#PCDATA %volume-elements;)*                 >
+<!ATTLIST  volume
+            %volume-atts;                                            >
+
+
+<!--                    VOLUME IDENTIFIER ELEMENTS                 -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <volume-id>                              -->
+<!ENTITY % volume-id-elements
+                        "%just-rendition; "                          >
+
+
+<!--                    VOLUME IDENTIFIER                          -->
+<!--                    Used to record an identifier such as a DOI
+                        that describes an entire volume of a 
+                        journal.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=volume-id
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=volume-id
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=volume-id
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=volume-id
+                                                                   -->
+<!ELEMENT  volume-id    (#PCDATA %volume-id-elements;)*              >
+<!ATTLIST  volume-id
+             %volume-id-atts;                                        >
+
+
+<!--                    VOLUME SERIES ELEMENTS                     -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <volume>                                 -->
+<!ENTITY % volume-series-elements
+                        "%just-rendition; "                          >
+
+
+<!--                    VOLUME SERIES                              -->
+<!--                    This is a rare metadata element, intended to 
+                        hold the series number, in those odd cases 
+                        where, for example, a Publisher has reissued
+                        a journal, restarting the volume numbers
+                        with "1", so duplicate volume numbers 
+                        would exist and need to be differentiated.
+                        Such a publisher typically adds a series 
+                        series number to their volume numbers, and
+                        this element has been created to hold such
+                        a series number. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=volume-series
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=volume-series
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=volume-series
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=volume-series
+                                                                   -->
+<!ELEMENT  volume-series
+                        (#PCDATA %volume-series-elements;)*          >
+<!ATTLIST  volume-series
+            %volume-series-atts;                                     >
+
+
+<!-- ============================================================= -->
+<!--                    COMMON ARTICLE METADATA/BIBLIOGRAPHIC      -->
+<!--                    CONTRIBUTOR IDENTIFICATION ELEMENTS        -->
+<!-- ============================================================= -->
+
+
+<!--                    ANONYMOUS ELEMENTS                         -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        an <anonymous> element                     -->
+<!ENTITY % anonymous-elements
+                        "%just-rendition;"                           >
+ 
+
+<!--                    ANONYMOUS CONTENT MODEL                    -->
+<!--                    The content model for the <etal> element   -->
+<!ENTITY % anonymous-model   
+                        "(#PCDATA %anonymous-elements;)*"            > 
+
+
+<!--                    ANONYMOUS                                  -->
+<!--                    Place holder for the name of a contributor
+                        whose name is unknown or not disclosed.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=anonymous
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=anonymous
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=anonymous
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=anonymous
+                                                                   -->
+<!ELEMENT  anonymous    %anonymous-model;                            >  
+
+
+<!--                    ET AL ELEMENTS                             -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        an <etal> element                          -->
+<!ENTITY % etal-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    ET AL CONTENT MODEL                        -->
+<!--                    The content model for the <etal> element   -->
+<!ENTITY % etal-model   "(#PCDATA %etal-elements;)*"                 > 
+
+
+<!--                    ET AL                                      -->
+<!--                    Most journals model this as an EMPTY element,
+                        typically used to generate the text "et al." 
+                        from a stylesheet. However, a few journal
+                        DTDs (Blackwell's, for example) expect
+                        content for this element, with such text as
+                        "Associates, coworkers, and colleagues".
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=etal
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=etal
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=etal
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=etal
+                                                                   -->
+<!ELEMENT  etal         %etal-model;                                 >  
+
+
+<!-- ============================================================= -->
+<!--                    COMMON ARTICLE METADATA/BIBLIOGRAPHIC      -->
+<!--                    PUBLISHER IDENTIFICATION ELEMENTS          -->
+<!-- ============================================================= -->
+
+
+<!--                    PUBLISHER CONTENT MODEL                    -->
+<!--                    The content model for the <publisher> 
+                        element                                    -->
+<!ENTITY % publisher-model
+                        "(publisher-name, publisher-loc?)"           >
+
+
+<!--                    PUBLISHER                                  -->
+<!--                    Who published the work  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=publisher
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=publisher
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=publisher
+                                                                   -->
+<!ELEMENT  publisher    %publisher-model;                            >
+<!ATTLIST  publisher
+             %publisher-atts;                                        >
+
+
+<!--                    PUBLISHER'S NAME ELEMENTS                  -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <publisher-name>
+                        Design Note: All inline mixes begin with an
+                        OR bar; since %just-rendition; is an 
+                        inline mix, the OR bar is already there    -->  
+<!ENTITY % publisher-name-elements
+                        "%just-rendition; "                          >
+
+
+<!--                    PUBLISHER'S NAME                           -->
+<!--                    Name of the publisher of the work
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=publisher-name
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=publisher-name
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=publisher-name
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=publisher-name
+                                                                   -->
+<!ELEMENT  publisher-name      
+                        (#PCDATA %publisher-name-elements;)*         >  
+
+
+<!--                    PUBLISHER'S LOCATION ELEMENTS              -->
+<!--                    Elements for use in the Publisher Location
+                        <publisher-loc> element                    -->
+<!ENTITY % publisher-loc-elements 
+                        "| %address.class; | %address-link.class; |
+                         %emphasis.class; | %subsup.class;"          > 
+
+
+<!--                    PUBLISHER'S LOCATION                       -->
+<!--                    Place of publication, usually a city such
+                        as New York or London 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=publisher-loc
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=publisher-loc
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=publisher-loc
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=publisher-loc
+                                                                   -->
+<!ELEMENT  publisher-loc       
+                        (#PCDATA %publisher-loc-elements;)*          >
+
+
+<!-- ============================================================= -->
+<!--                    COMMON METADATA ELEMENTS CONTINUED         -->
+<!--                    PAGE NUMBERING (SIZE) ELEMENTS             -->
+<!-- ============================================================= -->
+
+
+<!--                    FIRST PAGE                                 -->
+<!--                    The page number on which the article starts,
+                        for print journals that have page numbers 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=fpage
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=fpage
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=fpage
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=fpage
+                                                                   -->
+<!ELEMENT  fpage        (#PCDATA)                                    >
+<!ATTLIST  fpage
+             %fpage-atts;                                            >
+             
+
+<!--                    LAST PAGE                                  -->
+<!--                    The page number on which the article ends,
+                        for print journals that have page numbers 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=lpage
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=lpage
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=lpage
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=lpage
+                                                                   -->
+<!ELEMENT  lpage        (#PCDATA)                                    >
+<!ATTLIST  lpage
+             %lpage-atts;                                            >
+             
+
+<!--                    PAGE RANGES                                -->
+<!--                    A container element for additional page 
+                        information (TO BE USED TO SUPPLEMENT AND
+                        NOT TO REPLACE <fpage> and <lpage>) to record
+                        discontinuous pages ranges such as 
+                            "8-11, 14-19, 40"
+                        meaning that the article begins on page
+                        8, runs 8 through 11, skips to pages 14 
+                        through 19, and concludes on page 40.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=page-range
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=page-range
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=page-range
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=page-range
+                                                                   -->
+<!ELEMENT  page-range   (#PCDATA)                                    >
+<!ATTLIST  page-range
+             %page-range-atts;                                       >
+
+
+<!--                    SIZE ELEMENTS                              -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the size element.                          -->
+<!ENTITY % size-elements 
+                        ""                                           >
+
+
+<!--                    SIZE                                       -->
+<!--                    The size (such as running time, page count, 
+                        or physical measurements) of the object being 
+                        described, usually by a <product> element.
+                        The "units" attribute must be used to name
+                        the unit of measure (pages, minutes, hours,
+                        linear feet, etc.).
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=size
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=size
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=size
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=size
+                                                                   -->
+<!ELEMENT  size         (#PCDATA %size-elements;)*                   >
+<!ATTLIST  size
+             %size-atts;                                             >
+
+
+<!--                    ELECTRONIC LOCATION IDENTIFIER             -->
+<!--                    Used to identify an article that 
+                        does not have traditional page numbers. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=elocation-id
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=elocation-id
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=elocation-id
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=elocation-id
+                                                                   -->
+<!ELEMENT  elocation-id (#PCDATA)                                    >
+<!ATTLIST  elocation-id 
+             %elocation-id-atts;                                     >
+
+
+<!-- ============================================================= -->
+<!--                    CITATIONS (BIBLIOGRAPHIC REFERENCE)        -->
+<!-- ============================================================= -->
+
+
+<!--                    CITATION ELEMENTS                          -->
+<!--                    Content for both types of citation. These
+                        elements may be mixed with #PCDATA in the 
+                        <mixed-citation> element (in which all
+                        punctuation and spacing are left intact), and
+                        they also constitute the choices that can be 
+                        used to form the all-element-content of the
+                        <element-citation> element (in which  
+                        punctuation and spacing are removed).
+                        Design Note: All inline mixes begin with an
+                        OR bar.                                    -->
+<!ENTITY % citation-elements   
+                        "%emphasis.class; | %inline-display.class; |
+                         %inline-math.class; | %label.class; | 
+                         %phrase.class; | %references.class; |
+                         %subsup.class;"                             > 
+
+
+<!--                    MIXED CITATION                             -->
+<!--                    A citation is a description of a work, such
+                        as a journal article, book, or personal
+                        communication, that is cited in the text of
+                        the article. This citation element is 
+                        completely loose, with text, punctuation, 
+                        spacing, and any of the citation elements
+                        in any order.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=mixed-citation
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=mixed-citation
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=mixed-citation
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=mixed-citation
+                                                                   -->
+<!ELEMENT  mixed-citation     
+                        (#PCDATA | %citation-elements;)*             >
+<!ATTLIST  mixed-citation
+             %citation-atts;                                         >
+
+
+<!--                    ELEMENT CITATION                           -->
+<!--                    A citation is a description of a work, such
+                        as a journal article, book, or personal
+                        communication, that is cited in the text of
+                        the article. This citation model contains
+                        element-only content, with elements in 
+                        any order as many times as needed. This
+                        citation is intended for use in capturing
+                        a publisher's specific element order.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=element-citation
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=element-citation
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=element-citation
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=element-citation
+                                                                   -->
+<!ELEMENT  element-citation
+                        (%citation-elements;)+                       >
+<!ATTLIST  element-citation
+             %citation-atts;                                         >
+             
+
+<!-- ============================================================= -->
+<!--                    ADDRESS ELEMENTS (BIBLIOGRAPHIC)           -->
+<!-- ============================================================= -->
+
+
+<!--                    ADDRESS MODEL                              -->
+<!--                    Content model for the <address> element    -->
+<!ENTITY % address-model    
+                        "(%address.class; | %address-link.class;)*"  >
+
+
+<!--                    ADDRESS/CONTACT INFORMATION                -->
+<!--                    Wrapper element for contact information such 
+                        as address, phone, fax, email, url, country,
+                        etc. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=address
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=address
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=address
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=address
+                                                                   -->
+<!ELEMENT  address      %address-model;                              >
+<!ATTLIST  address
+             %address-atts;                                          >
+
+
+<!--                    ADDRESS LINE ELEMENTS                      -->
+<!--                    Elements for use in the <addr-line> element-->
+<!ENTITY % addr-line-elements 
+                        "%simple-text; | %address-line.class;"       > 
+
+
+<!--                    ADDRESS LINE                               -->
+<!--                    One line in an address                     -->
+<!--                    Conversion Note: If the address is 
+                        undifferentiated data characters, the entire
+                        address may be inside one of these elements.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=addr-line
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=addr-line
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=addr-line
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=addr-line
+                                                                   -->
+<!ELEMENT  addr-line    (#PCDATA %addr-line-elements;)*              >
+<!ATTLIST  addr-line
+             %addr-line-atts;                                        >
+
+
+<!--                    COUNTRY ELEMENTS                           -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the country element.                       -->
+<!ENTITY % country-elements 
+                        ""                                           >
+
+
+<!--                    COUNTRY: IN AN ADDRESS                     -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=country
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=country
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=country
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=country
+                                                                   -->
+<!ELEMENT  country      (#PCDATA %country-elements;)*                >
+<!ATTLIST  country
+             %country-atts;                                        >
+
+
+<!--                    EMAIL ADDRESS ELEMENTS                     -->
+<!--                    Elements to be mixed with #PCDATA inside the
+                        <email> element                            -->
+<!ENTITY % email-elements 
+                        ""                                           > 
+
+
+<!--                    EMAIL ADDRESS                              -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=email
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=email
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=email
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=email
+                                                                   -->
+<!ELEMENT  email        (#PCDATA %email-elements;)*                  >
+<!ATTLIST  email
+             %email-atts;                                            >
+
+
+<!--                    FAX NUMBER ELEMENTS                        -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <fax>                                    -->
+<!ENTITY % fax-elements
+                        "%just-rendition; "                          >
+
+
+<!--                    FAX NUMBER: IN AN ADDRESS                  -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=fax
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=fax
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=fax
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=fax
+                                                                   -->
+<!ELEMENT  fax          (#PCDATA %fax-elements;)*                    >
+<!ATTLIST  fax
+             %fax-atts;                                              >
+
+
+<!--                    INSTITUTION NAME ELEMENTS                  -->
+<!--                    Elements for use in the <institution> 
+                        element                                    -->
+<!ENTITY % institution-elements 
+                        "| %break.class; | %emphasis.class; |
+                         %subsup.class;"                             > 
+
+
+<!--                    INSTITUTION NAME: IN AN ADDRESS            -->
+<!--                    Name of a institution or organization such as
+                        a university or corporation used in an
+                        address or within a citation (such as a
+                        <mixed-citation> or an <element-citation> 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=institution
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=institution
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=institution
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=institution
+                                                                   -->
+<!ELEMENT  institution  (#PCDATA %institution-elements;)*            >
+<!ATTLIST  institution
+             %institution-atts;                                      > 
+
+
+<!--                    PHONE NUMBER ELEMENTS                      -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <phone number> 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %just-rendition; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % phone-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    PHONE NUMBER: IN AN ADDRESS                -->
+<!--                    A callable phone number in some telephone or
+                        wireless system somewhere in the world.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=phone
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=phone
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=phone
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=phone
+                                                                   -->
+<!ELEMENT  phone        (#PCDATA %phone-elements;)*                  >
+<!ATTLIST  phone
+             %phone-atts;                                            > 
+
+
+<!--                    URI ELEMENTS                               -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <uri>
+                        Design Note: This PE begins with an OR
+                        bar because %just-rendition; begins with an
+                        OR bar.                                    -->
+<!ENTITY % uri-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    URI                                        -->
+<!--                    URI such as a URL that may be used as a 
+                        live link, typically naming a website, such 
+                        as:
+                           <url>http://www.mulberrytech.com</url>
+                        Alternatively the element content may name
+                        the URL, e.g., "Mulberry's Website" and the
+                        "xlink:href" attribute may hold the real
+                        URL.
+                           <url xlink:href="http://www.mulberrytech.
+                           com">Mulberry's Website</url>           
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=uri
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=uri
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=uri
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=uri
+                                                                   -->
+<!ELEMENT  uri          (#PCDATA %uri-elements;)*                    >
+<!ATTLIST  uri
+             %uri-atts;                                              >
+
+
+<!-- ============================================================= -->
+<!--                    DATE ELEMENTS (PUBLICATION HISTORY)        -->
+<!-- ============================================================= -->
+
+
+<!--                    DATE                                       -->
+<!--                    The elements <day>, <month>, and <year> should 
+                        ALWAYS be numeric values. The date may be 
+                        represented as a string in <string-date>, but
+                        the numeric values should be present whenever
+                        possible.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=date
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=date
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=date
+                                                                   -->
+<!ELEMENT  date         %date-model;                                 >
+<!ATTLIST  date
+              %date-atts;                                            >
+
+
+<!--                    DAY                                        -->
+<!--                    The numeric value of a day of the month, used
+                        in both article metadata and inside a citation,
+                        in two digits as it would be stated in the "DD" 
+                        in an international date format YYYY-MM-DD, for
+                        example "03", "25". 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=day
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=day
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=day
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=day
+                                                                   -->
+<!ELEMENT  day          (#PCDATA)                                    >
+<!ATTLIST  day 
+             %day-atts;                                              >
+
+
+<!--                    MONTH                                      -->
+<!--                    Names one of the months of the year. Used in
+                        both article metadata and inside a citation,
+                        this element may contain a full month 
+                        "December", an abbreviation "Dec", or, 
+                        preferably, a numeric month such as "12".
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=month
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=month
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=month
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=month
+                                                                   -->
+<!ELEMENT  month        (#PCDATA)                                    >
+<!ATTLIST  month 
+             %day-atts;                                              >
+
+
+<!--                    SEASON                                     -->
+<!--                    Season of publication, such as "Spring". 
+                        Used in both article metadata and inside a 
+                        citation (such as a <mixed-citation> or an
+                        <element-citation>
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=season
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=season
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=season
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=season
+                                                                   -->
+<!ELEMENT  season       (#PCDATA)                                    >
+<!ATTLIST  season 
+             %day-atts;                                              >
+
+
+<!--                    YEAR                                       -->
+<!--                    Year of publication, which should be expressed
+                        as a 4-digit number: "1776" or "1924"
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=year
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=year
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=year
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=year
+                                                                   -->
+<!ELEMENT  year         (#PCDATA)                                    >
+<!ATTLIST  year 
+             %year-atts;                                             >
+
+
+<!--                    STRING DATE ELEMENTS                       -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the <string-date> element                  -->
+<!ENTITY % string-date-elements 
+                        " | %date-parts.class;"                      >
+
+
+<!--                    DATE AS A STRING                           -->
+<!--                    This is a representation of the date as a 
+                        string; usually used for dates for which 
+                        months and years are not given, but may be
+                        used for any date as a string (i.e., "January, 
+                        2001" "Fall 2001" "March 11, 2001".
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=string-date
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=string-date
+                                                                   -->
+<!ELEMENT  string-date  (#PCDATA %string-date-elements;)*            >
+<!ATTLIST  string-date 
+             %string-date-atts;                                      >
+
+
+<!-- ============================================================= -->
+<!--                    PERSON'S NAME ELEMENTS (BIBLIOGRAPHIC)     -->
+<!-- ============================================================= -->
+
+
+<!--                    STRING NAME ELEMENTS                       -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the <string-name> element                  -->
+<!ENTITY % string-name-elements 
+                        " | %person-name.class;"                     >
+
+
+<!--                    NAME OF PERSON (UNSTRUCTURED)              -->
+<!--                    Wrapper element for personal names where the
+                        stricter format of the <name> element cannot
+                        be followed. This is a very loose element,
+                        allowing data characters, generated text,
+                        and any or all of the naming elements.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=string-name
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=string-name
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=string-name
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=string-name
+                                                                   -->
+<!ELEMENT  string-name  (#PCDATA %string-name-elements;)*            >
+
+
+<!--                    NAME OF PERSON (STRUCTURED)                -->
+<!--                    Wrapper element for personal names.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=name
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=name
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=name
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=name
+                                                                   -->
+<!ELEMENT  name         (surname, given-names?, prefix?, suffix?)    >
+<!--         name-style Used for choosing an inversion algorithm or
+                        for sorting or other processing functions.  
+                        The three values and approximate meanings are:
+                        Value     Display          Sort/Inversion
+                        western   given family     family given
+                        eastern   family given     family given
+                        islensk   given patronymic given, patronymic 
+                                                                   -->
+<!ATTLIST  name
+             %name-atts;                                             >
+
+
+<!--                    SURNAME ELEMENTS                           -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <surname>                                
+                        Design Note: This PE begins with an OR
+                        bar because %just-rendition; begins with an
+                        OR bar.                                    -->
+<!ENTITY % surname-elements
+                        "%just-rendition; "                          >
+
+
+<!--                    SURNAME                                    -->  
+<!--                    The surname (family name) of an individual.  
+                        or the single name if there is only one
+                        name, for example, "Cher" or "Pele".
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=surname
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=surname
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=surname
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=surname
+                                                                   -->
+<!ELEMENT  surname      (#PCDATA %surname-elements;)*                >
+<!ATTLIST  surname
+             %surname-atts;                                          >
+
+
+<!--                    GIVEN (FIRST) NAMES ELEMENTS               -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <given-names>                            -->
+<!ENTITY % given-names-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    GIVEN (FIRST) NAMES                        -->
+<!--                    Includes all given names for a person, such 
+                        as the first name, middle names, maiden 
+                        name if used as part of the married name, 
+                        etc.) 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=given-names
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=given-names
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=given-names
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=given-names
+                                                                   -->
+<!ELEMENT  given-names  (#PCDATA %given-names-elements;)*            >
+<!ATTLIST  given-names
+             %given-names-atts;                                      >
+
+
+<!--                    PREFIX ELEMENTS                            -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <prefix>  
+                        Design Note: This PE begins with an OR
+                        bar because %just-rendition; begins with an
+                        OR bar.                                    -->
+<!ENTITY % prefix-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    PREFIX                                     -->
+<!--                    Honorifics or other qualifiers that usually 
+                        precede the surname, for example,  Professor, 
+                        Rev., President, Senator, Dr., Sir, The 
+                        Honorable, et al.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=prefix
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=prefix
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=prefix
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=prefix
+                                                                   -->
+<!ELEMENT  prefix       (#PCDATA %prefix-elements;)*                 >
+
+
+
+<!--                    SUFFIX ELEMENTS                            -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <suffix>
+                        Design Note: This PE begins with an OR bar,
+                        it is inside %just-rendition;              -->
+<!ENTITY % suffix-elements
+                        "%just-rendition;"                           >
+
+
+<!--                    SUFFIX                                     -->
+<!--                    Text used as a suffix to a person's name, for
+                        example: Sr. Jr. III, 3rd  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=suffix
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=suffix
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=suffix
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=suffix
+                                                                   -->
+<!ELEMENT  suffix       (#PCDATA %suffix-elements;)*                 >
+<!ATTLIST  suffix
+             %suffix-atts;                                           >
+
+
+<!-- ============================================================= -->
+<!--                    EXTERNAL LINK ELEMENTS                     -->
+<!-- ============================================================= -->
+
+
+<!--                    EXTERNAL LINK ELEMENTS                     -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        an <ext-link>  
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %link-elements; is an inline
+                        mix, the OR bar is already there.          -->
+<!ENTITY % ext-link-elements
+                        "%link-elements;"                            >
+
+
+<!--                    EXTERNAL LINK                              -->
+<!--                    Link to an external file, such as Medline, 
+                        Genbank, etc.  Linking may be accomplished
+                        using the XLink linking attributes.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=ext-link
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=ext-link
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=ext-link
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=ext-link
+                                                                   -->
+<!ELEMENT  ext-link     (#PCDATA %ext-link-elements;)*               >
+<!ATTLIST  ext-link
+             %ext-link-atts;                                         >
+
+
+<!-- ============================================================= -->
+<!--                    SHARED STRUCTURAL ELEMENTS                 -->
+<!-- ============================================================= -->
+
+
+<!--                    ATTRIBUTION ELEMENTS                       -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        an attribution                          
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % attrib-elements
+                        "%emphasized-text;"                          >
+             
+
+<!--                    ATTRIBUTION                                -->
+<!--                    Source, author, formal thanks, or other 
+                        information (other than copyright material)
+                        concerning the origins of an extract, a poem
+                        <verse-group> or similar element.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=attrib
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=attrib
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=attrib
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=attrib
+                                                                   -->
+<!ELEMENT  attrib       (#PCDATA %attrib-elements;)*                 >
+<!ATTLIST  attrib
+             %attrib-atts;                                           >
+
+
+<!--                    DEFINITION LIST: DEFINITION MODEL          -->
+<!--                    Content model for the <def> element, which
+                        is used in contexts outside of <def-list>s -->
+<!ENTITY % def-model    "((%just-para.class;)+ )"                    > 
+
+  
+<!--                    DEFINITION LIST: DEFINITION                -->
+<!--                    Used in two senses:
+                        1) The definition, description, or other
+                        explanation of the word, phrase, or picture
+                        of a 2-part or definition list
+                        2) The definition or expansion of an
+                        abbreviation or acronym <abbrev>
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=def
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=def
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=def
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=def
+                                                                   -->
+<!ELEMENT  def          %def-model;                                  >
+<!ATTLIST  def                                
+             %def-atts;                                              >
+
+
+<!--                    LABEL ELEMENTS                             -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the <label> element                        -->
+<!ENTITY % label-elements 
+                        "| %emphasis.class; | %inline-display.class; | 
+                         %inline-math.class; | %subsup.class;"       >
+
+
+<!--                    LABEL OF A FIGURE, REFERENCE, ETC.         -->
+<!--                    The number and any prefix word that comes
+                        before, for example, the caption of a Figure,
+                        such as "Figure 3." or "Exhibit 2.". 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=label
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=label
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=label
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=label
+                                                                   -->
+<!ELEMENT  label        (#PCDATA %label-elements;)*                  >
+
+
+<!--                    PRICE ELEMENTS                             -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the <price> element                        -->
+<!ENTITY % price-elements 
+                        "| %emphasis.class;"                         >
+
+
+<!--                    PRICE                                      -->
+<!--                    Sale price of a work, typically a book or
+                        software package that is being reviewed
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=price
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=price
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=price
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=price
+                                                                   -->
+<!ELEMENT  price        (#PCDATA %price-elements;)*                  >
+<!--         currency   In what currency is this price presented?
+                        Best Practice is to use the ISO 4117 "currency 
+                        code" 3-letter values:
+                          USD  United States Dollar
+                          CAD  Canadian Dollar
+                          EUR  European Union Euro
+                          RUB  Russian Ruble
+                        These codes are defined by ISO in ISO 4217
+                        and listed at:
+http://www.iso.org/iso/en/prods-services/popstds/currencycodeslist.html#SZ.
+                                                                   -->
+<!ATTLIST  price
+             %price-atts;                                            >
+
+
+<!--                    STRUCTURAL TITLE ELEMENTS                  -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        the <title> element  
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % struct-title-elements 
+                        "%simple-phrase; | %break.class; |
+                         %citation.class;"                           > 
+
+
+<!--                    TITLE                                      -->
+<!--                    Heading or title for a structural element
+                        such as a Section, Figure, Boxed Text, etc.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=title
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=title
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=title
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=title
+                                                                   -->
+<!ELEMENT  title        (#PCDATA %struct-title-elements;)*           >
+<!ATTLIST  title
+             %title-atts;                                            >
+
+
+<!-- ============================================================= -->
+<!--                    RELATED ARTICLE ELEMENTS                   -->
+<!--                    (METADATA AND STRUCTURAL)                  -->
+<!-- ============================================================= -->
+
+
+<!--                    RELATED ARTICLE ELEMENTS                   -->
+<!--                    Elements allowed inside <related-article>  -->
+<!ENTITY % related-article-elements 
+                        "| %emphasis.class; | %journal-id.class; |
+                         %phrase-content.class; | 
+                         %references.class; |  %subsup.class;"       >
+
+
+<!--                    RELATED ARTICLE INFORMATION                -->
+<!--                    Wrapper element, used as a container for 
+                        text links to a related article, possibly 
+                        accompanied by a very brief description
+                        such as "errata (correction)".
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=related-article
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=related-article
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=related-article
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=related-article
+                                                                   -->
+<!ELEMENT  related-article
+                        (#PCDATA %related-article-elements;)*        >
+<!ATTLIST  related-article
+             %related-article-atts;                                  >
+
+
+<!-- ============================================================= -->
+<!--                    SIGNATURE BLOCK ELEMENTS                   -->
+<!-- ============================================================= -->
+
+
+<!--                    SIGNATURE BLOCK ELEMENTS                   -->
+<!--                    Elements to be mixed with data characters
+                        inside the content model for the 
+                        <sig-block> element.                       -->
+<!ENTITY % sig-block-elements 
+                         "| %break.class; | %emphasis.class; |   
+                          %just-base-display.class; |
+                          %inline-display-noalt.class; |
+                          %phrase-content.class; | 
+                          %sig.class; | %subsup.class;"              > 
+
+
+<!--                    SIGNATURE BLOCK                            -->
+<!--                    An area of text and graphic material placed
+                        at the end of an article or section to hold
+                        the graphical signature or other description
+                        of the person responsible for or attesting
+                        to the content. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=sig-block
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=sig-block
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=sig-block
+                                                                   -->
+<!ELEMENT  sig-block    (#PCDATA %sig-block-elements;)*              >
+<!ATTLIST  sig-block
+             %sig-block-atts;                                        >
+
+
+<!--                    SIGNATURE ELEMENTS                         -->
+<!--                    Elements to be mixed with data characters
+                        inside the content model for the 
+                        <sig> element.                             -->
+<!ENTITY % sig-elements "%rendition-plus; | %break.class; | 
+                         %inline-display-noalt.class; | 
+                         %just-base-display-noalt.class;"            >
+
+
+<!--                    SIGNATURE                                  -->
+<!--                    One contributor signature and associated 
+                        material (such as a text restatement of the
+                        affiliation) inside a signature block. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=sig
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=sig
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=sig
+                                                                   -->
+<!ELEMENT  sig          (#PCDATA %sig-elements;)*                    >
+<!ATTLIST  sig
+             %sig-atts;                                              >
+
+
+<!-- ============================================================= -->
+<!--                    FRONT MATTER/BACK MATTER ELEMENTS          -->
+<!-- ============================================================= -->
+
+
+<!--                    ACKNOWLEDGMENTS MODEL                      -->
+<!--                    Content model for the <ack> element        -->
+<!ENTITY % ack-model    "%sec-opt-title-model;"                      > 
+
+
+<!--                    ACKNOWLEDGMENTS                            -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=ack
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=ack
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=ack
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=ack
+                                                                   -->
+
+<!ELEMENT  ack          %ack-model;                                  >
+<!ATTLIST  ack                                
+             %ack-atts;                                              >
+
+
+<!--                    BIOGRAPHY MODEL                            -->
+<!--                    Content model for the <bio> element        -->
+<!ENTITY % bio-model    "%sec-opt-title-model;"                      > 
+                   
+
+<!--                    BIOGRAPHY                                  -->
+<!--                    Short biography of a person, usually the
+                        author                                     
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=bio
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=bio
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=bio
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=bio
+                                                                   -->
+<!ELEMENT  bio          %bio-model;                                  >      
+<!ATTLIST  bio
+             %bio-atts;                                              >
+
+
+<!--                    NOTES MODEL                                -->
+<!--                    Content model for the <notes> element      -->
+<!ENTITY % notes-model  "%sec-opt-title-model;"                      > 
+             
+
+<!--                    NOTES                                      -->
+<!--                    A container element for the notes that may
+                        appear at the end of an Article or at the 
+                        end of a Table,for example, a typical
+                        end-of-article note is a "Note in Proof". 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=notes
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=notes
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=notes
+                                                                   -->
+<!ELEMENT  notes        %notes-model;                                >      
+<!ATTLIST  notes
+             %notes-atts;                                            >
+
+
+<!-- ============================================================= -->
+<!--                    ACCESSIBILITY ELEMENTS                     -->
+<!-- ============================================================= -->
+
+
+<!--                    ALTERNATE TITLE TEXT FOR A FIGURE, ETC.    -->
+<!--                    Short phrase used to display or pronounce 
+                        as an alternative to providing the full
+                        graphic for accessibility display or 
+                        graphic-limited websites or devices. For 
+                        example, <alt-text> may be used to display 
+                        "behind" a figure or graphic.   
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=alt-text
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=alt-text
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=alt-text
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=alt-text
+                                                                   -->
+<!ELEMENT  alt-text     (#PCDATA)                                    >
+<!ATTLIST  alt-text
+             %alt-text-atts;                                         > 
+
+
+<!--                    LONG DESCRIPTION ELEMENTS                  -->
+<!--                    Elements to be mixed with data characters
+                        inside the <long-desc> element             -->
+<!ENTITY % long-desc-elements
+                        ""                                           >
+
+
+<!--                    LONG DESCRIPTION                           -->
+<!--                    Description or summary of the content of a 
+                        graphical object, table, or textual object
+                        such as a text box, used by some systems to
+                        make the object accessible, even to people
+                        or systems that cannot read/see/display the
+                        object.                                  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=long-desc
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=long-desc
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=long-desc
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=long-desc
+                                                                   -->
+<!ELEMENT  long-desc    (#PCDATA %long-desc-elements;)*              >
+<!ATTLIST  long-desc
+             %long-desc-atts;                                        >
+
+
+<!-- ============================================================= -->
+<!--                    CUSTOM METADATA ELEMENTS                   -->
+<!-- ============================================================= -->
+
+
+<!--                    CUSTOM METADATA GROUP MODEL                -->
+<!--                    Content model for the <custom-meta-group> 
+                        element                                    -->
+<!ENTITY % custom-meta-group-model
+                        "(custom-meta+)"                             > 
+
+
+<!--                    CUSTOM METADATA GROUP                      -->
+<!--                    Some DTDs and schemas allow for metadata
+                        above and beyond that which can be specified
+                        by this DTD. This element is a grouping  
+                        element used to contain all these additional
+                        metadata elements.   
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=custom-meta-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=custom-meta-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=custom-meta-group
+                                                                   -->
+<!ELEMENT  custom-meta-group
+                        %custom-meta-group-model;                    >
+
+
+<!--                    CUSTOM METADATA MODEL                      -->
+<!--                    Content model for the <custom-meta> element-->
+<!ENTITY % custom-meta-model
+                        "(meta-name, meta-value)"                    > 
+
+
+<!--                    CUSTOM METADATA                            -->
+<!--                    Some DTDs and schemas allow for metadata
+                        above and beyond that which can be specified
+                        by this DTD. This element is used to capture
+                        metadata elements that have not been defined
+                        explicitly in the models for this DTD, so 
+                        that the intellectual content will not be lost.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=custom-meta
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=custom-meta
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=custom-meta
+                                                                   -->
+<!ELEMENT  custom-meta  %custom-meta-model;                          >
+<!ATTLIST  custom-meta
+             %custom-meta-atts;                                      >
+
+
+<!--                    METADATA DATA NAME ELEMENTS                -->
+<!--                    Elements that may be used, along with data
+                        characters, inside the <meta-name> element 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % meta-name-elements
+                        ""                                           > 
+
+
+<!--                    METADATA DATA NAME FOR CUSTOM METADATA     -->
+<!--                    The <custom-meta> element
+                        allows for an infinite number of name/value
+                        pairs, with few constraints on the length or
+                        content of the value. This element contains
+                        the name of the metadata field.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=meta-name
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=meta-name
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=meta-name
+                                                                   -->
+<!ELEMENT  meta-name    (#PCDATA %meta-name-elements;)*              >
+
+
+<!--                    METADATA DATA VALUE ELEMENTS               -->
+<!--                    Elements that may be used, along with data
+                        characters, inside the <meta-value> element 
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-phrase; is an 
+                        inline mix, the OR bar is already there.   -->
+<!ENTITY % meta-value-elements
+                        "%simple-phrase;"                            > 
+   
+
+<!--                    METADATA DATA VALUE FOR CUSTOM METADATA    -->
+<!--                    The <custom-meta> element
+                        allows for an infinite number of name/value
+                        pairs, with few constraints on the length or
+                        content of the value. This element contains
+                        the value of the metadata field that is named
+                        by the <meta-name> element.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=meta-value
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=meta-value
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=meta-value
+                                                                   -->
+<!ELEMENT  meta-value   (#PCDATA %meta-value-elements;)*             >
+
+
+<!-- ============================================================= -->
+<!--                    PROCESSING ALTERNATIVES ELEMENTS           -->
+<!-- ============================================================= -->
+
+
+<!--                    ALTERNATIVES MODEL                         -->
+<!--                    Model for the <alternatives> processing
+                        alternatives element                       --> 
+<!ENTITY % alternatives-model
+
+                        "(%alternatives-display.class; | 
+                          %math.class;)+"                            >
+
+
+<!--                    ALTERNATIVES FOR PROCESSING                -->
+<!--                    Container element used to hold a group of
+                        processing alternatives, for example, a
+                        single logical <graphic> that ships in 
+                        different formats (tif, gif, jpeg) or
+                        different resolutions. This element is a 
+                        physical grouping to contain multiple 
+                        logically equivalent (substitutable) versions 
+                        of the same information object. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=alternatives
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=alternatives
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=alternatives
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=alternatives
+                                                                   -->
+<!ELEMENT  alternatives %alternatives-model;                         >
+
+
+<!--                    TEXTUAL FORM ELEMENTS                      -->
+<!--                    Model for the <textual-form> element       --> 
+<!ENTITY % textual-form-elements
+                        "%emphasis.class; | 
+                         %inline-display-noalt.class; |
+                         %math.class; | 
+                         %phrase-content.class; | %subsup.class;"    >
+
+
+<!--                    TEXTUAL FORM                               -->
+<!--                    Container element (for use only inside
+                        <alternatives>) that will hold text and
+                        mixed content objects that act as alternatives
+                        to, for example, graphics.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=textual-form
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=textual-form
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=textual-form
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=textual-form
+                                                                   -->
+<!ELEMENT  textual-form (#PCDATA | %textual-form-elements;)*         >
+
+
+<!-- ============================================================= -->
+<!--                    GENERATED TEXT OR PUNCTUATION              -->
+<!-- ============================================================= -->
+
+
+<!--                   X TEXT ATTRIBUTES                           -->
+<!--                   Attributes for the element <x>              -->
+<!ENTITY % x-atts
+            "content-type
+                       CDATA                               #IMPLIED 
+             xml:space (default | preserve)      #FIXED 'preserve'"  > 
+
+
+<!--                    X ELEMENTS                                 -->
+<!--                    Elements for use inside the <x> element    -->
+<!ENTITY % x-elements   ""                                           > 
+
+
+<!--                    X - GENERATED TEXT AND PUNCTUATION         -->
+<!--                    A container element to hold punctuation or
+                        other generated text, typically when 1) an
+                        archive decides not to have any text
+                        generated and thus to pre-generate such 
+                        things as commas or semicolons between 
+                        keywords or 2) when an archive receives text
+                        with <x> tags embedded and wishes to retain
+                        them.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=x
+                                                                   -->
+<!ELEMENT  x            (#PCDATA %x-elements;)*                      >
+<!ATTLIST  x
+             %x-atts;                                                >
+
+
+<!-- ================== End Common (Shared) Elements Module ====== -->
+     

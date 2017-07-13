@@ -1,0 +1,88 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}{{ active|capfirst }} Profile{% endblock title %}
+
+{% block css %}
+<link type='text/css' href="{% static " common/css/jq-ui.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_users' %}">Users</a></li>
+    <li>{% if active == 'add' %}Add New User{% else %}Edit User{% endif %}</li>
+{% endblock %}
+
+{% block title-section %}Users{% endblock %}
+{% block title-sub %}{% if active == 'add' %}Add New User{% else %}Edit User{% endif %}{% endblock %}
+
+{% block body %}
+<div class="large-8 columns end">
+
+    <div class="box">
+        <div class="title-area">
+            <h2>{% if active == 'add' %}Add User{% else %}Edit {{ registration_form.email.value }}{% endif %}</h2>
+        </div>
+
+        <div class="content">
+            {% include "elements/forms/errors.html" with form=user_form %}
+            <form method="post" class="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="large-4 columns">
+                        {{ registration_form.email|foundation }}
+                    </div>
+                    <div class="large-2 columns">
+                        {{ registration_form.is_active|foundation }}
+                    </div>
+                    <div class="large-2 columns">
+                        {{ registration_form.is_staff|foundation }}
+                    </div>
+                    <div class="large-2 columns">
+                        {{ registration_form.is_admin|foundation }}
+                    </div>
+                    <div class="large-2 columns">
+                        {{ registration_form.is_superuser|foundation }}
+                    </div>
+                </div>
+                {% if active == 'add' %}
+                <div class="row">
+                    <div class="large-6 columns">
+                        {{ registration_form.password_1|foundation }}
+                    </div>
+                    <div class="large-6 columns">
+                        {{ registration_form.password_2|foundation }}
+                    </div>
+                </div>
+                {% endif %}
+                {% include "elements/forms/errors.html" with form=form %}
+                {% include "elements/accounts/user_form.html" with form=form %}
+
+                <button name="register" id="register" type="submit" class="pull-right success button"
+                        style="width:150px;margin-left:15px;">
+                    <i class="fa fa-user"></i> Update Profile
+                </button>
+                </br> </br>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="{% static "admin/js/tagit.js" %}"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+      $("#id_interests").tagit(
+        {allowSpaces: true});
+  });
+</script>
+{% endblock %}

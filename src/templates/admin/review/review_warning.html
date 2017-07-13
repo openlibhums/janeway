@@ -1,0 +1,34 @@
+{% extends "admin/core/base.html" %}}
+
+{% block title %}Permission Denied{% endblock title %}
+{% block admin-header %}Permission Denied{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Review Warning</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Security Warning</h2>
+            </div>
+            <div class="content">
+                <p>Janeway has detected that you are the author of this paper, so we have stopped you from accessing the
+                    review section.</p>
+                <p>You can over-ride this security step, if you are a staff member. <strong>NB. </strong>This will be
+                    logged and emailed to the other Editors.</p>
+                {% if request.user.is_staff %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="small success button">Over-ride Security</button>
+                    </form>
+                {% else %}
+                    <p>You are not a staff member.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

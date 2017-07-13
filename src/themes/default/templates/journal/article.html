@@ -1,0 +1,262 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+
+{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+
+{% block head %}
+
+    <!-- Commented out meta fields are TODO -->
+
+    <!-- <meta name="DC.Coverage.spatial" xml:lang="en" content="London"/> -->
+
+    <!-- <meta name="DC.Coverage.temporal" xml:lang="en" content="long-eighteenth century"/> -->
+
+
+    <meta name="DC.Date.created" scheme="ISO8601" content="{{ article.date_published }}"/>
+    <meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ article.date_submitted }}"/>
+    <meta name="DC.Date.issued" scheme="ISO8601" content="{{ article.date_published }}"/>
+    <meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published }}"/>
+
+    <meta name="DC.Description" xml:lang="en" content="{{ article.abstract | striptags }}"/>
+
+    <meta name="DC.Format" scheme="IMT" content="xml"/>
+    <meta name="DC.Format" scheme="IMT" content="pdf"/>
+    <meta name="DC.Identifier.pageNumber" content="{{ article.page_number }}"/>
+    {% if article.identifier.id_type == "doi" %}
+        <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>{% endif %}
+    <meta name="DC.Identifier.URI" content="
+
+
+
+            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
+    <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
+    <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
+    <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
+    <meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>
+    <meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>
+    <meta name="DC.Source.URI" content="{{ request.journal_base_url }}{% url 'website_index' %}"/>
+    <meta name="DC.Title" content="{{ article.title | striptags }}"/>
+
+    <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
+    <meta name="citation_issn" content="{{ journal_settings.general.issn }}"/>
+    {% for author in article.frozen_authors.all %}
+        <meta name="citation_author" content="{{ author.full_name }}"/>
+        {% if not '@journal.org' in author.author.email %}
+            <meta name="citation_author_email" content="{{ author.author.email }}"/>{% endif %}
+        <meta name="citation_author_institution" content="{{ author.institution }}"/>{% endfor %}
+    <meta name="citation_title" content="{{ article.title | striptags }}"/>
+    <meta name="citation_publication_date" content="{{ article.date_published }}"/>
+    <meta name="citation_volume" content="{{ article.issue.volume }}"/>
+    <meta name="citation_issue" content="{{ article.issue.issue }}"/>{% if article.identifier.id_type == "doi" %}
+    <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
+    <meta name="citation_abstract_html_url" content="
+
+
+
+            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="citation_language" content="{{ article.language }}"/>
+
+    {% if article.keywords %}
+        <meta name="citation_keywords" xml:lang="en" content="
+
+
+
+                {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
+    {% endif %}
+
+    {% for pdf in pdfs %}
+        <meta name="citation_pdf_url" content="{% url 'article_file_download' identifier_type identifier pdf.id %}"/>
+    {% endfor %}
+    {% include "elements/journal/social_meta.html" %}
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                {% if article.large_image_file.id %}
+                    <img class="card-img img-fluid article-img"
+                         src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                         alt="{{ article.title | urlencode }}">
+                {% elif journal.default_large_image %}
+                    <img class="card-img img-fluid article-img"
+                         src="{{ journal.default_large_image.url }}"
+                         alt="{{ article.title | urlencode }}">
+                {% else %}
+                    <img class="card-img"
+                         src=""
+                         alt="{{ article.title | urlencode }}">
+                {% endif %}
+                <div class="card-img-overlay white-text">
+                    <div class="card-text">
+                        <p class="text-uppercase">{{ article.section.name }}</p>
+                        <h4 class="card-title align-text-bottom">{{ article.title|safe }}</h4>
+                        <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
+                            {% trans "Author" %}{% endif %}:</strong>
+                            {% for author in article.frozen_authors.all %}
+                                <span>{% if forloop.first == False %}, {% endif %}<span itemscope
+                                                                                        itemtype="http://schema.org/Person"
+                                                                                        itemprop="author"
+                                                                                        href="#"
+                                                                                        {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}"><a
+                                        itemprop="name" class="author-name">{{ author.full_name }}</a>
+                                    {% if author.institution %}
+                                        <span itemprop="worksFor" itemscope
+                                              itemtype="http://schema.org/CollegeOrUniversity"><span
+                                                itemprop="name">({{ author.institution }})</span></span>{% endif %}
+                                    {% if not '@journal.org' in author.author.email %}
+                                        <a itemprop="email" href="mailto:{{ author.author.email }}"
+                                           class="fa fa-envelope email-link"></a>{% endif %}</span></span>
+                            {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-7">
+            <div id="article">
+                {% if article.abstract != '' %}
+                    <h2>{% trans "Abstract" %}</h2>
+                    <p>{{ article.abstract | safe }}</p>
+                {% endif %}
+                {% if article.keywords and article.keywords|length > 0 %}<p><strong>{% trans "Keywords" %}:</strong>
+                    {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
+                    {% endif %}{% endfor %}</p>{% endif %}
+                <p><strong>{% trans "How to Cite" %}:</strong>
+                    {% include "elements/journal/how_to_cite.html" with article=article %}
+                    {% if article.publisher_notes.all %}
+                        <div class="callout primary">
+                            <h2>{% trans "Publisher Notes" %}</h2>
+                            <ul>
+                                {% for note in article.publisher_notes.all %}
+                                    <li>{{ note.text }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% if article_content %}
+                <h2>{% trans "Article" %}</h2>
+                <div itemprop="articleBody">
+                    {{ article_content|safe }}
+                    {% hook 'article_footer_block' %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-4 offset-md-1 left-bar">
+            <div class="article-menu">
+                <h4>{% trans "Download" %}</h4>
+                <ul>
+                    {% for galley in galleys %}
+                        <li>
+                            <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <h4>{% trans "Information" %}</h4>
+                <ul>
+                    <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
+                    <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}<i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
+                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" title="{{ article.license.text }}">{{ article.license.name }}</a></li>
+                </ul>
+                <h4>{% trans "Metrics" %}</h4>
+                <ul>
+                    <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
+                    <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                </ul>
+                <h4>{% trans "Citation" %}</h4>
+                <div class="btn-group-vertical">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
+                        Harvard-Style Citation
+                    </button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">
+                        Vancouver-Style Citation
+                    </button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
+                        APA-Style Citation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="HarvardModal" tabindex="-1" role="dialog" aria-labelledby="HarvardModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Harvard-Style Citation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %},
+                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                        ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                        <i>{{ journal.name }}</i>. {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+                        doi: {{ article.identifier.identifier }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="VancouverModal" tabindex="-1" role="dialog" aria-labelledby="VancouverModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Vancouver-Style Citation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %},
+                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                        {{ article.title|safe }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};{{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+                        doi: {{ article.identifier.identifier }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="APAModal" tabindex="-1" role="dialog" aria-labelledby="APAModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">APA-Style Citation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{% for author in article.authors.all %}{% if forloop.last %}{% if not forloop.first %}
+                        &amp; {% endif %}{% endif %}{{ author.last_name }},
+                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                        ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+                        <i>{{ journal.name }}</i> {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+                        doi: {{ article.identifier.identifier }}</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    {% hook 'article_js_block' %}
+{% endblock js %}

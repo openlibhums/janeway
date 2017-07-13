@@ -1,0 +1,63 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Manage Notifications{% endblock %}
+{% block title-section %}Manage Notifications{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_notifications' %}">Notification Manager</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Current Notifications</h2>
+                <a href="{% url 'core_manager_notifications' %}" class="button">Add Notifcation</a>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group">
+                        {% for noti in notifications %}
+                             <li class="list-group-item {% if noti.active %}list-group-item-success{% else %}list-group-item-danger{% endif %}">
+                                 {{ noti.user }} - {{ noti.domain }} ({{ noti.get_type_display }})
+                                <div class="float-right">
+                                    <a href="{% url 'core_manager_edit_notifications' noti.id %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                    <button type="submit" class="tiny alert button" name="delete" value="{{ noti.pk }}"><i class="fa fa-trash"></i></button>
+                                </div>
+                             </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="large-6 columns">
+        <form method="POST">
+        {% csrf_token %}
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if notification %}Edit{% else %}Add{% endif %} Notification</h2>
+            </div>
+            <div class="content">
+                {% include "elements/forms/errors.html" with form=form %}
+                {% for field in form %}
+                    {% if field.auto_id == 'id_user' %}
+                        {% include "elements/forms/table_select_user.html" with field=field queryset=request.journal.journal_users %}
+                    {% else %}
+                        {% include "elements/forms/group_field.html" with field=field %}
+                    {% endif %}
+                {% endfor %}
+                <button type="submit" class="success button">Submit</button>
+            </div>
+        </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+{% include "elements/datatables.html" with target=".usertable" %}
+{% endblock %}

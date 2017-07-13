@@ -1,0 +1,829 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-04-10 13:20+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: core/dev_settings.py:172 core/settings.py:172
+msgid "English"
+msgstr "Anglais"
+
+#: core/dev_settings.py:173 core/settings.py:173
+msgid "French"
+msgstr "Français"
+
+#: core/dev_settings.py:174 core/settings.py:174
+msgid "German"
+msgstr "Allemand"
+
+#: core/forms.py:84 core/forms.py:108
+msgid "Password 1"
+msgstr "Mot de passe"
+
+#: core/forms.py:85 core/forms.py:109
+msgid "Password 2"
+msgstr "Répéter le mot de passe"
+
+#: core/models.py:46
+msgid "-----------"
+msgstr ""
+
+#: core/models.py:150 templates/OLH/core/accounts/get_reset_token.html:26
+#: templates/OLH/submission/submit_authors.html:58
+msgid "Email"
+msgstr "Email"
+
+#: core/models.py:151
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: core/models.py:153
+msgid "First name"
+msgstr "Prénom"
+
+#: core/models.py:154
+msgid "Middle name"
+msgstr "Deuxième nom"
+
+#: core/models.py:155
+msgid "Last name"
+msgstr "Nom de famille"
+
+#: core/models.py:159
+msgid "Salutation"
+msgstr "Salutation"
+
+#: core/models.py:160
+msgid "Biography"
+msgstr "La Biographie"
+
+#: core/models.py:161
+msgid "ORCiD"
+msgstr ""
+
+#: core/models.py:162
+msgid "Institution"
+msgstr "Institution"
+
+#: core/models.py:163
+msgid "Department"
+msgstr "Département"
+
+#: core/models.py:164
+msgid "Country"
+msgstr "Pays"
+
+#: core/models.py:468 templates/OLH/submission/submit_files.html:39
+#: templates/OLH/submission/submit_files.html:75
+#: templates/OLH/submission/submit_review.html:81
+#: templates/OLH/submission/submit_review.html:100
+msgid "Label"
+msgstr "Étiquette"
+
+#: core/models.py:469
+msgid "Description"
+msgstr "La description"
+
+#: core/models.py:768
+msgid "Your contact email address"
+msgstr "Votre adresse email de contact"
+
+#: core/models.py:769
+msgid "Subject"
+msgstr "Assujettir"
+
+#: core/models.py:770
+msgid "Your message"
+msgstr "Votre message"
+
+#: journal/forms.py:11
+#, python-format
+msgid "What is %(num1)i %(operator)s %(num2)i? "
+msgstr "Qu'est-ce que %(num1)i %(operator)s %(num2)i?"
+
+#: journal/forms.py:12
+msgid "Answer this question: "
+msgstr "Répond a cette question: "
+
+#: journal/homepage_elements/about/templates/about.html:7
+msgid "About this Journal"
+msgstr "À propos de la revue"
+
+#: journal/homepage_elements/carousel/models.py:9
+msgid "Off"
+msgstr "De"
+
+#: journal/homepage_elements/carousel/models.py:10
+msgid "Latest Articles"
+msgstr "Derniers articles"
+
+#: journal/homepage_elements/carousel/models.py:11
+msgid "News"
+msgstr "Nouvelles"
+
+#: journal/homepage_elements/carousel/models.py:12
+msgid "Selected Articles"
+msgstr "Articles sélectionnés"
+
+#: journal/homepage_elements/carousel/models.py:13
+msgid "Latest Articles and News"
+msgstr ""
+
+#: journal/homepage_elements/carousel/models.py:14
+msgid "Selected Articles and News"
+msgstr "Derniers Articles et Nouvelles"
+
+#: journal/homepage_elements/featured/templates/featured.html:6
+msgid "Featured Articles"
+msgstr "Article vedette"
+
+#: journal/homepage_elements/news/templates/news.html:9
+#: templates/press/press_index.html:75
+msgid "Latest News"
+msgstr "Dernières nouvelles"
+
+#: journal/homepage_elements/news/templates/news.html:13
+#: templates/press/press_index.html:79
+msgid "Posted by"
+msgstr "Posté par"
+
+#: journal/homepage_elements/news/templates/news.html:15
+#: templates/press/press_index.html:81
+msgid "Read More"
+msgstr "Lire la suite"
+
+#: journal/homepage_elements/news/templates/news.html:18
+msgid "This journal currently has no news items to display"
+msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
+
+#: journal/views.py:980
+msgid ""
+"You must login before you can become a reviewer. Click the button below to "
+"login."
+msgstr ""
+"Vous devez vous connecter avant de devenir un réviseur. Cliquez sur le "
+"bouton ci-dessous pour vous connecter"
+
+#: journal/views.py:985
+msgid ""
+"You are not yet a reviewer for this journal. Click the button below to "
+"become a reviewer."
+msgstr ""
+"Vous n'êtes pas encore critique pour ce journal. Cliquez sur le bouton ci-"
+"dessous pour devenir réviseur"
+
+#: journal/views.py:990
+msgid "You are already a reviewer."
+msgstr "Vous êtes déjà un relecteur"
+
+#: journal/views.py:994
+msgid "You are now a reviewer"
+msgstr "Vous êtes maintenant un réviseur"
+
+#: submission/forms.py:39 templates/OLH/journal/articles.html:87
+#: templates/OLH/submission/submit_info.html:21
+msgid "Title"
+msgstr "Titre"
+
+#: submission/forms.py:40 templates/OLH/submission/submit_info.html:26
+#: templates/OLH/submission/submit_review.html:31
+msgid "Subtitle"
+msgstr "Sous-titre"
+
+#: submission/forms.py:42
+msgid "Enter your article's abstract here"
+msgstr "Entrez l'abrégé de votre article ici"
+
+#: templates/OLH/core/accounts/get_reset_token.html:25
+msgid "Enter your email address to begin the reset process"
+msgstr ""
+"Entrez votre adresse e-mail pour commencer le processus de réinitialisation"
+
+#: templates/OLH/core/accounts/get_reset_token.html:27
+msgid "somebody"
+msgstr "personne"
+
+#: templates/OLH/core/accounts/get_reset_token.html:29
+msgid "Request Token"
+msgstr "Token de demande"
+
+#: templates/OLH/core/accounts/register.html:5
+#: templates/OLH/core/accounts/register.html:68 templates/OLH/core/base.html:89
+#: templates/OLH/journal/submissions.html:17
+msgid "Register"
+msgstr "Registre"
+
+#: templates/OLH/core/accounts/register.html:25
+msgid "Regsiter for"
+msgstr "S'inscrire à"
+
+#: templates/OLH/core/accounts/register.html:27
+msgid ""
+"Your password should be at minimum 12 characters long. It does not need to "
+"contain specific characters but you should make it as long as possible. For "
+"more information read on <a href=\"#\" data-open=\"password-modal\">password "
+"guide</a>."
+msgstr ""
+"Votre mot de passe doit comporter au moins 12 caractères. Il n'a pas besoin "
+"de contenir des caractères spécifiques, mais vous devriez le faire aussi "
+"longtemps que possible. Pour plus d'informations, reportez-vous au <a href="
+"\"#\" data-open=\"password-modal\">guide des mots de passe</a>."
+
+#: templates/OLH/core/accounts/reset_password.html:26
+msgid "Enter your new password twice to complete the reset process"
+msgstr ""
+"Entrez votre adresse e-mail pour commencer le processus de réinitialisation"
+
+#: templates/OLH/core/accounts/reset_password.html:27
+msgid ""
+"Your password should be at minimum 12 characters long. It does not need to "
+"contain specific\n"
+"                        characters but you should make it as long as "
+"possible. For more information read our <a href=\"#\" data-open=\"password-"
+"modal\">password guide</a>"
+msgstr ""
+"Votre mot de passe doit comporter au moins 12 caractères. Il n'a pas besoin "
+"de contenir des caractères spécifiques, mais vous devriez le faire aussi "
+"longtemps que possible. Pour plus d'informations, reportez-vous au <a href="
+"\"#\" data-open=\"password-modal\">guide des mots de passe</a>."
+
+#: templates/OLH/core/accounts/reset_password.html:30
+msgid "Reset Password"
+msgstr "Mot de passe"
+
+#: templates/OLH/core/base.html:89 templates/OLH/core/login.html:4
+#: templates/OLH/journal/become_reviewer.html:16
+#: templates/OLH/journal/submissions.html:18
+msgid "Login"
+msgstr "S'identifier"
+
+#: templates/OLH/core/base.html:119
+msgid "Privacy Policy"
+msgstr "Politique de confidentialité"
+
+#: templates/OLH/core/base.html:120
+msgid "Sitemap"
+msgstr "Plan du site"
+
+#: templates/OLH/core/base.html:121 templates/OLH/journal/contact.html:5
+#: templates/OLH/journal/contact.html:18 templates/press/journal/contact.html:5
+#: templates/press/journal/contact.html:18
+msgid "Contact"
+msgstr "Contacter"
+
+#: templates/OLH/core/login.html:24
+msgid "Log in with your account"
+msgstr "Connectez-vous avec votre compte"
+
+#: templates/OLH/core/login.html:25
+msgid "Log in with ORCiD"
+msgstr "Connectez-vous avec ORCiD"
+
+#: templates/OLH/core/login.html:32
+msgid "Log in"
+msgstr "S'identifier"
+
+#: templates/OLH/core/login.html:33
+msgid "Forgotten your password?"
+msgstr "Mot de passe oublié?"
+
+#: templates/OLH/elements/submit/author.html:6
+#: templates/OLH/submission/submit_authors.html:47
+msgid "Add New Author"
+msgstr "Ajouter un nouvel auteur"
+
+#: templates/OLH/elements/submit/author.html:55
+msgid "Add Author"
+msgstr "Ajouter un auteur"
+
+#: templates/OLH/elements/submit/file.html:6
+msgid "Add New File"
+msgstr "Ajouter un nouveau fichier"
+
+#: templates/OLH/elements/submit/file.html:7
+msgid ""
+"Please upload your manuscript file, it should be in PDF, ODT or DOC/X "
+"format. LaTeX may be accepted later in the process but a simple, readable "
+"file is required at this stage."
+msgstr ""
+"S'il vous plaît télécharger votre fichier manuscrit, il devrait être au "
+"format PDF, ODT ou DOC/X . LaTeX peut être accepté plus tard dans le "
+"processus, mais un fichier simple et lisible est nécessaire à ce stade...."
+
+#: templates/OLH/elements/submit/file.html:9
+msgid ""
+"Please supply any original figure files or supporting information. The "
+"journal urges you to submit this document to a repository such as Figshare "
+"so that a DOI can be assigned to it, but this is not required."
+msgstr ""
+"Le journal vous invite à soumettre ce document à un référentiel tel que "
+"Figshare afin qu'un DOI puisse lui être attribué, mais ce n'est pas "
+"obligatoire."
+
+#: templates/OLH/elements/submit/file.html:20
+msgid "Add File"
+msgstr "Ajouter le fichier"
+
+#: templates/OLH/journal/article.html:90 templates/OLH/journal/print.html:97
+msgid "Authors"
+msgstr "Auteurs"
+
+#: templates/OLH/journal/article.html:90 templates/OLH/journal/print.html:97
+msgid "Author"
+msgstr "Auteur"
+
+#: templates/OLH/journal/article.html:130
+msgid "Share"
+msgstr "Partager"
+
+#: templates/OLH/journal/article.html:144
+msgid "Dyslexia"
+msgstr "Dyslexie"
+
+#: templates/OLH/journal/article.html:148
+#: templates/OLH/journal/article.html:149
+#: templates/OLH/journal/article.html:150
+msgid "View"
+msgstr "Vue"
+
+#: templates/OLH/journal/article.html:166 templates/OLH/journal/print.html:112
+#: templates/OLH/submission/submit_info.html:31
+#: templates/OLH/submission/submit_review.html:38
+msgid "Abstract"
+msgstr "Abstrait"
+
+#: templates/OLH/journal/article.html:169 templates/OLH/journal/print.html:115
+msgid "Keywords"
+msgstr "Mots clés"
+
+#: templates/OLH/journal/article.html:170 templates/OLH/journal/print.html:117
+msgid "How to Cite"
+msgstr "Comment citer"
+
+#: templates/OLH/journal/article.html:174
+#, fuzzy
+#| msgid "Published on"
+msgid "Publisher Notes"
+msgstr "Publié le"
+
+#: templates/OLH/journal/article.html:189
+msgid "Views"
+msgstr "Vues"
+
+#: templates/OLH/journal/article.html:195
+msgid "Downloads"
+msgstr "Téléchargements"
+
+#: templates/OLH/journal/article.html:201
+msgid "Altmetrics"
+msgstr "Altmetrics"
+
+#: templates/OLH/journal/article.html:209
+msgid "Published on"
+msgstr "Publié le"
+
+#: templates/OLH/journal/article.html:212
+msgid "Peer Reviewed"
+msgstr "Examen par les pairs"
+
+#: templates/OLH/journal/article.html:215
+#: templates/OLH/submission/submit_info.html:46
+msgid "License"
+msgstr "Licence"
+
+#: templates/OLH/journal/article.html:221
+msgid "Article"
+msgstr "Article"
+
+#: templates/OLH/journal/article.html:232
+#: templates/OLH/journal/article.html:236
+msgid "Download"
+msgstr "Télécharger"
+
+#: templates/OLH/journal/article.html:243
+msgid "Jump to"
+msgstr "Sauter à"
+
+#: templates/OLH/journal/articles.html:6 templates/OLH/journal/articles.html:16
+#: templates/OLH/journal/search.html:16
+msgid "Articles"
+msgstr "Des articles"
+
+#: templates/OLH/journal/articles.html:42
+#: templates/OLH/journal/issue_display.html:57
+#: templates/OLH/journal/issues.html:19 templates/OLH/journal/search.html:42
+msgid "Volume"
+msgstr "Tome"
+
+#: templates/OLH/journal/articles.html:43
+#: templates/OLH/journal/issue_display.html:58
+#: templates/OLH/journal/issues.html:21 templates/OLH/journal/search.html:43
+msgid "Issue"
+msgstr "Publication"
+
+#: templates/OLH/journal/articles.html:72
+msgid "Show"
+msgstr "Montrer"
+
+#: templates/OLH/journal/articles.html:82
+msgid "Sort"
+msgstr "Trier"
+
+#: templates/OLH/journal/articles.html:85
+msgid "Date"
+msgstr "la Date"
+
+#: templates/OLH/journal/articles.html:92
+#: templates/OLH/journal/articles.html:100 templates/OLH/journal/search.html:58
+msgid "Filter"
+msgstr "Filtre"
+
+#: templates/OLH/journal/become_reviewer.html:5
+#: templates/OLH/journal/become_reviewer.html:10
+#: templates/OLH/journal/become_reviewer.html:20
+msgid "Become a Reviewer"
+msgstr "Devenir un évaluateur"
+
+#: templates/OLH/journal/contact.html:11
+msgid "Journal Representatives"
+msgstr "Représentants des revues"
+
+#: templates/OLH/journal/contact.html:22
+#: templates/press/journal/contact.html:22
+msgid "Who would you like to contact?"
+msgstr "Qui souhaitez-vous contacter?"
+
+#: templates/OLH/journal/contact.html:30
+#: templates/press/journal/contact.html:30
+msgid "Send Message"
+msgstr "Envoyer le message"
+
+#: templates/OLH/journal/issue_display.html:17
+msgid "Issue Archive"
+msgstr "Archive des numéros"
+
+#: templates/OLH/journal/issue_display.html:17
+msgid "Collections"
+msgstr "Collections"
+
+#: templates/OLH/journal/issues.html:6 templates/OLH/journal/issues.html:8
+#, fuzzy
+#| msgid "Issue"
+msgid "Issues"
+msgstr "Publication"
+
+#: templates/OLH/journal/issues.html:21
+msgid "items"
+msgstr "articles"
+
+#: templates/OLH/journal/search.html:6
+#: templates/OLH/submission/submit_authors.html:35
+msgid "Search"
+msgstr "Chercher"
+
+#: templates/OLH/journal/submissions.html:11
+msgid "Submissions"
+msgstr "Soumissions"
+
+#: templates/OLH/journal/submissions.html:13
+msgid ""
+"This page is designed to help you ensure your submission is ready for and fits the scope of "
+msgstr "Cette page est conçue pour vous aider à s'assurer que votre soumission est prête et correspond à la portée de"
+
+#: templates/OLH/journal/submissions.html:14
+msgid "Before submitting you should read over the guidelines here, then register an account (or login if you have an existing account)"
+msgstr "Avant de soumettre, vous devez lire les directives ici, puis enregistrer un compte (ou vous connecter si vous avez un compte existant)"
+
+#: templates/OLH/journal/submissions.html:19
+#: templates/OLH/submission/start.html:51
+msgid "Start Submission"
+msgstr "Commencer la soumission"
+
+#: templates/OLH/journal/submissions.html:22
+msgid "About"
+msgstr "Sur"
+
+#: templates/OLH/journal/submissions.html:25
+#: templates/OLH/submission/start.html:25
+msgid "Submission Checklist"
+msgstr "Liste de vérification de la soumission"
+
+#: templates/OLH/journal/submissions.html:28
+#: templates/OLH/submission/start.html:32
+msgid "Copyright Notice"
+msgstr "Copyright"
+
+#: templates/OLH/journal/submissions.html:31
+#: templates/OLH/submission/start.html:18
+msgid "Publication Fees"
+msgstr "Frais de publication"
+
+#: templates/OLH/submission/start.html:5
+#: templates/OLH/submission/submit_authors.html:5
+#: templates/OLH/submission/submit_files.html:5
+#: templates/OLH/submission/submit_info.html:6
+#: templates/OLH/submission/submit_review.html:7
+msgid "Submit an Article"
+msgstr "Soumettre un article"
+
+#: templates/OLH/submission/start.html:12
+msgid "Author Agreement"
+msgstr "Contrat d'auteur"
+
+#: templates/OLH/submission/start.html:13
+msgid ""
+"Please carefully read through the statements below before checking items"
+msgstr ""
+"Veuillez lire attentivement les instructions ci-dessous avant de vérifier "
+"les éléments"
+
+#: templates/OLH/submission/start.html:21
+msgid "Author(s) agrees to the above statement"
+msgstr "Auteur(s) accepte la déclaration ci-dessus"
+
+#: templates/OLH/submission/start.html:28
+msgid "Author(s) confirms that this article adheres to the above requirements"
+msgstr ""
+"L'auteur(s) confirme que cet article est conforme aux exigences ci-dessus"
+
+#: templates/OLH/submission/start.html:35
+msgid ""
+"Author(s) agrees to copyright notice, which will apply to this submission if "
+"accepted"
+msgstr ""
+"Auteur(s) accepte un avis de copyright, qui s'appliquera à cette soumission "
+"s'il est accepté"
+
+#: templates/OLH/submission/start.html:40
+msgid "Competing Interests"
+msgstr ""
+
+#: templates/OLH/submission/start.html:41
+msgid ""
+"If you have any competing interests that may effect this article, enter "
+"information here."
+msgstr ""
+
+#: templates/OLH/submission/start.html:46
+msgid "Comments to the Editor"
+msgstr "Commentaires au rédacteur"
+
+#: templates/OLH/submission/start.html:47
+msgid ""
+"If you have any information you'd like to supply to the editor, do so here"
+msgstr "Si vous avez des informations à fournir à l'éditeur, faites-le ici"
+
+#: templates/OLH/submission/submit_authors.html:12
+#: templates/OLH/submission/timeline.html:15
+msgid "Author Information"
+msgstr "Informations de l'auteur"
+
+#: templates/OLH/submission/submit_authors.html:20
+msgid "Search for Existing Authors"
+msgstr "Recherche d'auteurs existants"
+
+#: templates/OLH/submission/submit_authors.html:25
+msgid ""
+"Search for a user using email address or ORCiD. If a user is matched, they "
+"will be automatically added as an author. This search only returns exact "
+"matches."
+msgstr ""
+"Rechercher un utilisateur utilisant l'adresse e-mail ou ORCiD. Si un "
+"utilisateur est apparié, il seraautomatiquement ajouté comme auteur. Cette "
+"recherche ne renvoie que les correspondances exactes."
+
+#: templates/OLH/submission/submit_authors.html:31
+msgid "Search by email address or ORCiD"
+msgstr "Recherche par adresse e-mail ou ORCiD"
+
+#: templates/OLH/submission/submit_authors.html:42
+msgid ""
+"By default, your account is the owner of this submission, but is not an "
+"Author on record. You can add yourself using the button below."
+msgstr ""
+"Par défaut, votre compte est le propriétaire de cette soumission, mais n'est "
+"pas un auteur enregistré.Vous pouvez vous ajouter en utilisant le bouton ci-"
+"dessous"
+
+#: templates/OLH/submission/submit_authors.html:44
+msgid "Add Self as Author"
+msgstr "Ajouter l'auteur comme auteur"
+
+#: templates/OLH/submission/submit_authors.html:46
+msgid ""
+"If you cannot find the author record by searching, and you are not the only "
+"author, you can add one by clicking the button below. This will open a popup "
+"modal for you to complete their details."
+msgstr ""
+"Si vous ne trouvez pas l'enregistrement de l'auteur en effectuant une "
+"recherche, et que vous n'êtes pas leseul auteur, vous pouvez en ajouter un "
+"en cliquant sur le bouton ci-dessous. Cela ouvrira un mode popup pour "
+"quevous puissiez compléter leurs détails."
+
+#: templates/OLH/submission/submit_authors.html:52
+msgid "Current Authors"
+msgstr "Auteurs actuels"
+
+#: templates/OLH/submission/submit_authors.html:57
+msgid "Name"
+msgstr "Nom"
+
+#: templates/OLH/submission/submit_authors.html:70
+msgid "No authors yet, add one!"
+msgstr "Pas encore d'auteurs, ajoutez un!"
+
+#: templates/OLH/submission/submit_authors.html:77
+msgid ""
+"You are required to select a main author, this author will receive the "
+"communications regarding your articles process through our systems. This "
+"does not have to be you."
+msgstr ""
+"Vous devez sélectionner un auteur principal, cet auteur recevra les "
+"communications relatives à votre processus d'articles via nos systèmes. Ce "
+"n'est pas forcément vous."
+
+#: templates/OLH/submission/submit_authors.html:78
+msgid "Select main author"
+msgstr "Sélectionner l'auteur principal"
+
+#: templates/OLH/submission/submit_authors.html:88
+#: templates/OLH/submission/submit_files.html:106
+#: templates/OLH/submission/submit_info.html:59
+#: templates/OLH/submission/submit_review.html:118
+msgid "Save and Continue"
+msgstr "Sauvegarder et continuer"
+
+#: templates/OLH/submission/submit_files.html:11
+msgid "Upload Files"
+msgstr ""
+
+#: templates/OLH/submission/submit_files.html:22
+msgid "Submission guidelines"
+msgstr "Liste de vérification de la soumission"
+
+#: templates/OLH/submission/submit_files.html:22
+#, fuzzy
+#| msgid ""
+#| "To upload a file, select it using one of the 'Choose file' buttons, then "
+#| "upload it with the 'Upload file' button next to it. You will then be "
+#| "asked for some additional information (label, description etc.)"
+msgid ""
+"To upload a file, select it\n"
+"                    using one of the 'Choose file' buttons, then upload it "
+"with the 'Upload file' button next to it. You\n"
+"                    will then be asked for some additional information "
+"(label, description etc.)"
+msgstr ""
+"Pour télécharger un fichier, sélectionnez-le en utilisant l'un des boutons "
+"'Choisir le fichier', puis téléchargez-le avec le bouton 'Télécharger le "
+"fichier' à côté de celui-ci."
+
+#: templates/OLH/submission/submit_files.html:25
+msgid "Manuscript File"
+msgstr "Fichier manuscrit"
+
+#: templates/OLH/submission/submit_files.html:32
+#: templates/OLH/submission/submit_files.html:69
+msgid "Upload"
+msgstr "Télécharger"
+
+#: templates/OLH/submission/submit_files.html:40
+#: templates/OLH/submission/submit_files.html:76
+#: templates/OLH/submission/submit_review.html:82
+#: templates/OLH/submission/submit_review.html:101
+msgid "File Name"
+msgstr "Nom de fichier"
+
+#: templates/OLH/submission/submit_files.html:57
+#: templates/OLH/submission/submit_files.html:92
+#: templates/OLH/submission/submit_review.html:91
+#: templates/OLH/submission/submit_review.html:110
+msgid "No files uploaded"
+msgstr "Aucun fichier envoyé"
+
+#: templates/OLH/submission/submit_info.html:12
+#: templates/OLH/submission/submit_review.html:27
+msgid "Article Info"
+msgstr "Renseignements sur l'article"
+
+#: templates/OLH/submission/submit_info.html:15
+msgid "This article is a preprint"
+msgstr "Cet article est une preprint"
+
+#: templates/OLH/submission/submit_info.html:36
+#: templates/OLH/submission/submit_review.html:44
+msgid "Language"
+msgstr "La langue"
+
+#: templates/OLH/submission/submit_info.html:41
+#: templates/OLH/submission/submit_review.html:45
+msgid "Section"
+msgstr "Section"
+
+#: templates/OLH/submission/submit_review.html:13
+#: templates/OLH/submission/timeline.html:25
+msgid "Review"
+msgstr "La revue"
+
+#: templates/OLH/submission/submit_review.html:23
+msgid "Comments to Editor"
+msgstr "Commentaires au rédacteur"
+
+#: templates/OLH/submission/submit_review.html:46
+msgid "Licence"
+msgstr "Licence"
+
+#: templates/OLH/submission/submit_review.html:56
+msgid "Author Info"
+msgstr "Informations de l'auteur"
+
+#: templates/OLH/submission/submit_review.html:66
+msgid "No authors yet! Add one."
+msgstr "Pas encore d'auteurs, ajoutez un!"
+
+#: templates/OLH/submission/submit_review.html:75
+#: templates/OLH/submission/timeline.html:20
+msgid "Article Files"
+msgstr "Fichiers d'article"
+
+#: templates/OLH/submission/submit_review.html:78
+msgid "Manuscript Files"
+msgstr "Fichier manuscrit"
+
+#: templates/OLH/submission/submit_review.html:97
+msgid "Figure/Data"
+msgstr "Figure/données"
+
+#: templates/OLH/submission/submit_review.html:118
+#, fuzzy
+#| msgid "Start Submission"
+msgid "Submission"
+msgstr "Soumission"
+
+#: templates/OLH/submission/timeline.html:5
+msgid "Submission Started"
+msgstr "Début de la soumission"
+
+#: templates/OLH/submission/timeline.html:10
+msgid "Article Information"
+msgstr "Renseignements sur l'article"
+
+#: templates/admin/elements/publisher_notes.html:34
+#, fuzzy
+#| msgid "Published on"
+msgid "Add A Publisher Note"
+msgstr "Publié le"
+
+#: templates/admin/elements/publisher_notes.html:43
+#, fuzzy
+#| msgid "Published on"
+msgid "Add Publisher Note"
+msgstr "Publié le"
+
+#: templates/admin/elements/publisher_notes.html:54
+#, fuzzy
+#| msgid "Published on"
+msgid "Edit A Publisher Note"
+msgstr "Publié le"
+
+#: templates/admin/elements/publisher_notes.html:63
+#, fuzzy
+#| msgid "Published on"
+msgid "Save Publisher Note"
+msgstr "Publié le"
+
+#: templates/press/journal/contact.html:11
+#, fuzzy
+#| msgid "Journal Representatives"
+msgid "Press Representatives"
+msgstr "Représentants des revues"
+
+#: templates/press/press_index.html:84
+#, fuzzy
+#| msgid "This journal currently has no news items to display"
+msgid "This press currently has no news items to display"
+msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
+
+#, fuzzy
+#~| msgid "Volume"
+#~ msgid "Vol"
+#~ msgstr "Tome"
+
+#, fuzzy
+#~| msgid "Country"
+#~ msgid "Countries..."
+#~ msgstr "Des pays"

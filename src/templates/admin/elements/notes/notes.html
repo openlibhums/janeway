@@ -1,0 +1,7 @@
+<div class="notes">
+<div class="row note-holder" id="notes-row">
+  {% for note in article.note_set.all %}
+    {% include "admin/elements/notes/note_snippet.html" with note=note %}
+  {% endfor %}
+</div>
+</div>

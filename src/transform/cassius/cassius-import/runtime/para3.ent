@@ -1,0 +1,354 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Paragraph-Like Elements                           -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Paragraph-Like Elements v3.0 20080202//EN"
+     Delivered as file "para3.ent"                                 -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Names structural elements that will appear in     -->
+<!--             the same places as a paragraph                    -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Paragraph <p> and its PEs                      -->
+<!--             2) The rest of the para-level elements, each with -->
+<!--                its Parameter Entities and subordinate         -->
+<!--                elements                                       -->
+<!--                - disp-quote                                   -->
+<!--                - speech                                       -->
+<!--                - statement                                    -->
+<!--                - verse-group                                  -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--             important contributions.                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR ATTRIBUTE LISTS     -->
+<!-- ============================================================= -->
+             
+             
+<!--                    DISPLAY QUOTE ATTRIBUTES                   -->
+<!--                    Attribute list for the <disp-quote> element-->
+<!ENTITY % disp-quote-atts
+            "id         ID                                 #IMPLIED  
+             content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED 
+             xml:lang   NMTOKEN                            #IMPLIED" >
+
+
+<!--                    PARAGRAPH ATTRIBUTES                       -->
+<!--                    Attribute list for the <p> element         -->
+<!ENTITY % p-atts
+            "id         ID                                 #IMPLIED  
+             content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" >
+             
+             
+             
+<!--                    SPEAKER ATTRIBUTES                         -->
+<!--                    Attribute list for the <speaker> element   -->
+<!ENTITY % speaker-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+             
+<!--                    SPEECH ATTRIBUTES                          -->
+<!--                    Attribute list for the <speech> element    -->
+<!ENTITY % speech-atts
+            "id         ID                                 #IMPLIED  
+             content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" >
+             
+             
+<!--                    STATEMENT ATTRIBUTES                       -->
+<!--                    Attribute list for the <statement> element -->
+<!ENTITY % statement-atts
+            "id         ID                                 #IMPLIED  
+             content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED" >
+             
+             
+<!--                    VERSE GROUP ATTRIBUTES                     -->
+<!--                    Attribute list for the <verse-group> element
+                                                                   -->
+<!ENTITY % verse-group-atts
+            "id         ID                                 #IMPLIED  
+             content-type
+                        CDATA                              #IMPLIED
+             specific-use
+                        CDATA                              #IMPLIED
+             xml:lang   NMTOKEN                            #IMPLIED" >
+             
+             
+<!--                    VERSE LINE ATTRIBUTES                      -->
+<!--                    Attribute list for the <verse-line> element-->
+<!ENTITY % verse-line-atts
+            "content-type
+                        CDATA                              #IMPLIED" >
+
+
+<!-- ============================================================= -->
+<!--                    PARAGRAPH-LEVEL ELEMENTS                   -->
+<!-- ============================================================= -->
+
+
+<!--                    PARAGRAPH                                  -->
+<!--                    The basic block-unit of textual information
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=p
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=p
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=p
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=p
+                                                                   -->
+<!ELEMENT  p            (#PCDATA %p-elements;)*                      >
+<!ATTLIST  p
+             %p-atts;                                                >
+
+
+<!-- ============================================================= -->
+<!--                    THE REST OF THE PARAGRAPH ELEMENTS         -->
+<!-- ============================================================= -->
+
+
+<!--                    QUOTE, DISPLAYED MODEL                     -->
+<!--                    Content model for the Display Quote element-->
+<!ENTITY % disp-quote-model     
+                        "(label?, title?, (%para-level;)*, 
+                          (%display-back-matter.class;)* )"          > 
+            
+
+<!--                    QUOTE, DISPLAYED                           -->
+<!--                    Extract or extended quoted passage from 
+                        another work, usually made typographically 
+                        distinct from the surrounding text.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=disp-quote
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=disp-quote
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=disp-quote
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=disp-quote
+                                                                   -->
+<!ELEMENT  disp-quote   %disp-quote-model;                           >
+<!ATTLIST  disp-quote
+             %disp-quote-atts;                                       >
+
+
+<!--                    SPEECH MODEL                               -->
+<!--                    Content model for the <speech> element     -->
+<!ENTITY % speech-model "(speaker, (%just-para.class;)+ )"           > 
+                        
+
+<!--                    SPEECH                                     -->
+<!--                    One exchange in a real or imaginary 
+                        conversation between two or more entities, 
+                        for example, between a an interviewer and the 
+                        person being interviewed, between a nurse or 
+                        doctor and a patient, between a person and a 
+                        computer, etc.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=speech
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=speech
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=speech
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=speech
+                                                                   -->
+<!ELEMENT  speech       %speech-model;                               >
+<!ATTLIST  speech
+             %speech-atts;                                           >
+
+
+<!--                    SPEAKER ELEMENTS                           -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a speaker.                                 -->
+<!ENTITY % speaker-elements
+                        "| %person-name.class; | %simple-link.class;">
+                        
+
+<!--                    SPEAKER                                    -->
+<!--                    One who utters a speech as part of a 
+                        speech, for example the computer "HAL" in
+                        the exchange 'Hal: "Hi Dave"'. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=speaker
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=speaker
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=speaker
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=speaker
+                                                                   -->
+<!ELEMENT  speaker      (#PCDATA %speaker-elements;)*                >
+<!ATTLIST  speaker
+             %speaker-atts;                                          >
+  
+
+<!--                    STATEMENT, FORMAL MODEL                    -->
+<!--                    Content model for the <statement> element  -->
+<!ENTITY % statement-model   
+                        "(label?, title?, (%just-para.class;)+,
+                          (%display-back-matter.class;)*)"           > 
+            
+
+<!--                    STATEMENT, FORMAL                          -->
+<!--                    A Theorem, Lemma, Proof, Postulate,
+                        Hypothesis, Proposition, Corollary, or
+                        other formal statement, identified as such
+                        with a label, usually made typographically 
+                        distinct from the surrounding text 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=statement
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=statement
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=statement
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=statement
+                                                                   -->
+<!ELEMENT  statement    %statement-model;                            >
+<!ATTLIST  statement
+             %statement-atts;                                        >
+
+
+<!--                    VERSE GROUP MODEL                          -->
+<!--                    Content model for the <verse-group> element-->
+<!ENTITY % verse-group-model   
+                        "(label?, title?, subtitle?, 
+                         (verse-line | verse-group)+, 
+                         (%display-back-matter.class;)*) "           > 
+                        
+
+<!--                    VERSE FORM FOR POETRY                      -->
+<!--                    A song, poem, or verse.
+                        Implementer's Note: No attempt has been made
+                        to retain the look or visual form of the
+                        original.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=verse-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=verse-group
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=verse-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=verse-group
+                                                                   -->
+<!ELEMENT  verse-group  %verse-group-model;                          > 
+<!ATTLIST  verse-group
+             %verse-group-atts;                                      >
+
+
+<!--                    VERSE-LINE ELEMENTS                        -->
+<!--                    The elements that can be included along with
+                        data characters inside the content model of
+                        a <verse-line>
+                        Design Note: All inline mixes begin with an
+                        OR bar, but since %simple-text; is an inline
+                        mix, the OR bar is already there.          -->
+<!ENTITY % verse-line-elements
+                        "%simple-text;"                              >
+
+
+<!--                    LINE OF A VERSE                            -->
+<!--                    One line of a poem or verse  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=verse-line
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=verse-line
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=verse-line
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=verse-line
+                                                                   -->
+<!ELEMENT  verse-line   (#PCDATA %verse-line-elements;)*             >
+<!ATTLIST  verse-line
+             %verse-line-atts;                                       >
+
+
+<!-- ================== End Paragraph Class Module =============== -->

@@ -1,0 +1,81 @@
+{% load foundation %}
+<div class="reveal small" id="issue" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-folder-open-o">&nbsp;</i>Set Issue</h4>
+        </div>
+        <div class="card-section">
+            <form method="POST">
+                {% csrf_token %}
+                <p><strong>In an Issue: </strong>
+                    {% if article.issues %}
+                    <i class="fa fa-check-square" style="color: green;"></i>
+                    {% else %}
+                    <i class="fa fa-times-circle-o" style="color: red;"></i>
+                    {% endif %}</p>
+
+                <h6>Issues</h6>
+                <table>
+                    <tr>
+                        <th>Title</th>
+                        <th>Volume</th>
+                        <th>Number</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                {% for issue in issues %}
+                    <tr>
+                        <td>{{ issue.issue_title }}</td>
+                        <td>{{ issue.volume }}</td>
+                        <td>{{ issue.issue }}</td>
+                        <td>{{ issue.date|date:"Y-m-d" }}</td>
+                        <td>
+                            {% if issue in article.issues_list %}
+                            <button name="unassign_issue" value="{{ issue.pk }}", type="submit" class="tiny alert button">
+                                <i class="fa fa-plus">&nbsp;</i>Unassign
+                            </button>
+                            {% else %}
+                            <button name="assign_issue" value="{{ issue.pk }}", type="submit" class="tiny success button">
+                                <i class="fa fa-plus">&nbsp;</i>Add to Issue
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </form>
+            <div class="card-divider">
+                <h4><i class="fa fa-plus-circle">&nbsp;</i>Create New Issue</h4>
+            </div>
+            <div class="card-section">
+                <div class="callout">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            {{ new_issue_form.issue_title|foundation }}
+                        </div>
+                        <div class="large-6 columns">
+                            {{ new_issue_form.volume|foundation }}
+                        </div>
+                        <div class="large-6 columns">
+                            {{ new_issue_form.issue|foundation }}
+                        </div>
+                        <div class="large-12 columns">
+                            {{ new_issue_form.date|foundation }}
+                        </div>
+                        <div class="large-12 columns">
+                            {{ new_issue_form.issue_description|foundation }}
+                        </div>
+                        <div class="large-12 columns">
+                            <button name="new_issue" type="submit" class="button success">Add Issue</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>

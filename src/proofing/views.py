@@ -1,0 +1,538 @@
+__copyright__ = "Copyright 2017 Birkbeck, University of London"
+__author__ = "Martin Paul Eve & Andy Byers"
+__license__ = "AGPL v3"
+__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+import json
+
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+from django.http import HttpResponse
+from django.db.models import Q
+
+from proofing import models as proofing_models
+from security.decorators import proofing_manager_or_editor_required, proofing_manager_for_article_required, \
+    proofreader_or_typesetter_required, proofreader_for_article_required, \
+    typesetter_for_corrections_required
+from submission import models as submission_models
+from core import models as core_models, files
+from proofing import models, logic, forms
+from events import logic as event_logic
+from production import logic as production_logic
+from journal import models as journal_models
+
+
+@proofing_manager_or_editor_required
+def proofing_list(request):
+    assigned_table = proofing_models.ProofingAssignment.objects.all()
+    my_table = proofing_models.ProofingAssignment.objects.values_list('article_id', flat=True).filter(
+        proofing_manager=request.user)
+
+    assigned = [assignment.article.pk for assignment in assigned_table]
+    unassigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PROOFING,
+                                                                   journal=request.journal).exclude(
+        id__in=assigned)
+    assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PROOFING,
+                                                                 journal=request.journal).exclude(
+        id__in=unassigned_articles)
+
+    my_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PROOFING,
+                                                           journal=request.journal,
+                                                           id__in=my_table)
+
+    template = 'proofing/index.html'
+    context = {
+        'proofing_articles': unassigned_articles,
+        'assigned_articles': assigned_articles,
+        'my_articles': my_articles,
+        'production_managers': core_models.AccountRole.objects.filter(role__slug='proofing-manager')
+    }
+
+    return render(request, template, context)
+
+
+@proofing_manager_or_editor_required
+def proofing_assign_article(request, article_id, user_id=None):
+    article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
+    user = get_object_or_404(core_models.Account, pk=user_id)
+
+    proofing_assignment = models.ProofingAssignment.objects.create(article=article,
+                                                                   proofing_manager=user,
+                                                                   notified=timezone.now(),
+                                                                   editor=request.user)
+    proofing_assignment.add_new_proofing_round()
+
+    message = "{0} has been assigned as proofing manager to {1}".format(
+        proofing_assignment.proofing_manager.full_name(),
+        proofing_assignment.article.title)
+    messages.add_message(request, messages.INFO, message)
+
+    kwargs = {
+        'request': request, 'proofing_assignment': proofing_assignment,
+    }
+    event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_MANAGER_ASSIGNMENT, task_object=article, **kwargs)
+
+    return redirect(reverse('proofing_list'))
+
+
+@proofing_manager_or_editor_required
+def proofing_unassign_article(request, article_id):
+    article = submission_models.Article.objects.get(id=article_id, journal=request.journal)
+
+    if not article.proofingassignment.current_proofing_round().proofingtask_set.all():
+        article.proofingassignment.delete()
+    else:
+        messages.add_message(request, messages.WARNING, 'This assignment has active tasks, cannot be deleted.')
+
+    return redirect('proofing_list')
+
+
+@proofing_manager_for_article_required
+def proofing_article(request, article_id):
+    article = get_object_or_404(submission_models.Article.objects.select_related('productionassignment'), pk=article_id,
+                                journal=request.journal)
+    proofreaders = logic.get_all_possible_proofers(journal=request.journal, article=article)
+    form = forms.AssignProofreader()
+    modal = None
+
+    if request.POST:
+
+        if 'new-round' in request.POST:
+            logic.handle_closing_active_task(request, article)
+            new_round = article.proofingassignment.add_new_proofing_round()
+            messages.add_message(request, messages.SUCCESS, 'New round {0} added.'.format(new_round.number))
+            return redirect(reverse('proofing_article', kwargs={'article_id': article.pk}))
+
+        if 'new-proofreader' in request.POST:
+            form = forms.AssignProofreader(request.POST)
+            user = logic.get_user_from_post(request)
+            galleys = logic.get_galleys_from_post(request)
+
+            if not user:
+                form.add_error(None, 'You must select a user.')
+
+            if not galleys:
+                form.add_error(None, 'You must select at least one Galley.')
+
+            if form.is_valid():
+                proofing_task = form.save(commit=False)
+                proofing_task.proofreader = user
+                proofing_task.round = article.proofingassignment.current_proofing_round()
+                proofing_task.save()
+                proofing_task.galleys_for_proofing.add(*galleys)
+                return redirect(reverse('notify_proofreader', kwargs={'article_id': article.pk,
+                                                                      'proofing_task_id': proofing_task.pk}))
+
+            # Set the modal to open if this page is not redirected.
+            modal = 'add_proofer'
+
+    template = 'proofing/proofing_article.html'
+    context = {
+        'article': article,
+        'proofreaders': proofreaders,
+        'form': form,
+        'modal': modal,
+        'user': user if request.POST else None,
+        'galleys': galleys if request.POST else None
+    }
+
+    return render(request, template, context)
+
+
+def edit_proofing_assignment(request, article_id, proofing_task_id):
+    article = get_object_or_404(submission_models.Article,
+                                pk=article_id,
+                                journal=request.journal)
+    proofing_task = get_object_or_404(models.ProofingTask,
+                                      pk=proofing_task_id)
+
+    form = forms.AssignProofreader(instance=proofing_task)
+
+    if request.POST:
+
+        if 'delete' in request.POST:
+            kwargs = {'article': article, 'proofing_task': proofing_task, 'request': request}
+            event_logic.Events.raise_event(event_logic.Events.ON_CANCEL_PROOFING_TASK, task_object=article, **kwargs)
+            proofing_task.delete()
+            messages.add_message(request, messages.SUCCESS, 'Proofing task deleted.')
+            return redirect(reverse('proofing_article', kwargs={'article_id': article.id}))
+
+        form = forms.AssignProofreader(request.POST, instance=proofing_task)
+        galleys = logic.get_galleys_from_post(request)
+
+        if not galleys:
+            form.add_error(None, 'You must select at least one Galley.')
+
+        if form.is_valid():
+            proofing_task = form.save()
+            proofing_task.save()
+
+            for galley in proofing_task.galleys_for_proofing.all():
+                if galley not in galleys:
+                    proofing_task.galleys_for_proofing.remove(galley)
+            proofing_task.galleys_for_proofing.add(*galleys)
+
+            kwargs = {'article': article, 'proofing_task': proofing_task, 'request': request}
+            event_logic.Events.raise_event(event_logic.Events.ON_EDIT_PROOFING_TASK, task_object=article, **kwargs)
+
+            return redirect(reverse('proofing_article', kwargs={'article_id': article.id}))
+
+    template = 'proofing/edit_proofing_assignment.html'
+    context = {
+        'article': article,
+        'proofing_task': proofing_task,
+        'form': form,
+        'galleys': proofing_task.galleys_for_proofing.all(),
+    }
+
+    return render(request, template, context)
+
+
+@proofing_manager_for_article_required
+def notify_proofreader(request, article_id, proofing_task_id):
+    article = get_object_or_404(submission_models.Article.objects.select_related('productionassignment'), pk=article_id)
+    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    user_message_content = logic.get_notify_proofreader(request, article, proofing_task)
+
+    if request.POST:
+        kwargs = {
+            'request': request,
+            'user_content_message': request.POST.get('content_email'),
+            'article': article,
+            'proofing_task': proofing_task,
+            'skip': True if 'skip' in request.POST else False
+        }
+        event_logic.Events.raise_event(event_logic.Events.ON_NOTIFY_PROOFREADER,
+                                       task_object=article,
+                                       **kwargs)
+        return redirect(reverse('proofing_article', kwargs={'article_id': article.id}))
+
+    template = 'proofing/notify_proofreader.html'
+    context = {
+        'article': article,
+        'proofing_task': proofing_task,
+        'user_message_content': user_message_content
+    }
+
+    return render(request, template, context)
+
+
+@proofreader_or_typesetter_required
+def proofing_requests(request, proofing_task_id=None, typeset_task_id=None, decision=None):
+    if proofing_task_id or typeset_task_id:
+
+        if proofing_task_id:
+            logic.handle_proof_decision(request, proofing_task_id, decision)
+
+        if typeset_task_id:
+            logic.handle_typeset_decision(request, typeset_task_id, decision)
+
+        return redirect(reverse('proofing_requests'))
+
+    new, active, completed, new_typesetting, active_typesetting, completed_typesetting = logic.get_tasks(request)
+
+    template = 'proofing/proofing_requests.html'
+    context = {
+        'new_requests': new,
+        'active_requests': active,
+        'completed_requests': completed,
+        'new_typesetting_requests': new_typesetting,
+        'active_typesetting_requests': active_typesetting,
+        'completed_typesetting_requests': completed_typesetting,
+    }
+
+    return render(request, template, context)
+
+
+@proofreader_for_article_required
+def do_proofing(request, proofing_task_id, article_id=None):
+    if not article_id:
+        proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id, completed__isnull=True)
+        proofing_manager = False
+    else:
+        proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id, completed__isnull=False)
+        proofing_manager = True
+
+    article = proofing_task.round.assignment.article
+
+    if request.POST and 'complete' in request.POST:
+        proofing_task.completed = timezone.now()
+        proofing_task.save()
+        kwargs = {'proofing_task': proofing_task, 'article': article, 'request': request}
+        event_logic.Events.raise_event(event_logic.Events.ON_COMPLETE_PROOFING_TASK,
+                                       task_object=article,
+                                       **kwargs)
+        return redirect(reverse('proofing_requests'))
+
+    template = 'proofing/do_proofing.html'
+    context = {
+        'proofing_task': proofing_task,
+        'article': article,
+        'proofing_manager': proofing_manager,
+    }
+
+    return render(request, template, context)
+
+
+@proofreader_for_article_required
+def preview_galley(request, proofing_task_id, galley_id):
+    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
+
+    if galley.type == 'xml' or galley.type == 'html':
+        template = 'proofing/preview/rendered.html'
+    elif galley.type == 'epub':
+        template = 'proofing/preview/epub.html'
+    else:
+        template = 'proofing/preview/embedded.html'
+
+    context = {
+        'proofing_task': proofing_task,
+        'galley': galley,
+        'article': proofing_task.round.assignment.article
+    }
+
+    return render(request, template, context)
+
+
+@proofing_manager_for_article_required
+def request_typesetting_changes(request, article_id, proofing_task_id):
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+
+    if request.GET.get('comments') == 'true':
+        comments = proofing_task.review_comments()
+        form = forms.AssignTypesetter(comments=comments)
+    else:
+        form = forms.AssignTypesetter()
+
+    if request.POST:
+        form = forms.AssignTypesetter(request.POST)
+        user = logic.get_user_from_post(request)
+        galleys = logic.get_galleys_from_post(request)
+
+        if not user:
+            form.add_error(None, 'You must select a typesetter.')
+
+        if not galleys:
+            form.add_error(None, 'You must select at least one galley.')
+
+        if form.is_valid():
+            typeset_task = form.save(commit=False)
+            typeset_task.proofing_task = proofing_task
+            typeset_task.typesetter = user
+            typeset_task.save()
+            typeset_task.galleys.add(*galleys)
+
+            return redirect(reverse('notify_typesetter_changes', kwargs={'article_id': article.pk,
+                                                                         'proofing_task_id': proofing_task.pk,
+                                                                         'typeset_task_id': typeset_task.pk}))
+
+    template = 'proofing/request_typesetting_changes.html'
+    context = {
+        'article': article,
+        'proofing_task': proofing_task,
+        'typesetters': production_logic.get_typesetters(article),
+        'user': user if request.POST else None,
+        'galleys': galleys if request.POST else None,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@proofing_manager_for_article_required
+def notify_typesetter_changes(request, article_id, proofing_task_id, typeset_task_id):
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    typeset_task = get_object_or_404(models.TypesetterProofingTask, pk=typeset_task_id)
+    notification_email_content = logic.get_notify_typesetter(request, article, proofing_task, typeset_task)
+
+    if request.POST:
+        notification_email_content = request.POST.get('content_email', None)
+        typeset_task.notified = True
+        typeset_task.save()
+
+        kwargs = {'request': request,
+                  'typeset_task': typeset_task,
+                  'article': article,
+                  'user_content_message': notification_email_content,
+                  'skip': True if 'skip' in request.POST else False,
+                  }
+
+        event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_TYPESET_CHANGES_REQUEST,
+                                       task_object=article,
+                                       **kwargs)
+        return redirect(reverse('proofing_article', kwargs={'article_id': article.pk}))
+
+    template = 'proofing/notify_typesetter_changes.html'
+    context = {
+        'article': article,
+        'proofing_task': proofing_task,
+        'typeset_task': typeset_task,
+        'notification_email_content': notification_email_content,
+    }
+
+    return render(request, template, context)
+
+
+@typesetter_for_corrections_required
+def typesetting_corrections(request, typeset_task_id):
+    typeset_task = get_object_or_404(models.TypesetterProofingTask, pk=typeset_task_id)
+    article = typeset_task.proofing_task.round.assignment.article
+    form = forms.CompleteCorrections(instance=typeset_task)
+
+    if request.POST:
+        form = forms.CompleteCorrections(request.POST, instance=typeset_task)
+
+        if form.is_valid():
+            typeset_task = form.save(commit=False)
+            typeset_task.completed = timezone.now()
+            typeset_task.save()
+
+            kwargs = {'article': article, 'typeset_task': typeset_task, 'request': request}
+            event_logic.Events.raise_event(event_logic.Events.ON_CORRECTIONS_COMPLETE, task_object=article, **kwargs)
+
+            messages.add_message(request, messages.INFO, 'Corrections task complete')
+            return redirect(reverse('proofing_requests'))
+
+    template = 'proofing/typesetting/typesetting_corrections.html'
+    context = {
+        'typeset_task': typeset_task,
+        'article': article,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@proofing_manager_for_article_required
+def acknowledge(request, article_id, model_name, model_pk):
+    model, model_object = logic.get_model_and_object(model_name, model_pk)
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    text = logic.get_ack_message(request, article, model_name, model_object)
+
+    if request.POST:
+        message = request.POST.get('content_email', None)
+        kwargs = {'request': request,
+                  'article': article,
+                  'user_message': message,
+                  'model_object': model_object,
+                  'model_name': model_name,
+                  'skip': True if 'skip' in request.POST else False}
+        event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_ACK, task_object=article, **kwargs)
+        model_object.acknowledged = timezone.now()
+        model_object.save()
+        return redirect(reverse('proofing_article', kwargs={'article_id': article.pk}))
+
+    template = 'proofing/acknowledge.html'
+    context = {
+        'model': model,
+        'model_object': model_object,
+        'model_name': model_name,
+        'text': text,
+        'article': article,
+    }
+
+    return render(request, template, context)
+
+
+@proofing_manager_for_article_required
+def complete_proofing(request, article_id):
+    article = get_object_or_404(submission_models.Article,
+                                stage=submission_models.STAGE_PROOFING,
+                                pk=article_id)
+    message = logic.get_complete_proofing_message(request, article)
+
+    if request.POST:
+        message = request.POST.get('content_email')
+        article.stage = submission_models.STAGE_READY_FOR_PUBLICATION
+        article.proofingassignment.completed = timezone.now()
+        article.save()
+
+        journal_models.FixedPubCheckItems.objects.get_or_create(article=article)
+
+        kwargs = {'request': request, 'article': article, 'user_message': message,
+                  'skip': True if 'skip' in request.POST else False}
+        event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_COMPLETE, task_object=article, **kwargs)
+        return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+
+    template = 'proofing/complete_proofing.html'
+    context = {
+        'article': article,
+        'message': message,
+    }
+
+    return render(request, template, context)
+
+
+# Helper views
+
+
+@proofreader_for_article_required
+def new_note(request, proofing_task_id, galley_id):
+    if request.user.is_staff:
+        proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    else:
+        proofing_task = get_object_or_404(models.ProofingTask,
+                                          (Q(proofreader=request.user) |
+                                           Q(round__assignment__proofing_manager=request.user)),
+                                          pk=proofing_task_id)
+    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+
+    if request.POST:
+        note = request.POST.get('note')
+        note = models.Note.objects.create(
+            galley=galley,
+            creator=request.user,
+            text=note,
+        )
+
+        proofing_task.notes.add(note)
+
+        return_dict = {'id': note.pk, 'note': note.text, 'initials': note.creator.initials(),
+                       'date_time': note.date_time.strftime("%Y-%m-%d %H:%i"),
+                       'html': logic.create_html_snippet(note, proofing_task, galley)}
+
+    else:
+
+        return_dict = {'error': 'This request must be made with POST'}
+
+    return HttpResponse(json.dumps(return_dict), content_type="application/json")
+
+
+@proofreader_for_article_required
+def delete_note(request, proofing_task_id, galley_id):
+    if request.user.is_staff:
+        get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    else:
+        get_object_or_404(models.ProofingTask,
+                          (Q(proofreader=request.user) |
+                           Q(round__assignment__proofing_manager=request.user)),
+                          pk=proofing_task_id)
+
+    if request.POST:
+        note_id = request.POST.get('note_id')
+        note = get_object_or_404(models.Note, galley__pk=galley_id, pk=note_id)
+        note.delete()
+
+        return_dict = {'id': note.pk, 'deleted': True}
+
+    else:
+        return_dict = {'deleted': False}
+
+    return HttpResponse(json.dumps(return_dict), content_type="application/json")
+
+
+@proofreader_for_article_required
+def proofing_download(request, proofing_task_id, file_id):
+    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    if file in proofing_task.galley_files():
+        return files.serve_file(request, file, proofing_task.round.assignment.article)
+    else:
+        messages.add_message(request, messages.WARNING, 'Requested file is not a galley for proofing')
+        return redirect(request.META.get('HTTP_REFERER'))

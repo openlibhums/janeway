@@ -1,0 +1,53 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% load securitytags %}
+
+{% block title %}Typesetting Requests{% endblock title %}
+{% block title-section %}Typesetting Requests{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/typesetter_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row expanded column">
+        <div class="kanban">
+            <div class="inner">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Awaiting Decision</h2>
+                    </div>
+                    <div class="content">
+                        {% for task in typeset_tasks %}
+                        {% include "elements/production/typesetter_card.html" with task=task type="new" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                 <div class="box">
+                        <div class="title-area">
+                            <h2>In Progress</h2>
+                        </div>
+                        <div class="content">
+                            {% for task in in_progress_tasks %}
+                            {% include "elements/production/typesetter_card.html" with task=task type="active" %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                 <div class="box">
+                        <div class="title-area">
+                            <h2>Complete</h2>
+                        </div>
+                        <div class="content">
+                            {% for task in completed_tasks %}
+                            {% include "elements/production/typesetter_card.html" with task=task type="complete" %}
+                            {% endfor %}
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

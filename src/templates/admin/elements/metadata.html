@@ -1,0 +1,128 @@
+<a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+<h4>{{ article.title|safe }}</h4>
+{% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
+<table class="small">
+    <tr>
+        <th>Section</th>
+        <th>Owner</th>
+        <th>Licence</th>
+        <th>Language</th>
+    </tr>
+    <tr>
+        <td>{{ article.section.name }}</td>
+        <td>{{ article.owner.full_name }}</td>
+        <td>{{ article.license.short_name }}</td>
+        <td>{{ article.language }}</td>
+    </tr>
+    <tr>
+        <th colspan="2">Started</th>
+        <th colspan="2">Submitted</th>
+    </tr>
+    <tr>
+        <td colspan="2">{{ article.date_started }}</td>
+        <td colspan="2">{{ article.date_submitted }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Abstract</th>
+    </tr>
+    <tr>
+        <td colspan="4">{{ article.abstract|safe }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Comments to Editor</th>
+    </tr>
+    <tr>
+        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor }}{% else %}No comments{% endif %}
+        </td>
+    </tr>
+    {% if journal_settings.general.submission_competing_interests %}
+    <tr>
+        <th colspan="4">Competing Interests</th>
+    </tr>
+    <tr>
+        <td colspan="4">{% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+    </tr>
+    {% endif %}
+
+</table>
+<div class="title-area">
+    <h2>Authors</h2>
+</div>
+<table class="small" id="unassigned">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Primary?</th>
+    </tr>
+    {% if not article.frozenauthor_set.all %}
+        {% for author in article.authors.all %}
+            <tr>
+                <td>{{ author.full_name }}</td>
+                <td>{{ author.email }}</td>
+                <td>{% if author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>
+                {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        {% for f_author in article.frozenauthor_set.all %}
+        <tr>
+            <td>{{ f_author.full_name }}</td>
+            <td>{{ f_author.author.email }}</td>
+            <td>{% if f_author.author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>
+            {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% endif %}
+</table>
+<div class="title-area">
+    <h2>Editors</h2>
+</div>
+<table id="unassigned" class="small">
+    <tr style="text-align: left">
+        <th>Name</th>
+        <th>Email</th>
+        <th>Type</th>
+    </tr>
+    {% for assignment in article.editors %}
+        <tr>
+            <td>{{ assignment.editor.full_name }}</td>
+            <td>{{ assignment.editor.email }}</td>
+            <td>{{ assignment.editor_type|capfirst }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="3">No users assigned</td>
+        </tr>
+    {% endfor %}
+</table>
+{% if files %}
+<h4>Files</h4>
+<table class="table table-bordered table-condensed small">
+    <tr>
+        <th>Label</th>
+        <th>Filename</th>
+        <th>Type</th>
+        <th>Download</th>
+    </tr>
+    {% for file in article.manuscript_files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.original_filename }}</td>
+            <td>Manuscript</td>
+            <td><a href="{% url 'editor_file_download' article.id file.id %}"><i class="fa fa-download">&nbsp;</i></a>
+            </td>
+        </tr>
+    {% endfor %}
+    {% for file in article.data_figure_files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.original_filename }}</td>
+            <td>Data/Figure</td>
+            <td><a href="{% url 'editor_file_download' article.id file.id %}"><i class="fa fa-download">&nbsp;</i></a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+{% endif %}

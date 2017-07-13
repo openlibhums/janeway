@@ -1,0 +1,384 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Formatting Element Classes                        -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+ "-//NLM//DTD Archiving and Interchange DTD Suite Formatting Element Classes v3.0 20080202//EN"
+  Delivered as file "format3.ent"                                  -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!--                                                               -->
+<!-- PURPOSE:    Elements concerned with rendition of output, for  -->
+<!--             example printing on a page or display on a screen -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Default definitions of format classes          -->
+<!--             2) Appearance class elements                      -->
+<!--             3) Break class elements                           -->
+<!--             4) Typographic emphasis elements                  -->
+<!--             5) Advanced overline and underline elements       -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             December 2002                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Jeff Beck       (NCBI)                            -->
+<!--             Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             Bruce Rosenblum (Inera Inc.)                      -->
+<!--                                                               -->
+<!--             NLM thanks the Harvard University Libraries, both -->
+<!--             for proposing that a draft archiving NLM DTD for  --> 
+<!--             life sciences journals be extended to accommodate -->
+<!--             journals in all disciplines and for sponsoring    -->
+<!--             Bruce Rosenblum's collaboration with other DTD    -->
+<!--             authors in completing Version 1.0. The Andrew W.  --> 
+<!--             Mellon Foundation provided support for these      --> 
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--             important contributions.                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR ATTRIBUTE LISTS     -->
+<!-- ============================================================= -->
+
+
+<!--                    UNDERLINE ATTRIBUTES                       -->
+<!--                    Attributes for the <underline> element     -->
+<!ENTITY % underline-atts 
+            "underline-style   
+                        CDATA                             #IMPLIED"  >
+
+
+<!-- ============================================================= -->
+<!--                    APPEARANCE CLASS ELEMENTS                  -->
+<!-- ============================================================= -->
+
+
+<!--                    HORIZONTAL RULE                            -->
+<!--                    Defined to allow the user to specify an
+                        explicit (non machine-generated) rule.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=hr
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=hr
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=hr
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=hr
+                                                                   -->
+<!ELEMENT  hr           EMPTY                                        >
+
+
+<!-- ============================================================= -->
+<!--                    BREAK CLASS ELEMENTS                       -->
+<!-- ============================================================= -->
+
+
+<!--                    LINE BREAK                                 -->
+<!--                    Defined to allow the user to specify an
+                        explicit (non machine-generated) linebreak.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=break
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=break
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=break
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=break
+                                                                   -->
+<!ELEMENT  break        EMPTY                                        >
+
+
+<!-- ============================================================= -->
+<!--                    EMPHASIS/RENDITION CLASS ELEMENTS          -->
+<!-- ============================================================= -->
+
+
+<!--                    BOLD                                       -->
+<!--                    Used to mark text that should appear in bold 
+                        face type for print or display 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=bold
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=bold
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=bold
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=bold
+                                                                   -->
+<!ELEMENT  bold         (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    ITALIC                                     -->
+<!--                    Used to mark text that should appear in 
+                        italic type on output. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=italic
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=italic
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=italic
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=italic
+                                                                   -->
+<!ELEMENT  italic       (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    MONOSPACE TEXT (TYPEWRITER TEXT)           -->
+<!--                    Used to mark text that should appear in 
+                        a non-proportional font, such as courier
+                        for display or print.  This is common for
+                        computer code examples, man-machine
+                        dialogues, etc.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=monospace
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=monospace
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=monospace
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=monospace
+                                                                   -->
+<!ELEMENT  monospace    (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    ROMAN                                      -->
+<!--                    Used to mark text that should remain in 
+                        roman script no matter what style the
+                        surrounding text takes on.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=roman
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=roman
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=roman
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=roman
+                                                                   -->
+<!ELEMENT  roman        (#PCDATA %emphasized-text;)*                 >
+
+
+
+<!--                    SANS SERIF                                 -->
+<!--                    Used to mark text that should appear in a 
+                        special sans-serif font, typically used in
+                        math or chemistry  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=sans-serif
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=sans-serif
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=sans-serif
+                                                                   -->
+<!ELEMENT  sans-serif   (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    SMALL CAPS                                 -->
+<!--                    Used to mark text that should appear in a 
+                        font which creates smaller capital letters
+                        on output. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=sc
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=sc
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=sc
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=sc
+                                                                   -->
+<!ELEMENT  sc           (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    OVERLINE                                   -->
+<!--                    Used to mark text that should appear with a 
+                        horizontal line above each character in
+                        display or print. There is no PE for
+                        override because this was added to handle
+                        a specific publisher tag set and should not 
+                        grow beyond what they need. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=overline
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=overline
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=overline
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=overline
+                                                                   -->
+<!ELEMENT  overline     (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    STRIKE THROUGH                             -->
+<!--                    Used to mark text that should appear with 
+                        a line through it so as to appear "struck out" 
+                        on display or print  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=strike
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=strike
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=strike
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=strike
+                                                                   -->
+<!ELEMENT  strike       (#PCDATA %emphasized-text;)*                 >
+
+
+<!--                    SUBSCRIPT                                  -->
+<!--                    A number or expression that is set lower
+                        than the baseline and slightly smaller,
+                        to act as an inferior or subscript    
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=sub
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=sub
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=sub
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=sub
+                                                                   -->
+<!ELEMENT  sub          (#PCDATA %emphasized-text;)*                 >
+<!ATTLIST  sub 
+             arrange    (stack | stagger)                  #IMPLIED  >
+
+
+<!--                    SUPERSCRIPT                                -->
+<!--                    A number or expression that is set higher
+                        than the baseline and slightly smaller,
+                        to act as a superior or superscript 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=sup
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=sup
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=sup
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=sup
+                                                                   -->
+<!ELEMENT  sup          (#PCDATA %emphasized-text;)*                 >
+<!ATTLIST  sup 
+             arrange    (stack | stagger)                  #IMPLIED  >
+
+
+<!--                    UNDERLINE                                  -->
+<!--                    Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=underline
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=underline
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=underline
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=underline
+                                                                   -->
+<!ELEMENT  underline    (#PCDATA %emphasized-text;)*                 >
+<!ATTLIST  underline 
+             %underline-atts;                                        >
+
+
+<!-- ============================================================= -->
+<!--                    ADVANCED UNDERLINE AND OVERLINE ELEMENTS
+                        (From the Elsevier DTD, used mostly within    
+                        mathematics, when ordinary MathML underline   
+                        and overline functions are inadequate. The
+                        elements act as milestone tags marking the
+                        start and end of over or underlining that
+                        may extend across element boundaries.)     -->
+<!-- ============================================================= -->
+
+
+<!--                    OVERLINE START                             -->
+<!--                    The start of a milestone-created overline, the
+                        end of ornament will be marked by an
+                        Overline End element.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=overline-start
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=overline-start
+                                                                   -->
+<!ELEMENT  overline-start     
+                        EMPTY                                        >
+<!ATTLIST  overline-start
+             id         ID                                 #REQUIRED >
+
+
+<!--                    OVERLINE END                               -->
+<!--                    The end of a milestone-created overline, the
+                        start of ornament will be marked by an
+                        Overline Start element.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=overline-end
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=overline-end
+                                                                   -->
+<!ELEMENT  overline-end EMPTY                                        >
+<!ATTLIST  overline-end
+             rid        IDREF                              #REQUIRED >
+
+
+<!--                    UNDERLINE START                            -->
+<!--                    The start of a milestone-created underline,
+                        the end of ornament will be marked by an
+                        Underline End element
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=underline-start
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=underline-start
+                                                                   -->
+<!ELEMENT  underline-start      
+                        EMPTY                                        >
+<!ATTLIST  underline-start
+             id         ID                                 #REQUIRED >
+
+
+<!--                    UNDERLINE END                              -->
+<!--                    The end of a milestone-created underline, the
+                        start of ornament will be marked by an
+                        Underline Start element. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=underline-end
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=underline-end
+                                                                   -->
+<!ELEMENT  underline-end        
+                        EMPTY                                         >
+<!ATTLIST  underline-end
+             rid        IDREF                               #REQUIRED >
+
+
+<!-- ================== End Format Class Module =================== -->

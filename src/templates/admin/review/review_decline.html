@@ -1,0 +1,28 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Decline to Review{% endblock title %}
+{% block title-section %}Decline to Review{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/reviewer_base.html" %}
+    <li>Decline Review</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="content">
+                <p>Thank you for letting us know that you are unable to review at this time. If you are able to provide
+                    a name and email for another suitable reviewer we would be most grateful.</p>
+                {% if access_code != '' %}
+                    <a href="{% url 'suggest_reviewers' assigned_articles_for_user_review.id %}?access_code={{ access_code }}" class="button success">Suggest
+                    Reviewers</a>
+                {% else %}
+                    <a href="{% url 'suggest_reviewers' assigned_articles_for_user_review.id %}" class="button success">Suggest
+                    Reviewers</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

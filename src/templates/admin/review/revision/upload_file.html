@@ -1,0 +1,60 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+
+{% block title %}Revisions for {{ revision_request.article.title }}{% endblock title %}
+{% block title-section %}Revisions for {{ revision_request.article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/review_base.html" %}
+<li><a href="{% url 'do_revisions' revision_request.article.pk revision_request.pk %}">Revisions for {{ revision_request.article.title }}</a></li>
+<li>Replace File</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    {% csrf_token %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Submission Guidelines</h2>
+        </div>
+        <div class="content">
+            <p>To upload a file, select it using one of the "Choose file" buttons,
+                then upload it with the "Upload file" button. You can add a label to help the editor identify the file.</p>
+        </div>
+        <div class="title-area">
+            <h2>New File</h2>
+        </div>
+        <div class="content">
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+
+            <p>Please upload your new file.</p>
+            <div class="row expanded">
+                <div class="large-5 columns end">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label for="file_type">File Type</label>
+                        <select name="file_type" id="file_type">
+                            <option value="manuscript">Manuscript</option>
+                            <option value="data">Data/Figure</option>
+                        </select>
+
+                        <label for="label">File Label</label>
+                        <input name="label" id="label" type="text" placeholder="Add a file label">
+
+                        <label for="File">File</label>
+                        <input name="file" type="file" id="file" class="filestyle" data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <br/>
+                        <button type="submit" class="button success" name="replacement"><i class="fa fa-upload">&nbsp;</i>Upload
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock body %}

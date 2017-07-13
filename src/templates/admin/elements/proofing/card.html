@@ -1,0 +1,32 @@
+<div class="card">
+    <div class="card-divider">
+        <h4>{{ article.title|safe }}</h4>
+    </div>
+    <div class="card-section">
+        {% if type == "assignment" %}
+            <p>Awaiting proofing manager assignment.</p>
+        {% elif type == "assigned" %}
+            <p>Proofing in progress.</p>
+        {% endif %}
+        <div class="button-group">
+            {% if type == "assignment" %}
+                <a class="button tiny success" data-open="modal{{ article.pk }}">
+                    Assign proofing manager
+                </a>
+                <a class="button tiny success" href="{% url 'proofing_assign_article_with_user' article.pk user.id %}">
+                    Assign self
+                </a>
+            {% elif type == 'assigned' %}
+               <a class="button tiny alert"
+                   href="{% url 'proofing_unassign_article' article.pk %}">Unassign</a>
+                <a class="button tiny success" href="{% url 'proofing_article' article.pk %}">View</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        {% if article.proofingassignment.proofing_manager %}
+        {% include "elements/avatar.html" with user=article.proofingassignment.proofing_manager role="PM" %}
+        {% endif %}
+        {% include "elements/avatar.html" with user=article.correspondence_author role="Author" %}
+    </div>
+</div>

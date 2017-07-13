@@ -1,0 +1,39 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Assignment{% endblock %}
+{% block title-section %}Edit Assignment{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyediting_base.html" %}
+    <li>Edit Assignment</li>
+{% endblock breadcrumbs %}
+
+
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Assignment #{{ copyedit.pk }}</h2>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="large-6 columns">{{ form.editor_note|foundation }}</div>
+                    <div class="large-6 columns">{{ form.due|foundation }}</div>
+                    <div class="large-12 columns">
+                        <button class="button warning" name="skip" value="True">Save and Skip Notification</button>
+                        <button class="button success" type="submit">Update Assignment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datepicker.html" with target="#id_due" %}
+    {% include "elements/jqte.html" %}
+{% endblock %}

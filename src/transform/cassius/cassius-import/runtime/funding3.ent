@@ -1,0 +1,342 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Funding Elements                                  -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Funding Elements v3.0 20080202//EN"
+     Delivered as file "funding3.ent"                              -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Defines the elements which describe funding for   -->
+<!--             the research reported in a work or the open       -->
+<!--             access funding for the work                       -->
+<!--                                                               -->
+<!-- CONTAINS:   1) Definition of the funding elements             -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             Digital archives and publishers who wish to       -->
+<!--             create a custom XML DTD for original markup of    -->
+<!--             journal literature, books, and related material,  -->
+<!--             or for archiving and transferring such material   -->
+<!--             between archives.                                 -->
+<!--                                                               -->
+<!--             This DTD is in the public domain. An organization -->
+<!--             that wishes to create its own DTD from the suite  -->
+<!--             may do so without permission from NLM.            -->
+<!--                                                               -->
+<!--             The suite has been set up to be extended using a  -->
+<!--             new DTD file and a new DTD-specific customization -->
+<!--             module to redefine the many Parameter Entities.   -->
+<!--             Do not modify the suite directly or redistribute  -->
+<!--             modified versions of the suite.                   -->
+<!--                                                               -->
+<!--             In the interest of maintaining consistency and    -->
+<!--             clarity for potential users, NLM requests:        -->
+<!--                                                               -->
+<!--             1. If you create a DTD from the Archiving and     -->
+<!--                Interchange DTD Suite and intend to stay       -->
+<!--                compatible with the suite, then please include -->
+<!--                the following statement as a comment in all of -->
+<!--                your DTD modules:                              -->
+<!--                   "Created from, and fully compatible with,   -->
+<!--                    the Archiving and Interchange DTD Suite."  -->
+<!--                                                               -->
+<!--             2. If you alter one or more modules of the suite, -->
+<!--                then please rename your version and all its    -->
+<!--                modules to avoid any confusion with the        -->
+<!--                original suite. Also, please include the       -->
+<!--                following statement as a comment in all your   -->
+<!--                DTD modules:                                   -->
+<!--                   "Based in part on, but not fully compatible -->
+<!--                    with, the Archiving and Interchange DTD    --> 
+<!--                    Suite."                                    -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             the DTD suite should be sent in email to:         -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             February 2008                                     -->
+<!--                                                               -->
+<!-- CREATED BY: Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             B. Tommie Usdin (Mulberry Technologies, Inc.)     -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION/CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    PARAMETER ENTITIES FOR ATTRIBUTE LISTS     -->
+<!-- ============================================================= -->
+                                                                
+                                                                 
+<!--                    AWARD GROUP ATTRIBUTES                     -->
+<!--                    Attributes for the <award-group> element   -->
+<!ENTITY % award-group-atts
+             "id         ID                                #IMPLIED
+              rid        IDREFS                            #IMPLIED
+              award-type
+                         CDATA                             #IMPLIED
+              %might-link-atts;"                                     >
+                                                                
+                                                                 
+<!--                    AWARD IDENTIFIER ATTRIBUTES                -->
+<!--                    Attributes for the <award-group> element   -->
+<!ENTITY % award-id-atts
+             "rid        IDREFS                            #IMPLIED" >
+                                                                
+                                                                 
+<!--                    FUNDING SOURCE ATTRIBUTES                  -->
+<!--                    Attributes for the <funding-source> element-->
+<!ENTITY % funding-source-atts
+             "id         ID                                #IMPLIED
+              rid        IDREFS                            #IMPLIED
+              source-type
+                         CDATA                             #IMPLIED
+              country    CDATA                             #IMPLIED
+              %might-link-atts;"                                     >
+                                                                
+                                                                 
+<!--                    FUNDING STATEMENT ATTRIBUTES               -->
+<!--                    Attributes for the <funding-statement> 
+                        element                                    -->
+<!ENTITY % funding-statement-atts
+             "rid        IDREFS                            #IMPLIED" >
+                                                                
+                                                                 
+
+<!-- ============================================================= -->
+<!--                    FUNDING ELEMENTS                           -->
+<!-- ============================================================= -->
+
+
+<!--                    FUNDING GROUP MODEL                        -->
+<!--                    Model for the <funding-group> element      -->
+<!ENTITY % funding-group-model
+                        "(award-group*, funding-statement*, 
+                         open-access?)"                              >
+
+
+<!--                    FUNDING GROUP                              -->
+<!--                    Container element for information concerning
+                        grants, contracts, sponsors, or other
+                        funding for the research reported in the 
+                        work (typically an article), as well as for 
+                        material on the open access funding for the
+                        work, for example, which model of open access 
+                        funding was used or who paid the open access
+                        charges. 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=funding-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=funding-group
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=funding-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=funding-group
+                                                                   -->
+<!ELEMENT  funding-group
+                        %funding-group-model;                        >
+
+
+<!--                    FUNDING STATEMENT ELEMENTS                 -->
+<!--                    Model for the <funding-statement> element  -->
+<!ENTITY % funding-statement-elements 
+                        "| %address-link.class; | %emphasis.class; |
+                         %phrase-content.class; | 
+                         %subsup.class;"                             > 
+
+
+<!--                    FUNDING STATEMENT                          -->
+<!--                    A displayable prose statement that describes
+                        the funding for the research on which a work
+                        was based. Such a statement is required, for
+                        example, by research funded in whole or part 
+                        by the Wellcome Trust. The statement may
+                        mention (and therefore repeat) the funding 
+                        source, PI, or other funding information.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=funding-statement
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=funding-statement
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=funding-statement
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=funding-statement
+                                                                   -->
+<!ELEMENT  funding-statement
+                        (#PCDATA %funding-statement-elements;)*      >
+<!ATTLIST  funding-statement
+             %funding-statement-atts;                                >
+
+
+<!--                    OPEN ACCESS MODEL                          -->
+<!--                    Model for the <open-access> element        -->
+<!ENTITY % open-access-model
+                        "(p+)"                                       >
+
+
+<!--                    OPEN ACCESS                                -->
+<!--                    A container element to hold metadata 
+                        concerning the open access provisions that 
+                        apply to a work, for example which model
+                        of charging was used or who paid the open
+                        access charges for a journal article.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=open-access
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=open-access
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=open-access
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=open-access
+                                                                   -->
+<!ELEMENT  open-access  %open-access-model;                          >
+                                                                 
+
+<!-- ============================================================= -->
+<!--                    AWARD GROUP ELEMENTS                       -->
+<!-- ============================================================= -->
+
+
+<!--                    AWARD GROUP MODEL                          -->
+<!--                    Model for the <award-group> element        -->
+<!ENTITY % award-group-model
+                        "(funding-source*, award-id*, 
+                          principal-award-recipient*, 
+                          principal-investigator*)"                  >
+
+   
+<!--                    AWARD GROUP                                -->
+<!--                    Container element for information concerning
+                        one award that sponsored a work or the
+                        research on which the work was based. There
+                        may be more than source of funding, a grant
+                        grant or contract number, PI, etc.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=award-group
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=award-group
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=award-group
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=award-group
+                                                                   -->
+<!ELEMENT  award-group  %award-group-model;                          >
+<!ATTLIST  award-group
+             %award-group-atts;                                      >
+
+
+<!--                    FUNDING SOURCE ELEMENTS                    -->
+<!--                    Model for the <funding-source> element     -->
+<!ENTITY % funding-source-elements
+                        "%simple-text;"                              >
+
+
+<!--                    FUNDING SOURCE                             -->
+<!--                    Agency or organization (such as a foundation,
+                        corporation, or an educational institution) 
+                        that funded the research on which a work was
+                        based, for example, the Wellcome Trust, NIH,
+                        HHS, Princeton University, or Alcoa 
+                        sponsoring the research for a journal  
+                        article 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=funding-source
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=funding-source
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=funding-source
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=funding-source
+                                                                   -->
+<!ELEMENT  funding-source 
+                        (#PCDATA %funding-source-elements;)*         >
+<!ATTLIST  funding-source
+             %funding-source-atts;                                   >
+
+
+<!--                    AWARD IDENTIFIER ELEMENTS                  -->
+<!--                    Model for the <award-id> element           -->
+<!ENTITY % award-id-elements
+                        "%simple-text;"                              >
+
+
+<!--                    AWARD IDENTIFIER                           -->
+<!--                    An identifier that has been assigned to the
+                        award, for example, a grant number, a grant
+                        reference number, or a contract number.
+                        [Note, this is a real-world identifier not 
+                        an XML ID.] 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=award-id
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=award-id
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=award-id
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=award-id
+                                                                   -->
+<!ELEMENT  award-id     (#PCDATA %award-id-elements;)*               >
+<!ATTLIST  award-id
+             %award-id-atts;                                         >
+
+
+<!--                    PRINCIPAL AWARD RECIPIENT ELEMENTS         -->
+<!--                    Model for the <principal-award-recipient> 
+                        element                                    -->
+<!ENTITY % principal-award-recipient-elements
+                        " | %recipient-name.class;"                  >
+
+
+<!--                    PRINCIPAL AWARD RECIPIENT                  -->
+<!--                    The institution or individuals to whom the
+                        award was given, for example the principal
+                        grant holder 
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=principal-award-recipient
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=principal-award-recipient
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=principal-award-recipient
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=principal-award-recipient
+                                                                   -->
+<!ELEMENT  principal-award-recipient 
+                        (#PCDATA 
+                         %principal-award-recipient-elements;)*      >
+
+
+<!--                    PRINCIPAL INVESTIGATOR ELEMENTS            -->
+<!--                    Model for the <principal-investigator> 
+                        element                                    -->
+<!ENTITY % principal-investigator-elements
+                        " | %investigator-name.class;"               >
+
+
+<!--                    PRINCIPAL INVESTIGATOR RECIPIENT           -->
+<!--                    Individual responsible for the intellectual
+                        content of the work reported in the article.
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=principal-investigator
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=principal-investigator
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=principal-investigator
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=principal-investigator
+                                                                   -->
+<!ELEMENT  principal-investigator
+                        (#PCDATA 
+                         %principal-investigator-elements;)*         >
+             
+             
+<!-- ================== End Funding Module ======================= -->

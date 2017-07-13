@@ -1,0 +1,38 @@
+{% extends "admin/core/base.html" %}
+
+
+{% block title %}Plugins{% endblock title %}
+{% block title-section %}Plugins{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_plugin_list' %}">Plugins</a></li>
+{% endblock %}
+
+
+{% block body %}
+    <section>
+    <div class="row expanded" data-equalizer>
+        <div class="large-4 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Installed Plugins</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        {% for plugin in plugins %}
+                            {% if plugin.manager_url %}
+                                <a class="button" href="{% url plugin.manager_url %}">{{ plugin.name|capfirst }}</a>
+                            {% else %}
+                                <a class="button disabled" href="">{{ plugin.model.name|capfirst }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </section>
+{% endblock body %}

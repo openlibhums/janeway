@@ -1,0 +1,56 @@
+{% load static from staticfiles %}
+{% load securitytags %}
+
+{% is_editor as editor %}
+
+<div class="off-canvas position-left reveal-for-large" id="offCanvas" data-off-canvas>
+    <button class="close-button" aria-label="Close menu" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <ul class="vertical menu">
+        <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
+        <li class="subtitle"><a href="#">Install</a></li>
+        <li><a href="{% url 'install_index' %}">
+            Press</a>
+        </li>
+        <li><a href="{% url 'install_journal' %}">
+            Journal</a>
+        </li>
+        <li><a href="{% url 'install_next' %}">
+            Next Steps</a>
+        </li>
+    </ul>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+    <header class="main-header" role="banner">
+        <div class="row expanded">
+            <div class="small-4 columns">
+                <button type="button" class="button hide-for-large" data-toggle="offCanvas"><img
+                        src="{% static "admin/img/icons/menu-toggle.svg" %}" alt="Menu"> Menu
+                </button>
+                &nbsp;
+            </div>
+            <div class="small-4 columns text-center">
+                <h1>{{ request.journal.name }}</h1>
+            </div>
+            <div class="small-4 columns text-right">
+                <div class="profile">
+                    <a class="float-right" data-toggle="profile-dropdown">
+                        <p class="show-for-medium">Hello, {{ request.user.first_name }}!</p>
+                        {% include "elements/avatar.html" with user=request.user tooltip="off" %}
+                    </a>
+                </div>
+                <div class="dropdown-pane bottom" id="profile-dropdown" data-dropdown data-close-on-click="true">
+                    <ul class="menu vertical">
+                        <li><a href="{% url 'submission_start' %}">Submit</a></li>
+                        <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
+                        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                        <li><a href="/admin/">Admin</a></li>
+                        <li><a href="{% url 'core_logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>

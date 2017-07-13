@@ -1,0 +1,1 @@
+These are essentially plugins in structure that are dynamically loaded at app startup.

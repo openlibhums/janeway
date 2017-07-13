@@ -1,0 +1,57 @@
+<ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+    {% for review in reviews %}
+    <li class="accordion-item" data-accordion-item>
+        <a href="#" class="accordion-title">Review #{{ forloop.counter }}</a>
+        <div class="accordion-content" data-tab-content>
+            <h6>Details</h6>
+            <table class="table small table-bordered">
+                <tr>
+                    <th>Requested</th>
+                    <th>Request Decision</th>
+                    <th>Decision</th>
+                    <th>Completed</th>
+                </tr>
+                <tr>
+                    <td>{{ review.date_requested|date:"Y-m-d" }}</td>
+                    <td>{% if review.decision == 'withdrawn' %}Withdrawn {{ review.date_complete|date:"Y-m-d" }}
+                        {% elif review.date_accepted %}Accepted {{ review.date_accepted|date:"Y-m-d" }}
+                        {% elif review.date_declined %}Declined {{ review.date_declined|date:"Y-m-d" }}
+                        {% else %}Awaiting acknowledgement{% endif %}
+                    </td>
+                    <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}{% else %}--{% endif %}
+                    </td>
+                    <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
+                </tr>
+            </table>
+
+            <h6>Review</h6>
+            <div class="row expanded">
+                {% for answer in review.review_form_answers %}
+                    {% if answer.author_can_see %}
+                    <div class="{{ answer.element.width }}">
+                        <div class="callout">
+                            <b>{{ answer.element.name }}</b>
+                            <br/>
+                            {% if answer.edited_answer %}
+                            {{ answer.edited_answer|linebreaksbr }}
+                            {% else %}
+                            {{ answer.answer|linebreaksbr }}
+                            {% endif %}
+                            <br/>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                {% if review.review_file and review.for_author_consumption %}
+                <div class="large-12 columns">
+                    <h6>Review File</h6>
+                    <a href="?file_id={{ review.review_file.id }}"><i
+                            class="fa fa-download">&nbsp;</i>{{ review.review_file.original_filename }}</a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>

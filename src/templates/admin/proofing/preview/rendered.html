@@ -1,0 +1,203 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% load securitytags %}
+
+{% block title %}Proofing Preview{% endblock title %}
+{% block admin-header %}Proofing Preview{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <article>
+        <div class="large-12 columns">
+            {% for author in article.authors.all %}
+                {% if author.biography %}
+                    <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
+                         data-hover-pane="true">
+                        {{ author.biography }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div data-sticky-container>
+                <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                    <div class="row">
+                        <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
+                            <button class="menu-icon" type="button" data-toggle></button>
+                            <div class="title-bar-title">Options</div>
+                        </div>
+                        <div id="options-menu">
+                            <div class="large-6 columns">
+                                <ul class="menu vertical medium-horizontal"
+                                    data-responsive-menu="drilldown medium-dropdown">
+                                    <li>Share:</li>
+                                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                                </ul>
+                            </div>
+                            <div class="large-6 columns">
+                                <ul class="menu vertical medium-horizontal align-right"
+                                    data-responsive-menu="drilldown medium-dropdown">
+                                    <li><a href="javascript:resizeText(-1)">A-</a></li>
+                                    <li><a href="javascript:resizeText(1)">A+</a></li>
+                                    {% if article.correspondence_author.email %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                    <li><a href="#">Dyslexia Friendly</a></li>
+                                    <li>
+                                        <a><i class="fa fa-comments"></i></a>
+                                        <ul class="menu">
+                                            <li><a data-open="HarvardModal">View Harvard Citation Style</a></li>
+                                            <li><a data-open="VancouverModal">View Vancouver Citation Style</a></li>
+                                            <li><a data-open="APAModal">View APA Citation Style</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section id="content" class="no-padding">
+                <div class="row">
+                    <div class="large-8 columns border-right">
+                        <div class="row">
+                            <div class="large-10 columns">
+                                <h2>Abstract</h2>
+                                <p>{{ article.abstract | safe }}</p>
+                                <p><strong>Keywords:</strong> TODO: keywords</p>
+                                <p><strong>How to Cite:</strong>
+                                    {% for author in article.authors.all %}{{ author.last_name }},
+                                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},
+                                        {% endif %} {% endfor %}
+                                    ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                                    <i>{{ journal.name }}</i>. 0(0).
+                                    doi: {{ article.identifier.identifier }}</p>
+                                <div class="summary">
+                                    <div class="top">
+                                        <div class="row">
+                                            <div class="large-4 columns">
+                                                <h4 class="number">
+                                                    865
+                                                    <span>Views</span>
+                                                </h4>
+                                            </div>
+                                            <div class="large-4 columns">
+                                                <h4 class="number">
+                                                    60
+                                                    <span>Downloads</span>
+                                                </h4>
+                                            </div>
+                                            <div class="large-4 columns">
+                                                <h4 class="number">
+                                                    70
+                                                    <span>Twitter</span>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bottom">
+                                        <div class="row" data-equalizer>
+                                            <div class="large-4 columns" data-equalizer-watch>
+                                                <h5>Published on <br> {{ article.date_published|date:"d M Y" }}</h5>
+                                            </div>
+                                            <div class="large-4 columns" data-equalizer-watch>
+                                                {% if article.peer_reviewed %}<h5>Peer Reviewed</h5>{% endif %}
+                                            </div>
+                                            <div class="large-4 columns" data-equalizer-watch>
+                                                <h5>CC by 4.0</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h2>Article</h2>
+                                <div itemprop="articleBody">
+                                    {{ galley.file_content|safe }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="large-4 columns" data-sticky-container>
+                        <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                            <div class="section">
+                                <h3>Download</h3>
+                                <ul>
+                                    {% for galley in proofing_task.galleys_for_proofing.all %}
+                                        <li>
+                                            <a href="{% url 'proofing_download' proofing_task.pk galley.file.pk %}">Download {{ galley.label }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="section hide-for-small-only">
+                                <h3>Jump To</h3>
+                                <ul id="toc">
+
+                                </ul>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+        </div>
+    </article>
+
+    <!-- article citation modals -->
+    <div id="HarvardModal" class="reveal" data-reveal aria-labelledby="HarvardModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="HarvardModalTitle">Harvard-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
+            ({{ article.date_published.year }}) '{{ article.title|safe }}',
+            <i>{{ journal.name }}</i>. 0(0):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="VancouverModal">Vancouver Citation Style</a> | <a data-open="APAModal">APA Citation
+            Style</a></p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div id="VancouverModal" class="reveal" data-reveal aria-labelledby="VancouverModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="VancouverModalTitle">Vancouver-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
+            {{ article.title|safe }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};0(0):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="APAModal">APA Citation Style</a>
+        </p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div id="APAModal" class="reveal" data-reveal aria-labelledby="APAModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="APAModalTitle">APA-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if forloop.last and not forloop.first %}
+            &amp; {% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% else %},{% endif %} {% endfor %}
+            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+            <i>{{ journal.name }}</i> 0(0):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="VancouverModal">Vancouver
+            Citation Style</a></p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="hline"></div>
+    <br/>
+
+    </div>
+
+
+{% endblock body %}

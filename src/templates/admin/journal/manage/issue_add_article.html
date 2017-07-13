@@ -1,0 +1,86 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Add Article to Issue{% endblock title %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/issue_management.html" %}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+    <form method="POST">
+    {% csrf_token %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Issue</h2>
+            </div>
+            <div class="content">
+                <table>
+                    <tr>
+                        <th>Title</th>
+                        <th>Volume</th>
+                        <th>Number</th>
+                        <th>Date</th>
+                        <th>No. Articles</th>
+                    </tr>
+                    <tr>
+                        <td>{{ issue.issue_title }}</td>
+                        <td>{{ issue.volume }}</td>
+                        <td>{{ issue.issue }}</td>
+                        <td>{{ issue.date|date:"Y-m-d" }}</td>
+                        <td>{{ issue.manage_issue_list|length }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Articles</h2>
+            </div>
+            <div class="content">
+                <table class="small" id="article_list">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Authors</th>
+                            <th>Section</th>
+                            <th>DOI</th>
+                            <th>Pub ID</th>
+                            <th>Page Numbers</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="sortable">
+                        {% for article in articles %}
+                        <tr id="articles-{{ dict.article.pk }}">
+                            <td>{{ article.id }}</td>
+                            <td>{{ article.title|safe }}</td>
+                            <td>{{ article.author_list }}</td>
+                            <td>{{ article.section.name }}</td>
+                            <td>{{ article.get_doi }}</td>
+                            <td>{{ article.get_pubid }}</td>
+                            <td>{{ article.page_numbers }}</td>
+                            <td><button type="submit" name="article" value="{{ article.pk }}"><i class="fa fa-plus">&nbsp;</i>Add</button></td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </form>
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#article_list" %}
+{% endblock %}

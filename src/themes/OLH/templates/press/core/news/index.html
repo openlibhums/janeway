@@ -1,0 +1,45 @@
+{% extends "press/core/base.html" %}
+{% load truncate %}
+
+{% block title %}News{% endblock title %}
+
+{% block body %}
+	<section id="content" class="no-padding">
+		<div class="row column ">
+			<h1>News</h1>
+			{% for item in news_items %}
+			<div class="callout">
+                <a href="{% url 'core_news_item' item.pk %}"><h4>{{ item.title }}</h4></a>
+                <h6>Posted by {{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</h6>
+                <a href="{% url 'core_news_item' item.pk %}"><img
+                {% if item.large_image_file %}
+                    src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
+                {% else %}
+                    src="{{ request.press.default_carousel_image.url }}"
+                {% endif %}
+                 alt="{{ item.title }}"/></a>
+                <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+                <a href="{% url 'core_news_item' item.pk %}">Read More</a>
+                <hr />
+            </div>
+			{% empty %}
+			<h4>This journal currently has no news items to display.</h4>
+            {% endfor %}
+		</div>
+        <div class="pagination-block">
+            <ul class="pagination">
+                {% if news_items.has_previous %}
+                    <li class="arrow"><a href="?page={{ news_items.previous_page_number }}">&laquo;</a>
+                    </li>{% endif %}
+                {{ news_items.page.page_range }}
+                {% for page in news_items.paginator.page_range %}
+                    <li class="{% if news_items.number == page %}current{% endif %}"><a
+                            href="?page={{ page }}">{{ page }}</a></li>
+                {% endfor %}
+                {% if news_items.has_next %}
+                    <li class="arrow"><a href="?page={{ news_items.next_page_number }}">&raquo;</a>
+                    </li>{% endif %}
+            </ul>
+        </div>
+	</section>
+{% endblock body %}

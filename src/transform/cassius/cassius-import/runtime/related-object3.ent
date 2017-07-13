@@ -1,0 +1,130 @@
+<!-- ============================================================= -->
+<!--  MODULE:    Related Object Element                            -->
+<!--  VERSION:   3.0                                               -->
+<!--  DATE:      Feb 2008                                          -->
+<!--                                                               -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!--                        TYPICAL INVOCATION                     -->
+<!--
+"-//NLM//DTD Archiving and Interchange DTD Suite Related Object Element v3.0 20080202//EN" 
+     Delivered as file "related-object3.ent"                       -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!-- SYSTEM:     Archiving and Interchange DTD Suite               -->
+<!--                                                               -->
+<!-- PURPOSE:    Define the element <related-object>. [This        -->
+<!--             module was previously part of the NLM Book Tag Set-->
+<!--             and named bookrelated-object.ent.]                -->
+<!--                                                               -->
+<!-- CONTAINS:   1) The declaration for the element                -->
+<!--                                                               -->
+<!-- CREATED FOR:                                                  -->
+<!--             NLM Bookshelf                                     -->
+<!--             National Center for Biotechnology Information     -->
+<!--                (NCBI)                                         -->
+<!--             National Library of Medicine (NLM)                -->
+<!--                                                               -->
+<!-- ORIGINAL CREATION DATE:                                       -->
+<!--             February 2008 (book modules Oct 2006)             -->
+<!--                                                               -->
+<!-- CREATED BY: Deborah Lapeyre (Mulberry Technologies, Inc.)     -->
+<!--             B. Tommie Usdin (Mulberry Technologies, Inc.)     -->
+<!--                                                               -->
+<!--             Suggestions for refinements and enhancements to   -->
+<!--             this DTD should be sent in email to:              -->
+<!--                 archive-dtd@ncbi.nlm.nih.gov                  -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    DTD VERSION\CHANGE HISTORY                 -->
+<!-- ============================================================= -->
+<!--
+     =============================================================
+
+Version  Reason/Occasion                   (who) vx.x (yyyy-mm-dd)
+
+     =============================================================
+     Version 3.0                       (DAL/BTU) v3.0 (2007-10-31)
+     
+     Version 3.0 is the first non-backward-compatible release.
+     In addition to the usual incremental changes, some
+     elements and attributes have been renamed and/or remodeled
+     to better meet user needs and to increase tag set consistency.
+     All module change histories are available through the Tag Suite 
+     web site at http://dtd.nlm.nih.gov. 
+
+     Details on version 3.0 are available at 
+           http://dtd.nlm.nih.gov/3.0.
+  
+  1. Updated public identifier to "v3.0 20080202//EN"              -->
+
+
+<!-- ============================================================= -->
+<!--                    RELATED OBJECT ATTRIBUTES                  -->
+<!-- ============================================================= -->
+
+                                                                
+<!--                    RELATED OBJECT ATTRIBUTES                  -->
+<!--                    Attributes for <related-object>            -->       
+<!ENTITY % related-object-atts
+             "id        ID                                #IMPLIED
+              link-type CDATA                             #IMPLIED        
+              source-id CDATA                             #IMPLIED
+              source-id-type
+                        CDATA                             #IMPLIED
+              source-type
+                        CDATA                             #IMPLIED
+              document-id 
+                        CDATA                             #IMPLIED
+              document-id-type
+                        CDATA                             #IMPLIED
+              document-type
+                        CDATA                             #IMPLIED
+              object-id CDATA                             #IMPLIED
+              object-id-type
+                        CDATA                             #IMPLIED
+              object-type
+                        CDATA                             #IMPLIED
+              content-type
+                        CDATA                             #IMPLIED"  >
+
+
+<!-- ============================================================= -->
+<!--                    RELATED OBJECT ELEMENT                     -->
+<!-- ============================================================= -->
+
+
+<!--                    RELATED OBJECT ELEMENTS                    -->
+<!--                    Elements allowed inside <related-object>   -->
+<!ENTITY % related-object-elements 
+                        "| %emphasis.class; | 
+                         %phrase-content.class; | 
+                         %references.class; |  %subsup.class;"       >
+
+
+<!--                    RELATED OBJECT INFORMATION                 -->
+<!--                    Wrapper element, used as a container for 
+                        text links to a related object, possibly 
+                        accompanied by a very brief description of
+                        the object, for example a related book, a
+                        related chapter or figure in a book, a 
+                        related dataset, etc.  
+                        Details at: 
+                        http://dtd.nlm.nih.gov/archiving/tag-library/3.0/index.html?elem=related-object
+                        http://dtd.nlm.nih.gov/publishing/tag-library/3.0/index.html?elem=related-object
+                        http://dtd.nlm.nih.gov/articleauthoring/tag-library/3.0/index.html?elem=related-object
+                        http://dtd.nlm.nih.gov/book/tag-library/3.0/index.html?elem=related-object
+                                                                   -->
+<!ELEMENT  related-object
+                        (#PCDATA %related-object-elements;)*         >
+<!ATTLIST  related-object
+             %related-object-atts;                                   >
+                                                              
+
+<!-- ================== End Related Object Element Module ======== -->

@@ -1,0 +1,106 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load files %}
+
+{% block title %}Copyediting Review{% endblock %}
+{% block title-section %}Copyediting Review{% endblock %}
+{% block title-sub %}{{ copyedit.article.title }}{% endblock %}
+
+{% block css %}
+    <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyeditor_base.html" %}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Guidelines</h2>
+        </div>
+        <div class="content">
+            {{ journal_settings.general.author_copyediting_guidelines|safe }}
+        </div>
+        <div class="title-area">
+            <h2>Article Files</h2>
+        </div>
+        <div class="content">
+            <p>These are the files the Editor sent to the Copyeditor for Editing.</p>
+            <table class="table table-bordered table-condensed small">
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    <th>Download</th>
+                </tr>
+                {% for file in copyedit.files_for_copyediting.all %}
+                    <tr>
+                        <td>{{ file.label }}</td>
+                        <td>{{ file.original_filename }}</td>
+                        <td><a href="?file_id={{ file.id }}&type=for_copyedit"><i class="fa fa-download">&nbsp;</i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="title-area">
+            <h2>Copy-edited Files</h2>
+        </div>
+        <div class="content">
+            <p>Copy-edited versions of the article files. You can replace the copyeditor's version of the file with your
+                own
+                updated version.</p>
+            <table class="table table-bordered table-condensed small">
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    <th>Download</th>
+                    <th>Replace</th>
+                </tr>
+                {% for file in copyedit.copyeditor_files.all %}
+                    <tr>
+                        <td>{{ file.label }}</td>
+                        <td>{{ file.original_filename }}</td>
+                        <td><a href="?file_id={{ file.id }}"><i class="fa fa-download">&nbsp;</i></a></td>
+                        <td><a href="{% url 'author_update_file' copyedit.article.id author_review.id file.id %}"><i
+                                class="fa fa-cloud-upload"></i></a></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">There are no copy-edited files. Upload one.</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="title-area">
+            <h2>Complete Task</h2>
+        </div>
+        <div class="content">
+            {% include "elements/forms/errors.html" with form=form %}
+            <p>You can add a note to the editor, they can pass any requests on to the Copyeditor.</p>
+            <form method="POST">
+                <div class="row expanded">
+                    <div class="large-6 columns">
+                        {{ form.author_note|foundation }}
+                        <button type="submit" class="button success" name="send"><i class="fa fa-check">&nbsp;</i>Complete
+                            Copyedit
+                            Task
+                        </button>
+                    </div>
+                    <div class="large-6 columns">
+                        {{ form.decision|foundation }}
+                        {% csrf_token %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

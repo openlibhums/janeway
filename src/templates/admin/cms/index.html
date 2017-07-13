@@ -1,0 +1,80 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Content Manager{% endblock title %}
+{% block admin-header %}Content Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'cms_index' %}">Content Manager</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Pages</h2>
+                <a class="button" href="{% url 'cms_page_new' %}"><i class="fa fa-plus">&nbsp;</i>Add New Page</a>
+            </div>
+            <div class="content">
+                <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+                    {% for page in pages %}
+                        <li class="accordion-item" data-accordion-item>
+                            <a href="#" class="accordion-title">{{ page.display_name }}</a>
+                            <div class="accordion-content" data-tab-content>
+                                <ul>
+                                    <li>URL: /{{ page.name }}/</li>
+                                    <li>Format: {% if page.is_markdown %}Markdown{% else %}HTML{% endif %}</li>
+                                </ul>
+
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <a href="{% url 'cms_page_edit' page.pk %}" class="success button">Edit</a>
+                                    <button name="delete" value="{{ page.pk }}" type="submit" class="alert button">Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Navigation</h2>
+                <a class="button" href="{% url 'cms_nav' %}"><i class="fa fa-pencil">&nbsp;</i>Modify Nav</a>
+            </div>
+            <div class="content">
+                <p>Your custom navigation currently looks like this: </p>
+                {% include "elements/cms_nav.html" %}
+            </div>
+        </div>
+    </div>
+    {% if request.journal %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>XSLT</h2>
+            </div>
+            <div class="content">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p>
+                        {% if request.journal.has_xslt %}
+                            This journal has an XSLT file. <br />
+                            <button name="clear" class="warning button">Delete File</button>
+                        {% else %}
+                            This journal is using the default XSLT file.
+                        {% endif %}
+                    </p>
+
+                    <input type="file" name="xsltfile">
+                    <button type="submit" class="success button">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock body %}

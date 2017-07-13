@@ -1,0 +1,93 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Editorial Team Manager{% endblock title %}
+{% block title-section %}Editorial Team{% endblock %}
+{% block title-sub %}Add Member{% endblock %}
+
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_editorial_team' %}">Editorial Group Manager</a></li>
+    <li>{{ group.name }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Group Members</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group" id="sortable">
+                        {% for member in group.editorialgroupmember_set.all %}
+                        <li class="list-group-item" id="member-{{ member.pk }}">
+                            <div class="float-right">
+                                <button type="submit" name="delete" value="{{ member.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
+                            </div>
+                                {{ member.user.full_name }}<br />
+                            </small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Site Users</h2>
+                <a class="button" href="{% url 'core_add_user' %}?return={{ request.path }}">Add New User</a>
+            </div>
+            <div class="content">
+                <table id="featured" class="small">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><a href="{% url 'core_editorial_member_to_group_user' group.pk user.pk %}">Add</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#featured" %}
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script>
+    $( "#sortable" ).sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            console.log(data);
+            // POST to server using $.post or $.ajax
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{% url 'core_editorial_ordering_group' 'members' group.pk %}'
+            });
+        }
+    });
+    $( "#sortable" ).disableSelection();
+</script>
+{% endblock js %}
+
+

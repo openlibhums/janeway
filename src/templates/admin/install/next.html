@@ -1,0 +1,57 @@
+{% extends "install/base.html" %}
+{% load svg from press_url %}
+
+{% block title %}Install{% endblock %}
+{% block title-section %}Install{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Next Steps</h2>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                <div class="large-8 columns">
+                    <ul class="list-group">
+                        <a href="{% url 'core_journal_contacts' %}">
+                        <li class="list-group-item">
+                            <h4>1. Journal Contacts <i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                            <p>List your journal's contacts on the contact page.</p>
+                        </li>
+                        </a>
+                        <a href="{% url 'review_review_forms' %}">
+                        <li class="list-group-item">
+                            <h4>2. Review Forms<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                            <p>You should create some review forms so that you can begin processing peer reviews.</p>
+                        </li>
+                        </a>
+                        <a href="{% url 'core_editorial_team' %}">
+                        <li class="list-group-item">
+                            <h4>3. Editorial Team<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                            <p>You can add your Editorial Team and list them on the journal site.</p>
+                        </li>
+                        </a>
+                        <a href="{% url 'cron_reminders' %}">
+                        <li class="list-group-item">
+                            <h4>4. Scheduled Reminders<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                            <p>You can set when review and revision reminder emails are sent.</p>
+                        </li>
+                        </a>
+                        <a href="{% url 'home_settings_index' %}">
+                            <li class="list-group-item">
+                                <h4>5. Journal Home<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                                <p>You can configure the items that appear on the journal home page.</p>
+                            </li>
+                        </a>
+                        <a href="{% url 'core_settings_index' %}">
+                            <li class="list-group-item">
+                                <h4>6. Workflow Settings<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                                <p>You can edit workflow settings and emails from here.</p>
+                            </li>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

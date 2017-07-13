@@ -1,0 +1,261 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load securitytags %}
+{% load files %}
+{% load static from staticfiles %}
+
+{% block title %}Typeset Task - {{ typeset_task.pk }}{% endblock title %}
+{% block title-section %}Typeset Task - {{ typeset_task.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/typesetter_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-9 columns">
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Files Uploaded for Production</h2>
+        </div>
+        <div class="content">
+
+            <div class="hline"></div>
+            <br/>
+            <table class="table table-bordered table-condensed small">
+                <tr style="text-align: left">
+                    <th>Label</th>
+                    <th width="25%">Filename</th>
+                    <th>Type</th>
+                    <th>Download</th>
+                </tr>
+                {% for file in manuscripts %}
+                    {% can_view_file file as can_view_file_flag %}
+                    {% can_edit_file file article as can_edit_file_flag %}
+                    {% can_view_file_history file article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ file.label }}</td>
+                        <td>{{ file.original_filename|truncatechars:40 }}</td>
+                        <td>Manuscript</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for file in data_files %}
+                    {% can_view_file file as can_view_file_flag %}
+                    {% can_edit_file file article as can_edit_file_flag %}
+                    {% can_view_file_history file article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ file.label }}</td>
+                        <td>{{ file.original_filename|truncatechars:40 }}</td>
+                        <td>Data/Figure</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for file in copyedit_files %}
+                    {% can_view_file file as can_view_file_flag %}
+                    {% can_edit_file file article as can_edit_file_flag %}
+                    {% can_view_file_history file article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ file.label }}</td>
+                        <td>{{ file.original_filename|truncatechars:40 }}</td>
+                        <td>Copyedit</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <br/>
+    <div class="box">
+        <div class="title-area">
+            <h2>Current galleys and data/figure files</h2>
+        </div>
+        <div class="content">
+
+            <br/>
+            <table class="table table-bordered table-condensed small">
+                <tr style="text-align: left">
+                    <th>Label</th>
+                    <th width="25%">Filename</th>
+                    <th>Type</th>
+                    <th>Edit</th>
+                    <th>Download</th>
+                    <th>Replace</th>
+                    <th>History</th>
+                    <th>Delete</th>
+                    <th>Create PDF</th>
+                    <th>Create Epub</th>
+                </tr>
+                {% for galley in galleys %}
+                    {% can_view_file galley.file as can_view_file_flag %}
+                    {% can_edit_file galley.file article as can_edit_file_flag %}
+                    {% can_view_file_history galley.file article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ galley.label }}</td>
+                        <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+                        <td>Galley</td>
+                        <td><a href="{% url 'edit_galley' typeset_task.pk galley.pk %}" class="fa fa-edit"></a></td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'article_file_replace' 'id' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_view_file_history_flag %}
+                            <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-history">
+                                &nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'delete_galley' typeset_task.pk galley.pk %}"><i
+                                    class="fa fa-trash">
+                                &nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>
+                            {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
+                                <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
+                                    <i class="fa fa-file-text-o">&nbsp;</i>
+                                </a>
+                            {% elif not galley.file.mime_type == 'application/xml' %}
+                                Function for XML only.
+                            {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
+                                <p><span data-tooltip aria-haspopup="true" class="has-tip top"
+                                         data-disable-hover="false" tabindex="2"
+                                         title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                            {% endif %}
+
+                        </td>
+                        <td>
+                            {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
+                                <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
+                                    <i class="fa fa-book">&nbsp;</i>
+                                </a>
+                            {% elif not galley.file.mime_type == 'application/xml' %}
+                                Function for XML only.
+                            {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
+                                <p><span data-tooltip aria-haspopup="true" class="has-tip top"
+                                         data-disable-hover="false"
+                                         tabindex="2"
+                                         title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8">No galleys have been uploaded.</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <div class="float-right"><a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">
+                &nbsp;</i>Upload a new galley</a>
+            </div>
+            <br/>
+        </div>
+    </div>
+
+    <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload Galley</h4>
+            </div>
+        </div>
+        <div class="card-section">
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h5>XML/HTML Files</h5>
+                <div class="clearfix">
+                    <div>
+                        <input name="xml-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="xml"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <h5>PDF Files</h5>
+                <div class="clearfix">
+                    <div>
+                        <input name="pdf-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="pdf"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <h5>Other Files</h5>
+                <div class="clearfix">
+                    <div>
+                        <input name="other-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="other"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <div class="large-3 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Actions</h2>
+            </div>
+            <div class="content">
+                <ul class="menu vertical actions">
+                    <li><a data-open="summarymodal">
+                        <i class="fa fa-server action-icon">&nbsp;</i>View Metadata
+                    </a>
+                    </li>
+                </ul>
+
+
+                {% if galleys %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.note_from_typesetter|foundation }}
+                        <button name="complete" type="submit" class="small expanded button">
+                            <i class="fa fa-check">&nbsp;</i>Mark Task as Complete
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% include "elements/summary_modal.html" %}
+
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock js %}

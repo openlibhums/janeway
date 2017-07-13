@@ -1,0 +1,38 @@
+<div class="card">
+    <div class="card-divider">
+        <h4>{{ request.article.title|safe }}</h4>
+    </div>
+    <div class="card-section">
+        <p>A request for copyediting has been made.</p>
+        {% if type == 'active' or type == 'new' %}
+            <p>Due: {{ request.due }}</p>
+        {% elif not request.copyedit_reopened %}
+            <strong>Completed: </strong>{{ request.copyeditor_completed }}
+        {% endif %}
+        {% if request.copyedit_reopened %}
+            Completed: {{ request.copyeditor_completed }}<br />
+            Reopened: {{ request.copyedit_reopened }}<br />
+            {% if request.copyedit_reopened_complete %}
+                Complete: {{  request.copyedit_reopened_complete }}<br />
+            {% endif %}
+        {%  endif %}
+        <div class="button-group">
+            {% if type == "new" %}
+                <a class="tiny success button" href="{% url 'copyedit_request_decision' request.id 'accept' %}">Accept</a>
+                <a class="tiny alert button" href="{% url 'copyedit_request_decision' request.id 'decline' %}">Decline</a>
+            {% elif type == 'active' %}
+                <a class="tiny success button" href="{% url 'do_copyedit' request.id %}">View</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-divider">
+        Editor:
+        <span class="avatar" data-tooltip aria-haspopup="true" class="has-tip" tabindex="1"
+              title="{{ request.editor.full_name }}">
+            {% if request.editor.profile_image %}
+                <img src="{{ request.editor.profile_image.url }}" alt="{{ request.editor.full_name }}">{% else %}
+                {{ request.editor.initials }}{% endif %}
+        </span>
+
+    </div>
+</div>

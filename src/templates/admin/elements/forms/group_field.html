@@ -1,0 +1,15 @@
+<div class="title-area">
+    <h2>{{ field.label }}</h2>
+</div>
+<div class="content">
+    {% if field.field.is_checkbox %}
+    {{ field }}
+    {{ field.help_text|safe }}
+    {% else %}
+    {{ field.help_text|safe }}
+    {{ field }}
+    {% endif %}
+    {% for error in field.errors %}
+        <small{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
+    {% endfor %}
+</div>

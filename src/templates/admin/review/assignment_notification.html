@@ -1,0 +1,55 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
+{% block page_title %}Editor Assignment Notification{% endblock %}
+
+{% block body %}
+
+    <main>
+        <section class="title">
+            <div class="row expanded column">
+                <h1>Editor Assignment</h1>
+                <p>Notify the Editor</p>
+            </div>
+        </section>
+        <section>
+            <div class="row column expanded">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Notify the Editor</h2>
+                    </div>
+                    <div class="content">
+                        <p>You can send a message to the editor or skip it.</p>
+                        <div class="card">
+                            <div class="card-divider">
+                                <h4>To {{ editor.full_name }}</h4>
+                                <h5>From {{ request.user.full_name }}</h5>
+                            </div>
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="card-section">
+                                    <p>Subject: <strong>Editor Assignment</strong></p>
+                                    <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
+                                </div>
+                                <div class="card-divider">
+                                    <div class="button-group">
+                                        <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+                                        <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+{% endblock body %}
+
+{% block js %}
+	{{ block.super }}
+	<script type="text/javascript" src="{% static "common/js/jquery-te-1.4.0.min.js" %}" charset="utf-8"></script>
+	<script type="text/javascript">$("textarea").jqte();</script>
+{% endblock js %}

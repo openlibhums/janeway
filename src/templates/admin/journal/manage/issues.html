@@ -1,0 +1,89 @@
+{% extends "admin/core/base.html" %}}
+{% load securitytags %}
+{% load files %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Issue Management{% endblock title %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+    {% include "elements/breadcrumbs/issue_management.html" %}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Issue Management</h2>
+                    {% if not issue %}<a href="#" data-open="issue" class="button small success"><i class="fa fa-plus">&nbsp;</i>Create Issue</a>{% endif %}
+                </div>
+                <div class="content">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Volume</th>
+                            <th>Number</th>
+                            <th>Date</th>
+                            <th>No. Articles</th>
+                            <th colspan="3"></th>
+                        </tr>
+                        </thead>
+                        <tbody {% if not issue %}id="sortable"{% endif %}>
+                        {% for i in issues %}
+                            <tr {% if not issue %}id="issues-{{ i.pk }}"{% endif %}>
+                                <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
+                                <td>{{ i.issue_type }}</td>
+                                <td>{{ i.volume }}</td>
+                                <td>{{ i.issue }}</td>
+                                <td>{{ i.date|date:"Y-m-d" }}</td>
+                                <td>{{ i.manage_issue_list|length }}</td>
+                                <td>
+                                    {% if issue %}<a href="#" data-open="issue"><i class="fa fa-edit">&nbsp;</i>Edit Details</a>{% endif %}
+                                    {%  if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i class="fa fa-eye">&nbsp;</i>View</a>{%  endif %}
+                                </td>
+                                <td><a href="{% url 'manage_issues_event' i.pk 'delete' %}"><i class="fa fa-trash">&nbsp;</i>Delete</a></td>
+                                <td>{% if request.journal.current_issue != i %}<form method="POST">{% csrf_token %}<button name="make_current" type="submit" class="button" value="{{ i.pk }}" style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current</button></form>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% if issue %}
+    {% include "elements/issue/table_of_contents.html" with issue=issue %}
+    {% include "elements/issue/guest_editors.html" with issue=issue %}
+{% endif %}
+{% include "elements/issue/issue_modal.html" %}
+{% include "elements/issue/delete_modal.html" %}
+{% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% if issue %}{% url 'issue_article_order' issue.id %}{% else %}{% url 'issue_order' %}{% endif %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
+{% endblock js %}

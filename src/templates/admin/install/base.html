@@ -1,0 +1,67 @@
+{% load static from staticfiles %}
+{% load press_url from press_url %}
+{% load svg from press_url %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ journal.name }}{% endblock title %}</title>
+
+    {% block head %}{% endblock head %}
+    <link href="{% static "admin/css/app.css" %}" rel="stylesheet">
+    <link href="{% static "admin/css/admin.css" %}" rel="stylesheet">
+    <link href="{% static "admin/css/font-awesome.css" %}" rel="stylesheet">
+    <script src="https://use.typekit.net/lff8ikn.js"></script>
+    <script>try {
+        Typekit.load({async: true});
+    } catch (e) {
+    }</script>
+    {% block css %}{% endblock %}
+</head>
+<body>
+
+{% include "install/nav.html" %}
+
+<div class="content large-12 columns">
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <nav aria-label="You are here:" role="navigation">
+                <ul class="breadcrumbs">
+                    {% block breadcrumbs %}
+                        <li><a href="{% url 'install_index' %}">Install</a></li>
+                    {% endblock breadcrumbs %}
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+    <section class="title">
+        <div class="row expanded column">
+            {% for message in messages %}
+                <div class="bs-callout bs-callout-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <h1>{% block title-section %}{% endblock %}</h1>
+            <p>{% block title-sub %}{% endblock %}</p>
+        </div>
+    </section>
+
+    {% block body %}
+    {% endblock body %}
+</div>
+
+<script src="{% static "admin/js/app.min.js" %}"></script>
+<script type="text/javascript">
+    $('input[id=lefile]').change(function () {
+        $('#id_profile_image').val($(this).val());
+    });
+</script>
+
+{% block js %}{% endblock %}
+</body>
+</html>

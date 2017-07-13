@@ -1,0 +1,30 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Suggest Reviewers{% endblock title %}
+{% block title-section %}Suggest Reviewers{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/reviewer_base.html" %}
+<li>Suggest Reviewers</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns">
+<div class="box">
+    <div class="content">
+        <p>Thanks for suggesting reviewers, please add the suggested reviewer's name, institution and email address below..</p>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.suggested_reviewers }}
+            <button type="submit" class="button success">Suggest Reviewers</button>
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block js %}
+{% include "elements/jqte.html" %}
+{% endblock js %}

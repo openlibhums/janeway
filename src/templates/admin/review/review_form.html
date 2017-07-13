@@ -1,0 +1,134 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Review Request{% endblock title %}
+{% block title-section %}Review Request{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/reviewer_base.html" %}
+    <li>Review Form</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+    <form method="POST" enctype="multipart/form-data">
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>General Review Guidelines</h2>
+                    </div>
+                    <div class="content">
+                        <small>{{ journal_settings.general.reviewer_guidelines|safe }}</small>
+                    </div>
+                    <div class="title-area">
+                        <h2>Information for this Form</h2>
+                    </div>
+                    <div class="content">
+                        <small>{{ assignment.form.intro|safe }}</small>
+                    </div>
+                    <div class="title-area">
+                        <h2>Decline this Review</h2>
+                    </div>
+                    <div class="content">
+                        <small>If you are unable to perform this review, please click the button below.</small><br/>
+                        <small><button class="button alert" type="submit" id="decline" name="decline">Decline to perform review</button></small>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Review Files</h2>
+                    </div>
+                    <div class="content">
+                        <table class="table table-bordered table-condensed small">
+                            <tr>
+                                <th>Label</th>
+                                <th>Filename</th>
+                                <th>Download</th>
+                            </tr>
+                            {% for file in review_round.review_files.all %}
+                                <tr>
+                                    <td>{{ file.label }}</td>
+                                    <td>{{ file.original_filename }}</td>
+                                    <td><a href="{% url 'review_file_download' assignment.id file.id %}?access_code={{ access_code }}"><i
+                                            class="fa fa-download">&nbsp;</i></a></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">No files. You should add them before inviting reviewers.</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+                {% if assignment.visibility == 'open' or assignment.visibility == 'blind' %}
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Author Information</h2>
+                    </div>
+                    <div class="content">
+                        <table class="table table-bordered table-condensed small">
+                            <tr>
+                                <th>Name</th>
+                                <th>Institution</th>
+                                <th>Department</th>
+                            </tr>
+                            {% for author in assignment.article.authors.all %}
+                                <tr>
+                                    <td>{{ author.full_name }}</td>
+                                    <td>{{ author.institution }}</td>
+                                    <td>{{ author.department }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">No files. You should add them before inviting reviewers.</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Review Form</h2>
+                    </div>
+                    <div class="content">
+                        <div class="row expanded">
+                            {% if form.errors %}
+                                <div class="alert alert-info">
+                                    Please correct errors below. Note, you'll have to reselect any files you want
+                                    uploaded.
+                                </div>
+                            {% endif %}
+
+                            {% csrf_token %}
+                            {% include "elements/generate_form.html" with form=form %}
+                        </div>
+                    </div>
+                    <div class="title-area">
+                        <h2>File Upload</h2>
+                    </div>
+                    <div class="content">
+                        <div class="large-12 columns">
+                            <h5>File Upload</h5>
+                            <p>Alternatively, you may upload a file in lieu of completing the review form. Please
+                                ensure
+                                you've covered all of the required fields above.</p>
+                            <input type="file" id="review_file" name="review_file" class="">
+                        </div>
+                    </div>
+                    <div class="title-area">
+                        <h2>Your Recommendation</h2>
+                    </div>
+                    <div class="content">
+                        <div class="form-group">
+                            {{ decision_form.decision|foundation }}
+                            {{ decision_form.comments_for_editor|foundation }}
+                        </div>
+                        <button class="button success" type="submit">Save Review</button>
+                    </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
