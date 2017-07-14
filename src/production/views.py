@@ -54,13 +54,16 @@ def production_assign_article(request, user_id, article_id):
     article = submission_models.Article.objects.get(id=article_id)
     user = core_models.Account.objects.get(id=user_id)
 
-    url = request.journal_base_url + reverse('production_article', kwargs={'article_id': article.id})
-    html = logic.get_production_assign_content(user, request, article, url)
+    if user.is_production(request):
+        url = request.journal_base_url + reverse('production_article', kwargs={'article_id': article.id})
+        html = logic.get_production_assign_content(user, request, article, url)
 
-    prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
-    prod.save()
+        prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
+        prod.save()
 
-    cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request)
+        cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request)
+    else:
+        messages.add_message(request, messages.WARNING, 'User is not a production manager.')
 
     return redirect('production_list')
 
