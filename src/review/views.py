@@ -544,8 +544,10 @@ def do_review(request, assignment_id):
                                            task_object=assignment.article,
                                            **kwargs)
 
-            return redirect("{0}?access_code={1}".format(reverse('thanks_review',
-                                                                 kwargs={'assignment_id': assignment.pk}), access_code))
+            return redirect("{0}{1}{2}".format(
+                reverse('thanks_review', kwargs={'assignment_id': assignment.pk}),
+                '?access_code=' if access_code else '',
+                access_code if access_code else ''))
 
     template = 'review/review_form.html'
     context = {
