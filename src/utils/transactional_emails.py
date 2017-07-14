@@ -225,15 +225,20 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         notify_helpers.send_email_with_body_from_setting_template(request, 'review_accept_acknowledgement',
                                                                   'subject_review_accept_acknowledgement',
                                                                   review_assignment.reviewer.email, context)
+
+        # send to editor
+        notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',
+                                                                'subject_review_acknowledgement',
+                                                                review_assignment.editor.email, context)
     else:
         notify_helpers.send_email_with_body_from_setting_template(request, 'review_decline_acknowledgement',
-                                                                  'subject_review_accept_acknowledgement',
+                                                                  'subject_review_decline_acknowledgement',
                                                                   review_assignment.reviewer.email, context)
 
-    # send to editor
-    notify_helpers.send_email_with_body_from_setting_template(request, 'subject_review_accept_acknowledgement',
-                                                              description,
-                                                              review_assignment.editor.email, context)
+        # send to editor
+        notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',
+                                                                'subject_review_acknowledgement',
+                                                                review_assignment.editor.email, context)
 
 
 def send_submission_acknowledgement(**kwargs):
