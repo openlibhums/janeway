@@ -385,8 +385,10 @@ def handle_element_post(workflow, element_name, request):
 
 def latest_articles(carousel, object_type):
     if object_type == 'journal':
-        carousel_objects = submission_models.Article.objects.filter(journal=carousel.journal).\
-            order_by("-date_published")
+        carousel_objects = submission_models.Article.objects.filter(
+            journal=carousel.journal,
+            date_published__isnull=False
+            ).order_by("-date_published")
     else:
         carousel_objects = submission_models.Article.objects.all().order_by("-date_published")
 
