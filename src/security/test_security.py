@@ -69,22 +69,6 @@ class TestSecurity(TestCase):
         self.assertTrue(self.editor.check_role(self.journal_one, "editor"),
                         "Account.check_role wrongly blocks editors from accessing editor content")
 
-    def test_reviewer_user_required_decorator_handles_null_request(self):
-        """
-        Tests that the reviewer_user_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.reviewer_user_required(func)
-
-        request = None
-
-        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "reviewer_user_required decorator incorrectly handles request=None")
-
     def test_reviewer_user_required_decorator_handles_null_user(self):
         """
         Tests that the reviewer_user_required decorator can handle a null request object.
@@ -244,22 +228,6 @@ class TestSecurity(TestCase):
         # test that the callback was not called
         self.assertFalse(func.called,
                          "reviewer_user_required decorator wrongly allows inactive users to access author content")
-
-    def test_editor_user_required_decorator_handles_null_request(self):
-        """
-        Tests that the editor_user_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.editor_user_required(func)
-
-        request = None
-
-        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "editor_user_required decorator incorrectly handles request=None")
 
     def test_editor_user_required_decorator_handles_null_user(self):
         """
@@ -480,22 +448,6 @@ class TestSecurity(TestCase):
         self.assertFalse(func.called,
                          "author_user_required decorator wrongly allows anonymous users to access author content")
 
-    def test_author_user_required_decorator_handles_null_request(self):
-        """
-        Tests that the author_user_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.author_user_required(func)
-
-        request = None
-
-        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "author_user_required decorator incorrectly handles request=None")
-
     def test_author_user_required_decorator_handles_null_user(self):
         """
         Tests that the author_user_required decorator can handle a null request object.
@@ -698,22 +650,6 @@ class TestSecurity(TestCase):
         self.assertFalse(func.called,
                          "proofreader_user_required decorator wrongly allows anonymous users to access proofreader "
                          "content")
-
-    def test_proofreader_user_required_decorator_handles_null_request(self):
-        """
-        Tests that the proofreader_user_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.proofreader_user_required(func)
-
-        request = None
-
-        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "proofreader_user_required decorator incorrectly handles request=None")
 
     def test_proofreader_user_required_decorator_handles_null_user(self):
         """
@@ -957,22 +893,6 @@ class TestSecurity(TestCase):
                          "production_user_or_editor_required decorator wrongly allows non-productions to access "
                          "production content")
 
-    def test_production_user_or_editor_required_decorator_handles_null_request(self):
-        """
-        Tests that the proofreader_user_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.production_user_or_editor_required(func)
-
-        request = None
-
-        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "production_user_or_editor_required decorator incorrectly handles request=None")
-
     def test_production_user_or_editor_required_decorator_handles_null_user(self):
         """
         Tests that the author_user_required decorator can handle a null request object.
@@ -1116,23 +1036,6 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "article_production_user_required decorator wrongly prohibits the production manager from "
                         "accessing an article to which he or she is assigned")
-
-    def test_article_production_user_required_decorator_handles_null_request(self):
-        """
-        Tests that the article_production_user_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.article_production_user_required(func)
-
-        request = None
-        kwargs = {'article_id': self.article_in_production.pk}
-
-        self.assertIsInstance(decorated_func(request, **kwargs), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "article_production_user_required decorator incorrectly handles request=None")
 
     def test_article_production_user_required_decorator_handles_null_user(self):
         """
@@ -1348,23 +1251,6 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "reviewer_user_for_assignment_required decorator wrongly prohibits the reviewer from "
                         "accessing an article to which he or she is assigned")
-
-    def test_reviewer_user_for_assignment_required_decorator_handles_null_request(self):
-        """
-        Tests that the reviewer_user_for_assignment_required decorator can handle a null request object.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.reviewer_user_for_assignment_required(func)
-
-        request = None
-        kwargs = {'assignment_id': self.review_assignment.id}
-
-        self.assertIsInstance(decorated_func(request, **kwargs), HttpResponseRedirect)
-
-        # test that the callback was not called
-        self.assertFalse(func.called,
-                         "reviewer_user_for_assignment_required decorator incorrectly handles request=None")
 
     def test_reviewer_user_for_assignment_required_decorator_handles_null_user(self):
         """
@@ -3542,5 +3428,6 @@ class TestSecurity(TestCase):
         request.journal = journal
         request._messages = Mock()
         request._messages.add = TestSecurity.mock_messages_add
+        request.path = '/a/fake/path/'
 
         return request
