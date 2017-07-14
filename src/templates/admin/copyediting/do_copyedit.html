@@ -59,7 +59,7 @@
                 <tr>
                     <td>{{ file.label }}</td>
                     <td>{{ file.original_filename }}</td>
-                    <td><a href=""><i class="fa fa-download">&nbsp;</i></a></td>
+                    <td><a href="{% url 'copyeditor_file' copyedit.id file.id %}"><i class="fa fa-download">&nbsp;</i></a></td>
                 </tr>
                 {% empty %}
                 <tr>
