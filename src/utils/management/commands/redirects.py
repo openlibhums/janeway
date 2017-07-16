@@ -24,9 +24,8 @@ class Command(BaseCommand):
         """
         paged = 1
 
-
         while True:
-            d = feedparser.parse('https://about.openlibhums.org/feed/?paged=%s'%paged)
+            d = feedparser.parse('https://about.openlibhums.org/feed/?paged=%s' % paged)
 
             for item in d['entries']:
                 try:

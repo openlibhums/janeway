@@ -504,8 +504,8 @@ class Article(models.Model):
     def is_accepted(self):
         # return true for all stages after accepted
         return self.stage == "Published" or self.stage == "Accepted" or self.stage == "Editor Copyediting"\
-               or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
-               or self.stage == "Typesetting" or self.stage == "Proofing"
+            or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
+            or self.stage == "Typesetting" or self.stage == "Proofing"
 
     def __str__(self):
         return u'%s - %s' % (self.pk, self.title)

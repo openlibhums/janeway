@@ -327,8 +327,8 @@ SESSION_COOKIE_NAME = 'JANEWAYSESSID'
 S3_ACCESS_KEY = ''
 S3_SECRET_KEY = ''
 S3_BUCKET_NAME = ''
-END_POINT = 'eu-west-2'  # eg. eu-west-1 
-S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com 
+END_POINT = 'eu-west-2'  # eg. eu-west-1
+S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com
 
-BACKUP_TYPE = 'directory' # s3 or directory 
-BACKUP_DIR = '/path/to/backup/dir/' 
+BACKUP_TYPE = 'directory' # s3 or directory
+BACKUP_DIR = '/path/to/backup/dir/'

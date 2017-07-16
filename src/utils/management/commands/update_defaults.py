@@ -14,7 +14,7 @@ from core import models as core_models
 def update_default_setting(default_data, db_setting):
     for default_setting in default_data:
         if default_setting['setting'].get('name') == db_setting.setting.name and \
-                        default_setting['group'].get('name') == db_setting.setting.group.name:
+                default_setting['group'].get('name') == db_setting.setting.group.name:
             print('Updating {0}'.format(db_setting.setting.name))
             default_setting['value']['default'] = db_setting.value
 

@@ -47,12 +47,12 @@ def install():
         element.save()
 
     plugin = models.Plugin.objects.get_or_create(
-            name=PLUGIN_NAME,
-            version=VERSION,
-            enabled=True,
-            display_name='News',
-            press_wide=True,
-        )
+        name=PLUGIN_NAME,
+        version=VERSION,
+        enabled=True,
+        display_name='News',
+        press_wide=True,
+    )
 
 
 def hook_registry():

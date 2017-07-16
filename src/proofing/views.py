@@ -58,21 +58,25 @@ def proofing_assign_article(request, article_id, user_id=None):
     article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
     user = get_object_or_404(core_models.Account, pk=user_id)
 
-    proofing_assignment = models.ProofingAssignment.objects.create(article=article,
-                                                                   proofing_manager=user,
-                                                                   notified=timezone.now(),
-                                                                   editor=request.user)
-    proofing_assignment.add_new_proofing_round()
+    if user.is_proofing_manager:
+        proofing_assignment = models.ProofingAssignment.objects.create(article=article,
+                                                                       proofing_manager=user,
+                                                                       notified=timezone.now(),
+                                                                       editor=request.user)
+        proofing_assignment.add_new_proofing_round()
 
-    message = "{0} has been assigned as proofing manager to {1}".format(
-        proofing_assignment.proofing_manager.full_name(),
-        proofing_assignment.article.title)
-    messages.add_message(request, messages.INFO, message)
+        message = "{0} has been assigned as proofing manager to {1}".format(
+            proofing_assignment.proofing_manager.full_name(),
+            proofing_assignment.article.title)
+        messages.add_message(request, messages.INFO, message)
 
-    kwargs = {
-        'request': request, 'proofing_assignment': proofing_assignment,
-    }
-    event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_MANAGER_ASSIGNMENT, task_object=article, **kwargs)
+        kwargs = {
+            'request': request, 'proofing_assignment': proofing_assignment,
+        }
+        event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_MANAGER_ASSIGNMENT, task_object=article, **kwargs)
+
+    else:
+        messages.add_message(request, messages.WARNING, 'User is not a proofing manager.')
 
     return redirect(reverse('proofing_list'))
 

@@ -388,7 +388,7 @@ def latest_articles(carousel, object_type):
         carousel_objects = submission_models.Article.objects.filter(
             journal=carousel.journal,
             date_published__isnull=False
-            ).order_by("-date_published")
+        ).order_by("-date_published")
     else:
         carousel_objects = submission_models.Article.objects.all().order_by("-date_published")
 
