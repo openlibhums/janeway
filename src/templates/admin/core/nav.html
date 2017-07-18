@@ -96,8 +96,12 @@
                     <ul class="menu vertical">
                         <li><a href="{% url 'submission_start' %}">Submit</a></li>
                         <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
+                        {% if request.user.is_staff or editor %}
                         <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                        {% endif %}
+                        {% if request.user.is_staff %}
                         <li><a href="/admin/">Admin</a></li>
+                        {% endif %}
                         <li><a href="{% url 'core_logout' %}">Logout</a></li>
                     </ul>
                 </div>
