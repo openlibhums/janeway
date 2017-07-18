@@ -77,7 +77,7 @@ class Interactive(Debuggable):
                 # Infer a letter.
                 for letter in option:
                     if not letter.isalpha():
-                        continue # Don't use punctuation.
+                        continue  # Don't use punctuation.
                     if letter not in letters:
                         found_letter = letter
                         break
