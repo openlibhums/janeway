@@ -338,7 +338,7 @@ def request_typesetting_changes(request, article_id, proofing_task_id):
     context = {
         'article': article,
         'proofing_task': proofing_task,
-        'typesetters': production_logic.get_typesetters(article),
+        'typesetters': logic.get_typesetters(article, proofing_task),
         'user': user if request.POST else None,
         'galleys': galleys if request.POST else None,
         'form': form,

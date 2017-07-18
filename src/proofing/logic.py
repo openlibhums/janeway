@@ -192,3 +192,15 @@ def get_complete_proofing_message(request, article):
     }
 
     return render_template.get_message_content(request, context, 'notify_editor_proofing_complete')
+
+
+
+def get_typesetters(article, proofing_task):
+    correction_tasks = models.TypesetterProofingTask.objects.filter(
+        proofing_task=proofing_task,
+        completed__isnull=True,
+        )
+
+    typesetters = [task.typesetter.pk for task in correction_tasks]
+
+    return core_models.AccountRole.objects.filter(role__slug='typesetter').exclude(user__pk__in=typesetters)
