@@ -11,7 +11,6 @@ from django.utils import timezone
 
 from core import models as core_models
 from journal import models as journal_models
-from submission import logic
 from submission import models as submission_models
 from identifiers import models as identifiers_models
 from requests.packages.urllib3.exceptions import InsecureRequestWarning

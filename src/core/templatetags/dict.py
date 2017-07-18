@@ -1,5 +1,4 @@
 from django import template
-from pprint import pprint
 
 register = template.Library()
 

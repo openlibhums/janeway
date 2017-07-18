@@ -4,7 +4,6 @@ import boto
 from boto.s3.key import Key
 import subprocess
 
-from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
@@ -95,9 +94,9 @@ def delete_used_tmp(tmp_path, start_time):
 
 def send_email(start_time, e, success=False):
     admins = models.Account.objects.filter(is_superuser=True)
-    if success:
-        messsage = ''
-    else:
+    message = ''
+
+    if not success:
         message = 'There was an error during the backup process.\n\n '
 
     send_mail(

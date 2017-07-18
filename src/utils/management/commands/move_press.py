@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from utils.management.commands import sync_journals_to_sites as sync
 from press import models as press_models

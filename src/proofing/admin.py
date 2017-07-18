@@ -3,14 +3,14 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
-from proofing.models import *
+from proofing import models
 
 admin_list = [
-    (ProofingAssignment,),
-    (ProofingRound,),
-    (ProofingTask,),
-    (TypesetterProofingTask,),
-    (Note,),
+    (models.ProofingAssignment,),
+    (models.ProofingRound,),
+    (models.ProofingTask,),
+    (models.TypesetterProofingTask,),
+    (models.Note,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

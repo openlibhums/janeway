@@ -1,7 +1,6 @@
 import sys
 import requests
 from bs4 import BeautifulSoup
-from pprint import pprint
 
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
@@ -49,7 +48,7 @@ def generate_cms_pages(object, nav_items, content):
         soup = BeautifulSoup(r.text, 'html.parser')
         html = soup.find('div', {'class': content})
 
-        if not html is None:
+        if html is not None:
             content_type = ContentType.objects.get_for_model(object)
             new_cms_page = cms_models.Page.objects.create(
                 content_type=content_type,
@@ -72,7 +71,7 @@ def generate_cms_pages(object, nav_items, content):
             html = soup.find('div', {'class': content})
             name = "{0}/{1}".format(new_cms_page.name, slugify(child.get('text')))
 
-            if not html is None:
+            if html is not None:
                 content_type = ContentType.objects.get_for_model(object)
                 child_cms_page = cms_models.Page.objects.create(
                     content_type=content_type,
@@ -91,10 +90,6 @@ def generate_cms_pages(object, nav_items, content):
 
 
 def generate_nav_entry(object, cms_page, has_children=False, parent=None, parent_nav_item=None):
-    if parent:
-        parent_url = "{0}/".format(parent.name)
-    else:
-        parent_url = ''
 
     new_nav_item = cms_models.NavigationItem.objects.create(
         object=object,

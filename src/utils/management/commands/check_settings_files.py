@@ -1,14 +1,10 @@
 import codecs
 import os
 import json
-from pprint import pprint
 
 from django.core.management.base import BaseCommand
 from django.utils import translation
 from django.conf import settings
-
-from journal import models as journal_models
-from core import models as core_models
 
 
 def update_default_setting(default_data, db_setting):
@@ -24,6 +20,8 @@ class Command(BaseCommand):
     help = "Synchronizes unspecified default settings to all journals."
 
     def handle(self, *args, **options):
+        translation.activate('en')
+
         with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), 'r+', encoding='utf-8') as json_data:
             default_data = json.load(json_data)
 

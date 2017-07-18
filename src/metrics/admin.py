@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 
-from metrics.models import *
+from metrics import models
 
 
 class ArticleAccessAdmin(admin.ModelAdmin):
@@ -19,8 +19,8 @@ class HistoricArticleAccessAdmin(admin.ModelAdmin):
 
 
 admin_list = [
-    (ArticleAccess, ArticleAccessAdmin),
-    (HistoricArticleAccess, HistoricArticleAccessAdmin),
+    (models.ArticleAccess, ArticleAccessAdmin),
+    (models.HistoricArticleAccess, HistoricArticleAccessAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

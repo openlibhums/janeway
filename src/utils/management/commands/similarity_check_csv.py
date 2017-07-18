@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from bs4 import BeautifulSoup
 import csv
 from utils.importers import shared
 
@@ -34,7 +33,7 @@ class Command(BaseCommand):
             out.writerow(['DOI', '<item crawler="iParadigms">'])
 
             for row in dict:
-                if not 'amazonaws' in row['URL'] and not 'uwp.co.uk' in row['URL']:
+                if 'amazonaws' not in row['URL'] and 'uwp.co.uk' not in row['URL']:
                     page = shared.fetch_page(row['URL'])
                     pdf_url = shared.get_pdf_url(page)
                     out.writerow([row['DOI'], pdf_url])

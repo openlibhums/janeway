@@ -58,7 +58,7 @@ class Command(BaseCommand):
                             print('This failure has previously been detected \n')
                     else:
                         try:
-                            o = ident_models.BrokenDOI.objects.get(identifier=doi).delete()
+                            ident_models.BrokenDOI.objects.get(identifier=doi).delete()
                         except ident_models.BrokenDOI.DoesNotExist:
                             pass
 

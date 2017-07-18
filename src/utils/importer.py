@@ -118,7 +118,7 @@ def import_oai(**options):
     if options['delete']:
         clear_db(journal)
 
-    soup = parse_OAI(journal, options, user)
+    parse_OAI(journal, options, user)
 
 
 def parse_OAI(journal, options, user, resume=None):

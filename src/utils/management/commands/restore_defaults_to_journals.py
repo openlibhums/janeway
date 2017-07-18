@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from django.contrib.sites import models as site_models
 from journal import models as journal_models
 
 from utils import install

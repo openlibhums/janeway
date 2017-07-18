@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
         print(journal_code, group_name, setting_name)
 
-        journal, group, setting = journal_models.Journal.objects.get(code=journal_code), None, None
+        journal, setting = journal_models.Journal.objects.get(code=journal_code), None
 
         if not group_name and not setting_name:
             setting_list = core_models.SettingValue.objects.language('en').filter(
@@ -72,7 +72,7 @@ class Command(BaseCommand):
             default_data = json.load(json_data, object_pairs_hook=OrderedDict)
 
             for setting in setting_list:
-                default_setting = update_default_setting(default_data, setting)
+                update_default_setting(default_data, setting)
 
             json_data.seek(0)
             json_data.write(json.dumps(default_data, indent=4))

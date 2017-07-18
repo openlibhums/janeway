@@ -17,7 +17,7 @@ def notify_hook(**kwargs):
 
     action = kwargs.pop('action', [])
 
-    if not 'webhook' in action:
+    if 'webhook' not in action:
         return
 
     # pop the args

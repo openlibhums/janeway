@@ -275,7 +275,7 @@ def import_issue_images(journal, user, url):
             # get a proper article object
             article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
 
-            if not article in processed:
+            if article not in processed:
 
                 print('[{0}] {1}'.format(article_order, article.title))
 

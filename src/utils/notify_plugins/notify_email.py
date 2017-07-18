@@ -47,7 +47,7 @@ def notify_hook(**kwargs):
     # Email, though, should only send if it's specifically an email in action, not on "all".
     action = kwargs.pop('action', [])
 
-    if not 'email' in action:
+    if 'email' not in action:
         # email is only sent if list of actions includes "email"
         return
 
