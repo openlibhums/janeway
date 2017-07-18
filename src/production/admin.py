@@ -3,11 +3,11 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
-from production.models import *
+from production import models
 
 admin_list = [
-    (ProductionAssignment,),
-    (TypesetTask,),
+    (models.ProductionAssignment,),
+    (models.TypesetTask,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

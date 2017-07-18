@@ -373,9 +373,7 @@ def article_production_user_required(func):
         assigned = get_object_or_404(production_models.ProductionAssignment, article=article)
 
         # If article is in production and user is the production manager
-        if ((request.user.is_production(
-                request) and assigned.production_manager.pk == request.user.pk)
-                and article.stage == models.STAGE_TYPESETTING) or request.user.is_staff:
+        if ((request.user.is_production(request) and assigned.production_manager.pk == request.user.pk) and article.stage == models.STAGE_TYPESETTING) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
         # If article is in proofing and the user is the proofing manager

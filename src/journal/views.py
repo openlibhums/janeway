@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 import json
 import os
 from shutil import copyfile
@@ -31,7 +32,7 @@ from metrics.logic import store_article_access
 from review import forms as review_forms
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
-    file_history_user_required, file_edit_user_required, production_user_or_editor_required, data_figure_file, \
+    file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
     editor_user_required
 from submission import models as submission_models
 from utils import models as utils_models, shared
@@ -358,8 +359,6 @@ def serve_article_file(request, identifier_type, identifier, file_id):
     :return: a streaming response of the requested file or 404
     """
 
-    image = False
-
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     try:
@@ -431,8 +430,6 @@ def file_reinstate(request, article_id, file_id, file_history_id):
     :param file_history_id: the file history object to reinstate
     :return: a redirect to the contents of the GET parameter 'return'
     """
-    article_to_replace = get_object_or_404(submission_models.Article, pk=article_id)
-
     current_file = get_object_or_404(core_models.File, pk=file_id)
     file_history = get_object_or_404(core_models.FileHistory, pk=file_history_id)
 
@@ -1115,7 +1112,7 @@ def submissions(request):
 def manage_article_log(request, article_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     content_type = ContentType.objects.get_for_model(article)
-    log_entries = utils_models.LogEntry.objects.filter(object_id=article.pk)
+    log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
 
     template = 'journal/article_log.html'
     context = {

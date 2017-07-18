@@ -3037,7 +3037,7 @@ class TestSecurity(TestCase):
         kwargs = {'article_id': self.article_in_production.pk}
 
         request = self.prepare_request_with_user(self.editor, self.journal_one)
-        response = decorated_func(request, **kwargs)
+        decorated_func(request, **kwargs)
         self.assertTrue(func.called,
                         "editor_is_not_author wrongly blocks editor from content")
 

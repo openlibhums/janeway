@@ -303,7 +303,7 @@ def edit_metadata(request, article_id):
     """
     article = get_object_or_404(models.Article, pk=article_id)
     info_form = forms.ArticleInfo(instance=article)
-    author, frozen_author, modal = None, None, None
+    frozen_author, modal = None, None
     return_param = request.GET.get('return')
     reverse_url = '{0}?return={1}'.format(reverse('edit_metadata', kwargs={'article_id': article.pk}), return_param)
 

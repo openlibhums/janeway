@@ -1,4 +1,3 @@
-import collections
 from journal import models
 
 

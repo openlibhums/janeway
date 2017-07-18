@@ -2,10 +2,10 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.contrib.sites import models as site_models
 from django.core.exceptions import ObjectDoesNotExist
 
-from core import models
 from journal import models as journal_models
 from press import models as press_models
 from cms import models as cms_models

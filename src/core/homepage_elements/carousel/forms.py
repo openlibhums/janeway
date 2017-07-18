@@ -1,11 +1,7 @@
-import uuid
-
 from django import forms
-from django_summernote.widgets import SummernoteWidget
 from django.contrib import messages
 
 from core.homepage_elements.carousel import models
-from journal import models as journal_models
 from submission import models as submission_models
 
 

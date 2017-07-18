@@ -5,11 +5,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.contrib import admin
-from copyediting.models import *
+from copyediting import models
 
 admin_list = [
-    (CopyeditAssignment,),
-    (AuthorReview,),
+    (models.CopyeditAssignment,),
+    (models.AuthorReview,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

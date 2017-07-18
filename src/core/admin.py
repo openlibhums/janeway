@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from hvad.admin import TranslatableAdmin
 
-from core.models import *
+from core import models
 
 
 class SettingAdmin(admin.ModelAdmin):
@@ -57,26 +57,26 @@ class HomepageElementAdmin(admin.ModelAdmin):
 
 
 admin_list = [
-    (Account, AccountAdmin),
-    (Role, RoleAdmin,),
-    (Setting, SettingAdmin),
-    (SettingGroup,),
-    (SettingValue, SettingValueAdmin),
-    (File,),
-    (AccountRole,),
-    (Interest,),
-    (Task,),
-    (TaskCompleteEvents,),
-    (Galley,),
-    (NewsItem,),
-    (EditorialGroup,),
-    (EditorialGroupMember,),
-    (PasswordResetToken, PasswordResetAdmin),
-    (OrcidToken,),
-    (DomainAlias,),
-    (Country, CountryAdmin),
-    (WorkflowElement,),
-    (HomepageElement, HomepageElementAdmin),
+    (models.Account, AccountAdmin),
+    (models.Role, RoleAdmin,),
+    (models.Setting, SettingAdmin),
+    (models.SettingGroup,),
+    (models.SettingValue, SettingValueAdmin),
+    (models.File,),
+    (models.AccountRole,),
+    (models.Interest,),
+    (models.Task,),
+    (models.TaskCompleteEvents,),
+    (models.Galley,),
+    (models.NewsItem,),
+    (models.EditorialGroup,),
+    (models.EditorialGroupMember,),
+    (models.PasswordResetToken, PasswordResetAdmin),
+    (models.OrcidToken,),
+    (models.DomainAlias,),
+    (models.Country, CountryAdmin),
+    (models.WorkflowElement,),
+    (models.HomepageElement, HomepageElementAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

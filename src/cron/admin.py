@@ -5,11 +5,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.contrib import admin
-from cron.models import *
+from cron import models
 
 admin_list = [
-    (Reminder,),
-    (SentReminder,),
+    (models.Reminder,),
+    (models.SentReminder,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

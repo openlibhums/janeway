@@ -14,7 +14,7 @@ from django.http import HttpResponse
 
 from core import files, models as core_models, plugin_loader
 from journal import models as journal_models, views as journal_views, forms as journal_forms
-from press import models as press_models, logic, forms
+from press import models as press_models, forms
 from security.decorators import press_only
 from submission import models as submission_models
 

@@ -201,7 +201,7 @@ def quick_assign(request, article):
     user_id = request.POST.get('quick_assign')
     user = core_models.Account.objects.get(pk=user_id)
 
-    if not user in request.journal.users_with_role('reviewer'):
+    if user not in request.journal.users_with_role('reviewer'):
         errors.append('This user is not a reviewer for this journal.')
 
     if not errors:

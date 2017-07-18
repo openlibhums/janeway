@@ -1,9 +1,8 @@
+#!/usr/bin/env python -W ignore::DeprecationWarning
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-
-#!/usr/bin/env python -W ignore::DeprecationWarning
 
 """
 Django settings for core project.
@@ -21,11 +20,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 import logging
-import copy
-import raven
 
 from django.contrib import messages
-from django.utils.log import DEFAULT_LOGGING
 
 from core import plugin_installed_apps
 
@@ -179,7 +175,8 @@ LOCALE_PATHS = [
 ]
 
 
-def ugettext(s): return s
+def ugettext(s):
+    return s
 
 
 LANGUAGES = (

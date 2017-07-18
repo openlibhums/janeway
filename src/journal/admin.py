@@ -3,10 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 from django.contrib import admin
 
-from journal.models import *
+from journal import models
 
 
 class IssueAdmin(admin.ModelAdmin):
@@ -23,12 +22,12 @@ class JournalAdmin(admin.ModelAdmin):
 
 
 admin_list = [
-    (Issue, IssueAdmin),
-    (Journal, JournalAdmin),
-    (PresetPublicationCheckItem,),
-    (PrePublicationChecklistItem,),
-    (FixedPubCheckItems,),
-    (ArticleOrdering,),
+    (models.Issue, IssueAdmin),
+    (models.Journal, JournalAdmin),
+    (models.PresetPublicationCheckItem,),
+    (models.PrePublicationChecklistItem,),
+    (models.FixedPubCheckItems,),
+    (models.ArticleOrdering,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

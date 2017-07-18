@@ -2,16 +2,16 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from bs4 import BeautifulSoup
-from django.core.management import call_command
-from django.core.urlresolvers import reverse
-from django.db import models
-from django.utils import timezone
-from hvad.models import TranslatableModel, TranslatedFields
 from urllib.parse import urlparse
 import uuid
 import os
 
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils import timezone
+from hvad.models import TranslatableModel, TranslatedFields
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 
@@ -527,7 +527,7 @@ class Article(models.Model):
                 # check that the retrieved article is listed in an issue TOC for the current journal
                 article_journals = [issue.journal for issue in article.issues.all()]
 
-                if not journal in article_journals:
+                if journal not in article_journals:
                     return None
 
             return article

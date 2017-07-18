@@ -6,10 +6,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 
-from press.models import *
+from press import models
 
 admin_list = [
-    (Press,),
+    (models.Press,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

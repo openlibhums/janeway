@@ -46,7 +46,7 @@ def install():
 
         element.save()
 
-    plugin = models.Plugin.objects.get_or_create(
+    models.Plugin.objects.get_or_create(
         name=PLUGIN_NAME,
         version=VERSION,
         enabled=True,

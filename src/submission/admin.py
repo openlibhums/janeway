@@ -6,7 +6,7 @@ from django.contrib import admin
 
 from hvad.admin import TranslatableAdmin
 
-from submission.models import *
+from submission import models
 
 
 class FrozenAuthorAdmin(admin.ModelAdmin):
@@ -44,13 +44,13 @@ class SectionAdmin(TranslatableAdmin):
 
 
 admin_list = [
-    (Article, ArticleAdmin),
-    (Licence, LicenseAdmin),
-    (Section, SectionAdmin),
-    (ArticleStageLog, ArticleLogAdmin),
-    (PublisherNote, PublisherNoteAdmin),
-    (Note, NoteAdmin),
-    (FrozenAuthor, FrozenAuthorAdmin),
+    (models.Article, ArticleAdmin),
+    (models.Licence, LicenseAdmin),
+    (models.Section, SectionAdmin),
+    (models.ArticleStageLog, ArticleLogAdmin),
+    (models.PublisherNote, PublisherNoteAdmin),
+    (models.Note, NoteAdmin),
+    (models.FrozenAuthor, FrozenAuthorAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

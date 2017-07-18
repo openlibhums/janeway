@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from core.homepage_elements.featured.models import *
+from core.homepage_elements.featured import models
 
 admin_list = [
-    (FeaturedArticle, ),
+    (models.FeaturedArticle, ),
 ]
 
 [admin.site.register(*t) for t in admin_list]
