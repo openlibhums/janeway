@@ -32,6 +32,7 @@ class ThemeEngineMiddleware(object):
             del _local.request
         return response
 
+
 class Loader(BaseLoader):
 
     def get_theme_dirs(self):

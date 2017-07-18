@@ -170,6 +170,7 @@ def create_paths():
     for folder in folders:
         os.makedirs(os.path.join(base_path, folder), exist_ok=True)
 
+
 def build():
     create_paths()
     print("Processing SCSS")

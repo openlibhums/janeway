@@ -8,6 +8,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from install import forms, logic
 from core import files
 
+
 @staff_member_required
 def index(request):
 

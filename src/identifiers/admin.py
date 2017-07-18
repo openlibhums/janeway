@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from identifiers.models import *
 
+
 class DOIAdmin(admin.ModelAdmin):
     """Displays Setting objects in the Django admin interface."""
     list_display = ('identifier', 'resolves_to', 'expected_to_resolve_to', 'checked')

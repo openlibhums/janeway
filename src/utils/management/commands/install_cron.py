@@ -5,11 +5,13 @@ from django.conf import settings
 
 from crontab import CronTab
 
+
 def find_job(tab, comment):
     for job in tab:
         if job.comment == comment:
             return job
     return None
+
 
 class Command(BaseCommand):
     """

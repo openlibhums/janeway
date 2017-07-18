@@ -1,6 +1,7 @@
 import requests
 import threading
 
+
 def send_message(hook_url, message, headers=None):
     # this sends a non-blocking post to a web URL
     hook_thread = threading.Thread(target=requests.post, args=(hook_url, message, headers), kwargs={})

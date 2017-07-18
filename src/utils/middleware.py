@@ -12,6 +12,7 @@ from utils import setting_handler
 import threading
 _local = threading.local()
 
+
 class ThemeEngineMiddleware(object):
     """ Handles theming through middleware
     """

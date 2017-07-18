@@ -464,6 +464,7 @@ def unlink_journal_file(request, file=None, xslt=False):
     if os.path.isfile(full_path):
         os.unlink(full_path)
 
+
 def save_file_to_press(request, file_to_handle, label, description, public=False):
     original_filename = str(file_to_handle.name)
 
@@ -524,6 +525,7 @@ def file_parents(file):
                 parent = None
 
         return files
+
 
 def file_children(file):
     from core import models

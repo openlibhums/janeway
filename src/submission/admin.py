@@ -38,6 +38,7 @@ class PublisherNoteAdmin(admin.ModelAdmin):
     list_display = ('creator', 'date_time', 'sequence')
     list_filter = ('creator',)
 
+
 class SectionAdmin(TranslatableAdmin):
     pass
 

@@ -9,6 +9,6 @@
 
 autopep8 \
     --in-place --recursive --aggressive \
-    --ignore E501,E302,E261,E401,E309 \
+    --ignore E501,E261,E401,E309 \
     --exclude *.html \
     src/

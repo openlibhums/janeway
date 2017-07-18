@@ -3,6 +3,7 @@ import shutil
 
 from django.conf import settings
 
+
 def copy_file(source, destination):
     """
     :param source: The source of the folder for copying

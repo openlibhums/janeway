@@ -103,6 +103,7 @@ def update_emails(journal_object, management_command=False):
                 if management_command:
                     print('{0} Updated'.format(setting.name))
 
+
 def update_license(journal_object, management_command=False):
     """ Updates or creates the settings for a journal from journal_defaults.json.
 

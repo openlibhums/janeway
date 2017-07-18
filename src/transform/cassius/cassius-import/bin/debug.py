@@ -6,6 +6,7 @@ __email__ = "martin@martineve.com"
 import sys
 import os
 
+
 class Debug(object):
     def __init__(self):
         """

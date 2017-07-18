@@ -177,6 +177,8 @@ TIME_ZONE = 'UTC'
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'core', 'locales')
 ]
+
+
 def ugettext(s): return s
 
 
@@ -281,6 +283,7 @@ RAVEN_CONFIG = {
     'dsn': '',
 }
 '''
+
 
 class SuppressDeprecated(logging.Filter):
     def filter(self, record):

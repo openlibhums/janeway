@@ -6,6 +6,7 @@ from django.db import models
 
 from submission.models import Article
 
+
 class Preprint(models.Model):
     article = models.ForeignKey(Article)
     doi = models.CharField(max_length=100)
@@ -15,10 +16,12 @@ class Preprint(models.Model):
         self.curent_version = self.curent_version + 1
         self.save()
 
+
 class PreprintVersion(models.Model):
     preprint = models.ForeignKey(Preprint)
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='version_files')
     version = models.IntegerField(default=1)
+
 
 class DOIPurchase(models.Model):
     preprint = models.ForeignKey(Preprint)

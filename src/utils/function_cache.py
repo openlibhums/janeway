@@ -6,6 +6,7 @@ from hashlib import sha1
 
 from django.core.cache import cache as django_cache
 
+
 def cache(seconds=900):
 
     def do_cache(f):

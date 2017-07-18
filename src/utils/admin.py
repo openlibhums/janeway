@@ -7,6 +7,7 @@ from hvad.admin import TranslatableAdmin
 
 from utils.models import *
 
+
 class SettingValueAdmin(TranslatableAdmin):
     pass
 

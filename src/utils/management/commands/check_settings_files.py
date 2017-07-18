@@ -17,6 +17,7 @@ def update_default_setting(default_data, db_setting):
             print('Updating {0}'.format(db_setting.setting.name))
             default_setting['setting']['value'] = db_setting.value
 
+
 class Command(BaseCommand):
     """A management command to synchronize all default settings to all journals."""
 

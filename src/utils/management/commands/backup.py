@@ -57,6 +57,7 @@ def copy_files(src_path, dest_path):
 def mycb(so_far, total):
     print('{0} kb transferred out of {1}'.format(so_far / 1024, total / 1024))
 
+
 def handle_s3(tmp_path, start_time):
     print("Sending to S3.")
     file_name = '{0}.zip'.format(start_time)
