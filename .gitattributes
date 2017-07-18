@@ -1,0 +1,6 @@
+src/static/* linguist-vendored
+src/themes/OLH/assets/font-awesome/* linguist-vendored
+src/themes/OLH/assets/jquery/* linguist-vendored
+src/themes/OLH/assets/motion-ui/* linguist-vendored
+src/themes/OLH/assets/foundation-sites/* linguist-vendored
+src/themes/default/css/*
