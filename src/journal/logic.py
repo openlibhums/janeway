@@ -107,7 +107,7 @@ def handle_new_issue(request):
         new_issue.save()
     else:
         new_issue = None
-    return [form, 'issuemodal', new_issue]
+    return [form, 'issue', new_issue]
 
 
 def handle_assign_issue(request, article, issues):

@@ -50,6 +50,9 @@
             </div>
             <div class="card-section">
                 <div class="callout">
+                    {% include "elements/forms/errors.html" with form=new_issue_form %}
+                    <form method="POST">
+                    {% csrf_token %}
                     <div class="row">
                         <div class="large-12 columns">
                             {{ new_issue_form.issue_title|foundation }}
@@ -60,8 +63,11 @@
                         <div class="large-6 columns">
                             {{ new_issue_form.issue|foundation }}
                         </div>
-                        <div class="large-12 columns">
+                        <div class="large-6 columns">
                             {{ new_issue_form.date|foundation }}
+                        </div>
+                        <div class="large-6 columns">
+                            {{ new_issue_form.issue_type|foundation }}
                         </div>
                         <div class="large-12 columns">
                             {{ new_issue_form.issue_description|foundation }}
@@ -70,6 +76,7 @@
                             <button name="new_issue" type="submit" class="button success">Add Issue</button>
                         </div>
                     </div>
+                    </form>
                 </div>
             </form>
 
