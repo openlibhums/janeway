@@ -27,45 +27,15 @@
                 <tr style="text-align: left">
                     <th>Label</th>
                     <th width="25%">Filename</th>
-                    <th>Type</th>
                     <th>Download</th>
                 </tr>
-                {% for file in manuscripts %}
+                {% for file in typeset_task.files_for_typesetting.all %}
                     {% can_view_file file as can_view_file_flag %}
                     {% can_edit_file file article as can_edit_file_flag %}
                     {% can_view_file_history file article as can_view_file_history_flag %}
                     <tr>
                         <td>{{ file.label }}</td>
                         <td>{{ file.original_filename|truncatechars:40 }}</td>
-                        <td>Manuscript</td>
-                        <td>{% if can_view_file_flag %}
-                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
-                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-                {% for file in data_files %}
-                    {% can_view_file file as can_view_file_flag %}
-                    {% can_edit_file file article as can_edit_file_flag %}
-                    {% can_view_file_history file article as can_view_file_history_flag %}
-                    <tr>
-                        <td>{{ file.label }}</td>
-                        <td>{{ file.original_filename|truncatechars:40 }}</td>
-                        <td>Data/Figure</td>
-                        <td>{% if can_view_file_flag %}
-                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
-                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-                {% for file in copyedit_files %}
-                    {% can_view_file file as can_view_file_flag %}
-                    {% can_edit_file file article as can_edit_file_flag %}
-                    {% can_view_file_history file article as can_view_file_history_flag %}
-                    <tr>
-                        <td>{{ file.label }}</td>
-                        <td>{{ file.original_filename|truncatechars:40 }}</td>
-                        <td>Copyedit</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a>{% endif %}
