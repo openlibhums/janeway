@@ -9,8 +9,8 @@
             <form method="POST">
                 {% csrf_token %}
                 <p><strong>In an Issue: </strong>
-                    {% if article.issues %}
-                    <i class="fa fa-check-square" style="color: green;"></i>
+                    {% if article.issues_list %}
+                    <i class="fa fa-check-circle-o" style="color: green;"></i>
                     {% else %}
                     <i class="fa fa-times-circle-o" style="color: red;"></i>
                     {% endif %}</p>
