@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load static from staticfiles %}
 
 {% block title %}Add Copyeditor{% endblock %}
 {% block title-section %}Add Copyeditor{% endblock %}
@@ -16,6 +17,7 @@
             {% csrf_token %}
             <div class="title-area">
                 <h2>1. Select Copyeditor</h2>
+                <a href="#" data-open="enrol" class="button">Enrol Users</a>
             </div>
             <div class="content">
                 {% include "elements/forms/errors.html" with form=form %}
@@ -98,6 +100,7 @@
         </form>
     </div><!--/col-lg-12 -->
 
+    {% include "elements/roles/enrol_modal.html" with role="copyeditor" currentholders=copyeditors %}
 
 {% endblock body %}
 
@@ -105,4 +108,6 @@
     {% include "elements/datatables.html" with target="#reviewers" %}
     {% include "elements/datepicker.html" with target="#id_due" %}
     {% include "elements/jqte.html" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script src="{% static "common/js/accountrole.js" %}"></script>
 {% endblock js %}

@@ -77,6 +77,10 @@ class Press(models.Model):
         return journal_models.Journal.objects.all()
 
     @staticmethod
+    def users():
+        return core_models.Account.objects.all()
+
+    @staticmethod
     def press_url(request):
         return 'http{0}://{1}{2}'.format('s' if request.is_secure() else '',
                                          Press.get_press(request).domain,

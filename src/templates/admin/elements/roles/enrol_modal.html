@@ -1,0 +1,39 @@
+{% load roles %}
+<div class="reveal small" id="enrol" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-user">&nbsp;</i>Enrol User</h4>
+        </div>
+        <div class="card-section">
+        <table>
+        	<thead>
+        	<tr>
+        		<th>Email</th>
+        		<th>First Name</th>
+        		<th>Last Name</th>
+        		<th></th>
+        	</tr>
+        	</thead>
+        	<tbody>
+        	{% role_users request role as role_holders %}
+        	{% role_id request role as role_pk %}
+        	{% for user in request.press.users %}
+        	{% if user not in role_holders %}
+        	<tr id="{{ user.pk }}">
+        		<td>{{ user.email }}</td>
+        		<td>{{ user.first_name }}</td>
+        		<td>{{ user.last_name }}</td>
+        		<td><button onclick="add_role({{ user.pk }}, {{ role_pk }}, {{request.journal.pk}})" class="tiny success button">Enrol</button>
+        	</tr>
+        	{% endif %}
+        	{% empty %}
+        	{% endfor %}
+        	</tbody>
+        </table>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
