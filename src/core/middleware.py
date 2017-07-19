@@ -52,12 +52,12 @@ class SiteSettingsMiddleware(object):
             request.journal_base_url = request.journal.full_url(request)
             request.journal_cover = request.journal.override_cover(request)
             request.site_type = request.journal
-            request.content_type = ContentType.objects.get_for_model(request.journal)
+            request.model_content_type = ContentType.objects.get_for_model(request.journal)
         except ObjectDoesNotExist:
             # likely the press site, so set journal to None
             request.journal = None
             request.site_type = request.press
-            request.content_type = ContentType.objects.get_for_model(request.press)
+            request.model_content_type = ContentType.objects.get_for_model(request.press)
         except MultipleObjectsReturned:
             # more than one journal returned for this domain
             # this is likely due to misconfiguration but shouldn't happen due to unique constraints

@@ -15,14 +15,14 @@ from core import files
 
 @staff_member_required
 def index(request):
-    pages = models.Page.objects.filter(content_type=request.content_type)
-    top_nav_items = models.NavigationItem.objects.filter(content_type=request.content_type,
+    pages = models.Page.objects.filter(content_type=request.model_content_type)
+    top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
 
     if request.POST and 'delete' in request.POST:
         page_id = request.POST.get('delete')
-        page = get_object_or_404(models.Page, pk=page_id, content_type=request.content_type)
+        page = get_object_or_404(models.Page, pk=page_id, content_type=request.model_content_type)
         page.delete()
         return redirect(reverse('cms_index'))
 
@@ -52,7 +52,7 @@ def index(request):
 
 
 def view_page(request, page_name):
-    current_page = get_object_or_404(models.Page, name=page_name, content_type=request.content_type)
+    current_page = get_object_or_404(models.Page, name=page_name, content_type=request.model_content_type)
 
     if request.journal:
         template = 'cms/page.html'
@@ -68,7 +68,7 @@ def view_page(request, page_name):
 @staff_member_required
 def page_manage(request, page_id=None):
     if page_id:
-        page = get_object_or_404(models.Page, pk=page_id, content_type=request.content_type)
+        page = get_object_or_404(models.Page, pk=page_id, content_type=request.model_content_type)
         page_form = forms.PageForm(instance=page)
         edit = True
     else:
@@ -85,7 +85,7 @@ def page_manage(request, page_id=None):
 
         if page_form.is_valid():
             page = page_form.save(commit=False)
-            page.content_type = request.content_type
+            page.content_type = request.model_content_type
             page.object_id = request.site_type.pk
             page.is_markdown = request.POST.get('is_markdown', False)
             page.save()
@@ -113,7 +113,7 @@ def nav(request, nav_id=None):
         nav_to_edit = None
         form = forms.NavForm(request=request)
 
-    top_nav_items = models.NavigationItem.objects.filter(content_type=request.content_type,
+    top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
 
@@ -131,7 +131,7 @@ def nav(request, nav_id=None):
 
         if form.is_valid():
             new_nav_item = form.save(commit=False)
-            new_nav_item.content_type = request.content_type
+            new_nav_item.content_type = request.model_content_type
             new_nav_item.object_id = request.site_type.pk
             new_nav_item.save()
 

@@ -76,7 +76,7 @@ def navigation(request):
     :param request: the active request
     :return: the active path that corresponds to this request or an empty string if at root
     """
-    top_nav_items = cms_models.NavigationItem.objects.filter(content_type=request.content_type,
+    top_nav_items = cms_models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                              object_id=request.site_type.pk,
                                                              top_level_nav__isnull=True)
 

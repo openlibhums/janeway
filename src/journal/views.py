@@ -48,7 +48,7 @@ def home(request):
     issues_objects = models.Issue.objects.filter(journal=request.journal)
     sections = submission_models.Section.objects.filter(journal=request.journal)
 
-    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.content_type,
+    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.model_content_type,
                                                                    object_id=request.journal.pk,
                                                                    active=True).order_by('sequence')
 
@@ -1037,7 +1037,7 @@ def contact(request):
         if contact_form.is_valid():
             new_contact = contact_form.save(commit=False)
             new_contact.client_ip = shared.get_ip_address(request)
-            new_contact.content_type = request.content_type
+            new_contact.content_type = request.model_content_type
             new_contact.object_ic = request.site_type.pk
             new_contact.save()
 
@@ -1048,7 +1048,7 @@ def contact(request):
     template = 'journal/contact.html'
     context = {
         'contact_form': contact_form,
-        'contacts': core_models.Contacts.objects.filter(content_type=request.content_type,
+        'contacts': core_models.Contacts.objects.filter(content_type=request.model_content_type,
                                                         object_id=request.site_type.pk)
     }
 
@@ -1068,7 +1068,7 @@ def editorial_team(request):
 
 def sitemap(request):
     articles = submission_models.Article.objects.filter(date_published__lte=timezone.now(), journal=request.journal)
-    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.content_type)
+    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
 
     template = 'journal/sitemap.xml'
 

@@ -695,22 +695,22 @@ def settings_home(request):
     # 1. An excluded list of homepage items
     # 2. A list of active homepage items
 
-    active_elements = models.HomepageElement.objects.filter(content_type=request.content_type,
+    active_elements = models.HomepageElement.objects.filter(content_type=request.model_content_type,
                                                             object_id=request.site_type.pk, active=True)
     active_pks = [f.pk for f in active_elements.all()]
 
     if request.press and not request.journal:
-        elements = models.HomepageElement.objects.filter(content_type=request.content_type,
+        elements = models.HomepageElement.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          available_to_press=True).exclude(pk__in=active_pks)
     else:
-        elements = models.HomepageElement.objects.filter(content_type=request.content_type,
+        elements = models.HomepageElement.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk).exclude(pk__in=active_pks)
 
     if 'add' in request.POST:
         element_id = request.POST.get('add')
         homepage_element = get_object_or_404(models.HomepageElement, pk=element_id,
-                                             content_type=request.content_type, object_id=request.site_type.pk)
+                                             content_type=request.model_content_type, object_id=request.site_type.pk)
 
         homepage_element.active = True
         homepage_element.save()
@@ -720,7 +720,7 @@ def settings_home(request):
     if 'delete' in request.POST:
         element_id = request.POST.get('delete')
         homepage_element = get_object_or_404(models.HomepageElement, pk=element_id,
-                                             content_type=request.content_type, object_id=request.site_type.pk)
+                                             content_type=request.model_content_type, object_id=request.site_type.pk)
 
         homepage_element.active = False
         homepage_element.save()
@@ -742,7 +742,7 @@ def journal_home_order(request):
         ids = request.POST.getlist('element[]')
         ids = [int(_id) for _id in ids]
 
-        for he in models.HomepageElement.objects.filter(content_type=request.content_type,
+        for he in models.HomepageElement.objects.filter(content_type=request.model_content_type,
                                                         object_id=request.site_type.pk, active=True):
             he.sequence = ids.index(he.pk)
             he.save()
@@ -763,7 +763,7 @@ def oai(request):
 
 @editor_user_required
 def news(request):
-    new_items = models.NewsItem.objects.filter(content_type=request.content_type,
+    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
                                                object_id=request.site_type.pk).order_by('-posted')
     form = forms.NewsItemForm()
     new_file = None
@@ -772,7 +772,7 @@ def news(request):
         news_item_pk = request.POST.get('delete')
         item = get_object_or_404(models.NewsItem,
                                  pk=news_item_pk,
-                                 content_type=request.content_type,
+                                 content_type=request.model_content_type,
                                  object_id=request.site_type.pk)
         item.delete()
         return redirect(reverse('core_manager_news'))
@@ -783,16 +783,16 @@ def news(request):
         if request.FILES:
             uploaded_file = request.FILES.get('image_file')
 
-            if request.content_type.name == 'journal':
+            if request.model_content_type.name == 'journal':
                 new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
                 logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.content_type.name == 'press':
+            elif request.model_content_type.name == 'press':
                 new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
                 logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
 
         if form.is_valid():
             new_item = form.save(commit=False)
-            new_item.content_type = request.content_type
+            new_item.content_type = request.model_content_type
             new_item.object_id = request.site_type.pk
             new_item.posted_by = request.user
             new_item.posted = timezone.now()
@@ -813,7 +813,7 @@ def news(request):
 
 @staff_member_required
 def edit_news(request, news_pk):
-    new_items = models.NewsItem.objects.filter(content_type=request.content_type,
+    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
                                                object_id=request.site_type.pk).order_by('-posted')
     news_item = get_object_or_404(models.NewsItem, pk=news_pk)
     form = forms.NewsItemForm(instance=news_item)
@@ -837,10 +837,10 @@ def edit_news(request, news_pk):
         if request.FILES:
             uploaded_file = request.FILES.get('image_file')
 
-            if request.content_type.name == 'journal':
+            if request.model_content_type.name == 'journal':
                 new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
                 logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.content_type.name == 'press':
+            elif request.model_content_type.name == 'press':
                 new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
                 logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
 
@@ -928,7 +928,7 @@ def serve_news_file(request, identifier_type, identifier, file_id):
     """
 
     new_item = models.NewsItem.objects.get(
-        content_type=request.content_type,
+        content_type=request.model_content_type,
         object_id=request.site_type.pk,
         pk=identifier
     )
@@ -938,7 +938,7 @@ def serve_news_file(request, identifier_type, identifier, file_id):
 
 def news_list(request):
     news_objects = models.NewsItem.objects.filter(
-        (Q(content_type=request.content_type) & Q(object_id=request.site_type.id)) &
+        (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
         (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
         (Q(end_display__gte=timezone.now()) | Q(end_display=None))
     ).order_by('-posted')
@@ -966,7 +966,7 @@ def news_list(request):
 
 
 def news_item(request, news_pk):
-    item = get_object_or_404(models.NewsItem, pk=news_pk, content_type=request.content_type)
+    item = get_object_or_404(models.NewsItem, pk=news_pk, content_type=request.model_content_type)
 
     if request.journal:
         template = 'core/news/item.html'
@@ -982,13 +982,13 @@ def news_item(request, news_pk):
 @editor_user_required
 def contacts(request):
     form = forms.JournalContactForm()
-    contacts = models.Contacts.objects.filter(content_type=request.content_type, object_id=request.site_type.pk)
+    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
 
     if 'delete' in request.POST:
         contact_id = request.POST.get('delete')
         contact = get_object_or_404(models.Contacts,
                                     pk=contact_id,
-                                    content_type=request.content_type,
+                                    content_type=request.model_content_type,
                                     object_id=request.site_type.pk)
         contact.sequence = request.journal.next_contact_order()
         contact.delete()
@@ -999,7 +999,7 @@ def contacts(request):
 
         if form.is_valid():
             contact = form.save(commit=False)
-            contact.content_type = request.content_type
+            contact.content_type = request.model_content_type
             contact.object_id = request.site_type.pk
             contact.save()
             return redirect(reverse('core_journal_contacts'))
@@ -1018,10 +1018,10 @@ def contacts(request):
 def edit_contacts(request, contact_id):
     contact = get_object_or_404(models.Contacts,
                                 pk=contact_id,
-                                content_type=request.content_type,
+                                content_type=request.model_content_type,
                                 object_id=request.site_type.pk)
     form = forms.JournalContactForm(instance=contact)
-    contacts = models.Contacts.objects.filter(content_type=request.content_type, object_id=request.site_type.pk)
+    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
 
     if request.POST:
         form = forms.JournalContactForm(request.POST, instance=contact)
@@ -1045,7 +1045,7 @@ def contacts_order(request):
         ids = request.POST.getlist('contact[]')
         ids = [int(_id) for _id in ids]
 
-        for jc in models.Contacts.objects.filter(content_type=request.content_type, object_id=request.site_type.pk):
+        for jc in models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk):
             jc.sequence = ids.index(jc.pk)
             jc.save()
 

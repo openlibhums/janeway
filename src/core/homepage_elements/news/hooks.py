@@ -20,7 +20,7 @@ def yield_homepage_element_context(request, homepage_elements):
 
         news_items = core_models.NewsItem.objects.filter(
             (Q(object_id=request.site_type.pk) and
-             Q(content_type=request.content_type)) &
+             Q(content_type=request.model_content_type)) &
             (Q(start_display__lte=timezone.now()) |
              Q(start_display=None)) &
             (Q(end_display__gte=timezone.now()) | Q(end_display=None))

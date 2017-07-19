@@ -27,6 +27,6 @@ class NavForm(forms.ModelForm):
         super(NavForm, self).__init__(*args, **kwargs)
 
         self.fields['top_level_nav'].queryset = models.NavigationItem.objects.filter(
-            content_type=request.content_type,
+            content_type=request.model_content_type,
             has_sub_nav=True,
         )

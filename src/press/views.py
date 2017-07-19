@@ -24,7 +24,7 @@ def index(request):
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
 
-    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.content_type,
+    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.model_content_type,
                                                                    object_id=request.press.pk,
                                                                    active=True).order_by('sequence')
 

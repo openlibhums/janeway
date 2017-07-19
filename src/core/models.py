@@ -262,7 +262,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def add_account_role(self, role_slug, journal):
         role = Role.objects.get(slug=role_slug)
-        AccountRole.objects.get_or_create(role=role, user=self, journal=journal)
+        return AccountRole.objects.get_or_create(role=role, user=self, journal=journal)
 
     def remove_account_role(self, role_slug, journal):
         role = Role.objects.get(slug=role_slug)
