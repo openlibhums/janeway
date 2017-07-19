@@ -86,9 +86,6 @@ class Journal(models.Model):
     # Display sequence on the Journals page
     sequence = models.PositiveIntegerField(default=0)
 
-    # We can pin articles to the articles page based on this m2m
-    pinned_articles = models.ManyToManyField('submission.Article', related_name='pinned_articles')
-
     # this has to be handled this way so that we can add migrations to press
     try:
         press_name = press_models.Press.get_press(None).name
