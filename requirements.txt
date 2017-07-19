@@ -14,6 +14,7 @@ django-settings-export==1.2.1
 django-simple-math-captcha==1.0.7
 django-summernote==0.8.2
 django-treebeard==4.0.1
+djangorestframework==3.6.3
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
 -e git+https://github.com/BirkbeckCTP/django-foundation-form#egg=foundationform

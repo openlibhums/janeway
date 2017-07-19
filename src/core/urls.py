@@ -43,6 +43,8 @@ urlpatterns = [
     url(r'^cron/', include('cron.urls')),
     url(r'^install/', include('install.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^api/', include('api.urls')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
 
     # Root Site URLS
