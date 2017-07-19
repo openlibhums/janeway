@@ -1,0 +1,115 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_pinned_articles' %}">Pinned Articles</a></li>
+{% endblock %}
+
+{% block title-section %}Pinned Articles{% endblock %}
+{% block title-sub %}Allows you to pin articles to the head of the article list.{% endblock %}
+
+
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal's Published Articles</h2>
+                <a href="{% url 'core_manager_index' %}" class="button">Go back</a>
+                <a href="#" data-open="published_articles" class="button">Pin an Article</a>
+            </div>
+            <div class="content">
+                <form method="POST">
+                {% csrf_token %}
+                <table class="small">
+                    <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th width="15%">Title</th>
+                        <th width="15%">DOI</th>
+                        <th width="15%">Main Author</th>
+                        <th width="30%">Date Published</th>
+                        <th width="20%"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
+                    {% for pin in pinned_articles %}                       
+                        <tr id="orders-{{ pin.pk }}">
+                            <td>{{ pin.sequence }}</td>
+                            <td>{{ pin.article.title|safe }}</td>
+                            <td>{{ pin.article.doi }}</td>
+                            <td>{{ pin.article.correspondence_author.full_name }}</td>
+                            <td>{{ pin.article.date_published }}</td>
+                            <td><button type="submit" value="{{ pin.pk }}" class="tiny alert button" name="unpin">Unpin</button></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="reveal small" id="published_articles" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-folder-open-o">&nbsp;</i>Set Issue</h4>
+            </div>
+            <div class="card-section">
+                <form method="POST">
+                    {% csrf_token %}
+                    <table class="small" id='articles'>
+                        <thead>
+                        <tr>
+                            <th width="15%">Title</th>
+                            <th width="15%">DOI</th>
+                            <th width="15%">Main Author</th>
+                            <th width="30%">Date Published</th>
+                            <th width="20%"></th>
+                        </tr>
+                        </thead>
+                        {% for article in published_articles %}
+                            {% if article.is_published %}                         
+                            <tr>
+                                <td>{{ article.title|safe }}</td>
+                                <td>{{ article.doi }}</td>
+                                <td>{{ article.correspondence_author.full_name }}</td>
+                                <td>{{ article.date_published }}</td>
+                                <td><button type="submit" value="{{ article.pk }}" class="tiny success button" name="pin">Pin</button></td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </form>
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#articles" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'core_pinned_articles' %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
+{% endblock js %}

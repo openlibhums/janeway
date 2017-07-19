@@ -151,6 +151,7 @@ urlpatterns = [
         review_views.edit_review_form,
         name='edit_review_form_element'),
 
+    # Notifications
     url(r'^manager/notifications/$',
         core_views.manage_notifications, name='core_manager_notifications'),
     url(r'^manager/notifications/(?P<notification_id>\d+)/$',
@@ -167,6 +168,9 @@ urlpatterns = [
     url(r'^manager/sections/(?P<section_id>\d+)/$',
         core_views.sections, name='core_manager_section'),
 
+    # Pinned Articles
+    url(r'^manager/articles/pinned/$',
+        core_views.pinned_articles, name='core_pinned_articles'),
 
     # Press manager
     url(r'^manager/press/$',

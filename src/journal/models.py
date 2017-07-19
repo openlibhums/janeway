@@ -273,6 +273,26 @@ class Journal(models.Model):
 
         return self.carousel, carousel_objects
 
+    def next_pa_seq(self):
+        "Works out what the next pinned article sequence should be."
+        pinned_articles = PinnedArticle.objects.filter(journal=self).reverse()
+        if pinned_articles:
+            return pinned_articles[0].sequence + 1
+        else:
+            return 0
+
+
+class PinnedArticle(models.Model):
+    journal = models.ForeignKey(Journal)
+    article = models.ForeignKey('submission.Article')
+    sequence = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('sequence',)
+
+    def __str__(self):
+        return '{0}, {1}: {2}'.format(self.sequence, self.journal.code, self.article.title)
+
 
 class Issue(models.Model):
     journal = models.ForeignKey(Journal)

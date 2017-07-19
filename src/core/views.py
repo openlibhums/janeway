@@ -1373,6 +1373,44 @@ def sections(request, section_id=None):
     return render(request, template, context)
 
 
+@editor_user_required
+def pinned_articles(request):
+    """
+    Allows an Editor to pin articles to the top of the article page.
+    """
+    pinned_articles = journal_models.PinnedArticle.objects.filter(journal=request.journal)
+    published_articles = logic.get_unpinned_articles(request, pinned_articles)
+
+    if request.POST:
+        if 'pin' in request.POST:
+            article_id = request.POST.get('pin')
+            article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
+            journal_models.PinnedArticle.objects.create(
+                article=article,
+                journal=request.journal,
+                sequence=request.journal.next_pa_seq())
+            messages.add_message(request, messages.INFO, 'Article pinned.')
+
+        if 'unpin' in request.POST:
+            article_id = request.POST.get('unpin')
+            pinned_article = get_object_or_404(journal_models.PinnedArticle, journal=request.journal, pk=article_id)
+            pinned_article.delete()
+            messages.add_message(request, messages.INFO, 'Article unpinned.')
+
+        if 'orders[]' in request.POST:
+            logic.order_pinned_articles(request, pinned_articles)
+
+        return redirect(reverse('core_pinned_articles'))
+
+    template = 'core/manager/pinned_articles.html'
+    context = {
+        'pinned_articles': pinned_articles,
+        'published_articles': published_articles,
+    }
+
+    return render(request, template, context)
+
+
 @staff_member_required
 def journal_workflow(request):
     """
@@ -1421,7 +1459,6 @@ def order_workflow_elements(request):
 
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist('element[]')]
-        print(ids)
 
         for element in workflow.elements.all():
             order = ids.index(element.pk)

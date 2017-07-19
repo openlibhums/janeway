@@ -9444,3 +9444,13 @@ code {
 .index-header {
   margin-bottom: 15px;
 }
+
+.navbar svg {
+  max-height: 60px;
+  max-width: 100px;
+}
+
+footer svg {
+  max-height: 60px;
+  max-width: 100px;
+}

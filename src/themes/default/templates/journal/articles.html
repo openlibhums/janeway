@@ -9,7 +9,12 @@
 {% block body %}
     <div class="row">
     <div class="col-md-8">
-        <hr>
+        {% if pinned_articles and articles.number == 1 and not active_filters %}
+            {% for article in pinned_articles %}
+                {% include "elements/article_listing.html" with article=article %}
+            {% endfor %}
+        {% endif %}
+
         {% for article in articles %}
             {% include "elements/article_listing.html" with article=article %}
         {% empty %}
@@ -62,10 +67,11 @@
                                                                  value="{{ section.id }}" type="checkbox"
                                                                  name="filter[]"
                                                                  {% if section.id in filters %}checked="checked"{% endif %}>&nbsp{{ section.name }}
-                    </label>
+                    </label><br />
                 {% endfor %}
             <br/>
                 <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                {% if active_filters %}<button type="submit" class="btn btn-primary" name="clear">{% trans "Clear Filters" %}</button>{% endif %}
             </div>
         </form>
     </div>

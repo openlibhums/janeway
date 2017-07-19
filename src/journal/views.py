@@ -99,16 +99,23 @@ def articles(request):
     :param request: the request associated with this call
     :return: a rendered template of all articles
     """
+    if request.POST and 'clear' in request.POST:
+        return logic.unset_article_session_variables(request)
+
     sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
                                                                                    is_filterable=True)
-    page, show, filters, sort, redirect = logic.handle_article_controls(request, sections)
+    page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
 
     if redirect:
         return redirect
 
+    pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
+        journal=request.journal)]
+    pinned_article_pks = [article.pk for article in pinned_articles]
     article_objects = submission_models.Article.objects.filter(journal=request.journal,
                                                                date_published__lte=timezone.now(),
-                                                               section__pk__in=filters).order_by(sort)
+                                                               section__pk__in=filters).order_by(sort).exclude(
+                                                               pk__in=pinned_article_pks)
 
     paginator = Paginator(article_objects, show)
 
@@ -121,11 +128,13 @@ def articles(request):
 
     template = 'journal/articles.html'
     context = {
+        'pinned_articles': pinned_articles,
         'articles': articles,
         'sections': sections,
         'filters': filters,
         'sort': sort,
         'show': show,
+        'active_filters': active_filters,
     }
     return render(request, template, context)
 

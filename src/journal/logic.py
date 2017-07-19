@@ -264,20 +264,35 @@ def handle_article_controls(request, sections):
         sort = request.POST.get('sort', '-date_published')
         filters = [int(filter) for filter in filters]
 
-        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort)
+        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort), True
     else:
         page = request.GET.get('page', 1)
         filters = request.session.get('article_filters', [section.pk for section in sections])
         show = request.session.get('article_show', 10)
         sort = request.session.get('article_sort', '-date_published')
+        active_filters = request.session.get('active_filters', False)
 
-        return page, show, filters, sort, None
+        return page, show, filters, sort, None, active_filters
 
 
 def set_article_session_variables(request, page, filters, show, sort):
     request.session['article_filters'] = filters
     request.session['article_show'] = show
     request.session['article_sort'] = sort
+    request.session['active_filters'] = True
+
+    return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
+
+
+def unset_article_session_variables(request):
+    del request.session['article_filters']
+    del request.session['article_show']
+    del request.session['article_sort']
+    del request.session['active_filters']
+
+    request.session.modified = True
+
+    page = request.GET.get('page', 1)
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 

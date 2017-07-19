@@ -434,3 +434,16 @@ def sort_mixed(article_objects, news_objects):
             carousel_objects.append(article)
 
     return carousel_objects
+
+
+def get_unpinned_articles(request, pinned_articles):
+    articles_pinned = [pin.article.pk for pin in pinned_articles]
+    return submission_models.Article.objects.filter(journal=request.journal).exclude(pk__in=articles_pinned)
+
+
+def order_pinned_articles(request, pinned_articles):
+    ids = [int(_id) for _id in request.POST.getlist('orders[]')]
+
+    for pin in pinned_articles:
+        pin.sequence = ids.index(pin.pk)
+        pin.save()
