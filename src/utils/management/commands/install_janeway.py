@@ -21,6 +21,7 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        call_command('migrate')
         print("Please answer the following questions.\n")
         translation.activate('en')
 
