@@ -147,6 +147,7 @@ def issues(request):
 
 @has_journal
 def current_issue(request, show_sidebar=True):
+    """ Renders the current journal issue"""
     return issue(request, request.journal.current_issue_id, show_sidebar=show_sidebar)
 
 
@@ -284,12 +285,6 @@ def print_article(request, identifier_type, identifier):
     """
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
-    """
-    logger.add_entry(types='Info',
-                     description='Article hit for identifier {0} of type {1}'.format(identifier, identifier_type),
-                     level='Info', actor=None, target=article_object)
-    """
-
     content = None
     galleys = article_object.galley_set.all()
 
@@ -338,6 +333,13 @@ def edit_article(request, identifier_type, identifier):
 
 
 def download_galley(request, article_id, galley_id):
+    """ Serves a galley file for an article
+    
+    :param request: an HttpRequest object
+    :param article_id: an Article object PK
+    :param galley_id: an Galley object PK
+    :return: a streaming response of the requested file or a 404.
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
@@ -566,6 +568,14 @@ def article_file_make_galley(request, article_id, file_id):
 
 
 def article_figure(request, article_id, galley_id, file_name):
+    """ Returns a galley article figure
+
+    :param request: an HttpRequest object
+    :param article_id: an Article object PK
+    :param galley_id: an Galley object PK
+    :param file_name: an File object name
+    :return: a streaming file response or a 404 if not found
+    """
     figure_article = get_object_or_404(submission_models.Article, pk=article_id)
     galley = get_object_or_404(core_models.Galley, pk=galley_id, article=figure_article)
 
