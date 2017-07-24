@@ -59,15 +59,16 @@
                 </table>
 
                 <h5>Proofreader</h5>
+                <a href="#" data-open="enrol" class="button">Enrol Users</a>
                 <p>
                     <small>Select the proofreader for this proofing task.</small>
                 </p>
-                <table class="table table-bordered small" id="reviewers">
+                <table class="table table-bordered small" id="proofreader">
                     <thead>
                     <tr>
                         <th>Select</th>
-                        <th>Name</th>
-                        <th>Email Address</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
                         <th>Role</th>
                     </tr>
                     </thead>
@@ -77,8 +78,8 @@
                         <tr>
                             <td><input type="radio" name="proofreader" value="{{ proofreader.user.id }}"
                                        {% if proofreader.user == user %}checked="checked"{% endif %}></td>
-                            <td>{{ proofreader.user.full_name }}</td>
-                            <td>{{ proofreader.user.email }}</td>
+                            <td>{{ proofreader.user.first_name }}</td>
+                            <td>{{ proofreader.user.last_name }}</td>
                             <td>{{ proofreader.role|capfirst }}</td>
                         </tr>
                     {% empty %}
