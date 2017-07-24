@@ -16,7 +16,7 @@ function add_role(user_id, role_id, journal_id){
             $("#" + user_id ).remove()
             user_row.find('td:first').html('<input name="' + enrol_type + '" value="' + user_id + ' " type="radio">')
             user_row.find('td:last').html('0')
-            $('#reviewers tbody').append(user_row);
+            $('#' + enrol_type + ' tbody').append(user_row);
             toastr.success('User has been granted role.')
         },
         "error": function (xhr, status, error) {

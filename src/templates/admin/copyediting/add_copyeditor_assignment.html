@@ -21,7 +21,7 @@
             </div>
             <div class="content">
                 {% include "elements/forms/errors.html" with form=form %}
-                <table class="table table-bordered small" id="reviewers">
+                <table class="table table-bordered small" id="copyeditor">
                     <thead>
                     <tr>
                         <th>Select</th>
@@ -106,7 +106,7 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#reviewers" %}
+    {% include "elements/datatables.html" with target="#copyeditor" %}
     {% include "elements/datepicker.html" with target="#id_due" %}
     {% include "elements/jqte.html" %}
     <script src="{% static "admin/js/csrf.js" %}"></script>

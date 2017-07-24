@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load static from staticfiles %}
 
 {% block title %}Assign Typesetter{% endblock title %}
 {% block title-section %}Assign Typesetter{% endblock %}
@@ -19,10 +20,11 @@
             </div>
             <div class="title-area">
                 <h2>1. Select a Typesetter</h2>
+                <a href="#" data-open="enrol" class="button">Enrol Users</a>
             </div>
 
             <div class="content">
-                <table class="table table-bordered small" id="typesetters">
+                <table class="table table-bordered small" id="typesetter">
                     <thead>
                     <tr>
                         <th>Select</th>
@@ -35,7 +37,7 @@
                     <tbody>
                     {% for typesetter_role in typesetters %}
                         <tr>
-                            <td><input type="radio" name="typesetter_role" value="{{ typesetter_role.user.id }}"
+                            <td><input type="radio" name="typesetter" value="{{ typesetter_role.user.id }}"
                                        {% if dict.user == typesetter_role.user.id %}checked="checked"{% endif %}></td>
                             <td>{{ typesetter_role.user.full_name }}</td>
                             <td>{{ typesetter_role.user.email }}</td>
@@ -116,9 +118,14 @@
         </div><!--/col-lg-12 -->
     </form>
 
+    {% include "elements/roles/enrol_modal.html" with role="typesetter" currentholders=typesetters %}
+    <input type="hidden" value="typesetter" name="enrol_type" id="enrol_type" />
+
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#typesetters" %}
+    {% include "elements/datatables.html" with target="#typesetter" %}
     {% include "elements/jqte.html" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script src="{% static "common/js/accountrole.js" %}"></script>
 {% endblock js %}

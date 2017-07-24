@@ -123,7 +123,7 @@ def handle_self_typesetter_assignment(production_assignment, request):
 def handle_assigning_typesetter(production_assignment, request):
     errors = []
 
-    user = request.POST.get('typesetter_role', None)
+    user = request.POST.get('typesetter', None)
     file = request.POST.getlist('files', [])
     task = request.POST.get('typeset_task', None)
 
