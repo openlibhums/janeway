@@ -23,7 +23,20 @@
         {% endfor %}
         {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">Articles</a></li>{% endif %}
         {% if request.journal.nav_issues %}<li><a href="{% url 'journal_issues' %}">Issues</a></li>{% endif %}
-        {% if journal_settings.general.enable_editorial_display %}<li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>{% endif %}
+        {% if journal_settings.general.enable_editorial_display %}
+            {% if journal_settings.general.mulit_page_editorial %}
+            <li class=".is-dropdown-submenu-parent">
+                <a href="#" data-options="is_hover:true; hover_timeout:5000">Editorial Team</a>
+                <ul class="menu vertical medium-horizontal">
+                    {% for group in request.journal.editorial_groups %}
+                    <li><a href="{% url 'editorial_team_group' group.pk %}">{{ group.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% else %}
+            <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>
+            {% endif %}
+        {% endif %}
         {% if request.journal.nav_sub %}<li><a href="{% url 'journal_submissions' %}">Submission</a></li>{% endif %}
         {% if request.journal.nav_contact %}<li><a href="{% url 'contact' %}">Contact</a></li>{% endif %}
         {% hook 'nav_block' %}

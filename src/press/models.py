@@ -75,6 +75,7 @@ class Press(models.Model):
     def journals():
         from journal import models as journal_models
         return journal_models.Journal.objects.all()
+        
 
     @staticmethod
     def users():

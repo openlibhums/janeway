@@ -184,6 +184,12 @@ class Journal(models.Model):
 
         return set(users)
 
+    @cache(300)
+    def editorial_groups(self):
+        print('testing')
+        print(core_models.EditorialGroup.objects.all())
+        return core_models.EditorialGroup.objects.filter(journal=self)
+
     @property
     def editor_emails(self):
         editor_roles = core_models.AccountRole.objects.filter(role__slug='editor', journal=self)
