@@ -1,4 +1,4 @@
-![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-01.png "Logo Title Text 1")
+![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-05.png "Logo Title Text 1")
 
 Janeway is a journal platform designed for publishing scholarly articles.
 
