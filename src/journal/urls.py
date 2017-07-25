@@ -86,6 +86,9 @@ urlpatterns = [
     # Editorial team
     url(r'^editorialteam/$',
         views.editorial_team, name='editorial_team'),
+    # Editorial team
+    url(r'^editorialteam/(?P<group_id>\d+)/$',
+        views.editorial_team, name='editorial_team_group'),
 
     # Search
     url(r'^search/$',

@@ -1055,8 +1055,11 @@ def contact(request):
     return render(request, template, context)
 
 
-def editorial_team(request):
-    editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal)
+def editorial_team(request, group_id=None):
+    if group_id:
+        editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal, pk=group_id)
+    else:
+        editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal)
 
     template = 'journal/editorial_team.html'
     context = {
