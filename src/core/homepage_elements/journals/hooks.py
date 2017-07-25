@@ -25,7 +25,6 @@ def get_random_journals():
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    print('hook')
     if homepage_elements is not None and homepage_elements.filter(name='Journals').exists():
 
         if request.press.random_featured_journals:

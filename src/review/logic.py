@@ -40,8 +40,6 @@ def get_reviewer_notification(request, article, editor, review_assignment):
 
     access_codes = setting_handler.get_setting('general', 'enable_one_click_access', request.journal).value
 
-    print(access_codes)
-
     if access_codes:
         review_url = "{0}?access_code={1}".format(review_url, review_assignment.access_code)
 
@@ -143,7 +141,7 @@ def handle_decision_action(article, draft, request):
         'user_message_content': request.POST.get('email_message', 'No message found.'),
         'skip': False,
     }
-    print(draft.decision)
+
     if draft.decision == 'accept':
         article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
         event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)

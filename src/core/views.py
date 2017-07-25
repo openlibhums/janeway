@@ -1455,7 +1455,6 @@ def order_workflow_elements(request):
     :return: an http reponse
     """
     workflow = models.Workflow.objects.get(journal=request.journal)
-    print(request.POST)
 
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist('element[]')]

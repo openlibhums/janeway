@@ -24,6 +24,4 @@ class JournalSettingsForm(forms.Form):
 
     def save(self, request, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
-            print(setting_name, setting_value)
             test = setting_handler.save_setting('general', setting_name, request.journal, setting_value)
-            print(test.value)

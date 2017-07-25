@@ -186,8 +186,6 @@ class Journal(models.Model):
 
     @cache(300)
     def editorial_groups(self):
-        print('testing')
-        print(core_models.EditorialGroup.objects.all())
         return core_models.EditorialGroup.objects.filter(journal=self)
 
     @property

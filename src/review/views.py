@@ -1459,8 +1459,6 @@ def manage_draft(request, article_id, draft_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
 
-    print(request.POST)
-
     if request.POST:
         draft.closed = True
 
