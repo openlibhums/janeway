@@ -1144,12 +1144,15 @@ def plugin_list(request):
         plugins = util_models.Plugin.objects.filter(enabled=True, press_wide=True)
 
     for plugin in plugins:
-        module_name = "{0}.{1}.plugin_settings".format("plugins", plugin.name)
-        plugin_settings = import_module(module_name)
-        plugin_list.append({'model': plugin,
-                            'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
-                            'name': getattr(plugin_settings, 'PLUGIN_NAME')
-                            })
+        try:
+            module_name = "{0}.{1}.plugin_settings".format("plugins", plugin.name)
+            plugin_settings = import_module(module_name)
+            plugin_list.append({'model': plugin,
+                                'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
+                                'name': getattr(plugin_settings, 'PLUGIN_NAME')
+                                })
+        except ImportError:
+            pass
 
     template = 'core/manager/plugins.html'
     context = {
