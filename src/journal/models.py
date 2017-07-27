@@ -228,7 +228,7 @@ class Journal(models.Model):
 
         # determine the carousel mode and build the list of objects as appropriate
         if self.carousel.mode == "latest":
-            article_objects = core_logic.latest_articles(self.carousel)
+            article_objects = core_logic.latest_articles(self.carousel, 'journal')
 
         elif self.carousel.mode == "selected":
             article_objects = core_logic.selected_articles(self.carousel, 'journal')
