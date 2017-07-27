@@ -10,6 +10,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+from django.core.validators import MinValueValidator
 
 from core import models as core_models
 
@@ -56,6 +57,10 @@ class Press(models.Model):
 
     password_reset_text = models.TextField(blank=True, null=True)
     registration_text = models.TextField(blank=True, null=True)
+
+    password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
+    password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
+    password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
 
     def __str__(self):
         return u'%s' % self.name
