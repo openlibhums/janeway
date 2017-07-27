@@ -388,7 +388,7 @@ class AccountRole(models.Model):
     role = models.ForeignKey(Role)
 
     class Meta:
-      unique_together = ('journal', 'user', 'role')
+        unique_together = ('journal', 'user', 'role')
 
     def __str__(self):
         return "{0} {1} {2}".format(self.user, self.journal, self.role.name)

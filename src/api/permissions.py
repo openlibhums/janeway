@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 class IsEditor(permissions.BasePermission):
     message = 'Checks that the user is an editor for the current journal.'
 

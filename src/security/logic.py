@@ -68,8 +68,8 @@ def can_view_file(request, user, file_object):
 
     # allow file editing when the user is the proofing manager for this article
     try:
-        proofing_models.ProofingAssignment.objects.get(proofing_manager=user, 
-                                                       article__pk=file_object.article_id, 
+        proofing_models.ProofingAssignment.objects.get(proofing_manager=user,
+                                                       article__pk=file_object.article_id,
                                                        completed__isnull=True)
         return True
     except proofing_models.ProofingAssignment.DoesNotExist:

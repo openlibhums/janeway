@@ -3223,15 +3223,15 @@ class TestSecurity(TestCase):
         self.private_file.save()
 
         self.third_file = core_models.File(mime_type="A/FILE",
-                                             original_filename="blah.txt",
-                                             uuid_filename="UUID.txt",
-                                             label="A file that is private",
-                                             description="Oh yes, it's a file",
-                                             owner=self.author,
-                                             is_galley=False,
-                                             privacy="owner")
+                                           original_filename="blah.txt",
+                                           uuid_filename="UUID.txt",
+                                           label="A file that is private",
+                                           description="Oh yes, it's a file",
+                                           owner=self.author,
+                                           is_galley=False,
+                                           privacy="owner")
 
-        self.third_file.save() 
+        self.third_file.save()
 
         self.article_in_production = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                abstract="An abstract",

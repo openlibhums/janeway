@@ -115,7 +115,7 @@ def articles(request):
     article_objects = submission_models.Article.objects.filter(journal=request.journal,
                                                                date_published__lte=timezone.now(),
                                                                section__pk__in=filters).order_by(sort).exclude(
-                                                               pk__in=pinned_article_pks)
+        pk__in=pinned_article_pks)
 
     paginator = Paginator(article_objects, show)
 
@@ -343,7 +343,7 @@ def edit_article(request, identifier_type, identifier):
 
 def download_galley(request, article_id, galley_id):
     """ Serves a galley file for an article
-    
+
     :param request: an HttpRequest object
     :param article_id: an Article object PK
     :param galley_id: an Galley object PK
