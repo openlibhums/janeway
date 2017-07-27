@@ -1064,6 +1064,7 @@ def editorial_team(request, group_id=None):
     template = 'journal/editorial_team.html'
     context = {
         'editorial_groups': editorial_groups,
+        'group_id': group_id,
     }
 
     return render(request, template, context)

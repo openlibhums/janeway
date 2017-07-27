@@ -2,14 +2,26 @@
 {% load foundation %}
 {% load static from staticfiles %}
 
-{% block title %}Editorial Team{% endblock title %}
+{% block title %}
+    {% if group_id %}
+    {{ editorial_groups.0.name }}
+    {% else %}
+    Editorial Team
+    {% endif %}
+{% endblock title %}
 
 {% block body %}
 	<section id="content">
 		<div class="row column">
-            <h4>Editorial Team</h4>
+            {% if group_id %}
+                <h4>{{ editorial_groups.0.name }}</h4>
+            {% else %}
+                <h4>Editorial Team</h4>
+            {% endif %}
             {% for group in editorial_groups %}
+                {% if not group_id %}
                 <h6>{{ group.name }}</h6>
+                {% endif %}
                 {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
