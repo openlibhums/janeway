@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 import errno
 import io
 import os
@@ -15,7 +16,7 @@ from django.template.loaders.base import Loader as BaseLoader
 from django.utils._os import safe_join
 from django.utils.deprecation import RemovedInDjango20Warning
 
-from utils import setting_handler
+from utils import setting_handler, function_cache
 
 _local = threading.local()
 
@@ -35,13 +36,17 @@ class ThemeEngineMiddleware(object):
 
 class Loader(BaseLoader):
 
+    @function_cache.cache(120)
+    def query_theme_dirs(self):
+        return setting_handler.get_setting('general', 'journal_theme', _local.request.journal).value
+
     def get_theme_dirs(self):
 
         if hasattr(_local, 'request'):
             if _local.request.journal:
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
-                    theme_setting = setting_handler.get_setting('general', 'journal_theme', _local.request.journal).value
+                    theme_setting = self.query_theme_dirs()
                 except BaseException:
                     theme_setting = 'default'
             else:
