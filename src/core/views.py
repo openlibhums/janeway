@@ -265,6 +265,22 @@ def edit_profile(request):
             except ValidationError:
                 messages.add_message(request, messages.WARNING, 'Email address is not valid.')
 
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('current_password')
+            new_pass_one = request.POST.get('new_password_one')
+            new_pass_two = request.POST.get('new_password_two')
+
+            if old_password and request.user.check_password(old_password):
+
+                if new_pass_one == new_pass_two:
+                    request.user.set_password(new_pass_one)
+                else:
+                    messages.add_message(request, messages.WARNING, 'Passwords do not match')
+
+            else:
+                messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+
+
         elif 'edit_profile' in request.POST:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
 
