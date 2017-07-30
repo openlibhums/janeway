@@ -31,6 +31,33 @@
 
     <div class="row">
         <div class="medium-12 medium-centered large-12 large-centered columns login">
+            <div class="callout">
+                <h5>Update Password</h5>
+                <p>You can update your password by entering your existing password plus your new password.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="medium-4 columns">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" name="current_password">
+                        </div>
+                        <div class="medium-4 columns">
+                            <label for="new_password_one">New Password</label>
+                            <input type="password" name="new_password_one">
+                        </div>
+                        <div class="medium-4 columns">
+                            <label for="new_password_two">Enter Password Again</label>
+                            <input type="password" name="new_password_two">
+                        </div>
+                    </div>
+                    <button type="submit" name="change_password" class="warning button">Update Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="medium-12 medium-centered large-12 large-centered columns login">
 
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
