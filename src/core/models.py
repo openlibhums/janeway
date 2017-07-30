@@ -212,6 +212,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.full_name()
 
+    def password_policy_check(self, request, password):
+        rules = [
+            lambda s: len(password) >= request.press.password_length or 'length'
+        ]
+
+        if request.press.password_upper:
+            rules.append(lambda password: any(x.isupper() for x in password) or 'upper')
+
+        if request.press.password_number:
+            rules.append(lambda password: any(x.isdigit() for x in password) or 'digit')
+
+        problems = [p for p in [r(password) for r in rules] if p != True]
+
+        print(problems)  # ['digit', 'length']
+        return problems
+
     def string_id(self):
         return str(self.id)
 

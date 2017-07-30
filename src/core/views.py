@@ -272,8 +272,12 @@ def edit_profile(request):
 
             if old_password and request.user.check_password(old_password):
 
-                if new_pass_one == new_pass_two:
-                    request.user.set_password(new_pass_one)
+                if (new_pass_one == new_pass_two):
+                    problems = request.user.password_policy_check(request, new_pass_one)
+                    if not problems :
+                        request.user.set_password(new_pass_one)
+                    else:
+                        [messages.add_message(request, messages.INFO, problem) for problem in problems]
                 else:
                     messages.add_message(request, messages.WARNING, 'Passwords do not match')
 
