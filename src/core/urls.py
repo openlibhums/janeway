@@ -210,10 +210,13 @@ urlpatterns = [
 
 # Allow Django to serve static content only in debug/dev mode
 if settings.DEBUG:
+    import debug_toolbar
+
     urlpatterns += [
         url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
         url(r'^404/$', TemplateView.as_view(template_name='core/404.html')),
         url(r'^500/$', TemplateView.as_view(template_name='core/500.html')),
+        url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
 urlpatterns += [

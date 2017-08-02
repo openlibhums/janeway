@@ -4,9 +4,10 @@ bs4==0.0.1
 cffi==1.6.0
 chardet==2.3.0
 cryptography==1.4
-Django==1.9.13
+Django==1.11.4
+-e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
+django-debug-toolbar==1.8
 django-suit==0.2.25 # TODO: remove for open source distribution
-django-debug-toolbar==1.4
 django-hvad==1.8.0
 django-mailgun==0.9.1
 django-markdown-deux==1.0.5
@@ -42,4 +43,3 @@ six==1.10.0
 sqlparse==0.1.18
 ua-parser==0.7.2
 user-agents==1.0.1
--e git+https://github.com/GabrielUlici/django-bootstrap4@#egg=bootstrap4
