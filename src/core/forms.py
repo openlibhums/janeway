@@ -99,12 +99,6 @@ class PasswordResetForm(forms.Form):
                 code='password_mismatch',
             )
 
-        if not len(password_2) >= 12:
-            raise forms.ValidationError(
-                'Your password is too short, it should be 12 characters or greater in length.',
-                code='password_to_short',
-            )
-
         return password_2
 
 

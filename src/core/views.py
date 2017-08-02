@@ -168,6 +168,13 @@ def reset_password(request, token):
 
     if request.POST:
         form = forms.PasswordResetForm(request.POST)
+
+        password_policy_check = logic.password_policy_check(request)
+
+        if password_policy_check:
+            for policy_fail in password_policy_check:
+                form.add_error('password_1', policy_fail)
+
         if form.is_valid():
             password = form.cleaned_data['password_2']
             reset_token.account.set_password(password)
