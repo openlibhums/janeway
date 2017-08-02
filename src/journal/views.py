@@ -416,7 +416,7 @@ def replace_article_file(request, identifier_type, identifier, file_id):
             uploaded_file = request.FILES.get('replacement-file')
             files.overwrite_file(uploaded_file, article_to_replace, file_to_replace)
 
-        return redirect(request.GET.get('return', 'dashboard'))
+        return redirect(request.GET.get('return', 'core_dashboard'))
 
     template = "journal/replace_file.html"
     context = {
