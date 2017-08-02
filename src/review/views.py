@@ -72,9 +72,10 @@ def unassigned_article(request, article_id):
 
     current_editors = [assignment.editor.pk for assignment in models.EditorAssignment.objects.filter(article=article)]
     editors = core_models.AccountRole.objects.filter(role__slug='editor',
-                                                     journal=request.journal).exclude(id__in=current_editors)
+                                                     journal=request.journal).exclude(user__id__in=current_editors)
     section_editors = core_models.AccountRole.objects.filter(role__slug='section-editor',
-                                                             journal=request.journal).exclude(id__in=current_editors)
+                                                             journal=request.journal
+                                                             ).exclude(user__id__in=current_editors)
 
     template = 'review/unassigned_article.html'
     context = {
