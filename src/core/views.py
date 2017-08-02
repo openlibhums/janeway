@@ -196,6 +196,12 @@ def register(request):
     if request.POST:
         form = forms.RegistrationForm(request.POST)
 
+        password_policy_check = logic.password_policy_check(request)
+
+        if password_policy_check:
+            for policy_fail in password_policy_check:
+                form.add_error('password_1', policy_fail)
+
         if form.is_valid():
             if token_obj:
                 new_user = form.save(commit=False)

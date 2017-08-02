@@ -128,12 +128,6 @@ class RegistrationForm(forms.ModelForm):
                 code='password_mismatch',
             )
 
-        if not len(password_2) >= 12:
-            raise forms.ValidationError(
-                'Your password is too short, it should be 12 characters or greater in length.',
-                code='password_to_short',
-            )
-
         return password_2
 
     def save(self, commit=True):
@@ -143,7 +137,6 @@ class RegistrationForm(forms.ModelForm):
         user.is_active = False
         user.confirmation_code = uuid.uuid4()
         user.email_sent = timezone.now()
-        user.save()
 
         if commit:
             user.save()
