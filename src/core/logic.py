@@ -40,6 +40,7 @@ def send_confirmation_link(request, new_user):
                                                       template_is_setting=True)
     else:
         message = render_template.get_message_content(request, context, 'new_user_registration')
+
     notify_helpers.send_slack(request, 'New registration: {0}'.format(new_user.full_name()), ['slack_admins'])
     notify_helpers.send_email_with_body_from_user(request, 'subject_new_user_registration', new_user.email, message)
 
