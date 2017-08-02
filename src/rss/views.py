@@ -14,12 +14,13 @@ from submission import models as submission_models
 
 
 class LatestNewsFeed(Feed):
-    title = "Journal News"
+    title = "News"
     link = "/news/"
     description = "Updates on changes and additions to police beat central."
 
     def get_object(self, request, *args, **kwargs):
-        return request.journal
+
+        return request.journal if request.journal else request.press
 
     def items(self, obj):
         content_type = ContentType.objects.get_for_model(obj)
@@ -46,8 +47,8 @@ class LatestNewsFeed(Feed):
 
 
 class LatestArticlesFeed(Feed):
-    title = "Journal Articles"
-    link = "/news/"
+    title = "Articles"
+    link = "/articles/"
     description = "Updates on changes and additions to police beat central."
 
     def get_object(self, request, *args, **kwargs):
