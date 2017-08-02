@@ -450,6 +450,11 @@ def order_pinned_articles(request, pinned_articles):
 
 
 def password_policy_check(request):
+    """
+    Takes a given string and tests it against the password policy of the press.
+    :param request:  HTTPRequest object
+    :return: An empty list or a list of errors.
+    """
     password = request.POST.get('password_1')
 
     rules = [
