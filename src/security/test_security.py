@@ -3387,7 +3387,7 @@ class TestSecurity(TestCase):
                                                                          copyeditor=self.copyeditor,
                                                                          due=timezone.now(),
                                                                          assigned=timezone.now(),
-                                                                         notified=timezone.now(),
+                                                                         notified=True,
                                                                          decision='accepted',
                                                                          date_decided=timezone.now())
         self.copyedit_assignment.save()

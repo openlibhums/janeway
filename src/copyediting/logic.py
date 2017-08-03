@@ -111,7 +111,7 @@ def accept_copyedit(copyedit, article, request):
     copyedit.copyedit_accepted = timezone.now()
 
     if 'skip' not in request.POST:
-        copyedit.copyedit_acknowledged = timezone.now()
+        copyedit.copyedit_acknowledged = True
 
     copyedit.save()
 
