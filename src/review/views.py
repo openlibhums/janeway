@@ -284,8 +284,8 @@ def delete_review_round(request, article_id, round_id):
 @article_decision_not_made
 @editor_user_required
 def add_files(request, article_id, round_id):
-    article = get_object_or_404(submission_models.Article, pk=article_id)
-    review_round = get_object_or_404(models.ReviewRound.objects.select_related('review_files'), pk=round_id)
+    article = get_object_or_404(submission_models.Article.objects.prefetch_related('manuscript_files'), pk=article_id)
+    review_round = get_object_or_404(models.ReviewRound.objects.prefetch_related('review_files'), pk=round_id)
 
     if request.POST:
         for file in request.POST.getlist('file'):
