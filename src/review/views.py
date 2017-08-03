@@ -285,7 +285,7 @@ def delete_review_round(request, article_id, round_id):
 @editor_user_required
 def add_files(request, article_id, round_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    review_round = get_object_or_404(models.ReviewRound, pk=round_id)
+    review_round = get_object_or_404(models.ReviewRound.objects.select_related('review_files'), pk=round_id)
 
     if request.POST:
         for file in request.POST.getlist('file'):
