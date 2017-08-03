@@ -235,6 +235,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     <textarea name="reset_note">{{ reopen_message|safe|linebreaksbr }}</textarea>
+                    <label for="due">Due Date</label>
                     <input type="text" name="due" id="due" required="required">
                     <button name="review" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
                     </button>
