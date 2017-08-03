@@ -34,7 +34,7 @@
                         <td>{{ article.correspondence_author.full_name }}</td>
                         <td>{{ article.section.name }}</td>
                         <td>{{ article.active_reviews|length }}</td>
-                        <td>{{ article.complete_reviews|length }}</td>
+                        <td>{{ article.completed_reviews|length }}</td>
                         <td><a href="{% url 'review_in_review' article.pk %}">View</a></td>
                     </tr>
                     {% empty %}
