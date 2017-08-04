@@ -6,19 +6,7 @@ Janeway is a journal platform designed for publishing scholarly research materia
 Janeway is written in Python (3.4+) and utilises the Django framework (1.11 LTS). 
 
 # Installation instructions
-The following is for Debian/Ubuntu-based systems (16.04).
-
-Step 1: Install virtualenvwrapper and create a project
-
-Step 2: Install system dependencies. On Debian-based systems:
-
-    sudo apt-get install libxml2-dev libxslt1-dev python3-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev
-
-Step 3: pip install -r requirements.txt
-
-Step 4: cp src/core/example_settings.py src/core/settings.py
-
-Step 5: Update settings.py for your env (database login etc.)
+Installation [instructions are available on our Wiki](https://github.com/BirkbeckCTP/janeway/wiki/Installation).
 
 # Janeway design principles
 1. No code should appear to work "by magic". Readability is key.
