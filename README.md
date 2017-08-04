@@ -8,7 +8,7 @@ Janeway is written in Python (3.4+) and utilises the Django framework (1.11 LTS)
 # Installation instructions
 The following is for Debian/Ubuntu-based systems (16.04).
 
-Step 1: Install virtualevwrapper and create a project
+Step 1: Install virtualenvwrapper and create a project
 
 Step 2: Install system dependencies. On Debian-based systems:
 
