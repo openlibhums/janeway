@@ -3,8 +3,8 @@ source /usr/local/bin/virtualenvwrapper.sh
 
 mkvirtualenv janeway -p python3
 workon janeway
-git clone git@github.com:BirkbeckCTP/janeway.git
+git clone https://github.com/BirkbeckCTP/janeway.git
 cd janeway
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 
