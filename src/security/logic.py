@@ -78,7 +78,7 @@ def can_view_file(request, user, file_object):
     try:
         if file_object.article_id:
             proofing_models.TypesetterProofingTask.objects.get(
-                proofing_task__article__pk=file_object.article_id,
+                proofing_task__round__assignment__article__pk=file_object.article_id,
                 typesetter=request.user,
                 completed__isnull=True
             )
