@@ -599,6 +599,7 @@ def add_user(request):
     registration_form = forms.AdminUserForm(active='add')
     return_url = request.GET.get('return', None)
     role = request.GET.get('role', None)
+
     if request.POST:
         registration_form = forms.AdminUserForm(request.POST, active='add')
 
