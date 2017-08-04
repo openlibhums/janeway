@@ -39,7 +39,7 @@ SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -78,7 +78,6 @@ INSTALLED_APPS = [
     'dynamicsites',
     'markdown_deux',
     'foundationform',
-    'debug_toolbar',
     'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
@@ -96,7 +95,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'dynamicsites.middleware.DynamicSitesMiddleware',
     'core.middleware.SiteSettingsMiddleware',
     'utils.template_override_middleware.ThemeEngineMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
