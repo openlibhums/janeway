@@ -154,13 +154,13 @@ def submit_authors(request, article_id):
             article.authors.add(search_author)
             messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
         except core_models.Account.DoesNotExist:
-            error = 'No author with that Email or ORCiD found.'
+            messages.add_message(request, messages.WARNING, 'No author found with those details.')
 
     elif request.POST:
         correspondence_author = request.POST.get('main-author', None)
 
         if correspondence_author == 'None':
-            error = 'You must select a main author.'
+            messages.add_message(request, messages.WARNING, 'You must select a main author.')
         else:
             author = core_models.Account.objects.get(pk=correspondence_author)
             article.correspondence_author = author
