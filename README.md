@@ -1,4 +1,4 @@
-![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-05.png "Logo Title Text 1")
+![Janeway Logo](http://www.openlibhums.org/hosted_files/Janeway-Logo-05.png "Janeway")
 
 Janeway is a journal platform designed for publishing scholarly research material. It is developed and maintained by the Centre for Technology and Publishing at Birkbeck, University of London.
 
