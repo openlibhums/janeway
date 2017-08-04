@@ -123,7 +123,7 @@ TEMPLATES = [
                 'core.context_processors.active',
                 'core.context_processors.navigation',
                 'django_settings_export.settings_export',
-                'django.core.context_processors.i18n'
+                'django.template.context_processors.i18n'
             ],
             'loaders': [
                 'utils.template_override_middleware.Loader',
