@@ -116,7 +116,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'dynamicsites.context_processors.current_site',
                 'core.context_processors.journal',
                 'core.context_processors.journal_settings',
                 'core.context_processors.press',
