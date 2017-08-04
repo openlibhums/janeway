@@ -2,8 +2,10 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-from django.shortcuts import render
+
+from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.urlresolvers import reverse
 
 from install import forms, logic
 from core import files
@@ -17,6 +19,8 @@ def index(request):
         file = files.save_file_to_press(request, file, 'Press Logo', '')
         request.press.thumbnail_image = file
         request.press.save()
+
+        return redirect(reverse('install_index'))
 
     template = 'install/index.html'
     context = {}
