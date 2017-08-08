@@ -1,9 +1,7 @@
 beautifulsoup4==4.4.1
 boto==2.46.1
 bs4==0.0.1
-cffi==1.6.0
 chardet==2.3.0
-cryptography==1.4
 Django==1.11.4
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 django-debug-toolbar==1.8
@@ -29,14 +27,12 @@ lxml==3.6.4
 markdown2==2.3.0
 mock
 mysqlclient
-ndg-httpsclient==0.4.0
 pdfkit
 Pillow==3.1.1
 pyasn1==0.1.9
 pycparser==2.14
 python-crontab==2.2.3
 python-dateutil==2.6.0
-pyOpenSSL==0.15.1
 raven==6.0.0 # TODO: Optional for sentry
 requests==2.9.1
 six==1.10.0
