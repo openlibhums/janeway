@@ -5,7 +5,7 @@ from django.utils.encoding import iri_to_uri
 from core.middleware import GlobalRequestMiddleware
 
 
-def reverse(viewname, urlconf=None, args=None, kwargs=None, prefix=None):
+def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
     """
     This monkey patch will add the journal_code to reverse kwargs if the URL_CONFIG setting is set to 'patch'
     """
@@ -13,9 +13,17 @@ def reverse(viewname, urlconf=None, args=None, kwargs=None, prefix=None):
     local_request = GlobalRequestMiddleware.get_current_request()
 
     if settings.URL_CONFIG == 'path':
-        kwargs['journal_code'] = local_request.journal.code if local_request.journal else 'press'
+        code = local_request.journal.code if local_request.journal else 'press'
+        if kwargs and not args:
+            kwargs['journal_code'] = code
+        else:
+            kwargs = {'journal_code': code}
 
-    url = django_reverse(viewname, urlconf, args, kwargs, prefix)
+        if args:
+            kwargs = None
+            args = [code] + args
+
+    url = django_reverse(viewname, urlconf, args, kwargs, current_app)
 
     # Ensure any unicode characters in the URL are escaped.
     return iri_to_uri(url)

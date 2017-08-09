@@ -11,6 +11,15 @@ from django.views.generic import TemplateView
 from django.conf import settings
 from django.views.static import serve
 
+
+if settings.URL_CONFIG == 'path':
+    from core.monkeypatch import reverse
+    from django import urls
+
+    urls.reverse = reverse
+    urls.base.reverse = reverse
+    print(reverse)
+
 from journal import urls as journal_urls
 from core import views as core_views, plugin_loader
 from utils import notify
@@ -541,9 +550,3 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/site/(?P<page_name>.*)/$', cms_views.view_page, name='cms_page'),
     ]
 
-if settings.URL_CONFIG == 'path':
-    from core.monkeypatch import reverse
-    from django import urls
-
-    urls.reverse = reverse
-    urls.base.reverse = reverse
