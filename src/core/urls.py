@@ -543,8 +543,7 @@ else:
 
 if settings.URL_CONFIG == 'path':
     from core.monkeypatch import reverse
-    from django.core import urlresolvers
+    from django import urls
 
-    urlresolvers.reverse = reverse
-
-    reverse('journal_home')
+    urls.reverse = reverse
+    urls.base.reverse = reverse

@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import uuid
 import os
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 from hvad.models import TranslatableModel, TranslatedFields

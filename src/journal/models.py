@@ -11,7 +11,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from utils.function_cache import cache
 from utils import setting_handler

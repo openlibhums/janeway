@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from production import models
 from core import files, models as core_models
