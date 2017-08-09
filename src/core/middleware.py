@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from uuid import uuid4
+import _thread as thread
 
 from django.contrib.sites import models as site_models
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -151,3 +152,27 @@ class PressMiddleware(object):
                         pass
                     else:
                         raise Http404('Press cannot access this page.')
+
+
+class GlobalRequestMiddleware(object):
+    _threadmap = {}
+
+    @classmethod
+    def get_current_request(cls):
+        return cls._threadmap[thread.get_ident()]
+
+    def process_request(self, request):
+        self._threadmap[thread.get_ident()] = request
+
+    def process_exception(self, request, exception):
+        try:
+            del self._threadmap[thread.get_ident()]
+        except KeyError:
+            pass
+
+    def process_response(self, request, response):
+        try:
+            del self._threadmap[thread.get_ident()]
+        except KeyError:
+            pass
+        return response
