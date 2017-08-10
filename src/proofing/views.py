@@ -61,7 +61,7 @@ def proofing_assign_article(request, article_id, user_id=None):
     if user.is_proofing_manager:
         proofing_assignment = models.ProofingAssignment.objects.create(article=article,
                                                                        proofing_manager=user,
-                                                                       notified=timezone.now(),
+                                                                       notified=True,
                                                                        editor=request.user)
         proofing_assignment.add_new_proofing_round()
 
