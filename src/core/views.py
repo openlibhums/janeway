@@ -346,7 +346,10 @@ def dashboard(request):
             Q(copyedit_reopened__isnull=True), article__journal=request.journal).count(),
         'copyeditor_accepted_requests': copyedit_models.CopyeditAssignment.objects.filter(
             Q(copyeditor=request.user, decision='accept', copyeditor_completed__isnull=True,
-              article__journal=request.journal)
+              article__journal=request.journal) |
+            Q(copyeditor=request.user, decision='accept', copyeditor_completed__isnull=False,
+              article__journal=request.journal, copyedit_reopened__isnull=False,
+              copyedit_reopened_complete__isnull=True)
         ).count(),
         'copyeditor_completed_requests': copyedit_models.CopyeditAssignment.objects.filter(
             (Q(copyeditor=request.user) & Q(copyeditor_completed__isnull=False)) |
