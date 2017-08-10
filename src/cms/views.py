@@ -87,7 +87,6 @@ def page_manage(request, page_id=None):
             page = page_form.save(commit=False)
             page.content_type = request.model_content_type
             page.object_id = request.site_type.pk
-            page.is_markdown = request.POST.get('is_markdown', False)
             page.save()
 
             messages.add_message(request, messages.INFO, 'Page saved.')
