@@ -291,6 +291,7 @@ def dashboard(request):
                                                                             editor_type='section-editor',
                                                                             article__journal=request.journal)
 
+    # TODO: Move most of this to model logic.
     context = {
         'new_proofing': new_proofing.count(),
         'active_proofing': active_proofing.count(),
