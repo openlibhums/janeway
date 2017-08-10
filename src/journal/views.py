@@ -668,6 +668,10 @@ def publish_article(request, article_id):
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(article)
+
+            if not article.date_published:
+                article.date_published = timezone.now()
+
             article.save()
             return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
 
