@@ -83,10 +83,12 @@ class SiteSettingsMiddleware(object):
             elif not request.journal and request.press.is_secure and not request.is_secure() and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
 
-
     def process_view(self, request, view_func, view_args, view_kwargs):
         if settings.URL_CONFIG == 'path':
-            view_kwargs.pop('journal_code')
+            try:
+                view_kwargs.pop('journal_code')
+            except KeyError:
+                pass
 
 
 class MaintenanceModeMiddleware(object):

@@ -18,7 +18,6 @@ if settings.URL_CONFIG == 'path':
 
     urls.reverse = reverse
     urls.base.reverse = reverse
-    print(reverse)
 
 from journal import urls as journal_urls
 from core import views as core_views, plugin_loader
@@ -276,8 +275,8 @@ if settings.URL_CONFIG == 'domain':
 else:
 
     urlpatterns = [
-        url(r'^(?P<journal_code>[-\w.]+)/admin/', include(admin.site.urls)),
-        url(r'^(?P<journal_code>[-\w.]+)/summernote/', include('django_summernote.urls')),
+        url(r'^admin/', include(admin.site.urls)),
+        url(r'^summernote/', include('django_summernote.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/submit/', include('submission.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/', include(journal_urls)),
         url(r'^(?P<journal_code>[-\w.]+)/review/', include('review.urls')),
@@ -549,4 +548,3 @@ else:
     urlpatterns += [
         url(r'^(?P<journal_code>[-\w.]+)/site/(?P<page_name>.*)/$', cms_views.view_page, name='cms_page'),
     ]
-
