@@ -20,7 +20,7 @@ def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
             kwargs = {'journal_code': code}
 
         # Drop kwargs if user is accessing admin site.
-        if local_request.path.startswith('/admin/'):
+        if local_request.path.startswith('/admin/') or viewname.startswith('djdt'):
             kwargs.pop('journal_code')
 
         # Drop kwargs if we have args (most likely from the template

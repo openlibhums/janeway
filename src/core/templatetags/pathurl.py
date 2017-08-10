@@ -24,8 +24,9 @@ class URLNode(Node):
         }
 
         if settings.URL_CONFIG == 'path':
-            request = context['request']
-            kwargs['journal_code'] = request.journal.code if request.journal else 'press'
+            request = context.get('request', None)
+            if request:
+                kwargs['journal_code'] = request.journal.code if request.journal else 'press'
 
         view_name = self.view_name.resolve(context)
         try:

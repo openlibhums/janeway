@@ -494,10 +494,10 @@ else:
         import debug_toolbar
 
         urlpatterns += [
-            url(r'^(?P<journal_code>[-\w.]+)/media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+            url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
             url(r'^(?P<journal_code>[-\w.]+)/404/$', TemplateView.as_view(template_name='core/404.html')),
             url(r'^(?P<journal_code>[-\w.]+)/500/$', TemplateView.as_view(template_name='core/500.html')),
-            url(r'^(?P<journal_code>[-\w.]+)/__debug__/', include(debug_toolbar.urls)),
+            url(r'^__debug__/', include(debug_toolbar.urls)),
         ]
 
     urlpatterns += [
