@@ -28,6 +28,7 @@ class NewsItem(models.Model):
 
     large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='large_news_file',
                                          on_delete=models.SET_NULL)
+    tags = models.ManyToManyField('Tag', related_name='tags')
 
     class Meta:
         ordering = ('-posted', 'title')
@@ -65,8 +66,28 @@ class NewsItem(models.Model):
         else:
             return files.serve_file_to_browser(self.large_image_file.journal_path(self.object), self.large_image_file)
 
+    def set_tags(self, posted_tags):
+        str_tags = [tag.text for tag in self.tags.all()]
+
+        for tag in posted_tags:
+            if tag not in str_tags:
+                new_tag, c = Tag.objects.get_or_create(text=tag)
+                self.tags.add(new_tag)
+
+        for tag in str_tags:
+            if tag not in posted_tags:
+                tag = Tag.objects.get(text=tag)
+                self.tags.remove(tag)
+
     def __str__(self):
         if self.posted_by:
             return '{0} posted by {1} on {2}'.format(self.title, self.posted_by.full_name, self.posted)
         else:
             return '{0} posted on {1}'.format(self.title, self.posted)
+
+
+class Tag(models.Model):
+    text = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.text

@@ -132,12 +132,20 @@ def serve_news_file(request, identifier_type, identifier, file_id):
     return new_item.serve_news_file()
 
 
-def news_list(request):
-    news_objects = models.NewsItem.objects.filter(
-        (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-        (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-        (Q(end_display__gte=timezone.now()) | Q(end_display=None))
-    ).order_by('-posted')
+def news_list(request, tag=None):
+    if not tag:
+        news_objects = models.NewsItem.objects.filter(
+            (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
+            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
+            (Q(end_display__gte=timezone.now()) | Q(end_display=None))
+        ).order_by('-posted')
+    else:
+        news_objects = models.NewsItem.objects.filter(
+            (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
+            (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
+            (Q(end_display__gte=timezone.now()) | Q(end_display=None)),
+            tags__text=tag
+        ).order_by('-posted')
 
     paginator = Paginator(news_objects, 15)
     page = request.GET.get('page', 1)
@@ -156,6 +164,7 @@ def news_list(request):
 
     context = {
         'news_items': news_items,
+        'tag': tag,
     }
 
     return render(request, template, context)
