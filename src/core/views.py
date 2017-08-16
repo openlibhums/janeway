@@ -20,10 +20,9 @@ from django.http import HttpResponse
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from core import models, forms, files, logic
-from security.decorators import file_user_required, has_request, editor_user_required
+from security.decorators import editor_user_required
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -766,107 +765,6 @@ def oai(request):
 
 
 @editor_user_required
-def news(request):
-    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by('-posted')
-    form = forms.NewsItemForm()
-    new_file = None
-
-    if 'delete' in request.POST:
-        news_item_pk = request.POST.get('delete')
-        item = get_object_or_404(models.NewsItem,
-                                 pk=news_item_pk,
-                                 content_type=request.model_content_type,
-                                 object_id=request.site_type.pk)
-        item.delete()
-        return redirect(reverse('core_manager_news'))
-
-    if request.POST:
-        form = forms.NewsItemForm(request.POST)
-
-        if request.FILES:
-            uploaded_file = request.FILES.get('image_file')
-
-            if request.model_content_type.name == 'journal':
-                new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.model_content_type.name == 'press':
-                new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
-
-        if form.is_valid():
-            new_item = form.save(commit=False)
-            new_item.content_type = request.model_content_type
-            new_item.object_id = request.site_type.pk
-            new_item.posted_by = request.user
-            new_item.posted = timezone.now()
-            new_item.large_image_file = new_file
-            new_item.save()
-
-            return redirect(reverse('core_manager_news'))
-
-    template = 'core/manager/news/index.html'
-    context = {
-        'news_items': new_items,
-        'action': 'new',
-        'form': form,
-    }
-
-    return render(request, template, context)
-
-
-@staff_member_required
-def edit_news(request, news_pk):
-    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by('-posted')
-    news_item = get_object_or_404(models.NewsItem, pk=news_pk)
-    form = forms.NewsItemForm(instance=news_item)
-    new_file = None
-
-    if 'delete_image' in request.POST:
-        delete_image_id = request.POST.get('delete_image')
-        file = get_object_or_404(models.File, pk=delete_image_id)
-
-        if file.owner == request.user or request.user.is_staff:
-            file.delete()
-            messages.add_message(request, messages.SUCCESS, 'Image deleted')
-        else:
-            messages.add_message(request, messages.WARNING, 'Only the owner or staff can delete this image.')
-
-        return redirect(reverse('core_manager_edit_news', kwargs={'news_pk': news_item.pk}))
-
-    if request.POST:
-        form = forms.NewsItemForm(request.POST, instance=news_item)
-
-        if request.FILES:
-            uploaded_file = request.FILES.get('image_file')
-
-            if request.model_content_type.name == 'journal':
-                new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.model_content_type.name == 'press':
-                new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
-
-        if form.is_valid():
-            item = form.save(commit=False)
-            if new_file:
-                item.large_image_file = new_file
-            item.save()
-            return redirect(reverse('core_manager_news'))
-
-    template = 'core/manager/news/index.html'
-    context = {
-        'news_item': news_item,
-        'news_items': new_items,
-        'action': 'edit',
-        'form': form,
-    }
-
-    return render(request, template, context)
-
-
-@editor_user_required
 def article_images(request):
     articles = submission_models.Article.objects.filter(journal=request.journal)
 
@@ -914,70 +812,6 @@ def article_image_edit(request, article_pk):
     context = {
         'article': article,
         'article_meta_image_form': article_meta_image_form,
-    }
-
-    return render(request, template, context)
-
-
-@has_request
-@file_user_required
-def serve_news_file(request, identifier_type, identifier, file_id):
-    """ Serves a news file (designed for use in the carousel).
-
-    :param request: the request associated with this call
-    :param identifier_type: the identifier type for the article
-    :param identifier: the identifier for the article
-    :param file_id: the file ID to serve
-    :return: a streaming response of the requested file or 404
-    """
-
-    new_item = models.NewsItem.objects.get(
-        content_type=request.model_content_type,
-        object_id=request.site_type.pk,
-        pk=identifier
-    )
-
-    return new_item.serve_news_file()
-
-
-def news_list(request):
-    news_objects = models.NewsItem.objects.filter(
-        (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-        (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-        (Q(end_display__gte=timezone.now()) | Q(end_display=None))
-    ).order_by('-posted')
-
-    paginator = Paginator(news_objects, 15)
-    page = request.GET.get('page', 1)
-
-    try:
-        news_items = paginator.page(page)
-    except PageNotAnInteger:
-        news_items = paginator.page(1)
-    except EmptyPage:
-        news_items = paginator.page(paginator.num_pages)
-
-    if not request.journal:
-        template = 'press/core/news/index.html'
-    else:
-        template = 'core/news/index.html'
-
-    context = {
-        'news_items': news_items,
-    }
-
-    return render(request, template, context)
-
-
-def news_item(request, news_pk):
-    item = get_object_or_404(models.NewsItem, pk=news_pk, content_type=request.model_content_type)
-
-    if request.journal:
-        template = 'core/news/item.html'
-    else:
-        template = 'press/core/news/item.html'
-    context = {
-        'news_item': item,
     }
 
     return render(request, template, context)

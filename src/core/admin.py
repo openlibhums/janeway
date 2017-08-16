@@ -68,7 +68,6 @@ admin_list = [
     (models.Task,),
     (models.TaskCompleteEvents,),
     (models.Galley,),
-    (models.NewsItem,),
     (models.EditorialGroup,),
     (models.EditorialGroupMember,),
     (models.PasswordResetToken, PasswordResetAdmin),

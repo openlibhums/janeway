@@ -21,6 +21,7 @@ from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
+from comms import models as comms_models
 
 
 def send_reset_token(request, reset_token):
@@ -411,7 +412,7 @@ def news_items(carousel, object_type, press=None):
     if press and press.carousel_news_items.all():
         return press.carousel_news_items.all()
 
-    carousel_objects = models.NewsItem.objects.filter(
+    carousel_objects = comms_models.NewsItem.objects.filter(
         (Q(content_type__model=object_type) & Q(object_id=object_id)) &
         (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
         (Q(end_display__gte=timezone.now()) | Q(end_display=None))

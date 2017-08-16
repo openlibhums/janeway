@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from press import models
 from journal import models as journal_models
-from core import models as core_models
+from comms import models as comms_models
 
 
 class PressForm(forms.ModelForm):
@@ -25,7 +25,7 @@ class PressForm(forms.ModelForm):
         content_type = ContentType.objects.get_for_model(press)
 
         self.fields['featured_journals'].queryset = journal_models.Journal.objects.filter(hide_from_press=False)
-        self.fields['carousel_news_items'].queryset = core_models.NewsItem.objects.filter(
+        self.fields['carousel_news_items'].queryset = comms_models.NewsItem.objects.filter(
             content_type=content_type,
             object_id=press.pk
         )
