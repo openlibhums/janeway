@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^rss/', include('rss.urls')),
     url(r'^cron/', include('cron.urls')),
     url(r'^install/', include('install.urls')),
+    url(r'^news/', include('comms.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^api/', include('api.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
@@ -97,16 +98,6 @@ urlpatterns = [
     url(r'^manager/user/authenticated/$', core_views.logged_in_users, name='core_logged_in_users'),
     url(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),
     url(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),
-
-    # News
-    url(r'^manager/news/$', core_views.news, name='core_manager_news'),
-    url(r'^manager/news/edit/(?P<news_pk>\d+)/$', core_views.edit_news, name='core_manager_edit_news'),
-
-    url(r'^news/$', core_views.news_list, name='core_news_list'),
-    url(r'^news/(?P<news_pk>\d+)/$', core_views.news_item, name='core_news_item'),
-
-    url(r'^news/(?P<identifier_type>.+?)/(?P<identifier>.+)/image/(?P<file_id>\d+|None)/$',
-        core_views.serve_news_file, name='news_file_download'),
 
     # Templates
     url(r'^manager/templates/$', core_views.email_templates, name='core_email_templates'),

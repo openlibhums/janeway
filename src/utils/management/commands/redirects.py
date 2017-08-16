@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from django.core.management.base import BaseCommand
 from django.core.urlresolvers import reverse
 
-from core import models as core_models
+from comms import models as comms_models
 
 
 class Command(BaseCommand):
@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
             for item in d['entries']:
                 try:
-                    news_item = core_models.NewsItem.objects.get(title=item['title'])
+                    news_item = comms_models.NewsItem.objects.get(title=item['title'])
                     if news_item:
                         reversal = reverse('core_news_item', kwargs={'news_pk': news_item.pk})
                         url_path = urlparse(item['link']).path
