@@ -88,7 +88,7 @@
     {% for assignment in article.editors %}
         <tr>
             <td>{{ assignment.editor.full_name }}</td>
-            <td>{{ assignment.editor.email }}</td>
+            <td><a href="mailto:{{ assignment.editor.email }}">{{ assignment.editor.email }}</a></td>
             <td>{{ assignment.editor_type|capfirst }}</td>
         </tr>
     {% empty %}
