@@ -1,3 +1,5 @@
+import urllib
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -133,6 +135,8 @@ def serve_news_file(request, identifier_type, identifier, file_id):
 
 
 def news_list(request, tag=None):
+    tag = urllib.parse.unquote(tag)
+    print(tag)
     if not tag:
         news_objects = models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
