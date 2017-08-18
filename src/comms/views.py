@@ -135,8 +135,6 @@ def serve_news_file(request, identifier_type, identifier, file_id):
 
 
 def news_list(request, tag=None):
-    tag = urllib.parse.unquote(tag)
-    print(tag)
     if not tag:
         news_objects = models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
@@ -144,6 +142,7 @@ def news_list(request, tag=None):
             (Q(end_display__gte=timezone.now()) | Q(end_display=None))
         ).order_by('-posted')
     else:
+        tag = urllib.parse.unquote(tag)
         news_objects = models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
             (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
