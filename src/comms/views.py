@@ -1,3 +1,5 @@
+import urllib
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -140,6 +142,7 @@ def news_list(request, tag=None):
             (Q(end_display__gte=timezone.now()) | Q(end_display=None))
         ).order_by('-posted')
     else:
+        tag = urllib.parse.unquote(tag)
         news_objects = models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
             (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
