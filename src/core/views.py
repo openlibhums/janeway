@@ -22,7 +22,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 from core import models, forms, files, logic
-from security.decorators import editor_user_required
+from security.decorators import editor_user_required, article_author_required
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -375,6 +375,18 @@ def dashboard(request):
             journal=request.journal,
             owner=request.user,
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started')
+    }
+
+    return render(request, template, context)
+
+
+@article_author_required
+def dashboard_article(request, article_id):
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+
+    template = 'core/article.html'
+    context = {
+        'article': article,
     }
 
     return render(request, template, context)
