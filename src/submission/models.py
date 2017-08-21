@@ -939,6 +939,7 @@ def width_choices():
 
 
 class Field(models.Model):
+    journal = models.ForeignKey('journal.Journal', default=1)
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
     width = models.CharField(max_length=50, choices=width_choices(), default='full')
