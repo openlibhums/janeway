@@ -72,14 +72,14 @@ def submit_submissions(request):
 @article_edit_user_required
 def submit_info(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
-    additional_fields = models.Field.objects.all()
+    additional_fields = models.Field.objects.filter(journal=request.journal)
     form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
 
     if request.POST:
         form = forms.ArticleInfo(request.POST, instance=article)
 
         if form.is_valid():
-            form.save()
+            form.save(request=request)
             article.current_step = 2
             article.save()
 
@@ -89,6 +89,7 @@ def submit_info(request, article_id):
     context = {
         'article': article,
         'form': form,
+        'additional_fields': additional_fields,
     }
 
     return render(request, template, context)

@@ -1087,3 +1087,15 @@ button.list-group-item-danger.active:focus {
   max-height: 49px;
   fill: $primary-dark-color;
 }
+
+.third {
+  @extend .large-3
+}
+
+.half {
+  @extend .large-6
+}
+
+.full {
+  @extend .large-12
+}
