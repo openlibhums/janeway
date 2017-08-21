@@ -942,3 +942,9 @@ class Field(models.Model):
 
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
+
+
+class FieldAnswer(models.Model):
+    field = models.ForeignKey(Field)
+    article = models.ForeignKey(Article)
+    answer = models.TextField()

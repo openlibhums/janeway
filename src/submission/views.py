@@ -72,8 +72,8 @@ def submit_submissions(request):
 @article_edit_user_required
 def submit_info(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
-
-    form = forms.ArticleInfo(instance=article)
+    additional_fields = models.Field.objects.all()
+    form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
 
     if request.POST:
         form = forms.ArticleInfo(request.POST, instance=article)
