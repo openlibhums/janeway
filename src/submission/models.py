@@ -930,10 +930,18 @@ def field_kind_choices():
         ('date', 'Date'),
     )
 
+def width_choices():
+    return (
+        ('third', 'Third'),
+        ('half', 'Half'),
+        ('full,', 'Full'),
+    )
+
 
 class Field(models.Model):
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
+    width = models.CharField(max_length=50, choices=width_choices(), default='full')
     choices = models.CharField(max_length=1000, null=True, blank=True,
                                help_text='Separate choices with the bar | character.')
     required = models.BooleanField(default=True)
