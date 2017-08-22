@@ -210,3 +210,12 @@ class IdentifierForm(forms.ModelForm):
             'identifier',
             'enabled',
         )
+
+
+class FieldForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Field
+        exclude = (
+            'journal',
+        )

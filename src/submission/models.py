@@ -954,6 +954,6 @@ class Field(models.Model):
 
 
 class FieldAnswer(models.Model):
-    field = models.ForeignKey(Field)
+    field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
     article = models.ForeignKey(Article)
     answer = models.TextField()
