@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from importlib import import_module
+import os
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -20,6 +21,7 @@ from django.http import HttpResponse
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.conf import settings as django_settings
 
 from core import models, forms, files, logic
 from security.decorators import editor_user_required, article_author_required
@@ -486,6 +488,12 @@ def edit_settings_group(request, group):
             attr_form.save()
             logic.handle_default_thumbnail(request, journal, attr_form)
             logic.handle_press_override_image(request, journal, attr_form)
+
+            if group == 'journal' and journal.default_large_image:
+                path = django_settings.BASE_DIR + journal.default_large_image.url
+                print(path)
+                logic.resize_and_crop(path, [750, 324], 'middle')
+
             cache.clear()
 
             if request.journal:
