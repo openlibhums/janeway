@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<div class="row expanded{% if field.errors %} error{% endif %}">
+    {% if inline %}
+        <div class="large-3 columns">
+            <label for="{{ field.auto_id }}" class="right inline">
+                {{ field.label }}
+            </label>
+        </div>
+        <div class="large-9 columns">
+            {{ field }}
+            {% for error in field.errors %}
+                <small{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="large-12 columns">
+            <label>
+                {% trans field.label %}{% if field.field.required %}*{% endif %}
+            </label>
+            {{ field }}
+            {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+
+            {% for error in field.errors %}
+                <small>{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

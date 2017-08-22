@@ -18,34 +18,22 @@
             <div class="row">
                 {% include "elements/forms/errors.html" with form=form %}
                 <div class="large-6 columns">
-                    <label for="id_title">{% trans "Title" %}</label>
-                    {{ form.title }}
-                    {{ form.title.errors }}
+                    {{ form.title|foundation }}
                 </div>
                 <div class="large-6 columns">
-                    <label for="id_subtitle">{% trans "Subtitle" %}</label>
-                    {{ form.subtitle }}
-                    {{ form.subtitle.errors }}
+                    {{ form.subtitle|foundation }}
                 </div>
                 <div class="large-12 columns">
-                    <label for="id_abstract">{% trans "Abstract" %}{% if form.abstract.field.required %}*{% endif %}</label>
-                    {{ form.abstract }}
-                    {{ form.abstract.errors }}
+                    {{ form.abstract|foundation }}
                 </div>
                 <div class="large-4 columns">
-                    <label for="id_language">{% trans "Language" %}</label>
-                    {{ form.language }}
-                    {{ form.language.errors }}
+                    {{ form.language|foundation }}
                 </div>
                 <div class="large-4 columns">
-                    <label for="id_section">{% trans "Section" %}</label>
-                    {{ form.section }}
-                    {{ form.section.errors }}
+                    {{ form.section|foundation }}
                 </div>
                 <div class="large-4 columns error">
-                    <label for="id_license">{% if form.license.errors %}<span style="color: red;">{% endif %}{% trans "License" %}{% if form.license.errors %}</span>{% endif %}{% if form.license.field.required %}*{% endif %}</label>
-                    {{ form.license }}
-                    {{ form.license.errors }}
+                    {{ form.license|foundation }}
                 </div>
                 <hr/>
 
