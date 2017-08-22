@@ -23,8 +23,6 @@ class PageForm(forms.ModelForm):
         self.fields['content'].widget = SummernoteWidget()
 
 
-
-
 class NavForm(forms.ModelForm):
 
     class Meta:

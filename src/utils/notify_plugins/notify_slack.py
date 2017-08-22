@@ -47,7 +47,5 @@ def notify_hook(**kwargs):
                 pass
 
 
-
-
 def plugin_loaded():
     pass

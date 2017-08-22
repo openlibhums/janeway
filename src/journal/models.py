@@ -127,7 +127,6 @@ class Journal(models.Model):
     def publisher(self, value):
         setting_handler.save_setting('general', 'publisher_name', self, value)
 
-
     @property
     @cache(120)
     def issn(self):

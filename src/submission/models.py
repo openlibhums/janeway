@@ -767,7 +767,7 @@ class Article(models.Model):
 
     @property
     def is_published(self):
-        if self.stage == STAGE_PUBLISHED and self.date_published and self.date_published  < timezone.now():
+        if self.stage == STAGE_PUBLISHED and self.date_published and self.date_published < timezone.now():
             return True
         else:
             return False
@@ -933,6 +933,7 @@ def field_kind_choices():
         ('email', 'Email'),
         ('date', 'Date'),
     )
+
 
 def width_choices():
     return (
