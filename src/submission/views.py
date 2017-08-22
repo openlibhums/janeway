@@ -469,8 +469,6 @@ def fields(request, field_id=None):
 
             return HttpResponse('Thanks')
 
-        print(request.POST)
-
     template = 'admin/submission/manager/fields.html'
     context = {
         'field': field,
