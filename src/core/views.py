@@ -491,7 +491,6 @@ def edit_settings_group(request, group):
 
             if group == 'journal' and journal.default_large_image:
                 path = django_settings.BASE_DIR + journal.default_large_image.url
-                print(path)
                 logic.resize_and_crop(path, [750, 324], 'middle')
 
             cache.clear()
@@ -1046,12 +1045,12 @@ def editorial_ordering(request, type_to_order, group_id=None):
 
 @editor_user_required
 def kanban(request):
-    unassigned_articles = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNASSIGNED) |
-                                                                   Q(stage=submission_models.STAGE_ASSIGNED),
+    unassigned_articles = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNASSIGNED),
                                                                    journal=request.journal) \
         .order_by('-date_submitted')
 
-    in_review = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNDER_REVIEW) |
+    in_review = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_ASSIGNED) |
+                                                         Q(stage=submission_models.STAGE_UNDER_REVIEW) |
                                                          Q(stage=submission_models.STAGE_UNDER_REVISION),
                                                          journal=request.journal) \
         .order_by('-date_submitted')
