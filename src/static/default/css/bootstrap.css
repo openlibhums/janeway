@@ -9454,3 +9454,7 @@ footer svg {
   max-height: 60px;
   max-width: 100px;
 }
+
+.article-thumbnail {
+  max-width: 100%;
+}
