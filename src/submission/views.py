@@ -76,7 +76,7 @@ def submit_info(request, article_id):
     form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article)
+        form = forms.ArticleInfo(request.POST, instance=article, additional_fields=additional_fields)
 
         if form.is_valid():
             form.save(request=request)
