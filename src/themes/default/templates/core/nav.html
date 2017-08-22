@@ -1,3 +1,4 @@
+{% load static from staticfiles %}
 {% load svg from press_url %}
 {% load roles %}
 {% load i18n %}
@@ -14,7 +15,7 @@
             {% if request.journal.header_image %}
                 <a href="/"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
             {% else %}
-                <a href="/">{% svg request.press_cover %}</a>
+                <a href="/"><img src="{% static "common/img/sample/janeway.png" %}"></a>
             {% endif %}
         {% else %}
             <a href="/">{% svg request.press_cover %}</a>
