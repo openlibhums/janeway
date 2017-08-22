@@ -51,6 +51,8 @@ admin_list = [
     (models.PublisherNote, PublisherNoteAdmin),
     (models.Note, NoteAdmin),
     (models.FrozenAuthor, FrozenAuthorAdmin),
+    (models.Field,),
+    (models.FieldAnswer,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

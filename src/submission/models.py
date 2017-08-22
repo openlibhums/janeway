@@ -922,3 +922,45 @@ class Note(models.Model):
 
     class Meta:
         ordering = ('-date_time',)
+
+
+def field_kind_choices():
+    return (
+        ('text', 'Text Field'),
+        ('textarea', 'Text Area'),
+        ('check', 'Check Box'),
+        ('select', 'Select'),
+        ('email', 'Email'),
+        ('date', 'Date'),
+    )
+
+def width_choices():
+    return (
+        ('third', 'Third'),
+        ('half', 'Half'),
+        ('full,', 'Full'),
+    )
+
+
+class Field(models.Model):
+    journal = models.ForeignKey('journal.Journal', default=1)
+    name = models.CharField(max_length=200)
+    kind = models.CharField(max_length=50, choices=field_kind_choices())
+    width = models.CharField(max_length=50, choices=width_choices(), default='full')
+    choices = models.CharField(max_length=1000, null=True, blank=True,
+                               help_text='Separate choices with the bar | character.')
+    required = models.BooleanField(default=True)
+    order = models.IntegerField()
+    help_text = models.TextField()
+
+    class Meta:
+        ordering = ('order', 'name')
+
+    def __str__(self):
+        return "Field: {0} ({1})".format(self.name, self.kind)
+
+
+class FieldAnswer(models.Model):
+    field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
+    article = models.ForeignKey(Article)
+    answer = models.TextField()

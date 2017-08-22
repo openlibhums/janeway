@@ -36,13 +36,22 @@
         </td>
     </tr>
     {% if journal_settings.general.submission_competing_interests %}
-    <tr>
-        <th colspan="4">Competing Interests</th>
-    </tr>
-    <tr>
-        <td colspan="4">{% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
-    </tr>
+        <tr>
+            <th colspan="4">Competing Interests</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+        </tr>
     {% endif %}
+    {% for field_answer in article.fieldanswer_set.all %}
+        <tr>
+            <th colspan="4">{{ field_answer.field.name }}</th>
+        </tr>
+        <tr>
+            <td colspan="4">{{ field_answer.answer }}</td>
+        </tr>
+    {% endfor %}
 
 </table>
 <div class="title-area">

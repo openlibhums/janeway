@@ -15,7 +15,7 @@ from django.utils import timezone
 
 from core import files, models as core_models
 from preprint import models as preprint_models
-from security.decorators import article_edit_user_required, production_user_or_editor_required
+from security.decorators import article_edit_user_required, production_user_or_editor_required, editor_user_required
 from submission import forms, models, logic
 from events import logic as event_logic
 from identifiers import models as identifier_models
@@ -72,14 +72,14 @@ def submit_submissions(request):
 @article_edit_user_required
 def submit_info(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
-
-    form = forms.ArticleInfo(instance=article)
+    additional_fields = models.Field.objects.filter(journal=request.journal)
+    form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article)
+        form = forms.ArticleInfo(request.POST, instance=article, additional_fields=additional_fields)
 
         if form.is_valid():
-            form.save()
+            form.save(request=request)
             article.current_step = 2
             article.save()
 
@@ -89,6 +89,7 @@ def submit_info(request, article_id):
     context = {
         'article': article,
         'form': form,
+        'additional_fields': additional_fields,
     }
 
     return render(request, template, context)
@@ -423,6 +424,58 @@ def edit_identifiers(request, article_id, identifier_id=None, event=None):
         'identifier': identifier,
         'modal': modal,
         'return': return_param,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def fields(request, field_id=None):
+    if field_id:
+        field = get_object_or_404(models.Field, pk=field_id, journal=request.journal)
+    else:
+        field = None
+
+    fields = models.Field.objects.filter(journal=request.journal)
+
+    form = forms.FieldForm(instance=field)
+
+    if request.POST:
+
+        if 'save' in request.POST:
+            form = forms.FieldForm(request.POST, instance=field)
+
+            if form.is_valid():
+                new_field = form.save(commit=False)
+                new_field.journal = request.journal
+                new_field.save()
+                messages.add_message(request, messages.SUCCESS, 'Field saved.')
+                return redirect(reverse('submission_fields'))
+
+        elif 'delete' in request.POST:
+            delete_id = request.POST.get('delete')
+            field_to_delete = get_object_or_404(models.Field, pk=delete_id, journal=request.journal)
+            field_to_delete.delete()
+            messages.add_message(request, messages.SUCCESS, 'Field deleted. Existing answers will remain intact.')
+            return redirect(reverse('submission_fields'))
+
+        elif 'order[]' in request.POST:
+            ids = [int(_id) for _id in request.POST.getlist('order[]')]
+
+            for field in fields:
+                order = ids.index(field.pk)
+                field.order = order
+                field.save()
+
+            return HttpResponse('Thanks')
+
+        print(request.POST)
+
+    template = 'admin/submission/manager/fields.html'
+    context = {
+        'field': field,
+        'fields': fields,
+        'form': form,
     }
 
     return render(request, template, context)
