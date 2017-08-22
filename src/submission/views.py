@@ -459,6 +459,18 @@ def fields(request, field_id=None):
             messages.add_message(request, messages.SUCCESS, 'Field deleted. Existing answers will remain intact.')
             return redirect(reverse('submission_fields'))
 
+        elif 'order[]' in request.POST:
+            ids = [int(_id) for _id in request.POST.getlist('order[]')]
+
+            for field in fields:
+                order = ids.index(field.pk)
+                field.order = order
+                field.save()
+
+            return HttpResponse('Thanks')
+
+        print(request.POST)
+
     template = 'admin/submission/manager/fields.html'
     context = {
         'field': field,

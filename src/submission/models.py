@@ -949,6 +949,9 @@ class Field(models.Model):
     order = models.IntegerField()
     help_text = models.TextField()
 
+    class Meta:
+        ordering = ('order', 'name')
+
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
 
