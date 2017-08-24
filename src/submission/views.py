@@ -16,7 +16,7 @@ from django.utils import timezone
 from core import files, models as core_models
 from preprint import models as preprint_models
 from security.decorators import article_edit_user_required, production_user_or_editor_required, editor_user_required
-from submission import forms, models, logic
+from submission import forms, models, logic, decorators
 from events import logic as event_logic
 from identifiers import models as identifier_models
 from utils import setting_handler
@@ -24,6 +24,7 @@ from utils import shared as utils_shared
 
 
 @login_required
+@decorators.submission_is_enabled
 def start(request, type=None):
     competing_interests = setting_handler.get_setting('general', 'submission_competing_interests', request.journal)
     form = forms.ArticleStart(ci=competing_interests)
@@ -56,6 +57,7 @@ def start(request, type=None):
 
 
 @login_required
+@decorators.submission_is_enabled
 def submit_submissions(request):
     # gets a list of submissions for the logged in user
     articles = models.Article.objects.filter(owner=request.user).exclude(stage=models.STAGE_UNSUBMITTED)
@@ -69,6 +71,7 @@ def submit_submissions(request):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_info(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
@@ -111,6 +114,7 @@ def publisher_notes_order(request, article_id):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_authors(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
@@ -195,6 +199,7 @@ def delete_author(request, article_id, author_id):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_files(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
@@ -263,6 +268,7 @@ def submit_files(request, article_id):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_review(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
