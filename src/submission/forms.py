@@ -115,13 +115,14 @@ class ArticleInfo(forms.ModelForm):
             additional_fields = models.Field.objects.filter(journal=request.journal)
 
             for field in additional_fields:
-                answer = request.POST.get(field.name)
-                try:
-                    field_answer = models.FieldAnswer.objects.get(article=article, field=field)
-                    field_answer.answer = answer
-                    field_answer.save()
-                except models.FieldAnswer.DoesNotExist:
-                    field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
+                answer = request.POST.get(field.name, None)
+                if answer:
+                    try:
+                        field_answer = models.FieldAnswer.objects.get(article=article, field=field)
+                        field_answer.answer = answer
+                        field_answer.save()
+                    except models.FieldAnswer.DoesNotExist:
+                        field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
 
         if commit:
             article.save()
