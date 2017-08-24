@@ -326,7 +326,7 @@ def edit_metadata(request, article_id):
             info_form = forms.ArticleInfo(request.POST, instance=article)
 
             if info_form.is_valid():
-                info_form.save()
+                info_form.save(request=request)
                 messages.add_message(request, messages.SUCCESS, 'Metadata updated.')
                 return redirect(reverse_url)
 
