@@ -2279,5 +2279,18 @@
         "group": {
             "name": "email_subject"
         }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "boolean",
+            "pretty_name": "Disable Submission",
+            "is_translatable": true,
+            "description": "If true, users cannot submit new articles.",
+            "name": "disable_journal_submission"
+        },
+        "group": {
+            "name": "general"
+        }
     }
 ]
