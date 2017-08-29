@@ -12,6 +12,11 @@ from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
+from django.conf import settings
+
+from simplemathcaptcha.fields import MathCaptchaField
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
 from core import models
 from journal import models as journal_models
@@ -100,6 +105,14 @@ class RegistrationForm(forms.ModelForm):
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password 1'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password 2'))
+
+    if settings.CAPTCHA_TYPE == 'simple_math':
+        question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
+        are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
+    elif settings.CAPTCHA_TYPE == 'recaptcha':
+        are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
+    else:
+        are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.Account

@@ -1,8 +1,13 @@
 {% extends "core/base.html" %}
 {% load foundation %}
 {% load i18n %}
+{% load recaptcha2 %}
 
 {% block title %}{% trans "Contact" %}{% endblock title %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
 
 {% block body %}
 	<section id="content" class="no-padding">
@@ -30,7 +35,7 @@
                     {{ contact_form.sender|foundation }}
                     {{ contact_form.subject|foundation }}
                     {{ contact_form.body|foundation }}
-                    {{ contact_form.are_you_a_robot|foundation }} {{ contact_form.are_you_a_robot.set_question }}
+                    {{ contact_form.are_you_a_robot|foundation }}
                     <button type="submit" class="success button">{% trans "Send Message" %}</button>
                 </form>
             </div>

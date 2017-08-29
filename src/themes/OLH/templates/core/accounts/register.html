@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load foundation %}
 {% load i18n %}
+{% load recaptcha2 %}
 
 {% block page_title %}{% trans "Register" %}{% endblock page_title %}
 
@@ -12,6 +13,10 @@
         }
     </style>
 {% endblock css %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
 
 {% block body %}
 
