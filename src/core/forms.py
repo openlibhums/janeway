@@ -147,7 +147,8 @@ class EditAccountForm(forms.ModelForm):
         model = models.Account
         exclude = ('email', 'username', 'activation_code', 'email_sent',
                    'date_confirmed', 'confirmation_code', 'is_active',
-                   'is_staff', 'is_admin', 'date_joined', 'password')
+                   'is_staff', 'is_admin', 'date_joined', 'password',
+                   'is_superuser')
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
