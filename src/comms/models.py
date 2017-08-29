@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from django.http import Http404
 
 from core import files
 
@@ -61,10 +62,14 @@ class NewsItem(models.Model):
         return 'news_file_download'
 
     def serve_news_file(self):
-        if self.content_type.name == 'press':
-            return files.serve_file_to_browser(self.large_image_file.press_path(), self.large_image_file)
+        if self.large_image_file:
+            if self.content_type.name == 'press':
+                return files.serve_file_to_browser(self.large_image_file.press_path(), self.large_image_file)
+            else:
+                return files.serve_file_to_browser(self.large_image_file.journal_path(self.object),
+                                                   self.large_image_file)
         else:
-            return files.serve_file_to_browser(self.large_image_file.journal_path(self.object), self.large_image_file)
+            return Http404
 
     def set_tags(self, posted_tags):
         str_tags = [tag.text for tag in self.tags.all()]
