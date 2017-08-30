@@ -8,6 +8,7 @@ import os
 from PIL import Image
 import uuid
 from importlib import import_module
+from datetime import timedelta
 
 from django.conf import settings
 from django.utils.translation import get_language
@@ -22,6 +23,7 @@ from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
 from comms import models as comms_models
+from utils import shared
 
 
 def send_reset_token(request, reset_token):
@@ -452,3 +454,30 @@ def order_pinned_articles(request, pinned_articles):
     for pin in pinned_articles:
         pin.sequence = ids.index(pin.pk)
         pin.save()
+
+
+def get_ua_and_ip(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', None)
+    ip_address = shared.get_ip_address(request)
+
+    return user_agent, ip_address
+
+
+def add_failed_login_attempt(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+
+    models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
+
+
+def clear_bad_login_attempts(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+
+    models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address).delete()
+
+
+def check_for_bad_login_attempts(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+    time = timezone.now() - timedelta(minutes=30)
+
+    attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address)
+    return attempts.count()

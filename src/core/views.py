@@ -44,47 +44,57 @@ def user_login(request):
             return redirect(request.GET.get('next'))
         else:
             return redirect(reverse('website_index'))
+    else:
+        bad_logins = logic.check_for_bad_login_attempts(request)
+
+    if bad_logins >= 5:
+        messages.add_message(request, messages.ERROR, 'You have been banned from logging in due to failed attempts.')
+        return redirect(reverse('website_index'))
+
+    form = forms.LoginForm(bad_logins=bad_logins)
 
     if request.POST:
-        user = request.POST.get('user_name').lower()
-        pawd = request.POST.get('user_pass')
+        form = forms.LoginForm(request.POST, bad_logins=bad_logins)
 
-        user = authenticate(username=user, password=pawd)
+        if form.is_valid():
+            user = request.POST.get('user_name').lower()
+            pawd = request.POST.get('user_pass')
 
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                messages.info(request, 'Login successful.')
+            user = authenticate(username=user, password=pawd)
 
-                util_models.LogEntry.add_entry(types='Authentication',
-                                               description='Successfully logged in user {0}'.format(
-                                                   request.POST.get('user_name')),
-                                               level='Info', actor=user, request=request)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    messages.info(request, 'Login successful.')
+                    logic.clear_bad_login_attempts(request)
 
-                orcid_token = request.POST.get('orcid_token', None)
-                if orcid_token:
-                    try:
-                        token_obj = models.OrcidToken.objects.get(token=orcid_token, expiry__gt=timezone.now())
-                        user.orcid = token_obj.orcid
-                        user.save()
-                        token_obj.delete()
-                    except models.OrcidToken.DoesNotExist:
-                        pass
+                    orcid_token = request.POST.get('orcid_token', None)
+                    if orcid_token:
+                        try:
+                            token_obj = models.OrcidToken.objects.get(token=orcid_token, expiry__gt=timezone.now())
+                            user.orcid = token_obj.orcid
+                            user.save()
+                            token_obj.delete()
+                        except models.OrcidToken.DoesNotExist:
+                            pass
 
-                if request.GET.get('next'):
-                    return redirect(request.GET.get('next'))
+                    if request.GET.get('next'):
+                        return redirect(request.GET.get('next'))
+                    else:
+                        return redirect(reverse('website_index'))
                 else:
-                    return redirect(reverse('website_index'))
+                    messages.add_message(request, messages.ERROR, 'User account is not active.')
             else:
-                messages.add_message(request, messages.ERROR, 'User account is not active.')
-        else:
-            messages.add_message(request, messages.ERROR, 'Account not found with those details.')
-            util_models.LogEntry.add_entry(types='Authentication',
-                                           description='Failed login attempt for user {0}'.format(
-                                               request.POST.get('user_name')),
-                                           level='Info', actor=None, request=request)
+                messages.add_message(request, messages.ERROR, 'Account not found with those details.')
+                util_models.LogEntry.add_entry(types='Authentication',
+                                               description='Failed login attempt for user {0}'.format(
+                                                   request.POST.get('user_name')),
+                                               level='Info', actor=None, request=request)
+                logic.add_failed_login_attempt(request)
 
-    context = {}
+    context = {
+        'form': form,
+    }
     template = 'core/login.html'
 
     return render(request, template, context)

@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load recaptcha2 %}
 
 {% block page_title %}{% trans "Login" %}{% endblock page_title %}
 
@@ -11,6 +12,10 @@
     }
 </style>
 {% endblock css %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
 
 {% block body %}
 
@@ -29,6 +34,9 @@
                         <label>Password
                             <input type="password" placeholder="Password" name="user_pass">
                         </label>
+                        <br />
+                        {{ form.captcha }}
+                        <br />
                         <p><button type="submit" class="button expanded">{% trans "Log in" %}</button></p>
                         <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgotten your password?" %}</a></p>
                     </div>

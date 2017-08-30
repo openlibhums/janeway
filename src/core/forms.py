@@ -358,3 +358,16 @@ class QuickUserForm(forms.ModelForm):
         raise forms.ValidationError(
             'This email address is already in use.'
         )
+
+
+class LoginForm(forms.Form):
+    user_name = forms.CharField(max_length=255)
+    user_pass = forms.CharField(max_length=255, widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        bad_logins = kwargs.pop('bad_logins', None)
+        super(LoginForm, self).__init__(*args, **kwargs)
+        if bad_logins >= 3 and (settings.CAPTCHA_TYPE == 'simple_math' or settings.CAPTCHA_TYPE == 'recaptcha'):
+            self.fields['captcha'] = ReCaptchaField(widget=ReCaptchaWidget())
+        else:
+            self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)

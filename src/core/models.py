@@ -887,3 +887,9 @@ class HomepageElement(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class LoginAttempt(models.Model):
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
