@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from importlib import import_module
-import os
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
