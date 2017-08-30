@@ -185,9 +185,6 @@ urlpatterns = [
     # Cache
     url(r'^manager/cache/flush/$', core_views.flush_cache, name='core_flush_cache'),
 
-    # APIs
-    url(r'^api/oai$', core_views.oai, name='OAI_list_records'),
-
     url(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
     url(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
     url(r'^edit/article/(?P<article_id>\d+)/ident/$', submission_views.edit_identifiers, name='edit_identifiers'),

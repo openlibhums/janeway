@@ -782,17 +782,6 @@ def journal_home_order(request):
     return HttpResponse('Thanks')
 
 
-def oai(request):
-    articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PUBLISHED)
-
-    template = 'apis/OAI.xml'
-    context = {
-        'articles': articles,
-    }
-
-    return render(request, template, context, content_type="application/xml")
-
-
 @editor_user_required
 def article_images(request):
     articles = submission_models.Article.objects.filter(journal=request.journal)
