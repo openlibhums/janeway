@@ -30,3 +30,6 @@ If you wish to get in touch about Janeway, contact information is provided below
 Project Lead - Martin Paul Eve, martin.eve@bbk.ac.uk
 
 Lead Developer - Andy Byers, a.byers@bbk.ac.uk
+
+# Releases
+- v1.0 Kathryn released 10/08/17

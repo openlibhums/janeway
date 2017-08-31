@@ -668,6 +668,10 @@ def publish_article(request, article_id):
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(article)
+
+            if not article.date_published:
+                article.date_published = timezone.now()
+
             article.save()
             return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
 
@@ -929,6 +933,7 @@ def manage_archive_article(request, article_id):
     from production import logic as production_logic
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
+    
     article = get_object_or_404(submission_models.Article, pk=article_id)
     galleys = production_logic.get_all_galleys(article)
     identifiers = identifier_models.Identifier.objects.filter(article=article)

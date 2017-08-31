@@ -5,7 +5,7 @@ from django.db.models import Q
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    from core import models as core_models
+    from comms import models as comms_models
     from utils import models as utils_models
     if homepage_elements is not None and homepage_elements.filter(name='News').exists():
 
@@ -18,7 +18,7 @@ def yield_homepage_element_context(request, homepage_elements):
 
         number_of_articles = int(number_of_articles) if number_of_articles else 0
 
-        news_items = core_models.NewsItem.objects.filter(
+        news_items = comms_models.NewsItem.objects.filter(
             (Q(object_id=request.site_type.pk) and
              Q(content_type=request.model_content_type)) &
             (Q(start_display__lte=timezone.now()) |

@@ -16,6 +16,10 @@ urlpatterns = [
     url(r'^(?P<article_id>\d+)/files/$', views.submit_files, name='submit_files'),
     url(r'^submissions/$', views.submit_submissions, name='submission_submissions'),
     url(r'^(?P<article_id>\d+)/review/$', views.submit_review, name='submit_review'),
+
     url(r'^manager/article/settings/article/(?P<article_id>\d+)/publishernotes/order/$', views.publisher_notes_order,
         name='submission_article_publisher_notes_order'),
+
+    url(r'^manager/fields/$', views.fields, name='submission_fields'),
+    url(r'^manager/fields/(?P<field_id>\d+)/$', views.fields, name='submission_fields_id'),
 ]

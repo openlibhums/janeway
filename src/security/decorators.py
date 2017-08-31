@@ -733,6 +733,11 @@ def proofing_manager_for_article_required(func):
         if not base_check(request):
             return redirect('{0}?next={1}'.format(reverse('core_login'), request.path))
 
+        article = get_object_or_404(models.Article, pk=kwargs['article_id'])
+
+        if not hasattr(article, 'proofingassignment'):
+            return redirect(reverse('proofing_list'))
+
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
@@ -741,7 +746,7 @@ def proofing_manager_for_article_required(func):
 
         try:
             proofing_models.ProofingAssignment.objects.get(
-                article__pk=kwargs['article_id'],
+                article=article,
                 proofing_manager=request.user
             )
             return func(request, *args, **kwargs)

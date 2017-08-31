@@ -8,6 +8,7 @@ import os
 from PIL import Image
 import uuid
 from importlib import import_module
+from datetime import timedelta
 
 from django.conf import settings
 from django.utils.translation import get_language
@@ -21,6 +22,8 @@ from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
+from comms import models as comms_models
+from utils import shared
 
 
 def send_reset_token(request, reset_token):
@@ -140,6 +143,9 @@ def get_settings_to_edit(group, journal):
 
     if group == 'submission':
         settings = [
+            {'name': 'disable_journal_submission',
+             'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
+             },
             {'name': 'copyright_notice',
              'object': setting_handler.get_setting('general', 'copyright_notice', journal)
              },
@@ -411,7 +417,7 @@ def news_items(carousel, object_type, press=None):
     if press and press.carousel_news_items.all():
         return press.carousel_news_items.all()
 
-    carousel_objects = models.NewsItem.objects.filter(
+    carousel_objects = comms_models.NewsItem.objects.filter(
         (Q(content_type__model=object_type) & Q(object_id=object_id)) &
         (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
         (Q(end_display__gte=timezone.now()) | Q(end_display=None))
@@ -448,3 +454,30 @@ def order_pinned_articles(request, pinned_articles):
     for pin in pinned_articles:
         pin.sequence = ids.index(pin.pk)
         pin.save()
+
+
+def get_ua_and_ip(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', None)
+    ip_address = shared.get_ip_address(request)
+
+    return user_agent, ip_address
+
+
+def add_failed_login_attempt(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+
+    models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
+
+
+def clear_bad_login_attempts(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+
+    models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address).delete()
+
+
+def check_for_bad_login_attempts(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+    time = timezone.now() - timedelta(minutes=30)
+
+    attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address)
+    return attempts.count()

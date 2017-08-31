@@ -2,12 +2,14 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
+from review.forms import render_choices
 
 
 class PublisherNoteForm(forms.ModelForm):
@@ -47,6 +49,7 @@ class ArticleInfo(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        elements = kwargs.pop('additional_fields', None)
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
@@ -57,7 +60,46 @@ class ArticleInfo(forms.ModelForm):
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()
 
-    def save(self, commit=True):
+            if elements:
+                for element in elements:
+                    if element.kind == 'text':
+                        self.fields[element.name] = forms.CharField(
+                            widget=forms.TextInput(attrs={'div_class': element.width}),
+                            required=element.required)
+                    elif element.kind == 'textarea':
+                        self.fields[element.name] = forms.CharField(widget=forms.Textarea,
+                                                                    required=element.required)
+                    elif element.kind == 'date':
+                        self.fields[element.name] = forms.CharField(
+                            widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
+                            required=element.required)
+
+                    elif element.kind == 'select':
+                        choices = render_choices(element.choices)
+                        self.fields[element.name] = forms.ChoiceField(
+                            widget=forms.Select(attrs={'div_class': element.width}), choices=choices,
+                            required=element.required)
+
+                    elif element.kind == 'email':
+                        self.fields[element.name] = forms.EmailField(
+                            widget=forms.TextInput(attrs={'div_class': element.width}),
+                            required=element.required)
+                    elif element.kind == 'check':
+                        self.fields[element.name] = forms.BooleanField(
+                            widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
+                            required=element.required)
+
+                    self.fields[element.name].help_text = element.help_text
+                    self.fields[element.name].label = element.name
+
+                    if article:
+                        try:
+                            check_for_answer = models.FieldAnswer.objects.get(field=element, article=article)
+                            self.fields[element.name].initial = check_for_answer.answer
+                        except models.FieldAnswer.DoesNotExist:
+                            pass
+
+    def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
 
         posted_keywords = self.cleaned_data['keywords'].split(',')
@@ -68,6 +110,19 @@ class ArticleInfo(forms.ModelForm):
         for keyword in article.keywords.all():
             if keyword.word not in posted_keywords:
                 article.keywords.remove(keyword)
+
+        if request:
+            additional_fields = models.Field.objects.filter(journal=request.journal)
+
+            for field in additional_fields:
+                answer = request.POST.get(field.name, None)
+                if answer:
+                    try:
+                        field_answer = models.FieldAnswer.objects.get(article=article, field=field)
+                        field_answer.answer = answer
+                        field_answer.save()
+                    except models.FieldAnswer.DoesNotExist:
+                        field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
 
         if commit:
             article.save()
@@ -156,4 +211,13 @@ class IdentifierForm(forms.ModelForm):
             'id_type',
             'identifier',
             'enabled',
+        )
+
+
+class FieldForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Field
+        exclude = (
+            'journal',
         )

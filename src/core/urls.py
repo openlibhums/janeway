@@ -198,9 +198,6 @@ if settings.URL_CONFIG == 'domain':
         # Cache
         url(r'^manager/cache/flush/$', core_views.flush_cache, name='core_flush_cache'),
 
-        # APIs
-        url(r'^api/oai$', core_views.oai, name='OAI_list_records'),
-
         url(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
         url(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
         url(r'^edit/article/(?P<article_id>\d+)/ident/$', submission_views.edit_identifiers, name='edit_identifiers'),
@@ -266,7 +263,7 @@ if settings.URL_CONFIG == 'domain':
 
         for key, val in plugins.items():
             if hasattr(val, 'notify_hook'):
-                settings.NOTIFY_FUNCS.append(val.notify_hook)
+                settings.NOTIFY_FUNCS.append(val.notify_hook)t 
 
     urlpatterns += [
         url(r'^site/(?P<page_name>.*)/$', cms_views.view_page, name='cms_page'),
@@ -465,9 +462,6 @@ else:
 
         # Cache
         url(r'^(?P<journal_code>[-\w.]+)/manager/cache/flush/$', core_views.flush_cache, name='core_flush_cache'),
-
-        # APIs
-        url(r'^(?P<journal_code>[-\w.]+)/api/oai$', core_views.oai, name='OAI_list_records'),
 
         url(r'^(?P<journal_code>[-\w.]+)/edit/article/(?P<article_id>\d+)/metadata/$',
             submission_views.edit_metadata,

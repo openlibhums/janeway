@@ -4,7 +4,7 @@ from django.utils.html import strip_tags
 from utils import setting_handler
 
 
-def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None):
+def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
 
     if journal:
         from_email = setting_handler.get_setting('email', 'from_address', journal).value
@@ -26,6 +26,9 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             full_from_string = "{0} <{1}>".format(request.site_type.name, from_email)
         else:
             full_from_string = from_email
+
+    if replyto:
+        reply_to = replyto
 
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
     msg.attach_alternative(html, "text/html")

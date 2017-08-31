@@ -20,10 +20,10 @@ from django.http import HttpResponse
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings as django_settings
 
 from core import models, forms, files, logic
-from security.decorators import file_user_required, has_request, editor_user_required
+from security.decorators import editor_user_required, article_author_required
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -43,47 +43,57 @@ def user_login(request):
             return redirect(request.GET.get('next'))
         else:
             return redirect(reverse('website_index'))
+    else:
+        bad_logins = logic.check_for_bad_login_attempts(request)
+
+    if bad_logins >= 5:
+        messages.add_message(request, messages.ERROR, 'You have been banned from logging in due to failed attempts.')
+        return redirect(reverse('website_index'))
+
+    form = forms.LoginForm(bad_logins=bad_logins)
 
     if request.POST:
-        user = request.POST.get('user_name').lower()
-        pawd = request.POST.get('user_pass')
+        form = forms.LoginForm(request.POST, bad_logins=bad_logins)
 
-        user = authenticate(username=user, password=pawd)
+        if form.is_valid():
+            user = request.POST.get('user_name').lower()
+            pawd = request.POST.get('user_pass')
 
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                messages.info(request, 'Login successful.')
+            user = authenticate(username=user, password=pawd)
 
-                util_models.LogEntry.add_entry(types='Authentication',
-                                               description='Successfully logged in user {0}'.format(
-                                                   request.POST.get('user_name')),
-                                               level='Info', actor=user, request=request)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    messages.info(request, 'Login successful.')
+                    logic.clear_bad_login_attempts(request)
 
-                orcid_token = request.POST.get('orcid_token', None)
-                if orcid_token:
-                    try:
-                        token_obj = models.OrcidToken.objects.get(token=orcid_token, expiry__gt=timezone.now())
-                        user.orcid = token_obj.orcid
-                        user.save()
-                        token_obj.delete()
-                    except models.OrcidToken.DoesNotExist:
-                        pass
+                    orcid_token = request.POST.get('orcid_token', None)
+                    if orcid_token:
+                        try:
+                            token_obj = models.OrcidToken.objects.get(token=orcid_token, expiry__gt=timezone.now())
+                            user.orcid = token_obj.orcid
+                            user.save()
+                            token_obj.delete()
+                        except models.OrcidToken.DoesNotExist:
+                            pass
 
-                if request.GET.get('next'):
-                    return redirect(request.GET.get('next'))
+                    if request.GET.get('next'):
+                        return redirect(request.GET.get('next'))
+                    else:
+                        return redirect(reverse('website_index'))
                 else:
-                    return redirect(reverse('website_index'))
+                    messages.add_message(request, messages.ERROR, 'User account is not active.')
             else:
-                messages.add_message(request, messages.ERROR, 'User account is not active.')
-        else:
-            messages.add_message(request, messages.ERROR, 'Account not found with those details.')
-            util_models.LogEntry.add_entry(types='Authentication',
-                                           description='Failed login attempt for user {0}'.format(
-                                               request.POST.get('user_name')),
-                                           level='Info', actor=None, request=request)
+                messages.add_message(request, messages.ERROR, 'Account not found with those details.')
+                util_models.LogEntry.add_entry(types='Authentication',
+                                               description='Failed login attempt for user {0}'.format(
+                                                   request.POST.get('user_name')),
+                                               level='Info', actor=None, request=request)
+                logic.add_failed_login_attempt(request)
 
-    context = {}
+    context = {
+        'form': form,
+    }
     template = 'core/login.html'
 
     return render(request, template, context)
@@ -291,6 +301,7 @@ def dashboard(request):
                                                                             editor_type='section-editor',
                                                                             article__journal=request.journal)
 
+    # TODO: Move most of this to model logic.
     context = {
         'new_proofing': new_proofing.count(),
         'active_proofing': active_proofing.count(),
@@ -346,7 +357,10 @@ def dashboard(request):
             Q(copyedit_reopened__isnull=True), article__journal=request.journal).count(),
         'copyeditor_accepted_requests': copyedit_models.CopyeditAssignment.objects.filter(
             Q(copyeditor=request.user, decision='accept', copyeditor_completed__isnull=True,
-              article__journal=request.journal)
+              article__journal=request.journal) |
+            Q(copyeditor=request.user, decision='accept', copyeditor_completed__isnull=False,
+              article__journal=request.journal, copyedit_reopened__isnull=False,
+              copyedit_reopened_complete__isnull=True)
         ).count(),
         'copyeditor_completed_requests': copyedit_models.CopyeditAssignment.objects.filter(
             (Q(copyeditor=request.user) & Q(copyeditor_completed__isnull=False)) |
@@ -372,6 +386,18 @@ def dashboard(request):
             journal=request.journal,
             owner=request.user,
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started')
+    }
+
+    return render(request, template, context)
+
+
+@article_author_required
+def dashboard_article(request, article_id):
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+
+    template = 'core/article.html'
+    context = {
+        'article': article,
     }
 
     return render(request, template, context)
@@ -471,6 +497,11 @@ def edit_settings_group(request, group):
             attr_form.save()
             logic.handle_default_thumbnail(request, journal, attr_form)
             logic.handle_press_override_image(request, journal, attr_form)
+
+            if group == 'journal' and journal.default_large_image:
+                path = django_settings.BASE_DIR + journal.default_large_image.url
+                logic.resize_and_crop(path, [750, 324], 'middle')
+
             cache.clear()
 
             if request.journal:
@@ -751,118 +782,6 @@ def journal_home_order(request):
     return HttpResponse('Thanks')
 
 
-def oai(request):
-    articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_PUBLISHED)
-
-    template = 'apis/OAI.xml'
-    context = {
-        'articles': articles,
-    }
-
-    return render(request, template, context, content_type="application/xml")
-
-
-@editor_user_required
-def news(request):
-    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by('-posted')
-    form = forms.NewsItemForm()
-    new_file = None
-
-    if 'delete' in request.POST:
-        news_item_pk = request.POST.get('delete')
-        item = get_object_or_404(models.NewsItem,
-                                 pk=news_item_pk,
-                                 content_type=request.model_content_type,
-                                 object_id=request.site_type.pk)
-        item.delete()
-        return redirect(reverse('core_manager_news'))
-
-    if request.POST:
-        form = forms.NewsItemForm(request.POST)
-
-        if request.FILES:
-            uploaded_file = request.FILES.get('image_file')
-
-            if request.model_content_type.name == 'journal':
-                new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.model_content_type.name == 'press':
-                new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
-
-        if form.is_valid():
-            new_item = form.save(commit=False)
-            new_item.content_type = request.model_content_type
-            new_item.object_id = request.site_type.pk
-            new_item.posted_by = request.user
-            new_item.posted = timezone.now()
-            new_item.large_image_file = new_file
-            new_item.save()
-
-            return redirect(reverse('core_manager_news'))
-
-    template = 'core/manager/news/index.html'
-    context = {
-        'news_items': new_items,
-        'action': 'new',
-        'form': form,
-    }
-
-    return render(request, template, context)
-
-
-@staff_member_required
-def edit_news(request, news_pk):
-    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by('-posted')
-    news_item = get_object_or_404(models.NewsItem, pk=news_pk)
-    form = forms.NewsItemForm(instance=news_item)
-    new_file = None
-
-    if 'delete_image' in request.POST:
-        delete_image_id = request.POST.get('delete_image')
-        file = get_object_or_404(models.File, pk=delete_image_id)
-
-        if file.owner == request.user or request.user.is_staff:
-            file.delete()
-            messages.add_message(request, messages.SUCCESS, 'Image deleted')
-        else:
-            messages.add_message(request, messages.WARNING, 'Only the owner or staff can delete this image.')
-
-        return redirect(reverse('core_manager_edit_news', kwargs={'news_pk': news_item.pk}))
-
-    if request.POST:
-        form = forms.NewsItemForm(request.POST, instance=news_item)
-
-        if request.FILES:
-            uploaded_file = request.FILES.get('image_file')
-
-            if request.model_content_type.name == 'journal':
-                new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.model_content_type.name == 'press':
-                new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
-
-        if form.is_valid():
-            item = form.save(commit=False)
-            if new_file:
-                item.large_image_file = new_file
-            item.save()
-            return redirect(reverse('core_manager_news'))
-
-    template = 'core/manager/news/index.html'
-    context = {
-        'news_item': news_item,
-        'news_items': new_items,
-        'action': 'edit',
-        'form': form,
-    }
-
-    return render(request, template, context)
-
-
 @editor_user_required
 def article_images(request):
     articles = submission_models.Article.objects.filter(journal=request.journal)
@@ -911,70 +830,6 @@ def article_image_edit(request, article_pk):
     context = {
         'article': article,
         'article_meta_image_form': article_meta_image_form,
-    }
-
-    return render(request, template, context)
-
-
-@has_request
-@file_user_required
-def serve_news_file(request, identifier_type, identifier, file_id):
-    """ Serves a news file (designed for use in the carousel).
-
-    :param request: the request associated with this call
-    :param identifier_type: the identifier type for the article
-    :param identifier: the identifier for the article
-    :param file_id: the file ID to serve
-    :return: a streaming response of the requested file or 404
-    """
-
-    new_item = models.NewsItem.objects.get(
-        content_type=request.model_content_type,
-        object_id=request.site_type.pk,
-        pk=identifier
-    )
-
-    return new_item.serve_news_file()
-
-
-def news_list(request):
-    news_objects = models.NewsItem.objects.filter(
-        (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
-        (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
-        (Q(end_display__gte=timezone.now()) | Q(end_display=None))
-    ).order_by('-posted')
-
-    paginator = Paginator(news_objects, 15)
-    page = request.GET.get('page', 1)
-
-    try:
-        news_items = paginator.page(page)
-    except PageNotAnInteger:
-        news_items = paginator.page(1)
-    except EmptyPage:
-        news_items = paginator.page(paginator.num_pages)
-
-    if not request.journal:
-        template = 'press/core/news/index.html'
-    else:
-        template = 'core/news/index.html'
-
-    context = {
-        'news_items': news_items,
-    }
-
-    return render(request, template, context)
-
-
-def news_item(request, news_pk):
-    item = get_object_or_404(models.NewsItem, pk=news_pk, content_type=request.model_content_type)
-
-    if request.journal:
-        template = 'core/news/item.html'
-    else:
-        template = 'press/core/news/item.html'
-    context = {
-        'news_item': item,
     }
 
     return render(request, template, context)
@@ -1188,12 +1043,12 @@ def editorial_ordering(request, type_to_order, group_id=None):
 
 @editor_user_required
 def kanban(request):
-    unassigned_articles = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNASSIGNED) |
-                                                                   Q(stage=submission_models.STAGE_ASSIGNED),
+    unassigned_articles = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNASSIGNED),
                                                                    journal=request.journal) \
         .order_by('-date_submitted')
 
-    in_review = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNDER_REVIEW) |
+    in_review = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_ASSIGNED) |
+                                                         Q(stage=submission_models.STAGE_UNDER_REVIEW) |
                                                          Q(stage=submission_models.STAGE_UNDER_REVISION),
                                                          journal=request.journal) \
         .order_by('-date_submitted')

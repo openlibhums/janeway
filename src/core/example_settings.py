@@ -336,3 +336,12 @@ BACKUP_DIR = '/path/to/backup/dir/'
 BACKUP_EMAIL = False # If set to True, will send an email each time backup is run
 
 URL_CONFIG = 'domain'  # path or domain
+
+# Captcha
+# You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
+# You can set either to use Google's reCaptcha or a basic math field with no external requirements
+INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
+
+CAPTCHA_TYPE = 'select a value'  # should be either simple_math or recaptcha to enable captcha fields
+RECAPTCHA_PRIVATE_KEY = 'your private key'
+RECAPTCHA_PUBLIC_KEY = 'your public key'

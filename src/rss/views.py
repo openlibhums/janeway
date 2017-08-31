@@ -2,13 +2,14 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.contrib.syndication.views import Feed
 from django.urls import reverse
 from django.utils import timezone
 from django.template.defaultfilters import striptags
 from django.contrib.contenttypes.models import ContentType
 
-from core import models as core_models
+from comms import models as comms_models
 from core.templatetags.truncate import truncatesmart
 from submission import models as submission_models
 
@@ -24,7 +25,7 @@ class LatestNewsFeed(Feed):
 
     def items(self, obj):
         content_type = ContentType.objects.get_for_model(obj)
-        return core_models.NewsItem.objects.filter(content_type=content_type, object_id=obj.pk).order_by('sequence')[:10]
+        return comms_models.NewsItem.objects.filter(content_type=content_type, object_id=obj.pk).order_by('sequence')[:10]
 
     def item_title(self, item):
         return striptags(item.title)

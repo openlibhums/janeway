@@ -1,0 +1,15 @@
+{% if form.non_field_errors %}
+    <div data-alert="" class="alert-box alert">
+        {% for non_field_error in form.non_field_errors %}
+             {{ non_field_error }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% for field in form.hidden_fields %}
+    {{ field }}
+{% endfor %}
+
+{% for field in form.visible_fields %}
+    {% include 'foundationform/_foundation_form_field.html' %}
+{% endfor %}

@@ -1,8 +1,13 @@
 {% extends "core/base.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
+{% load recaptcha2 %}
 
 {% block title %}{% trans "Contact" %}{% endblock title %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -31,7 +36,6 @@
                 {% bootstrap_field contact_form.body %}
                 {% bootstrap_field contact_form.are_you_a_robot %}
                 <button type="submit" class="btn btn-primary">{% trans "Send Message" %}</button>
-
             </form>
         </div>
 

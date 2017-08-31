@@ -976,7 +976,7 @@ button {
     left: -16.66667%; }
   .large-offset-1 {
     margin-left: 8.33333%; }
-  .large-3 {
+  .large-3, .third {
     width: 25%; }
   .large-push-3 {
     position: relative;
@@ -1006,7 +1006,7 @@ button {
     left: -41.66667%; }
   .large-offset-4 {
     margin-left: 33.33333%; }
-  .large-6 {
+  .large-6, .half {
     width: 50%; }
   .large-push-6 {
     position: relative;
@@ -1066,7 +1066,7 @@ button {
     left: -91.66667%; }
   .large-offset-10 {
     margin-left: 83.33333%; }
-  .large-12 {
+  .large-12, .full {
     width: 100%; }
   .large-offset-11 {
     margin-left: 91.66667%; }

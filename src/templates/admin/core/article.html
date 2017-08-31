@@ -1,0 +1,67 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Article {{ article.pk }} Information{% endblock %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Author</li>
+    <li>{{ article.title }}</li>
+{% endblock %}
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>{{ article.title }}</h2>
+        </div>
+        <div class="content">
+            {% include "elements/metadata.html" with view_type="author" %}
+        </div>
+    </div>
+
+    {% if article.reviewassignment_set.all %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Reviews</h2>
+        </div>
+        <div class="box">
+            <table>
+                <tr>
+                    <th>Date Requested</th>
+                    <th>Date Due</th>
+                    <th>Date Completed</th>
+                    <th></th>
+                </tr>
+                {% for review in article.reviewassignment_set.all %}
+                    <tr>
+                        <td>{{ review.date_requested }}</td>
+                        <td>{{ review.date_due }}</td>
+                        <td>{{ review.date_completed }}</td>
+                        <td>{% if review.for_author_consumption %}<a href="{% url 'review_author_view' article.pk %}">View Reviews</a>{% else %}Access has not been granted.{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </div>
+    {% endif %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Tasks</h2>
+        </div>
+        <div class="content">
+            {% for revision in article.active_revision_requests %}
+                {% if not revision.date_completed %}
+                    <a href="{% url 'do_revisions' article.pk revision.pk %}">Revision Request</a>
+                {% endif %}
+            {% endfor %}
+
+            {% for review in article.active_author_copyedits %}
+                <a href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting Review</a>
+            {% endfor %}
+
+            {% if not article.active_revision_requests or not article.active_copyedits %}
+            <p>There are no active tasks</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

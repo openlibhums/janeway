@@ -7,6 +7,7 @@
     <li><a href="{% url 'core_manager_users' %}">Users</a></li>
 {% endblock %}
 
+{% block title %}Users{% endblock %}
 {% block title-section %}Users{% endblock %}
 {% block title-sub %}List{% endblock %}
 
@@ -23,14 +24,16 @@
             <div class="content">
                 <form method="POST">
                     {% csrf_token %}
-                    <div class="medium-4 columns">
-                        <select name="role">
-                            {% for role in roles %}
-                                <option value="{{ role.pk }}">{{ role.name }}</option>{% endfor %}
-                        </select>
-                    </div>
-                    <div class="medium-2 columns">
-                        <button name="add_users" class="success button">Add Users to Role</button>
+                    <div class="row expanded">
+                        <div class="medium-4 columns">
+                            <select name="role">
+                                {% for role in roles %}
+                                    <option value="{{ role.pk }}">{{ role.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="medium-2 columns end">
+                            <button name="add_users" class="success button">Add Users to Role</button>
+                        </div>
                     </div>
                     <table class="small" id='users'>
                         <thead>

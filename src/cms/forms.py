@@ -6,6 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
 
+from django_summernote.widgets import SummernoteWidget
+
 from cms import models
 
 
@@ -14,6 +16,11 @@ class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
         exclude = ('journal', 'is_markdown', 'content_type', 'object_id')
+
+    def __init__(self, *args, **kwargs):
+        super(PageForm, self).__init__(*args, **kwargs)
+
+        self.fields['content'].widget = SummernoteWidget()
 
 
 class NavForm(forms.ModelForm):

@@ -280,7 +280,7 @@
                         <i class="fa fa-plus-circle action-icon">&nbsp;</i>Add New Typesetter
                     </a></li>
                 {% endif %}
-                {% if galleys or production_assignment.typeset_tasks and not production_assignment.closed %}
+                {% if galleys and not production_assignment.closed %}
                     <li><a data-open="productionmodal">
                     <i class="fa fa-check action-icon">&nbsp;</i>Mark production as complete
                 </a><li>
