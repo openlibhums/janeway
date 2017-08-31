@@ -24,11 +24,13 @@
                     <h4>To {{ article.correspondence_author.full_name }}</h4>
                     <h5>From {{ request.user.full_name }}</h5>
                 </div>
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="card-section">
                         <p>Subject: <strong>Revision Request</strong></p>
                         <textarea rows="10" name="email_content">{{ email_content|linebreaksbr }}</textarea>
+                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                        <input type="file" name="attachment" multiple>
                     </div>
                     <div class="card-divider">
                         <div class="button-group">
