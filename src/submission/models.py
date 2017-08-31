@@ -356,7 +356,7 @@ class Article(models.Model):
 
     @property
     def has_galley(self):
-        return self.manuscript_files.filter(is_galley=True).exists()
+        return self.galley_set.all().exists()
 
     @property
     def is_preprint(self):
