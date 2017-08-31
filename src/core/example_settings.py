@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'identifiers',
     'journal',
     'metrics',
+    'comms',
     'preprint',
     'press',
     'production',

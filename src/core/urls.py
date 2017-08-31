@@ -53,6 +53,7 @@ if settings.URL_CONFIG == 'domain':
         url(r'^i18n/', include('django.conf.urls.i18n')),
         url(r'^api/', include('api.urls')),
         url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+        url(r'^news/', include('comms.urls')),
 
         # Root Site URLS
         url(r'^$', press_views.index, name='website_index'),
@@ -101,16 +102,6 @@ if settings.URL_CONFIG == 'domain':
         url(r'^manager/user/authenticated/$', core_views.logged_in_users, name='core_logged_in_users'),
         url(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),
         url(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),
-
-        # News
-        url(r'^manager/news/$', core_views.news, name='core_manager_news'),
-        url(r'^manager/news/edit/(?P<news_pk>\d+)/$', core_views.edit_news, name='core_manager_edit_news'),
-
-        url(r'^news/$', core_views.news_list, name='core_news_list'),
-        url(r'^news/(?P<news_pk>\d+)/$', core_views.news_item, name='core_news_item'),
-
-        url(r'^news/(?P<identifier_type>.+?)/(?P<identifier>.+)/image/(?P<file_id>\d+|None)/$',
-            core_views.serve_news_file, name='news_file_download'),
 
         # Templates
         url(r'^manager/templates/$', core_views.email_templates, name='core_email_templates'),
@@ -263,7 +254,7 @@ if settings.URL_CONFIG == 'domain':
 
         for key, val in plugins.items():
             if hasattr(val, 'notify_hook'):
-                settings.NOTIFY_FUNCS.append(val.notify_hook)t 
+                settings.NOTIFY_FUNCS.append(val.notify_hook)
 
     urlpatterns += [
         url(r'^site/(?P<page_name>.*)/$', cms_views.view_page, name='cms_page'),
@@ -289,6 +280,7 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/install/', include('install.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/i18n/', include('django.conf.urls.i18n')),
         url(r'^(?P<journal_code>[-\w.]+)/api/', include('api.urls')),
+        url(r'^(?P<journal_code>[-\w.]+)/news/', include('comms.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
         # Root Site URLS
@@ -354,18 +346,6 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/manager/user/add/$', core_views.add_user, name='core_add_user'),
         url(r'^(?P<journal_code>[-\w.]+)/manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit,
             name='core_user_edit'),
-
-        # News
-        url(r'^(?P<journal_code>[-\w.]+)/manager/news/$', core_views.news, name='core_manager_news'),
-        url(r'^(?P<journal_code>[-\w.]+)/manager/news/edit/(?P<news_pk>\d+)/$', core_views.edit_news,
-            name='core_manager_edit_news'),
-
-        url(r'^(?P<journal_code>[-\w.]+)/news/$', core_views.news_list, name='core_news_list'),
-        url(r'^(?P<journal_code>[-\w.]+)/news/(?P<news_pk>\d+)/$', core_views.news_item, name='core_news_item'),
-
-        url(
-            r'^(?P<journal_code>[-\w.]+)/news/(?P<identifier_type>.+?)/(?P<identifier>.+)/image/(?P<file_id>\d+|None)/$',
-            core_views.serve_news_file, name='news_file_download'),
 
         # Templates
         url(r'^(?P<journal_code>[-\w.]+)/manager/templates/$', core_views.email_templates,
