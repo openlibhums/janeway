@@ -11,14 +11,6 @@ from django.views.generic import TemplateView
 from django.conf import settings
 from django.views.static import serve
 
-
-if settings.URL_CONFIG == 'path':
-    from core.monkeypatch import reverse
-    from django import urls
-
-    urls.reverse = reverse
-    urls.base.reverse = reverse
-
 from journal import urls as journal_urls
 from core import views as core_views, plugin_loader
 from utils import notify

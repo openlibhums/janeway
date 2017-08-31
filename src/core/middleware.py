@@ -14,13 +14,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from django.conf import settings
 
-from journal import models as journal_models
 from press import models as press_models
 from utils import models as util_models, setting_handler
 from core import models as core_models
 
 
 def set_journal(request, site):
+    from journal import models as journal_models
     if settings.URL_CONFIG == 'path':
         journal_code = request.path.split('/')[1]
         request.journal = journal_models.Journal.objects.get(code=journal_code)
