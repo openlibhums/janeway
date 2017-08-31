@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.db.models import Q
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from submission import models as submission_models
 from kanban import logic

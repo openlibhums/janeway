@@ -11,7 +11,7 @@ from dateutil import parser as dateparser
 from django.contrib import messages
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import get_template
 
 from core import models as core_models, files

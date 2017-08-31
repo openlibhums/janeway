@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from uuid import uuid4
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q

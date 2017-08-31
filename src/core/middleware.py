@@ -2,7 +2,9 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from uuid import uuid4
+import _thread as thread
 
 from django.contrib.sites import models as site_models
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -17,6 +19,14 @@ from press import models as press_models
 from utils import models as util_models, setting_handler
 from core import models as core_models
 
+
+def set_journal(request, site):
+    if settings.URL_CONFIG == 'path':
+        journal_code = request.path.split('/')[1]
+        request.journal = journal_models.Journal.objects.get(code=journal_code)
+    else:
+        request.journal = journal_models.Journal.objects.get(domain=site.domain)
+        
 
 class SiteSettingsMiddleware(object):
     @staticmethod
@@ -48,7 +58,7 @@ class SiteSettingsMiddleware(object):
         request.press_base_url = request.press.press_url(request)
 
         try:
-            request.journal = journal_models.Journal.objects.get(domain=site.domain)
+            set_journal(request, site)
             request.journal_base_url = request.journal.full_url(request)
             request.journal_cover = request.journal.override_cover(request)
             request.site_type = request.journal
@@ -72,6 +82,13 @@ class SiteSettingsMiddleware(object):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
             elif not request.journal and request.press.is_secure and not request.is_secure() and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if settings.URL_CONFIG == 'path':
+            try:
+                view_kwargs.pop('journal_code')
+            except KeyError:
+                pass
 
 
 class MaintenanceModeMiddleware(object):
@@ -137,3 +154,27 @@ class PressMiddleware(object):
                         pass
                     else:
                         raise Http404('Press cannot access this page.')
+
+
+class GlobalRequestMiddleware(object):
+    _threadmap = {}
+
+    @classmethod
+    def get_current_request(cls):
+        return cls._threadmap[thread.get_ident()]
+
+    def process_request(self, request):
+        self._threadmap[thread.get_ident()] = request
+
+    def process_exception(self, request, exception):
+        try:
+            del self._threadmap[thread.get_ident()]
+        except KeyError:
+            pass
+
+    def process_response(self, request, response):
+        try:
+            del self._threadmap[thread.get_ident()]
+        except KeyError:
+            pass
+        return response

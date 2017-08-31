@@ -101,6 +101,7 @@ MIDDLEWARE_CLASSES = (
     'cron.middleware.CronMiddleware',
     'core.middleware.CounterCookieMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'core.middleware.GlobalRequestMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -128,6 +129,9 @@ TEMPLATES = [
                 'utils.template_override_middleware.Loader',
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
+            ],
+            'builtins': [
+                'core.templatetags.pathurl',
             ],
         },
     },
@@ -329,7 +333,9 @@ S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com
 
 BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
-BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
+BACKUP_EMAIL = False # If set to True, will send an email each time backup is run
+
+URL_CONFIG = 'domain'  # path or domain
 
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro

@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.utils import timezone
 from django.contrib import messages
 from django.http import Http404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from copyediting import models
 from core import models as core_models, files

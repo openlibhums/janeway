@@ -6,7 +6,7 @@ import datetime
 
 from django.test import TestCase, Client
 from django.utils import timezone
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.management import call_command
 
 
