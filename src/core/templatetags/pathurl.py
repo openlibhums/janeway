@@ -53,6 +53,7 @@ class URLNode(Node):
                 url = conditional_escape(url)
             return url
 
+
 @register.tag
 def url(parser, token):
     r"""

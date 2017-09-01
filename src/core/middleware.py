@@ -26,7 +26,7 @@ def set_journal(request, site):
         request.journal = journal_models.Journal.objects.get(code=journal_code)
     else:
         request.journal = journal_models.Journal.objects.get(domain=site.domain)
-        
+
 
 class SiteSettingsMiddleware(object):
     @staticmethod
