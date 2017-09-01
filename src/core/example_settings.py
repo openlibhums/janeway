@@ -334,7 +334,7 @@ S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com
 
 BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
-BACKUP_EMAIL = False # If set to True, will send an email each time backup is run
+BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
 
 URL_CONFIG = 'domain'  # path or domain
 

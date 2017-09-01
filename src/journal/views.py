@@ -933,7 +933,7 @@ def manage_archive_article(request, article_id):
     from production import logic as production_logic
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
-    
+
     article = get_object_or_404(submission_models.Article, pk=article_id)
     galleys = production_logic.get_all_galleys(article)
     identifiers = identifier_models.Identifier.objects.filter(article=article)
