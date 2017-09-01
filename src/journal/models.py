@@ -286,6 +286,11 @@ class Journal(models.Model):
         else:
             return 0
 
+    def setup_directory(self):
+        directory = os.path.join(settings.BASE_DIR, 'files', 'journals', str(self.pk))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(Journal)
