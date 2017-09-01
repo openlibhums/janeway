@@ -249,8 +249,11 @@ def import_issue_images(journal, user, url):
 
         for section in sections_to_order:
             print('[{0}] {1}'.format(section_order, section.getText()))
+            order_section, c = models.Section.objects.language('en').get_or_create(
+                                                          name=section.getText().strip(),
+                                                          journal=journal)
             journal_models.SectionOrdering.objects.create(issue=issue,
-                                                          section=models.Section.objects.language('en').get(name=section.getText().strip()),
+                                                          section=order_section,
                                                           order=section_order).save()
             section_order += 1
 
@@ -275,9 +278,7 @@ def import_issue_images(journal, user, url):
             # get a proper article object
             article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
 
-            if article not in processed:
-
-                print('[{0}] {1}'.format(article_order, article.title))
+            if article and article not in processed:
 
                 journal_models.ArticleOrdering.objects.create(issue=issue,
                                                               article=article,
