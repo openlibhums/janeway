@@ -479,6 +479,8 @@ def edit_settings_group(request, group):
     else:
         journal_id = request.GET.get('journal')
         journal = get_object_or_404(journal_models.Journal, pk=journal_id)
+        # Set request.journal
+        request.journal = journal
 
     settings, setting_group = logic.get_settings_to_edit(group, journal)
 
@@ -503,6 +505,10 @@ def edit_settings_group(request, group):
                 logic.resize_and_crop(path, [750, 324], 'middle')
 
             cache.clear()
+
+            # Unset request.journal
+            if journal_id:
+                request.journal = None
 
             if request.journal:
                 return redirect(reverse('core_edit_settings_group', kwargs={'group': group}))
