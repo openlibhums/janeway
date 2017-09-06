@@ -114,12 +114,13 @@ def import_article(journal, user, url, thumb_path=None):
     if thumb_path is not None:
         print("Attempting to assign thumbnail.")
 
+        final_path_element = url.split('/')[-1]
         id_regex = re.compile(r'.*?(\d+)')
-        matches = id_regex.match(url)
-
+        matches = id_regex.match(final_path_element)
         article_id = matches.group(1)
 
         print("Determined remote article ID as: {0}".format(article_id))
+        print("Thumbnail path: {thumb_path}, URL: {url}".format(thumb_path=thumb_path, url=url))
 
         try:
             filename, mime = shared.fetch_file(domain, thumb_path + "/" + article_id, "", 'graphic',
@@ -209,7 +210,6 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue.issue))
-
         img_url = base_url + soup.find(src=pattern)['src']
         print("Fetching {0}".format(img_url))
 

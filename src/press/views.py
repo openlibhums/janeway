@@ -74,6 +74,7 @@ def manager_index(request):
             new_journal.save()
             call_command('sync_settings_to_journals', new_journal.code)
             call_command('sync_journals_to_sites')
+            call_command('install_plugins')
             new_journal.setup_directory()
             return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
                                                      new_journal.pk))

@@ -11,20 +11,24 @@ def yield_homepage_element_context(request, homepage_elements):
     if homepage_elements is not None and homepage_elements.filter(name='Current Issue').exists():
 
         issue_object = request.journal.current_issue
-        articles = issue_object.articles.all().order_by('section',
-                                                        'page_numbers').prefetch_related('authors',
-                                                                                         'manuscript_files').select_related(
-            'section')
 
-        issue_objects = models.Issue.objects.filter(journal=request.journal)
+        if issue_object:
+            articles = issue_object.articles.all().order_by('section',
+                                                            'page_numbers').prefetch_related('authors',
+                                                                                             'manuscript_files').select_related(
+                'section')
 
-        context = {
-            'issue': issue_object,
-            'issues': issue_objects,
-            'structure': issue_object.structure(articles),
-            'show_sidebar': False
-        }
+            issue_objects = models.Issue.objects.filter(journal=request.journal)
 
-        return context
+            context = {
+                'issue': issue_object,
+                'issues': issue_objects,
+                'structure': issue_object.structure(articles),
+                'show_sidebar': False
+            }
+
+            return context
+        else:
+            return {}
     else:
         return {}
