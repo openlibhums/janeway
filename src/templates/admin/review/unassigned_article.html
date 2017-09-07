@@ -72,11 +72,11 @@
                             <th>Email</th>
                             <th>Primary?</th>
                         </tr>
-                        {% for author in article.authors.all %}
+                        {% for order in article.articleauthororder_set.all %}
                         <tr>
-                            <td>{{ author.full_name }}</td>
-                            <td>{{ author.email }}</td>
-                            <td>{% if author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>{% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
+                            <td>{{ order.author.full_name }}</td>
+                            <td>{{ order.author.email }}</td>
+                            <td>{% if order.author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>{% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </table>
