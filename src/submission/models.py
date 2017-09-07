@@ -266,8 +266,7 @@ class Article(models.Model):
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
-    license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL,
-                                help_text=_('The license under which you wish to publish the article'))
+    license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
     publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
 
     # Remote: a flag that specifies that this article is actually a _link_ to a remote instance

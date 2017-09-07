@@ -35,6 +35,7 @@
                 </div>
                 <div class="large-4 columns error">
                     {{ form.license|foundation }}
+                    <p class="help-text"><a href="#" data-open="license">View license information</a></p>
                 </div>
                 <hr/>
 
@@ -67,6 +68,22 @@
             </div>
         </form>
     </article>
+
+    <!-- License information modal -->
+    <div id="license" class="reveal" data-reveal aria-labelledby="licensetitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="licensetitle">License Information</h2>
+        <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
+        <ul>
+            {% for license in request.journal.licence_set.all %}
+                <li><strong>{{ license }} - <a href="{{ license.url }}">More Information <i class="fa fa-external-link">&nbsp;</i></a></strong>
+                    <br /><span class="help-text">{{ license.text }}</span></li>
+            {% endfor %}
+        </ul>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 
 {% endblock body %}
 
