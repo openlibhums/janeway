@@ -1131,6 +1131,7 @@ def submissions(request):
     template = 'journal/submissions.html'
     context = {
         'sections': submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal),
+        'licenses': submission_models.Licence.objects.filter(journal=request.journal, available_for_submission=True)
     }
 
     return render(request, template, context)

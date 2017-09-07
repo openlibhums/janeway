@@ -42,6 +42,10 @@
                 <h5>{% trans 'Copyright Notice' %}</h5>
                 {{ journal_settings.general.copyright_notice|safe }}
                 <hr />
+                <h5>{% trans 'Licences' %}</h5>
+                <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
+                {% include "elements/license_block.html" %}
+                <hr />
                 <h5>{% trans 'Publication Fees' %}</h5>
                 {{ journal_settings.general.publication_fees|safe }}
                 <hr />
