@@ -46,6 +46,9 @@ def start(request, type=None):
             if type == 'preprint':
                 preprint_models.Preprint.objects.create(article=new_article)
 
+            if setting_handler.get_setting('general', 'user_automatically_author', request.journal).processed_value:
+                logic.add_self_as_author(request.user, new_article)
+
             return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
 
     template = 'submission/start.html'
