@@ -55,7 +55,8 @@ class ArticleInfo(forms.ModelForm):
             article = kwargs['instance']
             self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
                 journal=article.journal, public_submissions=True)
-            self.fields['license'].queryset = article.journal.licence_set.all()
+            self.fields['license'].queryset = models.Licence.objects.filter(journal=article.journal,
+                                                                            available_for_submission=True)
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()

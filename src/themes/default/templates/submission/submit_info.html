@@ -37,6 +37,9 @@
                     </div>
                     <div class="col-md-4 error">
                         {% bootstrap_field form.license %}
+                        <small class="text-muted">
+                            <div class="help-block"><a href="#" data-toggle="modal" data-target="#license">View license information</a></div>
+                        </small>
                     </div>
                     <hr/>
 
@@ -70,6 +73,28 @@
             </form>
         </div>
     </article>
+
+    <!-- License modal -->
+    <div id="license" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">License Information</h4>
+                </div>
+                <div class="modal-body">
+                    <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
+                    {% include "elements/license_block.html" %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 {% endblock body %}
 
