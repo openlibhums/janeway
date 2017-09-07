@@ -909,6 +909,8 @@ class Licence(models.Model):
     url = models.URLField(max_length=1000)
     text = models.TextField(null=True, blank=True)
 
+    available_for_submission = models.BooleanField(default=True)
+
     def __str__(self):
         return u'%s' % self.short_name
 
