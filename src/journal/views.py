@@ -864,12 +864,7 @@ def issue_order(request):
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist('issues[]')]
 
-        for issue in issues:
-            order = ids.index(issue.pk)
-            issue.order = order
-            issue.save()
 
-    return HttpResponse('Thanks')
 
 
 @csrf_exempt

@@ -966,3 +966,12 @@ class FieldAnswer(models.Model):
     field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
     article = models.ForeignKey(Article)
     answer = models.TextField()
+
+
+class ArticleAuthorOrder(models.Model):
+    article = models.ForeignKey(Article)
+    author = models.ForeignKey('core.Account')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('order',)

@@ -46,6 +46,9 @@ def start(request, type=None):
             if type == 'preprint':
                 preprint_models.Preprint.objects.create(article=new_article)
 
+            if setting_handler.get_setting('general', 'user_automatically_author', request.journal).processed_value:
+                logic.add_self_as_author(request.user, new_article)
+
             return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
 
     template = 'submission/start.html'
@@ -128,6 +131,7 @@ def submit_authors(request, article_id):
     if request.GET.get('add_self', None) == 'True':
         new_author = logic.add_self_as_author(request.user, article)
         messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
+        models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     if request.POST and 'add_author' in request.POST:
@@ -147,6 +151,7 @@ def submit_authors(request, article_id):
                 new_author.save()
                 new_author.add_account_role(role_slug='author', journal=request.journal)
                 article.authors.add(new_author)
+                models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
                 messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
 
                 return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
@@ -157,11 +162,12 @@ def submit_authors(request, article_id):
         try:
             search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
             article.authors.add(search_author)
+            models.ArticleAuthorOrder.objects.create(article=article, author=search_author)
             messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
         except core_models.Account.DoesNotExist:
             messages.add_message(request, messages.WARNING, 'No author found with those details.')
 
-    elif request.POST:
+    elif request.POST and 'main-author' in request.POST:
         correspondence_author = request.POST.get('main-author', None)
 
         if correspondence_author == 'None':
@@ -173,6 +179,23 @@ def submit_authors(request, article_id):
             article.save()
 
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+
+    elif request.POST and 'authors[]' in request.POST:
+        author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+        print(author_pks)
+        for author in article.authors.all():
+            order = author_pks.index(author.pk)
+            author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
+                article=article,
+                author=author,
+                defaults={'order': order}
+            )
+
+            if not c:
+                author_order.order = order
+                author_order.save()
+
+        return HttpResponse('Complete')
 
     template = 'submission/submit_authors.html'
     context = {

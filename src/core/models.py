@@ -309,6 +309,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.check_role(request.journal, 'proofing_manager')
 
     def snapshot_self(self, article):
+        try:
+            order = submission_models.ArticleAuthorOrder.objects.get(article=article, author=self).order
+        except submission_models.ArticleAuthorOrder.DoesNotExist:
+            order = 1
+
         frozen_dict = {
             'article': article,
             'author': self,
@@ -317,6 +322,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'institution': self.institution,
             'department': self.department,
+            'order': order,
         }
 
         frozen_author = self.frozen_author(article)
