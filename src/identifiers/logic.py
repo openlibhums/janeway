@@ -8,7 +8,7 @@ import datetime
 from uuid import uuid4
 import requests
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
 import sys

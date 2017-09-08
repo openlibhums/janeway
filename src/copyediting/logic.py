@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.utils import timezone
 from django.contrib import messages
 from django.http import Http404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from copyediting import models
 from core import models as core_models, files
@@ -111,7 +111,7 @@ def accept_copyedit(copyedit, article, request):
     copyedit.copyedit_accepted = timezone.now()
 
     if 'skip' not in request.POST:
-        copyedit.copyedit_acknowledged = timezone.now()
+        copyedit.copyedit_acknowledged = True
 
     copyedit.save()
 

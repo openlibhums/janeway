@@ -14,7 +14,7 @@
         <div class="content">
             <p>You can send a message to the copyeditor or skip it.</p>
             <div class="card">
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="card-divider">
                         <h4>To {{ copyedit.copyeditor.full_name }}</h4>
@@ -23,6 +23,8 @@
                     <div class="card-section">
                          <p>Subject: <strong>Copyedit Assignment</strong></p>
                         <textarea rows="10" name="content_email">{{ user_message_content|linebreaksbr }}</textarea>
+                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                        <input type="file" name="attachment" multiple>
                     </div>
                     <div class="card-divider">
                         <div class="button-group">

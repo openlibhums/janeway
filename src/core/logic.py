@@ -8,6 +8,7 @@ import os
 from PIL import Image
 import uuid
 from importlib import import_module
+from datetime import timedelta
 
 from django.conf import settings
 from django.utils.translation import get_language
@@ -21,6 +22,8 @@ from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
+from comms import models as comms_models
+from utils import shared
 
 
 def send_reset_token(request, reset_token):
@@ -40,6 +43,7 @@ def send_confirmation_link(request, new_user):
                                                       template_is_setting=True)
     else:
         message = render_template.get_message_content(request, context, 'new_user_registration')
+
     notify_helpers.send_slack(request, 'New registration: {0}'.format(new_user.full_name()), ['slack_admins'])
     notify_helpers.send_email_with_body_from_user(request, 'subject_new_user_registration', new_user.email, message)
 
@@ -139,6 +143,9 @@ def get_settings_to_edit(group, journal):
 
     if group == 'submission':
         settings = [
+            {'name': 'disable_journal_submission',
+             'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
+             },
             {'name': 'copyright_notice',
              'object': setting_handler.get_setting('general', 'copyright_notice', journal)
              },
@@ -152,11 +159,14 @@ def get_settings_to_edit(group, journal):
              'object': setting_handler.get_setting('general', 'editors_for_notification', journal),
              'choices': journal.editor_pks()
              },
-            {'name': 'limit_manuscript_types',
-             'object': setting_handler.get_setting('general', 'limit_manuscript_types', journal),
+            {'name': 'user_automatically_author',
+             'object': setting_handler.get_setting('general', 'user_automatically_author', journal),
              },
             {'name': 'submission_competing_interests',
              'object': setting_handler.get_setting('general', 'submission_competing_interests', journal),
+             },
+            {'name': 'limit_manuscript_types',
+             'object': setting_handler.get_setting('general', 'limit_manuscript_types', journal),
              },
             {'name': 'focus_and_scope',
              'object': setting_handler.get_setting('general', 'focus_and_scope', journal),
@@ -410,7 +420,7 @@ def news_items(carousel, object_type, press=None):
     if press and press.carousel_news_items.all():
         return press.carousel_news_items.all()
 
-    carousel_objects = models.NewsItem.objects.filter(
+    carousel_objects = comms_models.NewsItem.objects.filter(
         (Q(content_type__model=object_type) & Q(object_id=object_id)) &
         (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
         (Q(end_display__gte=timezone.now()) | Q(end_display=None))
@@ -448,7 +458,7 @@ def order_pinned_articles(request, pinned_articles):
         pin.sequence = ids.index(pin.pk)
         pin.save()
 
-
+        
 def password_policy_check(request):
     """
     Takes a given string and tests it against the password policy of the press.
@@ -469,5 +479,31 @@ def password_policy_check(request):
 
     problems = [p for p in [r(password) for r in rules] if p != True]
 
-    print(problems)  # ['digit', 'length']
     return problems
+  
+  
+def get_ua_and_ip(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', None)
+    ip_address = shared.get_ip_address(request)
+
+    return user_agent, ip_address
+
+
+def add_failed_login_attempt(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+
+    models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
+
+
+def clear_bad_login_attempts(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+
+    models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address).delete()
+
+
+def check_for_bad_login_attempts(request):
+    user_agent, ip_address = get_ua_and_ip(request)
+    time = timezone.now() - timedelta(minutes=30)
+
+    attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address)
+    return attempts.count()

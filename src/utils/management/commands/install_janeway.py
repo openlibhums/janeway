@@ -21,6 +21,7 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        call_command('makemigrations')
         call_command('migrate')
         print("Please answer the following questions.\n")
         translation.activate('en')
@@ -43,6 +44,7 @@ class Command(BaseCommand):
         journal.name = input('Journal #1 name: ')
         journal.description = input('Journal #1 description: ')
         journal.save()
+        journal.setup_directory()
 
         print("Thanks, Journal #1 has been saved.\n")
 

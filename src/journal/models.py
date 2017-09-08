@@ -11,7 +11,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from utils.function_cache import cache
 from utils import setting_handler
@@ -126,7 +126,6 @@ class Journal(models.Model):
     @publisher.setter
     def publisher(self, value):
         setting_handler.save_setting('general', 'publisher_name', self, value)
-
 
     @property
     @cache(120)
@@ -286,6 +285,11 @@ class Journal(models.Model):
             return pinned_articles[0].sequence + 1
         else:
             return 0
+
+    def setup_directory(self):
+        directory = os.path.join(settings.BASE_DIR, 'files', 'journals', str(self.pk))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
 
 class PinnedArticle(models.Model):

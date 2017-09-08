@@ -2,6 +2,7 @@
 {% load static from staticfiles %}
 {% load bootstrap4 %}
 {% load i18n %}
+{% load field %}
 
 {% block title %}{% trans "Submit an Article" %}{% endblock title %}
 
@@ -12,6 +13,7 @@
 {% block body %}
     <article>
         <div class="row">
+                {% include "submission/timeline.html" %}
             <form method="POST">
                 <h1>{% trans "Article Info" %}</h1>
                 <hr>
@@ -36,6 +38,9 @@
                     </div>
                     <div class="col-md-4 error">
                         {% bootstrap_field form.license %}
+                        <small class="text-muted">
+                            <div class="help-block"><a href="#" data-toggle="modal" data-target="#license">View license information</a></div>
+                        </small>
                     </div>
                     <hr/>
 
@@ -46,6 +51,20 @@
                         Hit Enter to add a new keyword.
                     </div>
 
+                    {% if additional_fields %}
+                        <div class="col-md-12">
+                            <p></p>
+                            <h4>Additional Fields</h4>
+                        </div>
+                        {% for additional_field in additional_fields %}
+                            {% get_form_field form additional_field.name as field %}
+                            <div class="{{ field.field.widget.attrs.div_class }}">
+                                 {% bootstrap_field field %}
+                            </div>
+                        {% endfor %}
+
+                    {% endif %}
+
                     <div class="col-md-12">
                         <button class="btn btn-success pull-right" type="submit" name="start_submission"><i
                                 class="fa fa-check">&nbsp;</i>{% trans "Save and Continue" %}
@@ -55,6 +74,28 @@
             </form>
         </div>
     </article>
+
+    <!-- License modal -->
+    <div id="license" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">License Information</h4>
+                </div>
+                <div class="modal-body">
+                    <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
+                    {% include "elements/license_block.html" %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 {% endblock body %}
 

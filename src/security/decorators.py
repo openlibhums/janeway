@@ -2,11 +2,12 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.contrib import messages
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from core import models as core_models
 from review import models as review_models
@@ -732,6 +733,11 @@ def proofing_manager_for_article_required(func):
         if not base_check(request):
             return redirect('{0}?next={1}'.format(reverse('core_login'), request.path))
 
+        article = get_object_or_404(models.Article, pk=kwargs['article_id'])
+
+        if not hasattr(article, 'proofingassignment'):
+            return redirect(reverse('proofing_list'))
+
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
@@ -740,7 +746,7 @@ def proofing_manager_for_article_required(func):
 
         try:
             proofing_models.ProofingAssignment.objects.get(
-                article__pk=kwargs['article_id'],
+                article=article,
                 proofing_manager=request.user
             )
             return func(request, *args, **kwargs)

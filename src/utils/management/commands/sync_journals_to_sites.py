@@ -36,11 +36,11 @@ class Command(BaseCommand):
         print("Journals:")
         for journal in journals:
             print(journal.name, journal.domain)
-            new_site, c = site_models.Site.objects.get_or_create(name=journal.code, domain=journal.domain)
+            new_site, c = site_models.Site.objects.get_or_create(domain=journal.domain)
             print('Journal with ID {0} [{1}]: {2}. SYNCED.'.format(journal.id, journal.name, journal.domain))
 
         print("\nPress:")
         p = press_models.Press.get_press(None)
 
-        new_site, c = site_models.Site.objects.get_or_create(name=p.name, domain=p.domain)
+        new_site, c = site_models.Site.objects.get_or_create(domain=p.domain)
         print("Press [{0}]: {1}. SYNCED.".format(p.name, p.domain))

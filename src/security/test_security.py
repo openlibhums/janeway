@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.test import TestCase
 from django.utils import timezone
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from mock import Mock
 
 from core import models as core_models
@@ -3387,7 +3387,7 @@ class TestSecurity(TestCase):
                                                                          copyeditor=self.copyeditor,
                                                                          due=timezone.now(),
                                                                          assigned=timezone.now(),
-                                                                         notified=timezone.now(),
+                                                                         notified=True,
                                                                          decision='accepted',
                                                                          date_decided=timezone.now())
         self.copyedit_assignment.save()

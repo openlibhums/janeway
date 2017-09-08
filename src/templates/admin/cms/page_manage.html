@@ -22,15 +22,6 @@
                     {% csrf_token %}
                     {{ form.as_p }}
 
-                    Is Markdown:
-                    <div class="switch">
-                        <input class="switch-input" id="is_markdown" type="checkbox" name="is_markdown"
-                               {% if page.is_markdown %}checked="checked"{% endif %}>
-                        <label class="switch-paddle" for="is_markdown">
-
-                        </label>
-                    </div>
-
                     <button type="submit" class="button success">Save</button>
                     <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}" class="alert button pull-right">Delete</button>
                 </form>

@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 
 from cms import models, forms
@@ -87,7 +87,6 @@ def page_manage(request, page_id=None):
             page = page_form.save(commit=False)
             page.content_type = request.model_content_type
             page.object_id = request.site_type.pk
-            page.is_markdown = request.POST.get('is_markdown', False)
             page.save()
 
             messages.add_message(request, messages.INFO, 'Page saved.')

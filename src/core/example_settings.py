@@ -37,9 +37,9 @@ sys.path.append(os.path.join(BASE_DIR, "plugins"))
 SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'identifiers',
     'journal',
     'metrics',
+    'comms',
     'preprint',
     'press',
     'production',
@@ -78,7 +79,6 @@ INSTALLED_APPS = [
     'dynamicsites',
     'markdown_deux',
     'foundationform',
-    'debug_toolbar',
     'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
@@ -96,13 +96,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'dynamicsites.middleware.DynamicSitesMiddleware',
     'core.middleware.SiteSettingsMiddleware',
     'utils.template_override_middleware.ThemeEngineMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
     'cron.middleware.CronMiddleware',
     'core.middleware.CounterCookieMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'core.middleware.GlobalRequestMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -118,19 +119,21 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'dynamicsites.context_processors.current_site',
                 'core.context_processors.journal',
                 'core.context_processors.journal_settings',
                 'core.context_processors.press',
                 'core.context_processors.active',
                 'core.context_processors.navigation',
                 'django_settings_export.settings_export',
-                'django.core.context_processors.i18n'
+                'django.template.context_processors.i18n'
             ],
             'loaders': [
                 'utils.template_override_middleware.Loader',
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
+            ],
+            'builtins': [
+                'core.templatetags.pathurl',
             ],
         },
     },
@@ -332,4 +335,15 @@ S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com
 
 BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
-BACKUP_EMAIL = False # If set to True, will send an email each time backup is run
+BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
+
+URL_CONFIG = 'domain'  # path or domain
+
+# Captcha
+# You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
+# You can set either to use Google's reCaptcha or a basic math field with no external requirements
+INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
+
+CAPTCHA_TYPE = 'select a value'  # should be either simple_math or recaptcha to enable captcha fields
+RECAPTCHA_PRIVATE_KEY = 'your private key'
+RECAPTCHA_PUBLIC_KEY = 'your public key'

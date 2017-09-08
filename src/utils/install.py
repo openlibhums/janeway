@@ -150,6 +150,7 @@ def journal(name, code, base_url, delete):
     journal_object = models.Journal.objects.create(code=code, domain=base_url)
     update_settings(journal_object, management_command=True)
     setting_handler.save_setting('general', 'journal_name', journal_object, name)
+    journal_object.setup_directory()
 
 
 def press(name, code, domain):

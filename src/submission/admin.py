@@ -16,6 +16,8 @@ class FrozenAuthorAdmin(admin.ModelAdmin):
 
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ('title', 'date_submitted', 'stage', 'owner', 'is_import', 'ithenticate_score')
+    search_fields = ('title', 'subtitle')
+    list_filter = ('stage', 'is_import')
 
 
 class ArticleLogAdmin(admin.ModelAdmin):
@@ -51,6 +53,8 @@ admin_list = [
     (models.PublisherNote, PublisherNoteAdmin),
     (models.Note, NoteAdmin),
     (models.FrozenAuthor, FrozenAuthorAdmin),
+    (models.Field,),
+    (models.FieldAnswer,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -416,7 +416,7 @@ def replace_article_file(request, identifier_type, identifier, file_id):
             uploaded_file = request.FILES.get('replacement-file')
             files.overwrite_file(uploaded_file, article_to_replace, file_to_replace)
 
-        return redirect(request.GET.get('return', 'dashboard'))
+        return redirect(request.GET.get('return', 'core_dashboard'))
 
     template = "journal/replace_file.html"
     context = {
@@ -668,6 +668,10 @@ def publish_article(request, article_id):
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(article)
+
+            if not article.date_published:
+                article.date_published = timezone.now()
+
             article.save()
             return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
 
@@ -860,12 +864,7 @@ def issue_order(request):
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist('issues[]')]
 
-        for issue in issues:
-            order = ids.index(issue.pk)
-            issue.order = order
-            issue.save()
 
-    return HttpResponse('Thanks')
 
 
 @csrf_exempt
@@ -929,6 +928,7 @@ def manage_archive_article(request, article_id):
     from production import logic as production_logic
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
+
     article = get_object_or_404(submission_models.Article, pk=article_id)
     galleys = production_logic.get_all_galleys(article)
     identifiers = identifier_models.Identifier.objects.filter(article=article)
@@ -1126,6 +1126,7 @@ def submissions(request):
     template = 'journal/submissions.html'
     context = {
         'sections': submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal),
+        'licenses': submission_models.Licence.objects.filter(journal=request.journal, available_for_submission=True)
     }
 
     return render(request, template, context)

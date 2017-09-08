@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,8 +15,8 @@ from django.utils import timezone
 
 from core import files, models as core_models
 from preprint import models as preprint_models
-from security.decorators import article_edit_user_required, production_user_or_editor_required
-from submission import forms, models, logic
+from security.decorators import article_edit_user_required, production_user_or_editor_required, editor_user_required
+from submission import forms, models, logic, decorators
 from events import logic as event_logic
 from identifiers import models as identifier_models
 from utils import setting_handler
@@ -24,6 +24,7 @@ from utils import shared as utils_shared
 
 
 @login_required
+@decorators.submission_is_enabled
 def start(request, type=None):
     competing_interests = setting_handler.get_setting('general', 'submission_competing_interests', request.journal)
     form = forms.ArticleStart(ci=competing_interests)
@@ -45,6 +46,9 @@ def start(request, type=None):
             if type == 'preprint':
                 preprint_models.Preprint.objects.create(article=new_article)
 
+            if setting_handler.get_setting('general', 'user_automatically_author', request.journal).processed_value:
+                logic.add_self_as_author(request.user, new_article)
+
             return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
 
     template = 'submission/start.html'
@@ -56,6 +60,7 @@ def start(request, type=None):
 
 
 @login_required
+@decorators.submission_is_enabled
 def submit_submissions(request):
     # gets a list of submissions for the logged in user
     articles = models.Article.objects.filter(owner=request.user).exclude(stage=models.STAGE_UNSUBMITTED)
@@ -69,17 +74,18 @@ def submit_submissions(request):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_info(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
-
-    form = forms.ArticleInfo(instance=article)
+    additional_fields = models.Field.objects.filter(journal=request.journal)
+    form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article)
+        form = forms.ArticleInfo(request.POST, instance=article, additional_fields=additional_fields)
 
         if form.is_valid():
-            form.save()
+            form.save(request=request)
             article.current_step = 2
             article.save()
 
@@ -89,6 +95,7 @@ def submit_info(request, article_id):
     context = {
         'article': article,
         'form': form,
+        'additional_fields': additional_fields,
     }
 
     return render(request, template, context)
@@ -110,6 +117,7 @@ def publisher_notes_order(request, article_id):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_authors(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
@@ -123,6 +131,7 @@ def submit_authors(request, article_id):
     if request.GET.get('add_self', None) == 'True':
         new_author = logic.add_self_as_author(request.user, article)
         messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
+        models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     if request.POST and 'add_author' in request.POST:
@@ -142,6 +151,7 @@ def submit_authors(request, article_id):
                 new_author.save()
                 new_author.add_account_role(role_slug='author', journal=request.journal)
                 article.authors.add(new_author)
+                models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
                 messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
 
                 return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
@@ -152,15 +162,16 @@ def submit_authors(request, article_id):
         try:
             search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
             article.authors.add(search_author)
+            models.ArticleAuthorOrder.objects.create(article=article, author=search_author)
             messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
         except core_models.Account.DoesNotExist:
-            error = 'No author with that Email or ORCiD found.'
+            messages.add_message(request, messages.WARNING, 'No author found with those details.')
 
-    elif request.POST:
+    elif request.POST and 'main-author' in request.POST:
         correspondence_author = request.POST.get('main-author', None)
 
         if correspondence_author == 'None':
-            error = 'You must select a main author.'
+            messages.add_message(request, messages.WARNING, 'You must select a main author.')
         else:
             author = core_models.Account.objects.get(pk=correspondence_author)
             article.correspondence_author = author
@@ -168,6 +179,23 @@ def submit_authors(request, article_id):
             article.save()
 
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+
+    elif request.POST and 'authors[]' in request.POST:
+        author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+        print(author_pks)
+        for author in article.authors.all():
+            order = author_pks.index(author.pk)
+            author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
+                article=article,
+                author=author,
+                defaults={'order': order}
+            )
+
+            if not c:
+                author_order.order = order
+                author_order.save()
+
+        return HttpResponse('Complete')
 
     template = 'submission/submit_authors.html'
     context = {
@@ -194,6 +222,7 @@ def delete_author(request, article_id, author_id):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_files(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
@@ -262,6 +291,7 @@ def submit_files(request, article_id):
 
 
 @login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_review(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
@@ -319,7 +349,7 @@ def edit_metadata(request, article_id):
             info_form = forms.ArticleInfo(request.POST, instance=article)
 
             if info_form.is_valid():
-                info_form.save()
+                info_form.save(request=request)
                 messages.add_message(request, messages.SUCCESS, 'Metadata updated.')
                 return redirect(reverse_url)
 
@@ -423,6 +453,56 @@ def edit_identifiers(request, article_id, identifier_id=None, event=None):
         'identifier': identifier,
         'modal': modal,
         'return': return_param,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def fields(request, field_id=None):
+    if field_id:
+        field = get_object_or_404(models.Field, pk=field_id, journal=request.journal)
+    else:
+        field = None
+
+    fields = models.Field.objects.filter(journal=request.journal)
+
+    form = forms.FieldForm(instance=field)
+
+    if request.POST:
+
+        if 'save' in request.POST:
+            form = forms.FieldForm(request.POST, instance=field)
+
+            if form.is_valid():
+                new_field = form.save(commit=False)
+                new_field.journal = request.journal
+                new_field.save()
+                messages.add_message(request, messages.SUCCESS, 'Field saved.')
+                return redirect(reverse('submission_fields'))
+
+        elif 'delete' in request.POST:
+            delete_id = request.POST.get('delete')
+            field_to_delete = get_object_or_404(models.Field, pk=delete_id, journal=request.journal)
+            field_to_delete.delete()
+            messages.add_message(request, messages.SUCCESS, 'Field deleted. Existing answers will remain intact.')
+            return redirect(reverse('submission_fields'))
+
+        elif 'order[]' in request.POST:
+            ids = [int(_id) for _id in request.POST.getlist('order[]')]
+
+            for field in fields:
+                order = ids.index(field.pk)
+                field.order = order
+                field.save()
+
+            return HttpResponse('Thanks')
+
+    template = 'admin/submission/manager/fields.html'
+    context = {
+        'field': field,
+        'fields': fields,
+        'form': form,
     }
 
     return render(request, template, context)

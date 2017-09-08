@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 import os
 import uuid
 import statistics
@@ -17,9 +18,15 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
+
+if settings.URL_CONFIG == 'path':
+    from core.monkeypatch import reverse
+    from django import urls
+
+    urls.reverse = reverse
+    urls.base.reverse = reverse
 
 from core import files
 from review import models as review_models
@@ -318,6 +325,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.check_role(request.journal, 'proofing_manager')
 
     def snapshot_self(self, article):
+        try:
+            order = submission_models.ArticleAuthorOrder.objects.get(article=article, author=self).order
+        except submission_models.ArticleAuthorOrder.DoesNotExist:
+            order = 1
+
         frozen_dict = {
             'article': article,
             'author': self,
@@ -326,6 +338,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'institution': self.institution,
             'department': self.department,
+            'order': order,
         }
 
         frozen_author = self.frozen_author(article)
@@ -758,66 +771,6 @@ class TaskCompleteEvents(models.Model):
         return self.event_name
 
 
-class NewsItem(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='news_content_type', null=True)
-    object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
-
-    title = models.CharField(max_length=500)
-    body = models.TextField()
-    posted = models.DateTimeField(default=timezone.now)
-    posted_by = models.ForeignKey(Account, blank=True, null=True, on_delete=models.SET_NULL)
-
-    start_display = models.DateField(default=timezone.now)
-    end_display = models.DateField(blank=True, null=True)
-    sequence = models.PositiveIntegerField(default=0)
-
-    large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='news_file',
-                                         on_delete=models.SET_NULL)
-
-    class Meta:
-        ordering = ('-posted', 'title')
-
-    @property
-    def url(self):
-        if self.content_type.name == 'press':
-            secure = self.object.is_secure
-        else:
-            from utils import setting_handler
-            secure = setting_handler.get_setting('general', 'is_secure', self.object).processed_value
-
-        path = reverse('core_news_item', kwargs={'news_pk': self.pk})
-        base = "http{0}://{1}".format(
-            's' if secure else '',
-            self.object.domain
-        )
-        return base + path
-
-    @property
-    def carousel_subtitle(self):
-        return ""
-
-    @property
-    def carousel_title(self):
-        return self.title
-
-    @property
-    def carousel_image_resolver(self):
-        return 'news_file_download'
-
-    def serve_news_file(self):
-        if self.content_type.name == 'press':
-            return files.serve_file_to_browser(self.large_image_file.press_path(), self.large_image_file)
-        else:
-            return files.serve_file_to_browser(self.large_image_file.journal_path(self.object), self.large_image_file)
-
-    def __str__(self):
-        if self.posted_by:
-            return '{0} posted by {1} on {2}'.format(self.title, self.posted_by.full_name, self.posted)
-        else:
-            return '{0} posted on {1}'.format(self.title, self.posted)
-
-
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField(blank=True, null=True)
@@ -962,3 +915,9 @@ class HomepageElement(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class LoginAttempt(models.Model):
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)

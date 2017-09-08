@@ -2279,5 +2279,31 @@
         "group": {
             "name": "email_subject"
         }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "boolean",
+            "pretty_name": "Disable Submission",
+            "is_translatable": true,
+            "description": "If true, users cannot submit new articles.",
+            "name": "disable_journal_submission"
+        },
+        "group": {
+            "name": "general"
+        }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "boolean",
+            "pretty_name": "User Automatically an Author",
+            "is_translatable": false,
+            "description": "If true, the submitting user will automatically be added as an author.",
+            "name": "user_automatically_author"
+        },
+        "group": {
+            "name": "general"
+        }
     }
 ]

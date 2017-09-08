@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from uuid import uuid4
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
@@ -72,9 +72,10 @@ def unassigned_article(request, article_id):
 
     current_editors = [assignment.editor.pk for assignment in models.EditorAssignment.objects.filter(article=article)]
     editors = core_models.AccountRole.objects.filter(role__slug='editor',
-                                                     journal=request.journal).exclude(id__in=current_editors)
+                                                     journal=request.journal).exclude(user__id__in=current_editors)
     section_editors = core_models.AccountRole.objects.filter(role__slug='section-editor',
-                                                             journal=request.journal).exclude(id__in=current_editors)
+                                                             journal=request.journal
+                                                             ).exclude(user__id__in=current_editors)
 
     template = 'review/unassigned_article.html'
     context = {
@@ -283,8 +284,8 @@ def delete_review_round(request, article_id, round_id):
 @article_decision_not_made
 @editor_user_required
 def add_files(request, article_id, round_id):
-    article = get_object_or_404(submission_models.Article, pk=article_id)
-    review_round = get_object_or_404(models.ReviewRound, pk=round_id)
+    article = get_object_or_404(submission_models.Article.objects.prefetch_related('manuscript_files'), pk=article_id)
+    review_round = get_object_or_404(models.ReviewRound.objects.prefetch_related('review_files'), pk=round_id)
 
     if request.POST:
         for file in request.POST.getlist('file'):

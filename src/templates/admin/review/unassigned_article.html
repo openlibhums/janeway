@@ -53,6 +53,10 @@
                                 <td colspan="4">{% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
                             </tr>
                             {% endif %}
+                            {% for field_answer in article.fieldanswer_set.all %}
+                                <tr><th colspan="4">{{ field_answer.field.name }}</th></tr>
+                                <tr><td colspan="4">{{ field_answer.answer }}</td></tr>
+                            {% endfor %}
                             </table>
                     </div>
                 </div>
@@ -68,11 +72,11 @@
                             <th>Email</th>
                             <th>Primary?</th>
                         </tr>
-                        {% for author in article.authors.all %}
+                        {% for order in article.articleauthororder_set.all %}
                         <tr>
-                            <td>{{ author.full_name }}</td>
-                            <td>{{ author.email }}</td>
-                            <td>{% if author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>{% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
+                            <td>{{ order.author.full_name }}</td>
+                            <td>{{ order.author.email }}</td>
+                            <td>{% if order.author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>{% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </table>
@@ -102,8 +106,8 @@
 					<td>{{ file.original_filename }}</td>
 					<td>Manuscript</td>
 					<td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
-                    <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                    <td><a href="{% url 'file_history' article.pk file.pk %}"><i class="fa fa-history">&nbsp;</i></a></td>
+                    <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                    <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i class="fa fa-history">&nbsp;</i></a></td>
                     {% if journal_settings.crosscheck.enable %}
                     <td>{% if not article.ithenticate_id %}
                         <button type="submit" name="crosscheck" value="{{ file.id }}"><i class="fa fa-cloud-upload"></i></button>
@@ -202,7 +206,7 @@
                     <h2>Actions</h2>
                 </div>
                 <div class="content">
-                    {% if article.stage = 'Unassigned' and not article.stage = 'Assigned' %}
+                    {% if article.stage == 'Unassigned' and not article.stage == 'Assigned' %}
                     {% if article.editors %}
                     <ul class="menu vertical actions">
                         <li><a href="{% url 'review_move_to_review' article.pk %}?return={% url 'review_in_review' article.pk %}"><i class="fa fa-check action-icon">&nbsp;</i>Move to Review</a></li>

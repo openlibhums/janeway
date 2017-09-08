@@ -4,51 +4,57 @@
 
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
-{% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
+{% block css %}
+    <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/review_base.html" %}
-<li>Send Review Notification</li>
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Send Review Notification</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
 
-<div class="large-12 columns">
-<div class="box">
-    <div class="title-area">
-        <h2>3. Notify the Reviewer</h2>
-    </div>
-    <div class="content">
-        <p>You can send a message to the reviewer or skip it.</p>
-        <div class="card">
-            <div class="card-divider">
-                <h4>To {{ review.reviewer.full_name }}</h4>
-                <h5>From {{ request.user.full_name }}</h5>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>3. Notify the Reviewer</h2>
             </div>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
+            <div class="content">
+                <p>You can send a message to the reviewer or skip it.</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="card">
+                        <div class="card-divider">
+                            <h4>To {{ review.reviewer.full_name }}</h4>
+                            <h5>From {{ request.user.full_name }}</h5>
+                        </div>
 
-                    <p>Subject: <strong>Review Assignment</strong></p>
-                    <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
-                <input type="file" name="attachment" multiple>
-                </div>
-                <div class="card-divider">
-                    <div class="button-group">
-                        <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
-                        <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip</button>
+                        {% csrf_token %}
+
+                        <p>Subject: <strong>Review Assignment</strong></p>
+                        <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
+                        <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
+                        <input type="file" name="attachment" multiple>
                     </div>
-                </div>
-            </form>
+                    <div class="card-divider">
+                        <div class="button-group">
+                            <button type="submit" class="button success" name="send"><i
+                                    class="fa fa-envelope-o">&nbsp;</i>Send
+                            </button>
+                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-</div>
+    </div>
 
 {% endblock body %}
 
 {% block js %}
-	{{ block.super }}
-	<script type="text/javascript" src="{% static "common/js/jquery-te-1.4.0.min.js" %}" charset="utf-8"></script>
-	<script type="text/javascript">$("textarea").jqte();</script>
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "common/js/jquery-te-1.4.0.min.js" %}" charset="utf-8"></script>
+    <script type="text/javascript">$("textarea").jqte();</script>
 {% endblock js %}

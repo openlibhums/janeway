@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
@@ -61,7 +61,7 @@ def proofing_assign_article(request, article_id, user_id=None):
     if user.is_proofing_manager:
         proofing_assignment = models.ProofingAssignment.objects.create(article=article,
                                                                        proofing_manager=user,
-                                                                       notified=timezone.now(),
+                                                                       notified=True,
                                                                        editor=request.user)
         proofing_assignment.add_new_proofing_round()
 

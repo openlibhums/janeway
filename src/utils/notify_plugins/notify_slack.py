@@ -1,5 +1,7 @@
 import json
 
+from django.conf import settings
+
 from utils.notify_plugins import notify_webhook
 from utils import setting_handler
 
@@ -20,25 +22,30 @@ def notify_hook(**kwargs):
     slack_message = slack_message.replace('<br>', '\n').replace('<br />', '\n')
     request = kwargs.pop('request', None)
 
-    if request:
-        slack_webhook = setting_handler.get_setting('general', 'slack_webhook', request.journal).value
+    if request and request.journal:
+        if request.journal.slack_logging_enabled:
+            try:
+                slack_webhook = setting_handler.get_setting('general', 'slack_webhook', request.journal).value
 
-        if slack_webhook:
+                journal_name = request.journal.code
 
-            journal_name = request.journal.code
+                # reformat the HTML into a slack-recognized format
+                slack_message = {"text": u"[{0}] {1}".format(journal_name, slack_message), "icon_emoji": ":ghost:"}
+                slack_json = json.dumps(slack_message)
 
-            # reformat the HTML into a slack-recognized format
-            slack_message = {"text": u"[{0}] {1}".format(journal_name, slack_message), "icon_emoji": ":ghost:"}
-            slack_json = json.dumps(slack_message)
+                # call the method
+                if 'slack_editors' in action:
+                    notify_webhook.send_message(slack_webhook,
+                                                slack_json, headers={'content-type': 'application/json'})
 
-            # call the method
-            if 'slack_editors' in action:
-                notify_webhook.send_message(slack_webhook,
-                                            slack_json, headers={'content-type': 'application/json'})
-
-            if 'slack_admins' in action:
-                notify_webhook.send_message(slack_webhook,
-                                            slack_json, headers={'content-type': 'application/json'})
+                if 'slack_admins' in action:
+                    notify_webhook.send_message(slack_webhook,
+                                                slack_json, headers={'content-type': 'application/json'})
+            except IndexError:
+                if settings.DEBUG:
+                    print('There is no slack webhook registered for this journal.')
+                else:
+                    pass
 
 
 def plugin_loaded():

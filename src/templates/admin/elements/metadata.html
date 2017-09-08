@@ -1,4 +1,6 @@
-<a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+{% if not view_type == "author" %}
+    <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
+            class="fa fa-edit">&nbsp;</i>Edit</a>{% endif %}
 <h4>{{ article.title|safe }}</h4>
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
 <table class="small">
@@ -12,7 +14,7 @@
         <td>{{ article.section.name }}</td>
         <td>{{ article.owner.full_name }}</td>
         <td>{{ article.license.short_name }}</td>
-        <td>{{ article.language }}</td>
+        <td>{{ article.get_language_display }}</td>
     </tr>
     <tr>
         <th colspan="2">Started</th>
@@ -36,13 +38,22 @@
         </td>
     </tr>
     {% if journal_settings.general.submission_competing_interests %}
-    <tr>
-        <th colspan="4">Competing Interests</th>
-    </tr>
-    <tr>
-        <td colspan="4">{% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
-    </tr>
+        <tr>
+            <th colspan="4">Competing Interests</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+        </tr>
     {% endif %}
+    {% for field_answer in article.fieldanswer_set.all %}
+        <tr>
+            <th colspan="4">{{ field_answer.field.name }}</th>
+        </tr>
+        <tr>
+            <td colspan="4">{{ field_answer.answer }}</td>
+        </tr>
+    {% endfor %}
 
 </table>
 <div class="title-area">
@@ -55,25 +66,27 @@
         <th>Primary?</th>
     </tr>
     {% if not article.frozenauthor_set.all %}
-        {% for author in article.authors.all %}
+        {% for order in article.articleauthororder_set.all %}
             <tr>
-                <td>{{ author.full_name }}</td>
-                <td>{{ author.email }}</td>
-                <td>{% if author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>
+                <td>{{ order.author.full_name }}</td>
+                <td>{{ order.author.email }}</td>
+                <td>{% if order.author == article.correspondence_author %}
+                    <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
                 </td>
             </tr>
         {% endfor %}
     {% else %}
         {% for f_author in article.frozenauthor_set.all %}
-        <tr>
-            <td>{{ f_author.full_name }}</td>
-            <td>{{ f_author.author.email }}</td>
-            <td>{% if f_author.author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>
-            {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
-            </td>
-        </tr>
-    {% endfor %}
+            <tr>
+                <td>{{ f_author.full_name }}</td>
+                <td>{{ f_author.author.email }}</td>
+                <td>{% if f_author.author == article.correspondence_author %}
+                    <i class="fa fa-check-circle" style="color: green;"></i>
+                {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
+                </td>
+            </tr>
+        {% endfor %}
     {% endif %}
 </table>
 <div class="title-area">
@@ -88,41 +101,43 @@
     {% for assignment in article.editors %}
         <tr>
             <td>{{ assignment.editor.full_name }}</td>
-            <td>{{ assignment.editor.email }}</td>
+            <td><a href="mailto:{{ assignment.editor.email }}">{{ assignment.editor.email }}</a></td>
             <td>{{ assignment.editor_type|capfirst }}</td>
         </tr>
-    {% empty %}
+        {% empty %}
         <tr>
             <td colspan="3">No users assigned</td>
         </tr>
     {% endfor %}
 </table>
 {% if files %}
-<h4>Files</h4>
-<table class="table table-bordered table-condensed small">
-    <tr>
-        <th>Label</th>
-        <th>Filename</th>
-        <th>Type</th>
-        <th>Download</th>
-    </tr>
-    {% for file in article.manuscript_files.all %}
+    <h4>Files</h4>
+    <table class="table table-bordered table-condensed small">
         <tr>
-            <td>{{ file.label }}</td>
-            <td>{{ file.original_filename }}</td>
-            <td>Manuscript</td>
-            <td><a href="{% url 'editor_file_download' article.id file.id %}"><i class="fa fa-download">&nbsp;</i></a>
-            </td>
+            <th>Label</th>
+            <th>Filename</th>
+            <th>Type</th>
+            <th>Download</th>
         </tr>
-    {% endfor %}
-    {% for file in article.data_figure_files.all %}
-        <tr>
-            <td>{{ file.label }}</td>
-            <td>{{ file.original_filename }}</td>
-            <td>Data/Figure</td>
-            <td><a href="{% url 'editor_file_download' article.id file.id %}"><i class="fa fa-download">&nbsp;</i></a>
-            </td>
-        </tr>
-    {% endfor %}
-</table>
+        {% for file in article.manuscript_files.all %}
+            <tr>
+                <td>{{ file.label }}</td>
+                <td>{{ file.original_filename }}</td>
+                <td>Manuscript</td>
+                <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
+                </td>
+            </tr>
+        {% endfor %}
+        {% for file in article.data_figure_files.all %}
+            <tr>
+                <td>{{ file.label }}</td>
+                <td>{{ file.original_filename }}</td>
+                <td>Data/Figure</td>
+                <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endif %}

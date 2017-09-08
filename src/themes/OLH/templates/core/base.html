@@ -39,7 +39,7 @@
                     {% if request.journal.header_image %}
                         <a href="/"><img src="{{ request.journal.header_image.url }}" class="header-image"></a>
                     {% else %}
-                        <a href="/">{% svg request.press_cover %}</a>
+                        <a href="/"><img src="{% static "common/img/sample/janeway.png" %}"></a>
                     {% endif %}
                 {% else %}
                     <a href="/">{% svg request.press_cover %}</a>
@@ -177,14 +177,9 @@
         </div>
     </div>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js"></script>
 <script src="{% static "OLH/js/app.min.js" %}"></script>
-<script type="text/javascript">
-    $('input[id=lefile]').change(function () {
-        $('#id_profile_image').val($(this).val());
-    });
-</script>
 
 <script>
     toastr.options = {

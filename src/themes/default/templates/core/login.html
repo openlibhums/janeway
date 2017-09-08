@@ -1,7 +1,12 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load recaptcha2 %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -16,12 +21,15 @@
                         <form method="POST">
                             {% csrf_token %}
                             <div class="form-group">
+                                {% include "elements/forms/errors.html" with form=form %}
                                 <label>Email</label>
                                 <input name="user_name" type="text" placeholder="janeway@voyager.com"
                                        class="form-control">
 
                                 <label>Password</label>
                                 <input type="password" placeholder="Password" name="user_pass" class="form-control">
+                                <br />
+                                {{ form.captcha }}
                             </div>
                             <p>
                                 <button type="submit"

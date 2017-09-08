@@ -18,6 +18,7 @@
                 <h2>Files</h2>
             </div>
             <div class="content">
+            {{ round.review_files }}
                 <form method="POST">
                     {% csrf_token %}
                     <table class="table" id="files">
@@ -40,7 +41,7 @@
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                                <td><input type="checkbox" name="file" value="{{ file.id }}"></td>
+                                <td><input type="checkbox" name="file" value="{{ file.id }}" {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
                             </tr>
                         {% endfor %}
                         {% for file in article.data_figure_files.all %}
@@ -51,7 +52,7 @@
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                                <td><input type="checkbox" name="file" value="{{ file.id }}"></td>
+                                <td><input type="checkbox" name="file" value="{{ file.id }}" {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
                             </tr>
                         {% endfor %}
                         </tbody>

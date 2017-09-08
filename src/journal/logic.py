@@ -11,13 +11,14 @@ from dateutil import parser as dateparser
 from django.contrib import messages
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import get_template
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
+from utils.notify_plugins import notify_email
 from events import logic as event_logic
 
 
@@ -251,9 +252,15 @@ def send_contact_message(new_contact, request):
     <p>{4}</p>
     """.format(request.journal if request.journal else request.press, new_contact.sender, new_contact.recipient,
                new_contact.subject, new_contact.body)
-    notify_helpers.send_email_with_body_from_user(request, new_contact.subject,
-                                                  new_contact.recipient,
-                                                  message)
+
+    notify_email.send_email(
+        new_contact.subject,
+        new_contact.recipient,
+        message,
+        request.journal,
+        request,
+        replyto=[new_contact.sender],
+    )
 
 
 def handle_article_controls(request, sections):

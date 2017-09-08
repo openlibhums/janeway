@@ -142,7 +142,6 @@ class GeneratedForm(forms.Form):
                     required=element.required if fields_required else False)
 
             self.fields[element.name].help_text = element.help_text
-            print(self.fields[element.name])
             self.fields[element.name].label = element.name
 
             if answer:

@@ -12,6 +12,11 @@ from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
+from django.conf import settings
+
+from simplemathcaptcha.fields import MathCaptchaField
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
 from core import models
 from journal import models as journal_models
@@ -50,19 +55,6 @@ class EditKey(forms.Form):
         cleaned_data = self.cleaned_data
 
         return cleaned_data
-
-
-class NewsItemForm(forms.ModelForm):
-
-    image_file = forms.FileField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(NewsItemForm, self).__init__(*args, **kwargs)
-        self.fields['body'].widget = SummernoteWidget()
-
-    class Meta:
-        model = models.NewsItem
-        exclude = ('content_type', 'object_id', 'posted', 'posted_by', 'large_image_file')
 
 
 class JournalContactForm(forms.ModelForm):
@@ -108,6 +100,14 @@ class RegistrationForm(forms.ModelForm):
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password 1'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password 2'))
 
+    if settings.CAPTCHA_TYPE == 'simple_math':
+        question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
+        are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
+    elif settings.CAPTCHA_TYPE == 'recaptcha':
+        are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
+    else:
+        are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
@@ -147,7 +147,8 @@ class EditAccountForm(forms.ModelForm):
         model = models.Account
         exclude = ('email', 'username', 'activation_code', 'email_sent',
                    'date_confirmed', 'confirmation_code', 'is_active',
-                   'is_staff', 'is_admin', 'date_joined', 'password')
+                   'is_staff', 'is_admin', 'date_joined', 'password',
+                   'is_superuser')
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
@@ -344,3 +345,16 @@ class QuickUserForm(forms.ModelForm):
         raise forms.ValidationError(
             'This email address is already in use.'
         )
+
+
+class LoginForm(forms.Form):
+    user_name = forms.CharField(max_length=255)
+    user_pass = forms.CharField(max_length=255, widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        bad_logins = kwargs.pop('bad_logins', None)
+        super(LoginForm, self).__init__(*args, **kwargs)
+        if bad_logins >= 3 and (settings.CAPTCHA_TYPE == 'simple_math' or settings.CAPTCHA_TYPE == 'recaptcha'):
+            self.fields['captcha'] = ReCaptchaField(widget=ReCaptchaWidget())
+        else:
+            self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)

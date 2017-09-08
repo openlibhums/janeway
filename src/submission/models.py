@@ -8,12 +8,13 @@ from urllib.parse import urlparse
 import uuid
 import os
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 from hvad.models import TranslatableModel, TranslatedFields
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
@@ -257,11 +258,13 @@ class Article(models.Model):
     journal = models.ForeignKey('journal.Journal')
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=300)
-    subtitle = models.CharField(max_length=300, blank=True, null=True)
+    title = models.CharField(max_length=300, help_text=_('Your article title'))
+    subtitle = models.CharField(max_length=300, blank=True, null=True,
+                                help_text=_('Subtitle of the article display format; Title: Subtitle'))
     abstract = models.TextField(blank=True)
     keywords = models.ManyToManyField(Keyword, blank=True, null=True)
-    language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES)
+    language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
+                                help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
     license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
     publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
@@ -352,7 +355,7 @@ class Article(models.Model):
 
     @property
     def has_galley(self):
-        return self.manuscript_files.filter(is_galley=True).exists()
+        return self.galley_set.all().exists()
 
     @property
     def is_preprint(self):
@@ -763,7 +766,7 @@ class Article(models.Model):
 
     @property
     def is_published(self):
-        if self.stage == STAGE_PUBLISHED and self.date_published < timezone.now():
+        if self.stage == STAGE_PUBLISHED and self.date_published and self.date_published < timezone.now():
             return True
         else:
             return False
@@ -906,6 +909,8 @@ class Licence(models.Model):
     url = models.URLField(max_length=1000)
     text = models.TextField(null=True, blank=True)
 
+    available_for_submission = models.BooleanField(default=True)
+
     def __str__(self):
         return u'%s' % self.short_name
 
@@ -918,3 +923,55 @@ class Note(models.Model):
 
     class Meta:
         ordering = ('-date_time',)
+
+
+def field_kind_choices():
+    return (
+        ('text', 'Text Field'),
+        ('textarea', 'Text Area'),
+        ('check', 'Check Box'),
+        ('select', 'Select'),
+        ('email', 'Email'),
+        ('date', 'Date'),
+    )
+
+
+def width_choices():
+    return (
+        ('third', 'Third'),
+        ('half', 'Half'),
+        ('full,', 'Full'),
+    )
+
+
+class Field(models.Model):
+    journal = models.ForeignKey('journal.Journal', default=1)
+    name = models.CharField(max_length=200)
+    kind = models.CharField(max_length=50, choices=field_kind_choices())
+    width = models.CharField(max_length=50, choices=width_choices(), default='full')
+    choices = models.CharField(max_length=1000, null=True, blank=True,
+                               help_text='Separate choices with the bar | character.')
+    required = models.BooleanField(default=True)
+    order = models.IntegerField()
+    help_text = models.TextField()
+
+    class Meta:
+        ordering = ('order', 'name')
+
+    def __str__(self):
+        return "Field: {0} ({1})".format(self.name, self.kind)
+
+
+class FieldAnswer(models.Model):
+    field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
+    article = models.ForeignKey(Article)
+    answer = models.TextField()
+
+
+class ArticleAuthorOrder(models.Model):
+    article = models.ForeignKey(Article)
+    author = models.ForeignKey('core.Account')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('order',)

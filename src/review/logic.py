@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from datetime import timedelta
 from uuid import uuid4
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
@@ -241,7 +241,7 @@ def handle_reviewer_form(request, new_reviewer_form):
     from core import models as core_models
     account.country = core_models.Country.objects.filter(code='GB')[0]
     account.institution = 'N/a'
-    account.active = True
+    account.is_active = True
     account.save()
     account.add_account_role('reviewer', request.journal)
     messages.add_message(request, messages.INFO, 'A new account has been created.')

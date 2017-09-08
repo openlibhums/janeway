@@ -7,6 +7,7 @@
 	<section id="content" class="no-padding">
 		<div class="row column ">
 			<h1>News</h1>
+            {% if tag %}<h3>Filtering tag: {{ tag }}</h3>{% endif %}
 			{% for item in news_items %}
 			<div class="callout">
                 <a href="{% url 'core_news_item' item.pk %}"><h4>{{ item.title }}</h4></a>

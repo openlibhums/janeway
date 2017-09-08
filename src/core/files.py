@@ -13,10 +13,11 @@ import re
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import StreamingHttpResponse, HttpResponseRedirect
+from django.http import StreamingHttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django.http import Http404
+from django.views.decorators.cache import cache_control
 
 from utils import models as util_models
 
@@ -28,6 +29,13 @@ EDITABLE_FORMAT = (
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.oasis.opendocument.text',
+)
+
+IMAGE_MIMETYPES = (
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/tiff',
 )
 
 
@@ -243,6 +251,7 @@ def serve_file(request, file_to_serve, article):
         raise Http404
 
 
+@cache_control(max_age=600)
 def serve_file_to_browser(file_path, file_to_serve):
     """ Stream a file to the browser in a safe way
 
@@ -254,7 +263,12 @@ def serve_file_to_browser(file_path, file_to_serve):
     # we use the UUID filename to avoid any security risks of putting user content in headers
     # we set a chunk size of 8192 so that the entire file isn't loaded into memory if it's large
     filename, extension = os.path.splitext(file_to_serve.original_filename)
-    response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
+
+    if file_to_serve.mime_type in IMAGE_MIMETYPES:
+        response = HttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
+    else:
+        response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
+
     response['Content-Length'] = os.path.getsize(file_path)
     response['Content-Disposition'] = 'attachment; filename="{0}{1}"'.format(slugify(filename), extension)
 

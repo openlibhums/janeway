@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
@@ -91,7 +91,7 @@ def production_done(request, article_id):
 
     for task in assignment.typesettask_set.all():
         task.completed = timezone.now()
-        task.editor_reviewed = timezone.now()
+        task.editor_reviewed = True
 
         task.save()
 
@@ -419,7 +419,7 @@ def review_typeset_task(request, article_id, typeset_id):
     typeset_task = get_object_or_404(models.TypesetTask, pk=typeset_id)
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
-    typeset_task.editor_reviewed = timezone.now()
+    typeset_task.editor_reviewed = True
     typeset_task.save()
 
     return redirect(reverse('production_article', kwargs={'article_id': article.pk}))

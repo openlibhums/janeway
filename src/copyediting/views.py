@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
