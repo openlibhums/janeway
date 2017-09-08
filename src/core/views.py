@@ -178,6 +178,13 @@ def reset_password(request, token):
 
     if request.POST:
         form = forms.PasswordResetForm(request.POST)
+
+        password_policy_check = logic.password_policy_check(request)
+
+        if password_policy_check:
+            for policy_fail in password_policy_check:
+                form.add_error('password_1', policy_fail)
+
         if form.is_valid():
             password = form.cleaned_data['password_2']
             reset_token.account.set_password(password)
@@ -205,6 +212,12 @@ def register(request):
 
     if request.POST:
         form = forms.RegistrationForm(request.POST)
+
+        password_policy_check = logic.password_policy_check(request)
+
+        if password_policy_check:
+            for policy_fail in password_policy_check:
+                form.add_error('password_1', policy_fail)
 
         if form.is_valid():
             if token_obj:
@@ -274,6 +287,26 @@ def edit_profile(request):
                 return redirect(reverse('website_index'))
             except ValidationError:
                 messages.add_message(request, messages.WARNING, 'Email address is not valid.')
+
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('current_password')
+            new_pass_one = request.POST.get('new_password_one')
+            new_pass_two = request.POST.get('new_password_two')
+
+            if old_password and request.user.check_password(old_password):
+
+                if (new_pass_one == new_pass_two):
+                    problems = request.user.password_policy_check(request, new_pass_one)
+                    if not problems :
+                        request.user.set_password(new_pass_one)
+                    else:
+                        [messages.add_message(request, messages.INFO, problem) for problem in problems]
+                else:
+                    messages.add_message(request, messages.WARNING, 'Passwords do not match')
+
+            else:
+                messages.add_message(request, messages.WARNING, 'Old password is not correct.')
+
 
         elif 'edit_profile' in request.POST:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)

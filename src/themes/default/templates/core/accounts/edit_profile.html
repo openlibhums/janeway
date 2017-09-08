@@ -33,6 +33,36 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-block">
+                    <h5>Update Password</h5>
+                    <p>You can update your password by entering your existing password plus your new password.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="current_password">Current Password</label>
+                                <input type="password" name="current_password">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="new_password_one">New Password</label>
+                                <input type="password" name="new_password_one">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="new_password_two">Enter Password Again</label>
+                                <input type="password" name="new_password_two">
+                            </div>
+                        </div>
+                        <br />
+                        <button type="submit" name="change_password" class="btn btn-warning">Update Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
 

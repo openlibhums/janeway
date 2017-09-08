@@ -458,7 +458,30 @@ def order_pinned_articles(request, pinned_articles):
         pin.sequence = ids.index(pin.pk)
         pin.save()
 
+        
+def password_policy_check(request):
+    """
+    Takes a given string and tests it against the password policy of the press.
+    :param request:  HTTPRequest object
+    :return: An empty list or a list of errors.
+    """
+    password = request.POST.get('password_1')
 
+    rules = [
+        lambda s: len(password) >= request.press.password_length or 'length'
+    ]
+
+    if request.press.password_upper:
+        rules.append(lambda password: any(x.isupper() for x in password) or 'upper')
+
+    if request.press.password_number:
+        rules.append(lambda password: any(x.isdigit() for x in password) or 'digit')
+
+    problems = [p for p in [r(password) for r in rules] if p != True]
+
+    return problems
+  
+  
 def get_ua_and_ip(request):
     user_agent = request.META.get('HTTP_USER_AGENT', None)
     ip_address = shared.get_ip_address(request)
