@@ -4,6 +4,7 @@ bs4==0.0.1
 chardet==2.3.0
 Django==1.11.4
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
+-e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
 django-debug-toolbar==1.8
 django-suit==0.2.25 # TODO: remove for open source distribution
 django-hvad==1.8.0
