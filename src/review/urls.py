@@ -90,4 +90,18 @@ urlpatterns = [
         name='review_file_download'),
 
     url(r'^article/(?P<article_id>\d+)/access_denied/$', views.review_warning, name='review_warning'),
+
+    # Review forms
+    url(r'^manager/forms/$',
+        views.review_forms,
+        name='review_review_forms'),
+    url(r'^manager/form/(?P<form_id>\d+)/$',
+        views.edit_review_form,
+        name='edit_review_form'),
+    url(r'^manager/form/(?P<form_id>\d+)/preview/$',
+        views.preview_form,
+        name='preview_form'),
+    url(r'^manager/form/(?P<form_id>\d+)/element/(?P<element_id>\d+)/$',
+        views.edit_review_form,
+        name='edit_review_form_element'),
 ]
