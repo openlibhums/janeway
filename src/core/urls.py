@@ -128,20 +128,6 @@ if settings.URL_CONFIG == 'domain':
             core_views.editorial_ordering,
             name='core_editorial_ordering_group'),
 
-        # Review forms
-        url(r'^manager/review/$',
-            review_views.review_forms,
-            name='review_review_forms'),
-        url(r'^manager/review/form/(?P<form_id>\d+)/$',
-            review_views.edit_review_form,
-            name='edit_review_form'),
-        url(r'^manager/review/form/(?P<form_id>\d+)/preview/$',
-            review_views.preview_form,
-            name='preview_form'),
-        url(r'^manager/review/form/(?P<form_id>\d+)/element/(?P<element_id>\d+)/$',
-            review_views.edit_review_form,
-            name='edit_review_form_element'),
-
         # Notifications
         url(r'^manager/notifications/$',
             core_views.manage_notifications, name='core_manager_notifications'),
@@ -383,20 +369,6 @@ else:
             r'^(?P<journal_code>[-\w.]+)/manager/editorial/order/(?P<type_to_order>[-\w.]+)/group/(?P<group_id>\d+)/$',
             core_views.editorial_ordering,
             name='core_editorial_ordering_group'),
-
-        # Review forms
-        url(r'^(?P<journal_code>[-\w.]+)/manager/review/$',
-            review_views.review_forms,
-            name='review_review_forms'),
-        url(r'^(?P<journal_code>[-\w.]+)/manager/review/form/(?P<form_id>\d+)/$',
-            review_views.edit_review_form,
-            name='edit_review_form'),
-        url(r'^(?P<journal_code>[-\w.]+)/manager/review/form/(?P<form_id>\d+)/preview/$',
-            review_views.preview_form,
-            name='preview_form'),
-        url(r'^(?P<journal_code>[-\w.]+)/manager/review/form/(?P<form_id>\d+)/element/(?P<element_id>\d+)/$',
-            review_views.edit_review_form,
-            name='edit_review_form_element'),
 
         # Notifications
         url(r'^(?P<journal_code>[-\w.]+)/manager/notifications/$',

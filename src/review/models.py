@@ -115,7 +115,8 @@ class ReviewAssignment(models.Model):
             ReviewAssignmentAnswer.objects.create(
                 assignment=self,
                 element=form_element,
-                answer=v
+                answer=v,
+                author_can_see=form_element.default_visibility,
             )
 
     @property
@@ -200,6 +201,10 @@ class ReviewFormElement(models.Model):
     order = models.IntegerField()
     width = models.CharField(max_length=20, choices=element_width_choices())
     help_text = models.TextField()
+
+    default_visibility = models.BooleanField(default=True, help_text='If true, this setting will be available '
+                                                                     'to the author automatically, if false it will'
+                                                                     'be hidden to the author by default.')
 
     def __str__(self):
         return "Element: {0} ({1})".format(self.name, self.kind)
