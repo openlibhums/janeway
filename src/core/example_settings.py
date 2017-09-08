@@ -103,6 +103,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.CounterCookieMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'core.middleware.GlobalRequestMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
