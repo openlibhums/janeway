@@ -118,7 +118,7 @@ setting_types = (
 class PluginSetting(models.Model):
     name = models.CharField(max_length=100)
     plugin = models.ForeignKey(Plugin)
-    types = models.CharField(max_length=20, choices=setting_types, default='Text')
+    types = models.CharField(max_length=20, choices=setting_types, default='text')
     pretty_name = models.CharField(max_length=100, default='')
     description = models.TextField(null=True, blank=True)
     is_translatable = models.BooleanField(default=False)
