@@ -12,7 +12,7 @@ django-markdown-deux==1.0.5
 django-settings-export==1.2.1
 django-simple-math-captcha==1.0.7
 django-recaptcha2==1.0.3
-django-summernote==0.8.2
+django-summernote==0.8.8.1
 django-treebeard==4.0.1
 djangorestframework==3.6.3
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@#egg=dynamicsites
