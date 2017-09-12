@@ -21,7 +21,7 @@
             </div>
             <div class="content">
                 <ul class="list-group">
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% for item in news_items %}
                             <li class="list-group-item">
@@ -57,7 +57,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.title|foundation }}
-                    {{ form.body|foundation }}
+                    {{ form.body|safe }}
                     {{ form.start_display|foundation }}
                     {{ form.end_display|foundation }}
                     {{ form.sequence|foundation }}
