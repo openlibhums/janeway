@@ -110,8 +110,9 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
     else:
         setting, created = models.PluginSetting.objects.get_or_create(name=setting_name,
                                                                       plugin=plugin,
-                                                                      pretty_name=pretty,
-                                                                      types=types)
+                                                                      types=types,
+                                                                      defaults={'pretty_name': pretty,
+                                                                                'types': types})
 
         if created:
             save_plugin_setting(plugin, setting_name, ' ', journal)
@@ -132,7 +133,7 @@ def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
     except models.PluginSettingValue.DoesNotExist:
         if lang == settings.LANGUAGE_CODE:
             if create:
-                return save_plugin_setting(plugin, setting.name, ' ', journal)
+                return save_plugin_setting(plugin, setting.name, '', journal)
             else:
                 raise IndexError('Plugin setting does not exist and will not be created.')
         else:
