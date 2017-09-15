@@ -112,9 +112,11 @@ class Reminder(models.Model):
             query = Q(date_completed__isnull=True)
 
         if self.run_type == 'before':
-            date_time = timezone.now() - timedelta(days=self.days)
-        elif self.run_type == 'after':
             date_time = timezone.now() + timedelta(days=self.days)
+        elif self.run_type == 'after':
+            date_time = timezone.now() - timedelta(days=self.days)
+
+        print(query, date_time)
 
         objects = model.objects.filter(date_due=date_time).filter(query)
 

@@ -8,6 +8,7 @@ from django.contrib import admin
 from cron import models
 
 admin_list = [
+    (models.CronTask,),
     (models.Reminder,),
     (models.SentReminder,),
 ]

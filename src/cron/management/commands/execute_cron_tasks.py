@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 
+from cron import models
+
 
 class Command(BaseCommand):
     """
@@ -17,4 +19,6 @@ class Command(BaseCommand):
         :return: None
         """
         print("Executing cron tasks now.")
+        call_command('send_digest_emails')
         call_command('send_reminders')
+        models.CronTask.run_tasks()
