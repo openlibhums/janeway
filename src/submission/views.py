@@ -510,6 +510,7 @@ def fields(request, field_id=None):
 def licenses(request, license_pk=None):
 
     license_obj = None
+    licenses = models.Licence.objects.filter(journal=request.journal)
 
     if license_pk:
         license_obj = get_object_or_404(models.Licence, journal=request.journal, pk=license_pk)
@@ -527,10 +528,21 @@ def licenses(request, license_pk=None):
 
             return redirect(reverse('submission_licenses'))
 
+    elif 'order[]' in request.POST:
+        ids = [int(_id) for _id in request.POST.getlist('order[]')]
+
+        for license in licenses:
+            order = ids.index(license.pk)
+            license.order = order
+            license.save()
+
+        return HttpResponse('Thanks')
+
     template = 'submission/manager/licenses.html'
     context = {
         'license': license_obj,
         'form': form,
+        'licenses': licenses,
     }
 
     return render(request, template, context)

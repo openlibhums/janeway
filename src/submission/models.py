@@ -908,8 +908,12 @@ class Licence(models.Model):
     short_name = models.CharField(max_length=15)
     url = models.URLField(max_length=1000)
     text = models.TextField(null=True, blank=True)
+    order = models.PositiveIntegerField(default=0)
 
     available_for_submission = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ('order', 'name')
 
     def __str__(self):
         return u'%s' % self.short_name

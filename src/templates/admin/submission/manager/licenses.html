@@ -2,15 +2,15 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
-{% block title %}Submission Fields{% endblock %}
-{% block title-section %}Submission Fields{% endblock %}
-{% block title-sub %}Add fields to the submission platform{% endblock %}
+{% block title %}Licenses{% endblock %}
+{% block title-section %}Licenses{% endblock %}
+{% block title-sub %}Control journal licenses{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'submission_fields' %}">Submission Fields</a></li>
-    {% if field %}<li><a href="{% url 'submission_fields_id' field.pk %}">{{ field.name }}</a></li>{% endif %}
+    <li><a href="{% url 'submission_licenses' %}">Licenses</a></li>
+    {% if license %}<li><a href="{% url 'submission_licenses_id' license.pk %}">{{ license.name }}</a></li>{% endif %}
 {% endblock %}
 
 {% block body %}
@@ -18,20 +18,20 @@
         <div class="row expanded">
             <div class="large-6 columns">
                 <div class="title-area">
-                    <h2>Current Fields</h2>
+                    <h2>Current Licenses</h2>
                 </div>
                 <div class="content">
                     <form method="POST">
                         <ul class="list-group" id="sortable">
                             {% csrf_token %}
-                            {% for field in fields %}
-                                <li class="list-group-item" id="order-{{ field.pk }}">
+                            {% for license in licenses %}
+                                <li class="list-group-item" id="order-{{ license.pk }}">
                                     <i class="fa fa-arrows">&nbsp;</i>
-                                    {{ field.name }}
+                                    {{ license.name }}
                                     <div class="float-right">
-                                        <a href="{% url 'submission_fields_id' field.pk %}" class="tiny warning button"><i
+                                        <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
                                                 class="fa fa-edit"></i></a>
-                                        <button name="delete" value="{{ field.pk }}" class="tiny alert button"><i
+                                        <button name="delete" value="{{ license.pk }}" class="tiny alert button"><i
                                                 class="fa fa-trash"></i></button>
                                     </div>
                                     <div class="clear"></div>
@@ -43,10 +43,10 @@
             </div>
             <div class="large-6 columns">
                 <div class="title-area">
-                    {% if field %}
-                    <h2>Edit {{ field.name }}</h2>
+                    {% if license %}
+                    <h2>Edit {{ license.name }}</h2>
                     {% else %}
-                    <h2>Add New Field</h2>
+                    <h2>Add New License</h2>
                     {% endif %}
                 </div>
                 <div class="content">
@@ -74,7 +74,7 @@
             $.ajax({
                 data: data,
                 type: 'POST',
-                url: '{% url 'submission_fields' %}'
+                url: '{% url 'submission_licenses' %}'
             });
         }
     });
