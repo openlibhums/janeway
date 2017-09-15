@@ -150,7 +150,7 @@ SETTINGS_EXPORT = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 SITES_DIR = os.path.join(os.path.dirname(__file__), 'sites')
-DEFAULT_HOST = 'www.example.org'  # This is the default redirect if no other sites are found.
+DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no other sites are found.
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -175,7 +175,7 @@ LANGUAGE_CODE = 'en'
 TIME_ZONE = 'UTC'
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'core', 'locales')
-]
+] + plugin_installed_apps.load_plugin_locales()
 
 
 def ugettext(s):

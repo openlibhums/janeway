@@ -2,7 +2,7 @@ beautifulsoup4==4.4.1
 boto==2.46.1
 bs4==0.0.1
 chardet==2.3.0
-Django==1.11.4
+Django==1.11.5
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
 django-debug-toolbar==1.8
@@ -13,7 +13,7 @@ django-markdown-deux==1.0.5
 django-settings-export==1.2.1
 django-simple-math-captcha==1.0.7
 django-recaptcha2==1.0.3
-django-summernote==0.8.2
+django-summernote==0.8.8.1
 django-treebeard==4.0.1
 djangorestframework==3.6.3
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@#egg=dynamicsites

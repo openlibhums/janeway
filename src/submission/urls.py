@@ -7,7 +7,7 @@ from django.conf.urls import url
 from submission import views
 
 urlpatterns = [
-    # Review
+
     url(r'^start/$', views.start, name='submission_start'),
     url(r'^(?P<type>[-\w.]+)/start/$', views.start, name='submission_start'),
     url(r'^(?P<article_id>\d+)/info/$', views.submit_info, name='submit_info'),
@@ -22,4 +22,7 @@ urlpatterns = [
 
     url(r'^manager/fields/$', views.fields, name='submission_fields'),
     url(r'^manager/fields/(?P<field_id>\d+)/$', views.fields, name='submission_fields_id'),
+
+    url(r'^manager/licenses/$', views.licenses, name='submission_licenses'),
+    url(r'^manager/licenses/(?P<license_pk>\d+)/', views.licenses, name='submission_licenses_id'),
 ]

@@ -182,7 +182,6 @@ def submit_authors(request, article_id):
 
     elif request.POST and 'authors[]' in request.POST:
         author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
-        print(author_pks)
         for author in article.authors.all():
             order = author_pks.index(author.pk)
             author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
@@ -503,6 +502,47 @@ def fields(request, field_id=None):
         'field': field,
         'fields': fields,
         'form': form,
+    }
+
+    return render(request, template, context)
+
+
+def licenses(request, license_pk=None):
+
+    license_obj = None
+    licenses = models.Licence.objects.filter(journal=request.journal)
+
+    if license_pk:
+        license_obj = get_object_or_404(models.Licence, journal=request.journal, pk=license_pk)
+
+    form = forms.LicenseForm(instance=license_obj)
+
+    if request.POST and 'save' in request.POST:
+        form = forms.LicenseForm(request.POST, instance=license_obj)
+
+        if form.is_valid():
+            save_license = form.save(commit=False)
+            save_license.journal = request.journal
+            save_license.save()
+            messages.add_message(request, messages.INFO, 'License saved.')
+
+            return redirect(reverse('submission_licenses'))
+
+    elif 'order[]' in request.POST:
+        ids = [int(_id) for _id in request.POST.getlist('order[]')]
+
+        for license in licenses:
+            order = ids.index(license.pk)
+            license.order = order
+            license.save()
+
+        return HttpResponse('Thanks')
+
+    template = 'submission/manager/licenses.html'
+    context = {
+        'license': license_obj,
+        'form': form,
+        'licenses': licenses,
     }
 
     return render(request, template, context)

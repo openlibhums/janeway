@@ -222,3 +222,12 @@ class FieldForm(forms.ModelForm):
         exclude = (
             'journal',
         )
+
+
+class LicenseForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Licence
+        exclude = (
+            'journal',
+        )
