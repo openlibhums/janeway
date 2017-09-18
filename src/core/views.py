@@ -443,7 +443,10 @@ def manager_index(request):
         return press_views.manager_index(request)
 
     template = 'core/manager/index.html'
-    context = {}
+    context = {
+        'published_articles': submission_models.Article.objects.filter(
+            stage=submission_models.STAGE_PUBLISHED, journal=request.journal).select_related('section')[:25]
+    }
 
     return render(request, template, context)
 

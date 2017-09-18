@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load static from staticfiles %}
+{% load fqdn %}
 
 {% block title %}Press Manager{% endblock %}
 {% block title-section %}Press Manager{% endblock %}
@@ -48,7 +49,7 @@
                             {% for journal in journals %}
                             <tr id="journal-{{ journal.pk }}">
                                 <td><i class="fa fa-sort"></i></td>
-                                <td>{{ journal.name }}</td>
+                                <td><a href="{% journal_base_url journal %}">{{ journal.name }}</a></td>
                                 <td>{{ journal.code }}</td>
                                 <td>{{ journal.domain }}</td>
                                 <td><a class="" href="{% url 'core_edit_settings_group' "journal" %}?journal={{ journal.pk }}">Edit Settings</a></td>
@@ -74,6 +75,8 @@
                             <tr>
                                 <th width="50%">Title</th>
                                 <th>Journal</th>
+                                <th>Views</th>
+                                <th>Downloads</th>
                                 <th>Publication Date</th>
                                 <th>Links</th>
                             </tr>
@@ -83,6 +86,8 @@
                                 <tr>
                                     <td>{{ article.title|safe }}</td>
                                     <td>{{ article.journal.name }}</td>
+                                    <td>{{ article.metrics.views }}</td>
+                                    <td>{{ article.metrics.downloads }}</td>
                                     <td>{{ article.date_published }}</td>
                                     <td><h5><a href="https://www.facebook.com/share.php?p[url]={{ article.url }}"
                                                target="_blank"><i class="fa fa-facebook"></i></a>
