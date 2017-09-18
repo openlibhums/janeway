@@ -21,6 +21,23 @@ class JournalForm(forms.ModelForm):
         model = journal_models.Journal
         fields = ('code', 'domain')
 
+    def __init__(self, *args, **kwargs):
+        super(JournalForm, self).__init__(*args, **kwargs)
+        if settings.URL_CONFIG == 'path':
+            self.fields.pop('domain')
+
+    def save(self, commit=True, request=None):
+        journal = super(JournalForm, self).save(commit=False)
+
+        if settings.URL_CONFIG == 'path':
+            journal.domain = '{press_domain}/{path}'.format(press_domain=request.press.domain, path=journal.code)
+
+        if commit:
+            journal.save()
+
+        return journal
+
+
 
 class ContactForm(forms.ModelForm):
 
