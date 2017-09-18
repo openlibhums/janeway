@@ -1,6 +1,7 @@
 {% load static from staticfiles %}
 {% load securitytags %}
 {% load i18n %}
+{% load hooks %}
 
 {% is_editor as editor %}
 
@@ -19,6 +20,7 @@
             <li><a href="/admin/"><i class="fa fa-cog">&nbsp;</i>
             Admin</a></li>
         {% endif %}
+        {% hook 'press_admin_nav_block' %}
         <li class="subtitle"><a href="#">Language</a></li>
         <li>
             <div class="small-12 small-centered columns">
