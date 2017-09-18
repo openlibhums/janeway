@@ -27,7 +27,10 @@ def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
             # Drop kwargs if we have args (most likely from the template
             if args:
                 kwargs = None
-                args = [code] + args
+                if settings.URL_CONFIG == 'path' and not local_request.path.startswith('/admin/'):
+                    args = tuple([code] + [x for x in args])
+                else:
+                    args = args
 
     url = django_reverse(viewname, urlconf, args, kwargs, current_app)
 
