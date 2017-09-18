@@ -10,11 +10,7 @@
 		<div class="row column">
             <h3>{{ page.display_name }}</h3>
             <hr />
-			{% if page.is_markdown %}
-				{{ page.content|markdown }}
-			{% else %}
-				{{ page.content|safe }}
-			{% endif %}
+            {{ page.content|safe }}
 		</div>
 	</section>
 {% endblock body %}
