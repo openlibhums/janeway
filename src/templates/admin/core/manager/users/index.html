@@ -42,8 +42,9 @@
                             <th width="15%">Username</th>
                             <th width="15%">First Name</th>
                             <th width="15%">Last Name</th>
-                            <th width="30%">Email</th>
-                            <th width="20%"></th>
+                            <th width="20%">Email</th>
+                            <th width="15%">History</th>
+                            <th width="15%">Edit</th>
                         </tr>
                         </thead>
                         {% for user in users %}
@@ -53,7 +54,8 @@
                                 <td>{{ user.first_name }}</td>
                                 <td>{{ user.last_name }}</td>
                                 <td>{{ user.email }}</td>
-                                <td><a class="btn btn-primary btn-round-half" style="width:75px"
+                                <td><a class="tiny success button" href="{% url 'core_user_history' user.id %}">History</a></td>
+                                <td><a class="tiny success button"
                                        href="{% url 'core_user_edit' user.id %}">Edit</a></td>
                             </tr>
                         {% endfor %}

@@ -761,6 +761,29 @@ def logged_in_users(request):
 
 
 @editor_user_required
+def user_history(request, user_id):
+    """
+    Displays a user's editorial history.
+    :param request: django HTTPRequest object
+    :param user_id: core.User primary key
+    :return: a rendered template
+    """
+
+    user = get_object_or_404(models.Account, pk=user_id)
+
+    template = 'core/manager/users/history.html'
+    context = {
+        'user': user,
+        'review_assignments': review_models.ReviewAssignment.objects.filter(reviewer=user,
+                                                                            article__journal=request.journal),
+        'copyedit_assignments': copyedit_models.CopyeditAssignment.objects.filter(copyeditor=user,
+                                                                                  article__journal=request.journal)
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
 def settings_home(request):
     # this should return a context containing:
     # 1. An excluded list of homepage items

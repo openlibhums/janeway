@@ -1,0 +1,186 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}User History{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_users' %}">Users</a></li>
+    <li>History</li>
+{% endblock %}
+
+{% block title-section %}User History{% endblock %}
+{% block title-sub %}Displays history objects that the user was involved with{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Editorial Assignments</h2>
+                </div>
+                <div class="content">
+                <table class="small">
+                        <tr>
+                            <th>Article</th>
+                            <th>Assigned</th>
+                            <th>Notified</th>
+                            <th>Type</th>
+                        </tr>
+                        {% for assignment in user.editorassignment_set.all %}
+                            <tr>
+                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.assigned }}</td>
+                                <td>{{ assignment.notified }}</td>
+                                <td>{{ assignment.editor_type|capfirst }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No review assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Review Assignments</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Article</th>
+                            <th>Assigned</th>
+                            <th>Due</th>
+                            <th>Complete</th>
+                        </tr>
+                        {% for assignment in review_assignments %}
+                            <tr>
+                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.date_requested }}</td>
+                                <td>{{ assignment.date_due }}</td>
+                                <td>{{ assignment.date_complete }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No review assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Copyediting Assignments</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Article</th>
+                            <th>Assigned</th>
+                            <th>Due</th>
+                            <th>Complete</th>
+                        </tr>
+                        {% for assignment in copyedit_assignments %}
+                            <tr>
+                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.assigned }}</td>
+                                <td>{{ assignment.due }}</td>
+                                <td>{{ assignment.copyeditor_completed }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No review assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Typesetting Assignments</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Article</th>
+                            <th>Assigned</th>
+                            <th>Accepted</th>
+                            <th>Complete</th>
+                        </tr>
+                        {% for assignment in user.typesettask_set.all %}
+                            <tr>
+                                <td>{{ assignment.assignment.article.title }}</td>
+                                <td>{{ assignment.assigned }}</td>
+                                <td>{{ assignment.accepted }}</td>
+                                <td>{{ assignment.completed }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No review assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Production Manager Assignments</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Article</th>
+                            <th>Assigned</th>
+                            <th>Notified</th>
+                            <th>Closed</th>
+                        </tr>
+                        {% for assignment in user.productionassignment_set.all %}
+                            <tr>
+                                <td>{{ assignment.article.title }}</td>
+                                <td>{{ assignment.assigned }}</td>
+                                <td>{{ assignment.notified }}</td>
+                                <td>{{ assignment.closed }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No review assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Proofing Assignments</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Article</th>
+                            <th>Assigned</th>
+                            <th>Due</th>
+                            <th>Complete</th>
+                        </tr>
+                        {% for assignment in user.proofingtask_set.all %}
+                            <tr>
+                                <td>{{ assignment.round.assignment.article.title }}</td>
+                                <td>{{ assignment.assigned }}</td>
+                                <td>{{ assignment.due }}</td>
+                                <td>{{ assignment.completed }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No review assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

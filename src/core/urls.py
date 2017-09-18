@@ -95,6 +95,7 @@ if settings.URL_CONFIG == 'domain':
         url(r'^manager/user/authenticated/$', core_views.logged_in_users, name='core_logged_in_users'),
         url(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),
         url(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),
+        url(r'^manager/user/(?P<user_id>\d+)/history/$', core_views.user_history, name='core_user_history'),
 
         # Templates
         url(r'^manager/templates/$', core_views.email_templates, name='core_email_templates'),
