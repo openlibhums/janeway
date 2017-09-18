@@ -39,7 +39,9 @@
                             {% endfor %}
                         </div>
                     </li>
-                {% el{% endif %}
+                {% else %}
+                    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                {% endif %}
             {% endfor %}
                 <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
                 {% hook 'nav_block' %}

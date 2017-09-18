@@ -5,20 +5,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
-from django.shortcuts import redirect, render
-from django.contrib import messages
+from django.shortcuts import redirect
 
 
 @staff_member_required
 def featured_journals(request):
-    if request.POST:
-        description = request.POST.get('description')
-        request.journal.description = description
-        request.journal.save()
-        messages.add_message(request, messages.INFO, 'Description updated.')
-        return redirect(reverse('journal_description'))
-
-    template = 'featured_settings.html'
-    context = {}
-
-    return render(request, template, context)
+    reverse_url = '{url}#id_random_featured_journals'.format(url=reverse('press_edit_press'))
+    return redirect(reverse_url)

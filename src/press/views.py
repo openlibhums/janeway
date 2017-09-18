@@ -84,7 +84,8 @@ def manager_index(request):
         'journals': journal_models.Journal.objects.all().order_by('sequence'),
         'form': form,
         'modal': modal,
-        'published_articles': submission_models.Article.objects.filter(stage=submission_models.STAGE_PUBLISHED)[:50]
+        'published_articles': submission_models.Article.objects.filter(
+            stage=submission_models.STAGE_PUBLISHED).select_related('journal')[:50]
     }
 
     return render(request, template, context)
