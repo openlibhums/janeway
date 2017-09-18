@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+
 from operator import itemgetter
 import collections
 import uuid
@@ -12,6 +14,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from utils.function_cache import cache
 from utils import setting_handler
@@ -482,3 +486,12 @@ class Notifications(models.Model):
 
     def __str__(self):
         return '{0}, {1}: {2}'.format(self.journal, self.user, self.domain)
+
+
+# Signals
+@receiver(post_save, sender=Journal)
+def create_sites_folder(sender, instance, created, **kwargs):
+    path = os.path.join(settings.BASE_DIR, 'sites', instance.code)
+    if created:
+        if not os.path.exists(path):
+            os.makedirs(path)
