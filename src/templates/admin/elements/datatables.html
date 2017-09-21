@@ -7,6 +7,7 @@
 $(document).ready(function() {
     $('{{target}}').DataTable({
         "lengthMenu": [[25, 50, -1], [25, 50, "All"]],
+    {% if hide_length %}"bLengthChange": false,{% endif %}
     {% if sort %}"order": [[ {{ sort }}, "{{ order }}" ]]{% endif %}
     });
 } );
