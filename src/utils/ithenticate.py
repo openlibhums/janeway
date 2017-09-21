@@ -44,7 +44,7 @@ def make_folder(server, sid, journal):
 
     if folder_groups['status'] == 200:
         for group in folder_groups['groups']:
-            if group['name'] == 'Janeway':
+            if group['name'] == 'My Folders':
                 top_level_group = group['id']
                 break
 
@@ -93,7 +93,7 @@ def send_to_ithenticate(article, file):
     if submission['status'] == 200:
         return submission['uploaded'][0].get('id')
     else:
-        return False
+        return None
 
 
 def fetch_url(article):
@@ -110,12 +110,12 @@ def fetch_percentage(journal, articles):
     server = build_server(journal)
 
     for article in articles:
-
-        document = server['server'].document.get({'id': int(article.ithenticate_id), 'sid': server['sid']})
-        try:
-            part = document['documents'][0]['parts'][0]
-            if part['score']:
-                article.ithenticate_score = part['score']
-                article.save()
-        except KeyError:
-            pass
+        if article.ithenticate_id:
+            document = server['server'].document.get({'id': int(article.ithenticate_id), 'sid': server['sid']})
+            try:
+                part = document['documents'][0]['parts'][0]
+                if part['score']:
+                    article.ithenticate_score = part['score']
+                    article.save()
+            except BaseException:
+                pass
