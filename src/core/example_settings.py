@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'production',
     'proofing',
     'review',
+    'reports',
     'security',
     'submission',
     'transform',
