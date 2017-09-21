@@ -46,6 +46,7 @@ if settings.URL_CONFIG == 'domain':
         url(r'^api/', include('api.urls')),
         url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
         url(r'^news/', include('comms.urls')),
+        url(r'^reports/', include('reports.urls')),
 
         # Root Site URLS
         url(r'^$', press_views.index, name='website_index'),
@@ -261,6 +262,7 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/i18n/', include('django.conf.urls.i18n')),
         url(r'^(?P<journal_code>[-\w.]+)/api/', include('api.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/news/', include('comms.urls')),
+        url(r'^(?P<journal_code>[-\w.]+)/reports/', include('reports.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
         # Root Site URLS

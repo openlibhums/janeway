@@ -136,6 +136,18 @@ class Journal(models.Model):
     def issn(self):
         return setting_handler.get_setting('general', 'journal_issn', self, create=False, fallback='en').value
 
+    @property
+    @cache(120)
+    def use_crossref(self):
+        try:
+            return setting_handler.get_setting('Identifiers',
+                                               'crossref_prefix',
+                                               self,
+                                               create=False,
+                                               fallback='en').processed_value
+        except IndexError:
+            return False
+
     @issn.setter
     def issn(self, value):
         setting_handler.save_setting('general', 'journal_issn', self, value)

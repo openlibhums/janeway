@@ -52,3 +52,27 @@ class HistoricArticleAccess(models.Model):
         downloads = self.downloads
         self.downloads = downloads - 1
         self.save()
+
+
+def alt_metric_choices():
+    return (
+        ('twitter', 'Twitter'),
+        ('crossref', 'Crossref'),
+        ('datacite', 'DataCite'),
+        ('reddit', 'Reddit'),
+        ('reddit-links', 'Reddit Links'),
+        ('hypothesis', 'Hypothesis'),
+        ('newsfeed', 'News'),
+        ('stackexchange', 'Stack Exchange'),
+        ('web', 'Web'),
+        ('wikipedia', 'Wikipedia'),
+        ('wordpressdotcom', 'Wordpress'),
+
+    )
+
+
+class AltMetric(models.Model):
+    article = models.ForeignKey('submission.Article')
+    source = models.CharField(max_length=30, choices=alt_metric_choices())
+    pid = models.TextField()
+    timestamp = models.DateTimeField()

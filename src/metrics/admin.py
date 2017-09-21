@@ -19,6 +19,7 @@ class HistoricArticleAccessAdmin(admin.ModelAdmin):
 
 
 admin_list = [
+    (models.AltMetric,),
     (models.ArticleAccess, ArticleAccessAdmin),
     (models.HistoricArticleAccess, HistoricArticleAccessAdmin),
 ]

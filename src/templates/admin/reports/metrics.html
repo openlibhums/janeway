@@ -1,0 +1,36 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Article Metrics Report{% endblock %}
+{% block title-section %}Article Metrics Report{% endblock %}
+{% block title-sub %}Displays view and download counts for articles{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="content">
+            <table id="metricsreport">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date Published</th>
+                        <th>Views</th>
+                        <th>Downloads</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for article in articles %}
+                    <tr>
+                        <td>{{ article.title|safe }}</td>
+                        <td>{{ article.date_published }}</td>
+                        <td>{{ article.metrics.views }}</td>
+                        <td>{{ article.metrics.downloads }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#metricsreport" %}
+{% endblock %}

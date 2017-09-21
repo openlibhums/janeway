@@ -6,7 +6,9 @@ Janeway is a journal platform designed for publishing scholarly research materia
 Janeway is written in Python (3.4+) and utilises the Django framework (1.11 LTS). 
 
 # Installation instructions
-Installation [instructions are available on our Wiki](https://github.com/BirkbeckCTP/janeway/wiki/Installation).
+Developer installation [instructions are available on our Wiki](https://github.com/BirkbeckCTP/janeway/wiki/Installation).
+
+A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/BirkbeckCTP/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
 
 # Janeway design principles
 1. No code should appear to work "by magic". Readability is key.
