@@ -266,6 +266,7 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
         # Root Site URLS
+        url(r'^$', press_views.index, name='website_index'),
         url(r'^(?P<journal_code>[-\w.]+)/$', press_views.index, name='website_index'),
         url(r'^(?P<journal_code>[-\w.]+)/journals/$', press_views.journals, name='press_journals'),
         url(r'^(?P<journal_code>[-\w.]+)/kanban/$', core_views.kanban, name='kanban'),
