@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.sites import models as site_models
 from django.utils import translation
+from django.conf import settings
 
 from journal import models as journal_models
 from press import models as press_models
@@ -27,7 +28,7 @@ class Command(BaseCommand):
         :return: None
         """
 
-        translation.activate('en')
+        translation.activate(settings.LANGUAGE_CODE)
         if options.get('delete'):
             site_models.Site.objects.all().delete()
 
