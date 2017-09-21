@@ -17,6 +17,14 @@ class Command(BaseCommand):
 
     help = "Deletes duplicate settings."
 
+    def add_arguments(self, parser):
+        """Adds arguments to Django's management command-line parser.
+
+        :param parser: the parser to which the required arguments will be added
+        :return: None
+        """
+        parser.add_argument('journal_code', nargs='?', default=None)
+
     def handle(self, *args, **options):
         """Runs through articles and checks their DOIs resolve.
 
@@ -24,11 +32,18 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        journals = journal_models.Journal.objects.all()
+        if options.get('journal_code'):
+            journals = journal_models.Journal.objects.filter(code=options.get('journal_code'))
+        else:
+            journals = journal_models.Journal.objects.all()
         request = cron_models.Request()
 
         for journal in journals:
-            request.secure = setting_handler.get_setting('general', 'is_secure', journal)
+            try:
+                request.secure = setting_handler.get_setting('general', 'is_secure', journal)
+            except IndexError:
+                request.secure = False
+
             print('Processing {0}'.format(journal.name))
             articles = submission_models.Article.objects.filter(journal=journal)
 
@@ -47,6 +62,7 @@ class Command(BaseCommand):
 
                         o, c = ident_models.BrokenDOI.objects.get_or_create(
                             identifier=doi,
+                            article=article,
                             defaults={'checked': timezone.now(),
                                       'resolves_to': resolves_to.url,
                                       'expected_to_resolve_to': should_resolve_to}

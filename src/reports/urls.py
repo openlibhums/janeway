@@ -14,5 +14,6 @@ urlpatterns = [
     # Editor URLs
     url(r'^$', views.index, name='reports_index'),
     url(r'^metrics/$', views.metrics, name='reports_metrics'),
+    url(r'^doiresolution/$', views.dois, name='reports_dois'),
 
 ]

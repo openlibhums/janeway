@@ -4,6 +4,11 @@
 {% block title-section %}Article Metrics Report{% endblock %}
 {% block title-sub %}Displays view and download counts for articles{% endblock %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'reports_index' %}">Reports Index</a></li>
+{% endblock %}
+
 {% block body %}
     <div class="box">
         <div class="content">

@@ -1,0 +1,25 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block title-section %}Reports{% endblock %}
+{% block title-sub %}Lists available reports{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'reports_index' %}">Reports Index</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="content">
+            <div class="row expanded">
+                <div class="large-6 columns">
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="{% url 'reports_metrics' %}">Article Metrics</a></li>
+                        <li class="list-group-item"><a href="{% url 'reports_dois' %}">DOI Resolution Report</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

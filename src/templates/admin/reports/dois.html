@@ -1,0 +1,50 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}DOI Resolution Report{% endblock %}
+{% block title-section %}DOI Resolution Report{% endblock %}
+{% block title-sub %}Lists DOIs that do not resolve to where we expect them to{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'reports_index' %}">Reports Index</a></li>
+    <li><a href="{% url 'reports_dois' %}">DOI Resolution Report</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Report</h2>
+            <form method="POST">{% csrf_token %}<button class="button" id="run" name="run" onclick="run_resolution()">Run Resolution Check (can take a long time)</button></form>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                <table id="DOIS">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th>Checked</th>
+                            <th>Resolves To</th>
+                            <th>Expected Resolution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bd in broken_dois %}
+                            <tr>
+                                <td><a href="{% url 'manage_archive_article' bd.article.pk %}">{{ bd.article.title|safe }} <i class="fa fa-edit"></i></a></td>
+                                <td>{{ bd.checked }}</td>
+                                <td><a href="{{ bd.resolves_to }}">{{ bd.resolves_to }} <i class="fa fa-external-link"></i></a></td>
+                                <td>{{ bd.expected_to_resolve_to }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="{% static 'admin/js/resolution.js' %}"></script>
+    {% include "elements/datatables.html" with target="#DOIS" %}
+{% endblock js %}
