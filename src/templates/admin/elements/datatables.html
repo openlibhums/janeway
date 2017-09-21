@@ -8,7 +8,9 @@ $(document).ready(function() {
     $('{{target}}').DataTable({
         "lengthMenu": [[25, 50, -1], [25, 50, "All"]],
     {% if hide_length %}"bLengthChange": false,{% endif %}
+    {% if hide_page %}"bPaginate": false,{% endif %}
     {% if sort %}"order": [[ {{ sort }}, "{{ order }}" ]]{% endif %}
+    {% if disable_ordering %}"ordering": false{% endif %}
     });
 } );
 

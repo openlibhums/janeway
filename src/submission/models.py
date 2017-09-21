@@ -651,6 +651,18 @@ class Article(models.Model):
         from journal import models as journal_models
         return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
 
+    @cache(7200)
+    def altmetrics(self):
+        alm = self.altmetric_set.all()
+        return {
+            'twitter': alm.filter(source='twitter'),
+            'wikipedia': alm.filter(source='wikipedia'),
+            'reddit': alm.filter(source='reddit'),
+            'hypothesis': alm.filter(source='hypothesis'),
+            'wordpress': alm.filter(source='wordpress.com'),
+            'crossref': alm.filter(source='crossref'),
+        }
+
     @property
     @cache(300)
     def issue(self):

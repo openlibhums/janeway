@@ -9,12 +9,14 @@
         <div class="content">
             <table id="metricsreport">
                 <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Date Published</th>
-                        <th>Views</th>
-                        <th>Downloads</th>
-                    </tr>
+                <tr>
+                    <th>Title</th>
+                    <th>Date Published</th>
+                    <th>Views</th>
+                    <th>Downloads</th>
+                    <th>Twitter</th>
+                    <th>Wikipedia</th>
+                </tr>
                 </thead>
                 <tbody>
                 {% for article in articles %}
@@ -23,14 +25,31 @@
                         <td>{{ article.date_published }}</td>
                         <td>{{ article.metrics.views }}</td>
                         <td>{{ article.metrics.downloads }}</td>
+                        <td>{{ article.altmetrics.twitter|length }}</td>
+                        <td>{{ article.altmetrics.wikipedia|length }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+        <div class="pagination-block">
+            <ul class="pagination">
+                {% if articles.has_previous %}
+                    <li class="arrow"><a href="?page={{ articles.previous_page_number }}">&laquo;</a>
+                    </li>{% endif %}
+                {{ articles.page.page_range }}
+                {% for page in articles.paginator.page_range %}
+                    <li class="{% if articles.number == page %}current{% endif %}"><a
+                            href="?page={{ page }}">{{ page }}</a></li>
+                {% endfor %}
+                {% if articles.has_next %}
+                    <li class="arrow"><a href="?page={{ articles.next_page_number }}">&raquo;</a>
+                    </li>{% endif %}
+            </ul>
+        </div>
     </div>
 {% endblock %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#metricsreport" hide_length="false" %}
+    {% include "elements/datatables.html" with target="#metricsreport" hide_length="false" hide_page="true" %}
 {% endblock %}
