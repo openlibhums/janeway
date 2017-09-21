@@ -117,7 +117,11 @@ class Journal(models.Model):
     @property
     @cache(300)
     def name(self):
-        return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+        try:
+            return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+        except IndexError:
+            self.name = 'Janeway Journal'
+            return self.name
 
     @name.setter
     def name(self, value):
