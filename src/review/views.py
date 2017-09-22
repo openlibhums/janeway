@@ -971,7 +971,6 @@ def review_decision(request, article_id, decision):
 
     if request.POST:
         email_content = request.POST.get('decision_rationale')
-        production_stage = request.POST.get('production_stage')
         kwargs = {
             'article': article,
             'request': request,
@@ -984,7 +983,7 @@ def review_decision(request, article_id, decision):
             kwargs['skip'] = True
 
         if decision == 'accept':
-            article.accept_article(stage=production_stage)
+            article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
         elif decision == 'decline':
             article.decline_article()
