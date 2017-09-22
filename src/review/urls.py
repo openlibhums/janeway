@@ -88,6 +88,8 @@ urlpatterns = [
 
     url(r'^reviewer/(?P<assignment_id>\d+)/file_download/(?P<file_id>\d+)/$', views.reviewer_article_file,
         name='review_file_download'),
+    url(r'^reviewer/(?P<assignment_id>\d+)/file_download/all/$', views.review_download_all_files,
+        name='review_download_all_files'),
 
     url(r'^article/(?P<article_id>\d+)/access_denied/$', views.review_warning, name='review_warning'),
 

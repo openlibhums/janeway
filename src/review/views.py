@@ -1404,6 +1404,15 @@ def reviewer_article_file(request, assignment_id, file_id):
     return files.serve_file(request, file_object, article_object)
 
 
+@reviewer_user_for_assignment_required
+def review_download_all_files(request, assignment_id):
+    review_assignment = models.ReviewAssignment.objects.get(pk=assignment_id)
+
+    zip_file, file_name = files.zip_files(review_assignment.review_round.review_files.all())
+
+    return files.serve_temp_file(zip_file, file_name)
+
+
 @editor_is_not_author
 @article_edit_user_required
 def draft_decision(request, article_id):
