@@ -51,7 +51,7 @@
                                 <tr>
                                     <td>{{ file.label }}</td>
                                     <td>{{ file.original_filename }}</td>
-                                    <td><a href="{% url 'review_file_download' assignment.id file.id %}?access_code={{ access_code }}"><i
+                                    <td><a href="{% url 'review_file_download' assignment.id file.id %}{% if access_code %}?access_code={{ access_code }}{% endif %}"><i
                                             class="fa fa-download">&nbsp;</i></a></td>
                                 </tr>
                             {% empty %}
