@@ -89,3 +89,11 @@ def process_digest_items(journal, user_role):
         text = process_reviewer_digest(journal, user_role)
 
     return text
+
+
+def check_template_exists(request, reminder):
+    try:
+        request.journal.get_setting('email', reminder.template_name)
+        return True
+    except BaseException:
+        return False

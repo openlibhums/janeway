@@ -79,7 +79,8 @@ class Reminder(models.Model):
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
     days = models.PositiveIntegerField(help_text="The number of days before or after this reminder should fire")
-    template_name = models.CharField(max_length=100, help_text="The name of the email template")
+    template_name = models.CharField(max_length=100, help_text="The name of the email template, if it doesn't exist"
+                                                               "you will be asked to create it. Should have no spaces.")
     subject = models.CharField(max_length=200)
 
     def __str__(self):
@@ -115,8 +116,6 @@ class Reminder(models.Model):
             date_time = timezone.now() + timedelta(days=self.days)
         elif self.run_type == 'after':
             date_time = timezone.now() - timedelta(days=self.days)
-
-        print(query, date_time)
 
         objects = model.objects.filter(date_due=date_time).filter(query)
 

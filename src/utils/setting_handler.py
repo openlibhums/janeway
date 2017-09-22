@@ -12,6 +12,18 @@ from utils import models
 from core import models as core_models
 
 
+def create_setting(setting_group, setting_name, type, pretty_name, description, is_translatable=True):
+    group = core_models.SettingGroup.objects.get(name=setting_group)
+    new_setting, created = core_models.Setting.objects.get_or_create(
+        group=group,
+        name=setting_name,
+        defaults={'types': type, 'pretty_name': pretty_name, 'description': description,
+                  'is_translatable': is_translatable}
+    )
+
+    return new_setting
+
+
 def get_setting(setting_group, setting_name, journal, create=False, fallback=False):
     setting = core_models.Setting.objects.get(name=setting_name)
     lang = get_language() if setting.is_translatable else 'en'
