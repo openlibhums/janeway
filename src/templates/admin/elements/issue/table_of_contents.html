@@ -20,7 +20,7 @@
                 {% for dict in issue.manage_issue_list %}
                 <tr id="articles-{{ dict.article.pk }}">
                     <td><i class="fa fa-sort">&nbsp;</i>{{ dict.article.id }}</td>
-                    <td>{{ dict.article.title|safe }}</td>
+                    <td><a href="{% url 'manage_archive_article' dict.article.pk %}">{{ dict.article.title|safe }}</a></td>
                     <td>{{ dict.article.author_list }}</td>
                     <td>{{ dict.article.section.name }}</td>
                     <td>{{ dict.article.get_doi }}</td>
