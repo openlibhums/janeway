@@ -673,6 +673,12 @@ def publish_article(request, article_id):
                 article.date_published = timezone.now()
 
             article.save()
+
+            # Attempt to register xref DOI
+            for identifier in article.identifier_set.all():
+                if identifier.id_type == 'doi':
+                    identifier.register()
+
             return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
 
     template = 'journal/publish_article.html'
