@@ -746,7 +746,8 @@ class Article(models.Model):
             self.stage = STAGE_ACCEPTED
         self.save()
 
-        id_logic.generate_crossref_doi_with_pattern(self)
+        if self.journal.use_crossref:
+            id_logic.generate_crossref_doi_with_pattern(self)
 
     def decline_article(self):
         self.date_declined = timezone.now()
