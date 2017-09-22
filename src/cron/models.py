@@ -126,6 +126,7 @@ class Reminder(models.Model):
         objects = self.items_for_reminder()
         request = Request()
         request.journal = self.journal
+        request.site_type = self.journal
 
         for item in objects:
             sent_check = SentReminder.objects.filter(type=self.type, object_id=item.pk, sent=timezone.now().date())
@@ -153,8 +154,11 @@ class Request(object):
 
     def __init__(self):
         self.journal = None
+        self.site_type = None
         self.port = 8000
         self.secure = False
+        self.user = False
+        self.FILES = None
 
     def is_secure(self):
         if self.secure is False:

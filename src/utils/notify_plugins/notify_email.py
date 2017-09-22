@@ -33,7 +33,7 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     msg = EmailMultiAlternatives(subject, strip_tags(html), full_from_string, to, bcc=bcc, cc=cc, reply_to=reply_to)
     msg.attach_alternative(html, "text/html")
 
-    if request and request.FILES.getlist('attachment'):
+    if request and request.FILES and request.FILES.getlist('attachment'):
         for file in request.FILES.getlist('attachment'):
             file.open()
             msg.attach(file.name, file.read(), file.content_type)
