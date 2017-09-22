@@ -11,8 +11,10 @@ from django.core.management import call_command
 
 from submission import models
 from identifiers import models as ident_models
+from security.decorators import editor_user_required
 
 
+@editor_user_required
 def index(request):
 
     template = 'reports/index.html'
@@ -21,6 +23,7 @@ def index(request):
     return render(request, template, context)
 
 
+@editor_user_required
 def metrics(request):
 
     articles = models.Article.objects.filter(journal=request.journal, stage=models.STAGE_PUBLISHED)
@@ -44,6 +47,7 @@ def metrics(request):
     return render(request, template, context)
 
 
+@editor_user_required
 def dois(request):
 
     broken_dois = ident_models.BrokenDOI.objects.filter(article__journal=request.journal)
