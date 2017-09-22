@@ -34,6 +34,8 @@ class ReviewAssignmentForm(forms.ModelForm):
         super(ReviewAssignmentForm, self).__init__(*args, **kwargs)
         default_visibility = setting_handler.get_setting('general', 'default_review_visibility', journal, create=True)
         default_due = setting_handler.get_setting('general', 'default_review_days', journal, create=True).value
+        default_form = setting_handler.get_setting('general',
+                                                   'default_review_form', journal, create=True).processed_value
 
         if journal:
             self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=journal)
@@ -44,6 +46,10 @@ class ReviewAssignmentForm(forms.ModelForm):
         if default_due:
             due_date = timezone.now() + timedelta(days=int(default_due))
             self.fields['date_due'].initial = due_date
+
+        if default_form:
+            form = models.ReviewForm.objects.get(pk=default_form)
+            self.fields['form'].initial = form
 
 
 class ReviewerDecisionForm(forms.ModelForm):
