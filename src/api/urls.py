@@ -10,7 +10,6 @@ router.register(r'accountrole', views.AccountRoleViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
     url(r'^', include(router.urls)),
     url(r'^oai/$', views.oai, name='OAI_list_records'),
 ]
