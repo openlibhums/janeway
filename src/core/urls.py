@@ -179,6 +179,9 @@ if settings.URL_CONFIG == 'domain':
             submission_views.edit_identifiers,
             name='edit_identifiers_with_event'),
 
+        # Public Profiles
+        url(r'profile/(?P<uuid>[0-9a-f-]+)/$', core_views.public_profile, name='core_public_profile'),
+
         url(r'^sitemap/$', journal_views.sitemap, name='journal_sitemap'),
     ]
 

@@ -307,7 +307,6 @@ def edit_profile(request):
             else:
                 messages.add_message(request, messages.WARNING, 'Old password is not correct.')
 
-
         elif 'edit_profile' in request.POST:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
 
@@ -323,6 +322,27 @@ def edit_profile(request):
     }
 
     return render(request, template, context)
+
+
+def public_profile(request, uuid):
+    """
+    A page that displays a user's public profile if they have enabled display
+    :param request: django HTTPRequest object
+    :param uuid: a uuid4 string
+    :return: HTTPResponse
+    """
+
+    user = get_object_or_404(models.Account, uuid=uuid, is_active=True, enable_public_profile=True)
+    roles = models.AccountRole.objects.filter(journal=request.journal)
+
+    template = 'core/accounts/public_profile.html'
+    context = {
+        'user': user,
+        'roles': roles,
+    }
+
+    return render(request, template, context)
+
 
 
 @login_required

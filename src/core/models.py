@@ -366,6 +366,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return statistics.mean(ratings) if ratings else 0
 
+    def articles(self):
+        return submission_models.Article.objects.filter(authors__in=[self])
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
