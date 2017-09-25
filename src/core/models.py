@@ -203,8 +203,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
 
     enable_digest = models.BooleanField(default=False)
+    enable_public_profile = models.BooleanField(default=False, help_text='If enabled, your basic profile will be '
+                                                                        'available to the public.')
 
     date_joined = models.DateTimeField(default=timezone.now)
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = AccountManager()
 
@@ -232,7 +236,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         problems = [p for p in [r(password) for r in rules] if p != True]
 
-        print(problems)  # ['digit', 'length']
         return problems
 
     def string_id(self):
