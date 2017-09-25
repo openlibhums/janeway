@@ -93,8 +93,9 @@
                                                                                                 itemtype="http://schema.org/Person"
                                                                                                 itemprop="author"
                                                                                                 href="#"
-                                                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}"><a
-                                                itemprop="name" class="author-name">{{ author.full_name }}</a>{% if author.institution %}
+                                                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
+                                            {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
+                                            {% if author.institution %}
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}

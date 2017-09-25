@@ -9605,3 +9605,7 @@ footer svg {
 .error {
   color: red;
 }
+
+a.profilelink:link{
+    color: #FFFFFF;
+}
