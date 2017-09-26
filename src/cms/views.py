@@ -15,6 +15,11 @@ from core import files
 
 @staff_member_required
 def index(request):
+    """
+    Displays a list of pages and the sites navigation structure.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     pages = models.Page.objects.filter(content_type=request.model_content_type)
     top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
@@ -52,6 +57,12 @@ def index(request):
 
 
 def view_page(request, page_name):
+    """
+    Displays an individual CMS page using either the journal or press page template.
+    :param request: HttpRequest object
+    :param page_name: a string matching models.Page.page_name
+    :return: HttpResponse object
+    """
     current_page = get_object_or_404(models.Page, name=page_name, content_type=request.model_content_type)
 
     if request.journal:
@@ -67,6 +78,12 @@ def view_page(request, page_name):
 
 @staff_member_required
 def page_manage(request, page_id=None):
+    """
+    Allows a staff member to add a new or edit an existing page.
+    :param request: HttpRequest object
+    :param page_id: pk of a Page object, not required
+    :return: HttpResponse object
+    """
     if page_id:
         page = get_object_or_404(models.Page, pk=page_id, content_type=request.model_content_type)
         page_form = forms.PageForm(instance=page)
@@ -104,7 +121,12 @@ def page_manage(request, page_id=None):
 
 @staff_member_required
 def nav(request, nav_id=None):
-
+    """
+    Allows a staff member to edit or add nav objects.
+    :param request: HttpRequest object
+    :param nav_id: pk of a Navigation object, not required
+    :return: HttpResponse object
+    """
     if nav_id:
         nav_to_edit = get_object_or_404(models.NavigationItem, pk=nav_id)
         form = forms.NavForm(instance=nav_to_edit, request=request)
