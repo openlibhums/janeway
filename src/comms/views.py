@@ -14,6 +14,11 @@ from security.decorators import editor_user_required, file_user_required, has_re
 
 @editor_user_required
 def news(request):
+    """
+    Allows an editor user to add or delete news items.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
                                                object_id=request.site_type.pk).order_by('-posted')
     form = forms.NewsItemForm()
@@ -64,6 +69,12 @@ def news(request):
 
 @editor_user_required
 def edit_news(request, news_pk):
+    """
+    Allows an editor to edit an existing news item
+    :param request: HttpRequest object
+    :param news_pk: PK of an NewsItem object
+    :return: HttpResponse object
+    """
     new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
                                                object_id=request.site_type.pk).order_by('-posted')
     news_item = get_object_or_404(models.NewsItem, pk=news_pk)
@@ -135,6 +146,12 @@ def serve_news_file(request, identifier_type, identifier, file_id):
 
 
 def news_list(request, tag=None):
+    """
+    Lists all a press or journal news items, and allows them to be filtered by tag
+    :param request: HttpRequest object
+    :param tag: a string matching a Tags.text attribute
+    :return: HttpResponse object
+    """
     if not tag:
         news_objects = models.NewsItem.objects.filter(
             (Q(content_type=request.model_content_type) & Q(object_id=request.site_type.id)) &
@@ -174,6 +191,12 @@ def news_list(request, tag=None):
 
 
 def news_item(request, news_pk):
+    """
+    Renders a news item for public display.
+    :param request: HttpRequest object
+    :param news_pk: PK of a NewsItem object
+    :return: HttpResponse object
+    """
     item = get_object_or_404(models.NewsItem, pk=news_pk, content_type=request.model_content_type)
 
     if request.journal:
