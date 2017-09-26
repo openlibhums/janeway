@@ -114,7 +114,7 @@ def articles(request):
     pinned_article_pks = [article.pk for article in pinned_articles]
     article_objects = submission_models.Article.objects.filter(journal=request.journal,
                                                                date_published__lte=timezone.now(),
-                                                               section__pk__in=filters).order_by(sort).exclude(
+                                                               section__pk__in=filters).prefetch_related('frozenauthor_set').order_by(sort).exclude(
         pk__in=pinned_article_pks)
 
     paginator = Paginator(article_objects, show)
@@ -171,7 +171,7 @@ def issue(request, issue_id, show_sidebar=True):
     """
     issue_object = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal, issue_type='Issue')
     articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors',
+                                                    'page_numbers').prefetch_related('authors', 'frozenauthor_set',
                                                                                      'manuscript_files').select_related(
         'section')
 
