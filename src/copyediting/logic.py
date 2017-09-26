@@ -16,6 +16,11 @@ from events import logic as event_logic
 
 
 def get_copyeditors(article):
+    """
+    Gets a list of copyeditors that haven't already been assigned to the article.
+    :param article: a Article object
+    :return: a queryset of AccountRole objects
+    """
     copyeditor_assignments = models.CopyeditAssignment.objects.filter(article=article)
     copyeditors = [assignment.copyeditor.pk for assignment in copyeditor_assignments]
 
@@ -23,6 +28,11 @@ def get_copyeditors(article):
 
 
 def get_user_from_post(post):
+    """
+    Grabs a string from POST and fetches the related user, returns None if no user_id is found.
+    :param post: request.POST object
+    :return: a Account object or None
+    """
     user_id = post.get('copyeditor')
 
     if user_id:
@@ -33,7 +43,13 @@ def get_user_from_post(post):
 
 
 def get_copyeditor_notification(request, article, copyedit):
-
+    """
+    Takes a set of variables and renders a template into a string.
+    :param request: HttpRequest object
+    :param article: Article object
+    :param copyedit: CopyeditAssignment Object
+    :return: a template rendered into a string
+    """
     email_context = {
         'article': article,
         'assignment': copyedit,
@@ -43,7 +59,14 @@ def get_copyeditor_notification(request, article, copyedit):
 
 
 def get_copyedit_message(request, article, copyedit, template):
-
+    """
+    Takes a set of variables and renders a template into a string.
+    :param request: HttpReqest object
+    :param article: Article object
+    :param copyedit: CopyeditAssignment object
+    :param template: a string matching a Setting.name from the email setting group
+    :return:
+    """
     email_context = {
         'article': article,
         'assignment': copyedit,
@@ -53,6 +76,13 @@ def get_copyedit_message(request, article, copyedit, template):
 
 
 def handle_file_post(request, copyedit):
+    """
+    Handles uploading of copyediting files, checks a file has been selected and a label has been entered, Assigs the
+    file to the CopyeditAssignment.
+    :param request: HttpRequest
+    :param copyedit: CopyeditAssignment object
+    :return: None or a list of errors
+    """
     errors = []
     file = request.FILES.get('file')
     file_label = request.POST.get('label')
@@ -71,6 +101,13 @@ def handle_file_post(request, copyedit):
 
 
 def request_author_review(copyedit, article, request):
+    """
+    Creates a AuthorReview object and fires an event to send the article author an email
+    :param copyedit: CopyeditAssignment object
+    :param article: Article object
+    :param request: HttpRequest object
+    :return: AuthorReview object
+    """
     user_message_content = request.POST.get('review_note')
 
     author_review = models.AuthorReview.objects.create(
@@ -96,6 +133,13 @@ def request_author_review(copyedit, article, request):
 
 
 def accept_copyedit(copyedit, article, request):
+    """
+    Raises an event when a copyedit is accepted
+    :param copyedit: CopyeditAssignment object
+    :param article: Article object
+    :param request: HttpRequest object
+    :return: None
+    """
     user_message_content = request.POST.get('accept_note')
 
     kwargs = {

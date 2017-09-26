@@ -37,6 +37,11 @@ from django.db.models import Q
 
 
 def user_login(request):
+    """
+    Allows an unauthenticated user to login
+    :param request: HttpRequest
+    :return: HttpResponse
+    """
     if request.user.is_authenticated():
         messages.info(request, 'You are already logged in.')
         if request.GET.get('next'):
@@ -100,6 +105,11 @@ def user_login(request):
 
 
 def user_login_orcid(request):
+    """
+    Allows a user to login with ORCiD
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     orcid_code = request.GET.get('code', None)
 
     if orcid_code:
@@ -138,12 +148,22 @@ def user_login_orcid(request):
 
 @login_required
 def user_logout(request):
+    """
+    Logs a user session out.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     messages.info(request, 'You have been logged out.')
     logout(request)
     return redirect(reverse('website_index'))
 
 
 def get_reset_token(request):
+    """
+    Generates a password reset token and emails it to the user's email account
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     new_reset_token = None
 
     if request.POST:
@@ -170,6 +190,12 @@ def get_reset_token(request):
 
 
 def reset_password(request, token):
+    """
+    Takes a reset token and checks if it is valid then allows a user to reset their password, adter it expires the token
+    :param request: HttpRequest
+    :param token: string, PasswordResetToken.token
+    :return: HttpResponse object
+    """
     reset_token = get_object_or_404(models.PasswordResetToken, token=token, expired=False)
     form = forms.PasswordResetForm()
 
@@ -204,6 +230,12 @@ def reset_password(request, token):
 
 
 def register(request):
+    """
+    Displays a form for users to register with the journal. If the user is registering on a journal we give them
+    the Author role.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     token, token_obj = request.GET.get('token', None), None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
@@ -256,6 +288,12 @@ def orcid_registration(request, token):
 
 
 def activate_account(request, token):
+    """
+    Activates a user account if an Account object with the matching token is found and is not already active.
+    :param request: HttpRequest object
+    :param token: string, Account.confirmation_token
+    :return: HttpResponse object
+    """
     try:
         account = models.Account.objects.get(confirmation_code=token, is_active=False)
         account.is_active = True
@@ -274,6 +312,11 @@ def activate_account(request, token):
 
 @login_required
 def edit_profile(request):
+    """
+    Allows a user to edit their own profile, reset their password or change their email address.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     user = request.user
 
     form = forms.EditAccountForm(instance=user)
@@ -344,9 +387,13 @@ def public_profile(request, uuid):
     return render(request, template, context)
 
 
-
 @login_required
 def dashboard(request):
+    """
+    Displays a dashboard for authenticated users.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template = 'core/dashboard.html'
     new_proofing, active_proofing, completed_proofing, new_proofing_typesetting, active_proofing_typesetting, \
         completed_proofing_typesetting = proofing_logic.get_tasks(request)
@@ -446,6 +493,12 @@ def dashboard(request):
 
 @article_author_required
 def dashboard_article(request, article_id):
+    """
+    Displays information about an article to its author only.
+    :param request: HttpRequest object
+    :param article_id: int, Article object primary key
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
     template = 'core/article.html'
@@ -458,6 +511,11 @@ def dashboard_article(request, article_id):
 
 @editor_user_required
 def manager_index(request):
+    """
+    Displays the manager index if there is a journal, if not redirects the user to the press manager index.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     if not request.journal:
         from press import views as press_views
         return press_views.manager_index(request)
@@ -473,6 +531,11 @@ def manager_index(request):
 
 @staff_member_required
 def flush_cache(request):
+    """
+    Flushes Django's cache
+    :param request: HttpRequest object
+    :return: HttpRedirect
+    """
     cache.clear()
     messages.add_message(request, messages.SUCCESS, 'Memcached has been flushed.')
 
@@ -481,6 +544,11 @@ def flush_cache(request):
 
 @editor_user_required
 def settings_index(request):
+    """
+    Displays a list of all settings objects.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template = 'core/manager/settings/index.html'
     context = {
         'settings': [{group.name: models.Setting.objects.filter(group=group).order_by('name')} for group in
@@ -492,6 +560,13 @@ def settings_index(request):
 
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
+    """
+    Allows a user to edit a setting. Fields are auto generated based on the setting.kind field
+    :param request: HttpRequest object
+    :param setting_group: string, SettingGroup.name
+    :param setting_name: string, Setting.name
+    :return: HttpResponse object
+    """
     setting_value = setting_handler.get_setting(setting_group, setting_name, request.journal, create=True)
 
     if setting_value.setting.types == 'rich-text':
@@ -529,6 +604,13 @@ def edit_setting(request, setting_group, setting_name):
 
 @editor_user_required
 def edit_settings_group(request, group):
+    """
+    Displays a group of settings on a page for editing. If there is no request.journal we are editing from the press
+    and must set a temp request.journal and then unset it.
+    :param request: HttpRequest object
+    :param group: string, name of a group of settings
+    :return: HttpResponse object
+    """
     if request.journal:
         journal_id = None
         journal = request.journal
@@ -585,6 +667,15 @@ def edit_settings_group(request, group):
 
 @editor_user_required
 def edit_plugin_settings_groups(request, plugin, setting_group_name, journal=None, title=None):
+    """
+    Allows for editing a group of plugin settings
+    :param request: HttpRequest object
+    :param plugin: string, short name of a plugin
+    :param setting_group_name: string, name of a group of settings
+    :param journal: an optional argument, Journal object
+    :param title: an optional argument, page title, string
+    :return: HttpResponse object
+    """
     if journal != '0':
         journal = journal_models.Journal.objects.get(fk=int(journal))
     else:
@@ -629,6 +720,11 @@ def edit_plugin_settings_groups(request, plugin, setting_group_name, journal=Non
 
 @editor_user_required
 def roles(request):
+    """
+    Displays a list of the journal roles
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template = 'core/manager/roles/roles.html'
     context = {
         'roles': models.Role.objects.all(),
@@ -639,6 +735,12 @@ def roles(request):
 
 @editor_user_required
 def role(request, slug):
+    """
+    Displays details of a single role.
+    :param request: HttpRequest object
+    :param slug: string, matches Role.slug
+    :return: HttpResponse object
+    """
     role_obj = get_object_or_404(models.Role, slug=slug)
 
     account_roles = models.AccountRole.objects.filter(journal=request.journal, role=role_obj)
@@ -657,6 +759,14 @@ def role(request, slug):
 
 @editor_user_required
 def role_action(request, slug, user_id, action):
+    """
+    Either adds or removes a user from a role depending on the action supplied.
+    :param request: HttpRequest object
+    :param slug: string, matches Roles.slug
+    :param user_id: Account object PK
+    :param action: string, either 'add' or 'remove'
+    :return: HttpResponse object
+    """
     user = get_object_or_404(models.Account, pk=user_id)
     role_obj = get_object_or_404(models.Role, slug=slug)
 
@@ -672,6 +782,11 @@ def role_action(request, slug, user_id, action):
 
 @editor_user_required
 def users(request):
+    """
+    Displays a list of users, allows multiple users to be added to a role.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     if request.POST:
         users = request.POST.getlist('users')
         role = request.POST.get('role')
@@ -688,6 +803,11 @@ def users(request):
 
 @editor_user_required
 def add_user(request):
+    """
+    Displays a form for adding users to JW,
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     form = forms.EditAccountForm()
     registration_form = forms.AdminUserForm(active='add')
     return_url = request.GET.get('return', None)
@@ -722,6 +842,12 @@ def add_user(request):
 
 @editor_user_required
 def user_edit(request, user_id):
+    """
+    Allows an editor to edit an existing user account.
+    :param request: HttpRequest object
+    :param user_id: Account object PK
+    :return: HttpResponse object
+    """
     user = models.Account.objects.get(pk=user_id)
     form = forms.EditAccountForm(instance=user)
     registration_form = forms.AdminUserForm(instance=user)
@@ -749,6 +875,11 @@ def user_edit(request, user_id):
 
 @editor_user_required
 def inactive_users(request):
+    """
+    Displays a list of inactive user accounts.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     user_list = models.Account.objects.filter(is_active=False)
 
     template = 'core/manager/users/inactive.html'
@@ -855,6 +986,11 @@ def settings_home(request):
 
 @editor_user_required
 def journal_home_order(request):
+    """
+    Allows the re-ordering of homepage elements
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
     if request.POST:
         ids = request.POST.getlist('element[]')
         ids = [int(_id) for _id in ids]
@@ -869,6 +1005,11 @@ def journal_home_order(request):
 
 @editor_user_required
 def article_images(request):
+    """
+    Displays a list of articles for editing their images.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     articles = submission_models.Article.objects.filter(journal=request.journal)
 
     template = 'core/manager/images/articles.html'
@@ -881,6 +1022,13 @@ def article_images(request):
 
 @editor_user_required
 def article_image_edit(request, article_pk):
+    """
+    Displays the images an article has and allows a user to upload new images for display. Resizes these images for
+    best fit.
+    :param request: HttpRequest object
+    :param article_pk: Article object PK
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_pk, journal=request.journal)
     article_meta_image_form = forms.ArticleMetaImageForm(instance=article)
 
@@ -922,6 +1070,11 @@ def article_image_edit(request, article_pk):
 
 @editor_user_required
 def contacts(request):
+    """
+    Allows for adding and deleting of JournalContact objects.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     form = forms.JournalContactForm()
     contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
 
@@ -957,6 +1110,12 @@ def contacts(request):
 
 @editor_user_required
 def edit_contacts(request, contact_id):
+    """
+    Allows for editing of existing Contact objects
+    :param request: HttpRequest object
+    :param contact_id: Contact object PK
+    :return: HttpResponse object
+    """
     contact = get_object_or_404(models.Contacts,
                                 pk=contact_id,
                                 content_type=request.model_content_type,
@@ -982,6 +1141,11 @@ def edit_contacts(request, contact_id):
 
 @editor_user_required
 def contacts_order(request):
+    """
+    Reorders the Contact list, posted via AJAX.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     if request.POST:
         ids = request.POST.getlist('contact[]')
         ids = [int(_id) for _id in ids]
@@ -995,6 +1159,11 @@ def contacts_order(request):
 
 @editor_user_required
 def editorial_team(request):
+    """
+    Displays a list of EditorialGroup objects, allows them to be deleted and created,
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
     form = forms.EditorialGroupForm(next_sequence=request.journal.next_group_order())
 
@@ -1025,6 +1194,12 @@ def editorial_team(request):
 
 @editor_user_required
 def edit_editorial_group(request, group_id):
+    """
+    Allows editors to edit existing EditorialGroup objects
+    :param request: HttpRequest object
+    :param group_id: EditorialGroup object PK
+    :return: HttpResponse object
+    """
     editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
     group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
     form = forms.EditorialGroupForm(instance=group)
@@ -1047,6 +1222,14 @@ def edit_editorial_group(request, group_id):
 
 @editor_user_required
 def add_member_to_group(request, group_id, user_id=None):
+    """
+    Displays a list of users that are eligible to be added to an Editorial Group and displays those already in said
+    group. Members can also be removed from Groups.
+    :param request: HttpRequest object
+    :param group_id: EditorialGroup object PK
+    :param user_id: Account object PK, optional
+    :return:
+    """
     group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
     member_pks = [member.user.pk for member in group.editorialgroupmember_set.all()]
     user_list = models.Account.objects.exclude(pk__in=member_pks)
@@ -1076,6 +1259,11 @@ def add_member_to_group(request, group_id, user_id=None):
 
 @staff_member_required
 def plugin_list(request):
+    """
+    Fetches a list of plugins and fetching their manager urls.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
 
     plugin_list = list()
 
@@ -1104,8 +1292,14 @@ def plugin_list(request):
 
 
 @editor_user_required
-@editor_user_required
 def editorial_ordering(request, type_to_order, group_id=None):
+    """
+    Allows for drag and drop reordering of an editorialgroup
+    :param request: HttpRequest object
+    :param type_to_order: string, either 'group', 'sections', or 'member'
+    :param group_id: EditorialGroup PK, optional
+    :return: HttpRespons eobject
+    """
     if type_to_order == 'group':
         ids = request.POST.getlist('group[]')
         objects = models.EditorialGroup.objects.filter(journal=request.journal)
@@ -1128,6 +1322,11 @@ def editorial_ordering(request, type_to_order, group_id=None):
 
 @editor_user_required
 def kanban(request):
+    """
+    Displays lists of articles grouped by stage.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     unassigned_articles = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_UNASSIGNED),
                                                                    journal=request.journal) \
         .order_by('-date_submitted')
@@ -1185,6 +1384,13 @@ def kanban(request):
 
 @editor_user_required
 def delete_note(request, article_id, note_id):
+    """
+    Deletes Note objects
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param note_id: Note object PK
+    :return:
+    """
     note = get_object_or_404(submission_models.Note, pk=note_id)
     note.delete()
 
@@ -1234,6 +1440,11 @@ def manage_notifications(request, notification_id=None):
 
 @staff_member_required
 def email_templates(request):
+    """
+    Displays a list of email templates
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template_list = models.Setting.objects.filter(group__name='email')
 
     template = 'core/manager/email/email_templates.html'
@@ -1246,6 +1457,13 @@ def email_templates(request):
 
 @staff_member_required
 def edit_email_template(request, template_code, subject=False):
+    """
+    Allows staff to edit email templates and subjects
+    :param request: HttpRequest object
+    :param template_code: string, name of the template to be edited
+    :param subject: boolean, if True we are editing the subject field not the body
+    :return: HttpResponse object
+    """
     if subject:
         template_value = setting_handler.get_setting('email_subject', 'subject_{0}'.format(template_code),
                                                      request.journal, create=True)
@@ -1278,6 +1496,12 @@ def edit_email_template(request, template_code, subject=False):
 
 @editor_user_required
 def sections(request, section_id=None):
+    """
+    Displays a list of sections, allows them to be added, edited and deleted.
+    :param request: HttpRequest object
+    :param section_id: Section object PK, optional
+    :return: HttpResponse object
+    """
     section = get_object_or_404(submission_models.Section, pk=section_id,
                                 journal=request.journal) if section_id else None
     sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal)
@@ -1321,6 +1545,7 @@ def sections(request, section_id=None):
 def pinned_articles(request):
     """
     Allows an Editor to pin articles to the top of the article page.
+    :param request: HttpRequest object
     """
     pinned_articles = journal_models.PinnedArticle.objects.filter(journal=request.journal)
     published_articles = logic.get_unpinned_articles(request, pinned_articles)
