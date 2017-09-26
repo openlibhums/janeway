@@ -83,6 +83,12 @@ def article_copyediting(request, article_id):
 
 @production_user_or_editor_required
 def add_copyeditor_assignment(request, article_id):
+    """
+    Allows a production or editor user to add a new copyeditingassignment.
+    :param request: HttpRequest object
+    :param article_id: a submission.models.Article PK
+    :return: HttpRequest object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyeditors = logic.get_copyeditors(article)
     file_list = None
@@ -126,6 +132,13 @@ def add_copyeditor_assignment(request, article_id):
 
 @production_user_or_editor_required
 def notify_copyeditor_assignment(request, article_id, copyedit_id):
+    """
+    Allows a production or editor user to send an email to a newly assigned copyeditor.
+    :param request: HttpRequest object
+    :param article_id: a submission.models.Article PK
+    :param copyedit_id: a CopyeditAssignment PK
+    :return: HttpRequest object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
     user_message_content = logic.get_copyeditor_notification(request, article, copyedit)
@@ -155,7 +168,15 @@ def notify_copyeditor_assignment(request, article_id, copyedit_id):
     return render(request, template, context)
 
 
+@production_user_or_editor_required
 def edit_assignment(request, article_id, copyedit_id):
+    """
+    Allows a production or editor user to make changes to an existing CopyeditAssignment
+    :param request: HttpRequest object
+    :param article_id:  a submission.models.Article PK
+    :param copyedit_id: a CopyeditAssignment PK
+    :return:
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
@@ -188,6 +209,11 @@ def edit_assignment(request, article_id, copyedit_id):
 
 @copyeditor_user_required
 def copyedit_requests(request):
+    """
+    Displays a list of new, in progress and complete copyediting requests to a user with copyediting role.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     new_requests = models.CopyeditAssignment.objects.filter(
         copyeditor=request.user,
         decision__isnull=True,
@@ -233,6 +259,13 @@ def copyedit_requests(request):
 
 @copyeditor_user_required
 def copyedit_request_decision(request, copyedit_id, decision):
+    """
+    Records a user's decision on whether they will do a copyedit.
+    :param request: HttpRequest object
+    :param copyedit_id: a CopyeditAssignment PK
+    :param decision: a string, either 'accept' or 'decline'
+    :return: HttpResponse object
+    """
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
     if decision == 'accept':
@@ -259,6 +292,13 @@ def copyedit_request_decision(request, copyedit_id, decision):
 
 @copyeditor_for_copyedit_required
 def do_copyedit(request, copyedit_id):
+    """
+    Displays the form for completing a copyedit assignment, only if the decision is accept and it has not previously
+    been completed.
+    :param request: HttpRequest object
+    :param copyedit_id: a CopyeditAssignment PK
+    :return: HttpResponse object
+    """
     copyedit = get_object_or_404(models.CopyeditAssignment,
                                  Q(copyeditor_completed__isnull=True) | Q(copyedit_reopened__isnull=False),
                                  copyedit_reopened_complete__isnull=True,
@@ -302,6 +342,12 @@ def do_copyedit(request, copyedit_id):
 
 @copyeditor_for_copyedit_required
 def do_copyedit_add_file(request, copyedit_id):
+    """
+    Allows a copyeditor to upload a new file and associate it with the article, only if the assignment is not complete.
+    :param request: HttpRequest
+    :param copyedit_id: a CopyeditAssignment PK
+    :return: HttpResponse object
+    """
     copyedit = get_object_or_404(models.CopyeditAssignment,
                                  Q(copyeditor_completed__isnull=True) | Q(copyedit_reopened__isnull=False),
                                  copyedit_reopened_complete__isnull=True,
