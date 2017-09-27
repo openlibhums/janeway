@@ -22,6 +22,11 @@ from submission import models as submission_models
 
 @production_user_or_editor_required
 def production_list(request):
+    """
+    Diplays a list of new, assigned and the user's production assignments.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     assigned_table = models.ProductionAssignment.objects.all()
     my_table = models.ProductionAssignment.objects.values_list('article_id', flat=True).filter(
         production_manager=request.user)
@@ -51,6 +56,13 @@ def production_list(request):
 @editor_user_required
 @article_stage_production_required
 def production_assign_article(request, user_id, article_id):
+    """
+    Allows an editor to assign a production manager to an article.
+    :param request: HttpRequest object
+    :param user_id: Account object PK
+    :param article_id: Article object PK
+    :return: HttpRedirect
+    """
     article = submission_models.Article.objects.get(id=article_id)
     user = core_models.Account.objects.get(id=user_id)
 
@@ -71,6 +83,12 @@ def production_assign_article(request, user_id, article_id):
 @editor_user_required
 @article_stage_production_required
 def production_unassign_article(request, article_id):
+    """
+    Removes a ProductionAssignment by deleting it.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpRedirect
+    """
     article = submission_models.Article.objects.get(id=article_id)
 
     models.ProductionAssignment.objects.filter(article=article).delete()
@@ -82,6 +100,12 @@ def production_unassign_article(request, article_id):
 @article_production_user_required
 @article_stage_production_required
 def production_done(request, article_id):
+    """
+    Allows a Production Manager to mark Production as complete, fires an event that emails the Editor.
+    :param request: HttpRequest object
+    :param article_id: Artcle object PK
+    :return: HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     article.stage = submission_models.STAGE_PROOFING
     article.save()
@@ -111,6 +135,12 @@ def production_done(request, article_id):
 
 @production_user_or_editor_required
 def production_article(request, article_id):
+    """
+    Displays typesetting tasks, Galleys and allows new Galleys to be uploaded.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     production_assignment = models.ProductionAssignment.objects.get(article=article)
     galleys = logic.get_all_galleys(production_assignment.article)
@@ -152,6 +182,13 @@ def production_article(request, article_id):
 
 @production_user_or_editor_required
 def assign_typesetter(request, article_id, production_assignment_id):
+    """
+    Lets a production manager assign a typesetter a task
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param production_assignment_id: ProductionAssignment object PK
+    :return: HttpRedirect if POST otherwise HttpResponse
+    """
     production_assignment = get_object_or_404(models.ProductionAssignment,
                                               pk=production_assignment_id,
                                               closed__isnull=True)
@@ -185,6 +222,12 @@ def assign_typesetter(request, article_id, production_assignment_id):
 
 @production_user_or_editor_required
 def notify_typesetter(request, typeset_id):
+    """
+    Optionally allows the PM to send the Typesetter an email, it can be skpped.
+    :param request: HttpRequest object
+    :param typeset_id: TypesetTask object PK
+    :return: HttpRedirect if POST otherwise HttpResponse
+    """
     typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
     user_message_content = logic.get_typesetter_notification(typeset, request)
 
@@ -216,7 +259,7 @@ def edit_typesetter_assignment(request, typeset_id):
     Allows the editor to edit an incomplete typesetting assignment.
     :param request: django request object
     :param typeset_id: Typesetting Assignment PK
-    :return: HTML
+    :return: HttpRedirect if POST otherwise HttpResponse
     """
     typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
     article = typeset.assignment.article
