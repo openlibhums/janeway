@@ -26,6 +26,12 @@ from utils import shared as utils_shared
 @login_required
 @decorators.submission_is_enabled
 def start(request, type=None):
+    """
+    Starts the submission process, presents various checkboxes and then creates a new article.
+    :param request: HttpRequest object
+    :param type: string, None or 'preprint'
+    :return: HttpRedirect or HttpResponse
+    """
     competing_interests = setting_handler.get_setting('general', 'submission_competing_interests', request.journal)
     form = forms.ArticleStart(ci=competing_interests)
 
@@ -62,6 +68,7 @@ def start(request, type=None):
 @login_required
 @decorators.submission_is_enabled
 def submit_submissions(request):
+    """Displays a list of submissions made by the author."""
     # gets a list of submissions for the logged in user
     articles = models.Article.objects.filter(owner=request.user).exclude(stage=models.STAGE_UNSUBMITTED)
 
@@ -77,6 +84,12 @@ def submit_submissions(request):
 @decorators.submission_is_enabled
 @article_edit_user_required
 def submit_info(request, article_id):
+    """
+    Presents a form for the user to complete with article information
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(models.Article, pk=article_id)
     additional_fields = models.Field.objects.filter(journal=request.journal)
     form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
@@ -120,6 +133,12 @@ def publisher_notes_order(request, article_id):
 @decorators.submission_is_enabled
 @article_edit_user_required
 def submit_authors(request, article_id):
+    """
+    Allows the submitting author to add other authors to the submission.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpRedirect or HttpResponse
+    """
     article = get_object_or_404(models.Article, pk=article_id)
 
     if article.current_step < 2 and not request.user.is_staff:
@@ -210,6 +229,7 @@ def submit_authors(request, article_id):
 @login_required
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
+    """Allows submitting author to delete an author object."""
     article = get_object_or_404(models.Article, pk=article_id)
     author = get_object_or_404(core_models.Account, pk=author_id)
     article.authors.remove(author)
@@ -224,6 +244,12 @@ def delete_author(request, article_id, author_id):
 @decorators.submission_is_enabled
 @article_edit_user_required
 def submit_files(request, article_id):
+    """
+    Allows the submitting author to upload files and links them to the submission
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse
+    """
     article = get_object_or_404(models.Article, pk=article_id)
     form = forms.FileDetails()
 
@@ -293,6 +319,12 @@ def submit_files(request, article_id):
 @decorators.submission_is_enabled
 @article_edit_user_required
 def submit_review(request, article_id):
+    """
+    A page that allows the user to review a submission.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(models.Article, pk=article_id)
 
     if article.current_step < 4 and not request.user.is_staff:
@@ -459,6 +491,12 @@ def edit_identifiers(request, article_id, identifier_id=None, event=None):
 
 @editor_user_required
 def fields(request, field_id=None):
+    """
+    Allows the editor to create, edit and delete new submission fields.
+    :param request: HttpRequest object
+    :param field_id: Field object PK, optional
+    :return: HttpResponse or HttpRedirect
+    """
     if field_id:
         field = get_object_or_404(models.Field, pk=field_id, journal=request.journal)
     else:
@@ -507,8 +545,14 @@ def fields(request, field_id=None):
     return render(request, template, context)
 
 
+@editor_user_required
 def licenses(request, license_pk=None):
-
+    """
+    Allows an editor to create, edit and delete license objects.
+    :param request: HttpRequest object
+    :param license_pk: License object PK, optional
+    :return: HttResponse or HttpRedirect
+    """
     license_obj = None
     licenses = models.Licence.objects.filter(journal=request.journal)
 

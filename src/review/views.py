@@ -27,6 +27,11 @@ from utils import models as util_models, ithenticate
 
 @senior_editor_user_required
 def home(request):
+    """
+    Displays a list of review articles.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
     articles = submission_models.Article.objects.filter(
         Q(stage=submission_models.STAGE_ASSIGNED) |
         Q(stage=submission_models.STAGE_UNDER_REVIEW) |
@@ -44,6 +49,11 @@ def home(request):
 
 @senior_editor_user_required
 def unassigned(request):
+    """
+    Displays a list of unassigned articles.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
     articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_UNASSIGNED,
                                                         journal=request.journal)
 
@@ -57,6 +67,12 @@ def unassigned(request):
 
 @senior_editor_user_required
 def unassigned_article(request, article_id):
+    """
+    Displays metadata of an individual article, can send details to Crosscheck for reporting.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse or Redirect if POST
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
     if article.ithenticate_id and not article.ithenticate_score:
@@ -89,18 +105,29 @@ def unassigned_article(request, article_id):
 
 @senior_editor_user_required
 def view_ithenticate_report(request, article_id):
+    """Allows editor to view similarity report."""
     article = get_object_or_404(submission_models.Article, pk=article_id, ithenticate_id__isnull=False)
     return redirect(ithenticate.fetch_url(article))
 
 
 @senior_editor_user_required
 def assign_editor_move_to_review(request, article_id, editor_id, assignment_type):
+    """Allows an editor to assign another editor to an article and moves to review."""
     assign_editor(request, article_id, editor_id, assignment_type, should_redirect=False)
     return move_to_review(request, article_id)
 
 
 @senior_editor_user_required
 def assign_editor(request, article_id, editor_id, assignment_type, should_redirect=True):
+    """
+    Allows a Senior Editor to assign another editor to an article.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param editor_id: Account PK
+    :param assignment_type: string, 'section-editor' or 'editor'
+    :param should_redirect: if true, we redirect the user to the notification page
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     try:
@@ -128,6 +155,7 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
 
 @senior_editor_user_required
 def unassign_editor(request, article_id, editor_id):
+    """Unassigns an editor from an article"""
     article = get_object_or_404(submission_models.Article, pk=article_id)
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     assignment = get_object_or_404(models.EditorAssignment, article=article, editor=editor)
@@ -144,6 +172,13 @@ def unassign_editor(request, article_id, editor_id):
 
 @senior_editor_user_required
 def assignment_notification(request, article_id, editor_id):
+    """
+    A senior editor can sent a notification to an assigned editor.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param editor_id: Account PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     editor = get_object_or_404(core_models.Account, pk=editor_id)
     assignment = get_object_or_404(models.EditorAssignment, article=article, editor=editor, notified=False)
@@ -182,6 +217,7 @@ def assignment_notification(request, article_id, editor_id):
 
 @editor_user_required
 def move_to_review(request, article_id, should_redirect=True):
+    """Moves an article into the review stage"""
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
     if article.editorassignment_set.all().count() > 0:
@@ -205,6 +241,12 @@ def move_to_review(request, article_id, should_redirect=True):
 @editor_is_not_author
 @editor_user_required
 def in_review(request, article_id):
+    """
+    Displays an article's review management page
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review_rounds = models.ReviewRound.objects.filter(article=article)
     revisions_requests = models.RevisionRequest.objects.filter(article=article)
@@ -253,6 +295,13 @@ def in_review(request, article_id):
 @editor_is_not_author
 @editor_user_required
 def delete_review_round(request, article_id, round_id):
+    """
+    Deletes a review round if it is not already closed.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param round_id: Round PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review_round = get_object_or_404(models.ReviewRound, pk=round_id)
 
@@ -284,6 +333,13 @@ def delete_review_round(request, article_id, round_id):
 @article_decision_not_made
 @editor_user_required
 def add_files(request, article_id, round_id):
+    """
+    Interface for adding files to a review round.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param round_id: Round PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article.objects.prefetch_related('manuscript_files'), pk=article_id)
     review_round = get_object_or_404(models.ReviewRound.objects.prefetch_related('review_files'), pk=round_id)
 
@@ -312,6 +368,7 @@ def add_files(request, article_id, round_id):
 @article_decision_not_made
 @editor_user_required
 def remove_file(request, article_id, round_id, file_id):
+    """Removes a file from a review round."""
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review_round = get_object_or_404(models.ReviewRound, pk=round_id)
     file = get_object_or_404(core_models.File, pk=file_id)
@@ -564,6 +621,12 @@ def do_review(request, assignment_id):
 
 @reviewer_user_for_assignment_required
 def thanks_review(request, assignment_id):
+    """
+    Displays thank you message for the assignment form.
+    :param request: HttpRequest object
+    :param assignment_id: ReviewAssignment PK
+    :return: HttpResponse
+    """
     access_code = logic.get_access_code(request)
 
     if access_code:
@@ -594,6 +657,12 @@ def thanks_review(request, assignment_id):
 @article_decision_not_made
 @editor_user_required
 def add_review_assignment(request, article_id):
+    """
+    Allow an editor to add a new review assignment
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     form = forms.ReviewAssignmentForm(journal=request.journal)
     new_reviewer_form = core_forms.QuickUserForm()
@@ -670,6 +739,13 @@ def add_review_assignment(request, article_id):
 @article_decision_not_made
 @editor_user_required
 def notify_reviewer(request, article_id, review_id):
+    """
+    Allows the editor to send a notification the the assigned peer reviewer
+    :param request: HttpRequest object
+    :param article_id: Articke PK
+    :param review_id: ReviewAssignment PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
@@ -758,6 +834,14 @@ def view_review(request, article_id, review_id):
 @editor_is_not_author
 @article_edit_user_required
 def edit_review_answer(request, article_id, review_id, answer_id):
+    """
+    Allows an Editor to tweak an answer given for a peer review question.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param review_id: ReviewAssignment PK
+    :param answer_id: ReviewAssignmentAnswer PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
     answer = get_object_or_404(models.ReviewAssignmentAnswer, pk=answer_id)
@@ -1148,6 +1232,13 @@ def request_revisions_notification(request, article_id, revision_id):
 @editor_is_not_author
 @article_edit_user_required
 def edit_revision_request(request, article_id, revision_id):
+    """
+    View allows an Editor to edit an existing Revision
+    :param request: HttpRequest object
+    :param article_id: Artickle PK
+    :param revision_id: Revision PK
+    :return: HttpResponse
+    """
     revision_request = get_object_or_404(models.RevisionRequest,
                                          article__pk=article_id,
                                          pk=revision_id)
@@ -1302,6 +1393,13 @@ def replace_file(request, article_id, revision_id, file_id):
 
 @article_author_required
 def upload_new_file(request, article_id, revision_id):
+    """
+    View allows an author to upload  new file to their article.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param revision_id: RevisionRequest PK
+    :return: Httpresponse or HttpRedirect
+    """
     revision_request = get_object_or_404(models.RevisionRequest, article__pk=article_id, pk=revision_id,
                                          date_completed__isnull=True)
     article = revision_request.article
@@ -1335,6 +1433,13 @@ def upload_new_file(request, article_id, revision_id):
 @editor_is_not_author
 @editor_user_required
 def view_revision(request, article_id, revision_id):
+    """
+    Allows an Editor to view a revisionrequest
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param revision_id: RevisionRequest PK
+    :return: HttpResponse
+    """
     revision_request = get_object_or_404(models.RevisionRequest.objects.select_related('article'),
                                          pk=revision_id,
                                          article__pk=article_id)
@@ -1350,6 +1455,13 @@ def view_revision(request, article_id, revision_id):
 
 @editor_user_required
 def review_warning(request, article_id):
+    """
+    Checks if an editor user is the author of an article amd blocks their access temporarily.
+    If overwritten, all Editors are notified.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse or HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
     if request.POST and request.user.is_staff:
@@ -1515,6 +1627,11 @@ def edit_draft_decision(request, article_id, draft_id):
 
 @staff_member_required
 def review_forms(request):
+    """
+    Displays a list of review formd and allows new ones to be created.
+    :param request: HttpRequest object
+    :return: HttpResponse or HttpRedirect
+    """
     form_list = models.ReviewForm.objects.filter(journal=request.journal)
 
     form = forms.NewForm()
@@ -1540,6 +1657,13 @@ def review_forms(request):
 
 @staff_member_required
 def edit_review_form(request, form_id, element_id=None):
+    """
+    Allows the editing of an existing review form
+    :param request: HttpRequest object
+    :param form_id: ReviewForm PK
+    :param element_id: Element PK, optional
+    :return: HttpResponse or HttpRedirect
+    """
     edit_form = get_object_or_404(models.ReviewForm, pk=form_id)
 
     form = forms.NewForm(instance=edit_form)
@@ -1592,6 +1716,7 @@ def edit_review_form(request, form_id, element_id=None):
 
 @staff_member_required
 def preview_form(request, form_id):
+    """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
 
