@@ -699,6 +699,12 @@ def publish_article(request, article_id):
 @require_POST
 @production_user_or_editor_required
 def publish_article_check(request, article_id):
+    """
+    A POST onl view that updates checklist items on the prepublication page.
+    :param request: HttpRequest object
+    :param article_id: Artcle object PK
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article,
                                 Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
                                 Q(stage=submission_models.STAGE_PUBLISHED),
@@ -730,6 +736,13 @@ def publish_article_check(request, article_id):
 
 @editor_user_required
 def manage_issues(request, issue_id=None, event=None):
+    """
+    Displays a list of Issue objects, allows them to be sorted and viewed.
+    :param request: HttpRequest object
+    :param issue_id: Issue object PJ
+    :param event: string, 'issue', 'delete' or 'remove'
+    :return: HttpResponse object or HttpRedirect if POSTed
+    """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
     issue, modal, form = None, None, issue_forms.NewIssue()
@@ -931,6 +944,12 @@ def manage_archive(request):
 
 @editor_user_required
 def manage_archive_article(request, article_id):
+    """
+    Allows an editor to edit a previously published article.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse or HttpRedirect if Posted
+    """
     from production import logic as production_logic
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
@@ -1034,6 +1053,11 @@ def become_reviewer(request):
 
 
 def contact(request):
+    """
+    Displays a form that allows a user to contact admins or editors.
+    :param request: HttpRequest object
+    :return: HttpResponse or HttpRedirect if POST
+    """
     subject = request.GET.get('subject', '')
     contact_form = forms.ContactForm(subject=subject)
 
@@ -1062,6 +1086,12 @@ def contact(request):
 
 
 def editorial_team(request, group_id=None):
+    """
+    Displays a list of Editorial team members, an optional ID can be supplied to limit the display to a group only.
+    :param request: HttpRequest object
+    :param group_id: EditorailGroup object PK
+    :return: HttpResponse object
+    """
     if group_id:
         editorial_groups = core_models.EditorialGroup.objects.filter(journal=request.journal, pk=group_id)
     else:
@@ -1077,6 +1107,11 @@ def editorial_team(request, group_id=None):
 
 
 def sitemap(request):
+    """
+    Renders an XML sitemap based on articles and pages available to the journal.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     articles = submission_models.Article.objects.filter(date_published__lte=timezone.now(), journal=request.journal)
     cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
 
@@ -1090,7 +1125,11 @@ def sitemap(request):
 
 
 def search(request):
-
+    """
+    Allows a user to search for articles by name or author name.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     articles = []
     search_term = None
 
@@ -1129,6 +1168,11 @@ def search(request):
 
 
 def submissions(request):
+    """
+    Displays a submission information page with info on sections and licenses etc.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template = 'journal/submissions.html'
     context = {
         'sections': submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal),
@@ -1140,6 +1184,12 @@ def submissions(request):
 
 @editor_user_required
 def manage_article_log(request, article_id):
+    """
+    Displays a list of article log items.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     content_type = ContentType.objects.get_for_model(article)
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
@@ -1153,7 +1203,14 @@ def manage_article_log(request, article_id):
     return render(request, template, context)
 
 
+@editor_user_required
 def new_note(request, article_id):
+    """
+    Generates a new Note object, must be POST.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
     if request.POST:
@@ -1179,6 +1236,13 @@ def new_note(request, article_id):
 
 @editor_user_required
 def delete_note(request, article_id, note_id):
+    """
+    Deletes a Note object.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param note_id: Note object PK
+    :return: HttpResponse
+    """
     note = get_object_or_404(submission_models.Note, pk=note_id)
     note.delete()
 
