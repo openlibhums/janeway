@@ -286,6 +286,13 @@ def edit_typesetter_assignment(request, typeset_id):
 
 @typesetter_user_required
 def typesetter_requests(request, typeset_id=None, decision=None):
+    """
+    Allows Typesetters to view requests
+    :param request: HttpRequest object
+    :param typeset_id: TypesetTask object PK
+    :param decision: string, 'accept' or 'decline'
+    :return: HttpResponse
+    """
     if typeset_id and decision:
         typeset_task = get_object_or_404(models.TypesetTask,
                                          pk=typeset_id,
@@ -331,6 +338,12 @@ def typesetter_requests(request, typeset_id=None, decision=None):
 
 @typesetter_or_editor_required
 def do_typeset_task(request, typeset_id):
+    """
+    Displays a form for completing typeset tasks
+    :param request: HttpRequest object
+    :param typeset_id: TypesetTask object PK
+    :return: HttpResponse or HttpRedirect
+    """
     typeset_task = get_object_or_404(models.TypesetTask,
                                      pk=typeset_id,
                                      accepted__isnull=False,
@@ -394,6 +407,14 @@ def do_typeset_task(request, typeset_id):
 
 @typesetter_or_editor_required
 def edit_galley(request, galley_id, typeset_id=None, article_id=None):
+    """
+    Allows a typesetter or editor to edit a Galley file.
+    :param request: HttpRequest object
+    :param galley_id: Galley object PK
+    :param typeset_id: TypesetTask PK, optional
+    :param article_id: Article PK, optiona
+    :return: HttpRedirect or HttpResponse
+    """
     if typeset_id:
         typeset_task = get_object_or_404(models.TypesetTask,
                                          pk=typeset_id,
@@ -470,6 +491,13 @@ def review_typeset_task(request, article_id, typeset_id):
 
 @typesetter_or_editor_required
 def delete_galley(request, typeset_id, galley_id):
+    """
+    Allows for deletion of a Galley
+    :param request: HttpRequest object
+    :param typeset_id: TypesetTask object PK
+    :param galley_id: Galley object PK
+    :return:
+    """
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
     galley.file.unlink_file()
     galley.delete()
