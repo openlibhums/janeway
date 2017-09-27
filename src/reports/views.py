@@ -16,7 +16,11 @@ from security.decorators import editor_user_required
 
 @editor_user_required
 def index(request):
-
+    """
+    Displays a list of reports.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
     template = 'reports/index.html'
     context = {}
 
@@ -25,7 +29,11 @@ def index(request):
 
 @editor_user_required
 def metrics(request):
-
+    """
+    Displays paginated list of articles and their metrics.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
     articles = models.Article.objects.filter(journal=request.journal, stage=models.STAGE_PUBLISHED)
     paginator = Paginator(articles, 25)
 
@@ -49,7 +57,11 @@ def metrics(request):
 
 @editor_user_required
 def dois(request):
-
+    """
+    Displays a list of BrokenDOI objects.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     broken_dois = ident_models.BrokenDOI.objects.filter(article__journal=request.journal)
 
     if request.POST and 'run' in request.POST:
