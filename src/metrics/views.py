@@ -23,10 +23,22 @@ from bs4 import BeautifulSoup
 def sushi(request):
     # a hacky SOAP implementation
     # test this using pycounter (from pip)
-    # report = pycounter.sushi.get_report(wsdl_url='http://localhost:8000/metrics/sushi/', start_date=datetime.date(2015,1,1), end_date=datetime.date(2017,1,31), requestor_id="myreqid", customer_reference="refnum", report="JR1", release=4)
+    # report = pycounter.sushi.get_report(wsdl_url='http://localhost:8000/metrics/sushi/',
+    # start_date=datetime.date(2015,1,1), end_date=datetime.date(2017,1,31), requestor_id="myreqid",
+    # customer_reference="refnum", report="JR1", release=4)
 
     # input looks like this:
-    # b'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<SOAP-ENV:Envelope xmlns:counter="http://www.niso.org/schemas/counter" xmlns:sushicounter="http://www.niso.org/schemas/sushi/counter" xmlns:sushi="http://www.niso.org/schemas/sushi" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">\n  <SOAP-ENV:Body>\n    <sushicounter:ReportRequest Created="2017-01-21T18:45:38.463223+00:00" ID="e102313a-96b4-4bc6-81c4-529aa9a5dffc">\n      <sushi:Requestor>\n        <sushi:ID>myreqid</sushi:ID>\n        <sushi:Name/>\n        <sushi:Email/>\n      </sushi:Requestor>\n      <sushi:CustomerReference>\n        <sushi:ID>refnum</sushi:ID>\n        <sushi:Name/>\n      </sushi:CustomerReference>\n      <sushi:ReportDefinition Name="JR1" Release="4">\n        <sushi:Filters>\n          <sushi:UsageDateRange>\n            <sushi:Begin>2015-01-01</sushi:Begin>\n            <sushi:End>2017-01-31</sushi:End>\n          </sushi:UsageDateRange>\n        </sushi:Filters>\n      </sushi:ReportDefinition>\n    </sushicounter:ReportRequest>\n  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n'
+    # b'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n
+    # <SOAP-ENV:Envelope xmlns:counter="http://www.niso.org/schemas/counter"
+    # xmlns:sushicounter="http://www.niso.org/schemas/sushi/counter" xmlns:sushi="http://www.niso.org/schemas/sushi"
+    # xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">\n  <SOAP-ENV:Body>\n
+    # <sushicounter:ReportRequest Created="2017-01-21T18:45:38.463223+00:00" ID="e102313a-96b4-4bc6-81c4-529aa9a5dffc">
+    # \n      <sushi:Requestor>\n        <sushi:ID>myreqid</sushi:ID>\n        <sushi:Name/>\n        <sushi:Email/>\n
+    #      </sushi:Requestor>\n      <sushi:CustomerReference>\n        <sushi:ID>refnum</sushi:ID>\n
+    #    <sushi:Name/>\n      </sushi:CustomerReference>\n      <sushi:ReportDefinition Name="JR1" Release="4">\n
+    #      <sushi:Filters>\n          <sushi:UsageDateRange>\n            <sushi:Begin>2015-01-01</sushi:Begin>\n
+    #        <sushi:End>2017-01-31</sushi:End>\n          </sushi:UsageDateRange>\n        </sushi:Filters>\n
+    #    </sushi:ReportDefinition>\n    </sushicounter:ReportRequest>\n  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n'
     body = BeautifulSoup(request.body, 'xml')
 
     # TODO: pass through parameters like the requestor ID etc. and echo them back in the XML
