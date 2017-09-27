@@ -20,6 +20,11 @@ from submission import models as submission_models
 
 
 def index(request):
+    """
+    Press index page, displays blocks of HomepageElement objects
+    :param request: HttpRequest object
+    :return: HttpResponse object or journal_views.home if there is a request,journal
+    """
     if request.journal is not None:
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
@@ -46,6 +51,11 @@ def index(request):
 
 
 def journals(request):
+    """
+    Displays a filterable list of journals that are not marked as hidden
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template = "press/press_journals.html"
 
     journal_objects = journal_models.Journal.objects.filter(hide_from_press=False).order_by('sequence')
@@ -126,6 +136,11 @@ def edit_press(request):
 
 
 def serve_press_cover(request):
+    """
+    Returns the Press's cover file
+    :param request: HttpRequest object
+    :return: HttpStreamingResponse object with file
+    """
     p = press_models.Press.get_press(request)
 
     response = files.serve_press_cover(request, p)
