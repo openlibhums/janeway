@@ -13,7 +13,11 @@ from core import files
 
 @staff_member_required
 def index(request):
-
+    """
+    Dislays a form allowing a user to upload an image file.
+    :param request: HttpRequest object
+    :return: HttpResponse or if request.POST: HttpRedirect
+    """
     if request.POST:
         file = request.FILES.get('press_logo')
         file = files.save_file_to_press(request, file, 'Press Logo', '')
@@ -30,7 +34,11 @@ def index(request):
 
 @staff_member_required
 def journal(request):
-
+    """
+    Displays a journal's settings form for editing during the install process.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     settings_to_get = ['journal_name', 'journal_issn', 'publisher_name', 'publisher_url']
     initial_items = logic.get_initial_settings(request.journal, settings_to_get)
 
@@ -56,7 +64,11 @@ def journal(request):
 
 @staff_member_required
 def next(request):
-
+    """
+    Displays a list of links of things a user should edit next after installing a new journal.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     template = 'install/next.html'
     context = {}
 
