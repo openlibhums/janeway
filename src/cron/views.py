@@ -14,11 +14,21 @@ from utils import setting_handler
 
 @staff_member_required
 def home(request):
+    """
+    Does nothing
+    :param request: HttpRequest object
+    :return: pass
+    """
     pass
 
 
 @staff_member_required
 def reminders_index(request):
+    """
+    Displays a list of Reminders and allows new ones to be created and existing ones to be deleted.
+    :param request: HttpRequest object
+    :return: HttpResponse or HttpRedirect if the template does not exist
+    """
     reminders = models.Reminder.objects.filter(journal=request.journal)
 
     form = forms.ReminderForm()
@@ -57,6 +67,12 @@ def reminders_index(request):
 
 @staff_member_required
 def edit_reminder(request, reminder_id):
+    """
+    Allows for editing an existing Reminder object.
+    :param request: HttpRequest object
+    :param reminder_id: Reminder object PK
+    :return: HttpResponse
+    """
     reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
     reminders = models.Reminder.objects.filter(journal=request.journal)
 
@@ -81,6 +97,13 @@ def edit_reminder(request, reminder_id):
 
 @staff_member_required
 def create_template(request, reminder_id, template_name):
+    """
+    If a new Reminder.template doesn't exist, they are redirected here to create a new one.
+    :param request: HttpRequest object
+    :param reminder_id: Reminder object PK
+    :param template_name: string, Reminder.template string
+    :return: if POST HttpRedirect otherwise HttpResponse
+    """
     reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
 
     if request.POST:
