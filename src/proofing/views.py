@@ -26,6 +26,11 @@ from journal import models as journal_models
 
 @proofing_manager_or_editor_required
 def proofing_list(request):
+    """
+    Displays lists of articles and proofing assignments
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
     assigned_table = proofing_models.ProofingAssignment.objects.all()
     my_table = proofing_models.ProofingAssignment.objects.values_list('article_id', flat=True).filter(
         proofing_manager=request.user)
@@ -55,6 +60,13 @@ def proofing_list(request):
 
 @proofing_manager_or_editor_required
 def proofing_assign_article(request, article_id, user_id=None):
+    """
+    Assigns a Proofing Manager with a task
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param user_id: Account object PK
+    :return: HttpRedirect
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
     user = get_object_or_404(core_models.Account, pk=user_id)
 
@@ -83,6 +95,12 @@ def proofing_assign_article(request, article_id, user_id=None):
 
 @proofing_manager_or_editor_required
 def proofing_unassign_article(request, article_id):
+    """
+    Unassigns a proofing manager assignment
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpRedirect
+    """
     article = submission_models.Article.objects.get(id=article_id, journal=request.journal)
 
     if not article.proofingassignment.current_proofing_round().proofingtask_set.all():
@@ -95,6 +113,12 @@ def proofing_unassign_article(request, article_id):
 
 @proofing_manager_for_article_required
 def proofing_article(request, article_id):
+    """
+    Displays the proofing control page, allows PM to add tasks, edit galleys and mark proofing as complete
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpRedirect if POST or HttpResponse
+    """
     article = get_object_or_404(submission_models.Article.objects.select_related('productionassignment'), pk=article_id,
                                 journal=request.journal)
     proofreaders = logic.get_all_possible_proofers(journal=request.journal, article=article)
@@ -145,7 +169,15 @@ def proofing_article(request, article_id):
     return render(request, template, context)
 
 
+@proofing_manager_for_article_required
 def edit_proofing_assignment(request, article_id, proofing_task_id):
+    """
+    Allows a PM to edit an existing ProofingTask
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param proofing_task_id: ProofingTask PK
+    :return: HttpRedirect or HttpResponse
+    """
     article = get_object_or_404(submission_models.Article,
                                 pk=article_id,
                                 journal=request.journal)
@@ -196,6 +228,13 @@ def edit_proofing_assignment(request, article_id, proofing_task_id):
 
 @proofing_manager_for_article_required
 def notify_proofreader(request, article_id, proofing_task_id):
+    """
+    Optionally, a PM can notify an proofreader of their assignment.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param proofing_task_id: ProofingTask PK
+    :return: HttpRedirect or HttpResponse
+    """
     article = get_object_or_404(submission_models.Article.objects.select_related('productionassignment'), pk=article_id)
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     user_message_content = logic.get_notify_proofreader(request, article, proofing_task)
@@ -225,6 +264,14 @@ def notify_proofreader(request, article_id, proofing_task_id):
 
 @proofreader_or_typesetter_required
 def proofing_requests(request, proofing_task_id=None, typeset_task_id=None, decision=None):
+    """
+    Displays proofing request to proofreaders
+    :param request: HttpRequest object
+    :param proofing_task_id: ProofingTask PK
+    :param typeset_task_id: TypesetTask PK
+    :param decision: string,
+    :return: HttpResponse or HttpRedirect
+    """
     if proofing_task_id or typeset_task_id:
 
         if proofing_task_id:
@@ -252,6 +299,13 @@ def proofing_requests(request, proofing_task_id=None, typeset_task_id=None, deci
 
 @proofreader_for_article_required
 def do_proofing(request, proofing_task_id, article_id=None):
+    """
+    Allows a proofreader to undertake a proofingtask
+    :param request: HttpRequest object
+    :param proofing_task_id: ProofingTask object PK
+    :param article_id: Article object PK
+    :return: HttpResponse object
+    """
     if not article_id:
         proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id, completed__isnull=True)
         proofing_manager = False
@@ -282,6 +336,13 @@ def do_proofing(request, proofing_task_id, article_id=None):
 
 @proofreader_for_article_required
 def preview_galley(request, proofing_task_id, galley_id):
+    """
+    Displays a preview of a galley object
+    :param request: HttpRequest object
+    :param proofing_task_id: ProofingTask object PK
+    :param galley_id: Galley object PK
+    :return: HttpResponse
+    """
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
 
@@ -303,6 +364,13 @@ def preview_galley(request, proofing_task_id, galley_id):
 
 @proofing_manager_for_article_required
 def request_typesetting_changes(request, article_id, proofing_task_id):
+    """
+    Allows a PM to request typesetters make changes to an article's Galleys.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param proofing_task_id: ProofingTask PK
+    :return: HttpReponse
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
 
@@ -349,6 +417,14 @@ def request_typesetting_changes(request, article_id, proofing_task_id):
 
 @proofing_manager_for_article_required
 def notify_typesetter_changes(request, article_id, proofing_task_id, typeset_task_id):
+    """
+    Optionally, we can send the typesetter a notification
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :param proofing_task_id: ProofingTask PK
+    :param typeset_task_id: TypesetterProofingTask PK
+    :return: HttpRedirect or HttpResponse
+    """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     typeset_task = get_object_or_404(models.TypesetterProofingTask, pk=typeset_task_id)
@@ -384,6 +460,12 @@ def notify_typesetter_changes(request, article_id, proofing_task_id, typeset_tas
 
 @typesetter_for_corrections_required
 def typesetting_corrections(request, typeset_task_id):
+    """
+    Allows a typesetter to undertake corrections
+    :param request: HttpRequest object
+    :param typeset_task_id: TypesetterProofingTask PK
+    :return: HttpRedirect or HttpResponse
+    """
     typeset_task = get_object_or_404(models.TypesetterProofingTask, pk=typeset_task_id)
     article = typeset_task.proofing_task.round.assignment.article
     form = forms.CompleteCorrections(instance=typeset_task)
@@ -414,6 +496,14 @@ def typesetting_corrections(request, typeset_task_id):
 
 @proofing_manager_for_article_required
 def acknowledge(request, article_id, model_name, model_pk):
+    """
+    Acks a ProofingTask or TypesetterProofingTask
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param model_name: string, name of a model
+    :param model_pk: int, PK of model
+    :return: HttpRedirect or HttpResponse
+    """
     model, model_object = logic.get_model_and_object(model_name, model_pk)
     article = get_object_or_404(submission_models.Article, pk=article_id)
     text = logic.get_ack_message(request, article, model_name, model_object)
@@ -445,6 +535,12 @@ def acknowledge(request, article_id, model_name, model_pk):
 
 @proofing_manager_for_article_required
 def complete_proofing(request, article_id):
+    """
+    Allows a proofing manager to mark proofing a complete
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse object
+    """
     article = get_object_or_404(submission_models.Article,
                                 stage=submission_models.STAGE_PROOFING,
                                 pk=article_id)
@@ -477,6 +573,13 @@ def complete_proofing(request, article_id):
 
 @proofreader_for_article_required
 def new_note(request, proofing_task_id, galley_id):
+    """
+    Allows proofreaders to generate new notes against their Task.
+    :param request: HttpRequest object
+    :param proofing_task_id: ProofingTask object PK
+    :param galley_id: Galley object PK
+    :return: HttpResponse
+    """
     if request.user.is_staff:
         proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     else:
@@ -509,6 +612,13 @@ def new_note(request, proofing_task_id, galley_id):
 
 @proofreader_for_article_required
 def delete_note(request, proofing_task_id, galley_id):
+    """
+    Allows Proofreader to delete a note
+    :param request: HttpRequest object
+    :param proofing_task_id: ProofingTask object PK
+    :param galley_id: Galley object PK
+    :return: HttpResponse
+    """
     if request.user.is_staff:
         get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     else:
@@ -532,6 +642,9 @@ def delete_note(request, proofing_task_id, galley_id):
 
 @proofreader_for_article_required
 def proofing_download(request, proofing_task_id, file_id):
+    """
+    Serves a galley for proofreader
+    """
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     file = get_object_or_404(core_models.File, pk=file_id)
 
