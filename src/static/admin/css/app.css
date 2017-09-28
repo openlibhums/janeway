@@ -3720,9 +3720,18 @@ table {
     border-top: 0; } }
 
 table.scroll {
-  display: block;
+  display: table;
   width: 100%;
-  overflow-x: auto; }
+  overflow-x: auto;
+}
+
+@media screen and (max-width: 768px) {
+  table.scroll {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+}
 
 table.hover thead tr:hover {
   background-color: #f3f3f3; }

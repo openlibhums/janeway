@@ -90,3 +90,5 @@ src/utils/management/commands/import_news\.py
 src/themes/OLH/
 src/core/settings/
 src/utils/management/commands/redirects\.py
+.vscode/**
+
