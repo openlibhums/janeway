@@ -583,7 +583,7 @@ def edit_setting(request, setting_group, setting_name):
     if request.POST:
         value = request.POST.get('value')
         if request.FILES:
-            value = handle_file(request, request.FILES['value'])
+            value = logic.handle_file(request, setting_value, request.FILES['value'])
 
         setting_value.value = value
         setting_value.save()
@@ -597,6 +597,7 @@ def edit_setting(request, setting_group, setting_name):
         'setting': setting_value.setting,
         'group': setting_value.setting.group,
         'edit_form': edit_form,
+        'value': setting_value.value
     }
 
     return render(request, template, context)

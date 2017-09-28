@@ -511,3 +511,13 @@ def check_for_bad_login_attempts(request):
 
     attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address)
     return attempts.count()
+
+
+def handle_file(request, setting_value, file):
+
+    if setting_value.value:
+        file_to_delete = models.File.objects.get(pk=setting_value.value)
+        files.unlink_journal_file(request, file_to_delete)
+
+    file = files.save_file_to_journal(request, file, setting_value.setting.name, 'A setting file.')
+    return file.pk

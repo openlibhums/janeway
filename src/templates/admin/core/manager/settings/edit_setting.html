@@ -34,6 +34,9 @@
                                 {{ edit_form.as_p }}
                             {% else %}
                                 {% bootstrap_form edit_form layout='inline' %}
+                                {% if setting.types == 'file' %}
+                                    <a href="{% url 'journal_file' value %}">Download File</a>
+                                    {% endif %}
                             {% endif %}
 
                             {% buttons %}

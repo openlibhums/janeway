@@ -1247,3 +1247,12 @@ def delete_note(request, article_id, note_id):
     note.delete()
 
     return HttpResponse
+
+
+def download_journal_file(request, file_id):
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    if file.privacy == 'public' or request.user.is_staff or request.user.is_editor(request):
+        return files.serve_journal_cover(request, file)
+    else:
+        raise Http404

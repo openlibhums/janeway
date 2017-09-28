@@ -183,6 +183,8 @@ if settings.URL_CONFIG == 'domain':
         url(r'profile/(?P<uuid>[0-9a-f-]+)/$', core_views.public_profile, name='core_public_profile'),
 
         url(r'^sitemap/$', journal_views.sitemap, name='journal_sitemap'),
+
+        url(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
     ]
 
     # Allow Django to serve static content only in debug/dev mode
