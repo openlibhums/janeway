@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
 import uuid
+import json
 
 from django.conf import settings
 from django.db import models
@@ -36,6 +37,15 @@ def press_carousel_choices():
     )
 
 
+def press_text(type):
+    file = open(os.path.join(settings.BASE_DIR, 'utils', 'install', 'press_text.json'), 'r')
+    text = json.loads(file.read())[0]
+    if type == 'registration': 
+        return text.get('registration')
+    elif type == 'reset':
+        return text.get('reset')
+
+
 class Press(models.Model):
     name = models.CharField(max_length=600)
     domain = models.CharField(max_length=255, default='localhost', unique=True)
@@ -55,8 +65,8 @@ class Press(models.Model):
     featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
     carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)
 
-    password_reset_text = models.TextField(blank=True, null=True)
-    registration_text = models.TextField(blank=True, null=True)
+    password_reset_text = models.TextField(blank=True, null=True, default=press_text('reset'))
+    registration_text = models.TextField(blank=True, null=True, default=press_text('registration'))
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
