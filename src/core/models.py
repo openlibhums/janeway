@@ -204,7 +204,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     enable_digest = models.BooleanField(default=False)
     enable_public_profile = models.BooleanField(default=False, help_text='If enabled, your basic profile will be '
-                                                                        'available to the public.')
+                                                'available to the public.')
 
     date_joined = models.DateTimeField(default=timezone.now)
 

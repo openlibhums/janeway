@@ -38,7 +38,6 @@ class JournalForm(forms.ModelForm):
         return journal
 
 
-
 class ContactForm(forms.ModelForm):
 
     if settings.CAPTCHA_TYPE == 'simple_math':

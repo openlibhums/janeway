@@ -72,4 +72,3 @@ class Command(BaseCommand):
         journal.domain = new_domain
         journal.save()
         print('... [Ok]')
-

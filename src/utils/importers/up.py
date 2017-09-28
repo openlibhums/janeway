@@ -250,8 +250,8 @@ def import_issue_images(journal, user, url):
         for section in sections_to_order:
             print('[{0}] {1}'.format(section_order, section.getText()))
             order_section, c = models.Section.objects.language('en').get_or_create(
-                                                          name=section.getText().strip(),
-                                                          journal=journal)
+                name=section.getText().strip(),
+                journal=journal)
             journal_models.SectionOrdering.objects.create(issue=issue,
                                                           section=order_section,
                                                           order=section_order).save()

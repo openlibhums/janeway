@@ -884,8 +884,6 @@ def issue_order(request):
         ids = [int(_id) for _id in request.POST.getlist('issues[]')]
 
 
-
-
 @csrf_exempt
 @editor_user_required
 def issue_article_order(request, issue_id=None):
@@ -1252,7 +1250,8 @@ def delete_note(request, article_id, note_id):
 def download_journal_file(request, file_id):
     file = get_object_or_404(core_models.File, pk=file_id)
 
-    if file.privacy == 'public' or (request.user.is_authenticated() and request.user.is_staff) or (request.user.is_authenticated() and request.user.is_editor(request)):
+    if file.privacy == 'public' or (request.user.is_authenticated() and request.user.is_staff) or \
+            (request.user.is_authenticated() and request.user.is_editor(request)):
         return files.serve_journal_cover(request, file)
     else:
         raise Http404

@@ -340,7 +340,7 @@ def edit_profile(request):
 
                 if (new_pass_one == new_pass_two):
                     problems = request.user.password_policy_check(request, new_pass_one)
-                    if not problems :
+                    if not problems:
                         request.user.set_password(new_pass_one)
                     else:
                         [messages.add_message(request, messages.INFO, problem) for problem in problems]

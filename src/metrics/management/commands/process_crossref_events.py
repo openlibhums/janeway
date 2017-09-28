@@ -95,5 +95,4 @@ class Command(BaseCommand):
             # Fetch data
             print('Fetching data from crossref event tracking API.')
             fetch_crossref_data(file_path)
-            #process_events(file_path)
-
+            # process_events(file_path)

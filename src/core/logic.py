@@ -462,7 +462,7 @@ def order_pinned_articles(request, pinned_articles):
         pin.sequence = ids.index(pin.pk)
         pin.save()
 
-        
+
 def password_policy_check(request):
     """
     Takes a given string and tests it against the password policy of the press.
@@ -484,8 +484,8 @@ def password_policy_check(request):
     problems = [p for p in [r(password) for r in rules] if p != True]
 
     return problems
-  
-  
+
+
 def get_ua_and_ip(request):
     user_agent = request.META.get('HTTP_USER_AGENT', None)
     ip_address = shared.get_ip_address(request)
