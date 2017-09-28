@@ -240,6 +240,10 @@ def get_settings_to_edit(group, journal):
         settings = process_setting_list(journal_settings, 'general', journal)
         settings[2]['choices'] = get_theme_list()
         setting_group = 'general'
+        settings.append({
+            'name': 'from_address',
+            'object': setting_handler.get_setting('email', 'from_address', journal),
+        })
 
     else:
         settings = []
