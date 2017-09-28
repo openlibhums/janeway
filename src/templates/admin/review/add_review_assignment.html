@@ -33,14 +33,27 @@
                             <th>Name</th>
                             <th>Email Address</th>
                             <th>Active Reviews</th>
-                            <th>Interests</th>
+                            <th width="35%">Interests</th>
                             <th>Average Score</th>
                             <th>Quick Assign</th>
                         </tr>
                         </thead>
 
                         <tbody>
+                        {% for reviewer_role in suggested_reviewers %}
+                            <tr style="color: forestgreen">
+                                <td><input type="radio" name="reviewer" value="{{ reviewer_role.user.id }}"></td>
+                                <td>{{ reviewer_role.user.full_name }}</td>
+                                <td>{{ reviewer_role.user.email }}</td>
+                                <td>{{ reviewer_role.user.active_reviews|length }}</td>
+                                <td>{% for interest in reviewer_role.user.interest.all %}{{ interest.name }}
+                                    {% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td>{{ reviewer_role.user.average_reviewer_score }}</td>
+                                <td><button type="submit" name="quick_assign" value="{{ reviewer_role.user.id }}" class="small success button">Assign with Defaults</button></td>
+                            </tr>
+                        {% endfor %}
                         {% for reviewer_role in reviewers %}
+                            {% if not reviewer_role in suggested_reviewers %}
                             <tr>
                                 <td><input type="radio" name="reviewer" value="{{ reviewer_role.user.id }}"></td>
                                 <td>{{ reviewer_role.user.full_name }}</td>
@@ -51,6 +64,7 @@
                                 <td>{{ reviewer_role.user.average_reviewer_score }}</td>
                                 <td><button type="submit" name="quick_assign" value="{{ reviewer_role.user.id }}" class="small success button">Assign with Defaults</button></td>
                             </tr>
+                            {% endif %}
                         {% empty %}
                             <tr>
                                 <td>No suitable reviewers.</td>

@@ -24,6 +24,19 @@ def get_reviewers(article, request=None):
     return core_models.AccountRole.objects.filter(role__slug='reviewer').exclude(user__pk__in=reviewers)
 
 
+def get_suggested_reviewers(article, reviewers):
+    suggested_reviewers = []
+    keywords = [keyword.word for keyword in article.keywords.all()]
+    for reviewer_role in reviewers:
+        interests = [interest.name for interest in reviewer_role.user.interest.all()]
+        for interest in interests:
+            if interest in keywords:
+                suggested_reviewers.append(reviewer_role)
+                break
+
+    return suggested_reviewers
+
+
 def get_assignment_content(request, article, editor, assignment):
     email_context = {
         'article': article,

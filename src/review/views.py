@@ -667,6 +667,7 @@ def add_review_assignment(request, article_id):
     form = forms.ReviewAssignmentForm(journal=request.journal)
     new_reviewer_form = core_forms.QuickUserForm()
     reviewers = logic.get_reviewers(article, request)
+    suggested_reviewers = logic.get_suggested_reviewers(article, reviewers)
     user_list = logic.get_enrollable_users(request)
 
     modal = None
@@ -730,6 +731,7 @@ def add_review_assignment(request, article_id):
         'new_reviewer_form': new_reviewer_form,
         'modal': modal,
         'user_list': user_list,
+        'suggested_reviewers': suggested_reviewers,
     }
 
     return render(request, template, context)
