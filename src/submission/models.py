@@ -254,6 +254,16 @@ class Keyword(models.Model):
         return self.word
 
 
+class ArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
+
+
+class PreprintManager(models.Manager):
+    def get_queryset(self):
+        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+
+
 class Article(models.Model):
     journal = models.ForeignKey('journal.Journal')
     # Metadata
@@ -344,6 +354,10 @@ class Article(models.Model):
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
     is_preprint = models.BooleanField(default=False)
+
+    objects = ArticleManager()
+    preprints = PreprintManager()
+
     class Meta:
         ordering = ('-date_published', 'title')
 
