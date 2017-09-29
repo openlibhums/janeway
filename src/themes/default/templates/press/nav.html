@@ -43,6 +43,7 @@
                     <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
+                {%  if request.press.enable_preprints %} <li class="nav-item"><a href="{% url 'preprints_home' %}" class="nav-link">Preprints</a></li>{% endif %}
                 <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
                 {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}

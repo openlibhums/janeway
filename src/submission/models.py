@@ -264,6 +264,11 @@ class PreprintManager(models.Manager):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
 
 
+class AllArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(AllArticleManager, self).get_queryset().all()
+
+
 class Article(models.Model):
     journal = models.ForeignKey('journal.Journal')
     # Metadata
@@ -357,6 +362,7 @@ class Article(models.Model):
 
     objects = ArticleManager()
     preprints = PreprintManager()
+    allarticles = AllArticleManager()
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -531,7 +537,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.objects.filter(id=identifier)[0]
+                article = Article.allarticles.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(id_type=identifier_type, identifier=identifier)[0].article
@@ -615,7 +621,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            current_object = Article.objects.get(pk=self.pk)
+            current_object = Article.allarticles.get(pk=self.pk)
             if current_object.stage != self.stage:
                 ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
                                                stage_to=self.stage)

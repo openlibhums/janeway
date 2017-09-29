@@ -270,7 +270,7 @@ def send_submission_acknowledgement(**kwargs):
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'submission_acknowledgement',
                                                               'subject_submission_acknowledgement',
-                                                              article.contact_emails(),
+                                                              article.correspondence_author.email,
                                                               context)
 
     # send to all authors
@@ -283,6 +283,8 @@ def send_submission_acknowledgement(**kwargs):
             role__slug='editor', user__id__in=editor_pks)]
     else:
         editor_emails = request.journal.editor_emails
+
+    print(editor_emails)
 
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'editor_new_submission',

@@ -19,6 +19,9 @@ class ArticleAdmin(admin.ModelAdmin):
     search_fields = ('title', 'subtitle')
     list_filter = ('stage', 'is_import')
 
+    def get_queryset(self, request):
+        return self.model.allarticles.get_queryset()
+
 
 class ArticleLogAdmin(admin.ModelAdmin):
     list_display = ('article', 'stage_from', 'stage_to', 'date_time')
