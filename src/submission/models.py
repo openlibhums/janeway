@@ -343,6 +343,7 @@ class Article(models.Model):
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
+    is_preprint = models.BooleanField(default=False)
     class Meta:
         ordering = ('-date_published', 'title')
 
@@ -357,12 +358,6 @@ class Article(models.Model):
     def has_galley(self):
         return self.galley_set.all().exists()
 
-    @property
-    def is_preprint(self):
-        if self.preprint_set.all():
-            return True
-        else:
-            return False
 
     def journal_sections(self):
         return ((section.id, section.name) for section in self.journal.section_set.all())
