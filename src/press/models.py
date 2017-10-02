@@ -73,6 +73,7 @@ class Press(models.Model):
     password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
 
     enable_preprints = models.BooleanField(default=False)
+    preprints_about = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return u'%s' % self.name
