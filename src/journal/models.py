@@ -219,7 +219,8 @@ class Journal(models.Model):
         return max(orderings) + 1 if orderings else 0
 
     def next_contact_order(self):
-        orderings = [contact.sequence for contact in self.journalcontacts_set.all()]
+        contacts = core_models.Contact.objects.filter(content_type__model='journal', object_id=self.pk)
+        orderings = [contact.sequence for contact in contacts]
         return max(orderings) + 1 if orderings else 0
 
     def next_group_order(self):
