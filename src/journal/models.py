@@ -74,6 +74,7 @@ class Journal(models.Model):
 
     # Nav Items
     nav_home = models.BooleanField(default=True)
+    nav_news = models.BooleanField(default=False)
     nav_articles = models.BooleanField(default=True)
     nav_issues = models.BooleanField(default=True)
     nav_contact = models.BooleanField(default=True)
