@@ -39,12 +39,15 @@ def news(request):
         if request.FILES:
             uploaded_file = request.FILES.get('image_file')
 
-            if request.model_content_type.name == 'journal':
-                new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                core_logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.model_content_type.name == 'press':
-                new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                core_logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
+            if not files.guess_mime(uploaded_file.name) in files.IMAGE_MIMETYPES:
+                form.add_error('image_file', 'File must be an image.')
+            else:
+                if request.model_content_type.name == 'journal':
+                    new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
+                    core_logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
+                elif request.model_content_type.name == 'press':
+                    new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
+                    core_logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
 
         if form.is_valid():
             new_item = form.save(commit=False)
