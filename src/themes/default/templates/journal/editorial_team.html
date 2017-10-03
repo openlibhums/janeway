@@ -8,22 +8,30 @@
 
     {% for group in editorial_groups %}
         <div class="row">
-        <div class="col-md-12">
-            <h4>{{ group.name }}</h4>
-            {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
-        </div>
+            <div class="col-md-12">
+                <h4>{{ group.name }}</h4>
+                {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
+            </div>
             {% for member in group.members %}
-            <div class="col-md-3 row-eq-height">
-                <div class="card" style="width: 20rem;">
-                    <img class="card-img-top img-fluid editorial-image" src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Card image cap">
-                    <div class="card-block">
-                        <h5 class="card-title">{{ member.user.full_name }}</h5>
-                        <p><small>{{ member.user.affiliation }}</small></p>
-                        {% if user.enable_public_profile %}<p><small><a href="{% url 'core_public_profile' member.user.uuid %}">View Profile</a></small></p>{% endif %}
-                        {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                <div class="col-md-3 row-eq-height">
+                    <div class="card" style="width: 20rem;">
+                        <img class="card-img-top img-fluid editorial-image" src="
+                                {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
+                             alt="Card image cap">
+                        <div class="card-block">
+                            <h5 class="card-title">{{ member.user.full_name }}</h5>
+                            <p>
+                                <small>{{ member.user.affiliation }}</small>
+                            </p>
+                            {% if user.enable_public_profile %}
+                                <p>
+                                    <small><a href="{% url 'core_public_profile' member.user.uuid %}">View Profile</a>
+                                    </small>
+                                </p>{% endif %}
+                            {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                        </div>
                     </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
     {% endfor %}
