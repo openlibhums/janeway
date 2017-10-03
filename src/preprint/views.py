@@ -6,10 +6,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import operator
 from functools import reduce
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import Q
 from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from submission import models as submission_models
 from core import models as core_models
@@ -82,10 +83,57 @@ def preprints_search(request, search_term=None):
         search_term = request.POST.get('search_term')
         return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
 
+    paginator = Paginator(articles, 15)
+    page = request.GET.get('page', 1)
+
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
     template = 'preprints/search.html'
     context = {
         'search_term': search_term,
         'articles': articles,
     }
 
+    return render(request, template, context)
+
+
+def preprints_article(request, article_id):
+    """
+    Fetches a single article and displays its metadata
+    :param request: HttpRequest
+    :param article_id: integer, PK of an Article object
+    :return: HttpResponse or Http404 if object not found
+    """
+    article = get_object_or_404(submission_models.Article.preprints.prefetch_related('authors'), pk=article_id,
+                                stage=submission_models.STAGE_PUBLISHED,
+                                date_published__lte=timezone.now())
+
+    try:
+        pdf = article.galley_set.get(type='pdf')
+    except core_models.Galley.DoesNotExist:
+        pdf = None
+
+    template = 'preprints/article.html'
+    context = {
+        'article': article,
+        'galleys': article.galley_set.all(),
+        'pdf': pdf,
+    }
+
+    return render(request, template, context)
+
+
+def preprints_pdf(request, article_id):
+
+    pdf_url = request.GET.get('file')
+
+    template = 'preprints/pdf.html'
+    context = {
+        'pdf_url': pdf_url,
+    }
     return render(request, template, context)

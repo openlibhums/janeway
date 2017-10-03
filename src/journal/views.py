@@ -349,10 +349,13 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
-    store_article_access(request, article, 'download', galley_type=galley.file.label)
+    embed = request.GET.get('embed', False)
+
+    if not embed == 'True':
+        store_article_access(request, article, 'download', galley_type=galley.file.label)
     return files.serve_file(request, galley.file, article)
 
 

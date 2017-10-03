@@ -26,4 +26,12 @@ urlpatterns = [
         views.preprints_search,
         name='preprints_search_with_term'),
 
+    url(r'^view/(?P<article_id>\d+)/$',
+        views.preprints_article,
+        name='preprints_article'),
+
+    url(r'^view/(?P<article_id>\d+)/pdf/$',
+        views.preprints_pdf,
+        name='preprints_pdf'),
+
 ]

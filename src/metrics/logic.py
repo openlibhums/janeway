@@ -226,6 +226,7 @@ def store_article_access(request, article, access_type, galley_type='view'):
 
             else:
                 return None
+
     else:
 
         return None
