@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}{{ user.full_name }} Profile{% endblock %}
+
+{% block body %}
+	<section id="content">
+		<div class="row column">
+            <div class="large-3 columns">
+                <img class="thumbnail editorial-image" src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Profile photo.">
+                <h3>{{ user.full_name }}</h3>
+                <p><strong>Roles: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                <p><strong>Affiliation: </strong><br>{{ user.affiliation }}</p>
+                <p><strong>Country:</strong><br>{{ user.country }}</p>
+            </div>
+            <div class="large-9 columns">
+                <h3>Publications</h3>
+                <hr />
+                {% for article in user.articles %}
+                    {% include "elements/journal/box_article.html" with article=article %}
+                    <hr />
+                {% endfor %}
+            </div>
+		</div>
+	</section>
+{% endblock %}
