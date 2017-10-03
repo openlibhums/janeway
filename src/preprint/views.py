@@ -14,6 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from submission import models as submission_models
 from core import models as core_models
+from metrics.logic import store_article_access
 
 
 def preprints_home(request):
@@ -134,6 +135,8 @@ def preprints_article(request, article_id):
         pdf = article.galley_set.get(type='pdf')
     except core_models.Galley.DoesNotExist:
         pdf = None
+
+    store_article_access(request, article, 'view')
 
     template = 'preprints/article.html'
     context = {
