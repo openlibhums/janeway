@@ -14,9 +14,16 @@ urlpatterns = [
         views.preprints_home,
         name='preprints_home'),
 
-url(r'^about/$',
-        views.preprints_about,
-        name='preprints_about'),
+    url(r'^about/$',
+            views.preprints_about,
+            name='preprints_about'),
 
+    url(r'^search/$',
+            views.preprints_search,
+            name='preprints_search'),
+
+    url(r'^search/(?P<search_term>.*)/$',
+        views.preprints_search,
+        name='preprints_search_with_term'),
 
 ]
