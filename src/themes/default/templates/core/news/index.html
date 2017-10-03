@@ -22,17 +22,19 @@
         {% endfor %}
     </div>
     <div class="pagination-block">{{ page }}
-            <ul class="d-flex justify-content-center">
-                {% if news_items.has_previous %}
-                    <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
-                    &nbsp;{% endif %}
-                {{ news_items.page.page_range }}
-                {% for page in news_items.paginator.page_range %}
-                    <a href="?page={{ page }}" class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>&nbsp;
-                {% endfor %}
-                {% if news_items.has_next %}
-                    <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
-                {% endif %}
-            </ul>
-        </div>
+        <ul class="d-flex justify-content-center">
+            {% if news_items.has_previous %}
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                &nbsp;{% endif %}
+            {{ news_items.page.page_range }}
+            {% for page in news_items.paginator.page_range %}
+                <a href="?page={{ page }}"
+                   class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
+                &nbsp;
+            {% endfor %}
+            {% if news_items.has_next %}
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+            {% endif %}
+        </ul>
+    </div>
 {% endblock body %}
