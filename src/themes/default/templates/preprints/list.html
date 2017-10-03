@@ -47,9 +47,25 @@
                             </div>
                         </div>
                     </div>
-                    {% empty %}
-                    <p>No preprints match this search term.</p>
                 {% endfor %}
+
+                <div class="pagination-block">{{ page }}
+                    <ul class="d-flex justify-content-center">
+                        {% if articles.has_previous %}
+                            <a href="?page={{ articles.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                            &nbsp;{% endif %}
+                        {{ articles.page.page_range }}
+                        {% for page in articles.paginator.page_range %}
+                            <a href="?page={{ page }}"
+                               class="btn {% if articles.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
+                            &nbsp;
+                        {% endfor %}
+                        {% if articles.has_next %}
+                            <a href="?page={{ articles.next_page_number }}"
+                               class="btn btn-outline-primary">&raquo;</a>
+                        {% endif %}
+                    </ul>
+                </div>
 
             </div>
             <aside class="col-md-4 columns" data-sticky-container>
@@ -65,6 +81,15 @@
                                            placeholder="Search preprints..." style="width: 100%;"
                                            {% if search_term %}value="{{ search_term }}"{% endif %}>
                                 </div>
+                                <p><small>You can search by:</small></p>
+                                <small>
+                                    <ul>
+                                        <li>Title</li>
+                                        <li>Keywords</li>
+                                        <li>Author Name</li>
+                                        <li>Author Institution</li>
+                                    </ul>
+                                </small>
                             </div>
                             <input type="submit" style="visibility: hidden;"/>
                         </form>

@@ -47,6 +47,32 @@ def preprints_about(request):
     return render(request, template, context)
 
 
+def preprints_list(request):
+    """
+    Displays a list of all published preprints.
+    :param request: HttpRequest
+    :return: HttpResponse
+    """
+    articles = submission_models.Article.preprints.filter(date_published__lte=timezone.now())
+
+    paginator = Paginator(articles, 15)
+    page = request.GET.get('page', 1)
+
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    template = 'preprints/list.html'
+    context = {
+        'articles': articles,
+    }
+
+    return render(request, template, context)
+
+
 def preprints_search(request, search_term=None):
     """
     Searches through preprints based on their titles and authors
@@ -83,15 +109,6 @@ def preprints_search(request, search_term=None):
         search_term = request.POST.get('search_term')
         return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
 
-    paginator = Paginator(articles, 15)
-    page = request.GET.get('page', 1)
-
-    try:
-        articles = paginator.page(page)
-    except PageNotAnInteger:
-        articles = paginator.page(1)
-    except EmptyPage:
-        articles = paginator.page(paginator.num_pages)
 
     template = 'preprints/search.html'
     context = {

@@ -34,4 +34,8 @@ urlpatterns = [
         views.preprints_pdf,
         name='preprints_pdf'),
 
+    url(r'^list/$',
+        views.preprints_list,
+        name='preprints_list'),
+
 ]
