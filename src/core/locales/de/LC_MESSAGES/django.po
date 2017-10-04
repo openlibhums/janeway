@@ -928,7 +928,7 @@ msgstr "Artikel"
 
 #: themes/OLH/templates/submission/submit_info.html:15
 #: themes/default/templates/submission/submit_info.html:20
-msgid "This article is a preprint"
+msgid "This article is a preprints"
 msgstr ""
 
 #: themes/OLH/templates/submission/submit_review.html:13
