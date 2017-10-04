@@ -14,9 +14,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from preprint import forms
+from preprint import forms, logic as preprint_logic
 from submission import models as submission_models, forms as submission_forms, logic
-from core import models as core_models
+from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
 
@@ -163,6 +163,7 @@ def preprints_pdf(request, article_id):
     return render(request, template, context)
 
 
+@login_required
 def preprints_submit(request, article_id=None):
     """
     Handles initial steps of generating a preprints submission.
@@ -170,7 +171,9 @@ def preprints_submit(request, article_id=None):
     :return: HttpResponse or HttpRedirect
     """
     if article_id:
-        article = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+        article = get_object_or_404(submission_models.Article.preprints,
+                                    pk=article_id,
+                                date_submitted__isnull=True)
     else:
         article = None
 
@@ -187,6 +190,11 @@ def preprints_submit(request, article_id=None):
             article.authors.add(request.user)
             article.correspondence_author = request.user
             article.save()
+
+            submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
+                                                                       author=request.user,
+                                                                       defaults={'order': article.next_author_sort()})
+
             return redirect(reverse('preprints_authors', kwargs={'article_id': article.pk}))
 
     template = 'preprints/submit_start.html'
@@ -199,7 +207,16 @@ def preprints_submit(request, article_id=None):
 
 @login_required
 def preprints_authors(request, article_id):
-    article = get_object_or_404(submission_models.Article.preprints, pk=article_id, owner=request.user)
+    """
+    Handles submission of new authors. Allows users to search for existing authors or add new ones.
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :return: HttpRedirect or HttpResponse
+    """
+    article = get_object_or_404(submission_models.Article.preprints,
+                                pk=article_id,
+                                owner=request.user,
+                                date_submitted__isnull=True)
 
     form = submission_forms.AuthorForm()
     error, modal = None, None
@@ -279,6 +296,9 @@ def preprints_authors(request, article_id):
         messages.add_message(request, messages.SUCCESS, 'Author removed from article.')
         return redirect(reverse('preprints_authors', kwargs={'article_id': article_id}))
 
+    elif request.POST and 'save_continue' in request.POST:
+        return redirect(reverse('preprints_files', kwargs={'article_id': article.pk}))
+
     template = 'preprints/authors.html'
     context = {
         'article': article,
@@ -287,3 +307,104 @@ def preprints_authors(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@login_required
+def preprints_files(request, article_id):
+    """
+    Allows authors to upload files to their preprint. Files are stored against the press in /files/preprints/
+    File submission can be limited to PDF only.
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :return: HttpRedirect or HttpResponse
+    """
+    article = get_object_or_404(submission_models.Article.preprints,
+                                pk=article_id,
+                                owner=request.user,
+                                date_submitted__isnull=True)
+
+    error, modal, form = None, None, submission_forms.FileDetails()
+
+    if request.POST and 'delete' in request.POST:
+        file_id = request.POST.get('delete')
+        file = get_object_or_404(core_models.File, pk=file_id)
+        file.unlink_file(journal=None)
+        file.delete()
+        messages.add_message(request, messages.WARNING, 'File deleted')
+        return redirect(reverse('preprints_files', kwargs={'article_id': article_id}))
+
+    if request.POST and request.FILES:
+
+        form = submission_forms.FileDetails(request.POST)
+        uploaded_file = request.FILES.get('file')
+
+        # If required, check if the file is a PDF:
+        if request.press.preprint_pdf_only and 'manuscript' in request.POST:
+            if not files.guess_mime(uploaded_file.name) == 'application/pdf':
+                form.add_error(None, 'You must upload a PDF for your manuscript')
+                modal = 'manuscript'
+
+        # Check if the form is valid
+        if form.is_valid():
+
+            file = files.save_file_to_article(uploaded_file,
+                                              article,
+                                              request.user,
+                                              form.cleaned_data['label'],
+                                              form.cleaned_data['description'])
+
+            if 'manuscript' in request.POST:
+                article.manuscript_files.add(file)
+
+            elif 'data' in request.POST:
+                article.data_figure_files.add(file)
+
+            messages.add_message(request, messages.INFO, 'File saved.')
+            return redirect(reverse('preprints_files', kwargs={'article_id': article.pk}))
+
+        # Handle displaying modals in event of an error:
+        else:
+            modal = preprint_logic.get_display_modal(request)
+
+    elif request.POST and 'next_step' in request.POST:
+        return redirect(reverse('preprints_review', kwargs={'article_id': article.pk}))
+
+    template = 'preprints/submit_files.html'
+    context = {
+        'article': article,
+        'form': form,
+        'modal': modal,
+    }
+
+    return render(request, template, context)
+
+
+@login_required
+def preprints_review(request, article_id):
+    """
+    Presents information for the user to review before completing the submission process.
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :return: HttpRedirect or HttpResponse
+    """
+    article = get_object_or_404(submission_models.Article.preprints, pk=article_id,
+                                owner=request.user,
+                                date_submitted__isnull=True)
+
+    if request.POST and 'next_step' in request.POST:
+        article.date_submitted = timezone.now()
+        article.stage = submission_models.STAGE_PREPRINT_REVIEW
+        article.current_step = 5
+        article.save()
+
+        messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
+
+    template = 'preprints/review.html'
+    context = {
+        'article': article,
+    }
+
+    return render(request, template, context)
+
+
+

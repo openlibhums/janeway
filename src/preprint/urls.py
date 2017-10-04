@@ -42,8 +42,20 @@ urlpatterns = [
         views.preprints_submit,
         name='preprints_submit'),
 
+    url(r'^submit/(?P<article_id>\d+)/$',
+        views.preprints_submit,
+        name='preprints_submit_with_id'),
+
     url(r'^submit/(?P<article_id>\d+)/authors/$',
         views.preprints_authors,
         name='preprints_authors'),
+
+    url(r'^submit/(?P<article_id>\d+)/files/$',
+        views.preprints_files,
+        name='preprints_files'),
+
+    url(r'^submit/(?P<article_id>\d+)/review/$',
+        views.preprints_review,
+        name='preprints_review'),
 
 ]

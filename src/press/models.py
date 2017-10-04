@@ -74,6 +74,8 @@ class Press(models.Model):
 
     enable_preprints = models.BooleanField(default=False)
     preprints_about = models.TextField(blank=True, null=True)
+    preprint_start = models.TextField(blank=True, null=True)
+    preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
 
     def __str__(self):
         return u'%s' % self.name

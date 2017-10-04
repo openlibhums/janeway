@@ -578,6 +578,13 @@ class File(models.Model):
             except FileNotFoundError:
                 pass
 
+    def unlink_preprint_file(self):
+        path = self.preprint_path()
+        os.unlink(path)
+
+    def preprint_path(self):
+        return os.path.join(settings.BASE_DIR, 'files', 'press', 'preprints', str(self.uuid_filename))
+
     def press_path(self):
         return os.path.join(settings.BASE_DIR, 'files', 'press', str(self.uuid_filename))
 
