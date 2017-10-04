@@ -398,6 +398,7 @@ def preprints_review(request, article_id):
         article.save()
 
         messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
+        return redirect(reverse('preprints_home'))
 
     template = 'preprints/review.html'
     context = {
