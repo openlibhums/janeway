@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{% trans "Preprint Authors" %}{% endblock title %}
+
+{% block body %}
+    <article class="box">
+        <form method="POST">
+            <div class="row column">
+                {% csrf_token %}
+                <h2 class="title-area">{% trans "Preprint Authors for" %} {{ article.title }}</h2>
+                <p>Add authors to your preprint, their information will be displayed alongside the aritcle.</p>
+            </div>
+            <div class="row">
+                {% include "elements/forms/errors.html" with form=form %}
+
+
+                <div class="large-12 columns">
+                    <button class="success button pull-right" type="submit" name="start_submission"><i
+                            class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </article>
+
+{% endblock body %}

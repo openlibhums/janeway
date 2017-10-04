@@ -11,7 +11,9 @@ from django.utils import timezone
 from django.db.models import Q
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 
+from preprint import forms
 from submission import models as submission_models
 from core import models as core_models
 from metrics.logic import store_article_access
@@ -19,7 +21,7 @@ from metrics.logic import store_article_access
 
 def preprints_home(request):
     """
-    Displays the preprints home page with search box and 6 latest preprint publications
+    Displays the preprints home page with search box and 6 latest preprints publications
     :param request: HttpRequest object
     :return: HttpResponse
     """
@@ -156,4 +158,48 @@ def preprints_pdf(request, article_id):
     context = {
         'pdf_url': pdf_url,
     }
+    return render(request, template, context)
+
+
+def preprints_submit(request, article_id=None):
+    """
+    Handles initial steps of generating a preprints submission.
+    :param request: HttpRequest
+    :return: HttpResponse or HttpRedirect
+    """
+    if article_id:
+        article = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+    else:
+        article = None
+
+    form = forms.PreprintInfo(instance=article)
+
+    if request.POST:
+        form = forms.PreprintInfo(request.POST, instance=article)
+
+        if form.is_valid():
+            article = form.save()
+            article.owner = request.user
+            article.is_preprint = True
+            article.current_step = 1
+            article.save()
+            return redirect(reverse('preprints_authors', kwargs={'article_id': article.pk}))
+
+    template = 'preprints/submit_start.html'
+    context = {
+        'form': form
+    }
+
+    return render(request, template, context)
+
+
+@login_required
+def preprints_authors(request, article_id):
+    article = get_object_or_404(submission_models.Article.preprints, pk=article_id, owner=request.user)
+
+    template = 'preprints/authors.html'
+    context = {
+        'article': article,
+    }
+
     return render(request, template, context)
