@@ -861,6 +861,14 @@ class Article(models.Model):
             os.unlink(path)
 
 
+    def next_author_sort(self):
+        current_orders = [order.order for order in ArticleAuthorOrder.objects.filter(article=self)]
+        if not current_orders:
+            return 0
+        else:
+            return max(current_orders) + 1
+
+
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
