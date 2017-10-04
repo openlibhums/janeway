@@ -270,7 +270,7 @@ class AllArticleManager(models.Manager):
 
 
 class Article(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', null=True)
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=300, help_text=_('Your article title'))
