@@ -935,7 +935,7 @@ def preprint_submission(**kwargs):
 
 
     # Send an email to the preprint editor
-    url = request.press_base_url # TODO: Add reverse URL
+    url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
     editor_email_text = 'A new preprint has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
         press=request.press.name,
         url=url,

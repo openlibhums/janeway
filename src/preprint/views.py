@@ -412,4 +412,5 @@ def preprints_review(request, article_id):
     return render(request, template, context)
 
 
-
+def preprints_manager_article(request, article_id):
+    pass

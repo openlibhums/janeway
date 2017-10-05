@@ -58,4 +58,8 @@ urlpatterns = [
         views.preprints_review,
         name='preprints_review'),
 
+    url(r'^manager/(?P<article_id>\d+)/$',
+        views.preprints_manager_article,
+        name='preprints_manager_article'),
+
 ]
