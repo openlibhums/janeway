@@ -44,6 +44,8 @@ def press_text(type):
         return text.get('registration')
     elif type == 'reset':
         return text.get('reset')
+    else:
+        return text.get(type)
 
 
 class Press(models.Model):
@@ -76,6 +78,8 @@ class Press(models.Model):
     preprints_about = models.TextField(blank=True, null=True)
     preprint_start = models.TextField(blank=True, null=True)
     preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
+    preprint_submission = models.TextField(blank=True, null=True, default=press_text('submission'))
+    preprint_publication = models.TextField(blank=True, null=True, default=press_text('publication'))
 
     def __str__(self):
         return u'%s' % self.name

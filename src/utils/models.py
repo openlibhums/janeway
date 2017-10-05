@@ -26,6 +26,7 @@ LOG_TYPES = [
     ('Error', 'Error'),
     ('Authentication', 'Authentication'),
     ('Submission', 'Submission'),
+    ('Publication', 'Publication')
 ]
 
 LOG_LEVELS = [

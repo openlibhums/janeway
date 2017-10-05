@@ -19,6 +19,7 @@ from submission import models as submission_models, forms as submission_forms, l
 from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
+from events import logic as event_logic
 
 
 def preprints_home(request):
@@ -396,6 +397,9 @@ def preprints_review(request, article_id):
         article.stage = submission_models.STAGE_PREPRINT_REVIEW
         article.current_step = 5
         article.save()
+
+        kwargs = {'request': request, 'article': article}
+        event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_SUBMISSION, **kwargs)
 
         messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
         return redirect(reverse('preprints_home'))
