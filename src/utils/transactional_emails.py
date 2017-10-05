@@ -941,8 +941,10 @@ def preprint_submission(**kwargs):
         url=url,
         title=article.title
     )
-    # TODO: Send the email
-    # util_models.LogEntry.add_entry('email', editor_email_text, 'info', request.user, request, article)
+    for editor in request.press.preprint_editors.all():
+        notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
+                                                      editor_email_text)
+    util_models.LogEntry.add_entry('email', editor_email_text, 'info', request.user, request, article)
 
 
 def preprint_publication(**kwargs):
