@@ -393,6 +393,7 @@ def preprints_review(request, article_id):
                                 date_submitted__isnull=True)
 
     if request.POST and 'next_step' in request.POST:
+        # TODO: reduce this code to an article function submit_preprint
         article.date_submitted = timezone.now()
         article.stage = submission_models.STAGE_PREPRINT_REVIEW
         article.current_step = 5
@@ -450,4 +451,31 @@ def preprints_manager(request):
 
 @staff_member_required
 def preprints_manager_article(request, article_id):
-    pass
+    """
+    Displays the metadata associated with the article and presents options for the editor to accept or decline the
+    preprint, replace its files and set a publication date.
+    :param request: HttpRequest object
+    :param article_id: int, Article object PK
+    :return: HttpResponse or HttpRedirect if successful POST.
+    """
+    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+
+    if request.POST:
+
+        if 'accept' in request.POST:
+            preprint.accept_preprint(request)
+
+        if 'decline' in request.POST:
+            preprint.decline_preprint(request)
+
+        if 'upload' in request.POST:
+            preprint_logic.handle_file_upload(request, preprint)
+
+    template = 'admin/preprints/article.html'
+    context = {
+        'preprint': preprint,
+    }
+
+    return render(request, template, context)
+
+

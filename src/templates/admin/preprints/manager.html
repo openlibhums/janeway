@@ -27,7 +27,7 @@
                         <tbody>
                         {% for preprint in unpublished_preprints %}
                             <tr>
-                                <td>{{ preprint.title|safe }}</td>
+                                <td><a href="{% url 'preprints_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
                                 <td>{{ preprint.date_submitted }}</td>
                                 <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
                             </tr>
@@ -88,7 +88,7 @@
                         <tbody>
                         {% for preprint in published_preprints %}
                             <tr>
-                                <td>{{ preprint.title|safe }}</td>
+                                <td><a href="{% url 'preprints_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
                                 <td>{{ preprint.date_submitted }}</td>
                                 <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
                             </tr>
