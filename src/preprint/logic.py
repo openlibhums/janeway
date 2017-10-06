@@ -4,6 +4,7 @@ import calendar
 from django.utils import timezone
 
 from metrics import models as metrics_models
+from production.logic import save_galley
 
 
 def get_display_modal(request):
@@ -62,3 +63,18 @@ def metrics_summary(published_preprints):
 
     return {'views': views, 'downloads': downloads,
             'last_views': last_views, 'last_downloads': last_downloads}
+
+
+def handle_file_upload(request, preprint):
+    if 'xml' in request.POST:
+        for uploaded_file in request.FILES.getlist('xml-file'):
+            new_galley = save_galley(preprint, request, uploaded_file, True, "XML", False)
+
+    if 'pdf' in request.POST:
+        for uploaded_file in request.FILES.getlist('pdf-file'):
+            new_galley = save_galley(preprint, request, uploaded_file, True, "PDF", False)
+
+    if 'other' in request.POST:
+        for uploaded_file in request.FILES.getlist('other-file'):
+            new_galley = save_galley(preprint, request, uploaded_file, True, "Other", True)
+

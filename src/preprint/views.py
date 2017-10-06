@@ -393,7 +393,7 @@ def preprints_review(request, article_id):
                                 date_submitted__isnull=True)
 
     if request.POST and 'next_step' in request.POST:
-        # TODO: reduce this code to an article function submit_preprint
+        # TODO: reduce this code to an article function submit_preprint?
         article.date_submitted = timezone.now()
         article.stage = submission_models.STAGE_PREPRINT_REVIEW
         article.current_step = 5
