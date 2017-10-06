@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
 from functools import reduce
+from datetime import timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.utils import timezone
@@ -12,6 +13,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 
 from preprint import forms, logic as preprint_logic
@@ -115,7 +117,6 @@ def preprints_search(request, search_term=None):
         search_term = request.POST.get('search_term')
         return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
 
-
     template = 'preprints/search.html'
     context = {
         'search_term': search_term,
@@ -154,7 +155,6 @@ def preprints_article(request, article_id):
 
 
 def preprints_pdf(request, article_id):
-
     pdf_url = request.GET.get('file')
 
     template = 'preprints/pdf.html'
@@ -174,7 +174,7 @@ def preprints_submit(request, article_id=None):
     if article_id:
         article = get_object_or_404(submission_models.Article.preprints,
                                     pk=article_id,
-                                date_submitted__isnull=True)
+                                    date_submitted__isnull=True)
     else:
         article = None
 
@@ -412,5 +412,42 @@ def preprints_review(request, article_id):
     return render(request, template, context)
 
 
+@staff_member_required
+def preprints_manager(request):
+    """
+    Displays preprint information and management interfaces for them.
+    :param request: HttpRequest
+    :return: HttpResponse or HttpRedirect
+    """
+    unpublished_preprints = submission_models.Article.preprints.filter(
+        date_published__isnull=True,
+        date_submitted__isnull=False).prefetch_related(
+        'articleauthororder_set'
+    )
+    published_preprints = submission_models.Article.preprints.filter(
+        date_published__isnull=False,
+        date_submitted__isnull=False).prefetch_related(
+        'articleauthororder_set'
+    )
+    incomplete_preprints = submission_models.Article.preprints.filter(date_published__isnull=True,
+                                                                      date_submitted__isnull=True)
+    rejected_preprints = submission_models.Article.preprints.filter(date_declined__isnull=False)
+
+    metrics_summary = preprint_logic.metrics_summary(published_preprints)
+
+
+    template = 'admin/preprints/manager.html'
+    context = {
+        'unpublished_preprints': unpublished_preprints,
+        'published_preprints': published_preprints,
+        'incomplete_preprints': incomplete_preprints,
+        'rejected_preprints': rejected_preprints,
+        'metrics_summary': metrics_summary,
+    }
+
+    return render(request, template, context)
+
+
+@staff_member_required
 def preprints_manager_article(request, article_id):
     pass
