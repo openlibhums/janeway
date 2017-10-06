@@ -40,8 +40,6 @@ def metrics_summary(published_preprints):
     last_month_date = timezone.now() - relativedelta(months=1)
     first_last_month, last_last_month = get_month_day_range(last_month_date)
 
-    print(published_preprints)
-
     views = metrics_models.ArticleAccess.objects.filter(accessed__gte=first_this_month,
                                                         accessed__lte=last_this_month,
                                                         article__in=published_preprints,
