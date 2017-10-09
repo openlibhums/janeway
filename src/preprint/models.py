@@ -37,5 +37,8 @@ class Comment(models.Model):
     is_reviewed = models.BooleanField(default=False)
     is_public = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ('-date_time', '-pk')
+
     def __str__(self):
         return 'Comment by {author} on {article}'.format(author=self.author.full_name(), article=self.article.title)
