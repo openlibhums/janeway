@@ -856,3 +856,24 @@ def press_only(func):
         return func(request, *args, **kwargs)
 
     return wrapper
+
+
+def preprint_editor_or_author_required(func):
+    """
+    Checks that the current user is either a preprint editor or is an author for the current paper
+    :param func:
+    :return:
+    """
+
+    def wrapper(request, *args, **kwargs):
+        if not base_check(request):
+            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path))
+
+        article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
+
+        if request.user in article.authors.all() or request.user.is_staff:
+            return func(request, *args, **kwargs)
+
+        # TODO: Check subject preprint editors
+
+    return wrapper

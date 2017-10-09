@@ -22,6 +22,7 @@ from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
 from events import logic as event_logic
+from security.decorators import preprint_editor_or_author_required
 
 
 def preprints_home(request):
@@ -528,7 +529,7 @@ def preprints_notification(request, article_id):
     return render(request, template, context)
 
 
-# Todo: Add security decorator
+@preprint_editor_or_author_required
 def preprints_comments(request, article_id):
     """
     Presents an interface for authors and editors to mark comments as publicly readable.
