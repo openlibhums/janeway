@@ -202,6 +202,7 @@
                     <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
                         Contact the Author</a></li>
                     <li><a href="{% url 'manage_article_log' preprint.pk %}">Log</a></li>
+                    <li><a href="{% url 'preprints_comments' preprint.pk %}">Comments ({{ preprint.comment_set.all|length }})</a></li>
                     {% if not preprint.date_accepted and not preprint.date_declined %}
                         <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept
                             Article</a></li>
