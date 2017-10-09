@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
 import os
+from dateutil import parser as dateparser
 
 from django.urls import reverse
 from django.db import models
@@ -263,6 +264,14 @@ class Keyword(models.Model):
         return self.word
 
 
+
+class AllArticleManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return super(AllArticleManager, self).get_queryset().all()
+
+
 class ArticleManager(models.Manager):
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
@@ -271,11 +280,6 @@ class ArticleManager(models.Manager):
 class PreprintManager(models.Manager):
     def get_queryset(self):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
-
-
-class AllArticleManager(models.Manager):
-    def get_queryset(self):
-        return super(AllArticleManager, self).get_queryset().all()
 
 
 class Article(models.Model):
@@ -368,10 +372,11 @@ class Article(models.Model):
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
     is_preprint = models.BooleanField(default=False)
+    preprint_decision_notification = models.BooleanField(default=False)
 
+    allarticles = AllArticleManager()
     objects = ArticleManager()
     preprints = PreprintManager()
-    allarticles = AllArticleManager()
 
     class Meta:
         ordering = ('-date_published', 'title')
@@ -777,6 +782,13 @@ class Article(models.Model):
         self.date_declined = timezone.now()
         self.date_accepted = None
         self.stage = STAGE_REJECTED
+        self.save()
+
+    def accept_preprint(self, date, time):
+        self.date_accepted = timezone.now()
+        self.date_declined = None
+        self.stage = STAGE_PREPRINT_PUBLISHED
+        self.date_published = dateparser.parse('{date} {time}'.format(date=date, time=time))
         self.save()
 
     def user_is_author(self, user):

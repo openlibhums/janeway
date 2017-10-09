@@ -1,10 +1,12 @@
 from dateutil.relativedelta import relativedelta
-import calendar
 
 from django.utils import timezone
 
 from metrics import models as metrics_models
 from production.logic import save_galley
+from core import models as core_models
+from utils import render_template
+from events import logic as event_logic
 
 
 def get_display_modal(request):
@@ -78,3 +80,42 @@ def handle_file_upload(request, preprint):
         for uploaded_file in request.FILES.getlist('other-file'):
             new_galley = save_galley(preprint, request, uploaded_file, True, "Other", True)
 
+
+def determie_action(preprint):
+    if preprint.date_accepted and not preprint.date_declined:
+        return 'accept'
+    else:
+        return 'decline'
+
+
+def get_pdf(article):
+    try:
+        pdf = article.galley_set.get(type='pdf')
+    except core_models.Galley.DoesNotExist:
+        try:
+            pdf = article.galley_set.get(file__mime_type='application/pdf')
+        except core_models.Galley.DoesNotExist:
+            pdf = None
+
+    return pdf
+
+
+def get_publication_text(request, article, action):
+    context = {
+        'article': article,
+        'request': request,
+        'action': action,
+    }
+
+    template = request.press.preprint_publication
+    email_content = render_template.get_message_content(request, context, template, template_is_setting=True)
+    return email_content
+
+
+def handle_comment_post(request, article, comment):
+    comment.article = article
+    comment.author = request.user
+    comment.save()
+
+    kwargs = {'request': request, 'article': article, 'comment': comment}
+    event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_COMMENT, **kwargs)

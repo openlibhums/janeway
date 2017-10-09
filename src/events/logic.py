@@ -204,6 +204,10 @@ class Events:
     # raised when a preprint is published in the repo
     ON_PREPRINT_PUBLICATION = 'on_preprint_publication'
 
+    # kwargs: request, article, comment
+    # raised when a new comment is submitted for a preprint
+    ON_PREPRINT_COMMENT = 'on_preprint_comment'
+
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
         """

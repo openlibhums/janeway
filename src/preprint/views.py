@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 
-from preprint import forms, logic as preprint_logic
+from preprint import forms, logic as preprint_logic, models
 from submission import models as submission_models, forms as submission_forms, logic
 from core import models as core_models, files
 from metrics.logic import store_article_access
@@ -134,14 +134,25 @@ def preprints_article(request, article_id):
     :return: HttpResponse or Http404 if object not found
     """
     article = get_object_or_404(submission_models.Article.preprints.prefetch_related('authors'), pk=article_id,
-                                stage=submission_models.STAGE_PUBLISHED,
+                                stage=submission_models.STAGE_PREPRINT_PUBLISHED,
                                 date_published__lte=timezone.now())
+    comments = models.Comment.objects.filter(article=article, is_public=True)
+    form = forms.CommentForm()
 
-    try:
-        pdf = article.galley_set.get(type='pdf')
-    except core_models.Galley.DoesNotExist:
-        pdf = None
+    if request.POST:
 
+        if not request.user.is_authenticated:
+            messages.add_message(request, messages.WARNING, 'You must be logged in to comment')
+            return redirect(reverse('core_login'))
+
+        form = forms.CommentForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            preprint_logic.handle_comment_post(request, article, comment)
+            return redirect(reverse('preprints_article', kwargs={'article_id': article_id}))
+
+    pdf = preprint_logic.get_pdf(article)
     store_article_access(request, article, 'view')
 
     template = 'preprints/article.html'
@@ -149,6 +160,8 @@ def preprints_article(request, article_id):
         'article': article,
         'galleys': article.galley_set.all(),
         'pdf': pdf,
+        'comments': comments,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -422,7 +435,9 @@ def preprints_manager(request):
     """
     unpublished_preprints = submission_models.Article.preprints.filter(
         date_published__isnull=True,
-        date_submitted__isnull=False).prefetch_related(
+        date_submitted__isnull=False,
+        date_declined__isnull=True,
+        date_accepted__isnull=True).prefetch_related(
         'articleauthororder_set'
     )
     published_preprints = submission_models.Article.preprints.filter(
@@ -463,13 +478,18 @@ def preprints_manager_article(request, article_id):
     if request.POST:
 
         if 'accept' in request.POST:
-            preprint.accept_preprint(request)
+            date = request.POST.get('date', timezone.now().date())
+            time = request.POST.get('time', timezone.now().time())
+            preprint.accept_preprint(date, time)
+            return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'decline' in request.POST:
-            preprint.decline_preprint(request)
+            preprint.decline_article()
+            return redirect(reverse('preprints_notifictation', kwargs={'article_id': preprint.pk}))
 
         if 'upload' in request.POST:
             preprint_logic.handle_file_upload(request, preprint)
+            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
     template = 'admin/preprints/article.html'
     context = {
@@ -479,3 +499,38 @@ def preprints_manager_article(request, article_id):
     return render(request, template, context)
 
 
+@staff_member_required
+def preprints_notification(request, article_id):
+    """
+    Presents an interface for the preprint editor to notify an author of a decision.
+    :param request: HttpRequest object
+    :param article_id: int, Article object PK
+    :return: HttpResponse or HttpRedirect
+    """
+    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id,
+                                 preprint_decision_notification=False)
+    action = preprint_logic.determie_action(preprint)
+    email_content = preprint_logic.get_publication_text(request, preprint, action)
+
+    if request.POST:
+        email_content = request.POST.get('email_content', '')
+        kwargs = {'request': request, 'article': preprint, 'email_content': email_content}
+        event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_PUBLICATION, **kwargs)
+        return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+
+    template = 'preprints/notification.html'
+    context = {
+        'action': action,
+        'preprint': preprint,
+        'email_content': email_content,
+    }
+
+    return render(request, template, context)
+
+
+def preprints_comments(request, article_id):
+    pass
+
+
+def preprints_comment(request, article_id, comment_id):
+    pass

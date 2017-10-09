@@ -2,13 +2,14 @@
 {% load static from staticfiles %}
 {% load hooks %}
 {% load i18n %}
+{% load foundation %}
 
 {% block title %}{{ article.title }}{% endblock %}
 
 {% block body %}
 
     <div class="row">
-        <br /><br />
+        <br/><br/>
         <div class="large-12 columns">
             <h3>{{ article.title|safe }}</h3>
             <p>
@@ -41,6 +42,39 @@
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen></iframe>
                 {% endif %}
+                <h5>{% trans 'Comments' %}</h5>
+                {% if request.user.is_authenticated %}
+                    <div>
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                            <button type="submit" class="success button">Add Comment</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                {% for comment in comments %}
+                    <div class="callout">
+                        <div class="row">
+                            <div class="large-2 columns">
+                                <img src="{{ comment.author.profile_image.url }}">
+                            </div>
+                            <div class="large-10 columns">
+                                <p>
+                                    <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
+                                        @ {{ comment.date_time }}</small>
+                                </p>
+                                <p>
+                                    {{ comment.body }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="callout">
+                    <p>There are no comments or no comments have been made public for this article.</p>
+                    </div>
+                {% endfor %}
                 {% hook 'article_footer_block' %}
             </div>
         </div>
@@ -81,6 +115,9 @@
                     </div>
 
                     <a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i> All Preprints</a>
+
+                    <p></p>
+
                 </small>
             </div>
         </div>

@@ -66,4 +66,16 @@ urlpatterns = [
         views.preprints_manager_article,
         name='preprints_manager_article'),
 
+    url(r'^manager/(?P<article_id>\d+)/notification/$',
+        views.preprints_notification,
+        name='preprints_notification'),
+
+    url(r'^manager/(?P<article_id>\d+)/comments/$',
+        views.preprints_comments,
+        name='preprints_comments'),
+
+    url(r'^manager/(?P<article_id>\d+)/comments/(?P<comment_id>\d+)/$',
+        views.preprints_comment,
+        name='preprints_comment'),
+
 ]

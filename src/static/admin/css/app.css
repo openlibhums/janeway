@@ -5105,3 +5105,12 @@ ul.actions li a {
 .dataTables_wrapper > .row {
     max-width: 100% !important;
 }
+
+.control-button {
+  width: 100%;
+  text-align: left;
+}
+
+.control-button:hover {
+  cursor: pointer;
+}

@@ -63,7 +63,8 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
 
     # send to assigned editor
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_editor_assignment', editor_assignment.editor.email,
+        notify_helpers.send_email_with_body_from_user(request, 'subject_editor_assignment',
+                                                      editor_assignment.editor.email,
                                                       user_message_content)
         util_models.LogEntry.add_entry(types='Editor Informed of Assignment', description=user_message_content,
                                        level='Info',
@@ -133,7 +134,8 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
 
     # send to requested reviewer
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_review_request_sent', review_assignment.reviewer.email,
+        notify_helpers.send_email_with_body_from_user(request, 'subject_review_request_sent',
+                                                      review_assignment.reviewer.email,
                                                       user_message_content)
         util_models.LogEntry.add_entry(types='Reviewer Notified of Request', description=user_message_content,
                                        level='Info',
@@ -933,7 +935,6 @@ def preprint_submission(**kwargs):
     notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text)
     util_models.LogEntry.add_entry('email', email_text, 'info', request.user, request, article)
 
-
     # Send an email to the preprint editor
     url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
     editor_email_text = 'A new preprint has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
@@ -955,6 +956,7 @@ def preprint_publication(**kwargs):
     """
     request = kwargs.get('request')
     article = kwargs.get('article')
+    email_text = kwargs.get('email_content')
 
     description = '{editor} has published a preprint titled {title}.'.format(editor=request.user.full_name(),
                                                                              title=article.title)
@@ -965,5 +967,27 @@ def preprint_publication(**kwargs):
     context = {'article': article}
     template = request.press.preprint_publication
     email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', article.owner.email, email_text)
+    notify_helpers.send_email_with_body_from_user(request, ' Preprint Submission Decision', article.owner.email,
+                                                  email_text)
+    util_models.LogEntry.add_entry('email', email_text, 'info', request.user, request, article)
 
+    # Stops this notification being sent multiple times.c
+    article.preprint_decision_notification = True
+    article.save()
+
+
+def preprint_comment(**kwargs):
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    comment = kwargs.get('comment')
+
+    email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
+                 '<a href="{base_url}{url}">on the journal site</a>.'.format(
+        article=article.title, base_url=request.press_base_url, url=reverse('preprints_comment',
+                                           kwargs={'article_id': article.pk, 'comment_id': comment.pk}))
+
+    description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
+
+    util_models.LogEntry.add_entry('comment', description, 'info', request.user, request, article)
+    notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
+                                                  email_text)
