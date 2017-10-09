@@ -74,8 +74,4 @@ urlpatterns = [
         views.preprints_comments,
         name='preprints_comments'),
 
-    url(r'^manager/(?P<article_id>\d+)/comments/(?P<comment_id>\d+)/$',
-        views.preprints_comment,
-        name='preprints_comment'),
-
 ]

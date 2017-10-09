@@ -528,9 +528,25 @@ def preprints_notification(request, article_id):
     return render(request, template, context)
 
 
+# Todo: Add security decorator
 def preprints_comments(request, article_id):
-    pass
+    """
+    Presents an interface for authors and editors to mark comments as publicly readable.
+    :param request: HttpRequest object
+    :param article_id: PK of an Article object
+    :return: HttpRedirect if POST, HttpResponse otherwise
+    """
+    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
 
+    if request.POST:
+        preprint_logic.comment_manager_post(request, preprint)
+        return redirect(reverse('preprints_comments', kwargs={'article_id': preprint.pk}))
 
-def preprints_comment(request, article_id, comment_id):
-    pass
+    template = 'admin/preprints/comments.html'
+    context = {
+        'preprint': preprint,
+        'new_comments': preprint.comment_set.filter(is_reviewed=False),
+        'old_comments': preprint.comment_set.filter(is_reviewed=True)
+    }
+
+    return render(request, template, context)

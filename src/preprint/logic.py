@@ -1,12 +1,14 @@
 from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 from metrics import models as metrics_models
 from production.logic import save_galley
 from core import models as core_models
 from utils import render_template
 from events import logic as event_logic
+from preprint import models
 
 
 def get_display_modal(request):
@@ -119,3 +121,26 @@ def handle_comment_post(request, article, comment):
 
     kwargs = {'request': request, 'article': article, 'comment': comment}
     event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_COMMENT, **kwargs)
+
+
+def comment_manager_post(request, preprint):
+    print(request.POST)
+    if 'comment_public' in request.POST:
+        comment_id = request.POST.get('comment_public')
+    else:
+        comment_id = request.POST.get('comment_reviewed')
+
+    comment = get_object_or_404(models.Comment, pk=comment_id, article=preprint)
+
+    if 'comment_public' in request.POST:
+        if comment.is_public:
+            comment.is_public = False
+        else:
+            comment.is_public = True
+
+        comment.is_reviewed = True
+        print(comment.is_public)
+    else:
+        comment.is_reviewed = True
+
+    comment.save()
