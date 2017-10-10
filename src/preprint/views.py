@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import operator
 from functools import reduce
-from datetime import timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.utils import timezone
@@ -37,6 +36,28 @@ def preprints_home(request):
     template = 'preprints/home.html'
     context = {
         'preprints': preprints,
+    }
+
+    return render(request, template, context)
+
+
+@login_required
+def preprints_dashboard(request):
+    """
+    Displays a list of an author's preprints.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
+    preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
+                                                           date_submitted__isnull=False)
+
+    incomplete_preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
+                                                           date_submitted__isnull=True)
+
+    template = 'admin/preprints/dashboard.html'
+    context = {
+        'preprints': preprints,
+        'incomplete_preprints': incomplete_preprints,
     }
 
     return render(request, template, context)

@@ -14,6 +14,10 @@ urlpatterns = [
         views.preprints_home,
         name='preprints_home'),
 
+    url(r'^dashboard/$',
+        views.preprints_dashboard,
+        name='preprints_dashboard'),
+
     url(r'^about/$',
             views.preprints_about,
             name='preprints_about'),
