@@ -22,6 +22,7 @@ class PreprintVersion(models.Model):
     preprint = models.ForeignKey('submission.Article')
     galley = models.ForeignKey('core.Galley')
     version = models.IntegerField(default=1)
+    date_time = models.DateTimeField(default=timezone.now)
 
 
 class Comment(models.Model):
