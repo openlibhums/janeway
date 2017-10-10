@@ -66,8 +66,15 @@
                     <ul class="menu vertical">
                         <li><a href="{% url 'submission_start' %}">Submit</a></li>
                         <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-                        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-                        <li><a href="/admin/">Admin</a></li>
+                        {% if request.press.enable_preprints %}
+                            <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a></li>
+                        {% endif %}
+                        {% if is_editor or request.user.is_staff %}
+                            <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                        {% endif %}
+                        {% if request.user.is_staff %}
+                            <li><a href="/admin/">Admin</a></li>
+                        {% endif %}
                         <li><a href="{% url 'core_logout' %}">Logout</a></li>
                     </ul>
                 </div>
