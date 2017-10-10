@@ -71,8 +71,11 @@ def preprints_author_article(request, article_id):
     :param article_id: Article PK
     :return: HttpRedirect if POST or HttpResponse
     """
-    preprint = get_object_or_404(models.Article.preprints, pk=article_id)
+    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
     metrics_summary = preprint_logic.metrics_summary([preprint])
+
+    if request.POST:
+        preprint_logic.handle_author_post(request, preprint)
 
     template = 'admin/preprints/author_article.html'
     context = {

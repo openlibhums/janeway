@@ -21,6 +21,7 @@ from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
+from preprint import models as preprint_models
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
@@ -889,6 +890,12 @@ class Article(models.Model):
         else:
             return max(current_orders) + 1
 
+    def next_preprint_version(self):
+        versions = [version.version for version in preprint_models.PreprintVersion.objects.filter(preprint=self)]
+        if not versions:
+            return 1
+        else:
+            return max(versions) + 1
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)

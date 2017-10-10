@@ -2,10 +2,11 @@ from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.contrib import messages
 
 from metrics import models as metrics_models
 from production.logic import save_galley
-from core import models as core_models
+from core import models as core_models, files
 from utils import render_template
 from events import logic as event_logic
 from preprint import models
@@ -139,8 +140,39 @@ def comment_manager_post(request, preprint):
             comment.is_public = True
 
         comment.is_reviewed = True
-        print(comment.is_public)
     else:
         comment.is_reviewed = True
 
     comment.save()
+
+
+def handle_author_post(request, preprint):
+
+    file = request.FILES.get('file')
+    upload_type = request.POST.get('upload_type')
+    galley_id = request.POST.get('galley_id')
+    galley = get_object_or_404(core_models.Galley, article=preprint, pk=galley_id)
+
+    if file:
+        if upload_type == 'minor_correction':
+            galley.file.unlink_file()
+            files.overwrite_file(file, preprint, galley.file)
+            messages.add_message(request, messages.SUCCESS, 'Existing file replaced.')
+        elif upload_type == 'new_version':
+            models.PreprintVersion.objects.create(
+                preprint=preprint,
+                galley=galley,
+                version=preprint.next_preprint_version()
+            )
+            galley.article = None
+            galley.save()
+
+            new_galley = save_galley(preprint, request, file, True, galley.type, False)
+            new_galley.label = galley.label
+            new_galley.save()
+            messages.add_message(request, messages.SUCCESS, 'New version created.')
+
+        else:
+            messages.add_message(request, messages.ERROR, 'Invalid upload type provided.')
+    else:
+        messages.add_message(request, messages.ERROR, 'No file uploaded')

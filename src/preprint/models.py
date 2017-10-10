@@ -7,11 +7,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db import models
 from django.utils import timezone
 
-from submission.models import Article
-
 
 class Preprint(models.Model):
-    article = models.ForeignKey(Article)
+    article = models.ForeignKey('submission.Article')
     doi = models.CharField(max_length=100)
     curent_version = models.IntegerField(default=1)
 

@@ -574,9 +574,10 @@ class File(models.Model):
         if self.article_id:
             try:
                 path = self.self_article_path()
+                print(path)
                 os.unlink(path)
             except FileNotFoundError:
-                pass
+                print('file_not_found')
         elif journal:
             try:
                 path = self.journal_path(journal)
@@ -668,7 +669,7 @@ def galley_type_choices():
 
 class Galley(models.Model):
     # Local Galley
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey('submission.Article', null=True)
     file = models.ForeignKey(File)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
@@ -683,7 +684,7 @@ class Galley(models.Model):
     sequence = models.IntegerField(default=0)
 
     def __str__(self):
-        return "{0} ({1}) - {2}".format(self.id, self.label, self.article.title)
+        return "{0} ({1})".format(self.id, self.label)
 
     def has_missing_image_files(self):
         xml_file_contents = self.file.get_file(self.article)
