@@ -63,6 +63,26 @@ def preprints_dashboard(request):
     return render(request, template, context)
 
 
+@preprint_editor_or_author_required
+def preprints_author_article(request, article_id):
+    """
+    Allows authors to view the metadata and replace galley files for their articles.
+    :param request: HttpRequest
+    :param article_id: Article PK
+    :return: HttpRedirect if POST or HttpResponse
+    """
+    preprint = get_object_or_404(models.Article.preprints, pk=article_id)
+    metrics_summary = preprint_logic.metrics_summary([preprint])
+
+    template = 'admin/preprints/author_article.html'
+    context = {
+        'preprint': preprint,
+        'metrics_summary': metrics_summary,
+    }
+
+    return render(request, template, context)
+
+
 def preprints_about(request):
     """
     Displays the about page with text about preprints

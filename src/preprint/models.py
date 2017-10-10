@@ -21,8 +21,8 @@ class Preprint(models.Model):
 
 
 class PreprintVersion(models.Model):
-    preprint = models.ForeignKey(Preprint)
-    manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='version_files')
+    preprint = models.ForeignKey('submission.Article')
+    galley = models.ForeignKey('core.Galley')
     version = models.IntegerField(default=1)
 
 

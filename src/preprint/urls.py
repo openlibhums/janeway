@@ -18,6 +18,10 @@ urlpatterns = [
         views.preprints_dashboard,
         name='preprints_dashboard'),
 
+    url(r'^dashboard/(?P<article_id>\d+)/$',
+        views.preprints_author_article,
+        name='preprints_author_article'),
+
     url(r'^about/$',
             views.preprints_about,
             name='preprints_about'),
