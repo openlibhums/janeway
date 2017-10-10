@@ -13,9 +13,10 @@
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway JMS</a></li>
 
         {% if request.press.enable_preprints %}
+            {% is_preprint_editor as preprint_editor %}
             <li class="subtitle"><a href="#">Preprints</a></li>
             <li><a href="{% url 'preprints_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Dashboard</a></li>
-            {% if request.user.is_staff %}
+            {% if request.user.is_staff or preprint_editor %}
                 <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Manager</a></li>
             {% endif %}
         {% endif %}

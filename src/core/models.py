@@ -327,6 +327,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_proofing_manager(self, request):
         return self.check_role(request.journal, 'proofing_manager')
 
+    def is_preprint_editor(self, request):
+        if self in request.press.preprint_editors.all():
+            return True
+
+        return False
+
     def snapshot_self(self, article):
         try:
             order = submission_models.ArticleAuthorOrder.objects.get(article=article, author=self).order
