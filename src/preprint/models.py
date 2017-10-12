@@ -24,6 +24,9 @@ class PreprintVersion(models.Model):
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        ordering = ('-date_time',)
+
 
 class Comment(models.Model):
     author = models.ForeignKey('core.Account')
