@@ -25,7 +25,7 @@ class PreprintVersion(models.Model):
     date_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ('-date_time',)
+        ordering = ('-date_time', '-id')
 
 
 class Comment(models.Model):
