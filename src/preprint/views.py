@@ -599,3 +599,27 @@ def preprints_comments(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def preprints_settings(request):
+    """
+    Displays and allows editing of various prepprint settings
+    :param request: HttpRequest
+    :return: HttpRedirect if POST else HttpResponse
+    """
+    form = forms.SettingsForm(instance=request.press)
+
+    if request.POST:
+        form = forms.SettingsForm(request.POST, instance=request.press)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('preprints_settings'))
+
+    template = 'admin/preprints/settings.html'
+    context = {
+        'form': form,
+    }
+
+    return render(request, template, context)

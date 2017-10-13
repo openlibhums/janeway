@@ -82,4 +82,8 @@ urlpatterns = [
         views.preprints_comments,
         name='preprints_comments'),
 
+    url(r'^manager/settings/$',
+        views.preprints_settings,
+        name='preprints_settings'),
+
 ]

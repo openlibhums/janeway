@@ -14,6 +14,7 @@ class PressAdmin(SummernoteModelAdmin):
 
 admin_list = [
     (models.Press, PressAdmin),
+    (models.PressSetting,)
 ]
 
 [admin.site.register(*t) for t in admin_list]

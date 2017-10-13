@@ -1,0 +1,40 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title-section %}Preprint Settings{% endblock %}
+{% block title-sub %}Management interface for {{ request.press.name }} preprint settings{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li>Preprint Manager</li>
+{% endblock %}
+
+{% block body %}
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row expanded">
+            <div class="large-8 columns">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Settings</h2>
+                    </div>
+                    <div class="content">
+                        {{ form|foundation }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="large-4 columns end">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Controls</h2>
+                    </div>
+                    <div class="content">
+                        <button type="submit" class="success button">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

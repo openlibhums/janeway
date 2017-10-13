@@ -12,7 +12,7 @@
         <div class="row column">
             <div class="large-12 columns">
                 <h2 class="text-center">About {{ request.press.name }} Preprints</h2>
-                {% if preprints_about %}
+                {% if request.press.preprints_about %}
                     {{ request.press.preprints_about|safe }}
                 {% else %}
                     <p></p>

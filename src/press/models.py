@@ -225,3 +225,12 @@ class Press(models.Model):
             carousel_objects = article_objects
 
         return self.carousel, carousel_objects
+
+    def get_setting(self, name):
+        return PressSetting.objects.get_or_create(name=name)
+
+
+class PressSetting(models.Model):
+    press = models.ForeignKey(Press)
+    name = models.CharField(max_length=255)
+    value = models.TextField(blank=True, null=True)

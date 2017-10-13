@@ -1,8 +1,11 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django_summernote.widgets import SummernoteWidget
 
 from submission import models as submission_models
 from preprint import models
+from press import models as press_models
+
 
 class PreprintInfo(forms.ModelForm):
     keywords = forms.CharField(required=False)
@@ -23,7 +26,6 @@ class PreprintInfo(forms.ModelForm):
         self.fields['license'].queryset = submission_models.Licence.objects.filter(available_for_submission=True)
         self.fields['license'].required = True
 
-
     def save(self, commit=True, request=None):
         article = super(PreprintInfo, self).save()
 
@@ -40,7 +42,39 @@ class PreprintInfo(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
-
     class Meta:
         model = models.Comment
         fields = ('body',)
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = press_models.Press
+        fields = ('preprints_about', 'preprint_start', 'preprint_submission', 'preprint_publication',
+                  'preprint_pdf_only', 'preprint_editors')
+        widgets = {
+            'preprints_about': SummernoteWidget,
+            'preprint_start': SummernoteWidget,
+            'preprint_submission': SummernoteWidget,
+            'preprint_publication': SummernoteWidget,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(SettingsForm, self).__init__(*args, **kwargs)
+        if 'instance' in kwargs:
+            press = kwargs['instance']
+            settings = press_models.PressSetting.objects.filter(press=press)
+
+            for setting in settings:
+                self.fields[setting.name] = forms.CharField(widget=forms.TextInput(), required=False)
+                self.fields[setting.name].initial = setting.value
+
+    def save(self, commit=True):
+        press = super(SettingsForm, self).save()
+        settings = press_models.PressSetting.objects.filter(press=press)
+
+        print(settings)
+
+        for setting in settings:
+            setting.value = self.cleaned_data[setting.name]
+            setting.save()

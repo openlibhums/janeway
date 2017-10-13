@@ -16,7 +16,8 @@ class PressForm(forms.ModelForm):
 
     class Meta:
         model = models.Press
-        exclude = ('domain', 'thumbnail_image',)
+        exclude = ('domain', 'thumbnail_image', 'preprints_about', 'preprint_start', 'preprint_pdf_only',
+                   'preprint_submission', 'preprint_publication', 'preprint_editors')
         widgets = {'featured_journals': forms.CheckboxSelectMultiple}
 
     def __init__(self, *args, **kwargs):
