@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load bool_fa %}
 
 {% block title-section %}Preprint Subjects{% endblock %}
 {% block title-sub %}Management interface for {{ request.press.name }} preprint subjects{% endblock %}
@@ -28,11 +29,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for preprint in unpublished_preprints %}
+                        {% for subject in subjects%}
                             <tr>
-                                <td><a href="{% url 'preprints_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
-                                <td>{{ preprint.date_submitted }}</td>
-                                <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
+                                <td><a href="">{{ subject.name|safe }}</a></td>
+                                <td>{{ subject.slug }}</td>
+                                <td>{{ subject.enabled|bool_fa }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
