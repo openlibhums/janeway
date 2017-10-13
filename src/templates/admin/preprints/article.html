@@ -203,7 +203,7 @@
                             <th>Filename</th>
                             <th>Label</th>
                             <th>Download</th>
-                            <th>Revert to Version</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -214,7 +214,7 @@
                                 <td>{{ version.galley.file.original_filename|truncatechars:40 }}</td>
                                 <td>{{ version.galley.label }}</td>
                                 <td><a href="{% url 'article_download_galley' preprint.id version.galley.id %}"><i class="fa fa-download"></i></a></td>
-                                <td><form method="POST">{% csrf_token %}<button type="submit" value="{{ version.p }}" class="control-button"><i class="fa fa-backward"></i></button></form></td>
+                                <td><form method="POST">{% csrf_token %}<button type="submit" value="{{ version.pk }}" name="delete" class="control-button"><i class="fa fa-trash"></i></button></form></td>
                             </tr>
                         {% endfor %}
                     </tbody>

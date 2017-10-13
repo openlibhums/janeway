@@ -176,3 +176,15 @@ def handle_author_post(request, preprint):
             messages.add_message(request, messages.ERROR, 'Invalid upload type provided.')
     else:
         messages.add_message(request, messages.ERROR, 'No file uploaded')
+
+
+def handle_delete_version(request, preprint):
+    version_id = request.POST.get('delete')
+
+    if not version_id:
+        messages.add_message(request, messages.WARNING, 'No version id supplied')
+    else:
+        version = get_object_or_404(models.PreprintVersion, pk=version_id, preprint=preprint)
+        version.delete()
+        messages.add_message(request, messages.INFO, 'Version deleted.')
+

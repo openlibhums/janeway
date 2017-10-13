@@ -536,6 +536,10 @@ def preprints_manager_article(request, article_id):
             preprint_logic.handle_file_upload(request, preprint)
             return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
+        if 'delete' in request.POST:
+            preprint_logic.handle_delete_version(request, preprint)
+            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+
     template = 'admin/preprints/article.html'
     context = {
         'preprint': preprint,
