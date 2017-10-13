@@ -646,7 +646,7 @@ def preprints_subjects(request, subject_id=None):
 
     template = 'admin/preprints/subjects.html'
     context = {
-        'subjects': models.Subject.objects.all(),
+        'subjects': models.Subject.objects.all().prefetch_related('editors'),
         'form': form,
     }
 
