@@ -25,7 +25,7 @@
                             <th>Name</th>
                             <th>Slug</th>
                             <th>Enabled</th>
-                            <th>Editors</th>
+                            <th># Editors</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -34,6 +34,7 @@
                                 <td><a href="">{{ subject.name|safe }}</a></td>
                                 <td>{{ subject.slug }}</td>
                                 <td>{{ subject.enabled|bool_fa }}</td>
+                                <td>{{ subject.editors.all|length }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
