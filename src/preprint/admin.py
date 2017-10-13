@@ -8,7 +8,8 @@ from preprint import models
 
 admin_list = [
     (models.PreprintVersion,),
-    (models.Comment,)
+    (models.Comment,),
+    (models.Subject,)
 ]
 
 [admin.site.register(*t) for t in admin_list]
