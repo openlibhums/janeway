@@ -496,6 +496,8 @@ def preprints_manager(request):
 
     metrics_summary = preprint_logic.metrics_summary(published_preprints)
 
+    subjects = models.Subject.objects.filter(enabled=True)
+
 
     template = 'admin/preprints/manager.html'
     context = {
@@ -504,6 +506,7 @@ def preprints_manager(request):
         'incomplete_preprints': incomplete_preprints,
         'rejected_preprints': rejected_preprints,
         'metrics_summary': metrics_summary,
+        'subjects': subjects,
     }
 
     return render(request, template, context)
@@ -619,6 +622,31 @@ def preprints_settings(request):
 
     template = 'admin/preprints/settings.html'
     context = {
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@staff_member_required
+def preprints_subjects(request, subject_id=None):
+
+    if subject_id:
+        subject = get_object_or_404(models.Subject, pk=subject_id)
+    else:
+        subject = None
+
+    form = forms.SubjectForm(instance=subject)
+
+    if request.POST:
+        form = forms.SubjectForm(request.POST, instance=subject)
+
+        if form.is_valid():
+            form.save()
+
+    template = 'admin/preprints/subjects.html'
+    context = {
+        'subjects': models.Subject.objects.all(),
         'form': form,
     }
 

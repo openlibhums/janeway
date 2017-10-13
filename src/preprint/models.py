@@ -44,3 +44,17 @@ class Comment(models.Model):
 
     def __str__(self):
         return 'Comment by {author} on {article}'.format(author=self.author.full_name(), article=self.article.title)
+
+
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(blank=True)
+    editors = models.ManyToManyField('core.Account')
+    preprints = models.ManyToManyField('submission.Article')
+    enabled = models.BooleanField(default=True, help_text='If disabled, this subject will not appear publicly.')
+
+    class Meta:
+        ordering = ('slug', 'pk')
+
+    def __str__(self):
+        return 'Subject: {name}'.format(name=self.name)

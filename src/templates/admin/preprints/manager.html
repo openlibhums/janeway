@@ -45,24 +45,29 @@
                 </div>
                 <div class="content">
                     <div class="summary">
+                        <span class="stat success">{{ subjects|length }}</span>
+                        <span class="title">Subject Areas</span>
+                        <a href="{% url 'preprints_subjects' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
                         <span class="stat success">{{ published_preprints|length }}</span>
                         <span class="title">Published Submissions</span>
-                        <a href="{% url 'review_unassigned' %}" class="box-link"></a>
+                        <a href="" class="box-link"></a>
                     </div>
                     <div class="summary">
                         <span class="stat success">{{ unpublished_preprints|length }}</span>
                         <span class="title">New Submissions</span>
-                        <a href="{% url 'review_home' %}" class="box-link"></a>
+                        <a href="" class="box-link"></a>
                     </div>
                     <div class="summary">
                         <span class="stat">{{ rejected_preprints|length }}</span>
                         <span class="title">Rejected Submissions</span>
-                        <a href="{% url 'copyediting' %}" class="box-link"></a>
+                        <a href="" class="box-link"></a>
                     </div>
                     <div class="summary">
                         <span class="stat alert">{{ incomplete_preprints|length }}</span>
                         <span class="title">Incomplete Submissions</span>
-                        <a href="{% url 'copyediting' %}" class="box-link"></a>
+                        <a href="" class="box-link"></a>
                     </div>
                 </div>
             </div>

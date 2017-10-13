@@ -1,0 +1,57 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title-section %}Preprint Subjects{% endblock %}
+{% block title-sub %}Management interface for {{ request.press.name }} preprint subjects{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
+    <li>Subjects</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-6 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Subjects</h2>
+                </div>
+                <div class="content">
+                    <table class="small" id="unpub">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Slug</th>
+                            <th>Enabled</th>
+                            <th>Editors</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for preprint in unpublished_preprints %}
+                            <tr>
+                                <td><a href="{% url 'preprints_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
+                                <td>{{ preprint.date_submitted }}</td>
+                                <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-6 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Form</h2>
+                </div>
+                <div class="content">
+                    {{ form|foundation }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

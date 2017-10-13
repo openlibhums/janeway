@@ -19,6 +19,10 @@
             {% if request.user.is_staff or preprint_editor %}
                 <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Manager</a></li>
             {% endif %}
+            {% if request.user.is_staff %}
+                <li><a href="{% url 'preprints_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
+                <li><a href="{% url 'preprints_settings' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>
+            {% endif %}
         {% endif %}
 
         {% if request.user.is_staff %}

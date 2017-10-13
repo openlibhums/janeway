@@ -78,3 +78,10 @@ class SettingsForm(forms.ModelForm):
         for setting in settings:
             setting.value = self.cleaned_data[setting.name]
             setting.save()
+
+
+class SubjectForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Subject
+        exclude = ('preprints',)

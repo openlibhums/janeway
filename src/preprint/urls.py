@@ -86,4 +86,8 @@ urlpatterns = [
         views.preprints_settings,
         name='preprints_settings'),
 
+    url(r'^manager/subjects/$',
+        views.preprints_subjects,
+        name='preprints_subjects'),
+
 ]
