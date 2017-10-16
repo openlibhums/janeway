@@ -23,12 +23,12 @@ urlpatterns = [
         name='preprints_author_article'),
 
     url(r'^about/$',
-            views.preprints_about,
-            name='preprints_about'),
+        views.preprints_about,
+        name='preprints_about'),
 
     url(r'^search/$',
-            views.preprints_search,
-            name='preprints_search'),
+        views.preprints_search,
+        name='preprints_search'),
 
     url(r'^search/(?P<search_term>.*)/$',
         views.preprints_search,
@@ -45,6 +45,10 @@ urlpatterns = [
     url(r'^list/$',
         views.preprints_list,
         name='preprints_list'),
+
+    url(r'^list/(?P<subject_slug>[-\w]+)/$',
+        views.preprints_list,
+        name='preprints_list_subject'),
 
     url(r'^submit/start/$',
         views.preprints_submit,

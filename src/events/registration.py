@@ -9,7 +9,7 @@ from journal import logic as journal_logic
 
 # wire up event notifications
 
-from events import logic as event_logic # We always import this as event_logic
+from events import logic as event_logic  # We always import this as event_logic
 
 # Submission
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,

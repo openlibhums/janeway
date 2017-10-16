@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import random
+from django.core.cache import cache
 
 # NB: this module should not import any others in the application. It is a space for communal functions to avoid
 # circular imports and to thereby maintain Python 3.4 compatibility
@@ -30,3 +31,7 @@ def get_ip_address(request):
     else:
         ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
     return ip
+
+
+def clear_cache():
+    cache.clear()

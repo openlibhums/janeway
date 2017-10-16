@@ -48,15 +48,25 @@
             </div>
             <aside class="large-4 columns" data-sticky-container>
                 <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <span class="input-group-label"><i class="fa fa-search"></i></span>
-                            <input class="input-group-field" type="search" name="search_term"
-                                   placeholder="Search preprints" {% if search_term %}value="{{ search_term }}"{% endif %}>
-                        </div>
-                        <input type="submit" style="visibility: hidden;"/>
-                    </form>
+                    <div class="section">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <input class="input-group-field" type="search" name="search_term"
+                                       placeholder="Search preprints"
+                                       {% if search_term %}value="{{ search_term }}"{% endif %}>
+                            </div>
+                            <input type="submit" style="visibility: hidden;"/>
+                            <h5>Searching by:</h5>
+                            <ul>
+                                <li>Title</li>
+                                <li>Keywords</li>
+                                <li>Author Name</li>
+                                <li>Author Affilation</li>
+                            </ul>
+                        </form>
+                    </div>
                 </div>
             </aside>
         </div>

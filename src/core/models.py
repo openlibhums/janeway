@@ -328,7 +328,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.check_role(request.journal, 'proofing_manager')
 
     def is_preprint_editor(self, request):
-        if self in request.press.preprint_editors.all():
+        if self in request.press.preprint_editors():
             return True
 
         return False

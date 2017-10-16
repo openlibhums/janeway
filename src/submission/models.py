@@ -265,7 +265,6 @@ class Keyword(models.Model):
         return self.word
 
 
-
 class AllArticleManager(models.Manager):
     use_for_related_fields = True
 
@@ -392,7 +391,6 @@ class Article(models.Model):
     @property
     def has_galley(self):
         return self.galley_set.all().exists()
-
 
     def journal_sections(self):
         return ((section.id, section.name) for section in self.journal.section_set.all())
@@ -882,7 +880,6 @@ class Article(models.Model):
         if os.path.isfile(path):
             os.unlink(path)
 
-
     def next_author_sort(self):
         current_orders = [order.order for order in ArticleAuthorOrder.objects.filter(article=self)]
         if not current_orders:
@@ -896,6 +893,7 @@ class Article(models.Model):
             return 1
         else:
             return max(versions) + 1
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)

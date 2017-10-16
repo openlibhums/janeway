@@ -29,4 +29,3 @@ def get_requestless_content(context, journal, template, group_name='email'):
     html_content = template.render(Context(context))
 
     return html_content
-

@@ -14,6 +14,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.validators import MinValueValidator
 
 from core import models as core_models
+from utils.function_cache import cache
 
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
@@ -40,7 +41,7 @@ def press_carousel_choices():
 def press_text(type):
     file = open(os.path.join(settings.BASE_DIR, 'utils', 'install', 'press_text.json'), 'r')
     text = json.loads(file.read())[0]
-    if type == 'registration': 
+    if type == 'registration':
         return text.get('registration')
     elif type == 'reset':
         return text.get('reset')
@@ -80,7 +81,6 @@ class Press(models.Model):
     preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
     preprint_submission = models.TextField(blank=True, null=True, default=press_text('submission'))
     preprint_publication = models.TextField(blank=True, null=True, default=press_text('publication'))
-    preprint_editors = models.ManyToManyField('core.Account')
 
     def __str__(self):
         return u'%s' % self.name
@@ -228,6 +228,18 @@ class Press(models.Model):
 
     def get_setting(self, name):
         return PressSetting.objects.get_or_create(name=name)
+
+    @cache(600)
+    def preprint_editors(self):
+        from preprint import models as pp_models
+        editors = list()
+        subjects = pp_models.Subject.objects.all()
+
+        for subject in subjects:
+            for editor in subject.editors.all():
+                editors.append(editor)
+
+        return set(editors)
 
 
 class PressSetting(models.Model):

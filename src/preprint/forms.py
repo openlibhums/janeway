@@ -51,7 +51,7 @@ class SettingsForm(forms.ModelForm):
     class Meta:
         model = press_models.Press
         fields = ('preprints_about', 'preprint_start', 'preprint_submission', 'preprint_publication',
-                  'preprint_pdf_only', 'preprint_editors')
+                  'preprint_pdf_only',)
         widgets = {
             'preprints_about': SummernoteWidget,
             'preprint_start': SummernoteWidget,

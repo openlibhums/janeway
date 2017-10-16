@@ -9,8 +9,10 @@ from django_summernote.admin import SummernoteModelAdmin
 
 from press import models
 
+
 class PressAdmin(SummernoteModelAdmin):
     list_display = ('name', 'domain', 'theme', 'is_secure')
+
 
 admin_list = [
     (models.Press, PressAdmin),

@@ -11,6 +11,7 @@ from core import models as core_models, files
 from utils import render_template
 from events import logic as event_logic
 from preprint import models
+from submission import models as submission_models
 
 
 def get_display_modal(request):
@@ -198,3 +199,8 @@ def handle_delete_subject(request):
     subject.delete()
     return redirect(reverse('preprints_subjects'))
 
+
+def get_subject_articles(subject):
+    subject_article_pks = [article.pk for article in subject.preprints.all()]
+    return submission_models.Article.preprints.filter(pk__in=subject_article_pks,
+                                                      date_published__lte=timezone.now())

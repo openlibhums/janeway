@@ -31,11 +31,14 @@ def preprints_home(request):
     :return: HttpResponse
     """
     preprints = submission_models.Article.preprints.filter(
-        date_published__lte=timezone.now()).order_by('-date_published')[:6]
+        date_published__lte=timezone.now()).order_by('-date_published')[:3]
+
+    subjects = models.Subject.objects.all().prefetch_related('preprints')
 
     template = 'preprints/home.html'
     context = {
         'preprints': preprints,
+        'subjects': subjects,
     }
 
     return render(request, template, context)
@@ -52,7 +55,7 @@ def preprints_dashboard(request):
                                                            date_submitted__isnull=False)
 
     incomplete_preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
-                                                           date_submitted__isnull=True)
+                                                                      date_submitted__isnull=True)
 
     template = 'admin/preprints/dashboard.html'
     context = {
@@ -100,13 +103,18 @@ def preprints_about(request):
     return render(request, template, context)
 
 
-def preprints_list(request):
+def preprints_list(request, subject_slug=None):
     """
     Displays a list of all published preprints.
     :param request: HttpRequest
     :return: HttpResponse
     """
-    articles = submission_models.Article.preprints.filter(date_published__lte=timezone.now())
+    if subject_slug:
+        subject = get_object_or_404(models.Subject, slug=subject_slug)
+        articles = preprint_logic.get_subject_articles(subject)
+    else:
+        subject = None
+        articles = submission_models.Article.preprints.filter(date_published__lte=timezone.now())
 
     paginator = Paginator(articles, 15)
     page = request.GET.get('page', 1)
@@ -121,6 +129,7 @@ def preprints_list(request):
     template = 'preprints/list.html'
     context = {
         'articles': articles,
+        'subject': subject,
     }
 
     return render(request, template, context)
@@ -310,7 +319,6 @@ def preprints_authors(request, article_id):
 
                 return redirect(reverse('preprints_authors', kwargs={'article_id': article_id}))
 
-
     # If a user is trying to search for author without using the modal
     elif request.POST and 'search_authors' in request.POST:
         search = request.POST.get('author_search_text')
@@ -324,7 +332,6 @@ def preprints_authors(request, article_id):
             messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
         except core_models.Account.DoesNotExist:
             messages.add_message(request, messages.WARNING, 'No author found with those details.')
-
 
     # Handles posting from drag and drop.
     elif request.POST and 'authors[]' in request.POST:
@@ -498,7 +505,6 @@ def preprints_manager(request):
 
     subjects = models.Subject.objects.filter(enabled=True)
 
-
     template = 'admin/preprints/manager.html'
     context = {
         'unpublished_preprints': unpublished_preprints,
@@ -641,12 +647,14 @@ def preprints_subjects(request, subject_id=None):
     if request.POST:
 
         if 'delete' in request.POST:
+            utils_shared.clear_cache()
             return preprint_logic.handle_delete_subject(request)
 
         form = forms.SubjectForm(request.POST, instance=subject)
 
         if form.is_valid():
             form.save()
+            utils_shared.clear_cache()
             return redirect(reverse('preprints_subjects'))
 
     template = 'admin/preprints/subjects.html'

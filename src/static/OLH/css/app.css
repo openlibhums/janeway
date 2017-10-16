@@ -5211,3 +5211,7 @@ button.list-group-item-danger.active:focus {
 
 .title-area {
   margin-top: 15px; }
+
+.subjectbutton {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important; }
