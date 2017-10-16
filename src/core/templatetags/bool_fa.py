@@ -10,4 +10,3 @@ def bool_fa(boolean):
         return mark_safe('<i class="fa fa-check-circle"></i>')
     else:
         return mark_safe('<i class="fa fa-times-circle"></i>')
-
