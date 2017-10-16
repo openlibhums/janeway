@@ -21,7 +21,7 @@ from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
 from events import logic as event_logic
-from security.decorators import preprint_editor_or_author_required
+from security.decorators import preprint_editor_or_author_required, is_article_preprint_editor, is_preprint_editor
 
 
 def preprints_home(request):
@@ -478,7 +478,7 @@ def preprints_review(request, article_id):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_preprint_editor
 def preprints_manager(request):
     """
     Displays preprint information and management interfaces for them.
@@ -518,7 +518,7 @@ def preprints_manager(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_article_preprint_editor
 def preprints_manager_article(request, article_id):
     """
     Displays the metadata associated with the article and presents options for the editor to accept or decline the
@@ -557,7 +557,7 @@ def preprints_manager_article(request, article_id):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_article_preprint_editor
 def preprints_notification(request, article_id):
     """
     Presents an interface for the preprint editor to notify an author of a decision.

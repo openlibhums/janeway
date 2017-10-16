@@ -894,6 +894,15 @@ class Article(models.Model):
         else:
             return max(versions) + 1
 
+    def subject_editors(self):
+        editors = list()
+        subjects = self.subject_set.all().prefetch_related('editors')
+
+        for subject in subjects:
+            for editor in subject.editors.all():
+                editors.append(editor)
+
+        return set(editors)
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
