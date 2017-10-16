@@ -639,15 +639,22 @@ def preprints_subjects(request, subject_id=None):
     form = forms.SubjectForm(instance=subject)
 
     if request.POST:
+
+        if 'delete' in request.POST:
+            return preprint_logic.handle_delete_subject(request)
+
         form = forms.SubjectForm(request.POST, instance=subject)
 
         if form.is_valid():
             form.save()
+            return redirect(reverse('preprints_subjects'))
 
     template = 'admin/preprints/subjects.html'
     context = {
         'subjects': models.Subject.objects.all().prefetch_related('editors'),
         'form': form,
+        'subject': subject,
+        'active_users': core_models.Account.objects.all()
     }
 
     return render(request, template, context)

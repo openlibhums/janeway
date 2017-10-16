@@ -90,4 +90,8 @@ urlpatterns = [
         views.preprints_subjects,
         name='preprints_subjects'),
 
+    url(r'^manager/subjects/(?P<subject_id>\d+)/$',
+        views.preprints_subjects,
+        name='preprints_subjects_with_id'),
+
 ]

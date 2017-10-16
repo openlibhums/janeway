@@ -1,7 +1,8 @@
 from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib import messages
 
 from metrics import models as metrics_models
@@ -187,4 +188,13 @@ def handle_delete_version(request, preprint):
         version = get_object_or_404(models.PreprintVersion, pk=version_id, preprint=preprint)
         version.delete()
         messages.add_message(request, messages.INFO, 'Version deleted.')
+
+
+def handle_delete_subject(request):
+    subject_id = request.POST.get('delete')
+
+    subject = get_object_or_404(models.Subject, pk=subject_id)
+    messages.add_message(request, messages.INFO, 'Subject "{subject}" deleted.'.format(subject=subject.name))
+    subject.delete()
+    return redirect(reverse('preprints_subjects'))
 
