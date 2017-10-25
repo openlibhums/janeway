@@ -23,6 +23,13 @@ from press import models as press_models
 # Create your tests here.
 class ReviewTests(TestCase):
 
+    def test_index_view_with_no_questions(self):
+        """
+        If no questions exist, an appropriate message should be displayed.
+        """
+        response = self.client.get(reverse('website_index'))
+        self.assertEqual(response.status_code, 200)
+
     @staticmethod
     def create_user(username, roles=None, journal=None):
         """
@@ -320,16 +327,6 @@ class ReviewTests(TestCase):
                                                                production_manager=self.inactive_user)
         self.assigned.save()
 
-        self.copyedit_assignment = copyediting_models.CopyeditAssignment(article=self.article_editor_copyediting,
-                                                                         editor=self.editor,
-                                                                         copyeditor=self.copyeditor,
-                                                                         due=timezone.now(),
-                                                                         assigned=timezone.now(),
-                                                                         notified=timezone.now(),
-                                                                         decision='accepted',
-                                                                         date_decided=timezone.now())
-        self.copyedit_assignment.save()
-
         self.typeset_task = production_models.TypesetTask(assignment=self.assigned,
                                                           typesetter=self.typesetter,
                                                           notified=True,
@@ -364,6 +361,7 @@ class ReviewTests(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
+        call_command('sync_settings_to_journals')
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
