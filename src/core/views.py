@@ -832,6 +832,10 @@ def add_user(request):
 
                 return redirect(reverse('core_manager_users'))
 
+        else:
+            # If the registration form is not valid, we need to add post data to the Edit form for display.
+            form = forms.EditAccountForm(request.POST)
+
     template = 'core/manager/users/edit.html'
     context = {
         'form': form,
