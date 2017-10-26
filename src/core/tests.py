@@ -5,18 +5,43 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
 
-from django.test import TestCase, Client
-from django.utils import timezone
+from django.test import TestCase
 from django.urls import reverse
 from django.core.management import call_command
 
 from utils.tests.setup import create_user, create_journals, create_roles, create_press
+from core import models
 
 
 class CoreTests(TestCase):
     """
     Regression tests for the core application.
     """
+
+    def test_create_user_form(self):
+
+        data = {
+            'email': 'test@test.com',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': 235,
+        }
+
+        self.client.force_login(self.admin_user)
+        response = self.client.post(reverse('core_add_user'), data)
+        self.assertEqual(response.status_code, 302)
+
+        try:
+            models.Account.objects.get(email='test@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('User account has not been saved.')
+
 
     def setUp(self):
         self.journal_one, self.journal_two = create_journals()

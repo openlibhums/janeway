@@ -17,7 +17,6 @@ from journal import models as journal_models
 from production import models as production_models
 from review import models as review_models
 from submission import models as submission_models
-from copyediting import models as copyediting_models
 from proofing import models as proofing_models
 from press import models as press_models
 
