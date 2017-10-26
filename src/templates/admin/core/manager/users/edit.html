@@ -28,6 +28,7 @@
 
         <div class="content">
             {% include "elements/forms/errors.html" with form=user_form %}
+            {% include "elements/forms/errors.html" with form=registration_form %}
             <form method="post" class="form" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
