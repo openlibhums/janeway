@@ -31,13 +31,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for subject in subjects%}
+                        {% for subject in subjects %}
                             <tr>
-                                <td><a href="{% url 'preprints_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a></td>
+                                <td>
+                                    <a href="{% url 'preprints_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
+                                </td>
                                 <td>{{ subject.slug }}</td>
                                 <td>{{ subject.enabled|bool_fa }}</td>
                                 <td>{{ subject.editors.all|length }}</td>
-                                <td><form method="POST">{% csrf_token %}<button name="delete" value="{{ subject.pk }}" class="delete control-button"><i class="fa fa-trash"></i></button></form> </td>
+                                <td>
+                                    <form method="POST">{% csrf_token %}
+                                        <button name="delete" value="{{ subject.pk }}" class="delete control-button"><i
+                                                class="fa fa-trash"></i></button>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -50,7 +57,8 @@
             <div class="box" data-equalizer-watch>
                 <div class="title-area">
                     <h2>Form</h2>
-                    {% if subject %}<a href="{% url 'preprints_subjects' %}" class="button"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>{% endif %}
+                    {% if subject %}
+                        <a href="{% url 'preprints_subjects' %}" class="button"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>{% endif %}
                 </div>
                 <div class="content">
                     <form method="POST">
@@ -68,13 +76,17 @@
                                     <tr>
                                         <th>Select</th>
                                         <th>Name</th>
+                                        <th>Email</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for user in active_users %}
                                         <tr>
-                                        <td><input type="checkbox" name="editors" value="{{ user.pk }}" {% if user in subject.editors.all %}checked="checked"{% endif %}></td>
-                                        <td>{{ user.full_name }}</td>
+                                            <td><input type="checkbox" name="editors" value="{{ user.pk }}"
+                                                       {% if user in subject.editors.all %}checked="checked"{% endif %}>
+                                            </td>
+                                            <td>{{ user.full_name }}</td>
+                                            <td>{{ user.email }}</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
