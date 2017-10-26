@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from core import models as core_models
 from journal import models as journal_models
-
+from press import models as press_models
 
 def create_user(username, roles=None, journal=None):
     """
