@@ -38,7 +38,7 @@
                     <tr>
                         <td>{{ preprint.date_started }}</td>
                         <td>{{ preprint.date_submitted }}</td>
-                        <td>{% for subject in preprint.subject_set.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                        <td>{% for subject in preprint.subject_set.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %} <a href="#" data-open=""><i class="fa fa-pencil-square"</a></td>
                     </tr>
                     <tr>
                         <th colspan="4">Abstract</th>
