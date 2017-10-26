@@ -31,12 +31,14 @@
                         <td>{{ preprint.get_language_display }}</td>
                     </tr>
                     <tr>
-                        <th colspan="2">Started</th>
-                        <th colspan="2">Submitted</th>
+                        <th colspan="1">Started</th>
+                        <th colspan="1">Submitted</th>
+                        <th>Subject Area</th>
                     </tr>
                     <tr>
-                        <td colspan="2">{{ preprint.date_started }}</td>
-                        <td colspan="2">{{ preprint.date_submitted }}</td>
+                        <td>{{ preprint.date_started }}</td>
+                        <td>{{ preprint.date_submitted }}</td>
+                        <td>{% for subject in preprint.subject_set.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                     </tr>
                     <tr>
                         <th colspan="4">Abstract</th>
