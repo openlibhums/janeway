@@ -39,7 +39,7 @@
                     <div class="large-12 columns">
                         <div class="stacked button-group">
                             {% for subject in subjects %}
-                                <a href="" class="button">{{ subject.name }}</a>
+                                <a href="{% url 'preprints_list_subject' subject.slug %}" class="button">{{ subject.name }}</a>
                             {% endfor %}
                         </div>
                     </div>
