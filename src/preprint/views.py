@@ -549,9 +549,14 @@ def preprints_manager_article(request, article_id):
             preprint_logic.handle_delete_version(request, preprint)
             return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
+        if 'save_subject' in request.POST:
+            preprint_logic.handle_updating_subject(request, preprint)
+            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+
     template = 'admin/preprints/article.html'
     context = {
         'preprint': preprint,
+        'subjects': models.Subject.objects.filter(enabled=True)
     }
 
     return render(request, template, context)
