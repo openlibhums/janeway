@@ -220,10 +220,5 @@ def handle_updating_subject(request, preprint):
         messages.add_message(request, messages.WARNING, 'No subject selected')
     else:
         subject = get_object_or_404(models.Subject, pk=subject_pk, enabled=True)
-
-        for preprint_subject in preprint.subject_set.all():
-            preprint_subject.preprints.remove(preprint)
-
-        subject.preprints.add(preprint)
-
+        preprint.set_preprint_subject(subject)
         messages.add_message(request, messages.INFO, ('Subject Area updated.'))
