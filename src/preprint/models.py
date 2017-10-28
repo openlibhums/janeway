@@ -57,4 +57,4 @@ class Subject(models.Model):
         ordering = ('slug', 'pk')
 
     def __str__(self):
-        return 'Subject: {name}'.format(name=self.name)
+        return self.name

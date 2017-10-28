@@ -904,6 +904,21 @@ class Article(models.Model):
 
         return set(editors)
 
+    def set_preprint_subject(self, subject):
+        for preprint_subject in self.subject_set.all():
+            preprint_subject.preprints.remove(self)
+
+        subject.preprints.add(self)
+
+    def get_subject_area(self):
+        subjects = self.subject_set.all()
+
+        if subjects:
+            return subjects[0]
+        else:
+            return None
+
+
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
