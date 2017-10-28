@@ -9,6 +9,7 @@ from press import models as press_models
 
 class PreprintInfo(forms.ModelForm):
     keywords = forms.CharField(required=False)
+    subject = forms.ModelChoiceField(required=True, queryset=models.Subject.objects.filter(enabled=True))
 
     class Meta:
         model = submission_models.Article
@@ -26,6 +27,11 @@ class PreprintInfo(forms.ModelForm):
         self.fields['license'].queryset = submission_models.Licence.objects.filter(available_for_submission=True)
         self.fields['license'].required = True
 
+        # If there is an instance, we want to try to set the default subject area
+        if 'instance' in kwargs:
+            article = kwargs['instance']
+            self.fields['subject'].initial = article.get_subject_area()
+
     def save(self, commit=True, request=None):
         article = super(PreprintInfo, self).save()
 
@@ -37,6 +43,9 @@ class PreprintInfo(forms.ModelForm):
         for keyword in article.keywords.all():
             if keyword.word not in posted_keywords:
                 article.keywords.remove(keyword)
+
+        if self.cleaned_data.get('subject', None):
+            article.set_preprint_subject(self.cleaned_data['subject'])
 
         return article
 

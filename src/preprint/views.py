@@ -267,7 +267,8 @@ def preprints_submit(request, article_id=None):
 
     template = 'preprints/submit_start.html'
     context = {
-        'form': form
+        'form': form,
+        'article': article,
     }
 
     return render(request, template, context)

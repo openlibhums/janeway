@@ -41,7 +41,7 @@
                 </div>
                 <hr/>
 
-                <div class="large-12 columns">
+                <div class="large-6 columns">
                     <div class="row">
                         <div class="large-12 columns">
                             <label for="id_keywords">Keywords</label>
@@ -56,6 +56,14 @@
                     </div>
                 </div>
 
+                <div class="large-6 columns">
+                    <div class="row">
+                        <div class="large-12 columns">
+                            {{ form.subject|foundation }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="large-12 columns">
                     <br/><br>
                     <div class="row">
@@ -63,8 +71,7 @@
                             <label for="id_comments_editors">{% trans "Comments" %}</label>
                             <textarea class="form-control" cols="40" id="id_comments_editor" name="comments_editor"
                                       placeholder="{% trans "If you have any additional information you'd like to supply to the preprints editor, do so here" %}."
-                                      rows="10" title=""></textarea>
-
+                                      rows="10" title="">{% if article %}{{ article.comments_editor }}{% endif %}</textarea>
 
                             <button class="success button pull-right" type="submit" name="start_submission"><i
                                     class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
