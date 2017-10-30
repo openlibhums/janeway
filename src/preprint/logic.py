@@ -222,3 +222,41 @@ def handle_updating_subject(request, preprint):
         subject = get_object_or_404(models.Subject, pk=subject_pk, enabled=True)
         preprint.set_preprint_subject(subject)
         messages.add_message(request, messages.INFO, ('Subject Area updated.'))
+
+
+def subject_article_pks(request):
+    article_pks = []
+    for subject in request.user.preprint_subjects():
+        for article in subject.preprints.all():
+            article_pks.append(article.pk)
+
+    return article_pks
+
+def get_unpublished_preprints(request):
+
+    unpublished_preprints = submission_models.Article.preprints.filter(
+        date_published__isnull=True,
+        date_submitted__isnull=False,
+        date_declined__isnull=True,
+        date_accepted__isnull=True,
+    ).prefetch_related(
+        'articleauthororder_set'
+    )
+
+    if request.user.is_staff:
+        return unpublished_preprints
+    else:
+        return unpublished_preprints.filter(pk__in=subject_article_pks(request))
+
+
+def get_published_preprints(request):
+    published_preprints = submission_models.Article.preprints.filter(
+        date_published__isnull=False,
+        date_submitted__isnull=False).prefetch_related(
+        'articleauthororder_set'
+    )
+
+    if request.user.is_staff:
+        return published_preprints
+    else:
+        return published_preprints.filter(pk__in=subject_article_pks(request))

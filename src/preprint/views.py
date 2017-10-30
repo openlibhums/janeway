@@ -486,18 +486,10 @@ def preprints_manager(request):
     :param request: HttpRequest
     :return: HttpResponse or HttpRedirect
     """
-    unpublished_preprints = submission_models.Article.preprints.filter(
-        date_published__isnull=True,
-        date_submitted__isnull=False,
-        date_declined__isnull=True,
-        date_accepted__isnull=True).prefetch_related(
-        'articleauthororder_set'
-    )
-    published_preprints = submission_models.Article.preprints.filter(
-        date_published__isnull=False,
-        date_submitted__isnull=False).prefetch_related(
-        'articleauthororder_set'
-    )
+    unpublished_preprints = preprint_logic.get_unpublished_preprints(request)
+
+    published_preprints = preprint_logic.get_published_preprints(request)
+
     incomplete_preprints = submission_models.Article.preprints.filter(date_published__isnull=True,
                                                                       date_submitted__isnull=True)
     rejected_preprints = submission_models.Article.preprints.filter(date_declined__isnull=False)

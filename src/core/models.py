@@ -375,6 +375,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def articles(self):
         return submission_models.Article.objects.filter(authors__in=[self])
 
+    def preprint_subjects(self):
+        "Returns a list of preprint subjects this user is an editor for"
+        from preprint import models as preprint_models
+        subjects = preprint_models.Subject.objects.filter(editors__exact=self)
+        return subjects
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
