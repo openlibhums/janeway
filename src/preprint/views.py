@@ -52,7 +52,7 @@ def preprints_dashboard(request):
     :return: HttpResponse
     """
     preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
-                                                           date_submitted__isnull=False)
+                                                           date_submitted__isnull=False).distinct()
 
     incomplete_preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
                                                                       date_submitted__isnull=True)
