@@ -546,6 +546,10 @@ def preprints_manager_article(request, article_id):
             preprint_logic.handle_updating_subject(request, preprint)
             return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
+        if 'unpublish' in request.POST and preprint.date_published:
+            preprint_logic.unpublish_preprint(request, preprint)
+            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+
     template = 'admin/preprints/article.html'
     context = {
         'preprint': preprint,

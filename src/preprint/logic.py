@@ -260,3 +260,14 @@ def get_published_preprints(request):
         return published_preprints
     else:
         return published_preprints.filter(pk__in=subject_article_pks(request))
+
+
+def unpublish_preprint(request, preprint):
+    "Marks a preprint as unpublished."
+    preprint.date_accepted = None
+    preprint.date_declined = None
+    preprint.date_published = None
+    preprint.preprint_decision_notification = False
+    preprint.stage = submission_models.STAGE_PREPRINT_REVIEW
+    preprint.save()
+    messages.add_message(request, messages.INFO, 'This preprint has been unpublished')
