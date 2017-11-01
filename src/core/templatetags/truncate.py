@@ -1,4 +1,5 @@
 from django import template
+from django.utils.html import mark_safe
 
 register = template.Library()
 
@@ -17,12 +18,12 @@ def truncatesmart(value, limit=80):
     try:
         limit = int(limit)
     except ValueError:
-        return value
+        return mark_safe(value)
 
     if len(value) <= limit:
-        return value
+        return mark_safe(value)
 
     value = value[:limit]
     words = value.split(' ')[:-1]
 
-    return ' '.join(words) + ' [...]'
+    return mark_safe(' '.join(words) + ' [...]')
