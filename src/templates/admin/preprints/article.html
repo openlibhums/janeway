@@ -254,6 +254,11 @@
                                 <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unpublish this Preprint</button>
                             </li>
                         {% endif %}
+                        {% if request.user.is_staff and preprint.date_declined and not preprint.date_published %}
+                            <li>
+                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unreject this Preprint</button>
+                            </li>
+                        {% endif %}
                     </form>
                 </ul>
 
