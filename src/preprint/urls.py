@@ -98,4 +98,9 @@ urlpatterns = [
         views.preprints_subjects,
         name='preprints_subjects_with_id'),
 
+
+    url(r'^manager/rejected/$',
+        views.preprints_rejected_submissions,
+        name='preprints_rejected_submissions'),
+
 ]

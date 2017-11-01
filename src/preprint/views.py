@@ -668,3 +668,21 @@ def preprints_subjects(request, subject_id=None):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def preprints_rejected_submissions(request):
+    """
+    A staff only view that displays a list of preprints that have been rejected.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
+    rejected_preprints = submission_models.Article.preprints.filter(date_declined__isnull=False,
+                                                                    date_published__isnull=True)
+
+    template = 'admin/preprints/rejected_submissions.html'
+    context = {
+        'rejected_preprints': rejected_preprints,
+    }
+
+    return render(request, template, context)
