@@ -209,6 +209,7 @@ def preprints_article(request, article_id):
             return redirect(reverse('preprints_article', kwargs={'article_id': article_id}))
 
     pdf = preprint_logic.get_pdf(article)
+    html = preprint_logic.get_html(article)
     store_article_access(request, article, 'view')
 
     template = 'preprints/article.html'
@@ -216,6 +217,7 @@ def preprints_article(request, article_id):
         'article': article,
         'galleys': article.galley_set.all(),
         'pdf': pdf,
+        'html': html,
         'comments': comments,
         'form': form,
     }

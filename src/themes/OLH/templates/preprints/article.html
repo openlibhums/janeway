@@ -36,9 +36,12 @@
                 </small>
             </p>
             <h5>{% trans "Abstract" %}</h5>
-            <small>{{ article.abstract|safe }}</small>
+            <p><small>{{ article.abstract|safe }}</small></p>
             <div itemprop="articleBody" id="pdf">
-                {% if pdf %}
+                {% if html %}
+                    <h5>Preprint Body</h5>
+                    {{ html|safe }}
+                {% elif pdf %}
                     <iframe src="{% url 'preprints_pdf' article.pk %}?file={% url 'article_download_galley' article.id pdf.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen></iframe>

@@ -105,6 +105,17 @@ def get_pdf(article):
     return pdf
 
 
+def get_html(article):
+
+    try:
+        galley = article.galley_set.get(type='html')
+        html = galley.file_content()
+    except core_models.Galley.DoesNotExist:
+        html = None
+
+    return html
+
+
 def get_publication_text(request, article, action):
     context = {
         'article': article,
