@@ -44,8 +44,18 @@ def save_galley(article, request, uploaded_file, is_galley, label, is_other):
 
     new_file.save()
     article.save()
+
+    if new_file.mime_type == 'text/html':
+        type = 'html'
+        label = 'HTML'
+    elif new_file.mime_type == 'application/xml':
+        type = 'xml'
+        label = 'XML'
+    else:
+        type = label.lower()
+
     new_galley = core_models.Galley.objects.create(
-        article=article, file=new_file, label=label, type=label.lower(), sequence=article.get_next_galley_sequence()
+        article=article, file=new_file, label=label, type=type, sequence=article.get_next_galley_sequence()
     )
 
     return new_galley
