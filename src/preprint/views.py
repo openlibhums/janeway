@@ -14,6 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
+from django.core.cache import cache
 
 from preprint import forms, logic as preprint_logic, models
 from submission import models as submission_models, forms as submission_forms, logic
@@ -21,6 +22,7 @@ from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
 from events import logic as event_logic
+from identifiers import logic as ident_logic
 from security.decorators import preprint_editor_or_author_required, is_article_preprint_editor, is_preprint_editor
 
 
@@ -521,13 +523,23 @@ def preprints_manager_article(request, article_id):
     :return: HttpResponse or HttpRedirect if successful POST.
     """
     preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+    crossref_enabled = request.press.preprint_dois_enabled()
 
     if request.POST:
 
         if 'accept' in request.POST:
             date = request.POST.get('date', timezone.now().date())
             time = request.POST.get('time', timezone.now().time())
+            doi = request.POST.get('doi', None)
             preprint.accept_preprint(date, time)
+
+            if crossref_enabled and doi:
+                doi_obj = ident_logic.create_crossref_doi_identifier(article=preprint,
+                                                                     doi_suffix=doi,
+                                                                     suffix_is_whole_doi=True)
+                ident_logic.register_preprint_doi(request, crossref_enabled, doi_obj)
+                cache.clear()
+
             return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'decline' in request.POST:
@@ -554,7 +566,8 @@ def preprints_manager_article(request, article_id):
     template = 'admin/preprints/article.html'
     context = {
         'preprint': preprint,
-        'subjects': models.Subject.objects.filter(enabled=True)
+        'subjects': models.Subject.objects.filter(enabled=True),
+        'crossref_enabled': crossref_enabled,
     }
 
     return render(request, template, context)

@@ -229,6 +229,12 @@ class Press(models.Model):
     def get_setting(self, name):
         return PressSetting.objects.get_or_create(press=self, name=name)
 
+    def get_setting_value(self, name):
+        try:
+            return PressSetting.objects.get(press=self, name=name).value
+        except PressSetting.DoesNotExist:
+            return ''
+
     @cache(600)
     def preprint_editors(self):
         from preprint import models as pp_models

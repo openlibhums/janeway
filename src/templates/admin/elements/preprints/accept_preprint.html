@@ -22,6 +22,10 @@
                             <input type="text" name="time" id="time" required {% if preprint.date_published %}value="{{ preprint.date_published|date:'H:i' }}"{% endif %}>
                         </div>
                         <div class="large-12 columns">
+                            {% if crossref_enabled %}
+                            <label for="doi">DOI:</label>
+                            <input type="text" name="doi" id="doi" placeholder="Insert a DOI in pattern 10.XXXX/XXXXX">
+                            {% endif %}
                             <button type="submit" name="accept" class="small success button">Accept Article</button>
                         </div>
                     </div>

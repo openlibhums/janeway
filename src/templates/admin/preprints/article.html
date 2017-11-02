@@ -273,7 +273,11 @@
                     {% if not preprint.has_galley and not preprint.date_declined %}
                         <small> This preprint requires at least one galley file. You can either turn an existing file
                             into a galley in the table below, or upload a new file to be a galley.
-                        </small>{% endif %}
+                        </small>
+                    {% endif %}
+                </div>
+                <div class="callout">
+                    <small>Primary identifier for this article {{ preprint.identifier }}</small>
                 </div>
             </div>
         </div>

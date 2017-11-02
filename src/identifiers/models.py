@@ -26,17 +26,7 @@ class Identifier(models.Model):
     article = models.ForeignKey(submission_models.Article, on_delete=models.CASCADE)
 
     def __str__(self):
-        if self.is_doi:
-            return u'{0}{1}{2}'.format(setting_handler.get_setting('Identifiers',
-                                                                   'doi_display_prefix',
-                                                                   self.article.journal).processed_value,
-                                       self.identifier,
-                                       setting_handler.get_setting('Identifiers',
-                                                                   'doi_display_suffix',
-                                                                   self.article.journal).processed_value
-                                       )
-
-        return u'[{0}]: {1}'.format(self.id_type.upper(), self.identifier)
+            return u'[{0}]: {1}'.format(self.id_type.upper(), self.identifier)
 
     def register(self):
         if self.is_doi:

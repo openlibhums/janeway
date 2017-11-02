@@ -1,14 +1,17 @@
 [
   {
     "name": "Crossref Login",
-    "value": ""
+    "value": "",
+    "is_boolean": false
   },
   {
     "name": "Crossref Password",
-    "value": ""
+    "value": "",
+    "is_boolean": false
   },
   {
     "name": "Crossref Test Mode",
-    "value": ""
+    "value": "",
+    "is_boolean": true
   }
 ]
