@@ -75,17 +75,21 @@ class SettingsForm(forms.ModelForm):
             settings = press_models.PressSetting.objects.filter(press=press)
 
             for setting in settings:
-                self.fields[setting.name] = forms.CharField(widget=forms.TextInput(), required=False)
+                if setting.is_boolean:
+                    self.fields[setting.name] = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
+                else:
+                    self.fields[setting.name] = forms.CharField(widget=forms.TextInput(), required=False)
                 self.fields[setting.name].initial = setting.value
 
     def save(self, commit=True):
         press = super(SettingsForm, self).save()
         settings = press_models.PressSetting.objects.filter(press=press)
 
-        print(settings)
-
         for setting in settings:
-            setting.value = self.cleaned_data[setting.name]
+            if setting.is_boolean:
+                setting.value = 'On' if self.cleaned_data[setting.name] else ''
+            else:
+                setting.value = self.cleaned_data[setting.name]
             setting.save()
 
 

@@ -6,5 +6,9 @@
   {
     "name": "Crossref Password",
     "value": ""
+  },
+  {
+    "name": "Crossref Test Mode",
+    "value": ""
   }
 ]

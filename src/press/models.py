@@ -227,7 +227,7 @@ class Press(models.Model):
         return self.carousel, carousel_objects
 
     def get_setting(self, name):
-        return PressSetting.objects.get_or_create(name=name)
+        return PressSetting.objects.get_or_create(press=self, name=name)
 
     @cache(600)
     def preprint_editors(self):
@@ -241,8 +241,26 @@ class Press(models.Model):
 
         return set(editors)
 
+    def preprint_dois_enabled(self):
+        try:
+            PressSetting.objects.get(press=self, name="Crossref Login")
+        except PressSetting.DoesNotExist:
+            return False
+
+        try:
+            PressSetting.objects.get(press=self, name="Crossref Password")
+        except PressSetting.DoesNotExist:
+            return False
+
+        return True
+
+
 
 class PressSetting(models.Model):
     press = models.ForeignKey(Press)
     name = models.CharField(max_length=255)
     value = models.TextField(blank=True, null=True)
+    is_boolean = models.BooleanField(default=False)
+
+    def __str__(self):
+        return '{name} - {press}'.format(name=self.name, press=self.press.name)
