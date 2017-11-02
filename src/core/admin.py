@@ -56,13 +56,17 @@ class HomepageElementAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class FileAdmin(admin.ModelAdmin):
+    """displays files"""
+    list_display = ('id', 'original_filename', 'uuid_filename', 'mime_type')
+
 admin_list = [
     (models.Account, AccountAdmin),
     (models.Role, RoleAdmin,),
     (models.Setting, SettingAdmin),
     (models.SettingGroup,),
     (models.SettingValue, SettingValueAdmin),
-    (models.File,),
+    (models.File, FileAdmin),
     (models.AccountRole,),
     (models.Interest,),
     (models.Task,),
