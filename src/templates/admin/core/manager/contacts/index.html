@@ -24,10 +24,14 @@
                         {% for contact in contacts %}
                             <li class="list-group-item" id="contact-{{ contact.pk }}">
                                 <div class="float-right">
+                                    <form method="POST">
+                                        {% csrf_token %}
                                     <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
                                             class="fa fa-edit">&nbsp;</i>Edit</a>
-                                    <button type="submit" name="delete" value="{{ contact.pk }}"
+
+                                        <button type="submit" name="delete" value="{{ contact.pk }}"
                                        class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                    </form>
                                 </div>
 
                                 {{ contact.name }}, {{ contact.email }}<br/>

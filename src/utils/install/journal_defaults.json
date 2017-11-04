@@ -26,7 +26,7 @@
             "type": "char"
         },
         "value": {
-            "default": "Janeway Journal"
+            "default": "https://a_publisher_url.com"
         }
     },
     {

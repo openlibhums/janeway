@@ -8,7 +8,7 @@ Django==1.11.5
 django-debug-toolbar==1.8
 django-suit==0.2.25 # TODO: remove for open source distribution
 django-hvad==1.8.0
-django-mailgun==0.9.1
+-e git+https://github.com/BirkbeckCTP/django-mailgun.git#egg=django-mailgun
 django-markdown-deux==1.0.5
 django-settings-export==1.2.1
 django-simple-math-captcha==1.0.7

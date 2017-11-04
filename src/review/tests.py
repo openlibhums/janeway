@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+
 import datetime
 
 from django.test import TestCase, Client
@@ -15,7 +17,6 @@ from journal import models as journal_models
 from production import models as production_models
 from review import models as review_models
 from submission import models as submission_models
-from copyediting import models as copyediting_models
 from proofing import models as proofing_models
 from press import models as press_models
 
