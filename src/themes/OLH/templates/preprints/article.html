@@ -99,6 +99,7 @@
                         <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
                                                      title="{{ article.license.text }}">{{ article.license.name }}</a>
                         </li>
+                        {% if article.identifier.id_type == 'doi' %}<li>{{ article.identifier }}</li>{% endif %}
                     </ul>
                     <h5>{% trans "Metrics" %}</h5>
                     <ul>
