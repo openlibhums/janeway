@@ -26,6 +26,7 @@ LOG_TYPES = [
     ('Error', 'Error'),
     ('Authentication', 'Authentication'),
     ('Submission', 'Submission'),
+    ('Publication', 'Publication')
 ]
 
 LOG_LEVELS = [
@@ -56,6 +57,7 @@ class LogEntry(models.Model):
     def __repr__(self):
         return u'[{0}] {1} - {2}'.format(self.types, self.date, self.description)
 
+    @staticmethod
     def add_entry(types, description, level, actor=None, request=None, target=None):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):

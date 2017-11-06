@@ -327,6 +327,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_proofing_manager(self, request):
         return self.check_role(request.journal, 'proofing_manager')
 
+    def is_preprint_editor(self, request):
+        if self in request.press.preprint_editors():
+            return True
+
+        return False
+
     def snapshot_self(self, article):
         try:
             order = submission_models.ArticleAuthorOrder.objects.get(article=article, author=self).order
@@ -368,6 +374,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def articles(self):
         return submission_models.Article.objects.filter(authors__in=[self])
+
+    def preprint_subjects(self):
+        "Returns a list of preprint subjects this user is an editor for"
+        from preprint import models as preprint_models
+        subjects = preprint_models.Subject.objects.filter(editors__exact=self)
+        return subjects
 
 
 def generate_expiry_date():
@@ -568,15 +580,23 @@ class File(models.Model):
         if self.article_id:
             try:
                 path = self.self_article_path()
+                print(path)
                 os.unlink(path)
             except FileNotFoundError:
-                pass
+                print('file_not_found')
         elif journal:
             try:
                 path = self.journal_path(journal)
                 os.unlink(path)
             except FileNotFoundError:
                 pass
+
+    def unlink_preprint_file(self):
+        path = self.preprint_path()
+        os.unlink(path)
+
+    def preprint_path(self):
+        return os.path.join(settings.BASE_DIR, 'files', 'press', 'preprints', str(self.uuid_filename))
 
     def press_path(self):
         return os.path.join(settings.BASE_DIR, 'files', 'press', str(self.uuid_filename))
@@ -655,7 +675,7 @@ def galley_type_choices():
 
 class Galley(models.Model):
     # Local Galley
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey('submission.Article', null=True)
     file = models.ForeignKey(File)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
@@ -670,7 +690,7 @@ class Galley(models.Model):
     sequence = models.IntegerField(default=0)
 
     def __str__(self):
-        return "{0} ({1}) - {2}".format(self.id, self.label, self.article.title)
+        return "{0} ({1})".format(self.id, self.label)
 
     def has_missing_image_files(self):
         xml_file_contents = self.file.get_file(self.article)

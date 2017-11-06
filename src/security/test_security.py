@@ -22,7 +22,8 @@ from review import models as review_models
 from submission import models as submission_models
 from copyediting import models as copyediting_models
 from proofing import models as proofing_models
-
+from preprint import models as preprint_models
+from press import models as press_models
 
 class TestSecurity(TestCase):
     # Tests for editor role checks
@@ -3072,6 +3073,85 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
+    def test_preprint_editor_or_author_required_editor(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'article_id': self.preprint_article.pk}
+
+        request = self.prepare_request_with_user(self.preprint_manager, None)
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(func.called,
+                        "editor wrongly blocked from accessing preprint article")
+
+
+    def test_preprint_editor_or_author_required_author(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'article_id': self.preprint_article.pk}
+
+        request = self.prepare_request_with_user(self.regular_user, None)
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(func.called,
+                        "author wrongly blocked from accessing preprint article")
+
+
+    def test_preprint_editor_or_author_required_other_user(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'article_id': self.preprint_article.pk}
+
+        request = self.prepare_request_with_user(self.copyeditor, None)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+
+    def test_is_article_preprint_editor(self):
+        func = Mock()
+        decorated_func = decorators.is_article_preprint_editor(func)
+        kwargs = {'article_id': self.preprint_article.pk}
+
+        request = self.prepare_request_with_user(self.preprint_manager, None)
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(func.called,
+                        "author wrongly blocked from accessing preprint article")
+
+
+    def test_is_article_preprint_editor_other_user(self):
+        func = Mock()
+        decorated_func = decorators.is_article_preprint_editor(func)
+        kwargs = {'article_id': self.preprint_article.pk}
+
+        request = self.prepare_request_with_user(self.copyeditor, None)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+
+    def test_is_preprint_editor(self):
+        func = Mock()
+        decorated_func = decorators.is_preprint_editor(func)
+        kwargs = {}
+
+        request = self.prepare_request_with_user(self.preprint_manager, None, self.press)
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(func.called,
+                        "author wrongly blocked from accessing preprint article")
+
+    def test_isnt_preprint_editor(self):
+        func = Mock()
+        decorated_func = decorators.is_preprint_editor(func)
+        kwargs = {'article_id': self.preprint_article.pk}
+
+        request = self.prepare_request_with_user(self.copyeditor, None, self.press)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
     # General helper functions
 
     @staticmethod
@@ -3426,6 +3506,24 @@ class TestSecurity(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
+        self.preprint_article = submission_models.Article(owner=self.regular_user, title="A Test Preprint",
+                                                            abstract="An abstract",
+                                                            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+                                                            is_preprint=True)
+        self.preprint_article.save()
+        self.preprint_article.authors.add(self.regular_user)
+
+        self.preprint_manager = self.create_user("preprint_manager@martineve.com")
+        self.preprint_manager.is_active = True
+        self.preprint_manager.save()
+
+        self.subject = preprint_models.Subject.objects.create(name='Test', slug='test')
+        self.subject.editors.add(self.preprint_manager)
+        self.subject.preprints.add(self.preprint_article)
+        self.subject.save()
+
+        self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
+
     @staticmethod
     def mock_messages_add(level, message, extra_tags):
         pass
@@ -3435,7 +3533,7 @@ class TestSecurity(TestCase):
         return None
 
     @staticmethod
-    def prepare_request_with_user(user, journal):
+    def prepare_request_with_user(user, journal, press=None):
         """
         Build a basic request dummy object with the journal set to journal and the user having editor permissions.
         :param user: the user to use
@@ -3450,5 +3548,6 @@ class TestSecurity(TestCase):
         request._messages = Mock()
         request._messages.add = TestSecurity.mock_messages_add
         request.path = '/a/fake/path/'
+        request.press = press
 
         return request

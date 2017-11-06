@@ -972,8 +972,8 @@ msgstr "Renseignements sur l'article"
 
 #: themes/OLH/templates/submission/submit_info.html:15
 #: themes/default/templates/submission/submit_info.html:20
-msgid "This article is a preprint"
-msgstr "Cet article est une preprint"
+msgid "This article is a preprints"
+msgstr "Cet article est une preprints"
 
 #: themes/OLH/templates/submission/submit_review.html:13
 #: themes/OLH/templates/submission/timeline.html:35

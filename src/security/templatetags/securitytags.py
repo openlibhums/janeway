@@ -53,3 +53,15 @@ def can_view_file_history(context, file_object, article_object):
 @register.simple_tag(takes_context=True)
 def can_view_file(context, file_object):
     return logic.can_view_file(context['request'], context['request'].user, file_object)
+
+
+@register.simple_tag(takes_context=True)
+def is_author(context):
+    request = context['request']
+    return request.user.is_author(request)
+
+
+@register.simple_tag(takes_context=True)
+def is_preprint_editor(context):
+    request = context['request']
+    return request.user.is_preprint_editor(request)

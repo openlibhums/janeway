@@ -415,6 +415,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     :param article_id: Article PK, optiona
     :return: HttpRedirect or HttpResponse
     """
+    return_url = request.GET.get('return', None)
     if typeset_id:
         typeset_task = get_object_or_404(models.TypesetTask,
                                          pk=typeset_id,
@@ -423,7 +424,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         article = typeset_task.assignment.article
     else:
         typeset_task = None
-        article = get_object_or_404(submission_models.Article,
+        article = get_object_or_404(submission_models.Article.allarticles,
                                     pk=article_id)
     galley = get_object_or_404(core_models.Galley,
                                pk=galley_id,
@@ -437,9 +438,13 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                 return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_task.pk}))
             else:
                 logic.handle_delete_request(request, galley, article=article, page="pm_edit")
-                return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+                if not return_url:
+                    return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+                else:
+                    return redirect(return_url)
 
         label = request.POST.get('label')
+
         if 'fixed-image-upload' in request.POST:
             for uploaded_file in request.FILES.getlist('image'):
                 logic.save_galley_image(galley, request, uploaded_file, label, fixed=True)
@@ -458,14 +463,18 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         if typeset_task:
             return redirect(reverse('edit_galley', kwargs={'typeset_id': typeset_id, 'galley_id': galley_id}))
         else:
-            return redirect(reverse('pm_edit_galley', kwargs={'article_id': article.pk, 'galley_id': galley_id}))
+            return_path = '?return={return_url}'.format(return_url=return_url) if return_url else ''
+            url = reverse('pm_edit_galley', kwargs={'article_id': article.pk, 'galley_id': galley_id})
+            redirect_url = '{url}{return_path}'.format(url=url, return_path=return_path)
+            return redirect(redirect_url)
 
     template = 'production/edit_galley.html'
     context = {
         'typeset_task': typeset_task,
         'galley': galley,
         'article': galley.article,
-        'image_names': logic.get_image_names(galley)
+        'image_names': logic.get_image_names(galley),
+        'return_url': return_url
     }
 
     return render(request, template, context)

@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 # we need this for strict type checking on the event destroyer
 from submission import models as submission_models
 
@@ -194,6 +195,18 @@ class Events:
     # kwargs: request, override
     # raised when an Editor overrides review security
     ON_REVIEW_SECURITY_OVERRIDE = 'on_review_security_override'
+
+    # kwargs: request, article
+    # raised when a new preprint article is submitted
+    ON_PREPRINT_SUBMISSION = 'on_preprint_submission'
+
+    # kwargs: request, article
+    # raised when a preprint is published in the repo
+    ON_PREPRINT_PUBLICATION = 'on_preprint_publication'
+
+    # kwargs: request, article, comment
+    # raised when a new comment is submitted for a preprint
+    ON_PREPRINT_COMMENT = 'on_preprint_comment'
 
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):

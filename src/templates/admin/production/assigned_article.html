@@ -292,9 +292,7 @@
     </div>
 
     {% include "elements/summary_modal.html" %}
-    {% if article.has_galley and production_assignment.typeset_tasks %}
-        {% include "elements/production/complete.html" %}
-    {% endif %}
+    {% include "elements/production/complete.html" %}
 
 {% endblock body %}
 

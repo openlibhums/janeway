@@ -1,0 +1,30 @@
+{% load foundation %}
+{% load i18n %}
+
+<div class="small reveal" id="{{ modaltype }}" data-reveal>
+    <small>{% include "elements/forms/errors.html" with form=form %}</small>
+    <h5>{% trans "Add New File" %}</h5>
+    {% if modaltype == 'data' %}
+        <p>{% trans "Please supply any supporting information or data files." %}</p>
+    {% else %}
+        {% if request.press.preprint_pdf_only %}
+            <p>{% trans "Please upload your manuscript file, it should be in PDF format." %}</p>
+        {% else %}
+            <p>{% trans "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X format." %}</p>
+        {% endif %}
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="large-12 columns">
+                <input name="file" type="file" class="filestyle" data-placeholder="No file"
+                       data-buttonName="btn-primary">
+            </div>
+        </div>
+        {{ form|foundation }}
+        <button type="submit" name="{{ modaltype }}" class="success button">{% trans "Add File" %}</button>
+        <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </form>
+</div>

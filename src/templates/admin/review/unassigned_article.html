@@ -6,230 +6,264 @@
 {% block title-sub %}{{ article.title }}{% endblock %}
 
 {% block body %}
-		<div class="large-7 columns">
-            <div class="box">
-                    <div class="title-area">
-                        <h2>Summary of Article</h2>
-                    </div>
-                    <div class="content">
-                        <table class="hover">
-                            <tr>
-                                <th>Section</th>
-                                <th>Owner</th>
-                                <th>Licence</th>
-                                <th>Language</th>
-                            </tr>
-                            <tr>
-                                <td>{{ article.section.name }}</td>
-                                <td>{{ article.owner.full_name }}</td>
-                                <td>{{ article.license.short_name }}</td>
-                                <td>{{ article.language }}</td>
-                            </tr>
-                            <tr>
-                                <th colspan="2">Started</th>
-                                <th colspan="2">Submitted</th>
-                            </tr>
-                            <tr>
-                                <td colspan="2">{{ article.date_started }}</td>
-                                <td colspan="2">{{ article.date_submitted }}</td>
-                            </tr>
-                            <tr>
-                                <th colspan="4">Abstract</th>
-                            </tr>
-                            <tr>
-                                <td colspan="4">{{ article.abstract|safe }}</td>
-                            </tr>
-                            <tr>
-                                <th colspan="4">Comments to Editor</th>
-                            </tr>
-                            <tr>
-                                <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor }}{% else %}No comments{% endif %}</td>
-                            </tr>
-                            {% if journal_settings.general.submission_competing_interests %}
-                            <tr>
-                                <th colspan="4">Competing Interests</th>
-                            </tr>
-                            <tr>
-                                <td colspan="4">{% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
-                            </tr>
-                            {% endif %}
-                            {% for field_answer in article.fieldanswer_set.all %}
-                                <tr><th colspan="4">{{ field_answer.field.name }}</th></tr>
-                                <tr><td colspan="4">{{ field_answer.answer }}</td></tr>
-                            {% endfor %}
-                            </table>
-                    </div>
-                </div>
-
-            <div class="box">
-                <div class="title-area">
-                    <h2>Authors</h2>
-                </div>
-                <div class="content">
-                    <table class="hover stack" id="unassigned">
+    <div class="large-7 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Summary of Article</h2>
+            </div>
+            <div class="content">
+                <table class="hover">
+                    <tr>
+                        <th>Section</th>
+                        <th>Owner</th>
+                        <th>Licence</th>
+                        <th>Language</th>
+                    </tr>
+                    <tr>
+                        <td>{{ article.section.name }}</td>
+                        <td>{{ article.owner.full_name }}</td>
+                        <td>{{ article.license.short_name }}</td>
+                        <td>{{ article.language }}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Started</th>
+                        <th colspan="2">Submitted</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">{{ article.date_started }}</td>
+                        <td colspan="2">{{ article.date_submitted }}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="4">Abstract</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">{{ article.abstract|safe }}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="4">Comments to Editor</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor }}{% else %}No
+                            comments{% endif %}</td>
+                    </tr>
+                    {% if journal_settings.general.submission_competing_interests %}
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Primary?</th>
+                            <th colspan="4">Competing Interests</th>
                         </tr>
-                        {% for order in article.articleauthororder_set.all %}
+                        <tr>
+                            <td colspan="4">
+                                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No
+                                    CI{% endif %}</td>
+                        </tr>
+                    {% endif %}
+                    {% for field_answer in article.fieldanswer_set.all %}
+                        <tr>
+                            <th colspan="4">{{ field_answer.field.name }}</th>
+                        </tr>
+                        <tr>
+                            <td colspan="4">{{ field_answer.answer }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Authors</h2>
+            </div>
+            <div class="content">
+                <table class="hover stack" id="unassigned">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Primary?</th>
+                    </tr>
+                    {% for order in article.articleauthororder_set.all %}
                         <tr>
                             <td>{{ order.author.full_name }}</td>
                             <td>{{ order.author.email }}</td>
-                            <td>{% if order.author == article.correspondence_author %}<i class="fa fa-check-circle" style="color: green;"></i>{% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
+                            <td>{% if order.author == article.correspondence_author %}
+                                <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
+                                <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
                         </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Files</h2>
+            </div>
+            <div class="content">
+                <table class="table table-bordered table-condensed small">
+                    <tr>
+                        <th>Label</th>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th>Download</th>
+                        <th>Replace</th>
+                        <th>File History</th>
+                        {% if journal_settings.crosscheck.enable %}
+                            <th>Similarity Check</th>{% endif %}
+                    </tr>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for file in article.manuscript_files.all %}
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file.original_filename }}</td>
+                                <td>Manuscript</td>
+                                <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a></td>
+                                <td>
+                                    <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
+                                            class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                                <td>
+                                    <a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
+                                            class="fa fa-history">&nbsp;</i></a></td>
+                                {% if journal_settings.crosscheck.enable %}
+                                    <td>{% if not article.ithenticate_id %}
+                                        <button type="submit" name="crosscheck" value="{{ file.id }}"><i
+                                                class="fa fa-cloud-upload"></i></button>
+                                    {% else %}
+                                        <a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i
+                                                class="fa fa-book">&nbsp;</i>View Report
+                                            {% if article.ithenticate_score %} ({{ article.ithenticate_score }}
+                                                %){% endif %}</a>
+                                    {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
                         {% endfor %}
-                    </table>
-                </div>
-            </div>
-
-            <div class="box">
-                <div class="title-area">
-                    <h2>Files</h2>
-                </div>
-                <div class="content">
-                    <table class="table table-bordered table-condensed small">
-				<tr>
-					<th>Label</th>
-					<th>Filename</th>
-					<th>Type</th>
-					<th>Download</th>
-                    <th>Replace</th>
-                    <th>File History</th>
-                    {% if journal_settings.crosscheck.enable %}<th>Similarity Check</th>{% endif %}
-				</tr>
-                <form method="POST">
-                {% csrf_token %}
-				{% for file in article.manuscript_files.all %}
-				<tr>
-					<td>{{ file.label }}</td>
-					<td>{{ file.original_filename }}</td>
-					<td>Manuscript</td>
-					<td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
-                    <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                    <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i class="fa fa-history">&nbsp;</i></a></td>
-                    {% if journal_settings.crosscheck.enable %}
-                    <td>{% if not article.ithenticate_id %}
-                        <button type="submit" name="crosscheck" value="{{ file.id }}"><i class="fa fa-cloud-upload"></i></button>
-                        {% else %}
-                        <a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i class="fa fa-book">&nbsp;</i>View Report{% if article.ithenticate_score %} ({{ article.ithenticate_score }}%){% endif %}</a>
-                        {% endif %}
-                    </td>
-                    {% endif %}
-				</tr>
-				{% endfor %}
-                </form>
-				{% for file in article.data_figure_files.all %}
-				<tr>
-					<td>{{ file.label }}</td>
-					<td>{{ file.original_filename }}</td>
-					<td>Data/Figure</td>
-					<td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
-                    <td>n/a</td>
-				</tr>
-				{% endfor %}
-			</table>
-                </div>
-            </div>
-
-		</div>
-		<div class="large-5 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Editors</h2>
-                </div>
-                <div class="content">
-                    <table class="table table-bordered table-condensed small" id="unassigned">
+                    </form>
+                    {% for file in article.data_figure_files.all %}
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Type</th>
-                            <th></th>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename }}</td>
+                            <td>Data/Figure</td>
+                            <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a></td>
+                            <td>n/a</td>
                         </tr>
-                        {% for assignment in article.editors %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div class="large-5 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Editors</h2>
+            </div>
+            <div class="content">
+                <table class="table table-bordered table-condensed small" id="unassigned">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                    {% for assignment in article.editors %}
                         <tr>
                             <td>{{ assignment.editor.full_name }}</td>
                             <td>{{ assignment.editor.email }}</td>
                             <td>{{ assignment.editor_type|capfirst }}</td>
-                            <td><a href="{% url 'review_unassign_editor' article.id assignment.editor.id %}">Remove</a></td>
+                            <td><a href="{% url 'review_unassign_editor' article.id assignment.editor.id %}">Remove</a>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
                             <td colspan="4">No users assigned</td>
                         </tr>
-                        {% endfor %}
-                    </table>
-                </div>
+                    {% endfor %}
+                </table>
             </div>
+        </div>
 
-			<div class="box">
-                <div class="title-area">
-                    <h2>Add Editors</h2>
-                </div>
-                <div class="content">
-                    <table class="table table-bordered table-condensed small" id="editors">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Type</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for account_role in editors %}
+        <div class="box">
+            <div class="title-area">
+                <h2>Add Editors</h2>
+            </div>
+            <div class="content">
+                <table class="table table-bordered table-condensed small" id="editors">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for account_role in editors %}
                         <tr>
                             <td>{{ account_role.user.full_name }}</td>
                             <td>{{ account_role.user.email }}</td>
                             <td>Editor</td>
-                            <td><a href="{% url 'review_assign_editor' article.pk account_role.user.id 'editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a></td>
+                            <td>
+                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a>
+                            </td>
                         </tr>
-                        {% endfor %}
-                        {% for account_role in section_editors %}
+                    {% endfor %}
+                    {% for account_role in section_editors %}
                         <tr>
                             <td>{{ account_role.user.full_name }}</td>
                             <td>{{ account_role.user.email }}</td>
                             <td>Section Editor</td>
-                            <td><a href="{% url 'review_assign_editor' article.pk account_role.user.id 'section-editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a></td>
+                            <td>
+                                <a href="{% url 'review_assign_editor' article.pk account_role.user.id 'section-editor' %}?return={% url 'review_unassigned_article' article.pk %}">Add</a>
+                            </td>
                         </tr>
-                        {% endfor %}
-                        {% if not section_editors and not editors %}
-                        <tr><td colspan="4">No matches</td><td></td><td></td><td></td></tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="box">
-                <div class="title-area">
-                    <h2>Actions</h2>
-                </div>
-                <div class="content">
-                    {% if article.stage == 'Unassigned' and not article.stage == 'Assigned' %}
-                    {% if article.editors %}
-                    <ul class="menu vertical actions">
-                        <li><a href="{% url 'review_move_to_review' article.pk %}?return={% url 'review_in_review' article.pk %}"><i class="fa fa-check action-icon">&nbsp;</i>Move to Review</a></li>
-                        <li><a href="{% url 'review_decision' article.id 'accept' %}"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a></li>
-                        <li><a href="{% url 'review_decision' article.id 'decline' %}"><i class="fa fa-minus-circle action-icon">&nbsp;</i>Decline Article</a></li>
-                    </ul>
-                    {% else %}
-                    <div class="bs-callout bs-callout-info">
-                        <small>Before you can perform actions on an article you must assign an Editor.</small>
-                    </div>
+                    {% endfor %}
+                    {% if not section_editors and not editors %}
+                        <tr>
+                            <td colspan="4">No matches</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Actions</h2>
+            </div>
+            <div class="content">
+                {% if article.stage == 'Unassigned' and not article.stage == 'Assigned' %}
+                    {% if article.editors %}
+                        <ul class="menu vertical actions">
+                            <li>
+                                <a href="{% url 'review_move_to_review' article.pk %}?return={% url 'review_in_review' article.pk %}"><i
+                                        class="fa fa-check action-icon">&nbsp;</i>Move to Review</a></li>
+                            <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
+                                    class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a></li>
+                            <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
+                                    class="fa fa-minus-circle action-icon">&nbsp;</i>Decline Article</a></li>
+                        </ul>
                     {% else %}
+                        <div class="bs-callout bs-callout-info">
+                            <small>Before you can perform actions on an article you must assign an Editor.</small>
+                        </div>
+                    {% endif %}
+                {% else %}
                     <div class="bs-callout bs-callout-danger">
                         <small>Article is no longer in the unassigned stage.</small>
                     </div>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
+        </div>
 
-		</div>
+    </div>
 
 {% endblock body %}
 
 {% block js %}
-	{% include "elements/datatables.html" with target="#editors" %}
+    {% include "elements/datatables.html" with target="#editors" %}
 {% endblock js %}

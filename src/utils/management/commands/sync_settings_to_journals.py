@@ -1,7 +1,12 @@
+import json
+import os
+
 from django.core.management.base import BaseCommand
 from django.utils import translation
+from django.conf import settings
 
 from journal import models as journal_models
+from press import models as press_models
 from utils import install
 
 
@@ -41,5 +46,19 @@ class Command(BaseCommand):
             print("Syncing to {0} Journals:".format(len(journals)))
             for journal in journals:
                 install.update_settings(journal, management_command=True)
-                print('Journal with ID {0} [{1}]: {2}. SETTINGS SYNCED.'.format(journal.id, journal.name, journal.domain))
+                print(
+                    'Journal with ID {0} [{1}]: {2}. SETTINGS SYNCED.'.format(journal.id, journal.name, journal.domain))
                 install.update_license(journal, management_command=True)
+
+        if not journal_code:
+            file = open(os.path.join(settings.BASE_DIR, 'utils', 'install', 'press_settings.json'), 'r')
+            text = json.loads(file.read())
+
+            for setting in text:
+                for press in press_models.Press.objects.all():
+                    print("Syncing to {press}".format(press=press.name))
+                    setting = press_models.PressSetting.objects.get_or_create(press=press,
+                                                                              name=setting['name'],
+                                                                              defaults={
+                                                                                  'value': setting['value']
+                                                                              })

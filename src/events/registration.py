@@ -9,6 +9,8 @@ from journal import logic as journal_logic
 
 # wire up event notifications
 
+from events import logic as event_logic  # We always import this as event_logic
+
 # Submission
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       transactional_emails.send_submission_acknowledgement)
@@ -107,6 +109,16 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       journal_logic.fire_submission_notifications)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       journal_logic.fire_acceptance_notifications)
+
+# Preprints
+event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_SUBMISSION,
+                                      transactional_emails.preprint_submission)
+
+event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_PUBLICATION,
+                                      transactional_emails.preprint_publication)
+
+event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_COMMENT,
+                                      transactional_emails.preprint_comment)
 
 # wire up task-creation events
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,

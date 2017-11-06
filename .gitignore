@@ -87,7 +87,6 @@ src/urls\.txt
 src/files/styling/
 src/static/OLH
 src/utils/management/commands/import_news\.py
-src/themes/OLH/
 src/core/settings/
 src/utils/management/commands/redirects\.py
 .vscode/**

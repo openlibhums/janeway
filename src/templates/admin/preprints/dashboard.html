@@ -1,0 +1,78 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Preprints Dashboard{% endblock %}
+{% block title-section %}Preprints Dashboard{% endblock %}
+{% block title-sub %}Displays a list of the preprints that you are registered as an author for.{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Submitted Preprints</h2>
+        </div>
+        <div class="content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date Submitted</th>
+                        <th>Decision</th>
+                        <th>Date Published</th>
+                        <th>Views</th>
+                        <th>Downloads</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for preprint in preprints %}
+                    <tr>
+                        <td><a href="{% url 'preprints_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
+                        <td>{{ preprint.date_submitted }}</td>
+                        <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Declined{% else %}Under Consideration{% endif %}</td>
+                        <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
+                        <td>{{ preprint.metrics.views }}</td>
+                        <td>{{ preprint.metrics.downloads }}</td>
+                    </tr>
+                {% empty %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Incomplete Submissions</h2>
+        </div>
+        <div class="content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date Submitted</th>
+                        <th>Decision</th>
+                        <th>Date Published</th>
+                        <th>Views</th>
+                        <th>Downloads</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for preprint in incomplete_preprints %}
+                    <tr>
+                        <td>{{ preprint.title|safe }}</td>
+                        <td>{{ preprint.date_submitted }}</td>
+                        <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Declined{% else %}Under Consideration{% endif %}</td>
+                        <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
+                        <td>{{ preprint.metrics.views }}</td>
+                        <td>{{ preprint.metrics.downloads }}</td>
+                    </tr>
+                {% empty %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -11,8 +11,22 @@
     </button>
     <ul class="vertical menu">
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway JMS</a></li>
+
+        {% if request.press.enable_preprints %}
+            {% is_preprint_editor as preprint_editor %}
+            <li class="subtitle"><a href="#">Preprints</a></li>
+            <li><a href="{% url 'preprints_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Dashboard</a></li>
+            {% if request.user.is_staff or preprint_editor %}
+                <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Manager</a></li>
+            {% endif %}
+            {% if request.user.is_staff %}
+                <li><a href="{% url 'preprints_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
+                <li><a href="{% url 'preprints_settings' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>
+            {% endif %}
+        {% endif %}
+
         {% if request.user.is_staff %}
-            <li class="subtitle"><a href="#">Staff</a></li>
+            <li class="subtitle"><a href="#">Press</a></li>
             <li><a href="{% url 'core_manager_index' %}"><i class="fa fa-lock">&nbsp;</i>
             Manager</a></li>
             <li><a href="{% url 'core_plugin_list' %}"><i class="fa fa-plug">&nbsp;</i>
@@ -66,8 +80,15 @@
                     <ul class="menu vertical">
                         <li><a href="{% url 'submission_start' %}">Submit</a></li>
                         <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-                        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-                        <li><a href="/admin/">Admin</a></li>
+                        {% if request.press.enable_preprints %}
+                            <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a></li>
+                        {% endif %}
+                        {% if is_editor or request.user.is_staff %}
+                            <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                        {% endif %}
+                        {% if request.user.is_staff %}
+                            <li><a href="/admin/">Admin</a></li>
+                        {% endif %}
                         <li><a href="{% url 'core_logout' %}">Logout</a></li>
                     </ul>
                 </div>

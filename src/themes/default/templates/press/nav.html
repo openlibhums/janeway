@@ -3,6 +3,8 @@
 {% load i18n %}
 {% load hooks %}
 
+
+
 <nav class="navbar navbar-toggleable-md bg-faded navbar-light">
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
             data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
@@ -43,6 +45,20 @@
                     <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
+                {%  if request.press.enable_preprints %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="" id="preprints"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Preprints
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="preprints">
+                                <a href="{% url 'preprints_home' %}" class="dropdown-item">Preprints Home</a>
+                                <a href="{% url 'preprints_list' %}" class="dropdown-item">All Preprints</a>
+                                <a href="{% url 'preprints_about' %}" class="dropdown-item">About Preprints</a>
+                        </div>
+                    </li>
+                    <li class="nav-item"></li>
+                {% endif %}
                 <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
                 {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}

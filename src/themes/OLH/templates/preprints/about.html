@@ -1,0 +1,24 @@
+{% extends "press/core/base.html" %}
+
+{% block title %}{{ request.press.name }} Preprints{% endblock %}
+
+{% block navbar %}
+    {% include "press/nav.html" %}
+{% endblock navbar %}
+
+{% block body %}
+
+    <section id="content">
+        <div class="row column">
+            <div class="large-12 columns">
+                <h2 class="text-center">About {{ request.press.name }} Preprints</h2>
+                {% if request.press.preprints_about %}
+                    {{ request.press.preprints_about|safe }}
+                {% else %}
+                    <p></p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

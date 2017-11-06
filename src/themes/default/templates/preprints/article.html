@@ -1,0 +1,90 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3>{{ article.title|safe }}</h3>
+            <p>
+                <small>This article is a preprint, it has not been peer reviewed or had any extensive editorial
+                    over-sight.
+                </small>
+            </p>
+        </div>
+        <div class="col-md-8">
+            <h5>{% trans "Authors" %}</h5>
+            <p>
+                <small>
+                    {% for author in article.authors.all %}
+                        {% if forloop.last %}
+                            {% if article.authors.all|length > 1 %} &{% endif %}
+                        {% endif %}
+                        {{ author.full_name }}
+                        {% if not forloop.last %}
+                            {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </small>
+            </p>
+            <h5>{% trans "Abstract" %}</h5>
+            <small>{{ article.abstract|safe }}</small>
+            <div itemprop="articleBody" id="pdf">
+                {% if pdf %}
+                    <iframe src="{% url 'preprints_pdf' article.pk %}?file={% url 'article_download_galley' article.id pdf.id %}"
+                            width="100%" height="100%" style="min-height: 900px;" allowfullscreen
+                            webkitallowfullscreen></iframe>
+                {% endif %}
+                {% hook 'article_footer_block' %}
+            </div>
+        </div>
+        <div class="col-md-3 left-bar">
+            <div class="article-menu">
+                <small>
+                    <h5>{% trans "Download" %}</h5>
+                    <ul>
+                        {% for galley in galleys %}
+                            <li>
+                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <h5>{% trans "Metadata" %}</h5>
+                    <ul>
+                        <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
+                        <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
+                                                     title="{{ article.license.text }}">{{ article.license.name }}</a>
+                        </li>
+                    </ul>
+                    <h5>{% trans "Metrics" %}</h5>
+                    <ul>
+                        <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
+                        <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                    </ul>
+                    <h5>{% trans "Citation" %}</h5>
+                    <div class="btn-group-vertical">
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#HarvardModal">
+                            Harvard-Style Citation
+                        </button>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#VancouverModal">
+                            Vancouver-Style Citation
+                        </button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#APAModal">
+                            APA-Style Citation
+                        </button>
+                    </div>
+
+                    <p><br /><a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i> All Preprints</a></p>
+                </small>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

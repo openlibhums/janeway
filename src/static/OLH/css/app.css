@@ -5208,3 +5208,10 @@ button.list-group-item-danger.active:focus {
   max-width: 100px;
   max-height: 49px;
   fill: #062657; }
+
+.title-area {
+  margin-top: 15px; }
+
+.subjectbutton {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important; }

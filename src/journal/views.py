@@ -349,10 +349,13 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
-    store_article_access(request, article, 'download', galley_type=galley.file.label)
+    embed = request.GET.get('embed', False)
+
+    if not embed == 'True':
+        store_article_access(request, article, 'download', galley_type=galley.file.label)
     return files.serve_file(request, galley.file, article)
 
 
@@ -389,7 +392,6 @@ def serve_article_file(request, identifier_type, identifier, file_id):
 
 
 @login_required
-@has_journal
 @article_exists
 @file_edit_user_required
 def replace_article_file(request, identifier_type, identifier, file_id):
@@ -429,7 +431,6 @@ def replace_article_file(request, identifier_type, identifier, file_id):
 
 
 @login_required
-@has_journal
 @article_exists
 @file_edit_user_required
 def file_reinstate(request, article_id, file_id, file_history_id):
@@ -450,7 +451,6 @@ def file_reinstate(request, article_id, file_id, file_history_id):
 
 
 @login_required
-@has_journal
 @file_edit_user_required
 def submit_files_info(request, article_id, file_id):
     """ Renders a template to submit information about a file.
@@ -460,7 +460,7 @@ def submit_files_info(request, article_id, file_id):
     :param file_id: the file ID for which to submit information
     :return: a rendered template to submit file information
     """
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article.allarticlesd, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     form = review_forms.ReplacementFileDetails(instance=file_object)
@@ -483,7 +483,6 @@ def submit_files_info(request, article_id, file_id):
 
 
 @login_required
-@has_journal
 @file_history_user_required
 def file_history(request, article_id, file_id):
     """ Renders a template to show the history of a file.
@@ -497,7 +496,7 @@ def file_history(request, article_id, file_id):
     if request.POST:
         return redirect(request.GET['return'])
 
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     template = "journal/file_history.html"
@@ -510,7 +509,6 @@ def file_history(request, article_id, file_id):
 
 
 @login_required
-@has_journal
 @file_edit_user_required
 def file_delete(request, article_id, file_id):
     """ Renders a template to delete a file.
@@ -520,7 +518,7 @@ def file_delete(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     files.delete_file(article_object, file_object)
@@ -528,7 +526,6 @@ def file_delete(request, article_id, file_id):
     return redirect(request.GET['return'])
 
 
-@has_journal
 @file_user_required
 @production_user_or_editor_required
 def article_file_make_galley(request, article_id, file_id):
@@ -539,7 +536,7 @@ def article_file_make_galley(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     # we copy the file here so that the user submitting has no control over the typeset files
@@ -570,8 +567,6 @@ def article_file_make_galley(request, article_id, file_id):
         file=new_file,
         label=new_file.label,
     )
-
-    article_object.data_figure_files.add(new_file)
 
     return redirect(request.GET['return'])
 

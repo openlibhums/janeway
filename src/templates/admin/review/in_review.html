@@ -33,37 +33,46 @@
                                     <div class="title-area">
                                         <h2>Files</h2>
                                         {% if round.round_number == article.current_review_round %}<a
-                    href="{% url 'review_delete_review_round' article.id round.id %}"
-                    class="small button alert">Delete Round</a><a href="{% url 'review_add_files' article.id round.id %}" class="button">Add Files</a>{% endif %}
+                                                href="{% url 'review_delete_review_round' article.id round.id %}"
+                                                class="small button alert">Delete Round</a>
+                                            <a href="{% url 'review_add_files' article.id round.id %}" class="button">Add
+                                                Files</a>{% endif %}
                                     </div>
                                     <div class="row" data-equalizer data-equalize-on="medium">
-                                    {% for file in round.review_files.all %}
-                                        <div class="large-3 columns{% if forloop.last %} end{% endif %}" >
-                                            <div class="callout breakdown file" data-equalizer-watch>
-                                                <div class="callout-title">
-                                                    <h4>{{ file.label }}</h4>
+                                        {% for file in round.review_files.all %}
+                                            <div class="large-3 columns{% if forloop.last %} end{% endif %}">
+                                                <div class="callout breakdown file" data-equalizer-watch>
+                                                    <div class="callout-title">
+                                                        <h4>{{ file.label }}</h4>
+                                                    </div>
+                                                    <p>{{ file.original_filename }}</p>
+                                                    <ul class="menu">
+                                                        <li>
+                                                            <a href="{% url 'editor_file_download' article.id file.id %}"><span
+                                                                    data-tooltip aria-haspopup="true"
+                                                                    class="has-tip bottom"
+                                                                    data-disable-hover="false" tabindex="2"
+                                                                    title="Download"><i
+                                                                    class="fa fa-download action-icon">&nbsp;</i></span></a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{% url 'review_remove_file' article.id round.id file.id %}"><span
+                                                                    data-tooltip aria-haspopup="true"
+                                                                    class="has-tip bottom"
+                                                                    data-disable-hover="false" tabindex="2"
+                                                                    title="Remove"><i class="fa fa-trash action-icon">&nbsp;</i></span></a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
-                                                <p>{{ file.original_filename }}</p>
-                                                <ul class="menu">
-                                                    <li>
-                                                        <a href="{% url 'editor_file_download' article.id file.id %}"><span
-                                                                data-tooltip aria-haspopup="true" class="has-tip bottom"
-                                                                data-disable-hover="false" tabindex="2"
-                                                                title="Download"><i class="fa fa-download action-icon">&nbsp;</i></span></a></li>
-                                                    <li>
-                                                        <a href="{% url 'review_remove_file' article.id round.id file.id %}"><span
-                                                                data-tooltip aria-haspopup="true" class="has-tip bottom"
-                                                                data-disable-hover="false" tabindex="2"
-                                                                title="Remove"><i class="fa fa-trash action-icon">&nbsp;</i></span></a></li>
-                                                </ul>
                                             </div>
-                                        </div>
-                                    {% endfor %}
+                                        {% endfor %}
                                     </div>
                                 </div>
                                 <div class="title-area">
                                     <h2>Reviewers</h2>
-                                    {% if round.round_number == article.current_review_round %}<a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add Reviewer</a>{% endif %}
+                                    {% if round.round_number == article.current_review_round %}
+                                        <a href="{% url 'review_add_review_assignment' article.id %}" class="button">Add
+                                            Reviewer</a>{% endif %}
                                 </div>
                                 {% for review in round.reviewassignment_set.all %}
                                     <div class="callout breakdown reviewer">
@@ -111,16 +120,26 @@
                                                             <ul class="menu vertical actions">
                                                                 {% if review.decision == 'withdrawn' or review.date_declined %}
                                                                     <li>
-                                                                        <a href="{% url 'review_reset_review' article.pk review.pk %}"><i class="fa fa-retweet action-icon">&nbsp;</i>Reset</a></li>
+                                                                        <a href="{% url 'review_reset_review' article.pk review.pk %}"><i
+                                                                                class="fa fa-retweet action-icon">&nbsp;</i>Reset</a>
+                                                                    </li>
                                                                 {% endif %}
                                                                 <li>
-                                                                    <a href="{% url 'review_edit_review' article.pk review.pk %}"><i class="fa fa-pencil action-icon">&nbsp;</i>Edit</a></li>
+                                                                    <a href="{% url 'review_edit_review' article.pk review.pk %}"><i
+                                                                            class="fa fa-pencil action-icon">&nbsp;</i>Edit</a>
+                                                                </li>
                                                                 <li>
-                                                                    <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i class="fa fa-star action-icon">&nbsp;</i>Rate</a></li>
+                                                                    <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i
+                                                                            class="fa fa-star action-icon">&nbsp;</i>Rate</a>
+                                                                </li>
                                                                 <li>
-                                                                    <a href="{% url 'review_withdraw_review' article.pk review.pk %}"><i class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a></li>
+                                                                    <a href="{% url 'review_withdraw_review' article.pk review.pk %}"><i
+                                                                            class="fa fa-backward action-icon">&nbsp;</i>Withdraw</a>
+                                                                </li>
                                                                 <li>
-                                                                    <a href="{% url 'review_delete_review' article.pk review.pk %}"><i class="fa fa-trash action-icon">&nbsp;</i>Delete</a></li>
+                                                                    <a href="{% url 'review_delete_review' article.pk review.pk %}"><i
+                                                                            class="fa fa-trash action-icon">&nbsp;</i>Delete</a>
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -177,7 +196,8 @@
                                                  data-dropdown data-close-on-click="true">
                                                 <ul class="menu vertical actions">
                                                     <li>
-                                                        <a href="{% url 'edit_revision_request' article.id revision_request.pk %}"><i class="fa fa-pencil action-icon">&nbsp;</i>Edit</a></li>
+                                                        <a href="{% url 'edit_revision_request' article.id revision_request.pk %}"><i
+                                                                class="fa fa-pencil action-icon">&nbsp;</i>Edit</a></li>
                                                     <li>
 
                                                 </ul>
@@ -222,24 +242,30 @@
                     <ul class="menu vertical actions">
 
 
-                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
+                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
+                        </li>
                         <li>
                             <form method="POST">{% csrf_token %}
-                                <button name="new_review_round" type="submit" class="expanded"><i class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
+                                <button name="new_review_round" type="submit" class="expanded"><i
+                                        class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
                                 </button>
                             </form>
                         </li>
                         {% if journal_settings.general.draft_decisions %}
-                            <li><a href="{% url 'review_draft_decision' article.pk %}"><i class="fa fa-pencil-square action-icon">&nbsp;</i>Draft a
+                            <li><a href="{% url 'review_draft_decision' article.pk %}"><i
+                                    class="fa fa-pencil-square action-icon">&nbsp;</i>Draft a
                                 Decision</a></li>
                         {% endif %}
                         {% if not journal_settings.general.draft_decisions or editor %}
-                            <li><a href="{% url 'review_request_revisions' article.pk %}"><i class="fa fa-inbox action-icon">&nbsp;</i>Request
+                            <li><a href="{% url 'review_request_revisions' article.pk %}"><i
+                                    class="fa fa-inbox action-icon">&nbsp;</i>Request
                                 Revisions</a></li>
                             {% if article.stage == 'Under Review' or article.stage == 'Under Revision' %}
-                                <li><a href="{% url 'review_decision' article.id 'accept' %}"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
+                                <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
+                                        class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
                                 </li>
-                                <li><a href="{% url 'review_decision' article.id 'decline' %}"><i class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
+                                <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
+                                        class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
                                     Article</a></li>
                             {% endif %}
                         {% endif %}

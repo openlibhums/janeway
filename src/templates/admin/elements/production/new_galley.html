@@ -15,6 +15,7 @@
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+            <input type="hidden" name="upload" value="upload">
             <h5>XML/HTML Files</h5>
             <div class="clearfix">
                 <div>

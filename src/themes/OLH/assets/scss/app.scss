@@ -1099,3 +1099,12 @@ button.list-group-item-danger.active:focus {
 .full {
   @extend .large-12
 }
+
+.title-area {
+  margin-top: 15px;
+}
+
+.subjectbutton {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}

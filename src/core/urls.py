@@ -47,6 +47,8 @@ if settings.URL_CONFIG == 'domain':
         url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
         url(r'^news/', include('comms.urls')),
         url(r'^reports/', include('reports.urls')),
+        url(r'^preprints/', include('preprint.urls')),
+        url(r'^repository/', include('preprint.urls')),
 
         # Root Site URLS
         url(r'^$', press_views.index, name='website_index'),
@@ -269,6 +271,8 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/news/', include('comms.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/reports/', include('reports.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+        url(r'^(?P<journal_code>[-\w.]+)/preprints/', include('preprint.urls')),
+        url(r'^(?P<journal_code>[-\w.]+)/repository/', include('preprint.urls')),
 
         # Root Site URLS
         url(r'^$', press_views.index, name='website_index'),

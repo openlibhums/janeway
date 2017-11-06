@@ -53,16 +53,21 @@
             <div class="row">
                 <div class="large-12 columns">
                     <table>
+                        <thead>
                         <tr>
+                            <th></th>
                             <th>{% trans "Name" %}</th>
                             <th>{% trans "Email" %}</th>
                             <th></th>
                         </tr>
-                        {% for author in article.authors.all %}
-                            <tr>
-                                <td>{{ author.full_name }}</td>
-                                <td>{{ author.email }}</td>
-                                <td><a href="{% url 'delete_author' article.pk author.pk %}"><i class="fa fa-trash">
+                        </thead>
+                        <tbody id="sortable">
+                        {% for order in article.articleauthororder_set.all %}
+                            <tr id="authors-{{ order.author.pk }}">
+                                <td><i class="fa fa-sort"></i></td>
+                                <td>{{ order.author.full_name }}</td>
+                                <td>{{ order.author.email }}</td>
+                                <td><a href="{% url 'delete_author' article.pk order.author.pk %}"><i class="fa fa-trash">
                                     &nbsp;</i></a></td>
                             </tr>
                         {% empty %}
@@ -97,4 +102,22 @@
     {% if modal %}
         {% include "elements/open_modal.html" with target=modal %}
     {% endif %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'submit_authors' article.pk %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
 {% endblock %}

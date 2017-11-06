@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import uuid
 import os
+from dateutil import parser as dateparser
 
 from django.urls import reverse
 from django.db import models
@@ -20,6 +21,7 @@ from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
+from preprint import models as preprint_models
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
@@ -199,11 +201,18 @@ STAGE_TYPESETTING = 'Typesetting'
 STAGE_PROOFING = 'Proofing'
 STAGE_READY_FOR_PUBLICATION = 'pre_publication'
 STAGE_PUBLISHED = 'Published'
+STAGE_PREPRINT_REVIEW = 'preprint_review'
+STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
 COPYEDITING_STAGES = [
     STAGE_EDITOR_COPYEDITING,
     STAGE_AUTHOR_COPYEDITING,
     STAGE_FINAL_COPYEDITING,
+]
+
+PREPRINT_STAGES = [
+    STAGE_PREPRINT_REVIEW,
+    STAGE_PREPRINT_PUBLISHED
 ]
 
 STAGE_CHOICES = [
@@ -221,6 +230,8 @@ STAGE_CHOICES = [
     (STAGE_PROOFING, 'Proofing'),
     (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
     (STAGE_PUBLISHED, 'Published'),
+    (STAGE_PREPRINT_REVIEW, 'Preprint Review'),
+    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
 ]
 
 
@@ -254,6 +265,13 @@ class Keyword(models.Model):
         return self.word
 
 
+class AllArticleManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return super(AllArticleManager, self).get_queryset().all()
+
+
 class ArticleManager(models.Manager):
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
@@ -265,7 +283,7 @@ class PreprintManager(models.Manager):
 
 
 class Article(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', null=True)
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=300, help_text=_('Your article title'))
@@ -354,7 +372,9 @@ class Article(models.Model):
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
     is_preprint = models.BooleanField(default=False)
+    preprint_decision_notification = models.BooleanField(default=False)
 
+    allarticles = AllArticleManager()
     objects = ArticleManager()
     preprints = PreprintManager()
 
@@ -371,7 +391,6 @@ class Article(models.Model):
     @property
     def has_galley(self):
         return self.galley_set.all().exists()
-
 
     def journal_sections(self):
         return ((section.id, section.name) for section in self.journal.section_set.all())
@@ -531,7 +550,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.objects.filter(id=identifier)[0]
+                article = Article.allarticles.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(id_type=identifier_type, identifier=identifier)[0].article
@@ -615,7 +634,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            current_object = Article.objects.get(pk=self.pk)
+            current_object = Article.allarticles.get(pk=self.pk)
             if current_object.stage != self.stage:
                 ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
                                                stage_to=self.stage)
@@ -764,6 +783,13 @@ class Article(models.Model):
         self.stage = STAGE_REJECTED
         self.save()
 
+    def accept_preprint(self, date, time):
+        self.date_accepted = timezone.now()
+        self.date_declined = None
+        self.stage = STAGE_PREPRINT_PUBLISHED
+        self.date_published = dateparser.parse('{date} {time}'.format(date=date, time=time))
+        self.save()
+
     def user_is_author(self, user):
         if user in self.authors.all():
             return True
@@ -853,6 +879,44 @@ class Article(models.Model):
         path = os.path.join(self.meta_image.storage.base_location, self.meta_image.name)
         if os.path.isfile(path):
             os.unlink(path)
+
+    def next_author_sort(self):
+        current_orders = [order.order for order in ArticleAuthorOrder.objects.filter(article=self)]
+        if not current_orders:
+            return 0
+        else:
+            return max(current_orders) + 1
+
+    def next_preprint_version(self):
+        versions = [version.version for version in preprint_models.PreprintVersion.objects.filter(preprint=self)]
+        if not versions:
+            return 1
+        else:
+            return max(versions) + 1
+
+    def subject_editors(self):
+        editors = list()
+        subjects = self.subject_set.all().prefetch_related('editors')
+
+        for subject in subjects:
+            for editor in subject.editors.all():
+                editors.append(editor)
+
+        return set(editors)
+
+    def set_preprint_subject(self, subject):
+        for preprint_subject in self.subject_set.all():
+            preprint_subject.preprints.remove(self)
+
+        subject.preprints.add(self)
+
+    def get_subject_area(self):
+        subjects = self.subject_set.all()
+
+        if subjects:
+            return subjects[0]
+        else:
+            return None
 
 
 class FrozenAuthor(models.Model):

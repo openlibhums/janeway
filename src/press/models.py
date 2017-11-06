@@ -14,6 +14,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.validators import MinValueValidator
 
 from core import models as core_models
+from utils.function_cache import cache
 
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
@@ -40,10 +41,12 @@ def press_carousel_choices():
 def press_text(type):
     file = open(os.path.join(settings.BASE_DIR, 'utils', 'install', 'press_text.json'), 'r')
     text = json.loads(file.read())[0]
-    if type == 'registration': 
+    if type == 'registration':
         return text.get('registration')
     elif type == 'reset':
         return text.get('reset')
+    else:
+        return text.get(type)
 
 
 class Press(models.Model):
@@ -73,6 +76,11 @@ class Press(models.Model):
     password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
 
     enable_preprints = models.BooleanField(default=False)
+    preprints_about = models.TextField(blank=True, null=True)
+    preprint_start = models.TextField(blank=True, null=True)
+    preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
+    preprint_submission = models.TextField(blank=True, null=True, default=press_text('submission'))
+    preprint_publication = models.TextField(blank=True, null=True, default=press_text('publication'))
 
     def __str__(self):
         return u'%s' % self.name
@@ -217,3 +225,48 @@ class Press(models.Model):
             carousel_objects = article_objects
 
         return self.carousel, carousel_objects
+
+    def get_setting(self, name):
+        return PressSetting.objects.get_or_create(press=self, name=name)
+
+    def get_setting_value(self, name):
+        try:
+            return PressSetting.objects.get(press=self, name=name).value
+        except PressSetting.DoesNotExist:
+            return ''
+
+    @cache(600)
+    def preprint_editors(self):
+        from preprint import models as pp_models
+        editors = list()
+        subjects = pp_models.Subject.objects.all()
+
+        for subject in subjects:
+            for editor in subject.editors.all():
+                editors.append(editor)
+
+        return set(editors)
+
+    def preprint_dois_enabled(self):
+        try:
+            PressSetting.objects.get(press=self, name="Crossref Login")
+        except PressSetting.DoesNotExist:
+            return False
+
+        try:
+            PressSetting.objects.get(press=self, name="Crossref Password")
+        except PressSetting.DoesNotExist:
+            return False
+
+        return True
+
+
+
+class PressSetting(models.Model):
+    press = models.ForeignKey(Press)
+    name = models.CharField(max_length=255)
+    value = models.TextField(blank=True, null=True)
+    is_boolean = models.BooleanField(default=False)
+
+    def __str__(self):
+        return '{name} - {press}'.format(name=self.name, press=self.press.name)
