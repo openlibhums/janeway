@@ -557,8 +557,10 @@ def licenses(request, license_pk=None):
     license_obj = None
     licenses = models.Licence.objects.filter(journal=request.journal)
 
-    if license_pk:
+    if license_pk and request.journal:
         license_obj = get_object_or_404(models.Licence, journal=request.journal, pk=license_pk)
+    elif license_pk and request.press:
+        license_obj = get_object_or_404(models.Licence, press=request.press, pk=license_pk)
 
     form = forms.LicenseForm(instance=license_obj)
 
@@ -567,7 +569,11 @@ def licenses(request, license_pk=None):
 
         if form.is_valid():
             save_license = form.save(commit=False)
-            save_license.journal = request.journal
+            if request.journal:
+                save_license.journal = request.journal
+            else:
+                save_license.press = request.press
+
             save_license.save()
             messages.add_message(request, messages.INFO, 'License saved.')
 
