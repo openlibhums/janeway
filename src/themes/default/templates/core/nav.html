@@ -25,7 +25,7 @@
         <ul class="navbar-nav mr-auto font-weight-bold">
             {% if request.journal.nav_home %}
                 <li class="nav-item"><a href="/" class="nav-link">Home</a></li>{% endif %}
-            {% if journal_settings.general.enable_news_display %}
+            {% if request.journal.nav_news %}
                 <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
 
             {% for item in navigation_items %}

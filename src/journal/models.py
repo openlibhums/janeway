@@ -74,6 +74,7 @@ class Journal(models.Model):
 
     # Nav Items
     nav_home = models.BooleanField(default=True)
+    nav_news = models.BooleanField(default=False)
     nav_articles = models.BooleanField(default=True)
     nav_issues = models.BooleanField(default=True)
     nav_contact = models.BooleanField(default=True)
@@ -219,7 +220,8 @@ class Journal(models.Model):
         return max(orderings) + 1 if orderings else 0
 
     def next_contact_order(self):
-        orderings = [contact.sequence for contact in self.journalcontacts_set.all()]
+        contacts = core_models.Contact.objects.filter(content_type__model='journal', object_id=self.pk)
+        orderings = [contact.sequence for contact in contacts]
         return max(orderings) + 1 if orderings else 0
 
     def next_group_order(self):

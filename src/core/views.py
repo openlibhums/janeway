@@ -832,6 +832,10 @@ def add_user(request):
 
                 return redirect(reverse('core_manager_users'))
 
+        else:
+            # If the registration form is not valid, we need to add post data to the Edit form for display.
+            form = forms.EditAccountForm(request.POST)
+
     template = 'core/manager/users/edit.html'
     context = {
         'form': form,
@@ -1085,7 +1089,6 @@ def contacts(request):
                                     pk=contact_id,
                                     content_type=request.model_content_type,
                                     object_id=request.site_type.pk)
-        contact.sequence = request.journal.next_contact_order()
         contact.delete()
         return redirect(reverse('core_journal_contacts'))
 
@@ -1096,6 +1099,7 @@ def contacts(request):
             contact = form.save(commit=False)
             contact.content_type = request.model_content_type
             contact.object_id = request.site_type.pk
+            contact.sequence = request.journal.next_contact_order()
             contact.save()
             return redirect(reverse('core_journal_contacts'))
 
