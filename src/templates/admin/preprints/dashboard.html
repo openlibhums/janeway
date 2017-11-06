@@ -18,6 +18,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Title</th>
                         <th>Date Submitted</th>
                         <th>Decision</th>
@@ -29,6 +30,7 @@
                 <tbody>
                 {% for preprint in preprints %}
                     <tr>
+                        <td>{{ preprint.pk }}</td>
                         <td><a href="{% url 'preprints_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
                         <td>{{ preprint.date_submitted }}</td>
                         <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Declined{% else %}Under Consideration{% endif %}</td>
@@ -51,6 +53,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Title</th>
                         <th>Date Submitted</th>
                         <th>Decision</th>
@@ -62,6 +65,7 @@
                 <tbody>
                 {% for preprint in incomplete_preprints %}
                     <tr>
+                        <td>{{ preprint.pk }}</td>
                         <td>{{ preprint.title|safe }}</td>
                         <td>{{ preprint.date_submitted }}</td>
                         <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Declined{% else %}Under Consideration{% endif %}</td>

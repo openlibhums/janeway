@@ -24,13 +24,15 @@ class PreprintInfo(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
-        self.fields['license'].queryset = submission_models.Licence.objects.filter(available_for_submission=True)
+        self.fields['license'].queryset = submission_models.Licence.objects.filter(press__isnull=False,
+                                                                                   available_for_submission=True)
         self.fields['license'].required = True
 
         # If there is an instance, we want to try to set the default subject area
         if 'instance' in kwargs:
             article = kwargs['instance']
-            self.fields['subject'].initial = article.get_subject_area()
+            if article:
+                self.fields['subject'].initial = article.get_subject_area()
 
     def save(self, commit=True, request=None):
         article = super(PreprintInfo, self).save()

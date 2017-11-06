@@ -230,4 +230,5 @@ class LicenseForm(forms.ModelForm):
         model = models.Licence
         exclude = (
             'journal',
+            'press',
         )
