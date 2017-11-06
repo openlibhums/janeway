@@ -2,7 +2,7 @@
 
 {% block title %}Preprint #{{ preprint.pk }}{% endblock %}
 {% block title-section %}Preprint Manager{% endblock %}
-{% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}: {{ preprint.subtitle|safe }}{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
