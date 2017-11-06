@@ -30,7 +30,8 @@ class PreprintInfo(forms.ModelForm):
         # If there is an instance, we want to try to set the default subject area
         if 'instance' in kwargs:
             article = kwargs['instance']
-            self.fields['subject'].initial = article.get_subject_area()
+            if article:
+                self.fields['subject'].initial = article.get_subject_area()
 
     def save(self, commit=True, request=None):
         article = super(PreprintInfo, self).save()
