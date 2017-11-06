@@ -210,10 +210,10 @@ STATIC_URL = '/static/'
 
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode
-    'iframe': False,  # or set False to use SummernoteInplaceWidget - no iframe mode
+    'iframe': True,  # or set False to use SummernoteInplaceWidget - no iframe mode
 
     # Using Summernote Air-mode
-    'airMode': True,
+    'airMode': False,
 
     # Use native HTML tags (`<b>`, `<i>`, ...) instead of style attributes
     # (Firefox, Chrome only)

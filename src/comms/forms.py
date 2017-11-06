@@ -10,10 +10,6 @@ class NewsItemForm(forms.ModelForm):
     image_file = forms.FileField(required=False)
     tags = forms.CharField(required=False)
 
-    def __init__(self, *args, **kwargs):
-        super(NewsItemForm, self).__init__(*args, **kwargs)
-        self.fields['body'].widget = SummernoteWidget()
-
     def save(self, commit=True):
         news_item = super(NewsItemForm, self).save()
         posted_tags = self.cleaned_data['tags'].split(',')
@@ -26,3 +22,7 @@ class NewsItemForm(forms.ModelForm):
     class Meta:
         model = models.NewsItem
         exclude = ('content_type', 'object_id', 'posted', 'posted_by', 'large_image_file', 'tags')
+
+        widgets = {
+            'body': SummernoteWidget(),
+        }
