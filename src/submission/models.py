@@ -989,7 +989,9 @@ class Section(TranslatableModel):
 
 
 class Licence(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', null=True, blank=True, on_delete=models.SET_NULL)
+    press = models.ForeignKey('press.Press', null=True, blank=True, on_delete=models.SET_NULL)
+
     name = models.CharField(max_length=300)
     short_name = models.CharField(max_length=15)
     url = models.URLField(max_length=1000)
@@ -1003,6 +1005,12 @@ class Licence(models.Model):
 
     def __str__(self):
         return u'%s' % self.short_name
+
+    def object(self):
+        if not self.journal:
+            return self.press
+
+        return self.journal
 
 
 class Note(models.Model):
