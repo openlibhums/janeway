@@ -19,17 +19,6 @@
                 {% for article in articles %}
                     <div class="box article">
                         <div class="row">
-                            <div class="col-md-2">
-                                {% if article.thumbnail_image_file %}
-                                    <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                                         alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
-                                {% elif request.journal.thumbnail_image %}
-                                    <img src="{% url 'journal_cover_download' %}" class="article-thumbnail">
-                                {% else %}
-                                    <img src="{% static 'common/img/icons/article.png' %}"
-                                         alt="{{ article.title|striptags|escape }}"
-                                         class="article-thumbnail"> {% endif %}
-                            </div>
                             <div class="col-md-10 article-block">
                                 <h4>
                                     <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'preprints_article' article.pk %}{% endif %}"
@@ -42,17 +31,20 @@
                                         {% endif %}{% endif %}{% endfor %}</p>
                                 <p><span class="date"><i
                                         class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                                        class="fa fa-book"></i> {% trans "Volume" %} {{ article.issue.volume }},
-                                    {% trans "Issue" %} {{ article.issue.issue }}</p>
+                                        class="fa fa-book"></i> <i
+                                        class="fa fa-paperclip"></i> {{ article.get_subject_area }}<hr />
                             </div>
                         </div>
                     </div>
+                    {% empty %}
+                    <p>There are no preprints to display</p>
                 {% endfor %}
 
                 <div class="pagination-block">{{ page }}
                     <ul class="d-flex justify-content-center">
                         {% if articles.has_previous %}
-                            <a href="?page={{ articles.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                            <a href="?page={{ articles.previous_page_number }}"
+                               class="btn btn-outline-primary">&laquo;</a>
                             &nbsp;{% endif %}
                         {{ articles.page.page_range }}
                         {% for page in articles.paginator.page_range %}
@@ -81,7 +73,9 @@
                                            placeholder="Search preprints..." style="width: 100%;"
                                            {% if search_term %}value="{{ search_term }}"{% endif %}>
                                 </div>
-                                <p><small>You can search by:</small></p>
+                                <p>
+                                    <small>You can search by:</small>
+                                </p>
                                 <small>
                                     <ul>
                                         <li>Title</li>

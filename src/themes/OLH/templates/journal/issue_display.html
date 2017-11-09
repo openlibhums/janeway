@@ -21,6 +21,7 @@
                     </ul>
                 </div>
                 <br/>
+                <p>{{ issue.issue_description|safe }}</p>
             {% else %}
                 <h2 class="em">{{ issue.display_title }}</h2>
                 <p>{{ issue.issue_description|safe }}</p>
