@@ -43,6 +43,7 @@ class Loader(BaseLoader):
     def get_theme_dirs(self):
 
         if hasattr(_local, 'request'):
+
             if _local.request.journal:
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
@@ -60,6 +61,9 @@ class Loader(BaseLoader):
         # this is a backup for a missed setting get above.
         if not theme_setting:
             theme_setting = 'default'
+
+        if settings.DEBUG and _local.request.GET.get('theme'):
+            theme_setting = _local.request.GET.get('theme')
 
         return [os.path.join(settings.BASE_DIR, 'themes', theme_setting, 'templates'),
                 os.path.join(settings.BASE_DIR, 'themes', 'default', 'templates')] + self.engine.dirs

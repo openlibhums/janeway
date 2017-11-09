@@ -35,3 +35,5 @@ Lead Developer - Andy Byers, a.byers@bbk.ac.uk
 
 # Releases
 - v1.0 Kathryn released 10/08/17
+- v1.1 Chakotay released 01/09/17
+- v1.2 Tuvok release 06/11/17

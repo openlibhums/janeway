@@ -5,7 +5,7 @@
             <div class="card" style="width: 100%;">
                 <div class="card-block">
                     <p>
-                        <small>{{ preprint.title|safe }}</small>
+                        <small><a href="{% url 'preprints_article' preprint.pk %}">{{ preprint.title|safe }}</a></small>
                     </p>
                     <p>
                         <small><i>

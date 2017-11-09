@@ -338,7 +338,7 @@ def edit_profile(request):
 
             if old_password and request.user.check_password(old_password):
 
-                if (new_pass_one == new_pass_two):
+                if new_pass_one == new_pass_two:
                     problems = request.user.password_policy_check(request, new_pass_one)
                     if not problems:
                         request.user.set_password(new_pass_one)

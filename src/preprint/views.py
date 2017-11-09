@@ -473,7 +473,7 @@ def preprints_review(request, article_id):
         event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_SUBMISSION, **kwargs)
 
         messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
-        return redirect(reverse('preprints_home'))
+        return redirect(reverse('preprints_dashboard'))
 
     template = 'preprints/review.html'
     context = {

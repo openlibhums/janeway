@@ -37,7 +37,7 @@
             <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>
             {% endif %}
         {% endif %}
-        {% if request.journal.nav_sub %}<li><a href="{% url 'journal_submissions' %}">Submission</a></li>{% endif %}
+        {% if request.journal.nav_sub and not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'journal_submissions' %}">Submission</a></li>{% endif %}
         {% if request.journal.nav_contact %}<li><a href="{% url 'contact' %}">Contact</a></li>{% endif %}
         {% hook 'nav_block' %}
         {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission  %}<li><a href="{% url 'submission_start' %}" class="button"><i class="fa fa-cloud-upload"></i> Start Submission</a></li>{% endif %}
