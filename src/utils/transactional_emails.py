@@ -984,7 +984,7 @@ def preprint_comment(**kwargs):
     email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
                  '<a href="{base_url}{url}">on the journal site</a>.'.format(
                      article=article.title, base_url=request.press_base_url, url=reverse('preprints_comments',
-                                                                                         kwargs={'article_id': article.pk, 'comment_id': comment.pk}))
+                                                                                         kwargs={'article_id': article.pk}))
 
     description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
 
