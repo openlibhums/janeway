@@ -109,9 +109,9 @@ class ReviewAssignment(models.Model):
     def review_form_answers(self):
         return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('element__order')
 
-    def save_review_form(self, review_form):
+    def save_review_form(self, review_form, assignment):
         for k, v in review_form.cleaned_data.items():
-            form_element = ReviewFormElement.objects.get(name=k)
+            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, name=k)
             ReviewAssignmentAnswer.objects.create(
                 assignment=self,
                 element=form_element,
