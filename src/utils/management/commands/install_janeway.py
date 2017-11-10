@@ -5,6 +5,7 @@ from django.utils import translation
 from press import models as press_models
 from journal import models as journal_models
 from utils import install
+from submission import models as submission_models
 
 
 class Command(BaseCommand):
@@ -44,6 +45,11 @@ class Command(BaseCommand):
         journal.description = input('Journal #1 description: ')
         journal.save()
         journal.setup_directory()
+
+        submission_models.Section.objects.get_or_create(journal=journal,
+                                                        number_of_reviewers=2,
+                                                        name='Article',
+                                                        plural='Articles')
 
         print("Thanks, Journal #1 has been saved.\n")
 
