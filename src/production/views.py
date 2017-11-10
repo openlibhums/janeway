@@ -446,6 +446,8 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         label = request.POST.get('label')
 
         if 'fixed-image-upload' in request.POST:
+            if request.POST.get('datafile') != None:
+                logic.use_data_file_as_galley_image(galley, request, label)
             for uploaded_file in request.FILES.getlist('image'):
                 logic.save_galley_image(galley, request, uploaded_file, label, fixed=True)
         if 'image-upload' in request.POST:
@@ -474,7 +476,9 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         'galley': galley,
         'article': galley.article,
         'image_names': logic.get_image_names(galley),
-        'return_url': return_url
+        'return_url': return_url,
+        'data_files': article.data_figure_files.all(),
+        'galley_images': galley.images.all()
     }
 
     return render(request, template, context)
