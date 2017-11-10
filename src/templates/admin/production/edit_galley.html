@@ -181,7 +181,7 @@
                                                     <select name="datafile">
                                                         <option value="">---------</option>
                                                         {% for file in data_files %}
-                                                            {% if file not in galley_images %}<option value="{{ file.pk }}">{{ file.original_filename }}</option>{% endif %}
+                                                            {% if file not in galley_images %}<option value="{{ file.pk }}">{{ file.label }} ({{ file.original_filename }})</option>{% endif %}
                                                         {% endfor %}
                                                     </select>
                                                     {% endif %}
