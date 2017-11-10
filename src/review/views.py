@@ -591,7 +591,7 @@ def do_review(request, assignment_id):
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
-            assignment.save_review_form(form)
+            assignment.save_review_form(form, assignment)
             assignment.date_complete = timezone.now()
             assignment.is_complete = True
             assignment.save()
