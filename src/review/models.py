@@ -37,7 +37,7 @@ def review_decision():
 def review_type():
     return (
         ('traditional', 'Traditional'),
-        ('annotation', 'Annotation'),
+        #('annotation', 'Annotation'),
     )
 
 
@@ -82,8 +82,7 @@ class ReviewAssignment(models.Model):
                                                      "have any competing interests please add them here. "
                                                      "EG. 'This study was paid for by corp xyz.'.")
     review_type = models.CharField(max_length=20, choices=review_type(), default='traditional',
-                                   help_text='Traditional review uses a form set, annotation review '
-                                             'is freeform using hypothes.is')
+                                   help_text='Currently only traditional, form based, review is available.')
     visibility = models.CharField(max_length=20, choices=review_visibilty(), default='blind')
     form = models.ForeignKey('ReviewForm')
     access_code = models.CharField(max_length=100, blank=True, null=True)
