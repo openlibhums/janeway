@@ -16,17 +16,22 @@
                         <th>Date</th>
                         <th>Actor</th>
                         <th>Level</th>
+                        <th>Emal Status</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for entry in log_entries %}
                         <tr>
-                        <td>{{ entry.types }}</td>
-                        <td>{{ entry.date }}</td>
-                        <td>{{ entry.actor.full_name }}</td>
-                        <td>{{ entry.get_level_display }}</td>
-                        <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
+                            <td>{{ entry.types }}</td>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.actor.full_name }}</td>
+                            <td>{{ entry.get_level_display }}</td>
+                            <td>
+                                <i class="fa fa-circle {{ entry.message_status_class }}" aria-hidden="true"></i>
+                                {{ entry.get_message_status_display }}
+                            </td>
+                            <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -377,13 +377,12 @@ def send_copyedit_assignment(**kwargs):
                                                                             copyedit_assignment.due)
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment',
+                    'target': copyedit_assignment.article}
+        response = notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
                                                       copyedit_assignment.copyeditor.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Revision Request', description=user_message_content, level='Info',
-                                       request=request, target=copyedit_assignment.article)
 
 
 def send_copyedit_updated(**kwargs):
@@ -420,15 +419,16 @@ def send_copyedit_deleted(**kwargs):
                                   'Copyedit assignment {0} updated'.format(copyedit_assignment.pk),
                                   ['slack_editors'])
 
-        # send to author
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment Deleted',
+                    'target': copyedit_assignment.article}
+        # send to copyeditor
         notify_helpers.send_email_with_body_from_setting_template(request,
                                                                   'copyedit_deleted',
                                                                   'subject_copyedit_deleted',
                                                                   copyedit_assignment.copyeditor.email,
                                                                   context={'request': request,
-                                                                           'copyedit_assignment': copyedit_assignment})
-        util_models.LogEntry.add_entry(types='Copyedit Task Deleted', description=description, level='Info',
-                                       request=request, target=copyedit_assignment.article)
+                                                                           'copyedit_assignment': copyedit_assignment},
+                                                                  log_dict=log_dict)
 
 
 def send_copyedit_decision(**kwargs):
