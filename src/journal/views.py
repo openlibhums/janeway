@@ -23,6 +23,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.core.management import call_command
 
 from cms import models as cms_models
 from core import files, models as core_models, plugin_loader
@@ -1186,6 +1187,10 @@ def manage_article_log(request, article_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     content_type = ContentType.objects.get_for_model(article)
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
+
+    if request.POST:
+        call_command('check_mailgun_stat')
+        return redirect(reverse('manage_article_log', kwargs={'article_id': article.pk}))
 
     template = 'journal/article_log.html'
     context = {

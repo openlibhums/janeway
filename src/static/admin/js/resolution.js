@@ -1,3 +1,3 @@
 function run_resolution() {
-    $('#run').html('<i class=\'fa fa-refresh fa-spin\'></i> Report Running')
+    $('#run').html('<i class=\'fa fa-refresh fa-spin\'></i> Refreshing')
 }
