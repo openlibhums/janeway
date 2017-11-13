@@ -34,20 +34,26 @@ class Command(BaseCommand):
         tab = CronTab(user=True)
         virtualenv = os.environ.get('VIRTUAL_ENV', None)
 
-        current_job = find_job(tab, "janeway_cron_job")
+        jobs = [
+            {'name': 'janeway_cron_job', 'time': 10, 'task': 'execute_cron_tasks'},
+            {'name': 'janeway_mailgun_job', 'time': 60, 'task': 'check_mailgun_stat'}
+        ]
 
-        if not current_job:
-            django_command = "{0}/manage.py execute_cron_tasks".format(settings.BASE_DIR)
-            if virtualenv:
-                command = '%s/bin/python3 %s' % (virtualenv, django_command)
+        for job in jobs:
+            current_job = find_job(tab, job['name'])
+
+            if not current_job:
+                django_command = "{0}/manage.py {1}".format(settings.BASE_DIR, job['task'])
+                if virtualenv:
+                    command = '%s/bin/python3 %s' % (virtualenv, django_command)
+                else:
+                    command = '%s' % (django_command)
+
+                cron_job = tab.new(command, comment=job['name'])
+                cron_job.minute.every(job['time'])
+
             else:
-                command = '%s' % (django_command)
-
-            cron_job = tab.new(command, comment="janeway_cron_job")
-            cron_job.minute.every(10)
-
-        else:
-            print("This cron job already exists.")
+                print("{name} cron job already exists.".format(name=job['name']))
 
         if action == 'test':
             print(tab.render())
