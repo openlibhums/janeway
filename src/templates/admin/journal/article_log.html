@@ -8,7 +8,7 @@
     <div class="box">
         <div class="title-area">
             <h2>Log Entries</h2>
-            <form method="POST">{% csrf_token %}<button class="button" id="run" name="run" onclick="run_resolution()">Refresh Email Status</button></form>
+            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<form method="POST">{% csrf_token %}<button class="button" id="run" name="run" onclick="run_resolution()">Refresh Email Status</button></form>{% endif %}
         </div>
         <div class="content">
             <table id="log">
@@ -18,7 +18,7 @@
                         <th>Date</th>
                         <th>Actor</th>
                         <th>Level</th>
-                        <th>Emal Status</th>
+                        {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<th>Email Status</th>{% endif %}
                         <th></th>
                     </tr>
                 </thead>
@@ -29,10 +29,10 @@
                             <td>{{ entry.date }}</td>
                             <td>{{ entry.actor.full_name }}</td>
                             <td>{{ entry.get_level_display }}</td>
-                            <td>
+                            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
                                 <i class="fa fa-circle {{ entry.message_status_class }}" aria-hidden="true"></i>
                                 {{ entry.get_message_status_display }}
-                            </td>
+                            </td>{% endif %}
                             <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
                         </tr>
                     {% endfor %}

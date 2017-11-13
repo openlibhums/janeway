@@ -36,8 +36,10 @@ class Command(BaseCommand):
 
         jobs = [
             {'name': 'janeway_cron_job', 'time': 10, 'task': 'execute_cron_tasks'},
-            {'name': 'janeway_mailgun_job', 'time': 60, 'task': 'check_mailgun_stat'}
         ]
+
+        if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
+            jobs.append({'name': 'janeway_mailgun_job', 'time': 60, 'task': 'check_mailgun_stat'})
 
         for job in jobs:
             current_job = find_job(tab, job['name'])
