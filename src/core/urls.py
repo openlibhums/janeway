@@ -65,7 +65,7 @@ if settings.URL_CONFIG == 'domain':
         url(r'^logout/$', core_views.user_logout, name='core_logout'),
         url(r'^dashboard/$', core_views.dashboard, name='core_dashboard'),
         url(r'^dashboard/article/(?P<article_id>\d+)/$', core_views.dashboard_article, name='core_dashboard_article'),
-        url(r'^cover/$', press_views.serve_press_cover, name='press_cover_download'),
+        url(r'^press/cover/$', press_views.serve_press_cover, name='press_cover_download'),
 
         # Notes
         url(r'^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$', core_views.delete_note,
@@ -294,7 +294,7 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/dashboard/$', core_views.dashboard, name='core_dashboard'),
         url(r'^(?P<journal_code>[-\w.]+)/dashboard/article/(?P<article_id>\d+)/$', core_views.dashboard_article,
             name='core_dashboard_article'),
-        url(r'^(?P<journal_code>[-\w.]+)/cover/$', press_views.serve_press_cover, name='press_cover_download'),
+        url(r'^(?P<journal_code>[-\w.]+)/press/cover/$', press_views.serve_press_cover, name='press_cover_download'),
 
         # Notes
         url(r'^(?P<journal_code>[-\w.]+)/article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$',
