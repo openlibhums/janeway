@@ -37,7 +37,7 @@ LOG_LEVELS = [
 
 MESSAGE_STATUS = [
     ('no_information', 'No Information'),
-    ('accepted', 'Accepted'),
+    ('accepted', 'Sending'),
     ('delivered', 'Delivered'),
     ('failed', 'Failed'),
 ]
