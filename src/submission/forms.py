@@ -221,6 +221,7 @@ class FieldForm(forms.ModelForm):
         model = models.Field
         exclude = (
             'journal',
+            'press',
         )
 
 
