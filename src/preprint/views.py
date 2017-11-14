@@ -242,37 +242,22 @@ def preprints_submit(request, article_id=None):
     :param request: HttpRequest
     :return: HttpResponse or HttpRedirect
     """
-    if article_id:
-        article = get_object_or_404(submission_models.Article.preprints,
-                                    pk=article_id,
-                                    date_submitted__isnull=True)
-    else:
-        article = None
-
-    form = forms.PreprintInfo(instance=article)
+    article = preprint_logic.get_preprint_article_if_id(request, article_id)
+    additional_fields = submission_models.Field.objects.filter(press=request.press)
+    form = forms.PreprintInfo(instance=article, additional_fields=additional_fields)
 
     if request.POST:
-        form = forms.PreprintInfo(request.POST, instance=article)
+        form = forms.PreprintInfo(request.POST, instance=article, additional_fields=additional_fields)
 
         if form.is_valid():
-            article = form.save()
-            article.owner = request.user
-            article.is_preprint = True
-            article.current_step = 1
-            article.authors.add(request.user)
-            article.correspondence_author = request.user
-            article.save()
-
-            submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
-                                                                       author=request.user,
-                                                                       defaults={'order': article.next_author_sort()})
-
+            article = preprint_logic.save_preprint_submit_form(request, form, article, additional_fields)
             return redirect(reverse('preprints_authors', kwargs={'article_id': article.pk}))
 
     template = 'preprints/submit_start.html'
     context = {
         'form': form,
         'article': article,
+        'additional_fields': additional_fields,
     }
 
     return render(request, template, context)

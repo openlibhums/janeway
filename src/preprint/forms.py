@@ -5,6 +5,7 @@ from django_summernote.widgets import SummernoteWidget
 from submission import models as submission_models
 from preprint import models
 from press import models as press_models
+from review.forms import render_choices
 
 
 class PreprintInfo(forms.ModelForm):
@@ -22,6 +23,7 @@ class PreprintInfo(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        elements = kwargs.pop('additional_fields', None)
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
         self.fields['license'].queryset = submission_models.Licence.objects.filter(press__isnull=False,
@@ -33,6 +35,45 @@ class PreprintInfo(forms.ModelForm):
             article = kwargs['instance']
             if article:
                 self.fields['subject'].initial = article.get_subject_area()
+
+        if elements:
+            for element in elements:
+                if element.kind == 'text':
+                    self.fields[element.name] = forms.CharField(
+                        widget=forms.TextInput(attrs={'div_class': element.width}),
+                        required=element.required)
+                elif element.kind == 'textarea':
+                    self.fields[element.name] = forms.CharField(widget=forms.Textarea,
+                                                                required=element.required)
+                elif element.kind == 'date':
+                    self.fields[element.name] = forms.CharField(
+                        widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
+                        required=element.required)
+
+                elif element.kind == 'select':
+                    choices = render_choices(element.choices)
+                    self.fields[element.name] = forms.ChoiceField(
+                        widget=forms.Select(attrs={'div_class': element.width}), choices=choices,
+                        required=element.required)
+
+                elif element.kind == 'email':
+                    self.fields[element.name] = forms.EmailField(
+                        widget=forms.TextInput(attrs={'div_class': element.width}),
+                        required=element.required)
+                elif element.kind == 'check':
+                    self.fields[element.name] = forms.BooleanField(
+                        widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
+                        required=element.required)
+
+                self.fields[element.name].help_text = element.help_text
+                self.fields[element.name].label = element.name
+
+                if article:
+                    try:
+                        check_for_answer = submission_models.FieldAnswer.objects.get(field=element, article=article)
+                        self.fields[element.name].initial = check_for_answer.answer
+                    except submission_models.FieldAnswer.DoesNotExist:
+                        pass
 
     def save(self, commit=True, request=None):
         article = super(PreprintInfo, self).save()
@@ -48,6 +89,22 @@ class PreprintInfo(forms.ModelForm):
 
         if self.cleaned_data.get('subject', None):
             article.set_preprint_subject(self.cleaned_data['subject'])
+
+        if request:
+            additional_fields = submission_models.Field.objects.filter(press=request.press)
+
+            for field in additional_fields:
+                answer = request.POST.get(field.name, None)
+                print(answer)
+                if answer:
+                    try:
+                        field_answer = submission_models.FieldAnswer.objects.get(article=article, field=field)
+                        field_answer.answer = answer
+                        field_answer.save()
+                    except submission_models.FieldAnswer.DoesNotExist:
+                        field_answer = submission_models.FieldAnswer.objects.create(article=article,
+                                                                                    field=field,
+                                                                                    answer=answer)
 
         return article
 
