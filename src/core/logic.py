@@ -28,12 +28,17 @@ from utils import shared
 
 def send_reset_token(request, reset_token):
     context = {'reset_token': reset_token}
+    log_dict = {'level': 'Info', 'types': 'Reset Token', 'target': None}
     if not request.journal:
         message = render_template.get_message_content(request, context, request.press.password_reset_text,
                                                       template_is_setting=True)
+        subject = 'Password Reset'
     else:
         message = render_template.get_message_content(request, context, 'password_reset')
-    notify_helpers.send_email_with_body_from_user(request, 'subject_password_reset', reset_token.account.email, message)
+        subject = 'subject_password_reset'
+
+    notify_helpers.send_email_with_body_from_user(request, subject, reset_token.account.email, message,
+                                                  log_dict=log_dict)
 
 
 def send_confirmation_link(request, new_user):
@@ -41,11 +46,14 @@ def send_confirmation_link(request, new_user):
     if not request.journal:
         message = render_template.get_message_content(request, context, request.press.registration_text,
                                                       template_is_setting=True)
+        subject = 'Registration Confirmation'
     else:
         message = render_template.get_message_content(request, context, 'new_user_registration')
+        subject = 'subject_new_user_registration'
 
     notify_helpers.send_slack(request, 'New registration: {0}'.format(new_user.full_name()), ['slack_admins'])
-    notify_helpers.send_email_with_body_from_user(request, 'subject_new_user_registration', new_user.email, message)
+    log_dict = {'level': 'Info', 'types': 'Account Confirmation', 'target': None}
+    notify_helpers.send_email_with_body_from_user(request, subject, new_user.email, message, log_dict=log_dict)
 
 
 def resize_and_crop(img_path, size, crop_type='middle'):

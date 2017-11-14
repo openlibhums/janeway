@@ -80,6 +80,7 @@ admin_list = [
     (models.Country, CountryAdmin),
     (models.WorkflowElement,),
     (models.HomepageElement, HomepageElementAdmin),
+    (models.LoginAttempt,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

@@ -9,7 +9,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             <div class="box">
-                {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}
+                {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES and entry.is_email %}
                 <div class="title-area">
                     <h2>Headers</h2>
                 </div>
