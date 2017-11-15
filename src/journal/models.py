@@ -55,7 +55,7 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(models.Model):
-    code = models.CharField(max_length=4)
+    code = models.CharField(max_length=10)
     domain = models.CharField(max_length=255, default='www.example.com', unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
