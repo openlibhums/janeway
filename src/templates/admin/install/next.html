@@ -13,46 +13,52 @@
             <div class="row expanded">
                 <div class="large-8 columns">
                     <ul class="list-group">
-                        <a href="{% url 'core_journal_contacts' %}">
+                        <a href="{% url 'core_journal_contacts' %}" target="_blank">
                         <li class="list-group-item">
                             <h4>1. Journal Contacts <i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                             <p>List your journal's contacts on the contact page.</p>
                         </li>
                         </a>
-                        <a href="{% url 'review_review_forms' %}">
+                        <a href="{% url 'review_review_forms' %}" target="_blank">
                         <li class="list-group-item">
                             <h4>2. Review Forms<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                             <p>You should create some review forms so that you can begin processing peer reviews.</p>
                         </li>
                         </a>
-                        <a href="{% url 'core_editorial_team' %}">
+                        <a href="{% url 'core_editorial_team' %}" target="_blank">
                         <li class="list-group-item">
                             <h4>3. Editorial Team<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                             <p>You can add your Editorial Team and list them on the journal site.</p>
                         </li>
                         </a>
-                        <a href="{% url 'cron_reminders' %}">
+                        <a href="{% url 'cron_reminders' %}" target="_blank">
                         <li class="list-group-item">
                             <h4>4. Scheduled Reminders<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                             <p>You can set when review and revision reminder emails are sent.</p>
                         </li>
                         </a>
-                        <a href="{% url 'home_settings_index' %}">
+                        <a href="{% url 'home_settings_index' %}" target="_blank">
                             <li class="list-group-item">
                                 <h4>5. Journal Home<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                                 <p>You can configure the items that appear on the journal home page.</p>
                             </li>
                         </a>
-                        <a href="{% url 'core_manager_sections' %}">
+                        <a href="{% url 'core_manager_sections' %}" target="_blank">
                             <li class="list-group-item">
                                 <h4>6. Article Sections<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                                 <p>You need to add at least one article section in order to allow article submissions.</p>
                             </li>
                         </a>
-                        <a href="{% url 'core_settings_index' %}">
+                        <a href="{% url 'core_settings_index' %}" target="_blank">
                             <li class="list-group-item">
                                 <h4>7. Workflow Settings<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
                                 <p>You can edit workflow settings and emails from here.</p>
+                            </li>
+                        </a>
+                        <a href="{{ request.press_base_url }}{% url 'core_manager_index' %}" target="_blank">
+                            <li class="list-group-item">
+                                <h4>8. Press Settings<i class="fa fa-chevron-circle-right link-chevron float-right"></i></h4>
+                                <p>You can edit your install's press details from here</p>
                             </li>
                         </a>
 
