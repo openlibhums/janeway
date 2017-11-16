@@ -126,7 +126,7 @@
                     <th>History</th>
                     <th>Delete</th>
                 </tr>
-                <form method="POST">
+                <form method="POST" action="{% url 'pm_edit_galley' article.pk galley.pk %}?return{% url 'pm_edit_galley' article.pk galley.pk %}">
                     {% csrf_token %}
                     {% for image in galley.images.all %}
                         {% can_view_file image as can_view_file_flag %}
@@ -176,12 +176,21 @@
                                                     <input name="image" type="file" class="float-left"
                                                            data-placeholder="No file"
                                                            data-buttonName="btn-primary">
+                                                    {% if data_files %}
+                                                        <p>Or, you can choose an existing figure file.</p>
+                                                    <select name="datafile">
+                                                        <option value="">---------</option>
+                                                        {% for file in data_files %}
+                                                            {% if file not in galley_images %}<option value="{{ file.pk }}">{{ file.label }} ({{ file.original_filename }})</option>{% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="large-4 columns">
                                                     <button type="submit" class="button success small float-right"
                                                             name="fixed-image-upload"><i
                                                             class="fa fa-upload">
-                                                        &nbsp;</i>Upload
+                                                        &nbsp;</i>Upload/Select
                                                     </button>
                                                 </div>
                                             </div>

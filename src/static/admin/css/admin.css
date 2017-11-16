@@ -367,3 +367,16 @@ th {
 .help-text {
     margin-bottom: 10px;
 }
+
+
+.green {
+  color: darkgreen;
+}
+
+.red {
+  color: darkred;
+}
+
+.amber {
+  color: darkorange;
+}

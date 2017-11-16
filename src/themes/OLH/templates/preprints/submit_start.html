@@ -2,6 +2,7 @@
 {% load static from staticfiles %}
 {% load i18n %}
 {% load foundation %}
+{% load field %}
 
 {% block title %}{% trans "Submit a Preprint" %}{% endblock title %}
 
@@ -72,7 +73,26 @@
                             <textarea class="form-control" cols="40" id="id_comments_editor" name="comments_editor"
                                       placeholder="{% trans "If you have any additional information you'd like to supply to the preprints editor, do so here" %}."
                                       rows="10" title="">{% if article %}{{ article.comments_editor }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
 
+                {% if additional_fields %}
+                    <div class="large-12 columns">
+                        <p></p>
+                        <h4>Additional Fields</h4>
+                    </div>
+                    {% for additional_field in additional_fields %}
+                        {% get_form_field form additional_field.name as field %}
+                        <div class="{{ field.field.widget.attrs.div_class }} columns">
+                            {{ field|foundation }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="large-12 columns">
+                    <div class="row">
+                        <div class="large-12 columns">
                             <button class="success button pull-right" type="submit" name="start_submission"><i
                                     class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
                             </button>

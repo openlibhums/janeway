@@ -143,7 +143,7 @@ def serve_press_cover(request):
     """
     p = press_models.Press.get_press(request)
 
-    response = files.serve_press_cover(request, p)
+    response = files.serve_press_cover(request, p.thumbnail_image)
 
     return response
 

@@ -89,6 +89,23 @@ def save_galley_image(galley, request, uploaded_file, label="Galley Image", fixe
     return new_file
 
 
+def use_data_file_as_galley_image(galley, request, label):
+    file_id = request.POST.get('datafile')
+
+    if file_id:
+        try:
+            file = core_models.File.objects.get(pk=file_id)
+            file.original_filename = request.POST.get('file_name')
+            file.save()
+            galley.images.add(file)
+            messages.add_message(request, messages.SUCCESS, 'File added.')
+        except core_models.File.DoesNotExist:
+            messages.add_message(request, messages.WARNING, 'No file with given ID found.')
+
+
+
+
+
 def save_galley_css(galley, request, uploaded_file, filename, label="Galley Image"):
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
     new_file.is_galley = False
@@ -215,7 +232,12 @@ def handle_delete_request(request, galley, typeset_task=None, article=None, page
             file_to_delete = core_models.File.objects.get(pk=file_id)
             if file_to_delete.pk in galley.article.all_galley_file_pks():
                 messages.add_message(request, messages.INFO, 'File deleted')
-                file_to_delete.delete()
+
+                # Check if this is a data file, and if it is remove it, dont delete it.
+                if file_to_delete in galley.article.data_figure_files.all():
+                    galley.images.remove(file_to_delete)
+                else:
+                    file_to_delete.delete()
         except core_models.File.DoesNotExist:
             messages.add_message(request, messages.WARNING, 'File not found')
 

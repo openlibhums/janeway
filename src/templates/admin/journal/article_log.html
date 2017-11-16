@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
 
 {% block title %}Article Log{% endblock %}
 {% block title-section %}Article Log{% endblock %}
@@ -7,6 +8,7 @@
     <div class="box">
         <div class="title-area">
             <h2>Log Entries</h2>
+            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<form method="POST">{% csrf_token %}<button class="button" id="run" name="run" onclick="run_resolution()">Refresh Email Status</button></form>{% endif %}
         </div>
         <div class="content">
             <table id="log">
@@ -16,17 +18,22 @@
                         <th>Date</th>
                         <th>Actor</th>
                         <th>Level</th>
+                        {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<th>Email Status</th>{% endif %}
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for entry in log_entries %}
                         <tr>
-                        <td>{{ entry.types }}</td>
-                        <td>{{ entry.date }}</td>
-                        <td>{{ entry.actor.full_name }}</td>
-                        <td>{{ entry.get_level_display }}</td>
-                        <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
+                            <td>{{ entry.types }}</td>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.actor.full_name }}</td>
+                            <td>{{ entry.get_level_display }}</td>
+                            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
+                                <i class="fa fa-circle {{ entry.message_status_class }}" aria-hidden="true"></i>
+                                {{ entry.get_message_status_display }}
+                            </td>{% endif %}
+                            <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -64,5 +71,6 @@
 {% endblock %}
 
 {% block js %}
-{% include "elements/datatables.html" with target="#log" sort=1 %}
+    <script type="text/javascript" src="{% static 'admin/js/resolution.js' %}"></script>
+    {% include "elements/datatables.html" with target="#log" sort=1 %}
 {% endblock %}

@@ -282,3 +282,29 @@ def unpublish_preprint(request, preprint):
     preprint.stage = submission_models.STAGE_PREPRINT_REVIEW
     preprint.save()
     messages.add_message(request, messages.INFO, 'This preprint has been unpublished')
+
+
+def get_preprint_article_if_id(request, article_id):
+    if article_id:
+        article = get_object_or_404(submission_models.Article.preprints,
+                                    pk=article_id,
+                                    date_submitted__isnull=True)
+    else:
+        article = None
+
+    return article
+
+
+def save_preprint_submit_form(request, form, article, additional_fields):
+    article = form.save(request=request)
+    article.owner = request.user
+    article.is_preprint = True
+    article.current_step = 1
+    article.authors.add(request.user)
+    article.correspondence_author = request.user
+    article.save()
+
+    submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
+                                                               author=request.user,
+                                                               defaults={'order': article.next_author_sort()})
+    return article

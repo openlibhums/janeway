@@ -16,7 +16,7 @@
                      class="article-thumbnail"> {% endif %}
         </div>
         <div class="large-10 columns end">
-            <h2>{{ article.title|safe }}</h2>
+            <h2>{{ article.title|safe }}{% if article.is_remote %}&nbsp;<i class="fa fa-external-link small-icon-text"></i>{% endif %}</h2>
            {% include "elements/journal/authors_block.html" %}
             <p><span class="date"><i
                     class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i

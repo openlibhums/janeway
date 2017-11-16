@@ -1043,7 +1043,8 @@ def width_choices():
 
 
 class Field(models.Model):
-    journal = models.ForeignKey('journal.Journal', default=1)
+    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+    press = models.ForeignKey('press.Press', blank=True, null=True)
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
     width = models.CharField(max_length=50, choices=width_choices(), default='full')
@@ -1058,6 +1059,13 @@ class Field(models.Model):
 
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
+
+    @property
+    def object(self):
+        if not self.journal:
+            return self.press
+
+        return self.journal
 
 
 class FieldAnswer(models.Model):

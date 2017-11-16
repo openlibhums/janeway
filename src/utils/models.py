@@ -35,10 +35,18 @@ LOG_LEVELS = [
     ('Info', 'Info'),
 ]
 
+MESSAGE_STATUS = [
+    ('no_information', 'No Information'),
+    ('accepted', 'Sending'),
+    ('delivered', 'Delivered'),
+    ('failed', 'Failed'),
+]
+
 
 class LogEntry(models.Model):
-    types = models.CharField(max_length=255, null=True, blank=True, choices=LOG_TYPES)
+    types = models.CharField(max_length=255, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
+    subject = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     level = models.CharField(max_length=20, null=True, blank=True, choices=LOG_LEVELS)
     actor = models.ForeignKey('core.Account', null=True, blank=True, related_name='actor', on_delete=models.SET_NULL)
@@ -48,17 +56,33 @@ class LogEntry(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     target = GenericForeignKey('content_type', 'object_id')
 
+    is_email = models.BooleanField(default=False)
+    to = models.EmailField(blank=True, null=True)
+    message_id = models.TextField(blank=True, null=True)
+    message_status = models.CharField(max_length=255, choices=MESSAGE_STATUS, default='no_information')
+    number_status_checks = models.IntegerField(default=0)
+    status_checks_complete = models.BooleanField(default=False)
+
     class Meta:
         verbose_name_plural = 'log entries'
 
     def __str__(self):
-        return u'[{0}] {1} - {2}'.format(self.types, self.date, self.description)
+        return u'[{0}] {1} - {2}'.format(self.types, self.date, self.subject)
 
     def __repr__(self):
-        return u'[{0}] {1} - {2}'.format(self.types, self.date, self.description)
+        return u'[{0}] {1} - {2}'.format(self.types, self.date, self.subject)
+
+    def message_status_class(self):
+        if self.message_status == 'delivered':
+            return 'green'
+        elif self.message_status == 'failed':
+            return 'red'
+        else:
+            return 'amber'
 
     @staticmethod
-    def add_entry(types, description, level, actor=None, request=None, target=None):
+    def add_entry(types, description, level, actor=None, request=None, target=None, is_email=False, to=None,
+                  message_id=None, subject=None):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
             if actor.is_anonymous():
@@ -72,6 +96,10 @@ class LogEntry(models.Model):
             'actor': actor if actor else None,
             'ip_address': get_ip_address(request),
             'target': target,
+            'is_email': is_email,
+            'to': to,
+            'message_id': message_id,
+            'subject': subject,
         }
 
         new_entry = LogEntry.objects.create(**kwargs).save()

@@ -67,29 +67,27 @@ def user_login(request):
             user = authenticate(username=user, password=pawd)
 
             if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    messages.info(request, 'Login successful.')
-                    logic.clear_bad_login_attempts(request)
+                login(request, user)
+                messages.info(request, 'Login successful.')
+                logic.clear_bad_login_attempts(request)
 
-                    orcid_token = request.POST.get('orcid_token', None)
-                    if orcid_token:
-                        try:
-                            token_obj = models.OrcidToken.objects.get(token=orcid_token, expiry__gt=timezone.now())
-                            user.orcid = token_obj.orcid
-                            user.save()
-                            token_obj.delete()
-                        except models.OrcidToken.DoesNotExist:
-                            pass
+                orcid_token = request.POST.get('orcid_token', None)
+                if orcid_token:
+                    try:
+                        token_obj = models.OrcidToken.objects.get(token=orcid_token, expiry__gt=timezone.now())
+                        user.orcid = token_obj.orcid
+                        user.save()
+                        token_obj.delete()
+                    except models.OrcidToken.DoesNotExist:
+                        pass
 
-                    if request.GET.get('next'):
-                        return redirect(request.GET.get('next'))
-                    else:
-                        return redirect(reverse('website_index'))
+                if request.GET.get('next'):
+                    return redirect(request.GET.get('next'))
                 else:
-                    messages.add_message(request, messages.ERROR, 'User account is not active.')
+                    return redirect(reverse('website_index'))
             else:
-                messages.add_message(request, messages.ERROR, 'Account not found with those details.')
+                messages.add_message(request, messages.ERROR, 'Account not found or account not active. Please ensure'
+                                                              'you have activated your account.')
                 util_models.LogEntry.add_entry(types='Authentication',
                                                description='Failed login attempt for user {0}'.format(
                                                    request.POST.get('user_name')),

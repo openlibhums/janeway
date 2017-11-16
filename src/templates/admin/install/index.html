@@ -21,7 +21,7 @@
                     </form>
                 </div>
                 <div class="large-4 columns">
-                    {% svg request.press_cover %}
+                    <img src="{% url 'press_cover_download' %}">
                 </div>
                 <div class="float-right">
                     <a href="{% url 'install_journal' %}" class="button">Move to Next Step</a>
