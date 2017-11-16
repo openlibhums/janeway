@@ -55,11 +55,6 @@ class Command(BaseCommand):
         journal.save()
         journal.setup_directory()
 
-        submission_models.Section.objects.language('en').get_or_create(journal=journal,
-                                                                       number_of_reviewers=2,
-                                                                       name='Article',
-                                                                       plural='Articles')
-
         print("Thanks, Journal #1 has been saved.\n")
 
         call_command('show_configured_journals')

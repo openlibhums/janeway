@@ -513,3 +513,9 @@ def create_sites_folder(sender, instance, created, **kwargs):
     if created:
         if not os.path.exists(path):
             os.makedirs(path)
+
+        from submission.models import Section
+        Section.objects.language('en').get_or_create(journal=instance,
+                                                     number_of_reviewers=2,
+                                                     name='Article',
+                                                     plural='Articles')
