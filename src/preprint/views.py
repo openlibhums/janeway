@@ -531,7 +531,7 @@ def preprints_manager_article(request, article_id):
 
         if 'decline' in request.POST:
             preprint.decline_article()
-            return redirect(reverse('preprints_notifictation', kwargs={'article_id': preprint.pk}))
+            return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'upload' in request.POST:
             preprint_logic.handle_file_upload(request, preprint)
