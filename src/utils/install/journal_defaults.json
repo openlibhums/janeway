@@ -116,7 +116,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }}, <br><br>Thank you for submitting \"{{ article }}\" to {{ article.journal }}.<br><br> Your work will now be reviewed by an editor and we will be in touch as the peer-review process progresses.<br><br>Regards,<br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }}, <br><br>Thank you for submitting \"{{ article }}\" to {{ article.journal }}.<br><br> Your work will now be reviewed by an editor and we will be in touch as the peer-review process progresses.<br><br>Regards,<br>"
         }
     },
     {
