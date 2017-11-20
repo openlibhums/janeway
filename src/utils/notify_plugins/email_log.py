@@ -17,23 +17,24 @@ def notify_hook(**kwargs):
 
     log_dict = kwargs.pop('log_dict')
 
-    types = log_dict.get('types')
-    action_text = log_dict.get('action_text')
-    level = log_dict.get('level')
-    request = kwargs.pop('request')
-    target = log_dict.get('target')
-    html = kwargs.pop('html')
+    if log_dict:
+        types = log_dict.get('types')
+        action_text = log_dict.get('action_text')
+        level = log_dict.get('level')
+        request = kwargs.pop('request')
+        target = log_dict.get('target')
+        html = kwargs.pop('html')
 
-    response = kwargs.pop('response')
+        response = kwargs.pop('response')
 
-    if isinstance(response, dict):
-        message_id = response['response'].get('id')
-        models.LogEntry.add_entry(types=types, description=html, level=level,
-                                  request=request, target=target, is_email=True, to=response.get('to')[0],
-                                  message_id=message_id, subject=action_text)
-    else:
-        models.LogEntry.add_entry(types=types, description=html, level=level,
-                                  request=request, target=target, subject=action_text)
+        if isinstance(response, dict):
+            message_id = response['response'].get('id')
+            models.LogEntry.add_entry(types=types, description=html, level=level,
+                                      request=request, target=target, is_email=True, to=response.get('to')[0],
+                                      message_id=message_id, subject=action_text)
+        else:
+            models.LogEntry.add_entry(types=types, description=html, level=level,
+                                      request=request, target=target, subject=action_text)
 
 
 def plugin_loaded():
