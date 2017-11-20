@@ -866,14 +866,17 @@ def send_author_publication_notification(**kwargs):
                                                                             article.date_published,
                                                                             request.user.full_name())
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Article Published',
+                'target': article}
+
     notify_helpers.send_email_with_body_from_user(request,
                                                   '{0} Publication'.format(article.title),
                                                   article.editor_emails(),
-                                                  user_message)
+                                                  user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
-    # Check for SEs and PRs and notify them as well
 
+    # Check for SEs and PRs and notify them as well
     if section_editors:
         for editor in article.section_editors():
             notify_helpers.send_email_with_body_from_setting_template(request,
@@ -896,10 +899,12 @@ def review_sec_override_notification(**kwargs):
     override = kwargs['override']
 
     description = "{0} overwrote their access to {1}".format(override.editor.full_name(), override.article.title)
+    log_dict = {'level': 'Warning', 'action_text': description, 'types': 'Security Override',
+                'target': override.article}
     notify_helpers.send_slack(request, description, ['slack_editors'])
     notify_helpers.send_email_with_body_from_user(request, 'Review Security Override',
                                                   request.journal.editor_emails,
-                                                  description)
+                                                  description, log_dict=log_dict)
 
 
 def send_draft_decison(**kwargs):
@@ -913,12 +918,15 @@ def send_draft_decison(**kwargs):
 
     description = "Section Editor {0} has drafted a decision for Article {1}".format(
         draft.section_editor.full_name(), article.title)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Draft Decision',
+                'target': article}
     notify_helpers.send_slack(request, description, ['slack_editors'])
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'draft_editor_message',
                                                               'subject_draft_editor_message',
                                                               emails,
-                                                              {'draft': draft, 'article': article})
+                                                              {'draft': draft, 'article': article},
+                                                              log_dict=log_dict)
 
 
 def send_author_copyedit_complete(**kwargs):
@@ -949,15 +957,15 @@ def preprint_submission(**kwargs):
 
     description = '{author} has submitted a new preprint titled {title}.'.format(author=request.user.full_name(),
                                                                                  title=article.title)
-
-    util_models.LogEntry.add_entry('submission', description, 'info', request.user, request, article)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Submission',
+                'target': article}
 
     # Send an email to the user
     context = {'article': article}
     template = request.press.preprint_submission
     email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text)
-    util_models.LogEntry.add_entry('email', email_text, 'info', request.user, request, article)
+    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text,
+                                                  log_dict=log_dict)
 
     # Send an email to the preprint editor
     url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
@@ -969,7 +977,6 @@ def preprint_submission(**kwargs):
     for editor in request.press.preprint_editors():
         notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
                                                       editor_email_text)
-    util_models.LogEntry.add_entry('email', editor_email_text, 'info', request.user, request, article)
 
 
 def preprint_publication(**kwargs):
@@ -1011,7 +1018,8 @@ def preprint_comment(**kwargs):
                                                                                          kwargs={'article_id': article.pk}))
 
     description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Comment',
+                'target': article}
 
-    util_models.LogEntry.add_entry('comment', description, 'info', request.user, request, article)
     notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
-                                                  email_text)
+                                                  email_text, log_dict=log_dict)
