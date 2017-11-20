@@ -5215,3 +5215,6 @@ button.list-group-item-danger.active:focus {
 .subjectbutton {
   padding-top: 0 !important;
   padding-bottom: 0 !important; }
+
+.small-icon-text {
+  font-size: 17px; }

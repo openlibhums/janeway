@@ -16,23 +16,25 @@ def send_slack(request, slack_message, slack_channels):
     notify.notification(**notify_contents)
 
 
-def send_email_with_body_from_setting_template(request, template, subject, to, context):
+def send_email_with_body_from_setting_template(request, template, subject, to, context, log_dict=None):
     notify_contents = {
         'subject': subject,
         'to': to,
         'html': render_template.get_message_content(request, context, template),
         'action': ['email'],
         'request': request,
+        'log_dict': log_dict
     }
     notify.notification(**notify_contents)
 
 
-def send_email_with_body_from_user(request, subject, to, body):
+def send_email_with_body_from_user(request, subject, to, body, log_dict=None):
     notify_contents = {
         'subject': subject,
         'to': to,
         'html': body,
         'action': ['email'],
         'request': request,
+        'log_dict': log_dict,
     }
     notify.notification(**notify_contents)

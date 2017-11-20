@@ -4,7 +4,8 @@ from django.utils import translation
 
 from press import models as press_models
 from journal import models as journal_models
-from utils import install
+from utils.install import update_settings, update_license
+from submission import models as submission_models
 
 
 class Command(BaseCommand):
@@ -21,6 +22,7 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        call_command('makemigrations', 'sites')
         call_command('migrate')
         print("Please answer the following questions.\n")
         translation.activate('en')
@@ -38,8 +40,16 @@ class Command(BaseCommand):
         journal.code = input('Journal #1 code: ')
         journal.domain = input('Journal #1 domain: ')
         journal.save()
-        install.update_settings(journal, management_command=True)
-        install.update_license(journal, management_command=True)
+
+        print("Installing settings fixtures... ", end="")
+        update_settings(journal, management_command=False)
+        print("[okay]")
+        print("Installing license fixtures... ", end="")
+        update_license(journal, management_command=False)
+        print("[okay]")
+        print("Installing role fixtures")
+        call_command('loaddata', 'utils/install/roles.json')
+
         journal.name = input('Journal #1 name: ')
         journal.description = input('Journal #1 description: ')
         journal.save()
@@ -50,10 +60,11 @@ class Command(BaseCommand):
         call_command('show_configured_journals')
         call_command('sync_journals_to_sites')
         call_command('build_assets')
+        print("Installing plugins.")
         call_command('install_plugins')
+        print("Installing Cron jobs")
         call_command('install_cron')
-        call_command('loaddata', 'utils/install/roles.json')
 
         print('Create a super user.')
         call_command('createsuperuser')
-        print('Open your browser to your domain /install/ to continue this setup process.')
+        print('Open your browser to your new journal domain {domain}/install/ to continue this setup process.'.format(domain=journal.domain))

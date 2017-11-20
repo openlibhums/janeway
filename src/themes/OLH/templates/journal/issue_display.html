@@ -31,36 +31,9 @@
 
         <div class="large-{% if not show_sidebar %}12{% else %}8 border-right{% endif %} columns end">
             {% for category, articles in structure.items %}
-
                 <h3 class="em">{{ category }}</h3>
-
                 {% for article in articles %}
-                    <div class="row">
-                        <div class="box article">
-                            <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}"
-                               class="box-link"></a>
-                            <div class="clearfix">
-                                <div class="large-2 columns">
-                                    {% if article.thumbnail_image_file %}
-                                        <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                                             alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
-                                    {% elif request.journal.thumbnail_image %}
-                                        <img src="{% url 'journal_cover_download' %}" class="article-thumbnail">
-                                    {% else %}
-                                        <img src="{% static 'common/img/icons/article.png' %}"
-                                             alt="{{ article.title|striptags|escape }}" class="article-thumbnail"> {% endif %}
-                                </div>
-                                <div class="large-10 columns end">
-                                    <h2>{{ article.title|safe }}</h2>
-                                    {% include "elements/journal/authors_block.html" %}
-                                    <p><span class="date"><i
-                                            class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span>
-                                        <i class="fa fa-book"></i> {% trans "Volume" %} {{ article.issue.volume }},
-                                        {% trans "Issue" %} {{ article.issue.issue }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {% include "elements/journal/box_article.html" with article=article %}
                 {% endfor %}
             {% endfor %}
         </div>

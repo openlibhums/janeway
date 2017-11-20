@@ -498,13 +498,10 @@ def fields(request, field_id=None):
     :param field_id: Field object PK, optional
     :return: HttpResponse or HttpRedirect
     """
-    if field_id:
-        field = get_object_or_404(models.Field, pk=field_id, journal=request.journal)
-    else:
-        field = None
 
-    fields = models.Field.objects.filter(journal=request.journal)
 
+    field = logic.get_current_field(request, field_id)
+    fields = logic.get_submission_fields(request)
     form = forms.FieldForm(instance=field)
 
     if request.POST:
@@ -513,27 +510,15 @@ def fields(request, field_id=None):
             form = forms.FieldForm(request.POST, instance=field)
 
             if form.is_valid():
-                new_field = form.save(commit=False)
-                new_field.journal = request.journal
-                new_field.save()
-                messages.add_message(request, messages.SUCCESS, 'Field saved.')
+                logic.save_field(request, form)
                 return redirect(reverse('submission_fields'))
 
         elif 'delete' in request.POST:
-            delete_id = request.POST.get('delete')
-            field_to_delete = get_object_or_404(models.Field, pk=delete_id, journal=request.journal)
-            field_to_delete.delete()
-            messages.add_message(request, messages.SUCCESS, 'Field deleted. Existing answers will remain intact.')
+            logic.delete_field(request)
             return redirect(reverse('submission_fields'))
 
         elif 'order[]' in request.POST:
-            ids = [int(_id) for _id in request.POST.getlist('order[]')]
-
-            for field in fields:
-                order = ids.index(field.pk)
-                field.order = order
-                field.save()
-
+            logic.order_fields(request, fields)
             return HttpResponse('Thanks')
 
     template = 'admin/submission/manager/fields.html'

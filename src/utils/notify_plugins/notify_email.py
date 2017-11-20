@@ -2,6 +2,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 
 from utils import setting_handler
+from utils import notify
 
 
 def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
@@ -39,7 +40,8 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             msg.attach(file.name, file.read(), file.content_type)
             file.close()
 
-    msg.send()
+    return msg.send()
+
 
 
 def notify_hook(**kwargs):
@@ -67,9 +69,19 @@ def notify_hook(**kwargs):
 
     # call the method
     if not task:
-        send_email(subject, to, html, request.journal, request, bcc, cc, attachment)
+        response = send_email(subject, to, html, request.journal, request, bcc, cc, attachment)
     else:
-        send_email(task.email_subject, task.email_to, task.email_html, task.email_journal, request, task.email_bcc, task.email_cc)
+        response = send_email(task.email_subject, task.email_to, task.email_html, task.email_journal, request,
+                              task.email_bcc, task.email_cc)
+
+    notify_contents = {
+        'log_dict': kwargs.pop('log_dict'),
+        'request': request,
+        'response': response,
+        'action': ['email_log'],
+        'html': html,
+    }
+    notify.notification(**notify_contents)
 
 
 def plugin_loaded():

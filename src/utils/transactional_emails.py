@@ -24,12 +24,11 @@ def send_reviewer_withdrawl_notice(**kwargs):
                                                                             request.user.full_name())
 
     if not skip:
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Review Withdrawl',
+                    'target': review_assignment.article}
         notify_helpers.send_email_with_body_from_user(request, 'subject_review_withdrawl', request.user.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Review Withdrawl Notification', description=description, level='Info',
-                                       request=request, target=review_assignment.article)
 
 
 def send_editor_assigned_acknowledgements_mandatory(**kwargs):
@@ -61,23 +60,24 @@ def send_editor_assigned_acknowledgements_mandatory(**kwargs):
         'editor_assignment': editor_assignment
     }
 
+    log_dict = {'level': 'Info',
+                'action_text': description,
+                'types': 'Editor Assignment',
+                'target': article}
+
     # send to assigned editor
     if not skip:
         notify_helpers.send_email_with_body_from_user(request, 'subject_editor_assignment',
                                                       editor_assignment.editor.email,
-                                                      user_message_content)
-        util_models.LogEntry.add_entry(types='Editor Informed of Assignment', description=user_message_content,
-                                       level='Info',
-                                       request=request, target=article)
+                                                      user_message_content, log_dict=log_dict)
 
     # send to editor
     if not acknowledgement:
         notify_helpers.send_slack(request, description, ['slack_editors'])
         notify_helpers.send_email_with_body_from_setting_template(request, 'editor_assignment',
                                                                   'subject_editor_assignment',
-                                                                  request.user.email, context)
-        util_models.LogEntry.add_entry(types='Editor Assigned', description=description, level='Info', request=request,
-                                       target=article)
+                                                                  request.user.email, context,
+                                                                  log_dict=log_dict)
 
 
 def send_editor_assigned_acknowledgements(**kwargs):
@@ -132,15 +132,16 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
         'review_assignment': review_assignment
     }
 
+    log_dict = {'level': 'Info',
+                'action_text': description,
+                'types': 'Review Request',
+                'target': article}
+
     # send to requested reviewer
     if not skip:
         notify_helpers.send_email_with_body_from_user(request, 'subject_review_request_sent',
                                                       review_assignment.reviewer.email,
-                                                      user_message_content)
-        util_models.LogEntry.add_entry(types='Reviewer Notified of Request', description=user_message_content,
-                                       level='Info',
-                                       request=request, target=article)
-
+                                                      user_message_content, log_dict=log_dict)
     if not acknowledgement:
         # send slack
         notify_helpers.send_slack(request, description, ['slack_editors'])
@@ -148,10 +149,8 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
         # send to editor
         notify_helpers.send_email_with_body_from_setting_template(request, 'review_request_sent',
                                                                   'subject_review_request_sent',
-                                                                  review_assignment.editor.email, context)
-
-        util_models.LogEntry.add_entry(types='Review Request', description=description, level='Info', request=request,
-                                       target=article)
+                                                                  review_assignment.editor.email, context,
+                                                                  log_dict=log_dict)
 
 
 def send_review_complete_acknowledgements(**kwargs):
@@ -265,6 +264,11 @@ def send_submission_acknowledgement(**kwargs):
         'request': request
     }
 
+    log_dict = {'level': 'Info',
+                'action_text': 'A new article {0} was submitted'.format(article.title),
+                'types': 'New Submission Acknowledgement',
+                'target': article}
+
     # send to slack
     notify_helpers.send_slack(request,
                               'New submission: {0} {1}'.format(article.title, article.get_remote_url(request)),
@@ -275,7 +279,7 @@ def send_submission_acknowledgement(**kwargs):
                                                               'submission_acknowledgement',
                                                               'subject_submission_acknowledgement',
                                                               article.correspondence_author.email,
-                                                              context)
+                                                              context, log_dict=log_dict)
 
     # send to all authors
     editors_to_email = setting_handler.get_setting(
@@ -288,13 +292,11 @@ def send_submission_acknowledgement(**kwargs):
     else:
         editor_emails = request.journal.editor_emails
 
-    print(editor_emails)
-
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'editor_new_submission',
                                                               'subject_editor_new_submission',
                                                               editor_emails,
-                                                              context)
+                                                              context, log_dict=log_dict)
 
 
 def send_article_decision(**kwargs):
@@ -313,13 +315,15 @@ def send_article_decision(**kwargs):
                                                                       decision,
                                                                       request.user.full_name())
 
+    log_dict = {'level': 'Info',
+                'action_text': description,
+                'types': 'Article Decision',
+                'target': article}
+
     if not skip:
         notify_helpers.send_email_with_body_from_user(request, 'Article Review Decision', request.user.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Article Decision', description=user_message_content, level='Info',
-                                       request=request, target=article)
 
 
 def send_revisions_request(**kwargs):
@@ -336,14 +340,16 @@ def send_revisions_request(**kwargs):
                                                                           revision.article.title,
                                                                           revision.date_due)
 
+    log_dict = {'level': 'Info',
+                'action_text': description,
+                'types': 'Revision Request',
+                'target': revision.article}
+
     if not skip:
         notify_helpers.send_email_with_body_from_user(request, 'subject_request_revisions',
                                                       revision.article.correspondence_author.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Revision Request', description=user_message_content, level='Info',
-                                       request=request, target=revision.article)
 
 
 def send_revisions_complete(**kwargs):
@@ -377,13 +383,12 @@ def send_copyedit_assignment(**kwargs):
                                                                             copyedit_assignment.due)
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment',
+                    'target': copyedit_assignment.article}
+        response = notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
                                                       copyedit_assignment.copyeditor.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Revision Request', description=user_message_content, level='Info',
-                                       request=request, target=copyedit_assignment.article)
 
 
 def send_copyedit_updated(**kwargs):
@@ -397,13 +402,19 @@ def send_copyedit_updated(**kwargs):
                                   'Copyedit assignment {0} updated'.format(copyedit_assignment.pk),
                                   ['slack_editors'])
 
+        log_dict = {'level': 'Info',
+                    'action_text': 'Copyedit assignment #{number} update.'.format(number=copyedit_assignment.pk),
+                    'types': 'Revision Request',
+                    'target': copyedit_assignment.article}
+
         # send to author
         notify_helpers.send_email_with_body_from_setting_template(request,
                                                                   'copyedit_updated',
                                                                   'subject_copyedit_updated',
                                                                   copyedit_assignment.copyeditor.email,
                                                                   context={'request': request,
-                                                                           'copyedit_assignment': copyedit_assignment})
+                                                                           'copyedit_assignment': copyedit_assignment},
+                                                                  log_dict=log_dict)
 
 
 def send_copyedit_deleted(**kwargs):
@@ -420,15 +431,16 @@ def send_copyedit_deleted(**kwargs):
                                   'Copyedit assignment {0} updated'.format(copyedit_assignment.pk),
                                   ['slack_editors'])
 
-        # send to author
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment Deleted',
+                    'target': copyedit_assignment.article}
+        # send to copyeditor
         notify_helpers.send_email_with_body_from_setting_template(request,
                                                                   'copyedit_deleted',
                                                                   'subject_copyedit_deleted',
                                                                   copyedit_assignment.copyeditor.email,
                                                                   context={'request': request,
-                                                                           'copyedit_assignment': copyedit_assignment})
-        util_models.LogEntry.add_entry(types='Copyedit Task Deleted', description=description, level='Info',
-                                       request=request, target=copyedit_assignment.article)
+                                                                           'copyedit_assignment': copyedit_assignment},
+                                                                  log_dict=log_dict)
 
 
 def send_copyedit_decision(**kwargs):
@@ -440,13 +452,13 @@ def send_copyedit_decision(**kwargs):
         copyedit_assignment.article.title,
         copyedit_assignment.due)
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyediting Decision',
+                'target': copyedit_assignment.article}
+
     notify_helpers.send_email_with_body_from_user(request, 'Article Copyediting Decision',
                                                   copyedit_assignment.editor.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(types='Copyeditor Decision', description=description, level='Info',
-                                   request=request, target=copyedit_assignment)
 
 
 def send_copyedit_author_review(**kwargs):
@@ -461,13 +473,13 @@ def send_copyedit_author_review(**kwargs):
         copyedit_assignment.article.correspondence_author.full_name())
 
     if not skip:
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Author Review',
+                    'target': copyedit_assignment.article}
+
         notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_notify_author',
                                                       copyedit_assignment.article.correspondence_author.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Copyedit Author Review', description=user_message_content, level='Info',
-                                       request=request, target=copyedit_assignment.article)
 
 
 def send_copyedit_complete(**kwargs):
@@ -480,13 +492,13 @@ def send_copyedit_complete(**kwargs):
         copyedit_assignment.copyeditor.full_name(),
         article.title)
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Complete',
+                'target': copyedit_assignment.article}
+
     notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_notify_editor',
                                                   copyedit_assignment.editor.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(types='Initial Copyedit Complete', description=description, level='Info',
-                                   request=request, target=copyedit_assignment)
 
 
 def send_copyedit_ack(**kwargs):
@@ -499,13 +511,13 @@ def send_copyedit_ack(**kwargs):
                                                                     copyedit_assignment.article.title, )
 
     if not skip:
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Acknowledgement',
+                    'target': copyedit_assignment.article}
+
         notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_ack',
                                                       copyedit_assignment.copyeditor.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Copyediting Complete', description=user_message_content, level='Info',
-                                       request=request, target=copyedit_assignment)
 
 
 def send_copyedit_reopen(**kwargs):
@@ -519,13 +531,13 @@ def send_copyedit_reopen(**kwargs):
                                                                          copyedit_assignment.copyeditor.full_name())
 
     if not skip:
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Complete',
+                    'target': copyedit_assignment.article}
+
         notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_reopen_task',
                                                       copyedit_assignment.copyeditor.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Copyediting Reopened', description=user_message_content, level='Info',
-                                       request=request, target=copyedit_assignment.article)
 
 
 def send_typeset_assignment(**kwargs):
@@ -538,13 +550,13 @@ def send_typeset_assignment(**kwargs):
                                                                          typeset_task.assignment.article.title)
 
     if not skip:
+        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetting Assignment',
+                    'target': typeset_task.assignment.article}
+
         notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_notification',
                                                       typeset_task.typesetter.email,
-                                                      user_message_content)
+                                                      user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
-
-        util_models.LogEntry.add_entry(types='Typesetting Assignment', description=user_message_content, level='Info',
-                                       request=request, target=typeset_task.assignment.article)
 
 
 def send_typeset_decision(**kwargs):
@@ -556,13 +568,13 @@ def send_typeset_decision(**kwargs):
                                                                       decision,
                                                                       typeset_task.assignment.article.title)
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetter Decision',
+                'target': typeset_task.assignment.article}
+
     notify_helpers.send_email_with_body_from_user(request, 'Article Typesetting Decision',
                                                   typeset_task.assignment.production_manager.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(types='Typesetting Assignment', description=description, level='Info',
-                                   request=request, target=typeset_task.assignment.article)
 
 
 def send_typeset_task_deleted(**kwargs):
@@ -575,16 +587,17 @@ def send_typeset_task_deleted(**kwargs):
         typeset_task.assignment.article.title,
     )
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetter Assignment Deleted',
+                'target': typeset_task.assignment.article}
+
     # send to author
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'typeset_deleted',
                                                               'subject_typeset_deleted',
                                                               typeset_task.typesetter.email,
                                                               context={'request': request,
-                                                                       'typeset_task': typeset_task})
+                                                                       'typeset_task': typeset_task}, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    util_models.LogEntry.add_entry(types='Typesetting Assignment Deleted', description=description, level='Info',
-                                   request=request, target=typeset_task.assignment.article)
 
 
 def send_typeset_complete(**kwargs):
@@ -597,13 +610,13 @@ def send_typeset_complete(**kwargs):
         typeset_task.note_from_typesetter,
     )
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetting Assignment Complete',
+                'target': typeset_task.assignment.article}
+
     notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_complete_notification',
                                                   typeset_task.assignment.production_manager.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(types='Typesetting Assignment', description=description, level='Info',
-                                   request=request, target=typeset_task.assignment.article)
 
 
 def send_production_complete(**kwargs):
@@ -614,6 +627,9 @@ def send_production_complete(**kwargs):
 
     description = 'Production has been completed for article {0}.'.format(article.title)
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Production Complete',
+                'target': article}
+
     for task in assignment.typesettask_set.all():
         notify_helpers.send_email_with_body_from_user(request, 'Article Production Complete', task.typesetter.email,
                                                       user_content_message)
@@ -622,11 +638,9 @@ def send_production_complete(**kwargs):
                                                               'production_complete',
                                                               'subject_production_complete',
                                                               article.editor_emails(),
-                                                              {'article': article, 'assignment': assignment})
+                                                              {'article': article, 'assignment': assignment},
+                                                              log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(types='Production Complete', description=description, level='Info',
-                                   request=request, target=article)
 
 
 def fire_proofing_manager_assignment(**kwargs):
@@ -638,13 +652,15 @@ def fire_proofing_manager_assignment(**kwargs):
         proofing_assignment.proofing_manager.full_name(),
         article.title,
     )
-
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Manager Assigned',
+                'target': article}
     context = {'request': request, 'proofing_assignment': proofing_assignment, 'article': article}
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'notify_proofing_manager',
                                                               'subject_notify_proofing_manager',
                                                               proofing_assignment.proofing_manager.email,
-                                                              context)
+                                                              context,
+                                                              log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -659,6 +675,8 @@ def cancel_proofing_task(**kwargs):
         proofing_task.proofreader.full_name(),
         request.user.full_name()
     )
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Task Cancelled',
+                'target': article}
     context = {'request': request, 'proofing_task': proofing_task, 'user_content_message': user_content_message}
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'notify_proofreader_cancelled',
@@ -679,11 +697,13 @@ def edit_proofing_task(**kwargs):
         request.user.full_name()
     )
     context = {'request': request, 'proofing_task': proofing_task}
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Task Edited',
+                'target': article}
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'notify_proofreader_edited',
                                                               'subject_notify_proofreader_edited',
                                                               proofing_task.proofreader.email,
-                                                              context)
+                                                              context, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -698,14 +718,12 @@ def notify_proofreader(**kwargs):
         proofing_task.proofreader.full_name(),
         request.user.full_name()
     )
-
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofreading Requested',
+                'target': article}
     notify_helpers.send_email_with_body_from_user(request, 'subject_notify_proofreader_assignment',
                                                   proofing_task.proofreader.email,
-                                                  user_content_message)
+                                                  user_content_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
-    util_models.LogEntry.add_entry(types='Proofreading Requested', description=description, level='Info',
-                                   request=request, target=article)
 
 
 def send_proofreader_decision(**kwargs):
@@ -718,10 +736,11 @@ def send_proofreader_decision(**kwargs):
         proofing_task.round.assignment.article.title,
         decision
     )
-
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofreading Update',
+                'target': proofing_task.round.assignment.article}
     notify_helpers.send_email_with_body_from_user(request, 'Article Proofreading Update',
                                                   proofing_task.round.assignment.proofing_manager.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -754,13 +773,14 @@ def send_proofing_typeset_request(**kwargs):
         typeset_task.typesetter.full_name(),
         article.title,
     )
-
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetting Updates Requested',
+                'target': article}
     if not skip:
         notify_helpers.send_slack(request, description, ['slack_editors'])
         notify_helpers.send_email_with_body_from_user(
             request, 'subject_notify_typesetter_proofing_changes',
             typeset_task.proofing_task.round.assignment.proofing_manager.email,
-            user_content_message)
+            user_content_message, log_dict=log_dict)
 
 
 def send_proofing_typeset_decision(**kwargs):
@@ -773,10 +793,11 @@ def send_proofing_typeset_decision(**kwargs):
         typeset_task.proofing_task.round.assignment.article.title,
         decision
     )
-
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Typesetting',
+                'target': typeset_task.assignment.article}
     notify_helpers.send_email_with_body_from_user(request, 'Proofing Typesetting Changes',
                                                   typeset_task.proofing_task.round.assignment.proofing_manager.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -790,9 +811,11 @@ def send_corrections_complete(**kwargs):
         article.title,
         typeset_task.pk,
     )
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Typesetting Complete',
+                'target': typeset_task.assignment.article}
     notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_corrections_complete',
                                                   article.proofingassignment.proofing_manager.email,
-                                                  description)
+                                                  description, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -823,11 +846,12 @@ def send_proofing_complete(**kwargs):
     skip = kwargs['skip']
 
     description = "Proofing is now complete for {0}".format(article.title)
-
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Complete',
+                'target': article}
     if not skip:
         notify_helpers.send_email_with_body_from_user(request, 'subject_notify_editor_proofing_complete',
                                                       article.editor_emails(),
-                                                      user_message)
+                                                      user_message, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -842,14 +866,17 @@ def send_author_publication_notification(**kwargs):
                                                                             article.date_published,
                                                                             request.user.full_name())
 
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Article Published',
+                'target': article}
+
     notify_helpers.send_email_with_body_from_user(request,
                                                   '{0} Publication'.format(article.title),
                                                   article.editor_emails(),
-                                                  user_message)
+                                                  user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
-    # Check for SEs and PRs and notify them as well
 
+    # Check for SEs and PRs and notify them as well
     if section_editors:
         for editor in article.section_editors():
             notify_helpers.send_email_with_body_from_setting_template(request,
@@ -872,10 +899,12 @@ def review_sec_override_notification(**kwargs):
     override = kwargs['override']
 
     description = "{0} overwrote their access to {1}".format(override.editor.full_name(), override.article.title)
+    log_dict = {'level': 'Warning', 'action_text': description, 'types': 'Security Override',
+                'target': override.article}
     notify_helpers.send_slack(request, description, ['slack_editors'])
     notify_helpers.send_email_with_body_from_user(request, 'Review Security Override',
                                                   request.journal.editor_emails,
-                                                  description)
+                                                  description, log_dict=log_dict)
 
 
 def send_draft_decison(**kwargs):
@@ -889,12 +918,15 @@ def send_draft_decison(**kwargs):
 
     description = "Section Editor {0} has drafted a decision for Article {1}".format(
         draft.section_editor.full_name(), article.title)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Draft Decision',
+                'target': article}
     notify_helpers.send_slack(request, description, ['slack_editors'])
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'draft_editor_message',
                                                               'subject_draft_editor_message',
                                                               emails,
-                                                              {'draft': draft, 'article': article})
+                                                              {'draft': draft, 'article': article},
+                                                              log_dict=log_dict)
 
 
 def send_author_copyedit_complete(**kwargs):
@@ -925,15 +957,15 @@ def preprint_submission(**kwargs):
 
     description = '{author} has submitted a new preprint titled {title}.'.format(author=request.user.full_name(),
                                                                                  title=article.title)
-
-    util_models.LogEntry.add_entry('submission', description, 'info', request.user, request, article)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Submission',
+                'target': article}
 
     # Send an email to the user
     context = {'article': article}
     template = request.press.preprint_submission
     email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text)
-    util_models.LogEntry.add_entry('email', email_text, 'info', request.user, request, article)
+    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text,
+                                                  log_dict=log_dict)
 
     # Send an email to the preprint editor
     url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
@@ -945,7 +977,6 @@ def preprint_submission(**kwargs):
     for editor in request.press.preprint_editors():
         notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
                                                       editor_email_text)
-    util_models.LogEntry.add_entry('email', editor_email_text, 'info', request.user, request, article)
 
 
 def preprint_publication(**kwargs):
@@ -987,7 +1018,8 @@ def preprint_comment(**kwargs):
                                                                                          kwargs={'article_id': article.pk}))
 
     description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Comment',
+                'target': article}
 
-    util_models.LogEntry.add_entry('comment', description, 'info', request.user, request, article)
     notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
-                                                  email_text)
+                                                  email_text, log_dict=log_dict)

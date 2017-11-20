@@ -9609,3 +9609,7 @@ footer svg {
 a.profilelink:link{
     color: #FFFFFF;
 }
+
+.small-icon-text {
+  font-size: 17px !important;
+}

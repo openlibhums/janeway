@@ -55,8 +55,8 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(models.Model):
-    code = models.CharField(max_length=4)
-    domain = models.CharField(max_length=255, default='localhost', unique=True)
+    code = models.CharField(max_length=10)
+    domain = models.CharField(max_length=255, default='www.example.com', unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
     thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='thumbnail_image',
@@ -513,3 +513,9 @@ def create_sites_folder(sender, instance, created, **kwargs):
     if created:
         if not os.path.exists(path):
             os.makedirs(path)
+
+        from submission.models import Section
+        Section.objects.language('en').get_or_create(journal=instance,
+                                                     number_of_reviewers=2,
+                                                     name='Article',
+                                                     plural='Articles')

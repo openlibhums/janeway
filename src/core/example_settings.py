@@ -165,7 +165,7 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
-        'OPTIONS': {'init_command': 'SET storage_engine=INNODB'},
+        'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
     }
 }
 
@@ -309,6 +309,12 @@ EMAIL_PORT = ''
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
+
+# Settings for use with Mailgun
+MAILGUN_ACCESS_KEY = ''
+MAILGUN_SERVER_NAME = ''
+MAILGUN_REQUIRE_TLS = False
+ENABLE_ENHANCED_MAILGUN_FEATURES = False # Enables email tracking
 
 
 DATE_FORMT = "Y-m-d"
