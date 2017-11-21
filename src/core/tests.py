@@ -42,7 +42,6 @@ class CoreTests(TestCase):
         except models.Account.DoesNotExist:
             self.fail('User account has not been saved.')
 
-
     def setUp(self):
         self.journal_one, self.journal_two = create_journals()
         create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",

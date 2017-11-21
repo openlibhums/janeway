@@ -190,7 +190,7 @@ def get_preprint_tempate_context(request, identifier):
         'journal_day': identifier.article.date_published.day,
         'journal_year': identifier.article.date_published.year,
         'journal_volume': 0,
-        'journal_issue':0,
+        'journal_issue': 0,
         'article_title': '{0}{1}{2}'.format(
             identifier.article.title,
             ' ' if identifier.article.subtitle is not None else '',
@@ -249,11 +249,3 @@ def register_preprint_doi(request, crossref_enabled, identifier):
             util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                            target=identifier.article)
             print("Status of {} in {}: {}".format(token, identifier.identifier, status))
-
-
-
-
-
-
-
-

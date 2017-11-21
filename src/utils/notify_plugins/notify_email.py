@@ -43,7 +43,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     return msg.send()
 
 
-
 def notify_hook(**kwargs):
     # dummy mock-up of new notification hook defer
 

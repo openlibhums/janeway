@@ -261,7 +261,6 @@ class Press(models.Model):
         return True
 
 
-
 class PressSetting(models.Model):
     press = models.ForeignKey(Press)
     name = models.CharField(max_length=255)

@@ -499,7 +499,6 @@ def fields(request, field_id=None):
     :return: HttpResponse or HttpRedirect
     """
 
-
     field = logic.get_current_field(request, field_id)
     fields = logic.get_submission_fields(request)
     form = forms.FieldForm(instance=field)

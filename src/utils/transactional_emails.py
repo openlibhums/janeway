@@ -386,8 +386,8 @@ def send_copyedit_assignment(**kwargs):
         log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment',
                     'target': copyedit_assignment.article}
         response = notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
-                                                      copyedit_assignment.copyeditor.email,
-                                                      user_message_content, log_dict)
+                                                                 copyedit_assignment.copyeditor.email,
+                                                                 user_message_content, log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -874,7 +874,6 @@ def send_author_publication_notification(**kwargs):
                                                   article.editor_emails(),
                                                   user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
-
 
     # Check for SEs and PRs and notify them as well
     if section_editors:

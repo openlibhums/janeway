@@ -6,11 +6,12 @@ from django.conf import settings
 
 from utils import models
 
+
 def get_logs(message_id):
     return requests.get(
         "https://api.mailgun.net/v3/{0}/events".format(settings.MAILGUN_SERVER_NAME),
         auth=("api", settings.MAILGUN_ACCESS_KEY),
-        params={"message-id" : message_id})
+        params={"message-id": message_id})
 
 
 def check_for_perm_failure(event_dict, log):
@@ -61,4 +62,3 @@ class Command(BaseCommand):
             print(' status {0}'.format(log.message_status))
 
             log.save()
-
