@@ -73,7 +73,7 @@ def production_assign_article(request, user_id, article_id):
         prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
         prod.save()
 
-        cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request)
+        cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request, article)
     else:
         messages.add_message(request, messages.WARNING, 'User is not a production manager.')
 

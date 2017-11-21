@@ -26,7 +26,7 @@
                     {% for entry in log_entries %}
                         <tr>
                             <td>{{ entry.types }}</td>
-                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ entry.actor.full_name }}</td>
                             <td>{{ entry.get_level_display }}</td>
                             {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>

@@ -19,6 +19,7 @@ class CronTask(models.Model):
     task_data = models.TextField(blank=True, null=True)
     added = models.DateTimeField(default=timezone.now)
     run_at = models.DateTimeField(default=timezone.now)
+    article = models.ForeignKey('submission.Article', blank=True, null=True)
 
     email_to = models.EmailField(blank=True, null=True)
     email_subject = models.CharField(max_length=255, blank=True, null=True)
@@ -39,7 +40,7 @@ class CronTask(models.Model):
                 task.delete()
 
     @staticmethod
-    def add_email_task(to, subject, html, request, run_at=timezone.now(), cc=None, bcc=None):
+    def add_email_task(to, subject, html, request, article=None, run_at=timezone.now(), cc=None, bcc=None):
         task = CronTask()
 
         task.task_type = 'email_message'
@@ -51,6 +52,7 @@ class CronTask(models.Model):
         task.email_journal = request.journal
         task.cc = cc
         task.bcc = bcc
+        task.article = article
 
         task.save()
 
