@@ -21,6 +21,8 @@
             {% endif %}
             {% if request.user.is_staff %}
                 <li><a href="{% url 'preprints_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
+                <li><a href="{% url 'submission_licenses' %}"><i class="fa fa-creative-commons">&nbsp;</i>Licenses</a></li>
+                <li><a href="{% url 'submission_fields' %}"><i class="fa fa-keyboard-o">&nbsp;</i>Additional Fields</a></li>
                 <li><a href="{% url 'preprints_settings' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>
             {% endif %}
         {% endif %}
