@@ -80,6 +80,7 @@ def notify_hook(**kwargs):
         'response': response,
         'action': ['email_log'],
         'html': html,
+        'to': to,
     }
     notify.notification(**notify_contents)
 

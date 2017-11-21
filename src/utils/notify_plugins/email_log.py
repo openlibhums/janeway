@@ -24,17 +24,17 @@ def notify_hook(**kwargs):
         request = kwargs.pop('request')
         target = log_dict.get('target')
         html = kwargs.pop('html')
-
+        to = kwargs.pop('to')
         response = kwargs.pop('response')
 
         if isinstance(response, dict):
             message_id = response['response'].get('id')
             models.LogEntry.add_entry(types=types, description=html, level=level,
-                                      request=request, target=target, is_email=True, to=response.get('to')[0],
+                                      request=request, target=target, is_email=True, to=to,
                                       message_id=message_id, subject=action_text)
         else:
             models.LogEntry.add_entry(types=types, description=html, level=level,
-                                      request=request, target=target, subject=action_text)
+                                      request=request, target=target, subject=action_text, to=to)
 
 
 def plugin_loaded():
