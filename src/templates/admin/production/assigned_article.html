@@ -16,6 +16,10 @@
 
     <div class="large-8 columns">
         <div class="box">
+            <div class="title-area">
+                <h2>Typesetters</h2>
+                <a href="{% url 'assign_typesetter' article.pk production_assignment.pk %}" class="button">Add Typesetter</a>
+            </div>
             <ul class="tabs" data-tabs id="round-tabs">
                 {% for task in typeset_tasks %}
                     <li class="tabs-title {% if forloop.first %} is-active{% endif %}"><a
