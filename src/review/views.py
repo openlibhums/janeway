@@ -438,6 +438,7 @@ def decline_review_request(request, assignment_id):
         )
 
     assignment.date_declined = timezone.now()
+    assignment.date_accepted = None
     assignment.is_complete = True
     assignment.save()
 
@@ -576,8 +577,10 @@ def do_review(request, assignment_id):
 
     if request.POST:
         if 'decline' in request.POST:
-            return redirect("{0}?access_code={1}".format(reverse('decline_review',
-                                                                 kwargs={'assignment_id': assignment.pk}), access_code))
+            return redirect(logic.generate_access_code_url('decline_review', assignment, access_code))
+
+        if 'accept' in request.POST:
+            return redirect(logic.generate_access_code_url('accept_review', assignment, access_code))
 
         if request.FILES:
             fields_required = False
@@ -602,10 +605,7 @@ def do_review(request, assignment_id):
                                            task_object=assignment.article,
                                            **kwargs)
 
-            return redirect("{0}{1}{2}".format(
-                reverse('thanks_review', kwargs={'assignment_id': assignment.pk}),
-                '?access_code=' if access_code else '',
-                access_code if access_code else ''))
+            return redirect(logic.generate_access_code_url('thanks_review', assignment, access_code))
 
     template = 'review/review_form.html'
     context = {

@@ -264,3 +264,13 @@ def get_enrollable_users(request):
     account_roles = core_models.AccountRole.objects.filter(journal=request.journal, role__slug='reviewer')
     users_with_role = [assignment.user.pk for assignment in account_roles]
     return core_models.Account.objects.all().order_by('last_name').exclude(pk__in=users_with_role)
+
+
+def generate_access_code_url(url_name, assignment, access_code):
+
+    reverse_url = reverse(url_name, kwargs={'assignment_id': assignment.pk})
+
+    if access_code:
+        reverse_url = '{reverse_url}?access_code={access_code}'.format(reverse_url=reverse_url, access_code=access_code)
+
+    return reverse_url
