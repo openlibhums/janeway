@@ -12,58 +12,83 @@
 
 
 {% block body %}
-    <form method="POST" enctype="multipart/form-data">
-        <div class="row expanded">
-            <div class="large-12 columns">
-                <div class="box">
-                    <div class="title-area">
-                        <h2>General Review Guidelines</h2>
-                    </div>
-                    <div class="content">
-                        <small>{{ journal_settings.general.reviewer_guidelines|safe }}</small>
-                    </div>
-                    <div class="title-area">
-                        <h2>Information for this Form</h2>
-                    </div>
-                    <div class="content">
-                        <small>{{ assignment.form.intro|safe }}</small>
-                    </div>
-                    <div class="title-area">
-                        <h2>Decline this Review</h2>
-                    </div>
-                    <div class="content">
-                        <small>If you are unable to perform this review, please click the button below.</small><br/>
-                        <small><button class="button alert" type="submit" id="decline" name="decline">Decline to perform review</button></small>
-                    </div>
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>General Review Guidelines</h2>
                 </div>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Review Files</h2>
-                        <a href="{% url 'review_download_all_files' assignment.pk %}" class="button"><i class="fa fa-download">&nbsp;</i>Download all as ZIP</a>
-                    </div>
-                    <div class="content">
-                        <table class="table table-bordered table-condensed small">
+                <div class="content">
+                    <small>{{ journal_settings.general.reviewer_guidelines|safe }}</small>
+                </div>
+                <div class="title-area">
+                    <h2>Information for this Form</h2>
+                </div>
+                <div class="content">
+                    <small>{{ assignment.form.intro|safe }}</small>
+                    <br /> <br />
+                </div>
+                <div class="title-area">
+                    <h2>Decline this Review</h2>
+                </div>
+                <div class="content">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <p>
+                        {% if assignment.date_accepted %}
+                            <small>You have agreed to undertake this review. If you are no longer able, please click the
+                                decline button below to nofity the Editor.
+                            </small>
+                        {% else %}
+                            <small>Please let us know if you intend to complete this review.</small>
+                        {% endif %}
+                        </p>
+                        <br/>
+                        <small>
+                            <button class="button alert" type="submit" id="decline" name="decline">Decline to perform
+                                review
+                            </button>
+                            {% if not assignment.date_accepted %}
+                                <button class="button success" type="submit" id="accept" name="accept">Agree to perform
+                                    review
+                                </button>
+                            {% endif %}
+                        </small>
+                    </form>
+                </div>
+            </div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Review Files</h2>
+                    <a href="{% url 'review_download_all_files' assignment.pk %}" class="button"><i
+                            class="fa fa-download">&nbsp;</i>Download all as ZIP</a>
+                </div>
+                <div class="content">
+                    <table class="table table-bordered table-condensed small">
+                        <tr>
+                            <th>Label</th>
+                            <th>Filename</th>
+                            <th>Download</th>
+                        </tr>
+                        {% for file in review_round.review_files.all %}
                             <tr>
-                                <th>Label</th>
-                                <th>Filename</th>
-                                <th>Download</th>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file.original_filename }}</td>
+                                <td><a href="
+
+                                        {% url 'review_file_download' assignment.id file.id %}{% if access_code %}?access_code={{ access_code }}{% endif %}"><i
+                                        class="fa fa-download">&nbsp;</i></a></td>
                             </tr>
-                            {% for file in review_round.review_files.all %}
-                                <tr>
-                                    <td>{{ file.label }}</td>
-                                    <td>{{ file.original_filename }}</td>
-                                    <td><a href="{% url 'review_file_download' assignment.id file.id %}{% if access_code %}?access_code={{ access_code }}{% endif %}"><i
-                                            class="fa fa-download">&nbsp;</i></a></td>
-                                </tr>
                             {% empty %}
-                                <tr>
-                                    <td colspan="4">No files. You should add them before inviting reviewers.</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
+                            <tr>
+                                <td colspan="4">No files. You should add them before inviting reviewers.</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
                 </div>
-                {% if assignment.visibility == 'open' or assignment.visibility == 'blind' %}
+            </div>
+            {% if assignment.visibility == 'open' or assignment.visibility == 'blind' %}
                 <div class="box">
                     <div class="title-area">
                         <h2>Author Information</h2>
@@ -81,7 +106,7 @@
                                     <td>{{ author.institution }}</td>
                                     <td>{{ author.department }}</td>
                                 </tr>
-                            {% empty %}
+                                {% empty %}
                                 <tr>
                                     <td colspan="4">No files. You should add them before inviting reviewers.</td>
                                 </tr>
@@ -89,8 +114,10 @@
                         </table>
                     </div>
                 </div>
-                {% endif %}
-                <div class="box">
+            {% endif %}
+
+            <div class="box">
+                <form method="POST" enctype="multipart/form-data">
                     <div class="title-area">
                         <h2>Review Form</h2>
                     </div>
@@ -102,7 +129,6 @@
                                     uploaded.
                                 </div>
                             {% endif %}
-
                             {% csrf_token %}
                             {% include "elements/generate_form.html" with form=form %}
                         </div>
@@ -129,7 +155,8 @@
                         </div>
                         <button class="button success" type="submit">Save Review</button>
                     </div>
+                </form>
             </div>
         </div>
-    </form>
+
 {% endblock %}
