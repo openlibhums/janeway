@@ -687,3 +687,16 @@ def preprints_rejected_submissions(request):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def orphaned_preprints(request):
+
+    orphaned_preprints = preprint_logic.list_articles_without_subjects()
+
+    template = 'admin/preprints/orphaned_preprints.html'
+    context = {
+        'orphaned_preprints': orphaned_preprints
+    }
+
+    return render(request, template, context)

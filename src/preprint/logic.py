@@ -9,6 +9,7 @@ from metrics import models as metrics_models
 from production.logic import save_galley
 from core import models as core_models, files
 from utils import render_template
+from utils.function_cache import cache
 from events import logic as event_logic
 from preprint import models
 from submission import models as submission_models
@@ -309,3 +310,24 @@ def save_preprint_submit_form(request, form, article, additional_fields):
                                                                author=request.user,
                                                                defaults={'order': article.next_author_sort()})
     return article
+
+
+@cache(300)
+def list_articles_without_subjects():
+    articles = submission_models.Article.preprints.all()
+    subjects =  models.Subject.objects.all()
+
+    subject_articles = list()
+    for subject in subjects:
+        subject_articles.append(subject.preprints.all())
+
+    subject_articles = set(subject_articles)
+
+    orphaned_articles = list()
+
+    for article in articles:
+        if article not in subject_articles:
+            orphaned_articles.append(article)
+
+    return orphaned_articles
+
