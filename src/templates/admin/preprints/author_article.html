@@ -16,7 +16,7 @@
             <div class="box" data-equalizer-watch>
                 <div class="title-area">
                     <h2>Metadata</h2>
-                    <a href="{% url 'preprints_article' preprint.pk %}" class="button">View Live Article</a>
+                    {% if preprint.is_published %}<a href="{% url 'preprints_article' preprint.pk %}" class="button">View Live Article</a>{% endif %}
                 </div>
                 <div class="content">
                     <table class="scroll">

@@ -814,7 +814,9 @@ class Article(models.Model):
 
     @property
     def is_published(self):
-        if self.stage == STAGE_PUBLISHED and self.date_published and self.date_published < timezone.now():
+        print(self.stage)
+        if (self.stage == STAGE_PUBLISHED or self.stage == STAGE_PREPRINT_PUBLISHED) and \
+                self.date_published and self.date_published < timezone.now():
             return True
         else:
             return False
