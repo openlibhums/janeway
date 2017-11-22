@@ -986,20 +986,21 @@ def preprint_publication(**kwargs):
     """
     request = kwargs.get('request')
     article = kwargs.get('article')
-    email_text = kwargs.get('email_content')
 
     description = '{editor} has published a preprint titled {title}.'.format(editor=request.user.full_name(),
                                                                              title=article.title)
 
-    util_models.LogEntry.add_entry('submission', description, 'info', request.user, request, article)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Publication',
+                'target': article}
+
+    util_models.LogEntry.add_entry('Publication', description, 'info', request.user, request, article)
 
     # Send an email to the article owner.
     context = {'article': article}
     template = request.press.preprint_publication
     email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
     notify_helpers.send_email_with_body_from_user(request, ' Preprint Submission Decision', article.owner.email,
-                                                  email_text)
-    util_models.LogEntry.add_entry('email', email_text, 'info', request.user, request, article)
+                                                  email_text, log_dict=log_dict)
 
     # Stops this notification being sent multiple times.c
     article.preprint_decision_notification = True
@@ -1009,7 +1010,6 @@ def preprint_publication(**kwargs):
 def preprint_comment(**kwargs):
     request = kwargs.get('request')
     article = kwargs.get('article')
-    comment = kwargs.get('comment')
 
     email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
                  '<a href="{base_url}{url}">on the journal site</a>.'.format(

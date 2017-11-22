@@ -15,7 +15,7 @@ def notify_hook(**kwargs):
 
     # pop the args
 
-    log_dict = kwargs.pop('log_dict')
+    log_dict = kwargs.pop('log_dict', None)
 
     if log_dict:
         types = log_dict.get('types')
