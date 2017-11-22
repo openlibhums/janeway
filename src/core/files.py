@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 import re
 import shutil
+import magic
 
 from django.conf import settings
 from django.contrib import messages
@@ -136,6 +137,16 @@ def guess_mime(filename):
         file_mime = 'unknown'
 
     return file_mime
+
+
+def file_path_mime(file_path):
+    mime = magic.from_file(file_path, mime=True)
+    return mime
+
+
+def check_in_memory_mime(in_memory_file):
+    mime = magic.from_buffer(in_memory_file.read(), mime=True)
+    return mime
 
 
 def copy_file_to_folder(file_to_handle, filename, folder_structure):

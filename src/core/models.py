@@ -580,7 +580,6 @@ class File(models.Model):
         if self.article_id:
             try:
                 path = self.self_article_path()
-                print(path)
                 os.unlink(path)
             except FileNotFoundError:
                 print('file_not_found')

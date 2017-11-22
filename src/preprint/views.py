@@ -396,7 +396,7 @@ def preprints_files(request, article_id):
 
         # If required, check if the file is a PDF:
         if request.press.preprint_pdf_only and 'manuscript' in request.POST:
-            if not files.guess_mime(uploaded_file.name) == 'application/pdf':
+            if not files.check_in_memory_mime(in_memory_file=uploaded_file) == 'application/pdf':
                 form.add_error(None, 'You must upload a PDF for your manuscript')
                 modal = 'manuscript'
 
