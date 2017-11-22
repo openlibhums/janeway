@@ -87,7 +87,7 @@
                     </tr>
                     {% for order in preprint.articleauthororder_set.all %}
                         <tr>
-                            <td>{{ order.author.full_name }}</td>
+                            <td><a href="#" data-open="author-{{ order.author.pk }}">{{ order.author.full_name }}</a></td>
                             <td>{{ order.author.email }}</td>
                             <td>{% if order.author == preprint.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
@@ -287,6 +287,10 @@
     {% include "elements/preprints/accept_preprint.html" %}
     {% include "elements/production/new_galley.html" %}
     {% include "elements/preprints/subject_modal.html" %}
+
+    {% for order in preprint.articleauthororder_set.all %}
+        {% include "elements/preprints/author_meta.html" with author=order.author %}
+    {% endfor %}
 
 {% endblock %}
 
