@@ -59,6 +59,7 @@
                         <th>Date Published</th>
                         <th>Views</th>
                         <th>Downloads</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,6 +71,7 @@
                         <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
                         <td>{{ preprint.metrics.views }}</td>
                         <td>{{ preprint.metrics.downloads }}</td>
+                        <td><a href="{% url 'preprints_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
                     </tr>
                 {% empty %}
                 {% endfor %}
