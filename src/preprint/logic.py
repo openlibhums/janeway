@@ -137,6 +137,8 @@ def handle_comment_post(request, article, comment):
     kwargs = {'request': request, 'article': article, 'comment': comment}
     event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_COMMENT, **kwargs)
 
+    messages.add_message(request, messages.SUCCESS, 'Your comment has been saved. It has been sent for moderation.')
+
 
 def comment_manager_post(request, preprint):
     if 'comment_public' in request.POST:
