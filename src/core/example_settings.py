@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'submission',
     'transform',
     'utils',
+    'install',
 
     # 3rd Party
     'django_summernote',
@@ -83,6 +84,8 @@ INSTALLED_APPS = [
     'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
+    'rest_framework',
+    'foundationform',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps()
@@ -103,6 +106,7 @@ MIDDLEWARE_CLASSES = (
     'cron.middleware.CronMiddleware',
     'core.middleware.CounterCookieMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
 )
@@ -145,7 +149,8 @@ SETTINGS_EXPORT = [
     'ORCID_TOKEN_URL',
     'ORCID_CLIENT_SECRET',
     'ORCID_CLIENT_ID',
-    'ORCID_URL'
+    'ORCID_URL',
+    'ENABLE_ENHANCED_MAILGUN_FEATURES',
 ]
 
 
