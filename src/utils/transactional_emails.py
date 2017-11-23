@@ -975,7 +975,7 @@ def preprint_submission(**kwargs):
     )
     for editor in request.press.preprint_editors():
         notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
-                                                      editor_email_text)
+                                                      editor_email_text, log_dict=log_dict)
 
 
 def preprint_publication(**kwargs):

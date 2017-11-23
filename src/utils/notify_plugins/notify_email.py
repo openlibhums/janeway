@@ -75,8 +75,6 @@ def notify_hook(**kwargs):
 
     log_dict = kwargs.get('log_dict', None)
 
-    print(log_dict)
-
     if log_dict:
         notify_contents = {
             'log_dict': log_dict,

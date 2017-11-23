@@ -67,10 +67,10 @@ class LogEntry(models.Model):
         verbose_name_plural = 'log entries'
 
     def __str__(self):
-        return u'[{0}] {1} - {2}'.format(self.types, self.date, self.subject)
+        return u'[{0}] {1} - {2} {3}'.format(self.types, self.date, self.subject, self.message_id)
 
     def __repr__(self):
-        return u'[{0}] {1} - {2}'.format(self.types, self.date, self.subject)
+        return u'[{0}] {1} - {2} {3}'.format(self.types, self.date, self.subject, self.message_id)
 
     def message_status_class(self):
         if self.message_status == 'delivered':

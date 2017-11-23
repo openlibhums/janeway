@@ -139,7 +139,6 @@ def handle_comment_post(request, article, comment):
 
 
 def comment_manager_post(request, preprint):
-    print(request.POST)
     if 'comment_public' in request.POST:
         comment_id = request.POST.get('comment_public')
     else:
