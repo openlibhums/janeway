@@ -11,7 +11,7 @@
             {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<form method="POST">{% csrf_token %}<button class="button" id="run" name="run" onclick="run_resolution()">Refresh Email Status</button></form>{% endif %}
         </div>
         <div class="content">
-            <table id="log">
+            <table id="log" class="scroll">
                 <thead>
                     <tr>
                         <th>Entry Type</th>
