@@ -56,7 +56,6 @@
                         <th>ID</th>
                         <th>Title</th>
                         <th>Date Submitted</th>
-                        <th>Decision</th>
                         <th>Date Published</th>
                         <th>Views</th>
                         <th>Downloads</th>
@@ -68,7 +67,6 @@
                         <td>{{ preprint.pk }}</td>
                         <td>{{ preprint.title|safe }}</td>
                         <td>{{ preprint.date_submitted }}</td>
-                        <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Declined{% else %}Under Consideration{% endif %}</td>
                         <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
                         <td>{{ preprint.metrics.views }}</td>
                         <td>{{ preprint.metrics.downloads }}</td>
