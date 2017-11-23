@@ -124,7 +124,10 @@ def get_publication_text(request, article, action):
         'action': action,
     }
 
-    template = request.press.preprint_publication
+    if article.date_declined and not article.date_published:
+        template = request.press.preprint_decline
+    else:
+        template = request.press.preprint_publication
     email_content = render_template.get_message_content(request, context, template, template_is_setting=True)
     return email_content
 
