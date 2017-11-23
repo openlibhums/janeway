@@ -1,8 +1,9 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 
-{% block title %}Article Log{% endblock %}
-{% block title-section %}Article Log{% endblock %}
+{% block title %}Article {{ article.pk }} Log{% endblock %}
+{% block title-section %}Article {{ article.pk }} Log{% endblock %}
+{% block title-sub %}{{ article.title|safe }}{% endblock %}
 
 {% block body %}
     <div class="box">
