@@ -106,6 +106,12 @@
                         {% endfor %}
                     </table>
                 </div>
+                <div class="title-area">
+                    <h2>Comments</h2>
+                </div>
+                <div class="content">
+                    <a href="{% url 'preprints_comments' preprint.pk %}" class="success button"><i class="fa fa-comment"></i> Manage Comments</a>
+                </div>
             </div>
         </div>
     </div>

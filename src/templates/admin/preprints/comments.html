@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 
+{% block title %}Preprint #{{ preprint.pk }} - Comments{% endblock %}
 {% block title-section %}Preprint Comments{% endblock %}
 {% block title-sub %}Management interface for {{ article.title|safe }} comments{% endblock %}
 
@@ -50,6 +51,7 @@
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button class="small success button" name="comment_public" value="{{ comment.pk }}">{% if comment.is_public %}Mark as Private{% else %}Mark Public{% endif %}</button>
+                                    <a href="{% url 'preprints_article' preprint.pk %}#comment-{{ comment.pk }}" class="small button">View Comment</a>
                                 </form>
                             </div>
                         </li>

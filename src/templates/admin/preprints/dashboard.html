@@ -25,6 +25,7 @@
                         <th>Date Published</th>
                         <th>Views</th>
                         <th>Downloads</th>
+                        <th>Comments</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,6 +38,7 @@
                         <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
                         <td>{{ preprint.metrics.views }}</td>
                         <td>{{ preprint.metrics.downloads }}</td>
+                        <td>{{ preprint.comment_set.all|length }}</td>
                     </tr>
                 {% empty %}
                 {% endfor %}
@@ -59,7 +61,6 @@
                         <th>Date Published</th>
                         <th>Views</th>
                         <th>Downloads</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>

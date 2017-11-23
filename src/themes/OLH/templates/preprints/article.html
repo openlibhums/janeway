@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}
+{% extends "press/core/base.html" %}
 {% load static from staticfiles %}
 {% load hooks %}
 {% load i18n %}
@@ -62,7 +62,7 @@
 
                 {% for comment in comments %}
                     <div class="callout">
-                        <div class="row">
+                        <div class="row" id="comment-{{ comment.pk }}">
                             <div class="large-2 columns">
                                 {% if comment.author.profile_image %}
                                     <img src="{{ comment.author.profile_image.url }}">
