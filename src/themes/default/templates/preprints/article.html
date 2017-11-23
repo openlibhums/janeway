@@ -62,10 +62,9 @@
                         <div class="row">
                             <div class="col-md-2">
                                 {% if comment.author.profile_image %}
-                                    <img src="{{ comment.author.profile_image.url }}" class="thumbnail editorial-image">
+                                    <img src="{{ comment.author.profile_image.url }}">
                                 {% else %}
-                                    <img src="{% static "common/img/icons/users.png" %}"
-                                         class="thumbnail editorial-image">
+                                    <img src="{% static "common/img/icons/users.png" %}">
                                 {% endif %}
                             </div>
                             <div class="col-md-10">
