@@ -85,7 +85,7 @@
                     <div class="summary">
                         <span class="stat">{{ rejected_preprints|length }}</span>
                         <span class="title">Rejected Submissions</span>
-                        <a href="" class="box-link"></a>
+                        <a href="{% url 'preprints_rejected_submissions' %}" class="box-link"></a>
                     </div>
                     <div class="summary">
                         <span class="stat alert">{{ incomplete_preprints|length }}</span>
