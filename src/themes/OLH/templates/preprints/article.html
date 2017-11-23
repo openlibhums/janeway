@@ -12,7 +12,8 @@
         <br/><br/>
         <div class="large-12 columns">
             <h3>{{ article.title|safe }}</h3>
-            <h6>{% for subject in article.subject_set.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</h6>
+            <h6>{% for subject in article.subject_set.all %}{{ subject.name }}{% if not forloop.last %},
+            {% endif %}{% endfor %}</h6>
             <p>
                 <small>This article is a preprint, it has not been peer reviewed or had any extensive editorial
                     over-sight.
@@ -36,7 +37,9 @@
                 </small>
             </p>
             <h5>{% trans "Abstract" %}</h5>
-            <p><small>{{ article.abstract|safe }}</small></p>
+            <p>
+                <small>{{ article.abstract|safe }}</small>
+            </p>
             <div itemprop="articleBody" id="pdf">
                 {% if html %}
                     <h5>Preprint Body</h5>
@@ -61,7 +64,12 @@
                     <div class="callout">
                         <div class="row">
                             <div class="large-2 columns">
-                                <img src="{{ comment.author.profile_image.url }}">
+                                {% if comment.author.profile_image %}
+                                    <img src="{{ comment.author.profile_image.url }}" class="thumbnail editorial-image">
+                                {% else %}
+                                    <img src="{% static "common/img/icons/users.png" %}"
+                                         class="thumbnail editorial-image">
+                                {% endif %}
                             </div>
                             <div class="large-10 columns">
                                 <p>
@@ -99,7 +107,8 @@
                         <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
                                                      title="{{ article.license.text }}">{{ article.license.name }}</a>
                         </li>
-                        {% if article.identifier.id_type == 'doi' %}<li>{{ article.identifier }}</li>{% endif %}
+                        {% if article.identifier.id_type == 'doi' %}
+                            <li>{{ article.identifier }}</li>{% endif %}
                     </ul>
                     <h5>{% trans "Metrics" %}</h5>
                     <ul>
@@ -126,7 +135,9 @@
                     <h5>Versions</h5>
                     <ul>
                         {% for version in article.preprintversion_set.all %}
-                            <li>{{ version.date_time}}<br /> <a href="{% url 'article_download_galley' article.id version.galley.id %}">{% trans "Download" %} {{ version.galley.label }}</a></li>
+                            <li>{{ version.date_time }}<br/> <a
+                                    href="{% url 'article_download_galley' article.id version.galley.id %}">{% trans "Download" %} {{ version.galley.label }}</a>
+                            </li>
                             {% empty %}
                             <li>This is the only version of the preprint.</li>
                         {% endfor %}
