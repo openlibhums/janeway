@@ -132,6 +132,7 @@ def preprints_list(request, subject_slug=None):
     context = {
         'articles': articles,
         'subject': subject,
+        'subjects': models.Subject.objects.filter(enabled=True)
     }
 
     return render(request, template, context)
