@@ -9,16 +9,17 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             <div class="box">
-                {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES and entry.is_email %}
+                {% if entry.is_email %}
                     <div class="title-area">
                         <h2>Headers</h2>
                     </div>
                     <div class="content">
                         <p><strong>To: </strong>{{ entry.to }}</p>
-
+                        {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES##  %}
                         <p><strong>Status:</strong> <i class="fa fa-circle {{ entry.message_status_class }}"
                                                        aria-hidden="true"></i> {{ entry.get_message_status_display }}
                         </p>
+                        {% endif %}
                     </div>
                 {% endif %}
                 <div class="title-area">
