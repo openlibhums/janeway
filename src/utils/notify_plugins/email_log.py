@@ -38,7 +38,7 @@ def notify_hook(**kwargs):
                                       request=request, target=target, is_email=True, to=to,
                                       message_id=message_id, subject=action_text, actor=actor)
         else:
-            models.LogEntry.add_entry(types=types, description=html, level=level,
+            models.LogEntry.add_entry(types=types, description=html, level=level, is_email=True,
                                       request=request, target=target, subject=action_text, to=to, actor=actor)
 
 

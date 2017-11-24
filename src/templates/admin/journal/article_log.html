@@ -31,8 +31,10 @@
                             <td>{{ entry.actor.full_name }}</td>
                             <td>{{ entry.get_level_display }}</td>
                             {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
+                                {% if entry.is_email %}
                                 <i class="fa fa-circle {{ entry.message_status_class }}" aria-hidden="true"></i>
                                 {{ entry.get_message_status_display }}
+                                {% endif %}
                             </td>{% endif %}
                             <td><a href="#" data-open="entry-{{ entry.pk }}">View Content</a> </td>
                         </tr>
