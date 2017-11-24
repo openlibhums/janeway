@@ -50,6 +50,10 @@ urlpatterns = [
         views.preprints_list,
         name='preprints_list_subject'),
 
+    url(r'^editors/$',
+        views.preprints_editors,
+        name='preprints_editors'),
+
     url(r'^submit/start/$',
         views.preprints_submit,
         name='preprints_submit'),

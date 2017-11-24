@@ -55,6 +55,7 @@
                                 <a href="{% url 'preprints_home' %}" class="dropdown-item">Preprints Home</a>
                                 <a href="{% url 'preprints_list' %}" class="dropdown-item">All Preprints</a>
                                 <a href="{% url 'preprints_about' %}" class="dropdown-item">About Preprints</a>
+                            {% if display_preprint_editors == 'On' %}<a href="{% url 'preprints_editors' %}" class="dropdown-item">Preprint Editors</a>{% endif %}
                                 <a href="{% url 'preprints_submit' %}" class="dropdown-item">Submit Preprint</a>
                         </div>
                     </li>

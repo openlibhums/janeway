@@ -227,12 +227,29 @@ def preprints_article(request, article_id):
 
 
 def preprints_pdf(request, article_id):
+
     pdf_url = request.GET.get('file')
 
     template = 'preprints/pdf.html'
     context = {
         'pdf_url': pdf_url,
     }
+    return render(request, template, context)
+
+
+def preprints_editors(request):
+    """
+    Displays lists of preprint editors by their subject group.
+    :param request: HttpRequest
+    :return: HttpResponse
+    """
+    subjects = models.Subject.objects.filter(enabled=True)
+
+    template = 'preprints/editors.html'
+    context = {
+        'subjects': subjects,
+    }
+
     return render(request, template, context)
 
 

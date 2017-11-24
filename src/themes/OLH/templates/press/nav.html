@@ -26,6 +26,7 @@
                     <li><a href="{% url 'preprints_home' %}">Preprints Home</a></li>
                     <li><a href="{% url 'preprints_list' %}">All Preprints</a></li>
                     <li><a href="{% url 'preprints_about' %}">About Preprints</a></li>
+                    {% if display_preprint_editors == 'On' %}<li><a href="{% url 'preprints_editors' %}">Preprint Editors</a></li>{% endif %}
                     <li><a href="{% url 'preprints_submit' %}">Submit a Preprint</a></li>
                 </ul>
             </li>

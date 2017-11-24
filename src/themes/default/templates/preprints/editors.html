@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ request.press.name }} Preprint Editors{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center">{{ request.press.name }} Preprint Editors</h2>
+        </div>
+
+        <br/><br/><br/><br/>
+
+        <div class="row">
+            <div class="col-md-12">
+                {% for subject in subjects %}
+                    <h4>{{ subject }}</h4>
+                    <ul>
+                        {% for editor in subject.editors.all %}
+                            <li>{{ editor.full_name }}, {{ editor.affiliation }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% empty %}
+                    <h6>This repository has no subjects or editors to display.</h6>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

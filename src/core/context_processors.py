@@ -39,7 +39,12 @@ def press(request):
     :param request: the active request
     :return: dictionary containing a press object under key 'press'
     """
-    return {'press': press_models.Press.get_press(request)}
+    press = press_models.Press.get_press(request)
+
+    return {
+        'press': press,
+        'display_preprint_editors': press.get_setting_value('Display Preprint Editors')
+    }
 
 
 def journal_settings(request):
