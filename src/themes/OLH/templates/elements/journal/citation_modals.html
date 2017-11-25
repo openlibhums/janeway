@@ -1,0 +1,44 @@
+    <div id="HarvardModal" class="reveal" data-reveal aria-labelledby="HarvardModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="HarvardModalTitle">Harvard-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+            ({{ article.date_published.year }}) '{{ article.title|safe }}',
+            <i>{{ journal.name }}</i>. {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="VancouverModal">Vancouver Citation Style</a> | <a data-open="APAModal">APA Citation
+            Style</a></p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div id="VancouverModal" class="reveal" data-reveal aria-labelledby="VancouverModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="VancouverModalTitle">Vancouver-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+            {{ article.title|safe }}. {{ journal.name }}. {{ article.date_published.year }} {{ article.date_published.month }};{{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="APAModal">APA Citation Style</a>
+        </p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div id="APAModal" class="reveal" data-reveal aria-labelledby="APAModalTitle" aria-hidden="true"
+         role="dialog">
+        <h2 id="APAModalTitle">APA-Style Citation</h2>
+        <p>{% for author in article.authors.all %}{% if forloop.last %}{% if not forloop.first %}
+            &amp; {% endif %}{% endif %}{{ author.last_name }},
+            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+            <i>{{ journal.name }}</i> {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+            doi: {{ article.identifier.identifier }}</p>
+        <p>Show: <a data-open="HarvardModal">Harvard Citation Style</a> | <a data-open="VancouverModal">Vancouver
+            Citation Style</a></p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>

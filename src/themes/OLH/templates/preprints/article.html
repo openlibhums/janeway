@@ -87,6 +87,7 @@
                     </div>
                 {% endfor %}
                 {% hook 'article_footer_block' %}
+                {% include "elements/journal/citation_modals.html" with article=article %}
             </div>
         </div>
         <div class="large-3 columns">
@@ -116,15 +117,15 @@
                     </ul>
                     <h5>{% trans "Citation" %}</h5>
                     <div class="button-group stacked">
-                        <button type="button" class="button" data-toggle="modal" data-target="#HarvardModal">
+                        <a data-open="HarvardModal" class="button">
                             Harvard-Style Citation
-                        </button>
-                        <button type="button" class="button" data-toggle="modal" data-target="#VancouverModal">
+                        </a>
+                        <a class="button" data-open="VancouverModal">
                             Vancouver-Style Citation
-                        </button>
-                        <button type="button" class="button" data-toggle="modal" data-target="#APAModal">
+                        </a>
+                        <a class="button" data-open="APAModal">
                             APA-Style Citation
-                        </button>
+                        </a>
                     </div>
 
                     <a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i> All Preprints</a>
@@ -145,6 +146,5 @@
             </div>
         </div>
     </div>
-
 {% endblock %}
 
