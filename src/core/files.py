@@ -10,6 +10,7 @@ from wsgiref.util import FileWrapper
 from bs4 import BeautifulSoup
 from lxml import etree
 import re
+import shutil
 
 from django.conf import settings
 from django.contrib import messages
@@ -532,3 +533,39 @@ def file_children(file):
     children = models.File.objects.filter(parent=file)
     print(children)
     return children
+
+
+def zip_files(files):
+    file_name = '{0}.zip'.format(uuid4())
+
+    # Copy files into a temp dir
+    _dir = os.path.join(settings.BASE_DIR, 'files/temp', str(uuid4()))
+    os.makedirs(_dir, 0o775)
+
+    for file in files:
+        shutil.copy(file.self_article_path(), _dir)
+
+    zip_path = '{dir}.zip'.format(dir=_dir)
+
+    shutil.make_archive(_dir, 'zip', _dir)
+    shutil.rmtree(_dir)
+    return zip_path, file_name
+
+
+def serve_temp_file(file_path, file_name):
+    filename, extension = os.path.splitext(file_name)
+    mime_type = guess_mime(file_name)
+
+    response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=mime_type)
+
+    response['Content-Length'] = os.path.getsize(file_path)
+    response['Content-Disposition'] = 'attachment; filename="{0}{1}"'.format(slugify(filename), extension)
+
+    unlink_temp_file(file_path)
+
+    return response
+
+
+def unlink_temp_file(file_path):
+    if os.path.isfile(file_path):
+        os.unlink(file_path)
