@@ -21,7 +21,7 @@ def get_random_journals():
             choice = journal_pks.pop()
             random_journal_pks.append(choice)
 
-    return journals.filter(pk__in=random_journal_pks)\
+    return journals.filter(pk__in=random_journal_pks)
 
 
 
