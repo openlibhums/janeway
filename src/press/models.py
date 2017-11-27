@@ -83,6 +83,9 @@ class Press(models.Model):
     preprint_publication = models.TextField(blank=True, null=True, default=press_text('publication'))
     preprint_decline = models.TextField(blank=True, null=True, default=press_text('decline'))
 
+    random_homepage_preprints = models.BooleanField(default=False)
+    homepage_preprints = models.ManyToManyField('submission.Article')
+
     def __str__(self):
         return u'%s' % self.name
 
