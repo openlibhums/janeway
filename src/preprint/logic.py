@@ -318,19 +318,12 @@ def save_preprint_submit_form(request, form, article, additional_fields):
 
 @cache(300)
 def list_articles_without_subjects():
-    articles = submission_models.Article.preprints.all()
-    subjects =  models.Subject.objects.all()
-
-    subject_articles = list()
-    for subject in subjects:
-        subject_articles.append(subject.preprints.all())
-
-    subject_articles = set(subject_articles)
+    articles = submission_models.Article.preprints.filter(date_submitted__isnull=False)
 
     orphaned_articles = list()
 
     for article in articles:
-        if article not in subject_articles:
+        if not article.get_subject_area():
             orphaned_articles.append(article)
 
     return orphaned_articles

@@ -106,4 +106,8 @@ urlpatterns = [
         views.preprints_rejected_submissions,
         name='preprints_rejected_submissions'),
 
+    url(r'^manager/orphans/$',
+        views.orphaned_preprints,
+        name='preprints_orphaned_preprints'),
+
 ]
