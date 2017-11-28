@@ -107,7 +107,6 @@ def get_pdf(article):
 
 
 def get_html(article):
-
     try:
         galley = article.galley_set.get(type='html')
         html = galley.file_content()
@@ -165,7 +164,6 @@ def comment_manager_post(request, preprint):
 
 
 def handle_author_post(request, preprint):
-
     file = request.FILES.get('file')
     upload_type = request.POST.get('upload_type')
     galley_id = request.POST.get('galley_id')
@@ -250,7 +248,6 @@ def subject_article_pks(request):
 
 
 def get_unpublished_preprints(request):
-
     unpublished_preprints = submission_models.Article.preprints.filter(
         date_published__isnull=True,
         date_submitted__isnull=False,
@@ -327,3 +324,17 @@ def list_articles_without_subjects():
             orphaned_articles.append(article)
 
     return orphaned_articles
+
+
+def get_doi(request, preprint):
+    doi = preprint.get_doi()
+
+    if doi and doi.id_type == 'doi':
+        return doi.identifier
+
+    else:
+        doi = render_template.get_message_content(request,
+                                                  {'preprint': preprint},
+                                                  request.press.get_setting_value('Crossref Pattern'),
+                                                  template_is_setting=True)
+        return doi

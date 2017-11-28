@@ -24,7 +24,7 @@
                         <div class="large-12 columns">
                             {% if crossref_enabled %}
                             <label for="doi">DOI:</label>
-                            <input type="text" name="doi" id="doi" placeholder="Insert a DOI in pattern 10.XXXX/XXXXX">
+                            <input type="text" name="doi" id="doi" value="{{ doi }}">
                             {% endif %}
                             <button type="submit" name="accept" class="small success button">Accept Article</button>
                         </div>

@@ -581,6 +581,7 @@ def preprints_manager_article(request, article_id):
         'preprint': preprint,
         'subjects': models.Subject.objects.filter(enabled=True),
         'crossref_enabled': crossref_enabled,
+        'doi': preprint_logic.get_doi(request, preprint)
     }
 
     return render(request, template, context)

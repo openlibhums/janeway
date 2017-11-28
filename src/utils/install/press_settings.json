@@ -19,4 +19,10 @@
     "value": "",
     "is_boolean": true
   }
+  ,
+  {
+    "name": "Crossref Pattern",
+    "value": "10.xxxx/xxx",
+    "is_boolean": false
+  }
 ]
