@@ -15,7 +15,7 @@
                     </div>
                     <div class="content">
                         <p><strong>To: </strong>{{ entry.to }}</p>
-                        {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES##  %}
+                        {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES  %}
                         <p><strong>Status:</strong> <i class="fa fa-circle {{ entry.message_status_class }}"
                                                        aria-hidden="true"></i> {{ entry.get_message_status_display }}
                         </p>
