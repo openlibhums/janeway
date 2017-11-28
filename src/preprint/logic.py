@@ -327,4 +327,3 @@ def list_articles_without_subjects():
             orphaned_articles.append(article)
 
     return orphaned_articles
-

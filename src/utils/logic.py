@@ -5,6 +5,7 @@ from django.conf import settings
 from utils import models, notify_helpers
 from cron.models import Request
 
+
 def parse_mailgun_webhook(post):
     message_id = post.get('Message-Id')
     token = post.get('token')
@@ -57,8 +58,8 @@ def attempt_actor_email(event):
             to = actor.email
             pass
         elif actor and article.journal and actor in article.journal.editors():
-                # Send email to this actor
-                to = actor.email
+            # Send email to this actor
+            to = actor.email
         elif actor and not article.journal and actor in press.preprint_editors():
             to = actor.email
 
@@ -77,4 +78,3 @@ def attempt_actor_email(event):
                                                   to,
                                                   body,
                                                   log_dict=None)
-

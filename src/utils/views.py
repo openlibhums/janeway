@@ -22,4 +22,3 @@ def mailgun_webhook(request):
 
     message = logic.parse_mailgun_webhook(request.POST)
     return HttpResponse(message)
-
