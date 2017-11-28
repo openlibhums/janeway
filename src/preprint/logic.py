@@ -169,6 +169,10 @@ def handle_author_post(request, preprint):
     galley_id = request.POST.get('galley_id')
     galley = get_object_or_404(core_models.Galley, article=preprint, pk=galley_id)
 
+    if request.press.preprint_pdf_only and not files.check_in_memory_mime(in_memory_file=file) == 'application/pdf':
+        messages.add_message(request, messages.WARNING, 'You must upload a PDF file.')
+        return
+
     if file:
         if upload_type == 'minor_correction':
             galley.file.unlink_file()
