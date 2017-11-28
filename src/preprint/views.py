@@ -537,19 +537,23 @@ def preprints_manager_article(request, article_id):
     if request.POST:
 
         if 'accept' in request.POST:
-            date = request.POST.get('date', timezone.now().date())
-            time = request.POST.get('time', timezone.now().time())
-            doi = request.POST.get('doi', None)
-            preprint.accept_preprint(date, time)
+            if not preprint.has_galley:
+                messages.add_message(request, messages.WARNING, 'You must assign at least one galley file.')
+                return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+            else:
+                date = request.POST.get('date', timezone.now().date())
+                time = request.POST.get('time', timezone.now().time())
+                doi = request.POST.get('doi', None)
+                preprint.accept_preprint(date, time)
 
-            if crossref_enabled and doi:
-                doi_obj = ident_logic.create_crossref_doi_identifier(article=preprint,
-                                                                     doi_suffix=doi,
-                                                                     suffix_is_whole_doi=True)
-                ident_logic.register_preprint_doi(request, crossref_enabled, doi_obj)
-                cache.clear()
+                if crossref_enabled and doi:
+                    doi_obj = ident_logic.create_crossref_doi_identifier(article=preprint,
+                                                                         doi_suffix=doi,
+                                                                         suffix_is_whole_doi=True)
+                    ident_logic.register_preprint_doi(request, crossref_enabled, doi_obj)
+                    cache.clear()
 
-            return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
+                return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'decline' in request.POST:
             preprint.decline_article()
