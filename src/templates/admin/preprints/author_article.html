@@ -1,6 +1,6 @@
 {% extends "admin/core/base.html" %}
 
-{% block title %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% block title-sub %}You can view the metadata of your article, its recent views and downloads and upload new versions
     of the preprint.{% endblock %}

@@ -1,6 +1,6 @@
 {% extends "admin/core/base.html" %}
 
-{% block title %}Preprint #{{ preprint.pk }} - Comments{% endblock %}
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint Comments{% endblock %}
 {% block title-sub %}Management interface for {{ article.title|safe }} comments{% endblock %}
 
