@@ -234,7 +234,7 @@
                 <ul class="menu vertical actions">
                     <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
                         Contact the Author</a></li>
-                    <li><a href="{% url 'manage_article_log' preprint.pk %}"><i class="fa fa-clipboard">&nbsp;</i>Log</a></li>
+                    <li><a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'preprints_manager_article' preprint.pk %}"><i class="fa fa-clipboard">&nbsp;</i>Log</a></li>
                     <li><a href="{% url 'preprints_comments' preprint.pk %}"><i class="fa fa-comments" aria-hidden="true">&nbsp;</i>Comments ({{ preprint.comment_set.all|length }})</a></li>
                     {% if not preprint.date_accepted and not preprint.date_declined %}
                         <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept

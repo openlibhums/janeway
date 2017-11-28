@@ -1196,6 +1196,7 @@ def manage_article_log(request, article_id):
     context = {
         'article': article,
         'log_entries': log_entries,
+        'return': request.GET.get('return', None)
     }
 
     return render(request, template, context)
