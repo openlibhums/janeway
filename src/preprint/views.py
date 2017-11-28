@@ -151,7 +151,8 @@ def preprints_search(request, search_term=None):
         article_search = submission_models.Article.preprints.filter(
             (Q(title__icontains=search_term) |
              Q(subtitle__icontains=search_term) |
-             Q(keywords__word__in=split_search_term))
+             Q(keywords__word__in=split_search_term)),
+            stage=submission_models.STAGE_PREPRINT_PUBLISHED, date_published__lte=timezone.now()
         )
         article_search = [article for article in article_search]
 
@@ -164,7 +165,10 @@ def preprints_search(request, search_term=None):
         )
 
         articles_from_author = [article for article in submission_models.Article.preprints.filter(
-            authors__in=from_author)]
+            authors__in=from_author,
+            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+            date_published__lte=timezone.now())]
+
         articles = set(article_search + articles_from_author)
 
     else:
