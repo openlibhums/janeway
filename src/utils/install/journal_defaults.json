@@ -2305,5 +2305,18 @@
         "group": {
             "name": "general"
         }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "boolean",
+            "pretty_name": "Accepts Preprint Submissions",
+            "is_translatable": false,
+            "description": "If true, preprint authors can flow their preprint into the journal for publication.",
+            "name": "accepts_preprint_submissions"
+        },
+        "group": {
+            "name": "general"
+        }
     }
 ]
