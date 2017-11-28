@@ -13,7 +13,7 @@
                     {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
                         ({{ article.date_published.year }}) '{{ article.title|safe }}',
-                        <i>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</i>. {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+                        <i>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</i>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
                         doi: {{ article.identifier.identifier }}</p>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                     <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %},
                     {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-                        {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+                        {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
                         doi: {{ article.identifier.identifier }}</p>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                         &amp; {% endif %}{% endif %}{{ author.last_name }},
                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
                         ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
-                        <i>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</i> {{ article.issue.volume }}({{ article.issue.issue }}):{{ article.page_numbers }}.
+                        <i>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</i> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
                         doi: {{ article.identifier.identifier }}</p>
                 </div>
 
