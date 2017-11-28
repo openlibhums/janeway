@@ -329,7 +329,7 @@ def list_articles_without_subjects():
 def get_doi(request, preprint):
     doi = preprint.get_doi()
 
-    if doi and doi.id_type == 'doi':
+    if doi:
         return doi.identifier
 
     else:
