@@ -23,6 +23,6 @@ urlpatterns = [
     url(r'^manager/fields/$', views.fields, name='submission_fields'),
     url(r'^manager/fields/(?P<field_id>\d+)/$', views.fields, name='submission_fields_id'),
 
-    url(r'^manager/licenses/$', views.licenses, name='submission_licenses'),
-    url(r'^manager/licenses/(?P<license_pk>\d+)/', views.licenses, name='submission_licenses_id'),
+    url(r'^manager/licences/$', views.licenses, name='submission_licenses'),
+    url(r'^manager/licences/(?P<license_pk>\d+)/', views.licenses, name='submission_licenses_id'),
 ]
