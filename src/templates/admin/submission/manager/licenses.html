@@ -2,14 +2,14 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
-{% block title %}Licenses{% endblock %}
-{% block title-section %}Licenses{% endblock %}
-{% block title-sub %}Control journal licenses{% endblock %}
+{% block title %}Licences{% endblock %}
+{% block title-section %}Licences{% endblock %}
+{% block title-sub %}Control journal licences{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'submission_licenses' %}">Licenses</a></li>
+    <li><a href="{% url 'submission_licenses' %}">Licences</a></li>
     {% if license %}<li><a href="{% url 'submission_licenses_id' license.pk %}">{{ license.name }}</a></li>{% endif %}
 {% endblock %}
 
@@ -18,7 +18,7 @@
         <div class="row expanded">
             <div class="large-6 columns">
                 <div class="title-area">
-                    <h2>Current Licenses</h2>
+                    <h2>Current Licences</h2>
                 </div>
                 <div class="content">
                     <form method="POST">
