@@ -15,11 +15,11 @@
             <div class="row">
                         <div class="large-8 columns">
                             <label for="date">Date</label>
-                            <input type="text" name="date" id="date" required {% if preprint.date_published %}value="{{ preprint.date_published|date:'Y-m-d' }}"{% endif %}>
+                            <input type="text" name="date" id="date" required value="{% if preprint.date_published %}{{ preprint.date_published|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                         </div>
                         <div class="large-4 columns">
                             <label for="time">Time</label>
-                            <input type="text" name="time" id="time" required {% if preprint.date_published %}value="{{ preprint.date_published|date:'H:i' }}"{% endif %}>
+                            <input type="text" name="time" id="time" required value="{% if preprint.date_published %}{{ preprint.date_published|date:'H:i' }}{% else %}{% now "H:i" %}{% endif %}">
                         </div>
                         <div class="large-12 columns">
                             {% if crossref_enabled %}
