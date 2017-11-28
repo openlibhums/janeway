@@ -330,7 +330,7 @@ def get_doi(request, preprint):
     doi = preprint.get_doi()
 
     if doi:
-        return doi.identifier
+        return doi
 
     else:
         doi = render_template.get_message_content(request,
