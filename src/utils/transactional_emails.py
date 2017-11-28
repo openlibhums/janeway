@@ -993,7 +993,7 @@ def preprint_publication(**kwargs):
     log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Publication',
                 'target': article}
 
-    util_models.LogEntry.add_entry('Publication', description, 'info', request.user, request, article)
+    util_models.LogEntry.add_entry('Publication', description, 'Info', request.user, request, article)
 
     # Send an email to the article owner.
     context = {'article': article}

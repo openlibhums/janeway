@@ -30,7 +30,7 @@
                             <td>{{ entry.types }}</td>
                             <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ entry.actor.full_name }}</td>
-                            <td>{{ entry.get_level_display }}</td>
+                            <td>{{ entry.get_level_display|capfirst }}</td>
                             {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
                                 {% if entry.is_email %}
                                 <i class="fa fa-circle {{ entry.message_status_class }}" aria-hidden="true"></i>

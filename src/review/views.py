@@ -1262,14 +1262,14 @@ def edit_revision_request(request, article_id, revision_id):
         if 'delete_revision' in request.POST:
             rationale = request.POST.get('delete_rationale')
             util_models.LogEntry.add_entry('deletion', '{0} deleted a revision request with reason:\n\n{1}'.format(
-                request.user.full_name(), rationale), level='info', actor=request.user, target=revision_request.article
+                request.user.full_name(), rationale), level='Info', actor=request.user, target=revision_request.article
             )
             revision_request.delete()
             messages.add_message(request, messages.INFO, 'Revision request deleted.')
 
         if 'mark_as_complete' in request.POST:
             util_models.LogEntry.add_entry('update', '{0} marked revision {1} as complete'.format(
-                request.user.full_name(), revision_request.id), level='info', actor=request.user,
+                request.user.full_name(), revision_request.id), level='Info', actor=request.user,
                 target=revision_request.article
             )
             revision_request.date_completed = timezone.now()
