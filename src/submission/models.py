@@ -283,7 +283,7 @@ class PreprintManager(models.Manager):
 
 
 class Article(models.Model):
-    journal = models.ForeignKey('journal.Journal', null=True)
+    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=300, help_text=_('Your article title'))
@@ -373,6 +373,7 @@ class Article(models.Model):
 
     is_preprint = models.BooleanField(default=False)
     preprint_decision_notification = models.BooleanField(default=False)
+    preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
 
     allarticles = AllArticleManager()
     objects = ArticleManager()
@@ -814,7 +815,6 @@ class Article(models.Model):
 
     @property
     def is_published(self):
-        print(self.stage)
         if (self.stage == STAGE_PUBLISHED or self.stage == STAGE_PREPRINT_PUBLISHED) and \
                 self.date_published and self.date_published < timezone.now():
             return True
