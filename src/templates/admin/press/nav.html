@@ -35,8 +35,8 @@
             Plugins</a></li>
             <li><a href="/admin/"><i class="fa fa-cog">&nbsp;</i>
             Admin</a></li>
+            {% hook 'press_admin_nav_block' %}
         {% endif %}
-        {% hook 'press_admin_nav_block' %}
         <li class="subtitle"><a href="#">Language</a></li>
         <li>
             <div class="small-12 small-centered columns">

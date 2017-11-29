@@ -42,8 +42,8 @@
             Plugins</a></li>
             <li><a href="{% url 'core_journal_workflow' %}"><i class="fa fa-code-fork">&nbsp;</i>
             Workflow</a></li>
+            {% hook 'journal_admin_nav_block' %}
         {% endif %}
-        {% hook 'journal_admin_nav_block' %}
         {% if journal_settings.general.switch_language %}
         <li class="subtitle"><a href="#">Language</a></li>
         <li>
