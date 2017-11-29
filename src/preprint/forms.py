@@ -95,7 +95,7 @@ class PreprintInfo(forms.ModelForm):
 
             for field in additional_fields:
                 answer = request.POST.get(field.name, None)
-                print(answer)
+
                 if answer:
                     try:
                         field_answer = submission_models.FieldAnswer.objects.get(article=article, field=field)
