@@ -173,9 +173,8 @@ class Journal(models.Model):
             self.domain,
             ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '')
 
-    @staticmethod
-    def full_reverse(self, request, url_name, **kwargs):
-        base_url = request.journal_base_url
+    def full_reverse(self, request, url_name, kwargs):
+        base_url = self.full_url(request)
         url_path = reverse(url_name, kwargs=kwargs)
         return "{0}{1}".format(base_url, url_path)
 
