@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load fqdn %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
@@ -16,7 +17,9 @@
             <div class="box" data-equalizer-watch>
                 <div class="title-area">
                     <h2>Metadata</h2>
-                    {% if preprint.is_published %}<a href="{% url 'preprints_article' preprint.pk %}" class="button">View Live Article</a>{% endif %}
+                    {% if preprint.is_published %}
+                        <a href="{% url 'preprints_article' preprint.pk %}" class="button">View Live
+                            Article</a>{% endif %}
                 </div>
                 <div class="content">
                     <table class="scroll">
@@ -98,11 +101,14 @@
                                 set{% endif %}</td>
                         </tr>
                         {% for version in preprint.preprintversion_set.all %}
-                        <tr>
-                            <th>Version #{{ version.version }} (<a href="{% url 'article_download_galley' preprint.id version.galley.id %}"><i class="fa fa-download"></i></a>)</th>
-                            <td>{{ version.date_time }}</td>
-                            <td></td>
-                        </tr>
+                            <tr>
+                                <th>Version #{{ version.version }} (<a
+                                        href="{% url 'article_download_galley' preprint.id version.galley.id %}"><i
+                                        class="fa fa-download"></i></a>)
+                                </th>
+                                <td>{{ version.date_time }}</td>
+                                <td></td>
+                            </tr>
                         {% endfor %}
                     </table>
                 </div>
@@ -110,7 +116,8 @@
                     <h2>Comments</h2>
                 </div>
                 <div class="content">
-                    <a href="{% url 'preprints_comments' preprint.pk %}" class="success button"><i class="fa fa-comment"></i> Manage Comments</a>
+                    <a href="{% url 'preprints_comments' preprint.pk %}" class="success button"><i
+                            class="fa fa-comment"></i> Manage Comments</a>
                 </div>
             </div>
         </div>
@@ -149,7 +156,30 @@
                         {% endfor %}
                     </table>
                 </div>
+                <div class="title-area">
+                    <h2>Submit to Journal</h2>
+                </div>
+                <div class="content">
+                    {% if preprint.preprint_journal_article %}
+                        <p>This preprint has already been submitted to <i>{{ preprint.preprint_journal_article.journal.name }}</i>
+                            with ID <a href="{% journal_base_url preprint.preprint_journal_article.journal %}{% url 'core_dashboard' %}">{{ preprint.preprint_journal_article.pk }}</a>.</p>
+                    {% elif preprint_journals %}
+                        <p>Select a journal to submit your article to.</p>
+                        <form method="POST">
+                        {% csrf_token %}
+                        <select name="submit_to_journal">
+                            {% for journal in preprint_journals %}
+                                <option value="{{ journal.pk }}">{{ journal.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button name="submit" class="success button float-right">Submit</button>
+                        </form>
+                    {% else %}
+                        <p>No journals currently accept preprints for full submission.</p>
+                    {% endif %}
+                </div>
             </div>
+
         </div>
         <div class="large-4 columns">
             <div class="box" data-equalizer-watch>

@@ -331,6 +331,12 @@ def list_articles_without_subjects():
 
 
 def get_doi(request, preprint):
+    """
+    Returns either the articles actual DOI or a rendered one using the press' pattern.
+    :param request: HttpRequest object
+    :param preprint: Preprint object
+    :return:
+    """
     doi = preprint.get_doi()
 
     if doi:
@@ -342,3 +348,68 @@ def get_doi(request, preprint):
                                                   request.press.get_setting_value('Crossref Pattern'),
                                                   template_is_setting=True)
         return doi
+
+
+def get_list_of_preprint_journals():
+    """
+    Returns a list of journals who allow preprints to be submitted to them.
+    :param request: HttpRequest
+    :return: Queryset of Journal objects
+    """
+    from journal import models as journal_models
+    journals = journal_models.Journal.objects.all()
+    journals_accepting_preprints = list()
+
+    for journal in journals:
+        setting = journal.get_setting('general', 'accepts_preprint_submissions')
+        if setting:
+            journals_accepting_preprints.append(journal)
+
+    return journals_accepting_preprints
+
+
+def handle_preprint_submission(request, preprint):
+    """
+    Handles post action for submitting a preprint to a journal.
+    :param request: HttpRequest object
+    :param preprint: Article.pk
+    :return: HttpRedirect
+    """
+    from journal import models as journal_models
+    journal_id = request.POST.get('submit_to_journal')
+    journal = get_object_or_404(journal_models.Journal, pk=journal_id)
+
+    if journal.get_setting('general', 'accepts_preprint_submissions') and not preprint.preprint_journal_article:
+        # Submit
+        old_preprint_pk = preprint.pk
+        preprint.pk = None
+        preprint.is_preprint = False
+        preprint.journal = journal
+        preprint.stage = submission_models.STAGE_UNSUBMITTED
+        preprint.current_step = 1
+        preprint.date_accepted = None
+        preprint.date_declined = None
+        preprint.date_published = None
+        preprint.date_submitted = None
+        preprint.save()
+
+        original_preprint = submission_models.Article.preprints.get(pk=old_preprint_pk)
+        original_preprint.preprint_journal_article = preprint
+        original_preprint.save()
+
+        for author in original_preprint.authors.all():
+            preprint.authors.add(author)
+            submission_models.ArticleAuthorOrder.objects.create(article=preprint,
+                                                                author=author,
+                                                                order=preprint.next_author_sort())
+
+        for galley in original_preprint.galley_set.all():
+            galley.file.label = 'Manuscript'
+            galley.file.save()
+            preprint.manuscript_files.add(galley.file)
+
+        return redirect(journal.full_reverse(request=request, url_name='submit_info', kwargs={'article_id': preprint.pk}))
+    else:
+        messages.add_message(request, messages.WARNING, 'This journal does not accept preprint submissions.')
+
+        return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))

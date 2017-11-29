@@ -80,12 +80,17 @@ def preprints_author_article(request, article_id):
     metrics_summary = preprint_logic.metrics_summary([preprint])
 
     if request.POST:
-        preprint_logic.handle_author_post(request, preprint)
+        if 'submit' in request.POST:
+            return preprint_logic.handle_preprint_submission(request, preprint)
+        else:
+            preprint_logic.handle_author_post(request, preprint)
+            return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
 
     template = 'admin/preprints/author_article.html'
     context = {
         'preprint': preprint,
         'metrics_summary': metrics_summary,
+        'preprint_journals': preprint_logic.get_list_of_preprint_journals()
     }
 
     return render(request, template, context)
