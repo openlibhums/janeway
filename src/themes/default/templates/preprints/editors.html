@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}{{ request.press.name }} Preprint Editors{% endblock %}
 
@@ -10,20 +11,35 @@
 
         <br/><br/><br/><br/>
 
-        <div class="row">
+        {% for subject in subjects %}
             <div class="col-md-12">
-                {% for subject in subjects %}
-                    <h4>{{ subject }}</h4>
-                    <ul>
-                        {% for editor in subject.editors.all %}
-                            <li>{{ editor.full_name }}, {{ editor.affiliation }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% empty %}
-                    <h6>This repository has no subjects or editors to display.</h6>
-                {% endfor %}
+                <h4>{{ subject }}</h4>
             </div>
-        </div>
+            {% for editor in subject.editors.all %}
+                <div class="col-md-3 row-eq-height">
+                    <div class="card" style="width: 20rem;">
+                        <img class="card-img-top img-fluid editorial-image" src="
+                                {% if editor.profile_image %}{{ editor.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
+                             alt="Card image cap">
+                        <div class="card-block">
+                            <h5 class="card-title">{{ editor.full_name }}</h5>
+                            <p>
+                                <small>{{ editor.affiliation }}</small>
+                            </p>
+                            {% if user.enable_public_profile %}
+                                <p>
+                                    <small><a href="{% url 'core_public_profile' editor.uuid %}">View
+                                        Profile</a>
+                                    </small>
+                                </p>{% endif %}
+                            {% include "elements/journal/editorial_social_content.html" with user=editor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% empty %}
+            <h6>This repository has no subjects or editors to display.</h6>
+        {% endfor %}
     </div>
 
 {% endblock %}

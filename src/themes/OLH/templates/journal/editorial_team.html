@@ -4,15 +4,15 @@
 
 {% block title %}
     {% if group_id %}
-    {{ editorial_groups.0.name }}
+        {{ editorial_groups.0.name }}
     {% else %}
-    Editorial Team
+        Editorial Team
     {% endif %}
 {% endblock title %}
 
 {% block body %}
-	<section id="content">
-		<div class="row column">
+    <section id="content">
+        <div class="row column">
             {% if group_id %}
                 <h4>{{ editorial_groups.0.name }}</h4>
             {% else %}
@@ -20,30 +20,39 @@
             {% endif %}
             {% for group in editorial_groups %}
                 {% if not group_id %}
-                <h6>{{ group.name }}</h6>
+                    <h6>{{ group.name }}</h6>
                 {% endif %}
                 {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
-                    <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
-                        <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout" data-equalizer-watch>
-                            {% if journal_settings.general.enable_editorial_images %}
-                            <img class="thumbnail editorial-image" src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="Photo of Uranus.">
-                            {% endif %}
-                            <strong>{{ member.user.full_name }}</strong><br />
-                            <i><small>{{ member.user.affiliation }}</small></i><br />
-                            {% if user.enable_public_profile %}<p><small><a href="{% url 'core_public_profile' member.user.uuid %}">View Profile</a></small></p>{% endif %}
-                            {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                        <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
+                            <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout"
+                                 data-equalizer-watch>
+                                {% if journal_settings.general.enable_editorial_images %}
+                                    <img class="thumbnail editorial-image" src="
+                                            {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
+                                         alt="Photo of Uranus.">
+                                {% endif %}
+                                <strong>{{ member.user.full_name }}</strong><br/>
+                                <i>
+                                    <small>{{ member.user.affiliation }}</small>
+                                </i><br/>
+                                {% if user.enable_public_profile %}
+                                    <p>
+                                        <small><a href="{% url 'core_public_profile' member.user.uuid %}">View
+                                            Profile</a></small>
+                                    </p>{% endif %}
+                                {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                            </div>
                         </div>
-                    </div>
-                    {% if forloop.counter|divisibleby:4 %}
-                    </div>
-                    <div class="row">
-                    {% endif %}
+                        {% if forloop.counter|divisibleby:4 %}
+                            </div>
+                            <div class="row">
+                        {% endif %}
                     {% endfor %}
-                </div>
-                <hr />
+                    </div>
+                <hr/>
             {% endfor %}
-		</div>
-	</section>
+        </div>
+    </section>
 {% endblock body %}
