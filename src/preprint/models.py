@@ -68,6 +68,7 @@ def version_choices():
 
 class VersionQueue(models.Model):
     article = models.ForeignKey('submission.Article')
+    galley = models.ForeignKey('core.Galley')
     file = models.ForeignKey('core.File')
     update_type = models.CharField(max_length=10, choices=version_choices())
 

@@ -175,7 +175,7 @@ def handle_author_post(request, preprint):
     else:
         file = files.save_file_to_article(file, preprint, request.user, label=galley.label)
 
-    models.VersionQueue.objects.create(article=preprint, file=file, update_type=update_type)
+    models.VersionQueue.objects.create(article=preprint, galley=galley, file=file, update_type=update_type)
 
     messages.add_message(request, messages.INFO, 'This update has been added to the moderation queue.')
 
