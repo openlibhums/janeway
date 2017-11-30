@@ -90,7 +90,8 @@ def preprints_author_article(request, article_id):
     context = {
         'preprint': preprint,
         'metrics_summary': metrics_summary,
-        'preprint_journals': preprint_logic.get_list_of_preprint_journals()
+        'preprint_journals': preprint_logic.get_list_of_preprint_journals(),
+        'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
     }
 
     return render(request, template, context)

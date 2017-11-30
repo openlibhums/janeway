@@ -157,6 +157,31 @@
                     </table>
                 </div>
                 <div class="title-area">
+                    <h2>Pending Updates</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date Submitted</th>
+                            <th>File</th>
+                        </tr>
+                        {% for update in pending_updates %}
+                            <tr>
+                                <td>{{ update.pk }}</td>
+                                <td>{{ update.date_submitted }}</td>
+                                <td>{{ update.file.original_filename|truncatechars:40 }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">
+                                    You have no pending updates.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="title-area">
                     <h2>Submit to Journal</h2>
                 </div>
                 <div class="content">
@@ -172,7 +197,7 @@
                                 <option value="{{ journal.pk }}">{{ journal.name }}</option>
                             {% endfor %}
                         </select>
-                        <button name="submit" class="success button float-right">Submit</button>
+                        <button name="submit" class="success button">Submit</button>
                         </form>
                     {% else %}
                         <p>No journals currently accept preprints for full submission.</p>
@@ -224,8 +249,8 @@
                         </p>
                         <div>
                             <select name="upload_type">
-                                <option value="minor_correction">Minor Correction</option>
-                                <option value="new_version">New Version</option>
+                                <option value="correction">Minor Correction</option>
+                                <option value="version">New Version</option>
                             </select>
                             <input name="file" type="file" class="float-left" style="width:50%;"
                                    data-placeholder="No file"
