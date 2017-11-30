@@ -748,6 +748,12 @@ def version_queue(request):
     """
     version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
 
+    if request.POST:
+        if 'approve' in request.POST:
+            return preprint_logic.approve_pending_update(request)
+        elif 'deny' in request.POST:
+            return preprint_logic.deny_pending_update(request)
+
     template = 'admin/preprints/version_queue.html'
     context = {
         'version_queue': version_queue

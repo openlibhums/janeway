@@ -180,8 +180,47 @@ def handle_author_post(request, preprint):
     messages.add_message(request, messages.INFO, 'This update has been added to the moderation queue.')
 
 
-def approve_pending_update(update):
-    pass
+def get_pending_update_from_post(request):
+    """
+    Gets a VersionQueue object from a post value
+    :param request: HttpRequest object
+    :return: VersionQueue object or None
+    """
+    update_id = None
+
+    if 'approve' in request.POST:
+        update_id = request.POST.get('approve')
+    elif 'deny' in request.POST:
+        update_id = request.POST.get('deny')
+
+    if update_id:
+        pending_update = get_object_or_404(models.VersionQueue, pk=update_id, date_decision__isnull=True)
+        return pending_update
+    else:
+        messages.add_message(request, messages.WARNING, 'No valid version id provided.')
+        return None
+
+def approve_pending_update(request):
+    """
+    Approves a pending versioning request and updates files/galleys.
+    :param request: HttpRequest object
+    :return: None
+    """
+    pending_update = get_pending_update_from_post(request)
+
+    if pending_update:
+        pass
+    else:
+        return
+
+
+def deny_pending_update(request):
+    pending_update = get_pending_update_from_post(request)
+
+    if pending_update:
+        pass
+    else:
+        return
 
 
 def handle_author_post_old(request, preprint):
