@@ -165,13 +165,30 @@ def comment_manager_post(request, preprint):
 
 def handle_author_post(request, preprint):
     file = request.FILES.get('file')
-    upload_type = request.POST.get('upload_type')
+    update_type = request.POST.get('upload_type')
     galley_id = request.POST.get('galley_id')
     galley = get_object_or_404(core_models.Galley, article=preprint, pk=galley_id)
 
     if request.press.preprint_pdf_only and not files.check_in_memory_mime(in_memory_file=file) == 'application/pdf':
         messages.add_message(request, messages.WARNING, 'You must upload a PDF file.')
         return
+    else:
+        file = files.save_file_to_article(file, preprint, request.user, label=galley.label)
+
+    models.VersionQueue.objects.create(article=preprint, file=file, update_type=update_type)
+
+    messages.add_message(request, messages.INFO, 'This update has been added to the moderation queue.')
+
+
+def approve_pending_update(update):
+    pass
+
+
+def handle_author_post_old(request, preprint):
+    file = request.FILES.get('file')
+    upload_type = request.POST.get('upload_type')
+    galley_id = request.POST.get('galley_id')
+    galley = get_object_or_404(core_models.Galley, article=preprint, pk=galley_id)
 
     if file:
         if upload_type == 'minor_correction':
