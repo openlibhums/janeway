@@ -724,7 +724,11 @@ def preprints_rejected_submissions(request):
 
 @staff_member_required
 def orphaned_preprints(request):
-
+    """
+    Displays a list of preprints that have bee orphaned from subjects.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
     orphaned_preprints = preprint_logic.list_articles_without_subjects()
 
     template = 'admin/preprints/orphaned_preprints.html'
@@ -733,3 +737,21 @@ def orphaned_preprints(request):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def version_queue(request):
+    """
+    Displays a list of version update requests.
+    :param request: HttpRequest
+    :return: HttpResponse or HttpRedirect
+    """
+    version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+
+    template = 'admin/preprints/version_queue.html'
+    context = {
+        'version_queue': version_queue
+    }
+
+    return render(request, template, context)
+
