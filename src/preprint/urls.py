@@ -110,4 +110,8 @@ urlpatterns = [
         views.orphaned_preprints,
         name='preprints_orphaned_preprints'),
 
+    url(r'^manager/versions/$',
+        views.version_queue,
+        name='version_queue'),
+
 ]
