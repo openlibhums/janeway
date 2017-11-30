@@ -206,52 +206,50 @@ def approve_pending_update(request):
     :param request: HttpRequest object
     :return: None
     """
+    from core import models as core_models
     pending_update = get_pending_update_from_post(request)
 
     if pending_update:
-        pass
+        if pending_update.update_type == 'correction':
+            pending_update.galley.file = pending_update.file
+            pending_update.galley.save()
+            messages.add_message(request, messages.SUCCESS, 'Correction approved.')
+        elif pending_update.update_type == 'version':
+            models.PreprintVersion.objects.create(
+                preprint=pending_update.article,
+                galley=pending_update.galley,
+                version=pending_update.article.next_preprint_version()
+            )
+            pending_update.galley.article = None
+            pending_update.galley.save()
+
+            core_models.Galley.objects.create(article=pending_update.article, file=pending_update.file,
+                                              label=pending_update.galley.label,
+                                              type=pending_update.galley.type)
+            messages.add_message(request, messages.SUCCESS, 'New version created.')
+
+        pending_update.date_decision = timezone.now()
+        pending_update.approved = True
+        pending_update.save()
+
+
     else:
-        return
+        messages.add_message(request, messages.WARNING, 'No valid pending update found.')
+
+    return redirect(reverse('version_queue'))
 
 
 def deny_pending_update(request):
     pending_update = get_pending_update_from_post(request)
 
     if pending_update:
-        pass
+        pending_update.date_decision = timezone.now()
+        pending_update.approved = False
+        pending_update.save()
+
     else:
-        return
-
-
-def handle_author_post_old(request, preprint):
-    file = request.FILES.get('file')
-    upload_type = request.POST.get('upload_type')
-    galley_id = request.POST.get('galley_id')
-    galley = get_object_or_404(core_models.Galley, article=preprint, pk=galley_id)
-
-    if file:
-        if upload_type == 'minor_correction':
-            galley.file.unlink_file()
-            files.overwrite_file(file, preprint, galley.file)
-            messages.add_message(request, messages.SUCCESS, 'Existing file replaced.')
-        elif upload_type == 'new_version':
-            models.PreprintVersion.objects.create(
-                preprint=preprint,
-                galley=galley,
-                version=preprint.next_preprint_version()
-            )
-            galley.article = None
-            galley.save()
-
-            new_galley = save_galley(preprint, request, file, True, galley.type, False)
-            new_galley.label = galley.label
-            new_galley.save()
-            messages.add_message(request, messages.SUCCESS, 'New version created.')
-
-        else:
-            messages.add_message(request, messages.ERROR, 'Invalid upload type provided.')
-    else:
-        messages.add_message(request, messages.ERROR, 'No file uploaded')
+        messages.add_message(request, messages.WARNING, 'No valid pending update found.')
+    return redirect(reverse('version_queue'))
 
 
 def handle_delete_version(request, preprint):
