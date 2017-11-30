@@ -15,30 +15,33 @@
 {% block body %}
     <div class="row expanded" data-equalizer data-equalize-on="medium">
         <div class="box">
-            <table id="versions">
-                <thead>
-                    <tr>
-                        <th>Article</th>
-                        <th>Requester</th>
-                        <th>Requested</th>
-                        <th>File</th>
-                        <th>Approve</th>
-                        <th>Decline</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for version in version_queue %}
-                    <tr>
-                        <td>{{ version.article.title|safe }}</td>
-                        <td>{{ version.article.owner }}</td>
-                        <td>{{ version.date_submitted }}</td>
-                        <td><a href=""><i class="fa fa-download"></i> Download</a></td>
-                        <td><a href="" class="button success"><i class="fa fa-check"> </i></a></td>
-                        <td><a href="" class="button alert"><i class="fa fa-times"> </i></a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            <form method="POST">
+                {% csrf_token %}
+                <table id="versions">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th>Requester</th>
+                            <th>Requested</th>
+                            <th>File</th>
+                            <th>Approve</th>
+                            <th>Decline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for version in version_queue %}
+                        <tr>
+                            <td>{{ version.article.title|safe }}</td>
+                            <td>{{ version.article.owner }}</td>
+                            <td>{{ version.date_submitted }}</td>
+                            <td><a href=""><i class="fa fa-download"></i> Download</a></td>
+                            <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
+                            <td><button class="button alert" name="deny" value="{{ version.pk }}"><i class="fa fa-times"> </i></button></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </form>
         </div>
     </div>
 {% endblock %}
