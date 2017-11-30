@@ -23,6 +23,7 @@
                             <th>Article</th>
                             <th>Requester</th>
                             <th>Requested</th>
+                            <th>Request Type</th>
                             <th>File</th>
                             <th>Approve</th>
                             <th>Decline</th>
@@ -34,6 +35,7 @@
                             <td>{{ version.article.title|safe }}</td>
                             <td>{{ version.article.owner }}</td>
                             <td>{{ version.date_submitted }}</td>
+                            <td>{{ version.get_update_type_display }}</td>
                             <td><a href=""><i class="fa fa-download"></i> Download</a></td>
                             <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
                             <td><button class="button alert" name="deny" value="{{ version.pk }}"><i class="fa fa-times"> </i></button></td>
