@@ -181,6 +181,7 @@
                         {% endfor %}
                     </table>
                 </div>
+                {% if preprint.date_accepted %}
                 <div class="title-area">
                     <h2>Submit to Journal</h2>
                 </div>
@@ -203,6 +204,7 @@
                         <p>No journals currently accept preprints for full submission.</p>
                     {% endif %}
                 </div>
+                {% endif %}
             </div>
 
         </div>

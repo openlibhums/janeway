@@ -433,6 +433,11 @@ def handle_preprint_submission(request, preprint):
     journal_id = request.POST.get('submit_to_journal')
     journal = get_object_or_404(journal_models.Journal, pk=journal_id)
 
+    if not preprint.date_accepted:
+        messages.add_message(request, messages.WARNING, 'Only preprints that have been accepted can be submitted to'
+                                                        'journals for publication.')
+        return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
+
     if journal.get_setting('general', 'accepts_preprint_submissions') and not preprint.preprint_journal_article:
         # Submit
         old_preprint_pk = preprint.pk
