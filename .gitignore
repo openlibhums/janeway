@@ -91,3 +91,7 @@ src/core/settings/
 src/utils/management/commands/redirects\.py
 .vscode/**
 
+
+src/static/material/
+
+src/themes/material/
