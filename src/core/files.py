@@ -40,6 +40,10 @@ IMAGE_MIMETYPES = (
     'image/tiff',
 )
 
+def mkdirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
 
 def copy_local_file_to_article(file_to_handle, file_name, article, owner, label=None, description=None,
                                replace=None, galley=False):
@@ -166,6 +170,22 @@ def copy_file_to_folder(file_to_handle, filename, folder_structure):
     # write the file to disk
     import shutil
     shutil.copy(file_to_handle, path)
+
+
+def copy_article_file(article_to_copy_from, file_to_copy, article_to_copy_to):
+    """
+    Copies an article file to another article location.
+    :param file_to_copy: A file object
+    :param article_to_copy_to: An Article object
+    :return: None
+    """
+    copy_to_folder_structure = os.path.join(settings.BASE_DIR,
+                                            'files',
+                                            'articles',
+                                            str(article_to_copy_to.id))
+    file_path = os.path.join(copy_to_folder_structure, file_to_copy.uuid_filename)
+    mkdirs(copy_to_folder_structure)
+    shutil.copy(file_to_copy.get_file_path(article_to_copy_from), file_path)
 
 
 def save_file_to_disk(file_to_handle, filename, folder_structure):

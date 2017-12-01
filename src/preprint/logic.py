@@ -458,9 +458,17 @@ def handle_preprint_submission(request, preprint):
                                                                 order=preprint.next_author_sort())
 
         for galley in original_preprint.galley_set.all():
-            galley.file.label = 'Manuscript'
-            galley.file.save()
-            preprint.manuscript_files.add(galley.file)
+            new_file = core_models.File.objects.create(
+                label='Manuscript',
+                article_id=preprint.pk,
+                mime_type=galley.file.mime_type,
+                original_filename=galley.file.original_filename,
+                uuid_filename=galley.file.uuid_filename,
+                owner=preprint.owner,
+                date_uploaded=galley.file.date_uploaded,
+            )
+            preprint.manuscript_files.add(new_file)
+            files.copy_article_file(original_preprint, galley.file, preprint)
 
         return redirect(journal.full_reverse(request=request, url_name='submit_info', kwargs={'article_id': preprint.pk}))
     else:
