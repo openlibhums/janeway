@@ -93,6 +93,11 @@
                         <a href="" class="box-link"></a>
                     </div>
                     <div class="summary">
+                        <span class="stat warning">{{ version_queue|length }}</span>
+                        <span class="title">Version Moderation Queue</span>
+                        <a href="{% url 'version_queue' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
                         <span class="title">View Orphaned Preprints</span>
                         <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
                     </div>

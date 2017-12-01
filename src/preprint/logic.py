@@ -480,3 +480,7 @@ def handle_preprint_submission(request, preprint):
         messages.add_message(request, messages.WARNING, 'This journal does not accept preprint submissions.')
 
         return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
+
+
+def check_duplicates(version_queue):
+    return [version_request.article for version_request in version_queue]

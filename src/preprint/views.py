@@ -513,6 +513,8 @@ def preprints_manager(request):
 
     metrics_summary = preprint_logic.metrics_summary(published_preprints)
 
+    version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+
     subjects = models.Subject.objects.filter(enabled=True)
 
     template = 'admin/preprints/manager.html'
@@ -521,6 +523,7 @@ def preprints_manager(request):
         'published_preprints': published_preprints,
         'incomplete_preprints': incomplete_preprints,
         'rejected_preprints': rejected_preprints,
+        'version_queue': version_queue,
         'metrics_summary': metrics_summary,
         'subjects': subjects,
     }
@@ -747,6 +750,7 @@ def version_queue(request):
     :return: HttpResponse or HttpRedirect
     """
     version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+    duplicates = preprint_logic.check_duplicates(version_queue)
 
     if request.POST:
         if 'approve' in request.POST:
@@ -756,7 +760,8 @@ def version_queue(request):
 
     template = 'admin/preprints/version_queue.html'
     context = {
-        'version_queue': version_queue
+        'version_queue': version_queue,
+        'duplicates': duplicates,
     }
 
     return render(request, template, context)

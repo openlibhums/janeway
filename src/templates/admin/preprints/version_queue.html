@@ -32,7 +32,7 @@
                     <tbody>
                     {% for version in version_queue %}
                         <tr>
-                            <td>{{ version.article.title|safe }}</td>
+                            <td>{{ version.article.title|safe }} {% if version.article in duplicates %}<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" tabindex="1" title="Article has multiple requests in queue."><i class="fa fa-info-circle"></i></span>{% endif %}</td>
                             <td>{{ version.article.owner }}</td>
                             <td>{{ version.date_submitted }}</td>
                             <td>{{ version.get_update_type_display }}</td>
