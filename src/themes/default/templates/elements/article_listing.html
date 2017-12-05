@@ -20,8 +20,7 @@
                 </a>
             </div>
             <div class="col-md-10 article-block">
-                <a href="
-                        {% if article.is_remote %}{{ article.remote_url }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}">
+                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}">
                     <h4 class="card-title">{{ article.title|safe }}{% if article.is_remote %}&nbsp;
                         <i class="fa fa-external-link small-icon-text"></i>{% endif %}</h4>
                 </a>
