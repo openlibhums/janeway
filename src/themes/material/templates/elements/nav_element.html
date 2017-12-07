@@ -1,0 +1,14 @@
+{% if item.has_sub_nav %}
+    <li><a class="dropdown-button" href="#!" data-activates="sub_nav_content">{{ item.link_name }}<i
+            class="material-icons right">arrow_drop_down</i></a></li>
+{% else %}
+    <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
+{% endif %}
+
+{% if item.has_sub_nav %}
+    <ul id="sub_nav_content" class="dropdown-content">
+        {% for subnav in item.sub_nav_items %}
+            <li><a href="{{ subnav.link }}">{{ subnav.link_name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}

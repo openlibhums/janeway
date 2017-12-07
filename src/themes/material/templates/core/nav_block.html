@@ -1,0 +1,28 @@
+{% load hooks %}
+
+{% if request.journal.nav_home %}
+    <li><a href="/">Home</a></li>
+{% endif %}
+{% if request.journal.nav_news %}
+    <li><a href="{% url 'core_news_list' %}">News</a></li>
+{% endif %}
+{% if request.journal.nav_articles %}
+    <li><a href="{% url 'journal_articles' %}">Articles</a></li>
+{% endif %}
+{% if request.journal.nav_issues %}
+    <li><a href="{% url 'journal_issues' %}">Issues</a></li>
+{% endif %}
+{% if request.journal.nav_sub %}
+    <li><a href="{% url 'journal_submissions' %}">Submission</a></li>
+{% endif %}
+{% if request.journal.nav_contact %}
+    <li><a href="{% url 'contact' %}">Contact</a></li>
+{% endif %}
+{% hook 'nav_block' %}
+{% if request.user.is_authenticated %}
+    <li><a class="dropdown-button" href="#" data-activates="dropdown1">Account<i
+            class="material-icons right">arrow_drop_down</i></a></li>
+{% else %}
+    <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
+    <li><a href="{% url 'core_register' %}">Register</a></li>
+{% endif %}

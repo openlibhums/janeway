@@ -1,0 +1,70 @@
+{% load static from staticfiles %}
+{% load press_url from press_url %}
+{% load svg from press_url %}
+{% load i18n %}
+{% load roles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+    <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
+    {% block head %}{% endblock head %}
+    {% if request.journal %}
+        <link href="{% static "default/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
+    {% endif %}
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    {% block css %}{% endblock %}
+    <link href="{{ request.journal_base_url }}{% url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
+          title="Article Feed for Journal">
+    <link href="{{ request.journal_base_url }}{% url 'rss_news' %}" type="application/atom+xml" rel="alternate"
+          title="News Feed for Journal">
+    {% if journal.favicon %}
+        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>{% endif %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link rel="stylesheet" href="{% static "material/mat.css" %}">
+</head>
+<body>
+
+{% block navbar %}
+    {% if not request.journal %}
+        {% include "press/nav.html" %}
+    {% else %}
+        {% include "core/nav.html" %}
+    {% endif %}
+{% endblock navbar %}
+
+<div class="container">
+    <div class="section">
+        {% block body %}{% endblock %}
+    </div>
+</div>
+<footer>
+    <div class="footer-copyright">
+        <div class="container">
+            Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+        </div>
+    </div>
+</footer>
+
+
+<!--  Scripts-->
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script src="{% static 'material/material.js' %}"></script>
+<script>
+        {% if messages %}
+            {% for message in messages %}
+                Materialize.toast('{{ message }}', 4000);
+            {% endfor %}
+        {% endif %}
+</script>
+
+
+{% block js %}{% endblock %}
+
+</body>
+</html>

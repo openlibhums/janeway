@@ -1,0 +1,79 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Articles" %}{% endblock %}
+
+{% block title %}{% trans "Articles" %}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12">
+            <h3>{% trans "Articles" %}</h3>
+        </div>
+        <div class="col m8">
+            {% if pinned_articles and articles.number == 1 and not active_filters %}
+                {% for article in pinned_articles %}
+                    {% include "elements/article_listing.html" with article=article %}
+                {% endfor %}
+            {% endif %}
+
+            {% for article in articles %}
+                {% include "elements/article_listing.html" with article=article %}
+                {% empty %}
+                <p>No articles to display.</p>
+            {% endfor %}
+        </div>
+        <div class="col m4">
+            <div class="card-panel">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-field">
+                        <select name="show" class="form-control">
+                            <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
+                            <option value="20"{% if show == 20 %} selected="selected"{% endif %}>20</option>
+                            <option value="50"{% if show == 50 %} selected="selected"{% endif %}>50</option>
+                            <option value="100"{% if show == 100 %} selected="selected"{% endif %}>100</option>
+                        </select>
+                        <label>{% trans "Show" %}</label>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Sort" %}</label>
+                        <select name="sort" class="form-control">
+                            <option value="-date_published"{% if sort == "date_published" %}
+                                    selected="selected"{% endif %}>{% trans "Date" %}</option>
+                            <option value="title"{% if sort == "title" %}
+                                    selected="selected"{% endif %}>{% trans "Title" %}</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Filter" %}</label><br/>
+                        {% for section in sections %}
+                            <input id="section-{{ section.id }}"
+                                   value="{{ section.id }}"
+                                   type="checkbox"
+                                   name="filter[]"
+                                   {% if section.id in filters %}checked="checked"{% endif %}>
+                             <label for="section-{{ section.id }}">{{ section.name }}</label>
+                            <br/>
+                        {% endfor %}
+                        <br/>
+                        <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                        {% if active_filters %}
+                            <button type="submit" class="btn btn-primary"
+                                    name="clear">{% trans "Clear Filters" %}</button>{% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('select').material_select();
+        });
+    </script>
+{% endblock %}
