@@ -32,6 +32,9 @@
             {% if request.journal.nav_contact %}
                 <li><a href="{% url 'contact' %}">Contact</a></li>
             {% endif %}
+            {% if request.journal.nav_review %}
+                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>Become a Reviewer</a></li>
+            {% endif %}
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
                 <li><a class="dropdown-button" href="#!" data-activates="account">Account<i

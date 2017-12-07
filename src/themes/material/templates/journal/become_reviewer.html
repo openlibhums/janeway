@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Become a Reviewer" %}{% endblock %}
+{% block title %}{% trans "Become a Reviewer" %}{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-content">
+            <span class="card-title">{% trans 'Become a Reviewer' %}</span>
+            <p>{{ message }}</p>
+
+            {% if not code == 'already-reviewer' %}
+                {% if code == 'not-logged-in' %}
+                    <a class="btn" href="{% url 'core_login' %}?next={% url 'become_reviewer' %}">
+                        {% trans "Login" %}</a>
+                {% else %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="go"
+                                class="btn">{% trans "Become a Reviewer" %}</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock body %}
