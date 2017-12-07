@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Reset Password" %}{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m6 offset-m3">
+            <div class="card">
+                <div class="card-content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% trans "Enter your email address to begin the reset process" %}
+                            <div class="input-field">
+                                <input name="email_address" id="email_address" type="text"
+                                       placeholder="janeway@voyager.com">
+                                <label for="email_address">{% trans "Email" %}</label>
+                            </div>
+                            <button type="submit"
+                                    class="btn btn-primary btn-block">{% trans "Request Token" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

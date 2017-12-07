@@ -1,0 +1,92 @@
+{% load foundation %}
+{% load bootstrap4 %}
+{% load static %}
+
+<h5>Core Data</h5>
+<div class="row">
+    <div class="col m3">
+        {% bootstrap_field form.salutation %}
+    </div>
+    <div class="col m3">
+        {% bootstrap_field form.first_name %}
+    </div>
+    <div class="col m3">
+        {% bootstrap_field form.middle_name %}
+    </div>
+    <div class="col m3">
+        {% bootstrap_field form.last_name %}
+    </div>
+</div>
+<div class="row">
+    <div class="col m4">
+        {% bootstrap_field form.department %}
+    </div>
+    <div class="col m4">
+        {% bootstrap_field form.institution %}
+    </div>
+    <div class="col m4">
+        {% bootstrap_field form.country %}
+    </div>
+</div>
+<hr />
+<h5>Social Media and Accounts</h5>
+<div class="row">
+    <div class="col m4">
+        {% bootstrap_field form.twitter %}
+    </div>
+    <div class="col m4">
+        {% bootstrap_field form.facebook %}
+    </div>
+    <div class="col m4">
+        {% bootstrap_field form.orcid %}
+    </div>
+</div>
+<div class="row">
+    <div class="col m4">
+        {% bootstrap_field form.github %}
+    </div>
+    <div class="col m4">
+        {% bootstrap_field form.linkedin %}
+    </div>
+    <div class="col m4">
+        {% bootstrap_field form.website %}
+    </div>
+</div>
+<hr />
+<h5>Biography and Signature</h5>
+<div class="row">
+    <div class="col m6">
+        {% bootstrap_field form.biography %}
+    </div>
+    <div class="col m6">
+        {% bootstrap_field form.signature %}
+    </div>
+    <div class="col m12">
+        <label for="id_interests">Review Interests</label>
+        <input type="text" id="id_interests" name="interests" value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/> Hit Enter to add a new interest.
+    </div>
+</div>
+
+<h5>Profile Image</h5>
+<div class="row">
+    <div class="col m3">
+        {% if user_to_edit.profile_image %}
+        <img src="{{ user_to_edit.profile_image.url }}" style="max-width: 90%;">
+        {% else %}
+        <img src="{% static "common/img/icons/users.png" %}" class="responsive-image">
+        {% endif %}
+    </div>
+    <div class="col m9">
+        {% bootstrap_field form.profile_image %}
+    </div>
+
+
+</div>
+<hr />
+<h5>Options</h5>
+<div class="row">
+    <div class="col m4">
+        {% include "elements/forms/checkbox.html" with field=form.enable_digest %}
+        {% include "elements/forms/checkbox.html" with field=form.enable_public_profile %}
+    </div>
+</div>

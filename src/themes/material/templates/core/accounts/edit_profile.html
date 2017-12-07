@@ -1,0 +1,95 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock title %}
+
+{% block css %}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/css/jquery.tagit.min.css" />{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Change Your Email Address</span>
+                    <p>If you want to change your email address you may do so below, however, you will be logged out and
+                        your
+                        account will be marked as inactive until you follow the instructions in the verfication email.
+                        <strong>Note: </strong>
+                        Changing your email address will also change your username as these are one and the same.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="input-field">
+                            <input type="email" name="email_address" class="form-control"
+                                   placeholder="janeway@voyager.com">
+                            <label for="email_address">Email Address</label>
+                        </div>
+                        <button type="submit" name="email" class="btn btn-warning">Update Email Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Update Password</span>
+                    <p>You can update your password by entering your existing password plus your new password.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="input-field col m4">
+                                <input type="password" name="current_password">
+                                <label for="current_password">Current Password</label>
+                            </div>
+                            <div class="input-field col m4">
+                                <input type="password" name="new_password_one">
+                                <label for="new_password_one">New Password</label>
+                            </div>
+                            <div class="input-field col m4">
+                                <input type="password" name="new_password_two">
+                                <label for="new_password_two">Enter Password Again</label>
+                            </div>
+                        </div>
+                        <br />
+                        <button type="submit" name="change_password" class="btn btn-warning">Update Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-content">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% include "elements/accounts/user_form.html" with form=form %}
+                        <p>
+                            <button type="submit" name="edit_profile" class="btn btn-primary float-right">Update
+                            </button>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_interests").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+    {% include "elements/jqte.html" %}
+{% endblock %}
