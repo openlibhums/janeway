@@ -52,6 +52,12 @@ a:hover .article-title {
 }
 
 .toc-card {
-    position:fixed !important;
+    position: fixed !important;
     bottom: 40%;
+}
+
+.wide-button {
+    width: 100% !important;
+    display: block !important;
+    margin-bottom: 5px;
 }

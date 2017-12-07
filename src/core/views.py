@@ -166,7 +166,7 @@ def get_reset_token(request):
 
     if request.POST:
         email_address = request.POST.get('email_address')
-
+        messages.add_message(request, messages.INFO, 'If your account was found, an email has been sent to you.')
         try:
             account = models.Account.objects.get(email__iexact=email_address)
             # Expire any existing tokens for this user
@@ -178,6 +178,8 @@ def get_reset_token(request):
             return redirect(reverse('core_login'))
         except models.Account.DoesNotExist:
             return redirect(reverse('core_login'))
+
+
 
     template = 'core/accounts/get_reset_token.html'
     context = {

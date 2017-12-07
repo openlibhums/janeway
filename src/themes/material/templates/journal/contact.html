@@ -12,27 +12,37 @@
 {% block body %}
     <div class="row">
         <div class="col m5">
-            {% if request.journal %}
-                <h4>{% trans "Journal Representatives" %}</h4>
-            {% else %}
-                <h4>{% trans "Press Representatives" %}</h4>
-            {% endif %}
-            {% for contact in contacts %}
-                <h5>{{ contact.name }}</h5>
-                <p>{{ contact.role }}</p>
-            {% endfor %}
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        {% if request.journal %}
+                            {% trans "Journal Representatives" %}
+                        {% else %}
+                            {% trans "Press Representatives" %}
+                        {% endif %}
+                    </span>
+                    {% for contact in contacts %}
+                        <h5>{{ contact.name }}</h5>
+                        <p>{{ contact.role }}</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <div class="col l7 m7">
-            <h4>{% trans "Contact" %}</h4>
-            <form method="POST">
-                {% include "elements/forms/errors.html" with form=contact_form %}
-                {% csrf_token %}
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        {% trans "Contact" %}
+                    </span>
+                    {% include "elements/forms/errors.html" with form=contact_form %}
+                    {% csrf_token %}
 
-                {% materialize_form form=contact_form %}
+                    {% materialize_form form=contact_form %}
 
-                <button type="submit" class="btn">{% trans "Send Message" %}</button>
-            </form>
+                    <button type="submit" class="btn">{% trans "Send Message" %}</button>
+                    </div>
+            </div>
         </div>
     </div>
 {% endblock %}
