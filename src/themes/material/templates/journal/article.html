@@ -90,7 +90,7 @@
                              src=""
                              alt="{{ article.title | urlencode }}">
                     {% endif %}
-                    <span class="card-title"><small>{{ article.section.name }}</small><br/>{{ article.title|safe }}<br/>
+                    <h5><small>{{ article.section.name }}</small><br/>{{ article.title|safe }}<br/>
                         {% for author in article.frozen_authors.all %}
                             <span><small>{% if forloop.first == False %}, {% endif %}<span itemscope
                                                                                            itemtype="http://schema.org/Person"
@@ -103,12 +103,12 @@
                                 {% if author.institution %}
                                     <span itemprop="worksFor" itemscope
                                           itemtype="http://schema.org/CollegeOrUniversity"><span
-                                            itemprop="name">({{ author.institution }})</span></span>{% endif %}
+                                            itemprop="name">({{ author.institution }})</h5></h5>{% endif %}
                                 {% if not '@journal.org' in author.author.email %}
                                     <a itemprop="email" href="mailto:{{ author.author.email }}"
-                                       class="fa fa-envelope email-link"></a>{% endif %}</span></span>
+                                       class="fa fa-envelope email-link"></a>{% endif %}</h5></h5>
                         {% endfor %}</small>
-                    </span>
+                    </h5>
                 </div>
             </div>
         </div>
@@ -118,7 +118,7 @@
                 <div class="card-content">
 
                     {% if article.abstract != '' %}
-                        <span class="card-title">{% trans "Abstract" %}</span>
+                        <h5>{% trans "Abstract" %}</h5>
                         <p>{{ article.abstract | safe }}</p>
                     {% endif %}
 
@@ -127,7 +127,7 @@
                     </div>
 
                     {% if article.keywords.all %}
-                        <span class="card-title">{% trans "Keywords" %}</span>
+                        <h5>{% trans "Keywords" %}</h5>
                         <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
                     {% endif %}
@@ -136,7 +136,7 @@
                         <div class="divider"></div>
                     </div>
 
-                    <span class="card-title">{% trans "How to Cite" %}</span>
+                    <h5>{% trans "How to Cite" %}</h5>
                     {% include "elements/journal/how_to_cite.html" with article=article %}
 
                     <div class="spacer">
@@ -144,7 +144,7 @@
                     </div>
 
                     {% if article.publisher_notes.all %}
-                        <span class="card-title">Publisher Notes</span>
+                        <h5>Publisher Notes</h5>
                         <ul>
                             {% for note in article.publisher_notes.all %}
                                 <li>{{ note.text }}</li>
@@ -157,9 +157,9 @@
                 <div class="col m6">
                     <div class="card">
                         <div class="card-content">
-                            <span class="card-title">
+                            <h5>
                                 {{ article.metrics.views }}
-                            </span>
+                            </h5>
                             <p><i class="fa fa-eye"></i> Views</p>
                         </div>
                     </div>
@@ -167,9 +167,9 @@
                 <div class="col m6">
                     <div class="card">
                         <div class="card-content">
-                            <span class="card-title">
+                            <h5>
                                 {{ article.metrics.downloads }}
-                            </span>
+                            </h5>
                             <p><i class="fa fa-download"></i> Downloads</p>
                         </div>
                     </div>
@@ -190,9 +190,9 @@
         <div class="col m4">
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">
+                    <h5>
                         {% trans "Download" %}
-                    </span>
+                    </h5>
 
                     <ul>
                         {% for galley in galleys %}
@@ -206,9 +206,9 @@
                         <div class="divider"></div>
                     </div>
 
-                    <span class="card-title">
+                    <h5>
                         Dates
-                    </span>
+                    </h5>
 
                     <table class="sidebar-table">
                         <tr>
@@ -229,9 +229,9 @@
                         <div class="divider"></div>
                     </div>
 
-                    <span class="card-title">
+                    <h5>
                         Licence
-                    </span>
+                    </h5>
                     <p>{{ article.license.name }} {% if article.license.url %}
                         <a href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
 
@@ -239,17 +239,17 @@
                         <div class="divider"></div>
                     </div>
 
-                    <span class="card-title">
+                    <h5>
                         Peer Review
-                    </span>
+                    </h5>
                     {% if article.peer_reviewed %}<p><i class="fa fa-check-circle-o" style="color: green"></i> This article has been peer reviewed.</p>{% else %}<p>This article has not been peer reviewed.</p>{% endif %}
                 </div>
             </div>
             <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
                 <div class="card-content">
-                        <span class="card-title">
+                        <h5>
                         Table of Contents
-                    </span>
+                    </h5>
                     <ul id="toc" class="section table-of-contents">
                     </ul>
                 </div>

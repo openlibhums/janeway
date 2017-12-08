@@ -61,3 +61,8 @@ a:hover .article-title {
     display: block !important;
     margin-bottom: 5px;
 }
+
+.submission-toc-card {
+    position: fixed !important;
+    width: 300px;
+}
