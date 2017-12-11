@@ -2,10 +2,12 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from dateutil.rrule import rrule, MONTHLY
 from dateutil.relativedelta import relativedelta
 
 import csv
+import json
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -42,17 +44,20 @@ def sushi(request):
     body = BeautifulSoup(request.body, 'xml')
 
     # TODO: pass through parameters like the requestor ID etc. and echo them back in the XML
-    report_type = body.find('ReportDefinition').attrs['Name']
-    report_request_id = body.find('ReportRequest').attrs['ID']
+    try:
+        report_type = body.find('ReportDefinition').attrs['Name']
+        report_request_id = body.find('ReportRequest').attrs['ID']
 
-    requestor = body.find('Requestor')
-    requestor_id = requestor.find('ID').text
-    requestor_email = requestor.find('Email').text
-    requestor_name = requestor.find('Name').text
+        requestor = body.find('Requestor')
+        requestor_id = requestor.find('ID').text
+        requestor_email = requestor.find('Email').text
+        requestor_name = requestor.find('Name').text
 
-    customer = body.find('CustomerReference')
-    customer_ID = customer.find('ID').text
-    customer_name = customer.find('Name').text
+        customer = body.find('CustomerReference')
+        customer_ID = customer.find('ID').text
+        customer_name = customer.find('Name').text
+    except AttributeError:
+        return HttpResponse(json.dumps({'Error': 'Malformed request.'}))
 
     if report_type.upper() == 'JR1':
         return jr_one_no_date(request, 'xml', compat=True, requestor_id=requestor_id, requestor_email=requestor_email,
