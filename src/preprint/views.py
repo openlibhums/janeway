@@ -184,7 +184,7 @@ def preprints_search(request, search_term=None):
         search_term = request.POST.get('search_term')
         return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
 
-    template = 'preprints/search.html'
+    template = 'preprints/list.html'
     context = {
         'search_term': search_term,
         'articles': articles,
