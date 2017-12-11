@@ -45,7 +45,7 @@
                     <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
-                {%  if request.press.enable_preprints %}
+                {% if request.press.enable_preprints %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="" id="preprints"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
