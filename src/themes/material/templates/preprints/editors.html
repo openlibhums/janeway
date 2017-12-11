@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Editorial Team{% endblock title %}
+{% block page_title %}Editorial Team{% endblock page_title %}
+
+{% block body %}
+
+    <h4>Subject Area Editors</h4>
+    <div class="divider"></div>
+    {% for subject in subjects %}
+        <div class="row">
+            <div class="col m12">
+                <h4>{{ subject.name }}</h4>
+            </div>
+            {% for editor in subject.editors.all %}
+                <div class="col s12 m4">
+                    <div class="card">
+                        <div class="card-image">
+                            <img src="
+                                    {% if editor.profile_image %}{{ editor.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
+                            {% if user.enable_public_profile %}
+                                <a href="{% url 'core_public_profile' editor.uuid %}"
+                                   class="btn-floating halfway-fab waves-effect waves-light red"><i class="fa fa-user"
+                                                                                                    aria-hidden="true"></i>
+                                </a>{% endif %}
+                        </div>
+                        <div class="card-content" style="min-height: 180px;">
+                            <span class="card-title">{{ editor.full_name }}</span>
+                            <p>
+                                <small>{{ editor.affiliation }}</small>
+                            </p>
+                            {% include "elements/journal/editorial_social_content.html" with user=editor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+{% endblock body %}
