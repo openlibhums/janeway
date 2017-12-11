@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+
+{% block title %}About {{ request.press.name }} Preprints{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12">
+            <h4 class="text-center">About {{ request.press.name }} Preprints</h4>
+        </div>
+
+        <br/><br/><br/><br/>
+
+        <div class="row">
+            <div class="col m12">
+                {{ request.press.preprints_about|safe }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
