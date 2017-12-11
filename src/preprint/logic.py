@@ -96,12 +96,12 @@ def determie_action(preprint):
 
 def get_pdf(article):
     try:
-        pdf = article.galley_set.get(type='pdf')
-    except core_models.Galley.DoesNotExist:
         try:
             pdf = article.galley_set.get(file__mime_type='application/pdf')
-        except core_models.Galley.DoesNotExist:
-            pdf = None
+        except core_models.Galley.MultipleObjectsReturned:
+            pdf = article.galley_set.filter(file__mime_type='application/pdf')[0]
+    except core_models.Galley.DoesNotExist:
+        pdf = None
 
     return pdf
 
