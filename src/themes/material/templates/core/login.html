@@ -25,6 +25,9 @@
                             <input id="password" type="password" class="validate" name="user_pass">
                             <label for="password">Password</label>
                         </div>
+                        <div class="input-field col s12">
+                            {{ form.captcha }}
+                        </div>
                         <button class="waves-effect waves-light btn wide-button">Login</button>
                         <a class="waves-effect waves-light btn wide-button" href="{% url 'core_register' %}">Register an Account</a>
                         <a class="waves-effect waves-light btn wide-button" href="{% url 'core_get_reset_token' %}">Reset Your Password</a>

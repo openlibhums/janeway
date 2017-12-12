@@ -1,23 +1,23 @@
-{% extends "core/base.html" %}
+{% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 {% load i18n %}
 
-{% block title %}{% trans "Submit an Article" %}{% endblock title %}
+{% block title-section %}{% trans "Author Information" %}{% endblock %}
+{% block css %}
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
 
 {% block body %}
     <article>
 
     <form method="POST">
-    <div class="row">
-        <h1>{% trans "Author Information" %}</h1>
+    <div class="row box">
         {% csrf_token %}
         {% include "submission/timeline.html" with data=article %}
-    </div>
-
-
-    <div class="row">
         <div class="large-7 columns">
-            <h4>{% trans "Search for Existing Authors" %}</h4>
+            <div class="title-area">
+                <h2>{% trans "Search for Existing Authors" %}</h2>
+            </div>
+
             <form method="POST">
                 {% csrf_token %}
                 <div class="row">
@@ -36,8 +36,10 @@
                     </div>
                 </div>
             </form>
+            <div class="title-area">
+                <h2>{% trans 'Add Authors' %}</h2>
+            </div>
 
-            <h4>Add New Author</h4>
             {% if not user in article.authors.all %}
                 <p>{% trans "By default, your account is the owner of this submission, but is not an Author on record. You can add yourself using the button below." %}</p>
                 <a class="small success button"
@@ -45,14 +47,18 @@
             {% endif %}
             <p>{% trans "If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details." %}</p>
             <a href="#" data-open="author" class="small success button">{% trans "Add New Author" %}</a>
-            {% include "elements/submit/author.html" %}
+            {% include "admin/elements/submit/author.html" %}
         </div>
 
         <div class="large-5 columns">
+            <div class="title-area">
+                <h2>{% trans 'Current Authors' %}</h2>
+            </div>
+
             <h4>{% trans "Current Authors" %}</h4>
             <div class="row">
                 <div class="large-12 columns">
-                    <table>
+                    <table class="small">
                         <thead>
                         <tr>
                             <th></th>
@@ -67,10 +73,11 @@
                                 <td><i class="fa fa-sort"></i></td>
                                 <td>{{ order.author.full_name }}</td>
                                 <td>{{ order.author.email }}</td>
-                                <td><a href="{% url 'delete_author' article.pk order.author.pk %}"><i class="fa fa-trash">
+                                <td><a href="{% url 'delete_author' article.pk order.author.pk %}"><i
+                                        class="fa fa-trash">
                                     &nbsp;</i></a></td>
                             </tr>
-                        {% empty %}
+                            {% empty %}
                             <tr>
                                 <td colspan="3">{% trans "No authors yet, add one!" %}</td>
                             </tr>
@@ -106,7 +113,7 @@
     <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script>
-        $( "#sortable" ).sortable({
+        $("#sortable").sortable({
             update: function (event, ui) {
                 var data = $(this).sortable('serialize');
                 console.log(data);
@@ -118,6 +125,6 @@
                 });
             }
         });
-        $( "#sortable" ).disableSelection();
+        $("#sortable").disableSelection();
     </script>
 {% endblock %}

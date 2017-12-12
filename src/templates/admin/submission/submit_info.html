@@ -1,21 +1,22 @@
-{% extends "core/base.html" %}
+{% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 {% load foundation %}
 {% load i18n %}
 {% load field %}
 
-{% block title %}{% trans "Submit an Article" %}{% endblock title %}
+{% block title-section %}{% trans "Article Info" %}{% endblock %}
+{% block css %}
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
 
 {% block body %}
     <article>
-        <div class="row">
+        <div class="box">
         <form method="POST">
-            <h1>{% trans "Article Info" %}</h1>
             {% csrf_token %}
 
             {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
                 {% include "submission/timeline.html" with data=article %}
-            </div>
+
             <div class="row">
                 {% include "elements/forms/errors.html" with form=form %}
                 <div class="large-6 columns">
@@ -71,9 +72,15 @@
     <!-- License information modal -->
     <div id="license" class="reveal" data-reveal aria-labelledby="licensetitle" aria-hidden="true"
          role="dialog">
-        <h2 id="licensetitle">License Information</h2>
-        <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
-        {% include "elements/license_block.html" %}
+        <div class="card">
+            <div class="card-divider">
+                <h2 id="licensetitle">License Information</h2>
+            </div>
+            <div class="card-section">
+                <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
+                {% include "elements/license_block.html" %}
+            </div>
+        </div>
         <button class="close-button" data-close aria-label="Close modal" type="button">
             <span aria-hidden="true">&times;</span>
         </button>

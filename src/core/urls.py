@@ -196,8 +196,8 @@ if settings.URL_CONFIG == 'domain':
 
         urlpatterns += [
             url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-            url(r'^404/$', TemplateView.as_view(template_name='core/404.html')),
-            url(r'^500/$', TemplateView.as_view(template_name='core/500.html')),
+            url(r'^404/$', TemplateView.as_view(template_name='404.html')),
+            url(r'^500/$', TemplateView.as_view(template_name='500.html')),
             url(r'^__debug__/', include(debug_toolbar.urls)),
         ]
 
@@ -221,7 +221,7 @@ if settings.URL_CONFIG == 'domain':
                 pass
 
     # Plugin Loading
-
+    # TODO: plugin_loader should handle the logic below
     plugins = plugin_loader.load()
 
     if plugins:
