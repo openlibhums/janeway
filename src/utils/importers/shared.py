@@ -595,11 +595,20 @@ def parse_author_data(soup):
         author_dict = dict()
         for row in table.find_all("tr"):
             cells = row.find_all("td")
+
             try:
-                print(cells[0].get_text().strip())
-                print(cells[1].get_text().strip())
+                cell_0 = cells[0].get_text().strip()
+                cell_1 = cells[1].get_text().strip()
+
+                if cell_0 == 'Name' and author_dict:
+                    authors.append(author_dict)
+                    author_dict = dict()
+
+                author_dict[cell_0] = cell_1
             except IndexError:
                 pass
+
+
 
         authors.append(author_dict)
 
