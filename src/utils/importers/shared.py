@@ -648,6 +648,22 @@ def parse_author_data(soup):
 
     return authors
 
+
+def parse_indexing_data(soup):
+    indexing_info = dict()
+    tables = soup.find("div", {"id": "indexing"}).findAll("table")
+
+    for table in tables:
+        rows = table.find_all("tr")
+
+        cells_keywords = rows[1].find_all("td")
+        cells_language = rows[2].find_all("td")
+
+        indexing_info['keywords'] = cells_keywords[1].get_text().strip().split(',')
+        indexing_info['language'] = cells_language[1].get_text().strip()
+
+    return indexing_info
+
 def get_review_metadata(soup):
     """
     Fetches title, authors etc for an in review article
@@ -656,6 +672,8 @@ def get_review_metadata(soup):
     """
     authors = parse_author_data(soup)
     titles = parse_title_data(soup)
+    indexing = parse_indexing_data(soup)
     print(authors)
     print(titles)
+    print(indexing)
 
