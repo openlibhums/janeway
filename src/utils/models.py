@@ -3,8 +3,10 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import json as jason
 import os
 from uuid import uuid4
+import re
 import requests
 
 from django.core.serializers import json
@@ -214,7 +216,7 @@ class ImportCacheEntry(models.Model):
             cache.delete()
 
     @staticmethod
-    def fetch(url):
+    def fetch(url, up_auth_file = '', up_base_url = '', ojs_auth_file = ''):
         try:
             cached = ImportCacheEntry.objects.get(url=url)
 
@@ -233,7 +235,41 @@ class ImportCacheEntry(models.Model):
             # disable SSL checking
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-            fetched = requests.get(url, headers=headers, stream=True, verify=False)
+            # setup auth variables
+            do_auth = False
+            username = ''
+            password = ''
+
+            session = requests.Session()
+
+            # first, check whether there's an auth file
+            if up_auth_file != '':
+                with open(up_auth_file, 'r') as auth_in:
+                    auth_dict = jason.loads(auth_in.read())
+                    do_auth = True
+                    username = auth_dict['username']
+                    password = auth_dict['password']
+
+            if do_auth:
+                # load the login page
+                auth_url = '{0}{1}'.format(up_base_url, '/author/login/')
+                fetched = session.get(auth_url, headers=headers, stream=True, verify=False)
+
+                regex = "name\='csrfmiddlewaretoken' value\='(.+?)'"
+
+                csrf = re.search(r"'csrfmiddlewaretoken' value\='(.+?)'", fetched.text, flags=re.MULTILINE).group(1)
+
+                post_dict = {'csrfmiddlewaretoken': csrf, 'username': username, 'password': password, 'login': 'login'}
+
+                fetched = session.post('{0}{1}'.format(up_base_url, '/author/login/'), data=post_dict,
+                                       headers={'Referer':auth_url,
+                                                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                                              'Chrome/39.0.2171.95 Safari/537.36'
+                                                })
+
+                print("Sending auth")
+
+            fetched = session.get(url, headers=headers, stream=True, verify=False)
 
             resp = bytes()
 
