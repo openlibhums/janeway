@@ -587,6 +587,26 @@ def set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user
     set_article_identifier(doi, article)
 
 
+def parse_title_data(soup):
+    return None
+    authors = list()
+    tables = soup.find("div", {"id": "authors"}).findAll("table")
+
+    for table in tables:
+        author_dict = dict()
+        for row in table.find_all("tr"):
+            cells = row.find_all("td")
+            try:
+                print(cells[0].get_text().strip())
+                print(cells[1].get_text().strip())
+            except IndexError:
+                pass
+
+        authors.append(author_dict)
+
+    return authors
+
+
 def parse_author_data(soup):
     authors = list()
     tables = soup.find("div", {"id": "authors"}).findAll("table")
@@ -612,5 +632,7 @@ def get_review_metadata(soup):
     :return: A dictionary
     """
     authors = parse_author_data(soup)
+    titles = parse_title_data(soup)
     print(authors)
+    print(titles)
 
