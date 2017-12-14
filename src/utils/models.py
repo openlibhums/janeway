@@ -267,7 +267,7 @@ class ImportCacheEntry(models.Model):
                                                               'Chrome/39.0.2171.95 Safari/537.36'
                                                 })
 
-                print("Sending auth")
+                print("[CACHE] Sending auth")
 
             fetched = session.get(url, headers=headers, stream=True, verify=False)
 
