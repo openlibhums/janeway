@@ -587,6 +587,23 @@ def set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user
     set_article_identifier(doi, article)
 
 
+def parse_title_data(soup):
+    title_info = dict()
+    tables = soup.find("div", {"id": "titleAndAbstract"}).findAll("table")
+
+    # NB there should only be one here
+    for table in tables:
+        rows = table.find_all("tr")
+
+        cells_title = rows[0].find_all("td")
+        title_info['title'] = cells_title[1].get_text().strip()
+
+        cells_abstract = rows[1].find_all("td")
+        title_info['abstract'] = cells_abstract[1].get_text().strip()
+
+    return title_info
+
+
 def parse_author_data(soup):
     authors = list()
     tables = soup.find("div", {"id": "authors"}).findAll("table")
@@ -621,5 +638,7 @@ def get_review_metadata(soup):
     :return: A dictionary
     """
     authors = parse_author_data(soup)
+    titles = parse_title_data(soup)
     print(authors)
+    print(titles)
 
