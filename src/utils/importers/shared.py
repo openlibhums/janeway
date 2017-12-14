@@ -588,23 +588,20 @@ def set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user
 
 
 def parse_title_data(soup):
-    return None
-    authors = list()
-    tables = soup.find("div", {"id": "authors"}).findAll("table")
+    title_info = dict()
+    tables = soup.find("div", {"id": "titleAndAbstract"}).findAll("table")
 
+    # NB there should only be one here
     for table in tables:
-        author_dict = dict()
-        for row in table.find_all("tr"):
-            cells = row.find_all("td")
-            try:
-                print(cells[0].get_text().strip())
-                print(cells[1].get_text().strip())
-            except IndexError:
-                pass
+        rows = table.find_all("tr")
 
-        authors.append(author_dict)
+        cells_title = rows[0].find_all("td")
+        title_info['title'] = cells_title[1].get_text().strip()
 
-    return authors
+        cells_abstract = rows[1].find_all("td")
+        title_info['abstract'] = cells_abstract[1].get_text().strip()
+
+    return title_info
 
 
 def parse_author_data(soup):
