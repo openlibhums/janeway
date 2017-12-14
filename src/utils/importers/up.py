@@ -192,6 +192,48 @@ def import_journal_metadata(journal, user, url):
         print("Error setting publisher.")
 
 
+def parse_backend_list(url, auth_file, auth_url, regex):
+    html_body, mime = utils_models.ImportCacheEntry.fetch(url, up_base_url=auth_url, up_auth_file=auth_file)
+
+    matches = re.findall(regex, html_body.decode())
+
+    # look for next_page
+    soup_object = BeautifulSoup(html_body, 'lxml')
+    soup = soup_object.find(text='>')
+
+    if soup:
+        href = soup.parent.attrs['href']
+        matches += parse_backend_list(href, auth_file, auth_url, regex)
+
+    return matches
+
+
+def get_article_list(url, list_type, auth_file):
+
+    auth_url = url
+
+    regex = '\/jms\/editor\/submissionReview\/(\d+)'
+
+    if list_type == 'in_review':
+        url += '/jms/editor/submissions/submissionsInReview'
+        regex = '\/jms\/editor\/submissionReview\/(\d+)'
+    elif list_type == 'unassigned':
+        url += '/jms/editor/submissions/submissionsUnassigned'
+        regex = '\/jms\/editor\/submission\/(\d+)'
+    elif list_type == 'in_editing':
+        url += '/jms/editor/submissions/submissionsInEditing'
+        regex = '\/jms\/editor\/submissionEditing\/(\d+)'
+    elif list_type == 'archive':
+        url += '/jms/editor/submissions/submissionsArchives'
+        regex = '\/jms\/editor\/submissionEditing\/(\d+)'
+    else:
+        return None
+
+    matches = parse_backend_list(url, auth_file, auth_url, regex)
+
+    return matches
+
+
 def import_issue_images(journal, user, url):
     base_url = url
 
