@@ -8,17 +8,19 @@ import os
 from uuid import uuid4
 import re
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from django.utils import timezone
 
 from django.core.serializers import json
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+
 from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
 from utils import notify
-
 import core.settings as settings
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 
 
 LOG_TYPES = [
@@ -208,6 +210,7 @@ class ImportCacheEntry(models.Model):
     url = models.TextField(max_length=800, blank=False, null=False)
     on_disk = models.TextField(max_length=800, blank=False, null=False)
     mime_type = models.CharField(max_length=200, null=True, blank=True)
+    date_time = models.DateTimeField(default=timezone.now)
 
     @staticmethod
     def nuke():
@@ -219,6 +222,11 @@ class ImportCacheEntry(models.Model):
     def fetch(url, up_auth_file = '', up_base_url = '', ojs_auth_file = ''):
         try:
             cached = ImportCacheEntry.objects.get(url=url)
+
+            if cached.date_time < timezone.now() - timezone.timedelta(minutes=30):
+                cached.delete()
+                print("[CACHE] Found old cached entry, expiring.")
+                ImportCacheEntry.fetch(url, up_auth_file, up_base_url, ojs_auth_file)
 
             print("[CACHE] Using cached version of {0}".format(url))
 
