@@ -8,6 +8,7 @@ from submission import models
 from journal import models as journal_models
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from utils import models as utils_models
+from core import models as core_models
 
 
 # note: URL to pass for import is http://journal.org/jms/index.php/up/oai/
@@ -359,6 +360,49 @@ def import_issue_images(journal, user, url):
             processed.append(article)
 
         issue.save()
+
+
+def import_jms_user(url, journal, auth_file, base_url, user_id):
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+    # Fetch the user profile page and parse its metdata
+    resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
+    soup_user_profile = BeautifulSoup(resp, 'lxml')
+    profile_dict = shared.get_user_profile(soup_user_profile)[0]
+
+    # add an account for this new user
+    account = core_models.Account.objects.filter(email=profile_dict['email'])
+
+    if account is not None and len(account) > 0:
+        account = account[0]
+        print("Found account for {0}".format(profile_dict['email']))
+    else:
+        print("Didn't find account for {0}. Creating.".format(profile_dict['email']))
+
+        if profile_dict['Country'] == '—':
+            profile_dict['Country'] = None
+        else:
+            try:
+                profile_dict['Country'] = core_models.Country.objects.get(name=profile_dict['Country'])
+            except:
+                print("Country not found")
+                profile_dict['Country'] = None
+
+        account = core_models.Account.objects.create(email=profile_dict['email'],
+                                                     username=profile_dict['Username'],
+                                                     institution=profile_dict['Affiliation'],
+                                                     first_name=profile_dict['First Name'],
+                                                     last_name=profile_dict['Last Name'],
+                                                     middle_name=profile_dict.get('Middle Name', None),
+                                                     country=profile_dict.get('Country', None),
+                                                     biography=profile_dict.get('Bio Statement', None),
+                                                     salutation=profile_dict.get('Salutation', None))
+        account.save()
+
+        if account:
+            account.add_account_role(journal=journal, role_slug='author')
+            account.add_account_role(journal=journal, role_slug='reviewer')
+
 
 
 def import_in_progress_article(url, journal, auth_file, base_url, article_id):

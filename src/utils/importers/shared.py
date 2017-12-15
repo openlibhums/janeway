@@ -596,7 +596,10 @@ def fetch_email_from_href(a_soup):
 
     email = re.search(email_regex, href)
 
-    return email.group(1)
+    if email:
+        return email.group(1)
+    else:
+        return None
 
 
 def parse_title_data(soup):
@@ -687,6 +690,42 @@ def get_latest_file(soup):
     return {'file': file_dict[newest_file]}
 
 
+def get_user_profile(soup):
+    """
+    Fetches user info from a Ubiquity Press profile
+    :param soup: BeautifulSoup object
+    :return: A dictionary
+    """
+    authors = list()
+    tables = soup.find("div", {"id": "profile"}).findAll("table")
+
+    for table in tables:
+        author_dict = dict()
+        for row in table.find_all("tr"):
+            cells = row.find_all("td")
+
+            try:
+                cell_0 = cells[0].get_text().strip()
+                cell_1 = cells[1].get_text().strip()
+
+                a_elem = cells[1].find("a")
+
+                if a_elem:
+                    email = fetch_email_from_href(a_elem)
+                    if email:
+                        author_dict['email'] = email
+
+                if cell_0 == 'Name' and author_dict:
+                    authors.append(author_dict)
+                    author_dict = dict()
+
+                author_dict[cell_0] = cell_1
+            except IndexError:
+                pass
+
+        authors.append(author_dict)
+
+    return authors
 
 
 def get_metadata(soup):
