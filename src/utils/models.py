@@ -227,6 +227,9 @@ class ImportCacheEntry(models.Model):
                 cached.delete()
                 print("[CACHE] Found old cached entry, expiring.")
                 ImportCacheEntry.fetch(url, up_auth_file, up_base_url, ojs_auth_file)
+            else:
+                cached.date_time = timezone.now()
+                cached.save()
 
             print("[CACHE] Using cached version of {0}".format(url))
 
