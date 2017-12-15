@@ -645,7 +645,19 @@ def parse_indexing_data(soup):
 
     return indexing_info
 
-def get_review_metadata(soup):
+
+def get_latest_file(soup):
+    """
+    Finds all of he files on the review page and pulls the latest version.
+    :param soup:
+    :return:
+    """
+    files = soup.findAll("a", {"class": "file"})
+
+    print(files)
+
+
+def get_metadata(soup):
     """
     Fetches title, authors etc for an in review article
     :param soup: BeautifulSoup object
@@ -654,7 +666,11 @@ def get_review_metadata(soup):
     authors = parse_author_data(soup)
     titles = parse_title_data(soup)
     indexing = parse_indexing_data(soup)
+
     print(authors)
     print(titles)
     print(indexing)
+
+    return {'authors': authors, 'titles': titles, 'indexing': indexing}
+
 
