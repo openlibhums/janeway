@@ -768,9 +768,9 @@ def get_peer_reviewers(soup):
         table_trs = tables[1].findAll('tr')
         date_tds = table_trs[1].find('table').findAll('td')
 
-        reviewer_dict['date_requested'] = dateparser.parse(date_tds[4].get_text().strip())
-        reviewer_dict['date_accepted'] = dateparser.parse(date_tds[5].get_text().strip()) if date_tds[5].get_text() else None
-        reviewer_dict['date_due'] = dateparser.parse(date_tds[6].get_text().strip()) if date_tds[6].get_text() else None
+        reviewer_dict['date_requested'] = date_tds[4].get_text().strip()
+        reviewer_dict['date_accepted'] = date_tds[5].get_text().strip() if date_tds[5].get_text() else None
+        reviewer_dict['date_due'] = date_tds[6].get_text().strip() if date_tds[6].get_text() else None
 
         recommendation_tds = table_trs[4].findAll('td')
         reviewer_dict['recommendation'], reviewer_dict['recommendation_date_time'] = parse_recommend(recommendation_tds[1].get_text(strip=True))
