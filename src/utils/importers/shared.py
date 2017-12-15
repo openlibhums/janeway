@@ -4,9 +4,10 @@ from datetime import datetime
 from urllib.parse import urlparse
 from uuid import uuid4
 import re
-
 import requests
 from bs4 import BeautifulSoup
+from dateutil import parser as dateparser
+
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -665,7 +666,7 @@ def parse_indexing_data(soup):
     return indexing_info
 
 
-def get_latest_file(soup):
+def get_files(soup):
     """
     Finds all of he files on the review page and pulls the latest version.
     :param soup:
@@ -673,6 +674,7 @@ def get_latest_file(soup):
     """
     files = soup.findAll("a", {"class": "file"})
     file_dict = dict()
+    return_dict = {'supplementary_files': []}
 
     for file in files:
         file_parts = file.get_text().split('-')
@@ -681,12 +683,50 @@ def get_latest_file(soup):
 
         if file_type in ['RV', 'ED', 'AV']:
             file_dict[file_id] = file.get('href')
+        elif file_type == 'SP':
+            return_dict['supplementary_files'].append(file.get('href'))
 
     newest_file = max(file_dict, key=int)
 
-    return {'file': file_dict[newest_file]}
+    return_dict['file'] = file_dict[newest_file]
+
+    return return_dict
 
 
+def parse_recommend(recommendation_text):
+    print(recommendation_text)
+    recommendation = recommendation_text.split('\n')[0]
+    try:
+        date = dateparser.parse(re.search('(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})', recommendation_text).groups(1)[0])
+    except:
+        date = None
+    return recommendation, date
+
+
+def get_peer_reviewers(soup):
+    review_blocks = soup.find("div", {"id": "peerReview"}).findAll("div")
+    reviewer_list = list()
+
+    for review in review_blocks:
+        reviewer_dict = {}
+        tables = review.findAll("table")
+
+        # Get the name out of table 1
+        reviewer_dict['name'] = tables[0].findAll('td')[1].get_text()
+
+        table_trs = tables[1].findAll('tr')
+        date_tds = table_trs[1].find('table').findAll('td')
+
+        reviewer_dict['date_requested'] = dateparser.parse(date_tds[4].get_text().strip())
+        reviewer_dict['date_accepted'] = dateparser.parse(date_tds[5].get_text().strip()) if date_tds[5].get_text() else None
+        reviewer_dict['date_due'] = dateparser.parse(date_tds[6].get_text().strip()) if date_tds[6].get_text() else None
+
+        recommendation_tds = table_trs[4].findAll('td')
+        reviewer_dict['recommendation'], reviewer_dict['recommendation_date_time'] = parse_recommend(recommendation_tds[1].get_text(strip=True))
+
+        reviewer_list.append(reviewer_dict)
+        
+    return reviewer_list
 
 
 def get_metadata(soup):

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.core import management
 
-from utils.importers.up import import_in_progress_article
+from utils.importers.up import import_in_review_article
 from journal import models
 
 
@@ -9,8 +9,7 @@ class Command(BaseCommand):
     """
     Fetches a backend article from a UP journal
     """
-
-    help = "Fetches a backend article from a UP journal. Requires a journal code, a base url and an article id."
+    help = "Fetches a backend review article from a UP journal. Requires a journal code, a base url and an article id."
 
     def add_arguments(self, parser):
         """Adds arguments to Django's management command-line parser.
@@ -38,11 +37,10 @@ class Command(BaseCommand):
                                                                      article_id=options.get('article_id'))
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
-            import_in_progress_article(url,
-                                       journal,
-                                       auth_file=options.get('auth_file'),
-                                       base_url=options.get('base_url'),
-                                       article_id=options.get('article_id'))
+            import_in_review_article(url,
+                                     journal,
+                                     auth_file=options.get('auth_file'),
+                                     base_url=options.get('base_url'),
+                                     article_id=options.get('article_id'))
         except models.Journal.DoesNotExist:
             print('Journal not found.')
-

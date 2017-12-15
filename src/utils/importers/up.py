@@ -333,7 +333,7 @@ def import_issue_images(journal, user, url):
         issue.save()
 
 
-def import_in_progress_article(url, journal, auth_file, base_url, article_id):
+def import_in_review_article(url, journal, auth_file, base_url, article_id):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     # Fetch the summary page and parse its metdata
@@ -345,4 +345,7 @@ def import_in_progress_article(url, journal, auth_file, base_url, article_id):
     review_url = '{base_url}/jms/editor/submissionReview/{article_id}'.format(base_url=base_url, article_id=article_id)
     resp, mime = utils_models.ImportCacheEntry.fetch(url=review_url, up_auth_file=auth_file, up_base_url=base_url)
     soup_article_review = BeautifulSoup(resp, 'lxml')
-    latest_article_file = shared.get_latest_file(soup_article_review)
+    files = shared.get_files(soup_article_review)
+
+    # Fetch peer-reviewers
+    peer_reviewers = shared.get_peer_reviewers(soup_article_review)
