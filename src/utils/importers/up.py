@@ -418,3 +418,5 @@ def import_in_progress_article(url, journal, auth_file, base_url, article_id):
     resp, mime = utils_models.ImportCacheEntry.fetch(url=review_url, up_auth_file=auth_file, up_base_url=base_url)
     soup_article_review = BeautifulSoup(resp, 'lxml')
     latest_article_file = shared.get_latest_file(soup_article_review)
+    article_status = shared.get_jms_article_status(soup_article_review)
+    print(article_status)

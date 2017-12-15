@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 import re
 
+from dateutil import parser as dateparser
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -666,6 +667,51 @@ def parse_indexing_data(soup):
         indexing_info['language'] = cells_language[1].get_text().strip()
 
     return indexing_info
+
+
+def get_jms_article_status(soup):
+    """
+        Returns an article status
+        :param soup:
+        :return:
+        """
+    tables = soup.find("div", {"id": "editorDecision"}).findAll("table")
+
+    for table in tables:
+        author_dict = dict()
+        for row in table.find_all("tr"):
+            cells = row.find_all("td")
+
+            try:
+                cell_0 = cells[0].get_text().strip()
+                cell_1 = cells[1].get_text().strip()
+
+                if(cell_0 == 'Decision'):
+                    cell_1 = cell_1.split('|')[len(cell_1.split('|'))-1]
+
+                    date_regex = '(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})'
+                    date_time = dateparser.parse(re.search(date_regex, cell_1).groups(1)[0])
+
+                    text_regex = '([^\d]+)'
+                    text = re.search(text_regex, cell_1).groups(1)[0].strip()
+
+                    outcome = submission_models.STAGE_ASSIGNED
+
+                    if text == 'Resubmit for Review':
+                        outcome = submission_models.STAGE_UNDER_REVISION
+                    if text == 'Revisions Required':
+                        outcome = submission_models.STAGE_UNDER_REVISION
+                    if text == 'Accept Submission':
+                        outcome = submission_models.STAGE_ACCEPTED
+                    if text == 'Decline Submission':
+                        outcome = submission_models.STAGE_REJECTED
+
+                    return outcome, date_time
+
+            except IndexError:
+                pass
+
+    return None
 
 
 def get_latest_file(soup):
