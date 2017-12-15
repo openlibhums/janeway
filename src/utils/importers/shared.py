@@ -1,7 +1,9 @@
 import os
+import urllib
 from datetime import datetime
 from urllib.parse import urlparse
 from uuid import uuid4
+import re
 
 import requests
 from bs4 import BeautifulSoup
@@ -587,6 +589,16 @@ def set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user
     set_article_identifier(doi, article)
 
 
+def fetch_email_from_href(a_soup):
+    href = urllib.parse.unquote(a_soup.attrs['href'])
+
+    email_regex = r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)"
+
+    email = re.search(email_regex, href)
+
+    return email.group(1)
+
+
 def parse_title_data(soup):
     title_info = dict()
     tables = soup.find("div", {"id": "titleAndAbstract"}).findAll("table")
@@ -616,6 +628,13 @@ def parse_author_data(soup):
             try:
                 cell_0 = cells[0].get_text().strip()
                 cell_1 = cells[1].get_text().strip()
+
+                a_elem = cells[1].find("a")
+
+                if a_elem:
+                    email = fetch_email_from_href(a_elem)
+                    if email:
+                        author_dict['email'] = email
 
                 if cell_0 == 'Name' and author_dict:
                     authors.append(author_dict)
