@@ -418,9 +418,11 @@ def import_in_review_article(url, journal, auth_file, base_url, article_id):
     resp, mime = utils_models.ImportCacheEntry.fetch(url=review_url, up_auth_file=auth_file, up_base_url=base_url)
     soup_article_review = BeautifulSoup(resp, 'lxml')
     files = shared.get_files(soup_article_review)
+    print(files)
 
     # Fetch peer-reviewers
     peer_reviewers = shared.get_peer_reviewers(soup_article_review)
+    print(peer_reviewers)
 
     # Get article status
     article_status = shared.get_jms_article_status(soup_article_review)

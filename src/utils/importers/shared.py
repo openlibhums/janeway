@@ -737,9 +737,10 @@ def get_files(soup):
         elif file_type == 'SP':
             return_dict['supplementary_files'].append(file.get('href'))
 
-    newest_file = max(file_dict, key=int)
+    if file_dict:
+        newest_file = max(file_dict, key=int)
 
-    return_dict['file'] = file_dict[newest_file]
+        return_dict['file'] = file_dict[newest_file]
 
     return return_dict
 
