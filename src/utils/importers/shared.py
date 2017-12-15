@@ -672,8 +672,21 @@ def get_latest_file(soup):
     :return:
     """
     files = soup.findAll("a", {"class": "file"})
+    file_dict = dict()
 
-    print(files)
+    for file in files:
+        file_parts = file.get_text().split('-')
+        file_id = file_parts[1]
+        file_type = file_parts[3].split('.')[0]
+
+        if file_type in ['RV', 'ED', 'AV']:
+            file_dict[file_id] = file.get('href')
+
+    newest_file = max(file_dict, key=int)
+
+    return {'file': file_dict[newest_file]}
+
+
 
 
 def get_metadata(soup):
