@@ -33,9 +33,9 @@ class Command(BaseCommand):
         """
         if options.get('nuke'):
             management.call_command('nuke_import_cache')
-            
+
         url = '{base_url}/jms/editor/submission/{article_id}'.format(base_url=options.get('base_url'),
-                                                                           article_id=options.get('article_id'))
+                                                                     article_id=options.get('article_id'))
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
             import_in_progress_article(url,
