@@ -687,26 +687,29 @@ def get_jms_article_status(soup):
                 cell_1 = cells[1].get_text().strip()
 
                 if(cell_0 == 'Decision'):
-                    cell_1 = cell_1.split('|')[len(cell_1.split('|'))-1]
+                    if cell_1 != 'None':
+                        cell_1 = cell_1.split('|')[len(cell_1.split('|'))-1]
 
-                    date_regex = '(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})'
-                    date_time = dateparser.parse(re.search(date_regex, cell_1).groups(1)[0])
+                        date_regex = '(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})'
+                        date_time = dateparser.parse(re.search(date_regex, cell_1).groups(1)[0])
 
-                    text_regex = '([^\d]+)'
-                    text = re.search(text_regex, cell_1).groups(1)[0].strip()
+                        text_regex = '([^\d]+)'
+                        text = re.search(text_regex, cell_1).groups(1)[0].strip()
 
-                    outcome = submission_models.STAGE_ASSIGNED
+                        outcome = submission_models.STAGE_ASSIGNED
 
-                    if text == 'Resubmit for Review':
-                        outcome = submission_models.STAGE_UNDER_REVISION
-                    if text == 'Revisions Required':
-                        outcome = submission_models.STAGE_UNDER_REVISION
-                    if text == 'Accept Submission':
-                        outcome = submission_models.STAGE_ACCEPTED
-                    if text == 'Decline Submission':
-                        outcome = submission_models.STAGE_REJECTED
+                        if text == 'Resubmit for Review':
+                            outcome = submission_models.STAGE_UNDER_REVISION
+                        if text == 'Revisions Required':
+                            outcome = submission_models.STAGE_UNDER_REVISION
+                        if text == 'Accept Submission':
+                            outcome = submission_models.STAGE_ACCEPTED
+                        if text == 'Decline Submission':
+                            outcome = submission_models.STAGE_REJECTED
 
-                    return outcome, date_time
+                        return outcome, date_time
+                    else:
+                        return submission_models.STAGE_ASSIGNED, datetime.now()
 
             except IndexError:
                 pass

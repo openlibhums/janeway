@@ -424,3 +424,4 @@ def import_in_review_article(url, journal, auth_file, base_url, article_id):
 
     # Get article status
     article_status = shared.get_jms_article_status(soup_article_review)
+    print(article_status)
