@@ -5114,3 +5114,7 @@ ul.actions li a {
 .control-button:hover {
   cursor: pointer;
 }
+
+.submission-content {
+  padding-bottom: 25px !important;
+}

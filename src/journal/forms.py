@@ -48,12 +48,21 @@ class ContactForm(forms.ModelForm):
     else:
         are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+
     def __init__(self, *args, **kwargs):
         subject = kwargs.pop('subject', None)
+        contacts = kwargs.pop('contacts', None)
         super(ContactForm, self).__init__(*args, **kwargs)
 
         if subject:
             self.fields['subject'].initial = subject
+
+        if contacts:
+            contact_choices = []
+            for contact in contacts:
+                contact_choices.append([contact.email, '{name}, {role}'.format(name=contact.name, role=contact.role)])
+            self.fields['recipient'].widget = forms.Select(choices=contact_choices)
+            #self.fields['recipient'].required = True
 
     class Meta:
         model = core_models.Contact

@@ -386,8 +386,8 @@ def send_copyedit_assignment(**kwargs):
         log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment',
                     'target': copyedit_assignment.article}
         response = notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
-                                                      copyedit_assignment.copyeditor.email,
-                                                      user_message_content, log_dict)
+                                                                 copyedit_assignment.copyeditor.email,
+                                                                 user_message_content, log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -875,7 +875,6 @@ def send_author_publication_notification(**kwargs):
                                                   user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
-
     # Check for SEs and PRs and notify them as well
     if section_editors:
         for editor in article.section_editors():
@@ -976,7 +975,7 @@ def preprint_submission(**kwargs):
     )
     for editor in request.press.preprint_editors():
         notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
-                                                      editor_email_text)
+                                                      editor_email_text, log_dict=log_dict)
 
 
 def preprint_publication(**kwargs):
@@ -987,20 +986,21 @@ def preprint_publication(**kwargs):
     """
     request = kwargs.get('request')
     article = kwargs.get('article')
-    email_text = kwargs.get('email_content')
 
     description = '{editor} has published a preprint titled {title}.'.format(editor=request.user.full_name(),
                                                                              title=article.title)
 
-    util_models.LogEntry.add_entry('submission', description, 'info', request.user, request, article)
+    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Publication',
+                'target': article}
+
+    util_models.LogEntry.add_entry('Publication', description, 'Info', request.user, request, article)
 
     # Send an email to the article owner.
     context = {'article': article}
     template = request.press.preprint_publication
     email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
     notify_helpers.send_email_with_body_from_user(request, ' Preprint Submission Decision', article.owner.email,
-                                                  email_text)
-    util_models.LogEntry.add_entry('email', email_text, 'info', request.user, request, article)
+                                                  email_text, log_dict=log_dict)
 
     # Stops this notification being sent multiple times.c
     article.preprint_decision_notification = True
@@ -1010,7 +1010,6 @@ def preprint_publication(**kwargs):
 def preprint_comment(**kwargs):
     request = kwargs.get('request')
     article = kwargs.get('article')
-    comment = kwargs.get('comment')
 
     email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
                  '<a href="{base_url}{url}">on the journal site</a>.'.format(

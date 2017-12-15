@@ -21,6 +21,8 @@
             {% endif %}
             {% if request.user.is_staff %}
                 <li><a href="{% url 'preprints_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
+                <li><a href="{% url 'submission_licenses' %}"><i class="fa fa-creative-commons">&nbsp;</i>Licences</a></li>
+                <li><a href="{% url 'submission_fields' %}"><i class="fa fa-keyboard-o">&nbsp;</i>Additional Fields</a></li>
                 <li><a href="{% url 'preprints_settings' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>
             {% endif %}
         {% endif %}
@@ -33,8 +35,8 @@
             Plugins</a></li>
             <li><a href="/admin/"><i class="fa fa-cog">&nbsp;</i>
             Admin</a></li>
+            {% hook 'press_admin_nav_block' %}
         {% endif %}
-        {% hook 'press_admin_nav_block' %}
         <li class="subtitle"><a href="#">Language</a></li>
         <li>
             <div class="small-12 small-centered columns">

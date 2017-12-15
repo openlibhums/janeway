@@ -103,9 +103,6 @@ def use_data_file_as_galley_image(galley, request, label):
             messages.add_message(request, messages.WARNING, 'No file with given ID found.')
 
 
-
-
-
 def save_galley_css(galley, request, uploaded_file, filename, label="Galley Image"):
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
     new_file.is_galley = False

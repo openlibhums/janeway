@@ -1,0 +1,28 @@
+{% load static from staticfiles %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col m12">
+        <h2 class="index-header">{% trans 'Featured Articles' %}</h2>
+    </div>
+    {% for fa in featured_articles %}
+        <div class="col m4 row-eq-height">
+            <div class="card" style="width: 20rem;">
+                <div class="card-content">
+                {% if not fa.article.large_image_file %}
+                    <img src="{% static 'common/img/sample/article-small.jpg' %}"
+                         alt="{{ article.title|urlencode }}">
+                {% else %}
+                    <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
+                         alt="{{ article.title|urlencode }}">
+                {% endif %}
+                    <a href="{% if article.is_remote %}https://doi.org/{{ fa.article.identifier.identifier }}{% else %}{% url 'article_view' fa.article.identifier.id_type fa.article.identifier.identifier %}{% endif %}">
+                        <h4 class="card-title">{{ article.title|safe }}</h4>
+                    </a>
+                    <p class="card-text">{{ fa.article.author_list }}</p>
+                    <p class="card-text"><strong>{{ fa.article.title|safe|truncatechars:200 }}</strong></p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

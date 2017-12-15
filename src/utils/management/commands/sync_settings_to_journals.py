@@ -60,5 +60,6 @@ class Command(BaseCommand):
                     setting = press_models.PressSetting.objects.get_or_create(press=press,
                                                                               name=setting['name'],
                                                                               defaults={
-                                                                                  'value': setting['value']
+                                                                                  'value': setting['value'],
+                                                                                  'is_boolean': setting['is_boolean']
                                                                               })

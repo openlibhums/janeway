@@ -1,0 +1,22 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+
+{% block navbar %}
+    {% include "press/nav.html" %}
+{% endblock navbar %}
+
+{% block title %}{{ press.name }}{% endblock %}
+
+{% block body %}
+    {% for element in homepage_elements %}
+        {% include element.template_path %}
+    {% endfor %}
+{% endblock body %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('.carousel.carousel-slider').carousel({fullWidth: true});
+        })
+    </script>
+{% endblock %}

@@ -438,6 +438,7 @@ def decline_review_request(request, assignment_id):
         )
 
     assignment.date_declined = timezone.now()
+    assignment.date_accepted = None
     assignment.is_complete = True
     assignment.save()
 
@@ -576,8 +577,10 @@ def do_review(request, assignment_id):
 
     if request.POST:
         if 'decline' in request.POST:
-            return redirect("{0}?access_code={1}".format(reverse('decline_review',
-                                                                 kwargs={'assignment_id': assignment.pk}), access_code))
+            return redirect(logic.generate_access_code_url('decline_review', assignment, access_code))
+
+        if 'accept' in request.POST:
+            return redirect(logic.generate_access_code_url('accept_review', assignment, access_code))
 
         if request.FILES:
             fields_required = False
@@ -602,10 +605,7 @@ def do_review(request, assignment_id):
                                            task_object=assignment.article,
                                            **kwargs)
 
-            return redirect("{0}{1}{2}".format(
-                reverse('thanks_review', kwargs={'assignment_id': assignment.pk}),
-                '?access_code=' if access_code else '',
-                access_code if access_code else ''))
+            return redirect(logic.generate_access_code_url('thanks_review', assignment, access_code))
 
     template = 'review/review_form.html'
     context = {
@@ -1262,14 +1262,14 @@ def edit_revision_request(request, article_id, revision_id):
         if 'delete_revision' in request.POST:
             rationale = request.POST.get('delete_rationale')
             util_models.LogEntry.add_entry('deletion', '{0} deleted a revision request with reason:\n\n{1}'.format(
-                request.user.full_name(), rationale), level='info', actor=request.user, target=revision_request.article
+                request.user.full_name(), rationale), level='Info', actor=request.user, target=revision_request.article
             )
             revision_request.delete()
             messages.add_message(request, messages.INFO, 'Revision request deleted.')
 
         if 'mark_as_complete' in request.POST:
             util_models.LogEntry.add_entry('update', '{0} marked revision {1} as complete'.format(
-                request.user.full_name(), revision_request.id), level='info', actor=request.user,
+                request.user.full_name(), revision_request.id), level='Info', actor=request.user,
                 target=revision_request.article
             )
             revision_request.date_completed = timezone.now()

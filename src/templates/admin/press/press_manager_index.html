@@ -25,11 +25,6 @@
                         <a class="button" href="{% url 'core_journal_contacts' %}">Contact Manager</a>
                         <a class="button" href="{% url 'press_edit_press' %}">Edit Press Details</a>
                         <a class="button" href="{% url 'home_settings_index' %}">Homepage Elements</a>
-                        {% if request.press.enable_preprints %}
-                            <a class="button" href="{% url 'preprints_settings' %}">Preprint Settings</a>
-                            <a class="button" href="{% url 'submission_licenses' %}">Preprint Licence Manager</a>
-                            <a class="button" href="{% url 'submission_fields' %}">Preprint Additional Fields Manager</a>
-                        {% endif %}
                     </div>
                 </div>
 

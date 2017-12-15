@@ -49,6 +49,7 @@ if settings.URL_CONFIG == 'domain':
         url(r'^reports/', include('reports.urls')),
         url(r'^preprints/', include('preprint.urls')),
         url(r'^repository/', include('preprint.urls')),
+        url(r'^utils/', include('utils.urls')),
 
         # Root Site URLS
         url(r'^$', press_views.index, name='website_index'),
@@ -195,8 +196,8 @@ if settings.URL_CONFIG == 'domain':
 
         urlpatterns += [
             url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-            url(r'^404/$', TemplateView.as_view(template_name='core/404.html')),
-            url(r'^500/$', TemplateView.as_view(template_name='core/500.html')),
+            url(r'^404/$', TemplateView.as_view(template_name='404.html')),
+            url(r'^500/$', TemplateView.as_view(template_name='500.html')),
             url(r'^__debug__/', include(debug_toolbar.urls)),
         ]
 
@@ -220,7 +221,7 @@ if settings.URL_CONFIG == 'domain':
                 pass
 
     # Plugin Loading
-
+    # TODO: plugin_loader should handle the logic below
     plugins = plugin_loader.load()
 
     if plugins:
@@ -273,6 +274,7 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
         url(r'^(?P<journal_code>[-\w.]+)/preprints/', include('preprint.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/repository/', include('preprint.urls')),
+        url(r'^(?P<journal_code>[-\w.]+)/utils/', include('utils.urls')),
 
         # Root Site URLS
         url(r'^$', press_views.index, name='website_index'),

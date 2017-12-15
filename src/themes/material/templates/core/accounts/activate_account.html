@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+{% load foundation %}
+
+{% block title %}Activate Account{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="m6 offset-m3">
+            <div class="card">
+                <div class="card-content">
+                    {% if account %}
+                        <span class="card-title">Account Active</span>
+                        <p>Your account is now active. You can now <a href="{% url 'core_login' %}">login</a></p>
+                        <p>
+                            <small>Please note, you will not be able to refresh this page.</small>
+                        </p>
+                    {% else %}
+                        <span class="card-title">Error</span>
+                        <p>There was no inactive account with this activation code found. It is possible that your
+                            account is
+                            already active, you can check by attempting to <a href="{% url 'core_login' %}">login</a>.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+{% endblock body %}

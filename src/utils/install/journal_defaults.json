@@ -911,7 +911,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }}<br><br>We are pleased to say that your article, \"{{ article.title }}\", is set for publication on {{ article.date_published|date:'Y-m-d' }} at {{ article.date_published|date:'H:i' }}.</p><p>You may want to consider one or more of the following in order to promote your research:</p><ul><li>Email a link to your paper to colleagues</li><li>Write a blog post about your paper</li><li>Upload it to your institutional repository or a subject repository.</li><li>Add to Wikipedia <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Research_help/Scholars_and_experts\">where appropriate</a></li></ul><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -2301,6 +2301,19 @@
             "is_translatable": false,
             "description": "If true, the submitting user will automatically be added as an author.",
             "name": "user_automatically_author"
+        },
+        "group": {
+            "name": "general"
+        }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "boolean",
+            "pretty_name": "Accepts Preprint Submissions",
+            "is_translatable": false,
+            "description": "If true, preprint authors can flow their preprint into the journal for publication.",
+            "name": "accepts_preprint_submissions"
         },
         "group": {
             "name": "general"

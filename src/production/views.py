@@ -73,7 +73,7 @@ def production_assign_article(request, user_id, article_id):
         prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
         prod.save()
 
-        cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request)
+        cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request, article)
     else:
         messages.add_message(request, messages.WARNING, 'User is not a production manager.')
 
@@ -446,7 +446,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         label = request.POST.get('label')
 
         if 'fixed-image-upload' in request.POST:
-            if request.POST.get('datafile') != None:
+            if request.POST.get('datafile') is not None:
                 logic.use_data_file_as_galley_image(galley, request, label)
             for uploaded_file in request.FILES.getlist('image'):
                 logic.save_galley_image(galley, request, uploaded_file, label, fixed=True)

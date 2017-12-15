@@ -7,6 +7,7 @@ from core import models as core_models
 from journal import models as journal_models
 from press import models as press_models
 
+
 def create_user(username, roles=None, journal=None):
     """
     Creates a user with the specified permissions.
@@ -56,4 +57,4 @@ def create_journals():
 
 
 def create_press():
-    return  press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+    return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')

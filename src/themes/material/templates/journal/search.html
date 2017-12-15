@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m8">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        Articles
+                    </span>
+                    {% for article in articles %}
+                        {% include "elements/article_listing.html" with article=article %}
+                        {% empty %}
+                        <p>No articles to display.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col m4">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        Searching
+                    </span>
+                    <p>Enter a search term to display results.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="input-field">
+                            <input type="text" name="search" id="search" {% if search_term %}value="{{ search_term }}"{% endif %}>
+                            <label for="search">Search</label>
+                        </div>
+                        <button name="submit" class="btn">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

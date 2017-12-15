@@ -1,0 +1,36 @@
+{% load static %}
+{% load i18n %}
+
+
+<div class="card-panel">
+    <div class="row">
+        <div class="col m2">
+            {% if article.thumbnail_image_file %}
+                <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
+                     alt="{{ article.title|striptags|escape }}" class="circle">
+            {% elif request.journal.thumbnail_image %}
+                <img src="{% url 'journal_cover_download' %}" class="circle">
+            {% else %}
+                <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
+                     class="circle">
+            {% endif %}
+        </div>
+        <div class="col m10">
+            <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}">
+                <h5 class="article-title">{{ article.title|safe }}</h5>
+            </a>
+            <p>{% for author in article.authors.all %}{% if forloop.last %}
+                {% if article.authors.all|length > 1 %} and
+                {% endif %}{% endif %}{{ author.full_name }}
+                {% if not forloop.last %}
+                    {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                    {% endif %}{% endif %}{% endfor %}
+            </p>
+            <p><span class="date"><i
+                    class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
+                    class="fa fa-book"></i> {% trans "Volume" %} {{ article.issue.volume }},
+                {% trans "Issue" %} {{ article.issue.issue }}
+            </p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+a:hover .article-title {
+    text-decoration-color: black;
+    text-decoration: underline;
+}
+
+.article-title {
+    color: black;
+}
+
+.carousel-text-wrapper {
+    background: #424242;
+    opacity: 0.5;
+    padding: 10px
+}
+
+.no-bottom-padding {
+    padding-bottom: 0px !important;
+}
+
+.issue_image {
+    height: 235px;
+}
+
+.article-card {
+    max-height: 400px
+}
+
+.spacer {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.sidebar-table td, th {
+    padding: 0 !important;
+}
+
+.article-body h1 {
+    font-size: 26px;
+    font-weight: 300;
+}
+
+.article-body h2 {
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.toc-card {
+    position: fixed !important;
+    bottom: 40%;
+}
+
+.wide-button {
+    width: 100% !important;
+    display: block !important;
+    margin-bottom: 5px;
+}
+
+.submission-toc-card {
+    position: fixed !important;
+    width: 300px;
+}

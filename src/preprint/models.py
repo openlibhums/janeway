@@ -58,3 +58,26 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def version_choices():
+    return (
+        ('correction', 'Correction'),
+        ('version', 'New Version'),
+    )
+
+class VersionQueue(models.Model):
+    article = models.ForeignKey('submission.Article')
+    galley = models.ForeignKey('core.Galley')
+    file = models.ForeignKey('core.File')
+    update_type = models.CharField(max_length=10, choices=version_choices())
+
+    date_submitted = models.DateTimeField(default=timezone.now)
+    date_decision = models.DateTimeField(blank=True, null=True)
+    approved = models.BooleanField(default=False)
+
+    def decision(self):
+        if self.date_decision and self.approved:
+            return True
+        elif self.date_decision:
+            return False

@@ -90,4 +90,4 @@ src/utils/management/commands/import_news\.py
 src/core/settings/
 src/utils/management/commands/redirects\.py
 .vscode/**
-
+src/static/material/

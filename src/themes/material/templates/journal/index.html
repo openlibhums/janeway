@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+
+{% block body %}
+
+    {% for element in homepage_elements %}
+        {% include element.template_path %}
+    {% endfor %}
+
+{% endblock body %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('.carousel.carousel-slider').carousel({fullWidth: true});
+        })
+    </script>
+{% endblock %}

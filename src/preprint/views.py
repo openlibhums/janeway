@@ -80,12 +80,18 @@ def preprints_author_article(request, article_id):
     metrics_summary = preprint_logic.metrics_summary([preprint])
 
     if request.POST:
-        preprint_logic.handle_author_post(request, preprint)
+        if 'submit' in request.POST:
+            return preprint_logic.handle_preprint_submission(request, preprint)
+        else:
+            preprint_logic.handle_author_post(request, preprint)
+            return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
 
     template = 'admin/preprints/author_article.html'
     context = {
         'preprint': preprint,
         'metrics_summary': metrics_summary,
+        'preprint_journals': preprint_logic.get_list_of_preprint_journals(),
+        'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
     }
 
     return render(request, template, context)
@@ -132,6 +138,7 @@ def preprints_list(request, subject_slug=None):
     context = {
         'articles': articles,
         'subject': subject,
+        'subjects': models.Subject.objects.filter(enabled=True)
     }
 
     return render(request, template, context)
@@ -150,7 +157,8 @@ def preprints_search(request, search_term=None):
         article_search = submission_models.Article.preprints.filter(
             (Q(title__icontains=search_term) |
              Q(subtitle__icontains=search_term) |
-             Q(keywords__word__in=split_search_term))
+             Q(keywords__word__in=split_search_term)),
+            stage=submission_models.STAGE_PREPRINT_PUBLISHED, date_published__lte=timezone.now()
         )
         article_search = [article for article in article_search]
 
@@ -163,7 +171,10 @@ def preprints_search(request, search_term=None):
         )
 
         articles_from_author = [article for article in submission_models.Article.preprints.filter(
-            authors__in=from_author)]
+            authors__in=from_author,
+            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+            date_published__lte=timezone.now())]
+
         articles = set(article_search + articles_from_author)
 
     else:
@@ -173,7 +184,7 @@ def preprints_search(request, search_term=None):
         search_term = request.POST.get('search_term')
         return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
 
-    template = 'preprints/search.html'
+    template = 'preprints/list.html'
     context = {
         'search_term': search_term,
         'articles': articles,
@@ -226,12 +237,29 @@ def preprints_article(request, article_id):
 
 
 def preprints_pdf(request, article_id):
+
     pdf_url = request.GET.get('file')
 
     template = 'preprints/pdf.html'
     context = {
         'pdf_url': pdf_url,
     }
+    return render(request, template, context)
+
+
+def preprints_editors(request):
+    """
+    Displays lists of preprint editors by their subject group.
+    :param request: HttpRequest
+    :return: HttpResponse
+    """
+    subjects = models.Subject.objects.filter(enabled=True)
+
+    template = 'preprints/editors.html'
+    context = {
+        'subjects': subjects,
+    }
+
     return render(request, template, context)
 
 
@@ -396,7 +424,7 @@ def preprints_files(request, article_id):
 
         # If required, check if the file is a PDF:
         if request.press.preprint_pdf_only and 'manuscript' in request.POST:
-            if not files.guess_mime(uploaded_file.name) == 'application/pdf':
+            if not files.check_in_memory_mime(in_memory_file=uploaded_file) == 'application/pdf':
                 form.add_error(None, 'You must upload a PDF for your manuscript')
                 modal = 'manuscript'
 
@@ -485,6 +513,8 @@ def preprints_manager(request):
 
     metrics_summary = preprint_logic.metrics_summary(published_preprints)
 
+    version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+
     subjects = models.Subject.objects.filter(enabled=True)
 
     template = 'admin/preprints/manager.html'
@@ -493,6 +523,7 @@ def preprints_manager(request):
         'published_preprints': published_preprints,
         'incomplete_preprints': incomplete_preprints,
         'rejected_preprints': rejected_preprints,
+        'version_queue': version_queue,
         'metrics_summary': metrics_summary,
         'subjects': subjects,
     }
@@ -515,19 +546,23 @@ def preprints_manager_article(request, article_id):
     if request.POST:
 
         if 'accept' in request.POST:
-            date = request.POST.get('date', timezone.now().date())
-            time = request.POST.get('time', timezone.now().time())
-            doi = request.POST.get('doi', None)
-            preprint.accept_preprint(date, time)
+            if not preprint.has_galley:
+                messages.add_message(request, messages.WARNING, 'You must assign at least one galley file.')
+                return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+            else:
+                date = request.POST.get('date', timezone.now().date())
+                time = request.POST.get('time', timezone.now().time())
+                doi = request.POST.get('doi', None)
+                preprint.accept_preprint(date, time)
 
-            if crossref_enabled and doi:
-                doi_obj = ident_logic.create_crossref_doi_identifier(article=preprint,
-                                                                     doi_suffix=doi,
-                                                                     suffix_is_whole_doi=True)
-                ident_logic.register_preprint_doi(request, crossref_enabled, doi_obj)
-                cache.clear()
+                if crossref_enabled and doi:
+                    doi_obj = ident_logic.create_crossref_doi_identifier(article=preprint,
+                                                                         doi_suffix=doi,
+                                                                         suffix_is_whole_doi=True)
+                    ident_logic.register_preprint_doi(request, crossref_enabled, doi_obj)
+                    cache.clear()
 
-            return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
+                return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'decline' in request.POST:
             preprint.decline_article()
@@ -555,6 +590,7 @@ def preprints_manager_article(request, article_id):
         'preprint': preprint,
         'subjects': models.Subject.objects.filter(enabled=True),
         'crossref_enabled': crossref_enabled,
+        'doi': preprint_logic.get_doi(request, preprint)
     }
 
     return render(request, template, context)
@@ -687,3 +723,46 @@ def preprints_rejected_submissions(request):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def orphaned_preprints(request):
+    """
+    Displays a list of preprints that have bee orphaned from subjects.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
+    orphaned_preprints = preprint_logic.list_articles_without_subjects()
+
+    template = 'admin/preprints/orphaned_preprints.html'
+    context = {
+        'orphaned_preprints': orphaned_preprints
+    }
+
+    return render(request, template, context)
+
+
+@staff_member_required
+def version_queue(request):
+    """
+    Displays a list of version update requests.
+    :param request: HttpRequest
+    :return: HttpResponse or HttpRedirect
+    """
+    version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+    duplicates = preprint_logic.check_duplicates(version_queue)
+
+    if request.POST:
+        if 'approve' in request.POST:
+            return preprint_logic.approve_pending_update(request)
+        elif 'deny' in request.POST:
+            return preprint_logic.deny_pending_update(request)
+
+    template = 'admin/preprints/version_queue.html'
+    context = {
+        'version_queue': version_queue,
+        'duplicates': duplicates,
+    }
+
+    return render(request, template, context)
+

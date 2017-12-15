@@ -1,0 +1,133 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block title %}{% trans 'Submissions' %}{% endblock title %}
+
+{% block css %}
+    <style>
+        .fa-check {
+            color: green;
+        }
+
+        .fa-times {
+            color: darkred;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m8">
+            <h3>Submissions</h3>
+            <div class="card">
+                <div class="card-content">
+
+                    <p>{% blocktrans %}This page is designed to help you ensure your submission is ready for and fits
+                        the scope of {% endblocktrans %}<i>{{ request.journal.name }}</i>.</p>
+                    <p>{% blocktrans %}Before submitting you should read over the guidelines here, then register an
+                        account (or login if you have an existing account){% endblocktrans %}.</p>
+                    <br />
+                    <div class="button-group">
+                        <a href="{% url 'core_register' %}" class="btn btn-primary">{% trans 'Register' %}</a>
+                        <a href="{% url 'core_login' %}" class="btn btn-primary">{% trans 'Login' %}</a>
+                        <a href="{% url 'submission_start' %}"
+                           class="btn btn-primary">{% trans 'Start Submission' %}</a>
+                    </div>
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'About' %} {{ request.journal.name }}</span>
+                    {{ journal_settings.general.journal_description|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Focus and Scope for' %} {{ request.journal.name }}</span>
+                    {{ journal_settings.general.focus_and_scope|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Submission Checklist' %}</span>
+                    {{ journal_settings.general.submission_checklist|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Copyright Notice' %}</span>
+                    {{ journal_settings.general.copyright_notice|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Licences' %}</span>
+                    <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                    {% include "elements/license_block.html" %}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Publication Fees' %}</span>
+                    {{ journal_settings.general.publication_fees|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Peer Review' %}</span>
+                    {{ journal_settings.general.peer_review_info|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Publication Cycle' %}</span>
+                    {{ journal_settings.general.publication_cycle|safe }}
+                    <div class="divider spacer"></div>
+
+                    <span class="card-title">{% trans 'Sections' %}</span>
+                    <div class="row">
+                        <div class="col m6 columns">
+
+                        </div>
+                        <div class="col m2 columns">
+                            <p>Public Submissions</p>
+                        </div>
+                        <div class="col m2 columns">
+                            <p>Peer Reviewed</p>
+                        </div>
+                        <div class="col m2 columns">
+                            <p>Indexed</p>
+                        </div>
+                    </div>
+                    <div class="divider spacer"></div>
+                    {% for section in sections %}
+                        <div class="row">
+                            <div class="col m6 columns">
+                                <p>{{ section.name }}</p>
+                            </div>
+                            <div class="col m2 columns">
+                                <strong>{% if section.public_submissions %}<i class="fa fa-check"></i>{% else %}
+                                    <i class="fa fa-times"></i>{% endif %}</strong>
+                            </div>
+                            <div class="col m2 columns">
+                                <strong>{% if section.number_of_reviewers > 0 %}<i class="fa fa-check"></i>{% else %}
+                                    <i class="fa fa-times"></i>{% endif %}</strong>
+                            </div>
+                            <div class="col m2 columns">
+                                <strong>{% if section.indexing %}<i class="fa fa-check"></i>{% else %}
+                                    <i class="fa fa-times"></i>{% endif %}</strong>
+                            </div>
+                            <div class="divider spacer"></div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col m4">
+            <div class="card submission-toc-card hide-on-small-only" id="toc-card">
+                <div class="card-content">
+                        <span class="card-title">
+                        Table of Contents
+                    </span>
+                    <ul id="toc" class="section table-of-contents">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+{% block js %}
+    <script src="{% static 'material/sub-toc.js' %}"></script>
+    <script>
+     $(document).ready(function () {
+            $('.scrollspy').scrollSpy();
+        });
+    </script>
+{% endblock %}

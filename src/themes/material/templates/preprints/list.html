@@ -1,0 +1,95 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}{% trans "All Preprints" %}{% endblock %}
+
+
+{% block body %}
+
+    <section id="content">
+        <div class="row">
+            <div class="col m12">
+                <h4>{% trans "All Preprints" %}</h4>
+                <hr/>
+            </div>
+            <div class="col m8">
+
+                {% for article in articles %}
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">
+                                <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'preprints_article' article.pk %}{% endif %}">{{ article.title|safe }}</a></span>
+                            <p>{% for author in article.authors.all %}{% if forloop.last %}
+                                {% if article.authors.all|length > 1 %} and
+                                {% endif %}{% endif %}{{ author.full_name }}
+                                {% if not forloop.last %}
+                                    {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                                    {% endif %}{% endif %}{% endfor %}</p>
+                            <p><span class="date"><i
+                                    class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
+                                    class="fa fa-paperclip"></i> {{ article.get_subject_area }}
+                        </div>
+
+                    </div>
+                    {% empty %}
+                    <p>There are no preprints to display</p>
+                {% endfor %}
+
+                <div class="pagination-block">{{ page }}
+                    <ul class="d-flex justify-content-center">
+                        {% if articles.has_previous %}
+                            <a href="?page={{ articles.previous_page_number }}"
+                               class="btn btn-outline-primary">&laquo;</a>
+                            &nbsp;{% endif %}
+                        {{ articles.page.page_range }}
+                        {% for page in articles.paginator.page_range %}
+                            <a href="?page={{ page }}"
+                               class="btn {% if articles.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
+                            &nbsp;
+                        {% endfor %}
+                        {% if articles.has_next %}
+                            <a href="?page={{ articles.next_page_number }}"
+                               class="btn btn-outline-primary">&raquo;</a>
+                        {% endif %}
+                    </ul>
+                </div>
+
+            </div>
+            <aside class="col m4 columns" data-sticky-container>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="input-group">
+                            <form class="form-horizontal" method="POST" action="{% url 'preprints_search' %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+
+                                    <div class="input-field">
+                                        <i class="material-icons prefix">search</i>
+                                        <input id="icon_prefix" type="text" class="validate" {% if search_term %}value="{{ search_term }}"{% endif %} name="search_term">
+                                        <label for="icon_prefix" class="">Search Preprints</label>
+                                    </div>
+                                    <p>
+                                        <small>You can search by:</small>
+                                    </p>
+                                    <small>
+                                        <ul>
+                                            <li>Title</li>
+                                            <li>Keywords</li>
+                                            <li>Author Name</li>
+                                            <li>Author Institution</li>
+                                        </ul>
+                                    </small>
+                                </div>
+                                <input type="submit" style="visibility: hidden;"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+    </section>
+
+{% endblock body %}

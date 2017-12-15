@@ -33,40 +33,46 @@
                     href="{% url 'preprints_list' %}">all preprints</a>.</p>
         </div>
     </div>
-    <br/><br/><br/><br/>
-    <div class="row">
-        <div class="col-md-12">
-            <h3 class="text-center">Latest Preprints</h3>
-
-            {% include "elements/preprint_block.html" with preprints=preprints %}
+    {% if preprints %}
+        <br/><br/><br/><br/>
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="text-center">Latest Preprints</h3>
+                <div class="row">
+                    {% include "elements/preprint_block.html" with preprints=preprints %}
+                </div>
+            </div>
         </div>
-    </div>
-
-    <br/><br/><br/><br/>
-    <div class="row">
-        <div class="col-md-12">
-            <h3 class="text-center">Filter by Subject</h3>
+    {% endif %}
+    {% if subjects %}
+        <br/><br/><br/><br/>
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="text-center">Filter by Subject</h3>
                 {% if subjects|length <= 5 %}
                     <div class="col-md-12">
                         <div class="stacked button-group">
                             {% for subject in subjects %}
-                                <a href="{% url 'preprints_list_subject' subject.slug %}" class="btn btn-primary btn-block">{{ subject.name }}</a>
+                                <a href="{% url 'preprints_list_subject' subject.slug %}"
+                                   class="btn btn-primary btn-block">{{ subject.name }}</a>
                             {% endfor %}
                         </div>
                     </div>
                 {% else %}
                     <div class="row">
-                    {% for subject in subjects %}
-                        <div class="col-md-6">
-                            <a href="{% url 'preprints_list_subject' subject.slug %}" class="btn btn-primary btn-block">{{ subject.name }}</a>
+                        {% for subject in subjects %}
+                            <div class="col-md-6">
+                                <a href="{% url 'preprints_list_subject' subject.slug %}"
+                                   class="btn btn-primary btn-block">{{ subject.name }}</a>
+                            </div>
+                            {% if forloop.counter|divisibleby:2 %}
+                                </div>
+                                <div class="row">
+                            {% endif %}
+                        {% endfor %}
                         </div>
-                        {% if forloop.counter|divisibleby:2 %}
-                        </div>
-                        <div class="row">
-                        {% endif %}
-                    {% endfor %}
-                    </div>
                 {% endif %}
             </div>
-    </div>
+        </div>
+    {% endif %}
 {% endblock %}

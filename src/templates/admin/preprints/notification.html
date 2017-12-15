@@ -1,6 +1,6 @@
 {% extends "admin/core/base.html" %}
 
-{% block title %}Preprint #{{ preprint.pk }}{% endblock %}
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint Manager{% endblock %}
 {% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}

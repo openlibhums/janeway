@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from bs4 import BeautifulSoup
 
 from django.db.models import Q
-from django.shortcuts import  get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 
 from core import files

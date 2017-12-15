@@ -57,7 +57,7 @@ def start(request, type=None):
 
             return redirect(reverse('submit_info', kwargs={'article_id': new_article.pk}))
 
-    template = 'submission/start.html'
+    template = 'admin/submission/start.html'
     context = {
         'form': form
     }
@@ -72,7 +72,7 @@ def submit_submissions(request):
     # gets a list of submissions for the logged in user
     articles = models.Article.objects.filter(owner=request.user).exclude(stage=models.STAGE_UNSUBMITTED)
 
-    template = 'submission/submission_submissions.html'
+    template = 'admin/submission/submission_submissions.html'
     context = {
         'articles': articles,
     }
@@ -104,7 +104,7 @@ def submit_info(request, article_id):
 
             return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
-    template = 'submission/submit_info.html'
+    template = 'admin/submission//submit_info.html'
     context = {
         'article': article,
         'form': form,
@@ -216,7 +216,7 @@ def submit_authors(request, article_id):
 
         return HttpResponse('Complete')
 
-    template = 'submission/submit_authors.html'
+    template = 'admin/submission//submit_authors.html'
     context = {
         'error': error,
         'article': article,
@@ -305,7 +305,7 @@ def submit_files(request, article_id):
             else:
                 error = "You must upload a manuscript file."
 
-    template = "submission/submit_files.html"
+    template = "admin/submission//submit_files.html"
     context = {
         'article': article,
         'error': error,
@@ -347,7 +347,7 @@ def submit_review(request, article_id):
 
         return redirect(reverse('core_dashboard'))
 
-    template = "submission/submit_review.html"
+    template = "admin/submission//submit_review.html"
     context = {
         'article': article,
     }
@@ -498,7 +498,6 @@ def fields(request, field_id=None):
     :param field_id: Field object PK, optional
     :return: HttpResponse or HttpRedirect
     """
-
 
     field = logic.get_current_field(request, field_id)
     fields = logic.get_submission_fields(request)

@@ -1,0 +1,278 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+
+{% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
+
+{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+
+{% block head %}
+
+    <!-- Commented out meta fields are TODO -->
+
+    <!-- <meta name="DC.Coverage.spatial" xml:lang="en" content="London"/> -->
+
+    <!-- <meta name="DC.Coverage.temporal" xml:lang="en" content="long-eighteenth century"/> -->
+
+
+    <meta name="DC.Date.created" scheme="ISO8601" content="{{ article.date_published }}"/>
+    <meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ article.date_submitted }}"/>
+    <meta name="DC.Date.issued" scheme="ISO8601" content="{{ article.date_published }}"/>
+    <meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published }}"/>
+
+
+    <meta name="DC.Description" xml:lang="en" content="{{ article.abstract | striptags }}"/>
+
+    <meta name="DC.Format" scheme="IMT" content="xml"/>
+    <meta name="DC.Format" scheme="IMT" content="pdf"/>
+    <meta name="DC.Identifier.pageNumber" content="{{ article.page_number }}"/>
+    {% if article.identifier.id_type == "doi" %}
+        <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>{% endif %}
+
+    <meta name="DC.Identifier.URI" content="
+
+            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
+    <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
+    <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
+    <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
+    <meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>
+    <meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>
+    <meta name="DC.Source.URI" content="{{ request.journal_base_url }}{% url 'website_index' %}"/>
+    <meta name="DC.Title" content="{{ article.title | striptags }}"/>
+
+    <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
+    <meta name="citation_issn" content="{{ journal_settings.general.issn }}"/>
+    {% for author in article.frozen_authors.all %}
+        <meta name="citation_author" content="{{ author.full_name }}"/>
+        {% if not '@journal.org' in author.author.email %}
+            <meta name="citation_author_email" content="{{ author.author.email }}"/>{% endif %}
+        <meta name="citation_author_institution" content="{{ author.institution }}"/>{% endfor %}
+    <meta name="citation_title" content="{{ article.title | striptags }}"/>
+    <meta name="citation_publication_date" content="{{ article.date_published }}"/>
+    <meta name="citation_volume" content="{{ article.issue.volume }}"/>
+    <meta name="citation_issue" content="{{ article.issue.issue }}"/>{% if article.identifier.id_type == "doi" %}
+    <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
+    <meta name="citation_abstract_html_url" content="
+
+            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="citation_language" content="{{ article.language }}"/>
+
+    {% if article.keywords %}
+        <meta name="citation_keywords" xml:lang="en" content="
+
+                {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
+    {% endif %}
+
+    {% for pdf in pdfs %}
+        <meta name="citation_pdf_url" content="{% url 'article_file_download' identifier_type identifier pdf.id %}"/>
+    {% endfor %}
+    {% include "elements/journal/social_meta.html" %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-image article-card waves-effect waves-block waves-light">
+                    {% if article.large_image_file.id %}
+                        <img class="orbit-image"
+                             src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                             alt="{{ article.title | urlencode }}">
+                    {% elif journal.default_large_image %}
+                        <img class="orbit-image"
+                             src="{{ journal.default_large_image.url }}"
+                             alt="{{ article.title | urlencode }}">
+                    {% else %}
+                        <img class="orbit-image"
+                             src=""
+                             alt="{{ article.title | urlencode }}">
+                    {% endif %}
+                    <h5><small>{{ article.section.name }}</small><br/>{{ article.title|safe }}<br/>
+                        {% for author in article.frozen_authors.all %}
+                            <span><small>{% if forloop.first == False %}, {% endif %}<span itemscope
+                                                                                           itemtype="http://schema.org/Person"
+                                                                                           itemprop="author"
+                                                                                           href="#"
+                                                                                           {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
+                                            {% if author.author.enable_public_profile %}<a class="profilelink"
+                                                                                           href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
+                                                {{ author.full_name }}{% endif %}
+                                {% if author.institution %}
+                                    <span itemprop="worksFor" itemscope
+                                          itemtype="http://schema.org/CollegeOrUniversity"><span
+                                            itemprop="name">({{ author.institution }})</h5></h5>{% endif %}
+                                {% if not '@journal.org' in author.author.email %}
+                                    <a itemprop="email" href="mailto:{{ author.author.email }}"
+                                       class="fa fa-envelope email-link"></a>{% endif %}</h5></h5>
+                        {% endfor %}</small>
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+        <div id="article" class="col m8 s12">
+            <div class="card">
+                <div class="card-content">
+
+                    {% if article.abstract != '' %}
+                        <h5>{% trans "Abstract" %}</h5>
+                        <p>{{ article.abstract | safe }}</p>
+                    {% endif %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    {% if article.keywords.all %}
+                        <h5>{% trans "Keywords" %}</h5>
+                        <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
+                        {% endif %}{% endfor %}</p>
+                    {% endif %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h5>{% trans "How to Cite" %}</h5>
+                    {% include "elements/journal/how_to_cite.html" with article=article %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    {% if article.publisher_notes.all %}
+                        <h5>Publisher Notes</h5>
+                        <ul>
+                            {% for note in article.publisher_notes.all %}
+                                <li>{{ note.text }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col m6">
+                    <div class="card">
+                        <div class="card-content">
+                            <h5>
+                                {{ article.metrics.views }}
+                            </h5>
+                            <p><i class="fa fa-eye"></i> Views</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col m6">
+                    <div class="card">
+                        <div class="card-content">
+                            <h5>
+                                {{ article.metrics.downloads }}
+                            </h5>
+                            <p><i class="fa fa-download"></i> Downloads</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <article>
+                <div itemprop="articleBody" class="article-body">
+                    <div class="card">
+                        <div class="card-content">
+                            {{ article_content|safe }}
+                            {% hook 'article_footer_block' %}
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col m4">
+            <div class="card">
+                <div class="card-content">
+                    <h5>
+                        {% trans "Download" %}
+                    </h5>
+
+                    <ul>
+                        {% for galley in galleys %}
+                            <li>
+                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h5>
+                        Dates
+                    </h5>
+
+                    <table class="sidebar-table">
+                        <tr>
+                            <th>Submitted</th>
+                            <td>{{ article.date_submitted }}</td>
+                        </tr>
+                        <tr>
+                            <th>Accepted</th>
+                            <td>{{ article.date_accepted }}</td>
+                        </tr>
+                        <tr>
+                            <th>Published</th>
+                            <td>{{ article.date_published }}</td>
+                        </tr>
+                    </table>
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h5>
+                        Licence
+                    </h5>
+                    <p>{{ article.license.name }} {% if article.license.url %}
+                        <a href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h5>
+                        Peer Review
+                    </h5>
+                    {% if article.peer_reviewed %}<p><i class="fa fa-check-circle-o" style="color: green"></i> This article has been peer reviewed.</p>{% else %}<p>This article has not been peer reviewed.</p>{% endif %}
+                </div>
+            </div>
+            <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
+                <div class="card-content">
+                        <h5>
+                        Table of Contents
+                    </h5>
+                    <ul id="toc" class="section table-of-contents">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'material/toc.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            $('.scrollspy').scrollSpy();
+        });
+        $(document).scroll(function () {
+            var y = $(this).scrollTop();
+            if (y > 700) {
+                $('#toc-card').fadeIn();
+            } else {
+                $('#toc-card').fadeOut();
+            }
+
+        });
+    </script>
+{% endblock %}

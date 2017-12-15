@@ -25,6 +25,7 @@ from proofing import models as proofing_models
 from preprint import models as preprint_models
 from press import models as press_models
 
+
 class TestSecurity(TestCase):
     # Tests for editor role checks
 
@@ -3084,7 +3085,6 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "editor wrongly blocked from accessing preprint article")
 
-
     def test_preprint_editor_or_author_required_author(self):
         func = Mock()
         decorated_func = decorators.preprint_editor_or_author_required(func)
@@ -3096,7 +3096,6 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "author wrongly blocked from accessing preprint article")
 
-
     def test_preprint_editor_or_author_required_other_user(self):
         func = Mock()
         decorated_func = decorators.preprint_editor_or_author_required(func)
@@ -3106,7 +3105,6 @@ class TestSecurity(TestCase):
 
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
-
 
     def test_is_article_preprint_editor(self):
         func = Mock()
@@ -3119,7 +3117,6 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "author wrongly blocked from accessing preprint article")
 
-
     def test_is_article_preprint_editor_other_user(self):
         func = Mock()
         decorated_func = decorators.is_article_preprint_editor(func)
@@ -3129,7 +3126,6 @@ class TestSecurity(TestCase):
 
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
-
 
     def test_is_preprint_editor(self):
         func = Mock()
@@ -3507,9 +3503,9 @@ class TestSecurity(TestCase):
         self.correction_task.save()
 
         self.preprint_article = submission_models.Article(owner=self.regular_user, title="A Test Preprint",
-                                                            abstract="An abstract",
-                                                            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-                                                            is_preprint=True)
+                                                          abstract="An abstract",
+                                                          stage=submission_models.STAGE_PREPRINT_PUBLISHED,
+                                                          is_preprint=True)
         self.preprint_article.save()
         self.preprint_article.authors.add(self.regular_user)
 

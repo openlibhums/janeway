@@ -43,7 +43,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     return msg.send()
 
 
-
 def notify_hook(**kwargs):
     # dummy mock-up of new notification hook defer
 
@@ -74,14 +73,18 @@ def notify_hook(**kwargs):
         response = send_email(task.email_subject, task.email_to, task.email_html, task.email_journal, request,
                               task.email_bcc, task.email_cc)
 
-    notify_contents = {
-        'log_dict': kwargs.pop('log_dict'),
-        'request': request,
-        'response': response,
-        'action': ['email_log'],
-        'html': html,
-    }
-    notify.notification(**notify_contents)
+    log_dict = kwargs.get('log_dict', None)
+
+    if log_dict:
+        notify_contents = {
+            'log_dict': log_dict,
+            'request': request,
+            'response': response,
+            'action': ['email_log'],
+            'html': html,
+            'to': to,
+        }
+        notify.notification(**notify_contents)
 
 
 def plugin_loaded():

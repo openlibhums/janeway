@@ -95,7 +95,7 @@ class PreprintInfo(forms.ModelForm):
 
             for field in additional_fields:
                 answer = request.POST.get(field.name, None)
-                print(answer)
+
                 if answer:
                     try:
                         field_answer = submission_models.FieldAnswer.objects.get(article=article, field=field)
@@ -119,12 +119,13 @@ class SettingsForm(forms.ModelForm):
     class Meta:
         model = press_models.Press
         fields = ('preprints_about', 'preprint_start', 'preprint_submission', 'preprint_publication',
-                  'preprint_pdf_only',)
+                  'preprint_decline', 'preprint_pdf_only')
         widgets = {
             'preprints_about': SummernoteWidget,
             'preprint_start': SummernoteWidget,
             'preprint_submission': SummernoteWidget,
             'preprint_publication': SummernoteWidget,
+            'preprint_decline': SummernoteWidget,
         }
 
     def __init__(self, *args, **kwargs):

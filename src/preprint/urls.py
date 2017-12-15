@@ -50,6 +50,10 @@ urlpatterns = [
         views.preprints_list,
         name='preprints_list_subject'),
 
+    url(r'^editors/$',
+        views.preprints_editors,
+        name='preprints_editors'),
+
     url(r'^submit/start/$',
         views.preprints_submit,
         name='preprints_submit'),
@@ -101,5 +105,13 @@ urlpatterns = [
     url(r'^manager/rejected/$',
         views.preprints_rejected_submissions,
         name='preprints_rejected_submissions'),
+
+    url(r'^manager/orphans/$',
+        views.orphaned_preprints,
+        name='preprints_orphaned_preprints'),
+
+    url(r'^manager/versions/$',
+        views.version_queue,
+        name='version_queue'),
 
 ]

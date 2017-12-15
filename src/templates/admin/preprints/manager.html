@@ -85,12 +85,21 @@
                     <div class="summary">
                         <span class="stat">{{ rejected_preprints|length }}</span>
                         <span class="title">Rejected Submissions</span>
-                        <a href="" class="box-link"></a>
+                        <a href="{% url 'preprints_rejected_submissions' %}" class="box-link"></a>
                     </div>
                     <div class="summary">
                         <span class="stat alert">{{ incomplete_preprints|length }}</span>
                         <span class="title">Incomplete Submissions</span>
                         <a href="" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="stat warning">{{ version_queue|length }}</span>
+                        <span class="title">Version Moderation Queue</span>
+                        <a href="{% url 'version_queue' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
+                        <span class="title">View Orphaned Preprints</span>
+                        <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
                     </div>
                 </div>
             </div>

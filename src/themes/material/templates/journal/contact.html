@@ -1,0 +1,56 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load materialize %}
+{% load recaptcha2 %}
+
+{% block title %}{% trans "Contact" %}{% endblock %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m5">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        {% if request.journal %}
+                            {% trans "Journal Representatives" %}
+                        {% else %}
+                            {% trans "Press Representatives" %}
+                        {% endif %}
+                    </span>
+                    {% for contact in contacts %}
+                        <h5>{{ contact.name }}</h5>
+                        <p>{{ contact.role }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col l7 m7">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">
+                        {% trans "Contact" %}
+                    </span>
+                    {% include "elements/forms/errors.html" with form=contact_form %}
+                    {% csrf_token %}
+
+                    {% materialize_form form=contact_form %}
+
+                    <button type="submit" class="btn">{% trans "Send Message" %}</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('select').material_select();
+        });
+    </script>
+{% endblock %}

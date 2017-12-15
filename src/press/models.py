@@ -81,6 +81,10 @@ class Press(models.Model):
     preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
     preprint_submission = models.TextField(blank=True, null=True, default=press_text('submission'))
     preprint_publication = models.TextField(blank=True, null=True, default=press_text('publication'))
+    preprint_decline = models.TextField(blank=True, null=True, default=press_text('decline'))
+
+    random_homepage_preprints = models.BooleanField(default=False)
+    homepage_preprints = models.ManyToManyField('submission.Article')
 
     def __str__(self):
         return u'%s' % self.name
@@ -259,7 +263,6 @@ class Press(models.Model):
             return False
 
         return True
-
 
 
 class PressSetting(models.Model):

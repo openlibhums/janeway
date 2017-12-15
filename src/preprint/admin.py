@@ -17,7 +17,8 @@ class SubjectAdmin(admin.ModelAdmin):
 admin_list = [
     (models.PreprintVersion,),
     (models.Comment,),
-    (models.Subject, SubjectAdmin)
+    (models.Subject, SubjectAdmin),
+    (models.VersionQueue,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

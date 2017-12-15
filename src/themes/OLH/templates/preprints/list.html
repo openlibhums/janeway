@@ -81,6 +81,17 @@
                             </ul>
                         </div>
                     {% endif %}
+
+                    {% if subjects %}
+                        <div class="section">
+                        <h5>Filter by Subject</h5>
+                        <ul>
+                            {% for list_subject in subjects %}
+                                {% if not list_subject == subject %}<li><a href="{% url 'preprints_list_subject' list_subject.slug %}">{{ list_subject }}</a></li>{% endif %}
+                            {% endfor %}
+                        </ul>
+                        </div>
+                    {% endif %}
                 </div>
             </aside>
         </div>

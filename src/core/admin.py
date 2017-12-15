@@ -60,6 +60,7 @@ class FileAdmin(admin.ModelAdmin):
     """displays files"""
     list_display = ('id', 'original_filename', 'uuid_filename', 'mime_type')
 
+
 admin_list = [
     (models.Account, AccountAdmin),
     (models.Role, RoleAdmin,),

@@ -59,9 +59,13 @@
 
                 {% for comment in comments %}
                     <div class="bs-callout bs-callout-info">
-                        <div class="row">
+                        <div class="row" id="comment-{{ comment.pk }}">
                             <div class="col-md-2">
-                                <img class="img-thumbnail" src="{{ comment.author.profile_image.url }}">
+                                {% if comment.author.profile_image %}
+                                    <img src="{{ comment.author.profile_image.url }}" class="img-fluid">
+                                {% else %}
+                                    <img src="{% static "common/img/icons/users.png" %}" class="img-fluid">
+                                {% endif %}
                             </div>
                             <div class="col-md-10">
                                 <p>
@@ -136,6 +140,9 @@
             </div>
         </div>
     </div>
+
+    {% include "elements/journal/citation_modals.html" %}
+
 
 {% endblock %}
 

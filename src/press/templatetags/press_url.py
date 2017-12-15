@@ -19,7 +19,7 @@ def svg(filename):
     path = filename
 
     if not path:
-        raise Http404
+        return None
 
     mimetype = mimetypes.guess_type(path, strict=True)
     if not mimetype or mimetype[0] != 'image/svg+xml':
@@ -32,4 +32,4 @@ def svg(filename):
         with open(path) as svg_file:
             return mark_safe(svg_file.read())
     except FileNotFoundError:
-        raise Http404
+        return None

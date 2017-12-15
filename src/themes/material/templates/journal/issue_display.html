@@ -1,0 +1,46 @@
+{% load i18n %}
+
+<div class="row">
+    <div class="col {% if not show_sidebar %}m12{% else %}m8{% endif %} s12">
+        {% if issue.large_image %}
+            <div class="card">
+                <div class="card-image waves-effect waves-block waves-light">
+                    <img class="activator" src="{{ issue.large_image.url }}">
+                    <span class="card-title">{{ issue.display_title }}</span>
+                </div>
+                {% if issue.issue_description %}
+                    <div class="card-content">
+                        {{ issue.issue_description }}
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <h3>{{ issue.display_title }}</h3>
+            {% if issue.issue_description %}<p>{{ issue.issue_description }}</p>{% endif %}
+        {% endif %}
+
+        {% for category, articles in structure.items %}
+            <h4 class="em">{{ category }}</h4>
+            {% for article in articles %}
+                {% include "elements/article_listing.html" with article=article %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% if show_sidebar %}
+        <div class="col m3 offset-m1">
+            <h5>{% if not collection %}{% trans "Issue Archive" %}{% else %}
+                {% trans "Collections" %}{% endif %}</h5>
+            <ul class="collection">
+                {% for list_issue in issues %}
+                    {% if list_issue.issue_type == 'Issue' %}
+                        <a class="collection-item {% if list_issue == issue %}active{% endif %}"
+                           href="{% url 'journal_issue' list_issue.id %}">{{ list_issue }} </a>
+                    {% else %}
+                        <a class="collection-item {% if list_issue == issue %}active{% endif %}"
+                           href="{% url 'journal_collection' list_issue.id %}">{{ list_issue.issue_title }} </a>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>

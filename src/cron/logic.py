@@ -16,7 +16,9 @@ def task_runner(task):
     if task.task_type == 'slack_message':
         pass
     elif task.task_type == 'email_message':
-        notify.notification(**{'action': ['email'], 'task': task})
+        log_dict = {'level': 'Info', 'action_text': task.task_data, 'types': task.task_type,
+                    'target': task.article}
+        notify.notification(**{'action': ['email'], 'task': task, 'log_dict': log_dict})
 
 
 def process_editor_digest(journal, user_role):
