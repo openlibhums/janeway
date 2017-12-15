@@ -694,7 +694,6 @@ def get_files(soup):
 
 
 def parse_recommend(recommendation_text):
-    print(recommendation_text)
     recommendation = recommendation_text.split('\n')[0]
     try:
         date = dateparser.parse(re.search('(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})', recommendation_text).groups(1)[0])
