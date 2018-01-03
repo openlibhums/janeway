@@ -762,6 +762,7 @@ def get_peer_reviewers(soup):
         reviewer_dict = {}
         tables = review.findAll("table")
         review_file = review.findAll("a", {"class": "file"})
+        comments_button = review.find("a", {"class": "btn-info"})
 
         # Get the name out of table 1
         reviewer_dict['name'] = tables[0].findAll('td')[1].get_text()
@@ -778,6 +779,9 @@ def get_peer_reviewers(soup):
 
         if review_file:
             reviewer_dict['file'] = review_file[0].get('href')
+
+        if comments_button:
+            reviewer_dict['comment_link'] = comments_button.get('href').split("'")[1]
 
         reviewer_list.append(reviewer_dict)
         
