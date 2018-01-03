@@ -761,6 +761,7 @@ def get_peer_reviewers(soup):
     for review in review_blocks:
         reviewer_dict = {}
         tables = review.findAll("table")
+        review_file = review.findAll("a", {"class": "file"})
 
         # Get the name out of table 1
         reviewer_dict['name'] = tables[0].findAll('td')[1].get_text()
@@ -774,6 +775,9 @@ def get_peer_reviewers(soup):
 
         recommendation_tds = table_trs[4].findAll('td')
         reviewer_dict['recommendation'], reviewer_dict['recommendation_date_time'] = parse_recommend(recommendation_tds[1].get_text(strip=True))
+
+        if review_file:
+            reviewer_dict['file'] = review_file[0].get('href')
 
         reviewer_list.append(reviewer_dict)
         

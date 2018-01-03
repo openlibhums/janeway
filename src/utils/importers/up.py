@@ -408,7 +408,7 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
 def import_in_review_article(url, journal, auth_file, base_url, article_id):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    # Fetch the summary page and parse its metdata
+    # Fetch the summary page and parse its metadata
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
     soup_article_summary = BeautifulSoup(resp, 'lxml')
     summary_dict = shared.get_metadata(soup_article_summary)
