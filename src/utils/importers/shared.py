@@ -836,10 +836,6 @@ def get_metadata(soup):
     titles = parse_title_data(soup)
     indexing = parse_indexing_data(soup)
 
-    print(authors)
-    print(titles)
-    print(indexing)
-
     return {'authors': authors, 'titles': titles, 'indexing': indexing}
 
 
