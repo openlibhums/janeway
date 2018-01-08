@@ -641,6 +641,9 @@ class Article(models.Model):
                                                stage_to=self.stage)
         super(Article, self).save(*args, **kwargs)
 
+    def folder_path(self):
+        return os.path.join(settings.BASE_DIR, 'files', 'articles', self.pk)
+
     def production_managers(self):
         return [assignment.production_manager for assignment in self.productionassignment_set.all()]
 

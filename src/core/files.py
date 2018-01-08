@@ -12,6 +12,7 @@ from lxml import etree
 import re
 import shutil
 import magic
+import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -86,7 +87,7 @@ def copy_local_file_to_article(file_to_handle, file_name, article, owner, label=
     return new_file
 
 
-def save_file_to_article(file_to_handle, article, owner, label=None, description=None, replace=None, is_galley=False):
+def save_file_to_article(file_to_handle, article, owner, label=None, description=None, replace=None, is_galley=False, save=True):
     """Save a file into an article's folder with appropriate mime type and permissions.
 
     :param file_to_handle: the uploaded file object we need to handle
@@ -104,7 +105,8 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id))
 
-    save_file_to_disk(file_to_handle, filename, folder_structure)
+    if save:
+        save_file_to_disk(file_to_handle, filename, folder_structure)
 
     file_mime = guess_mime(filename)
 
@@ -613,3 +615,13 @@ def serve_temp_file(file_path, file_name):
 def unlink_temp_file(file_path):
     if os.path.isfile(file_path):
         os.unlink(file_path)
+
+
+def create_temp_file(content, filename):
+    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
+    filepath = os.path.join(tempfile.gettempdir(), filename)
+
+    with open(filepath, 'w') as temp_file:
+        temp_file.write(content)
+
+    return filepath

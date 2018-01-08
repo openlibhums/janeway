@@ -6,7 +6,6 @@ Django==1.11.5
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
 django-debug-toolbar==1.8
-django-suit==0.2.25 # TODO: remove for open source distribution
 django-hvad==1.8.0
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git#egg=django-mailgun
 django-markdown-deux==1.0.5
@@ -14,11 +13,11 @@ django-settings-export==1.2.1
 django-simple-math-captcha==1.0.7
 django-recaptcha2==1.0.3
 django-summernote==0.8.8.1
-django-treebeard==4.0.1
 djangorestframework==3.6.3
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
 enum34==1.1.6
+html2text==2017.10.4
 idna==2.1
 ipaddress==1.0.16
 jsmin==2.2.1

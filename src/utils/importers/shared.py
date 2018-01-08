@@ -7,6 +7,7 @@ import re
 from dateutil import parser as dateparser
 import requests
 from bs4 import BeautifulSoup
+import mimetypes
 
 from django.conf import settings
 from django.urls import reverse
@@ -98,7 +99,7 @@ def parse_date(date_string, is_iso):
         return timezone.now()
 
 
-def fetch_file(base, url, root, extension, article, user, handle_images=False):
+def fetch_file(base, url, root, extension, article, user, handle_images=False, auth_file=None):
     """ Download a remote file and store in the database affiliated to a specific article
 
     :param base: a base URL for the remote journal install e.g. http://www.myjournal.org
@@ -120,7 +121,15 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False):
     print('Fetching {0}'.format(url))
 
     # imitate headers from a browser to avoid being blocked on some installs
-    resp, mime = utils_models.ImportCacheEntry.fetch(url=url)
+    if auth_file:
+        resp, mime = utils_models.ImportCacheEntry.fetch(url, up_auth_file=auth_file, up_base_url=base)
+    else:
+        resp, mime = utils_models.ImportCacheEntry.fetch(url=url)
+
+    # If the function is not passed an extension, try to guess what it should be.
+
+    if not extension:
+        extension = utils_shared.guess_extension(mime)
 
     # set the filename to a unique UUID4 identifier with the passed file extension
     filename = '{0}.{1}'.format(uuid4(), extension)
@@ -770,9 +779,9 @@ def get_peer_reviewers(soup):
         table_trs = tables[1].findAll('tr')
         date_tds = table_trs[1].find('table').findAll('td')
 
-        reviewer_dict['date_requested'] = date_tds[4].get_text().strip()
-        reviewer_dict['date_accepted'] = date_tds[5].get_text().strip() if date_tds[5].get_text() else None
-        reviewer_dict['date_due'] = date_tds[6].get_text().strip() if date_tds[6].get_text() else None
+        reviewer_dict['date_requested'] = dateparser.parse(date_tds[4].get_text().strip())
+        reviewer_dict['date_accepted'] = dateparser.parse(date_tds[5].get_text().strip()) if date_tds[5].get_text() else None
+        reviewer_dict['date_due'] = dateparser.parse(date_tds[6].get_text().strip()) if date_tds[6].get_text() else None
 
         recommendation_tds = table_trs[4].findAll('td')
         reviewer_dict['recommendation'], reviewer_dict['recommendation_date_time'] = parse_recommend(recommendation_tds[1].get_text(strip=True))
