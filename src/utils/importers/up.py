@@ -550,6 +550,7 @@ def import_in_review_article(url, journal, auth_file, base_url, article_id):
 
             review_file = shared.add_file(mime, extension, 'Reviewer file', reviewer, filename, article)
             new_review.review_file = review_file
+
         elif review.get('comment_link'):
             resp, mime = utils_models.ImportCacheEntry.fetch(url=review.get('comment_link'), up_auth_file=auth_file,
                                                              up_base_url=base_url)
@@ -572,7 +573,12 @@ def import_in_review_article(url, journal, auth_file, base_url, article_id):
         if review.get('recommendation'):
             new_review.decision = map_review_recommendation(review.get('recommendation'))
 
-
         new_review.save()
+
+        for file in files.get('supplementary_files'):
+            filename, mime = shared.fetch_file(base_url, file, None, None, article, None,
+                                               handle_images=False, auth_file=auth_file)
+            extension = os.path.splitext(filename)[1]
+            new_file = shared.add_file(mime, extension, 'Reviewer file', article.owner, filename, article, galley=False)
 
     article.save()
