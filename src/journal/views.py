@@ -522,7 +522,7 @@ def file_delete(request, article_id, file_id):
     article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
-    files.delete_file(article_object, file_object)
+    file_object.delete()
 
     return redirect(request.GET['return'])
 
