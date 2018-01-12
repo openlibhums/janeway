@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.core import management
 
-from utils.importers.up import import_in_review_article
+from utils.importers.up import ojs_plugin_import_review_article
 from journal import models
 
 
@@ -33,14 +33,14 @@ class Command(BaseCommand):
         if options.get('nuke'):
             management.call_command('nuke_import_cache')
 
-        url = '{base_url}/jms/editor/submission/{article_id}'.format(base_url=options.get('base_url'),
-                                                                     article_id=options.get('article_id'))
+        url = '{base_url}/janeway/'.format(base_url=options.get('base_url'),
+                                                                 article_id=options.get('article_id'))
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
-            import_in_review_article(url,
-                                     journal,
-                                     auth_file=options.get('auth_file'),
-                                     base_url=options.get('base_url'),
-                                     article_id=options.get('article_id'))
+            ojs_plugin_import_review_article(url,
+                                             journal,
+                                             auth_file=options.get('auth_file'),
+                                             base_url=options.get('base_url'),
+                                             article_id=options.get('article_id'))
         except models.Journal.DoesNotExist:
             print('Journal not found.')
