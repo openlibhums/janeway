@@ -1258,3 +1258,15 @@ def download_journal_file(request, file_id):
         return files.serve_journal_cover(request, file)
     else:
         raise Http404
+
+
+def texture_edit(request, file_id):
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    template = 'admin/journal/texture.html'
+    context = {
+        'file': file,
+        'content': files.get_file(file, file.article).replace('\n', '')
+    }
+
+    return render(request, template, context)

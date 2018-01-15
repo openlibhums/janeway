@@ -97,4 +97,9 @@ urlpatterns = [
     # Submissions
     url(r'^submissions/$',
         views.submissions, name='journal_submissions'),
+
+
+    # Edit file with Texture
+    url(r'^texture/(?P<file_id>\d+)/edit/$',
+        views.texture_edit, name='texture_edit'),
 ]

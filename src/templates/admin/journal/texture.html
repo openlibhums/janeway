@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Texture Editor</title>
+    <meta charset="UTF-8">
+    <link href="{% static "common/css/font-awesome.css" %}" rel="stylesheet">
+    <style>
+      /* Texture Component styles */
+      @import '{% static "texture/texture.css" %}';
+      /* You may want to use your own reset and pagestyle */
+      @import '{% static "texture/texture-reset.css" %}';
+      @import '{% static "texture/texture-pagestyle.css" %}';
+
+      body { overflow: hidden; }
+      html,
+      body {
+        height: 100%;
+      }
+
+
+    </style>
+    <script type="text/javascript" src="{% static "texture/substance/dist/substance.js" %}"></script>
+    <script type="text/javascript" src="{% static "texture/texture.js" %}"></script>
+    <script type="text/javascript" src="{% static "texture/vfs.js" %}"></script>
+    <script type="text/javascript">
+      const { Texture } = window.texture;
+
+      // Loading XML: In this example we use a bundled virtual file-system
+      const DEFAULT_FILE = 'data/introducing-texture.xml'; // without leading '/'
+
+      let htmlParams = new URLSearchParams(location.search.slice(1));
+      let file = htmlParams.get('file') || DEFAULT_FILE;
+
+      window.onload = function() {
+        window.app = Texture.mount({
+          documentId: file,
+          /*
+            Implement your own logic to read and write XML
+          */
+          readXML: function(documentId, cb) {
+            xmlStr = '{{ content|safe }}';
+            cb(null, xmlStr)
+          },
+          writeXML: function(documentId, xml, cb) {
+            console.log('writeXML needs to be implemented for saving.');
+            console.log('XML', xml);
+            cb(null)
+          }
+        }, document.body)
+      }
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
