@@ -263,21 +263,15 @@ class ImportCacheEntry(models.Model):
 
             if do_auth:
                 # load the login page
-                auth_url = '{0}{1}'.format(up_base_url, '/author/login/')
+                auth_url = '{0}{1}'.format(up_base_url, '/login/')
                 fetched = session.get(auth_url, headers=headers, stream=True, verify=False)
 
-                regex = "name\='csrfmiddlewaretoken' value\='(.+?)'"
-
-                csrf = re.search(r"'csrfmiddlewaretoken' value\='(.+?)'", fetched.text, flags=re.MULTILINE).group(1)
-
-                post_dict = {'csrfmiddlewaretoken': csrf, 'username': username, 'password': password, 'login': 'login'}
-
-                fetched = session.post('{0}{1}'.format(up_base_url, '/author/login/'), data=post_dict,
-                                       headers={'Referer':auth_url,
+                post_dict = {'username': username, 'password': password, 'login': 'login'}
+                fetched = session.post('{0}{1}'.format(up_base_url, '/login/signIn/'), data=post_dict,
+                                       headers={'Referer': auth_url,
                                                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
                                                               'Chrome/39.0.2171.95 Safari/537.36'
                                                 })
-
                 print("[CACHE] Sending auth")
 
             fetched = session.get(url, headers=headers, stream=True, verify=False)

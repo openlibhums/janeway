@@ -209,9 +209,15 @@ def add_file(file_mime, extension, description, owner, filename, article, galley
     """
 
     # create a new File object with the passed parameters
+
+    if extension.startswith('.'):
+        original_filename = 'file{0}'.format(extension)
+    else:
+        original_filename = 'file.{0}'.format(extension)
+
     new_file = core_models.File(
         mime_type=file_mime,
-        original_filename='file.{0}'.format(extension),
+        original_filename=original_filename,
         uuid_filename=filename,
         label=extension.upper(),
         description=description,
@@ -238,8 +244,6 @@ def add_file(file_mime, extension, description, owner, filename, article, galley
             label=new_file.label,
             type=extension,
         )
-    else:
-        article.data_figure_files.add(new_file)
 
     article.save()
 
@@ -599,204 +603,6 @@ def set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user
     set_article_identifier(doi, article)
 
 
-def fetch_email_from_href(a_soup):
-    href = urllib.parse.unquote(a_soup.attrs['href'])
-
-    email_regex = r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)"
-
-    email = re.search(email_regex, href)
-
-    if email:
-        return email.group(1)
-    else:
-        return None
-
-
-def parse_title_data(soup):
-    title_info = dict()
-    tables = soup.find("div", {"id": "titleAndAbstract"}).findAll("table")
-
-    # NB there should only be one here
-    for table in tables:
-        rows = table.find_all("tr")
-
-        cells_title = rows[0].find_all("td")
-        title_info['title'] = cells_title[1].get_text().strip()
-
-        cells_abstract = rows[1].find_all("td")
-        title_info['abstract'] = cells_abstract[1].get_text().strip()
-
-    return title_info
-
-
-def parse_author_data(soup):
-    authors = list()
-    tables = soup.find("div", {"id": "authors"}).findAll("table")
-
-    for table in tables:
-        author_dict = dict()
-        for row in table.find_all("tr"):
-            cells = row.find_all("td")
-
-            try:
-                cell_0 = cells[0].get_text().strip()
-                cell_1 = cells[1].get_text().strip()
-
-                a_elem = cells[1].find("a")
-
-                if a_elem:
-                    email = fetch_email_from_href(a_elem)
-                    if email:
-                        author_dict['email'] = email
-
-                if cell_0 == 'Name' and author_dict:
-                    authors.append(author_dict)
-                    author_dict = dict()
-
-                author_dict[cell_0] = cell_1
-            except IndexError:
-                pass
-
-        authors.append(author_dict)
-
-    return authors
-
-
-def parse_indexing_data(soup):
-    indexing_info = dict()
-    tables = soup.find("div", {"id": "indexing"}).findAll("table")
-
-    for table in tables:
-        rows = table.find_all("tr")
-
-        cells_keywords = rows[1].find_all("td")
-        cells_language = rows[2].find_all("td")
-
-        indexing_info['keywords'] = cells_keywords[1].get_text().strip().split(',')
-        indexing_info['language'] = cells_language[1].get_text().strip()
-
-    return indexing_info
-
-
-def get_jms_article_status(soup):
-    """
-        Returns an article status
-        :param soup:
-        :return:
-        """
-    tables = soup.find("div", {"id": "editorDecision"}).findAll("table")
-
-    for table in tables:
-        author_dict = dict()
-        for row in table.find_all("tr"):
-            cells = row.find_all("td")
-
-            try:
-                cell_0 = cells[0].get_text().strip()
-                cell_1 = cells[1].get_text().strip()
-
-                if(cell_0 == 'Decision'):
-                    if cell_1 != 'None':
-                        cell_1 = cell_1.split('|')[len(cell_1.split('|'))-1]
-
-                        date_regex = '(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})'
-                        date_time = dateparser.parse(re.search(date_regex, cell_1).groups(1)[0])
-
-                        text_regex = '([^\d]+)'
-                        text = re.search(text_regex, cell_1).groups(1)[0].strip()
-
-                        outcome = submission_models.STAGE_ASSIGNED
-
-                        if text == 'Resubmit for Review':
-                            outcome = submission_models.STAGE_UNDER_REVISION
-                        if text == 'Revisions Required':
-                            outcome = submission_models.STAGE_UNDER_REVISION
-                        if text == 'Accept Submission':
-                            outcome = submission_models.STAGE_ACCEPTED
-                        if text == 'Decline Submission':
-                            outcome = submission_models.STAGE_REJECTED
-
-                        return outcome, date_time
-                    else:
-                        return submission_models.STAGE_ASSIGNED, datetime.now()
-
-            except IndexError:
-                pass
-
-    return None
-
-
-def get_files(soup):
-    """
-    Finds all of he files on the review page and pulls the latest version.
-    :param soup:
-    :return:
-    """
-    files = soup.findAll("a", {"class": "file"})
-    file_dict = dict()
-    return_dict = {'supplementary_files': []}
-
-    for file in files:
-        file_parts = file.get_text().split('-')
-        file_id = file_parts[1]
-        file_type = file_parts[3].split('.')[0]
-
-        if file_type in ['RV', 'ED', 'AV']:
-            file_dict[file_id] = file.get('href')
-        elif file_type == 'SP':
-            return_dict['supplementary_files'].append(file.get('href'))
-
-    if file_dict:
-        newest_file = max(file_dict, key=int)
-
-        return_dict['file'] = file_dict[newest_file]
-
-    return return_dict
-
-
-def parse_recommend(recommendation_text):
-    recommendation = recommendation_text.split('\n')[0]
-    try:
-        date = dateparser.parse(re.search('(\d{4}\-\d{2}\-\d{2},\s\d{2}\:\d{2})', recommendation_text).groups(1)[0])
-    except:
-        date = None
-    return recommendation, date
-
-
-def get_peer_reviewers(soup):
-    review_blocks = soup.find("div", {"id": "peerReview"}).findAll("div")
-    reviewer_list = list()
-
-    for review in review_blocks:
-        reviewer_dict = {}
-        tables = review.findAll("table")
-        review_file = review.findAll("a", {"class": "file"})
-        comments_button = review.find("a", {"class": "btn-info"})
-
-        # Get the name out of table 1
-        reviewer_dict['name'] = tables[0].findAll('td')[1].get_text()
-
-        table_trs = tables[1].findAll('tr')
-        date_tds = table_trs[1].find('table').findAll('td')
-
-        reviewer_dict['date_requested'] = dateparser.parse(date_tds[4].get_text().strip())
-        reviewer_dict['date_accepted'] = dateparser.parse(date_tds[5].get_text().strip()) if date_tds[5].get_text() else None
-        reviewer_dict['date_due'] = dateparser.parse(date_tds[6].get_text().strip()) if date_tds[6].get_text() else None
-
-        recommendation_tds = table_trs[4].findAll('td')
-        reviewer_dict['recommendation'], reviewer_dict['recommendation_date_time'] = parse_recommend(recommendation_tds[1].get_text(strip=True))
-
-        if review_file:
-            reviewer_dict['file'] = review_file[0].get('href')
-
-        if comments_button:
-            reviewer_dict['comment_link'] = comments_button.get('href').split("'")[1]
-
-        reviewer_list.append(reviewer_dict)
-        
-    return reviewer_list
-
-
 def get_user_profile(soup):
     """
     Fetches user info from a Ubiquity Press profile
@@ -833,18 +639,3 @@ def get_user_profile(soup):
         authors.append(author_dict)
 
     return authors
-
-
-def get_metadata(soup):
-    """
-    Fetches title, authors etc for an in review article
-    :param soup: BeautifulSoup object
-    :return: A dictionary
-    """
-    authors = parse_author_data(soup)
-    titles = parse_title_data(soup)
-    indexing = parse_indexing_data(soup)
-
-    return {'authors': authors, 'titles': titles, 'indexing': indexing}
-
-

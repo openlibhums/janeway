@@ -4,6 +4,8 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import html2text
+import json
+from dateutil import parser as dateparser
 
 from django.utils import timezone
 
@@ -215,7 +217,6 @@ def parse_backend_list(url, auth_file, auth_url, regex):
 
 
 def get_article_list(url, list_type, auth_file):
-
     auth_url = url
 
     regex = '\/jms\/editor\/submissionReview\/(\d+)'
@@ -257,7 +258,6 @@ def parse_backend_user_list(url, auth_file, auth_url, regex):
 
 
 def get_user_list(url, auth_file):
-
     auth_url = url
 
     url += '/jms/manager/people/all'
@@ -269,12 +269,11 @@ def get_user_list(url, auth_file):
 
 
 def map_review_recommendation(recommentdation):
-
     recommendations = {
-        'Revisions Required': 'minor_revisions',
-        'Resubmit for Review': 'major_revisions',
-        'Decline Submission': 'reject',
-        'Accept Submission': 'accept'
+        '2': 'minor_revisions',
+        '3': 'major_revisions',
+        '5': 'reject',
+        '1': 'accept'
     }
 
     return recommendations.get(recommentdation, None)
@@ -367,7 +366,6 @@ def import_issue_images(journal, user, url):
             article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
 
             if article and article not in processed:
-
                 journal_models.ArticleOrdering.objects.create(issue=issue,
                                                               article=article,
                                                               order=article_order)
@@ -424,161 +422,193 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
             account.add_account_role(journal=journal, role_slug='reviewer')
 
 
-
-def import_in_review_article(url, journal, auth_file, base_url, article_id):
+def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-    # Fetch the summary page and parse its metadata
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
-    soup_article_summary = BeautifulSoup(resp, 'lxml')
-    summary_dict = shared.get_metadata(soup_article_summary)
 
-    # Fetch the review page and parse its data
-    review_url = '{base_url}/jms/editor/submissionReview/{article_id}'.format(base_url=base_url, article_id=article_id)
-    resp, mime = utils_models.ImportCacheEntry.fetch(url=review_url, up_auth_file=auth_file, up_base_url=base_url)
-    soup_article_review = BeautifulSoup(resp, 'lxml')
-    files = shared.get_files(soup_article_review)
-    print(files)
+    _dict = json.loads(resp.decode("utf-8"))
 
-    # Fetch peer-reviewers
-    peer_reviewers = shared.get_peer_reviewers(soup_article_review)
-    print(peer_reviewers)
+    for article_dict in _dict:
 
-    # Get article status
-    article_status = shared.get_jms_article_status(soup_article_review)
-    print(article_status)
+        date_started = timezone.make_aware(dateparser.parse(article_dict.get('date_submitted')))
 
-    # Create the base article
-    first_author = summary_dict['authors'][0]
-    owner = core_models.Account.objects.get(email=first_author.get('email'))
+        # Create a base article
+        article = models.Article(
+            journal=journal,
+            title=article_dict.get('title'),
+            abstract=article_dict.get('abstract'),
+            language=article_dict.get('language'),
+            stage=models.STAGE_UNDER_REVIEW,
+            is_import=True,
+            date_submitted=date_started,
+        )
 
-    article = models.Article(
-        journal=journal,
-        title=summary_dict['titles'].get('title'),
-        abstract=summary_dict['titles'].get('abstract'),
-        owner=owner,
-        language=summary_dict['indexing'].get('language'),
-        correspondence_author=owner,
-        stage=models.STAGE_UNDER_REVIEW,
-        is_import=True,
-    )
+        article.save()
 
-    article.save()
+        # Add a new review round
+        round = review_models.ReviewRound.objects.create(article=article, round_number=1)
 
-    for author in summary_dict['authors']:
-        if author.get('email'):
+        # Add keywords
+        keywords = article_dict.get('keywords')
+        if keywords:
+            for keyword in keywords.split(';'):
+                word, created = models.Keyword.objects.get_or_create(word=keyword)
+                article.keywords.add(word)
+
+        # Add authors
+        for author in article_dict.get('authors'):
             try:
                 author_record = core_models.Account.objects.get(email=author.get('email'))
             except core_models.Account.DoesNotExist:
                 author_record = core_models.Account.objects.create(
                     email=author.get('email'),
-                    first_name=author.get('Name').split(' ')[0],
-                    last_name=author.get('Name').split(' ')[-1],
-                    institution=author.get('Affiliation'),
-                    biography=author.get('Bio Statement'),
-                    orcid=author.get('Orcid'),
+                    first_name=author.get('first_name'),
+                    last_name=author.get('last_name'),
+                    institution=author.get('affiliation'),
+                    biography=author.get('bio'),
                 )
 
-            if author.get('Country'):
+            # If we have a country, fetch its record
+            if author.get('country'):
                 try:
-                    country = core_models.Country.objects.get(name=author.get('Country'))
+                    country = core_models.Country.objects.get(code=author.get('country'))
                     author_record.country = country
                     author_record.save()
                 except core_models.Country.DoesNotExist:
                     pass
-
+            # Add authors to m2m and create an order record
             article.authors.add(author_record)
             models.ArticleAuthorOrder.objects.create(article=article,
                                                      author=author_record,
                                                      order=article.next_author_sort())
 
+            # Set the primary author
+            article.owner = core_models.Account.objects.get(email=article_dict.get('correspondence_author'))
+            article.correspondence_author = article.owner
 
-    # Add Keywords
-    for keyword in summary_dict['indexing'].get('keywords'):
-        word, created = models.Keyword.objects.get_or_create(word=keyword)
-        article.keywords.add(word)
+            # Get or create the article's section
+            try:
+                section = models.Section.objects.language().fallbacks('en').get(journal=journal,
+                                                                                name=article_dict.get('section'))
+            except models.Section.DoesNotExist:
+                section = None
 
-    # Add a new review round
-    round = review_models.ReviewRound.objects.create(article=article, round_number=1)
+            article.section = section
 
-    if files.get('file'):
-        filename, mime = shared.fetch_file(base_url, files.get('file'), None, None, article, None,
-                                           handle_images=False, auth_file=auth_file)
-        extension = os.path.splitext(filename)[1]
-        review_file = shared.add_file(mime, extension, 'Review file', None, filename, article)
-        round.review_files.add(review_file)
+            article.save()
 
-    # Attempt to get the default review form
-    form = setting_handler.get_setting('general',
-                                       'default_review_form',
-                                       journal,
-                                       create=True).processed_value
+        # Attempt to get the default review form
+        form = setting_handler.get_setting('general',
+                                           'default_review_form',
+                                           journal,
+                                           create=True).processed_value
 
-    if not form:
-        try:
-            form = review_models.ReviewForm.objects.filter(journal=journal)[0]
-        except:
-            form = None
-            print('You must have at least one review form for the journal before importing.')
-            exit()
+        if not form:
+            try:
+                form = review_models.ReviewForm.objects.filter(journal=journal)[0]
+            except:
+                form = None
+                print('You must have at least one review form for the journal before importing.')
+                exit()
 
-    for review in peer_reviewers:
-        name_parts = review.get('name').split(' ')
-        reviewer = core_models.Account.objects.filter(first_name=name_parts[0], last_name=name_parts[1])[0]
+        for review in article_dict.get('reviews'):
+            try:
+                reviewer = core_models.Account.objects.get(email=review.get('email'))
+            except core_models.Account.DoesNotExist:
+                reviewer = core_models.Account.objects.create(
+                    email=review.get('email'),
+                    first_name=review.get('first_name'),
+                    last_name=review.get('last_name'),
+                )
 
-        new_review = review_models.ReviewAssignment.objects.create(
-            article=article,
-            reviewer=reviewer,
-            review_round=round,
-            review_type='traditional',
-            visibility='double-blind',
-            date_due=review.get('date_due'),
-            date_requested=timezone.make_aware(review.get('date_requested'), timezone.get_current_timezone()),
-            date_complete=timezone.make_aware(review.get('recommendation_date_time'), timezone.get_current_timezone()),
-            date_accepted=timezone.make_aware(review.get('date_accepted'), timezone.get_current_timezone()),
-            access_code=uuid.uuid4(),
-            form=form
-        )
+            # Parse the dates
+            date_requested = timezone.make_aware(dateparser.parse(review.get('date_requested')))
+            date_due = timezone.make_aware(dateparser.parse(review.get('date_due')))
+            date_complete = timezone.make_aware(dateparser.parse(review.get('date_complete'))) if review.get(
+                'date_complete') else None
+            date_confirmed = timezone.make_aware(dateparser.parse(review.get('date_confirmed'))) if review.get(
+                'date_confirmed') else None
 
-        if review.get('recommendation_date_time'):
-            new_review.is_complete = True
+            # If the review was declined, setup a date declined date stamp
+            review.get('declined')
+            if review.get('declined') == '1':
+                date_declined = date_confirmed
+                date_accepted = None
+                date_complete = date_confirmed
+            else:
+                date_accepted = date_confirmed
+                date_declined = None
 
-        if review.get('file'):
-            filename, mime = shared.fetch_file(base_url, review.get('file'), None, None, article, None,
-                                                  handle_images=False, auth_file=auth_file)
-            extension = os.path.splitext(filename)[1]
+            new_review = review_models.ReviewAssignment.objects.create(
+                article=article,
+                reviewer=reviewer,
+                review_round=round,
+                review_type='traditional',
+                visibility='double-blind',
+                date_due=date_due,
+                date_requested=date_requested,
+                date_complete=date_complete,
+                date_accepted=date_accepted,
+                access_code=uuid.uuid4(),
+                form=form
+            )
 
-            review_file = shared.add_file(mime, extension, 'Reviewer file', reviewer, filename, article)
-            new_review.review_file = review_file
+            if review.get('declined') or review.get('recommendation'):
+                new_review.is_complete = True
 
-        elif review.get('comment_link'):
-            resp, mime = utils_models.ImportCacheEntry.fetch(url=review.get('comment_link'), up_auth_file=auth_file,
-                                                             up_base_url=base_url)
+            if review.get('recommendation'):
+                new_review.decision = map_review_recommendation(review.get('recommendation'))
 
-            comment_text = BeautifulSoup(resp, 'lxml')
-            comments = comment_text.findAll('div', {'id': 'articleComments'})
+            if review.get('review_file_url'):
+                filename, mime = shared.fetch_file(base_url, review.get('review_file_url'), None, None, article, None,
+                                                   handle_images=False, auth_file=auth_file)
+                extension = os.path.splitext(filename)[1]
 
-            for comment in comments:
-                filepath = core_files.create_temp_file(html2text.html2text(comment.text), 'comment.txt')
+                review_file = shared.add_file(mime, extension, 'Reviewer file', reviewer, filename, article,
+                                              galley=False)
+                new_review.review_file = review_file
+
+            if review.get('comments'):
+                filepath = core_files.create_temp_file(review.get('comments'), 'comment.txt')
                 file = open(filepath, 'r')
                 comment_file = core_files.save_file_to_article(file,
                                                                article,
-                                                               owner,
+                                                               article.owner,
                                                                label='Review Comments',
                                                                save=False)
                 import shutil
                 shutil.copy(filepath, comment_file.self_article_path())
                 new_review.review_file = comment_file
 
-        if review.get('recommendation'):
-            new_review.decision = map_review_recommendation(review.get('recommendation'))
+            new_review.save()
 
-        new_review.save()
+        # TODO: Make this into a function for reuse
+        # Get MS File
+        ms_file = get_ojs_file(base_url, article_dict.get('manuscript_file_url'), article, auth_file, 'MS File')
+        article.manuscript_files.add(ms_file)
 
-        for file in files.get('supplementary_files'):
-            filename, mime = shared.fetch_file(base_url, file, None, None, article, None,
-                                               handle_images=False, auth_file=auth_file)
-            extension = os.path.splitext(filename)[1]
-            new_file = shared.add_file(mime, extension, 'Reviewer file', article.owner, filename, article, galley=False)
+        # Get RV File
+        rv_file = get_ojs_file(base_url, article_dict.get('review_file_url'), article, auth_file, 'RV File')
+        round.review_files.add(rv_file)
 
-    article.save()
+        # Get Supp Files
+        if article_dict.get('supp_files'):
+            print(article_dict.get('supp_files'))
+            for file in article_dict.get('supp_files'):
+                file = get_ojs_file(base_url, file.get('url'), article, auth_file, file.get('title'))
+                article.data_figure_files.add(file)
+
+
+        article.save()
+        round.save()
+
+        print(article.pk)
+
+
+def get_ojs_file(base_url, url, article, auth_file, label):
+    filename, mime = shared.fetch_file(base_url, url, None, None, article, None, handle_images=False,
+                                       auth_file=auth_file)
+    extension = os.path.splitext(filename)[1]
+    file = shared.add_file(mime, extension, label, article.owner, filename, article, galley=False)
+
+    return file

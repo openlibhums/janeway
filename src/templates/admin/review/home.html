@@ -17,6 +17,7 @@
             <table class="table table-bordered" id="unassigned">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Title</th>
                         <th>Submitted</th>
                         <th>Main Author</th>
@@ -29,6 +30,7 @@
                 <tbody>
                     {% for article in articles %}
                     <tr>
+                        <td>{{ article.pk }}</td>
                         <td>{{ article.title }}</td>
                         <td>{{ article.date_submitted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>

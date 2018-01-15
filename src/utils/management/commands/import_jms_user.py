@@ -34,8 +34,9 @@ class Command(BaseCommand):
         if options.get('nuke'):
             management.call_command('nuke_import_cache')
 
-        url = '{base_url}/jms/manager/userProfile/{user_id}'.format(base_url=options.get('base_url'),
+        url = '{base_url}/manager/userProfile/{user_id}'.format(base_url=options.get('base_url'),
                                                                     user_id=options.get('user_id'))
+        print(url)
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
             import_jms_user(url,

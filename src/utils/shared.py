@@ -53,6 +53,8 @@ def guess_extension(mime):
         extension = 'docx'
     elif mime == 'application/vnd.oasis.opendocument.text':
         extension = 'odt'
+    elif mime == 'text/html;charset=UTF-8':
+        extension = 'html'
     else:
         extension = mimetypes.guess_extension(mime)
 

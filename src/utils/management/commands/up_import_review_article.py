@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.core import management
 
-from utils.importers.up import ojs_plugin_import_review_article
+from utils.importers.up import ojs_plugin_import_review_articles
 from journal import models
 
 
@@ -19,7 +19,6 @@ class Command(BaseCommand):
         """
         parser.add_argument('journal_code', default=None)
         parser.add_argument('base_url', default=None)
-        parser.add_argument('article_id', default=None)
         parser.add_argument('auth_file', default=None)
         parser.add_argument('--nuke', action='store_true', dest='nuke')
 
@@ -37,10 +36,9 @@ class Command(BaseCommand):
                                                                  article_id=options.get('article_id'))
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
-            ojs_plugin_import_review_article(url,
+            ojs_plugin_import_review_articles(url,
                                              journal,
                                              auth_file=options.get('auth_file'),
-                                             base_url=options.get('base_url'),
-                                             article_id=options.get('article_id'))
+                                             base_url=options.get('base_url'))
         except models.Journal.DoesNotExist:
             print('Journal not found.')
