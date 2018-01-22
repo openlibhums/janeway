@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.core import management
 
-from utils.importers.up import ojs_plugin_import_review_articles
+from utils.importers.up import ojs_plugin_import_editing_articles
 from journal import models
 
 
@@ -9,7 +9,7 @@ class Command(BaseCommand):
     """
     Fetches a backend article from a UP journal
     """
-    help = "Fetches a backend review article from a UP journal. Requires a journal code, a base url and an article id."
+    help = "Fetches a backend editing article from a UP journal. Requires a journal code, a base url and an article id."
 
     def add_arguments(self, parser):
         """Adds arguments to Django's management command-line parser.
@@ -32,10 +32,10 @@ class Command(BaseCommand):
         if options.get('nuke'):
             management.call_command('nuke_import_cache')
 
-        url = '{base_url}/janeway/'.format(base_url=options.get('base_url'))
+        url = '{base_url}/janeway/?request_type=in_editing'.format(base_url=options.get('base_url'))
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
-            ojs_plugin_import_review_articles(url,
+            ojs_plugin_import_editing_articles(url,
                                              journal,
                                              auth_file=options.get('auth_file'),
                                              base_url=options.get('base_url'))

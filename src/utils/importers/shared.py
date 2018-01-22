@@ -1,13 +1,9 @@
 import os
-import urllib
 from datetime import datetime
 from urllib.parse import urlparse
 from uuid import uuid4
-import re
-from dateutil import parser as dateparser
 import requests
 from bs4 import BeautifulSoup
-import mimetypes
 
 from django.conf import settings
 from django.urls import reverse
@@ -118,7 +114,8 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
     if not url.startswith('http'):
         url = base + url
 
-    print('Fetching {0}'.format(url))
+    if not settings.SILENT_IMPORT_CACHE:
+        print('Fetching {0}'.format(url))
 
     # imitate headers from a browser to avoid being blocked on some installs
     if auth_file:
@@ -150,7 +147,8 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
         resp = bytes(resp, 'utf-8')
 
     with open(os.path.join(path, filename), 'wb') as f:
-        print("Writing file {0} as binary".format(os.path.join(path, filename)))
+        if not settings.SILENT_IMPORT_CACHE:
+            print("Writing file {0} as binary".format(os.path.join(path, filename)))
         f.write(resp)
 
     # return the filename and MIME type

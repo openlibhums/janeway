@@ -36,3 +36,7 @@ class Command(BaseCommand):
             if options.get("article_type") == 'in_review':
                 call_command('up_import_review_article', options.get("journal_code"), options.get('url'), article,
                              options.get('auth_file'))
+
+            if options.get('article_type') == 'in_editing':
+                call_command('up_import_editing_article', options.get("journal_code"), options.get('url'), article,
+                             options.get('auth_file'))

@@ -422,23 +422,53 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
             account.add_account_role(journal=journal, role_slug='reviewer')
 
 
+def process_resp(resp):
+    resp = resp.decode("utf-8")
+
+    known_strings = {
+        '\\u00a0': " ",
+        '\\u00e0': "à",
+        '\\u0085': "...",
+        '\\u0091': "'",
+        '\\u0092': "'",
+        '\\u0093': '\\"',
+        '\\u0094': '\\"',
+        '\\u0096': "-",
+        '\\u0097': "-",
+        '\\u00F6': 'ö',
+        '\\u009a': 'š',
+
+        '\\u00FC': 'ü',
+    }
+
+    for string, replacement in known_strings.items():
+        resp = resp.replace(string, replacement)
+    return resp
+
+
 def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
 
-    _dict = json.loads(resp.decode("utf-8"))
+    resp = process_resp(resp)
+
+    _dict = json.loads(resp)
 
     for article_dict in _dict:
         create_article_with_review_content(article_dict, journal, auth_file, base_url)
+        print('Importing {article}.'.format(article=article_dict.get('title')))
 
 
-def ojs_plugin_import_editing_article(url, journal, auth_file, base_url):
+def ojs_plugin_import_editing_articles(url, journal, auth_file, base_url):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
 
-    _dict = json.loads(resp.decode("utf-8"))
+    resp = process_resp(resp)
+
+    _dict = json.loads(resp)
 
     for article_dict in _dict:
+        print('Importing {article}.'.format(article=article_dict.get('title')))
         article = create_article_with_review_content(article_dict, journal, auth_file, base_url)
         complete_article_with_production_content(article, article_dict, journal, auth_file, base_url)
 
@@ -629,7 +659,157 @@ def get_ojs_file(base_url, url, article, auth_file, label):
     return file
 
 
+def determine_production_stage(article_dict):
+    stage = models.STAGE_AUTHOR_COPYEDITING
+
+    publication = True if article_dict.get('publication') and article_dict['publication'].get('date_published') else False
+    typesetting = True if article_dict.get('layout') and article_dict['layout'].get('galleys') else False
+    proofing = True if typesetting and article_dict.get('proofing') else False
+
+    if publication:
+        stage = models.STAGE_READY_FOR_PUBLICATION
+    elif typesetting and not proofing:
+        stage = models.STAGE_TYPESETTING
+    elif proofing:
+        stage = models.STAGE_PROOFING
+
+    return stage
+
+
+def attempt_to_make_timezone_aware(datetime):
+    if datetime:
+        dt = dateparser.parse(datetime)
+        return timezone.make_aware(dt)
+    else:
+        return None
+
+
+def import_copyeditors(article, article_dict, auth_file, base_url):
+    copyediting = article_dict.get('copyediting', None)
+
+    if copyediting:
+
+        initial = copyediting.get('initial')
+        author = copyediting.get('author')
+        final = copyediting.get('final')
+
+        from copyediting import models
+
+        if initial:
+            initial_copyeditor = core_models.Account.objects.get(email=initial.get('email'))
+            initial_decision = True if (initial.get('underway') or initial.get('complete')) else False
+
+            print('Adding copyeditor: {copyeditor}'.format(copyeditor=initial_copyeditor.full_name()))
+
+            assigned = attempt_to_make_timezone_aware(initial.get('notified'))
+            underway = attempt_to_make_timezone_aware(initial.get('underway'))
+            complete = attempt_to_make_timezone_aware(initial.get('complete'))
+
+            copyedit_assignment = models.CopyeditAssignment.objects.create(
+                article=article,
+                copyeditor=initial_copyeditor,
+                assigned=assigned,
+                notified=True,
+                decision=initial_decision,
+                date_decided=underway if underway else complete,
+                copyeditor_completed=complete,
+                copyedit_accepted=complete
+            )
+
+            if initial.get('file'):
+                file = get_ojs_file(base_url, initial.get('file'), article, auth_file, 'Copyedited File')
+                copyedit_assignment.copyeditor_files.add(file)
+
+            if initial and author.get('notified'):
+                print('Adding author review.')
+                assigned = attempt_to_make_timezone_aware(author.get('notified'))
+                complete = attempt_to_make_timezone_aware(author.get('complete'))
+
+                author_review = models.AuthorReview.objects.create(
+                    author=article.owner,
+                    assignment=copyedit_assignment,
+                    assigned=assigned,
+                    notified=True,
+                    decision='accept',
+                    date_decided=complete,
+                )
+
+                if author.get('file'):
+                    file = get_ojs_file(base_url, author.get('file'), article, auth_file, 'Author Review File')
+                    author_review.files_updated.add(file)
+
+            if final and initial_copyeditor and final.get('notified'):
+                print('Adding final copyedit assignment.')
+
+                assigned = attempt_to_make_timezone_aware(initial.get('notified'))
+                underway = attempt_to_make_timezone_aware(initial.get('underway'))
+                complete = attempt_to_make_timezone_aware(initial.get('complete'))
+
+                final_decision = True if underway or complete else False
+
+                final_assignment = models.CopyeditAssignment.objects.create(
+                    article=article,
+                    copyeditor=initial_copyeditor,
+                    assigned=assigned,
+                    notified=True,
+                    decision=final_decision,
+                    date_decided=underway if underway else complete,
+                    copyeditor_completed=complete,
+                    copyedit_accepted=complete,
+                )
+
+                if final.get('file'):
+                    file = get_ojs_file(base_url, final.get('file'), article, auth_file, 'Final File')
+                    final_assignment.copyeditor_files.add(file)
+
+def import_typesetters(article, article_dict, auth_file, base_url):
+    pass
+
+
+def import_proofing(article, article_dict, auth_file, base_url):
+    pass
+
+
+def import_galleys(article, article_dict, auth_file, base_url):
+    pass
+
+
+def process_for_copyediting(article, article_dict, auth_file, base_url):
+    import_copyeditors(article, article_dict, auth_file, base_url)
+
+
+def process_for_typesetting(article, article_dict, auth_file, base_url):
+    import_copyeditors(article, article_dict, auth_file, base_url)
+    import_typesetters(article, article_dict, auth_file, base_url)
+    import_galleys(article, article_dict, auth_file, base_url)
+
+
+def process_for_proofing(article, article_dict, auth_file, base_url):
+    import_copyeditors(article, article_dict, auth_file, base_url)
+    import_typesetters(article, article_dict, auth_file, base_url)
+    import_galleys(article, article_dict, auth_file, base_url)
+    import_proofing(article, article_dict, auth_file, base_url)
+
+
+def process_for_publication(article, article_dict, auth_file, base_url):
+    process_for_proofing(article, article_dict, auth_file, base_url)
+    # mark proofing complete
+
+
 def complete_article_with_production_content(article, article_dict, journal, auth_file, base_url):
     """
     Completes the import of journal article that are in editing
     """
+    article.stage = determine_production_stage(article_dict)
+    article.save()
+
+    print('Stage: {stage}'.format(stage=article.stage))
+
+    if article.stage == models.STAGE_READY_FOR_PUBLICATION:
+        process_for_publication(article, article_dict, auth_file, base_url)
+    elif article.stage == models.STAGE_TYPESETTING:
+        process_for_typesetting(article, article_dict, auth_file, base_url)
+    elif article.stage == models.STAGE_PROOFING:
+        process_for_proofing(article, article_dict, auth_file, base_url)
+    else:
+        process_for_copyediting(article, article_dict, auth_file, base_url)
