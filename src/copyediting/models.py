@@ -47,9 +47,6 @@ class CopyeditAssignment(models.Model):
 
     copyedit_acknowledged = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ('article', 'copyeditor')
-
     def __str__(self):
         return "Assignment of {0} to {1}".format(self.copyeditor.full_name(), self.article.title)
 
