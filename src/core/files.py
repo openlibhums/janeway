@@ -110,6 +110,8 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
 
     file_mime = guess_mime(filename)
 
+    mime = file_path_mime(os.path.join(folder_structure, filename))
+
     from core import models
     new_file = models.File(
         mime_type=file_mime,

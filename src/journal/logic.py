@@ -80,7 +80,7 @@ def list_galleys(article, galleys):
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type='application/xml')
+            xml_galley = galleys.get(file__mime_type__contains='/xml')
             return xml_galley.file_content()
         except core_models.Galley.DoesNotExist:
             pass

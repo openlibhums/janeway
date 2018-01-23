@@ -247,12 +247,6 @@ def article(request, identifier_type, identifier):
     """
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
-    """
-    logger.add_entry(types='Info',
-                     description='Article hit for identifier {0} of type {1}'.format(identifier, identifier_type),
-                     level='Info', actor=None, target=article_object)
-    """
-
     content = None
     galleys = article_object.galley_set.all()
 
