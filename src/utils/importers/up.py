@@ -765,16 +765,64 @@ def import_copyeditors(article, article_dict, auth_file, base_url):
                     final_assignment.copyeditor_files.add(file)
 
 def import_typesetters(article, article_dict, auth_file, base_url):
-    pass
+    layout = article_dict.get('layout')
+    task = None
+
+    if layout.get('email'):
+        typesetter = core_models.Account.objects.get(email=layout.get('email'))
+
+        print('Adding typesetter {name}'.format(name=typesetter.full_name()))
+
+        from production import models as production_models
+
+        assignment = production_models.ProductionAssignment.objects.create(
+            article=article,
+            assigned=timezone.now(),
+            notified=True
+        )
+
+        assigned = attempt_to_make_timezone_aware(layout.get('notified'))
+        accepted = attempt_to_make_timezone_aware(layout.get('underway'))
+        complete = attempt_to_make_timezone_aware(layout.get('complete'))
+
+        task = production_models.TypesetTask.objects.create(
+            assignment=assignment,
+            typesetter=typesetter,
+            assigned=assigned,
+            accepted=accepted,
+            completed=complete,
+        )
+
+
+    galleys = import_galleys(article, layout, auth_file, base_url)
+
+    if task and galleys:
+        for galley in galleys:
+            task.galleys_loaded.add(galley.file)
 
 
 def import_proofing(article, article_dict, auth_file, base_url):
     pass
 
 
-def import_galleys(article, article_dict, auth_file, base_url):
-    pass
+def import_galleys(article, layout_dict, auth_file, base_url):
+    galleys = list()
 
+    if layout_dict.get('galleys'):
+
+        for galley in layout_dict.get('galleys'):
+            print('Adding Galley with label {label}'.format(label=galley.get('label')))
+            file = get_ojs_file(base_url, galley.get('file'), article, auth_file, galley.get('label'))
+
+            new_galley = core_models.Galley.objects.create(
+                article=article,
+                file=file,
+                label=galley.get('label'),
+            )
+
+            galleys.append(new_galley)
+
+    return galleys
 
 def process_for_copyediting(article, article_dict, auth_file, base_url):
     import_copyeditors(article, article_dict, auth_file, base_url)
@@ -783,8 +831,6 @@ def process_for_copyediting(article, article_dict, auth_file, base_url):
 def process_for_typesetting(article, article_dict, auth_file, base_url):
     import_copyeditors(article, article_dict, auth_file, base_url)
     import_typesetters(article, article_dict, auth_file, base_url)
-    import_galleys(article, article_dict, auth_file, base_url)
-
 
 def process_for_proofing(article, article_dict, auth_file, base_url):
     import_copyeditors(article, article_dict, auth_file, base_url)
@@ -811,7 +857,5 @@ def complete_article_with_production_content(article, article_dict, journal, aut
         process_for_publication(article, article_dict, auth_file, base_url)
     elif article.stage == models.STAGE_TYPESETTING:
         process_for_typesetting(article, article_dict, auth_file, base_url)
-    elif article.stage == models.STAGE_PROOFING:
-        process_for_proofing(article, article_dict, auth_file, base_url)
     else:
         process_for_copyediting(article, article_dict, auth_file, base_url)
