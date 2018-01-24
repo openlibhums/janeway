@@ -168,7 +168,7 @@
                                 <h2>{% trans "Abstract" %}</h2>
                                 <p>{{ article.abstract | safe }}</p>
                             {% endif %}
-                            {% if article.keywords.all and article.keywords.all|length > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            {% if article.keywords.all %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             <p><strong>{% trans "How to Cite" %}:</strong>
                             {% include "elements/journal/how_to_cite.html" with article=article %}
                             {% if article.publisher_notes.all %}

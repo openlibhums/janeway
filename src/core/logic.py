@@ -412,10 +412,13 @@ def latest_articles(carousel, object_type):
     if object_type == 'journal':
         carousel_objects = submission_models.Article.objects.filter(
             journal=carousel.journal,
-            date_published__isnull=False
+            date_published__lte=timezone.now(),
+            stage=submission_models.STAGE_PUBLISHED,
         ).order_by("-date_published")
     else:
-        carousel_objects = submission_models.Article.objects.all().order_by("-date_published")
+        carousel_objects = submission_models.Article.objects.filter(
+            date_published__lte=timezone.now(),
+            stage=submission_models.STAGE_PUBLISHED, ).order_by("-date_published")
 
     return carousel_objects
 
