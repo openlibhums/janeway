@@ -107,10 +107,10 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
 
     if save:
         save_file_to_disk(file_to_handle, filename, folder_structure)
+        file_mime = file_path_mime(os.path.join(folder_structure, filename))
+    else:
+        file_mime = guess_mime(filename)
 
-    file_mime = guess_mime(filename)
-
-    mime = file_path_mime(os.path.join(folder_structure, filename))
 
     from core import models
     new_file = models.File(
