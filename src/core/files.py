@@ -11,8 +11,6 @@ from bs4 import BeautifulSoup
 from lxml import etree
 import re
 import shutil
-import magic
-import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -617,13 +615,3 @@ def serve_temp_file(file_path, file_name):
 def unlink_temp_file(file_path):
     if os.path.isfile(file_path):
         os.unlink(file_path)
-
-
-def create_temp_file(content, filename):
-    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
-    filepath = os.path.join(tempfile.gettempdir(), filename)
-
-    with open(filepath, 'w') as temp_file:
-        temp_file.write(content)
-
-    return filepath
