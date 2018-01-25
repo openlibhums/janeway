@@ -228,15 +228,15 @@
                     <table class="sidebar-table">
                         <tr>
                             <th>Submitted</th>
-                            <td>{{ article.date_submitted }}</td>
+                            <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                         </tr>
                         <tr>
                             <th>Accepted</th>
-                            <td>{{ article.date_accepted }}</td>
+                            <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                         </tr>
                         <tr>
                             <th>Published</th>
-                            <td>{{ article.date_published }}</td>
+                            <td>{{ article.date_published|date:"Y-m-d" }}</td>
                         </tr>
                     </table>
 
