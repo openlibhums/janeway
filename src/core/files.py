@@ -12,6 +12,7 @@ from lxml import etree
 import re
 import shutil
 import magic
+import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -43,6 +44,16 @@ IMAGE_MIMETYPES = (
 def mkdirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def create_temp_file(content, filename):
+    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
+    filepath = os.path.join(tempfile.gettempdir(), filename)
+
+    with open(filepath, 'w') as temp_file:
+        temp_file.write(content)
+
+    return filepath
 
 
 def copy_local_file_to_article(file_to_handle, file_name, article, owner, label=None, description=None,
