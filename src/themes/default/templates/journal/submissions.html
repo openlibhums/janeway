@@ -35,6 +35,9 @@
                 <h5>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h5>
                 {{ journal_settings.general.focus_and_scope|safe }}
                 <hr />
+                <h5>{% trans 'Peer Review' %}</h5>
+                {{ journal_settings.general.peer_review_info|safe }}
+                <hr/>
                 <h5>{% trans 'Submission Checklist' %}</h5>
                 {{ journal_settings.general.submission_checklist|safe }}
                 <hr />
@@ -48,9 +51,6 @@
                 <h5>{% trans 'Publication Fees' %}</h5>
                 {{ journal_settings.general.publication_fees|safe }}
                 <hr />
-                <h5>{% trans 'Peer Review' %}</h5>
-                {{ journal_settings.general.peer_review_info|safe }}
-                <hr/>
                 <h5>{% trans 'Publication Cycle' %}</h5>
                 {{ journal_settings.general.publication_cycle|safe }}
                 <hr/>
