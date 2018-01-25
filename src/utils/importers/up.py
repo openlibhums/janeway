@@ -406,6 +406,9 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
         if not profile_dict.get('Salutation') in dict(core_models.SALUTATION_CHOICES):
             profile_dict['Salutation'] = ''
 
+        if profile_dict.get('Middle Name', None) == '-':
+            profile_dict['Middle Name'] = ''
+
         account = core_models.Account.objects.create(email=profile_dict['email'],
                                                      username=profile_dict['Username'],
                                                      institution=profile_dict['Affiliation'],
