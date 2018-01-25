@@ -4,13 +4,17 @@
 {% load i18n %}
 {% load hooks %}
 
-<nav class=" red lighten-2" role="navigation">
+<nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
         <a id="logo-container" href="#" class="brand-logo">
             {% if request.journal %}
-                {{ request.journal.name }}
+                {% if request.journal.header_image %}
+                    <img src="{{ request.journal.header_image.url }}" class="header-override-image">
+                {% else %}
+                    <img src="{% static "common/img/sample/janeway.png" %}">
+                {% endif %}
             {% else %}
-                {{ request.press.name }}
+                <a href="/">{% svg request.press_cover %}</a>
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
@@ -49,7 +53,7 @@
         </ul>
 
         <ul class="side-nav" id="nav-mobile">
-             {% if request.journal.nav_home %}
+            {% if request.journal.nav_home %}
                 <li><a href="/">Home</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
