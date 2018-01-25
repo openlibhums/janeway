@@ -394,9 +394,9 @@ class Issue(models.Model):
 
         # now add any remaining articles
         for article_object in articles:
-            if article_object.section.issue_display() not in structure:
+            if article_object.section and article_object.section.issue_display() not in structure:
                 structure[article_object.section.issue_display()] = []
-            if article_object not in structure[article_object.section.issue_display()]:
+            if article_object.section and article_object not in structure[article_object.section.issue_display()]:
                 structure[article_object.section.issue_display()].append(article_object)
 
         return structure
