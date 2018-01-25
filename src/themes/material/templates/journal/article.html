@@ -80,35 +80,28 @@
                     {% if article.large_image_file.id %}
                         <img class="orbit-image"
                              src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                             alt="{{ article.title | urlencode }}">
+                             alt="{{ article.title|urlencode }}">
                     {% elif journal.default_large_image %}
                         <img class="orbit-image"
                              src="{{ journal.default_large_image.url }}"
-                             alt="{{ article.title | urlencode }}">
+                             alt="{{ article.title|urlencode }}">
                     {% else %}
                         <img class="orbit-image"
                              src=""
-                             alt="{{ article.title | urlencode }}">
+                             alt="{{ article.title|urlencode }}">
                     {% endif %}
-                    <h5><small>{{ article.section.name }}</small><br/>{{ article.title|safe }}<br/>
-                        {% for author in article.frozen_authors.all %}
-                            <span><small>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                           itemtype="http://schema.org/Person"
-                                                                                           itemprop="author"
-                                                                                           href="#"
-                                                                                           {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
-                                            {% if author.author.enable_public_profile %}<a class="profilelink"
-                                                                                           href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
-                                                {{ author.full_name }}{% endif %}
-                                {% if author.institution %}
-                                    <span itemprop="worksFor" itemscope
-                                          itemtype="http://schema.org/CollegeOrUniversity"><span
-                                            itemprop="name">({{ author.institution }})</h5></h5>{% endif %}
-                                {% if not '@journal.org' in author.author.email %}
-                                    <a itemprop="email" href="mailto:{{ author.author.email }}"
-                                       class="fa fa-envelope email-link"></a>{% endif %}</h5></h5>
-                        {% endfor %}</small>
-                    </h5>
+
+
+                    <span class="card-title">
+                        <div class="carousel-text-wrapper">
+                        <small>
+                            {{ article.section.name }}
+                        </small>
+                        <br/>
+                        {{ article.title|safe }}
+                            </div>
+                    </span>
+
                 </div>
             </div>
         </div>
@@ -190,6 +183,28 @@
         <div class="col m4">
             <div class="card">
                 <div class="card-content">
+                    <h5>
+                        Authors
+                    </h5>
+
+                    {% for author in article.frozen_authors.all %}
+                        <small>
+                        {% if not forloop.first %}<br /> {% endif %}
+                        {{ author.full_name }}
+                        {% if author.institution %}
+                            <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+                            <span itemprop="name">({{ author.institution }})
+                        {% endif %}
+                        {% if not '@journal.org' in author.author.email %}
+                                    <a itemprop="email" href="mailto:{{ author.author.email }}"
+                                       class="fa fa-envelope email-link"></a>{% endif %}
+                        </small>
+                    {% endfor %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
                     <h5>
                         {% trans "Download" %}
                     </h5>
