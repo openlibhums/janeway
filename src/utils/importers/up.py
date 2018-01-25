@@ -137,11 +137,23 @@ def import_article(journal, user, url, thumb_path=None):
         except BaseException:
             print("Unable to import thumbnail. Recoverable error.")
 
-    # try to do a license lookup
+    # lookup status
+    stats = soup_object.findAll('div', {'class': 'stat-number'})
 
     # save the article to the database
     new_article.save()
 
+    try:
+        if stats:
+            from metrics import models as metrics_models
+            views = stats[0].contents[0]
+            downloads = stats[1].contents[0]
+
+            metrics_models.HistoricArticleAccess.objects.create(article=new_article,
+                                                                views=views,
+                                                                downloads=downloads)
+    except:
+        pass
 
 def import_oai(journal, user, soup, domain):
     """ Initiate an OAI import on a Ubiquity Press journal.
