@@ -496,6 +496,18 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
 
     article.save()
 
+    # Check for editors and assign them as section editors.
+    editors = article_dict.get('editors')
+
+    for editor in editors:
+        try:
+            account = core_models.Account.objects.get(email=editor)
+            account.add_account_role('section-editor', journal)
+            review_models.EditorAssignment.objects.create(article=article, editor=account, editor_type='section-editor')
+            print('Editor added to article')
+        except:
+            print('Editor account was not found.')
+
     # Add a new review round
     round = review_models.ReviewRound.objects.create(article=article, round_number=1)
 
