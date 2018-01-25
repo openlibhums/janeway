@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 import re
 import shutil
+import magic
 
 from django.conf import settings
 from django.contrib import messages
