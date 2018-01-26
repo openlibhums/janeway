@@ -5,7 +5,7 @@
 
 {% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
 
-{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
@@ -119,15 +119,14 @@
                         <div class="divider"></div>
                     </div>
 
-                    {% if article.keywords.all %}
+                    {% if article.keywords.all and article.keywords.all|length > 0 %}
                         <h5>{% trans "Keywords" %}</h5>
                         <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
                     {% endif %}
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
 
                     <h5>{% trans "How to Cite" %}</h5>
                     {% include "elements/journal/how_to_cite.html" with article=article %}
@@ -230,10 +229,12 @@
                             <th>Submitted</th>
                             <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                         </tr>
+                        {% if article.date_accepted %}
                         <tr>
                             <th>Accepted</th>
                             <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                         </tr>
+                        {% endif %}
                         <tr>
                             <th>Published</th>
                             <td>{{ article.date_published|date:"Y-m-d" }}</td>

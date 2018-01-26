@@ -649,7 +649,7 @@ def fetch_email_from_href(a_soup):
     email = re.search(email_regex, href)
 
     if email:
-	return email.group(1)
+        return email.group(1)
     else:
-	return None
+        return None
 
