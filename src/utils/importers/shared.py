@@ -4,6 +4,8 @@ from urllib.parse import urlparse
 from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
+import urllib
+import re
 
 from django.conf import settings
 from django.urls import reverse
@@ -637,3 +639,17 @@ def get_user_profile(soup):
         authors.append(author_dict)
 
     return authors
+
+
+def fetch_email_from_href(a_soup):
+    href = urllib.parse.unquote(a_soup.attrs['href'])
+
+    email_regex = r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)"
+
+    email = re.search(email_regex, href)
+
+    if email:
+	return email.group(1)
+    else:
+	return None
+

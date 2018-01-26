@@ -272,8 +272,8 @@ def parse_backend_user_list(url, auth_file, auth_url, regex):
 def get_user_list(url, auth_file):
     auth_url = url
 
-    url += '/jms/manager/people/all'
-    regex = '\/jms\/manager\/userProfile\/(\d+)'
+    url += '/manager/people/all'
+    regex = '\/manager\/userProfile\/(\d+)'
 
     matches = parse_backend_user_list(url, auth_file, auth_url, regex)
 

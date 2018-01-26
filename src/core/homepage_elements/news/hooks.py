@@ -22,7 +22,7 @@ def yield_homepage_element_context(request, homepage_elements):
             (Q(start_display__lte=timezone.now()) | Q(start_display=None)) &
             (Q(end_display__gte=timezone.now()) | Q(end_display=None))
         ).order_by('-posted')[:number_of_articles]
-        
+
         return {'news_items': news_items}
     else:
         return {}
