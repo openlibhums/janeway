@@ -1,10 +1,14 @@
 {% extends "core/base.html" %}
 {% load staticfiles %}
 {% load i18n %}
+{% load roles %}
 
 {% block title %}Issues{% endblock %}
 
 {% block body %}
+    {% if request.user %}
+        {% user_has_role request 'editor' as user_is_editor %}
+    {% endif %}
     <div class="row">
         <div class="col m12">
             <h3>Issues</h3>
@@ -21,7 +25,7 @@
                             <p>{% trans "Volume" %} {{ issue.volume }} {% trans "Issue" %} {{ issue.issue }} <br /> {{ issue.date.year }} <br /> {{ issue.articles.all.count }} {% trans "items" %}<br/>{{ issue.issue_title }}&nbsp;</p>
                         </div>
                         <div class="card-action">
-                            <a href="{% url 'journal_issue' issue.id %}">View Issue</a>
+                            <a href="{% url 'journal_issue' issue.id %}">View Issue</a> {% if request.user and request.user.is_staff or user_is_editor %}<a href="{% url 'manage_issues_id' issue.pk %}"><i class="fa fa-edit">&nbsp;</i></a>{% endif %}
                         </div>
                     </div>
                 </div>
