@@ -2402,11 +2402,11 @@
             <xsl:value-of select="surname"/>
             <xsl:text>, </xsl:text>
           </xsl:when>
-		<xsl:otherwise>
+        <xsl:otherwise>
         <xsl:value-of select="surname"/>
         <xsl:text>, </xsl:text>
         <xsl:value-of select="given-names"/>
-		<xsl:choose>
+        <xsl:choose>
           <xsl:when test="not(following-sibling::name)">
             <xsl:text> </xsl:text>
           </xsl:when>
@@ -2420,18 +2420,18 @@
         <xsl:choose>
           <xsl:when test="not(following-sibling::name)">
             <xsl:text> (ed</xsl:text>
-		    <xsl:if test="following-sibling::name | preceding-sibling::name">s</xsl:if>
+            <xsl:if test="following-sibling::name | preceding-sibling::name">s</xsl:if>
             <xsl:text>.), </xsl:text>
           </xsl:when>
           <xsl:otherwise>
-			<xsl:choose>
-			<xsl:when test="count(preceding-sibling::name) = 1">
-			<xsl:text> and </xsl:text>
-			</xsl:when>
-			<xsl:otherwise>
+            <xsl:choose>
+            <xsl:when test="count(preceding-sibling::name) = 1">
+            <xsl:text> and </xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
             <xsl:text>, </xsl:text>
-			</xsl:otherwise>
-			</xsl:choose>
+            </xsl:otherwise>
+            </xsl:choose>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -2439,7 +2439,7 @@
         <xsl:value-of select="surname"/>
         <xsl:text>, </xsl:text>
         <xsl:value-of select="given-names"/>
-		<xsl:choose>
+        <xsl:choose>
           <xsl:when test="not(following-sibling::name)">
             <xsl:text> </xsl:text>
           </xsl:when>
@@ -2507,10 +2507,10 @@
   </xsl:template>
 
   <xsl:template match="publisher-loc" mode="none">
-	<xsl:if test="not(preceding-sibling::publisher-name)">
+    <xsl:if test="not(preceding-sibling::publisher-name)">
     <xsl:apply-templates/>
     <xsl:text>: </xsl:text>
-	</xsl:if>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="conf-name" mode="none">
@@ -2529,16 +2529,16 @@
 
 
   <xsl:template match="publisher-name" mode="none">
-	<xsl:choose>
-	<xsl:when test="not(following-sibling::publisher-loc)">
-	    <xsl:apply-templates/>
-	</xsl:when>
-	<xsl:otherwise>
-		<xsl:value-of select="following-sibling::publisher-loc"/>
-		<xsl:text>: </xsl:text>
-	    <xsl:apply-templates/>
-	</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+    <xsl:when test="not(following-sibling::publisher-loc)">
+        <xsl:apply-templates/>
+    </xsl:when>
+    <xsl:otherwise>
+        <xsl:value-of select="following-sibling::publisher-loc"/>
+        <xsl:text>: </xsl:text>
+        <xsl:apply-templates/>
+    </xsl:otherwise>
+    </xsl:choose>
     <xsl:choose>
       <xsl:when test="following-sibling::fpage">
         <xsl:text>, </xsl:text>
@@ -2568,11 +2568,11 @@
     <xsl:choose>
       <xsl:when test="$gnms=$GNMS">
         <xsl:apply-templates/>
-			<xsl:if test="not(preceding-sibling::person-group)">
-			<xsl:text>(</xsl:text>
-		    <xsl:value-of select="..//year"/>
-			<xsl:text>).</xsl:text>
-			</xsl:if>
+            <xsl:if test="not(preceding-sibling::person-group)">
+            <xsl:text>(</xsl:text>
+            <xsl:value-of select="..//year"/>
+            <xsl:text>).</xsl:text>
+            </xsl:if>
       </xsl:when>
 
       <xsl:otherwise>
@@ -2581,21 +2581,21 @@
             <strong>
               <xsl:apply-templates select="node()" mode="none"/>
             </strong>
-			<xsl:if test="not(preceding-sibling::person-group)">
-			<xsl:text>. (</xsl:text>
-		    <xsl:value-of select="..//year"/>
-			<xsl:text>).</xsl:text>
-			</xsl:if>
+            <xsl:if test="not(preceding-sibling::person-group)">
+            <xsl:text>. (</xsl:text>
+            <xsl:value-of select="..//year"/>
+            <xsl:text>).</xsl:text>
+            </xsl:if>
           </xsl:when>
           <xsl:when test="self::person-group/@person-group-type='editor'">
             <strong>
               <xsl:apply-templates select="node()" mode="none"/>
             </strong>
-			<xsl:if test="not(preceding-sibling::person-group)">
-			<xsl:text>. (</xsl:text>
-		    <xsl:value-of select="..//year"/>
-			<xsl:text>).</xsl:text>
-			</xsl:if>
+            <xsl:if test="not(preceding-sibling::person-group)">
+            <xsl:text>. (</xsl:text>
+            <xsl:value-of select="..//year"/>
+            <xsl:text>).</xsl:text>
+            </xsl:if>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="node()" mode="none"/>
