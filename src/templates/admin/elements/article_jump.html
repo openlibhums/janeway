@@ -7,6 +7,6 @@
       {% if article.stage == 'Proofing' or article.stage == 'pre_publication' %}<li><a href="{% url 'proofing_article' article.pk %}">Proofing</a></li>{% endif %}
       {% if article.stage == 'pre_publication' %}<li><a href="{% url 'publish_article' article.pk %}">Pre Publication</a></li>{% endif %}
       <li><a href="{% url 'manage_article_log' article.pk %}">Log</a></li>
-      {% if article.is_published %}<li><a href="">Live Article</a></li>{% endif %}
+      {% if article.is_published %}<li><a href="{{ article.url }}">Live Article</a></li>{% endif %}
   </ul>
 </div>
