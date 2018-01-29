@@ -1064,6 +1064,7 @@ def article_image_edit(request, article_pk):
             article_meta_image_form.save()
 
     if request.POST:
+        flush_cache(request)
         return redirect(reverse('core_article_image_edit', kwargs={'article_pk': article.pk}))
 
     template = 'core/manager/images/article_image.html'
