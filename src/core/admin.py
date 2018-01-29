@@ -58,7 +58,9 @@ class HomepageElementAdmin(admin.ModelAdmin):
 
 class FileAdmin(admin.ModelAdmin):
     """displays files"""
-    list_display = ('id', 'original_filename', 'uuid_filename', 'mime_type')
+    search_fields = ('original_filename', 'uuid_filename')
+    list_display = ('id', 'original_filename', 'uuid_filename', 'mime_type', 'article')
+    list_filter = ('mime_type',)
 
 
 admin_list = [

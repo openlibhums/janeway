@@ -39,9 +39,17 @@ def home(request):
         journal=request.journal
     )
 
+    filter = request.GET.get('filter', None)
+    if filter == 'me':
+        assignments = models.EditorAssignment.objects.filter(article__journal=request.journal,
+                                                             editor=request.user)
+        assignment_article_pks = [assignment.article.pk for assignment in assignments]
+        articles = articles.filter(pk__in=assignment_article_pks)
+
     template = 'review/home.html'
     context = {
         'articles': articles,
+        'filter': filter,
     }
 
     return render(request, template, context)

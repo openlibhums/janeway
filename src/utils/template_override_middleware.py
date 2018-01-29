@@ -37,8 +37,8 @@ class ThemeEngineMiddleware(object):
 class Loader(BaseLoader):
 
     @function_cache.cache(120)
-    def query_theme_dirs(self):
-        return setting_handler.get_setting('general', 'journal_theme', _local.request.journal).value
+    def query_theme_dirs(self, journal):
+        return setting_handler.get_setting('general', 'journal_theme', journal).value
 
     def get_theme_dirs(self):
 
@@ -47,7 +47,7 @@ class Loader(BaseLoader):
             if _local.request.journal:
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
-                    theme_setting = self.query_theme_dirs()
+                    theme_setting = self.query_theme_dirs(_local.request.journal)
                 except BaseException:
                     theme_setting = 'default'
             else:

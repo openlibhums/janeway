@@ -5,7 +5,7 @@
 
 {% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
 
-{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
@@ -80,35 +80,28 @@
                     {% if article.large_image_file.id %}
                         <img class="orbit-image"
                              src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                             alt="{{ article.title | urlencode }}">
+                             alt="{{ article.title|urlencode }}">
                     {% elif journal.default_large_image %}
                         <img class="orbit-image"
                              src="{{ journal.default_large_image.url }}"
-                             alt="{{ article.title | urlencode }}">
+                             alt="{{ article.title|urlencode }}">
                     {% else %}
                         <img class="orbit-image"
                              src=""
-                             alt="{{ article.title | urlencode }}">
+                             alt="{{ article.title|urlencode }}">
                     {% endif %}
-                    <h5><small>{{ article.section.name }}</small><br/>{{ article.title|safe }}<br/>
-                        {% for author in article.frozen_authors.all %}
-                            <span><small>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                           itemtype="http://schema.org/Person"
-                                                                                           itemprop="author"
-                                                                                           href="#"
-                                                                                           {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
-                                            {% if author.author.enable_public_profile %}<a class="profilelink"
-                                                                                           href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
-                                                {{ author.full_name }}{% endif %}
-                                {% if author.institution %}
-                                    <span itemprop="worksFor" itemscope
-                                          itemtype="http://schema.org/CollegeOrUniversity"><span
-                                            itemprop="name">({{ author.institution }})</h5></h5>{% endif %}
-                                {% if not '@journal.org' in author.author.email %}
-                                    <a itemprop="email" href="mailto:{{ author.author.email }}"
-                                       class="fa fa-envelope email-link"></a>{% endif %}</h5></h5>
-                        {% endfor %}</small>
-                    </h5>
+
+
+                    <span class="card-title">
+                        <div class="carousel-text-wrapper">
+                        <small>
+                            {{ article.section.name }}
+                        </small>
+                        <br/>
+                        {{ article.title|safe }}
+                            </div>
+                    </span>
+
                 </div>
             </div>
         </div>
@@ -126,15 +119,14 @@
                         <div class="divider"></div>
                     </div>
 
-                    {% if article.keywords.all %}
+                    {% if article.keywords.all and article.keywords.all|length > 0 %}
                         <h5>{% trans "Keywords" %}</h5>
                         <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
                     {% endif %}
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
 
                     <h5>{% trans "How to Cite" %}</h5>
                     {% include "elements/journal/how_to_cite.html" with article=article %}
@@ -191,6 +183,28 @@
             <div class="card">
                 <div class="card-content">
                     <h5>
+                        Authors
+                    </h5>
+
+                    {% for author in article.frozen_authors.all %}
+                        <small>
+                        {% if not forloop.first %}<br /> {% endif %}
+                        {{ author.full_name }}
+                        {% if author.institution %}
+                            <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+                            <span itemprop="name">({{ author.institution }})
+                        {% endif %}
+                        {% if not '@journal.org' in author.author.email %}
+                                    <a itemprop="email" href="mailto:{{ author.author.email }}"
+                                       class="fa fa-envelope email-link"></a>{% endif %}
+                        </small>
+                    {% endfor %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h5>
                         {% trans "Download" %}
                     </h5>
 
@@ -213,15 +227,17 @@
                     <table class="sidebar-table">
                         <tr>
                             <th>Submitted</th>
-                            <td>{{ article.date_submitted }}</td>
+                            <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                         </tr>
+                        {% if article.date_accepted %}
                         <tr>
                             <th>Accepted</th>
-                            <td>{{ article.date_accepted }}</td>
+                            <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                         </tr>
+                        {% endif %}
                         <tr>
                             <th>Published</th>
-                            <td>{{ article.date_published }}</td>
+                            <td>{{ article.date_published|date:"Y-m-d" }}</td>
                         </tr>
                     </table>
 

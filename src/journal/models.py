@@ -57,7 +57,8 @@ def issue_large_image_path(instance, filename):
 class Journal(models.Model):
     code = models.CharField(max_length=10)
     domain = models.CharField(max_length=255, default='www.example.com', unique=True)
-    current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True)
+    current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
+                                      on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
     thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='thumbnail_image',
                                         on_delete=models.SET_NULL)
@@ -394,9 +395,9 @@ class Issue(models.Model):
 
         # now add any remaining articles
         for article_object in articles:
-            if article_object.section.issue_display() not in structure:
+            if article_object.section and article_object.section.issue_display() not in structure:
                 structure[article_object.section.issue_display()] = []
-            if article_object not in structure[article_object.section.issue_display()]:
+            if article_object.section and article_object not in structure[article_object.section.issue_display()]:
                 structure[article_object.section.issue_display()].append(article_object)
 
         return structure

@@ -12,15 +12,17 @@
     <div class="box">
         <div class="title-area">
             <h2>Articles in Review</h2>
+            {% if filter == 'me' %}<a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>{% else %}<a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>{% endif %}
         </div>
         <div class="content">
-            <table class="table table-bordered" id="unassigned">
+            <table class="small" id="unassigned">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Title</th>
+                        <th style="width: 25%">Title</th>
                         <th>Submitted</th>
                         <th>Main Author</th>
+                        <th>Editors</th>
                         <th>Section</th>
                         <th>No. Active Reviews</th>
                         <th>No. Complete Reviews</th>
@@ -34,6 +36,7 @@
                         <td>{{ article.title }}</td>
                         <td>{{ article.date_submitted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>
+                        <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% endfor %}</td>
                         <td>{{ article.section.name }}</td>
                         <td>{{ article.active_reviews|length }}</td>
                         <td>{{ article.completed_reviews|length }}</td>

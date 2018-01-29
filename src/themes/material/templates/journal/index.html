@@ -5,6 +5,7 @@
 
     {% for element in homepage_elements %}
         {% include element.template_path %}
+        {{ element.template_path }}
     {% endfor %}
 
 {% endblock body %}
@@ -14,5 +15,10 @@
         $(document).ready(function () {
             $('.carousel.carousel-slider').carousel({fullWidth: true});
         })
+        $('.carousel').carousel();
+        setInterval(function () {
+            $('.carousel').carousel('next');
+        }, 8000);
     </script>
+
 {% endblock %}

@@ -137,11 +137,23 @@ def import_article(journal, user, url, thumb_path=None):
         except BaseException:
             print("Unable to import thumbnail. Recoverable error.")
 
-    # try to do a license lookup
+    # lookup status
+    stats = soup_object.findAll('div', {'class': 'stat-number'})
 
     # save the article to the database
     new_article.save()
 
+    try:
+        if stats:
+            from metrics import models as metrics_models
+            views = stats[0].contents[0]
+            downloads = stats[1].contents[0]
+
+            metrics_models.HistoricArticleAccess.objects.create(article=new_article,
+                                                                views=views,
+                                                                downloads=downloads)
+    except:
+        pass
 
 def import_oai(journal, user, soup, domain):
     """ Initiate an OAI import on a Ubiquity Press journal.
@@ -260,8 +272,8 @@ def parse_backend_user_list(url, auth_file, auth_url, regex):
 def get_user_list(url, auth_file):
     auth_url = url
 
-    url += '/jms/manager/people/all'
-    regex = '\/jms\/manager\/userProfile\/(\d+)'
+    url += '/manager/people/all'
+    regex = '\/manager\/userProfile\/(\d+)'
 
     matches = parse_backend_user_list(url, auth_file, auth_url, regex)
 
@@ -297,84 +309,88 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue.issue))
-        img_url = base_url + soup.find(src=pattern)['src']
-        print("Fetching {0}".format(img_url))
 
-        resp, mime = utils_models.ImportCacheEntry.fetch(url=img_url)
+        img_url_suffix = soup.find(src=pattern)
 
-        path = os.path.join(core.settings.BASE_DIR, 'files', 'journals', str(journal.id))
+        if img_url_suffix:
+            img_url = base_url + img_url_suffix.get('src')
+            print("Fetching {0}".format(img_url))
 
-        os.makedirs(path, exist_ok=True)
+            resp, mime = utils_models.ImportCacheEntry.fetch(url=img_url)
 
-        path = os.path.join(path, 'volume{0}_issue_{0}.graphic'.format(issue.volume, issue.issue))
+            path = os.path.join(core.settings.BASE_DIR, 'files', 'journals', str(journal.id))
 
-        with open(path, 'wb') as f:
-            f.write(resp)
+            os.makedirs(path, exist_ok=True)
 
-        with open(path, 'rb') as f:
-            issue.cover_image.save(path, File(f))
+            path = os.path.join(path, 'volume{0}_issue_{0}.graphic'.format(issue.volume, issue.issue))
 
-        sequence_pattern = re.compile(r'.*?(\d+)\/volume\/{0}\/issue\/{1}.*'.format(issue.volume, issue.issue))
+            with open(path, 'wb') as f:
+                f.write(resp)
 
-        issue.order = int(sequence_pattern.match(img_url).group(1))
+            with open(path, 'rb') as f:
+                issue.cover_image.save(path, File(f))
 
-        print("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
+            sequence_pattern = re.compile(r'.*?(\d+)\/volume\/{0}\/issue\/{1}.*'.format(issue.volume, issue.issue))
 
-        print("Extracting section orders within the issue...")
+            issue.order = int(sequence_pattern.match(img_url).group(1))
 
-        new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue.issue)
-        resp, mime = utils_models.ImportCacheEntry.fetch(url=base_url + new_url)
+            print("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
 
-        soup_issue = BeautifulSoup(resp, 'lxml')
+            print("Extracting section orders within the issue...")
 
-        sections_to_order = soup_issue.find_all(name='h2', attrs={'class': 'main-color-text'})
+            new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue.issue)
+            resp, mime = utils_models.ImportCacheEntry.fetch(url=base_url + new_url)
 
-        section_order = 0
+            soup_issue = BeautifulSoup(resp, 'lxml')
 
-        # delete existing order models for sections for this issue
-        journal_models.SectionOrdering.objects.filter(issue=issue).delete()
+            sections_to_order = soup_issue.find_all(name='h2', attrs={'class': 'main-color-text'})
 
-        for section in sections_to_order:
-            print('[{0}] {1}'.format(section_order, section.getText()))
-            order_section, c = models.Section.objects.language('en').get_or_create(
-                name=section.getText().strip(),
-                journal=journal)
-            journal_models.SectionOrdering.objects.create(issue=issue,
-                                                          section=order_section,
-                                                          order=section_order).save()
-            section_order += 1
+            section_order = 0
 
-        print("Extracting article orders within the issue...")
+            # delete existing order models for sections for this issue
+            journal_models.SectionOrdering.objects.filter(issue=issue).delete()
 
-        # delete existing order models for issue
-        journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
+            for section in sections_to_order:
+                print('[{0}] {1}'.format(section_order, section.getText()))
+                order_section, c = models.Section.objects.language('en').get_or_create(
+                    name=section.getText().strip(),
+                    journal=journal)
+                journal_models.SectionOrdering.objects.create(issue=issue,
+                                                              section=order_section,
+                                                              order=section_order).save()
+                section_order += 1
 
-        pattern = re.compile(r'\/articles\/(.+?)/(.+?)/')
-        articles = soup_issue.find_all(href=pattern)
+            print("Extracting article orders within the issue...")
 
-        article_order = 0
+            # delete existing order models for issue
+            journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
 
-        processed = []
+            pattern = re.compile(r'\/articles\/(.+?)/(.+?)/')
+            articles = soup_issue.find_all(href=pattern)
 
-        for article_link in articles:
-            # parse the URL into a DOI and prefix
-            match = pattern.match(article_link['href'])
-            prefix = match.group(1)
-            doi = match.group(2)
+            article_order = 0
 
-            # get a proper article object
-            article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
+            processed = []
 
-            if article and article not in processed:
-                journal_models.ArticleOrdering.objects.create(issue=issue,
-                                                              article=article,
-                                                              order=article_order)
+            for article_link in articles:
+                # parse the URL into a DOI and prefix
+                match = pattern.match(article_link['href'])
+                prefix = match.group(1)
+                doi = match.group(2)
 
-                article_order += 1
+                # get a proper article object
+                article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
 
-            processed.append(article)
+                if article and article not in processed:
+                    journal_models.ArticleOrdering.objects.create(issue=issue,
+                                                                  article=article,
+                                                                  order=article_order)
 
-        issue.save()
+                    article_order += 1
+
+                processed.append(article)
+
+            issue.save()
 
 
 def import_jms_user(url, journal, auth_file, base_url, user_id):
@@ -405,6 +421,9 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
 
         if not profile_dict.get('Salutation') in dict(core_models.SALUTATION_CHOICES):
             profile_dict['Salutation'] = ''
+
+        if profile_dict.get('Middle Name', None) == '-':
+            profile_dict['Middle Name'] = ''
 
         account = core_models.Account.objects.create(email=profile_dict['email'],
                                                      username=profile_dict['Username'],
@@ -488,6 +507,18 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
     )
 
     article.save()
+
+    # Check for editors and assign them as section editors.
+    editors = article_dict.get('editors')
+
+    for editor in editors:
+        try:
+            account = core_models.Account.objects.get(email=editor)
+            account.add_account_role('section-editor', journal)
+            review_models.EditorAssignment.objects.create(article=article, editor=account, editor_type='section-editor')
+            print('Editor added to article')
+        except:
+            print('Editor account was not found.')
 
     # Add a new review round
     round = review_models.ReviewRound.objects.create(article=article, round_number=1)

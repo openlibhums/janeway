@@ -46,6 +46,16 @@ def mkdirs(path):
         os.makedirs(path)
 
 
+def create_temp_file(content, filename):
+    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
+    filepath = os.path.join(tempfile.gettempdir(), filename)
+
+    with open(filepath, 'w') as temp_file:
+        temp_file.write(content)
+
+    return filepath
+
+
 def copy_local_file_to_article(file_to_handle, file_name, article, owner, label=None, description=None,
                                replace=None, galley=False):
     """Copy a local file into an article's folder with appropriate mime type and permissions.
@@ -617,13 +627,3 @@ def serve_temp_file(file_path, file_name):
 def unlink_temp_file(file_path):
     if os.path.isfile(file_path):
         os.unlink(file_path)
-
-
-def create_temp_file(content, filename):
-    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
-    filepath = os.path.join(tempfile.gettempdir(), filename)
-
-    with open(filepath, 'w') as temp_file:
-        temp_file.write(content)
-
-    return filepath
