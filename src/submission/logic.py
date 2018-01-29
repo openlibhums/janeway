@@ -80,11 +80,16 @@ def parse_authors(soup):
     authors = soup.find_all('contrib')
     author_list = []
     for author in authors:
-        first_name = get_text(soup, 'given-names')
-        last_name = get_text(soup, 'surname')
-        email = get_text(soup, 'email')
-        aff_id = author.find('xref').get('rid', None)
-        aff = soup.find('aff', attrs={'id': aff_id}).text
+        first_name = get_text(author, 'given-names')
+        last_name = get_text(author, 'surname')
+        email = get_text(author, 'email')
+
+        try:
+            aff_id = author.find('xref').get('rid', None)
+            aff = author.find('aff', attrs={'id': aff_id}).text
+        except AttributeError:
+            aff = get_text(author, 'aff')
+
         author_list.append({'first_name': first_name, 'last_name': last_name, 'email': email, 'institution': aff})
 
     return author_list
@@ -108,6 +113,9 @@ def import_from_jats_xml(path, journal):
         )
 
         for author in authors:
+            if not author.get('email') or author.get('email') == '':
+                author['email'] = '{first}.{last}@journal.com'.format(first=author.get('first_name'),
+                                                                             last=author.get('last_name'))
             try:
                 author = core_models.Account.objects.get(Q(email=author['email']) | Q(username=author['email']))
             except core_models.Account.DoesNotExist:

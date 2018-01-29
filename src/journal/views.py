@@ -247,12 +247,6 @@ def article(request, identifier_type, identifier):
     """
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
-    """
-    logger.add_entry(types='Info',
-                     description='Article hit for identifier {0} of type {1}'.format(identifier, identifier_type),
-                     level='Info', actor=None, target=article_object)
-    """
-
     content = None
     galleys = article_object.galley_set.all()
 
@@ -522,7 +516,7 @@ def file_delete(request, article_id, file_id):
     article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
-    files.delete_file(article_object, file_object)
+    file_object.delete()
 
     return redirect(request.GET['return'])
 
@@ -1258,3 +1252,15 @@ def download_journal_file(request, file_id):
         return files.serve_journal_cover(request, file)
     else:
         raise Http404
+
+
+def texture_edit(request, file_id):
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    template = 'admin/journal/texture.html'
+    context = {
+        'file': file,
+        'content': files.get_file(file, file.article).replace('\n', '')
+    }
+
+    return render(request, template, context)

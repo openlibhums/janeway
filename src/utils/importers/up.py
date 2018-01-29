@@ -1,14 +1,21 @@
 import re
-
+import uuid
+import os
 import requests
 from bs4 import BeautifulSoup
+import html2text
+import json
+from dateutil import parser as dateparser
+
+from django.utils import timezone
 
 from utils.importers import shared
 from submission import models
 from journal import models as journal_models
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from utils import models as utils_models
-from core import models as core_models
+from utils import models as utils_models, setting_handler
+from core import models as core_models, files as core_files
+from review import models as review_models
 
 
 # note: URL to pass for import is http://journal.org/jms/index.php/up/oai/
@@ -210,7 +217,6 @@ def parse_backend_list(url, auth_file, auth_url, regex):
 
 
 def get_article_list(url, list_type, auth_file):
-
     auth_url = url
 
     regex = '\/jms\/editor\/submissionReview\/(\d+)'
@@ -252,7 +258,6 @@ def parse_backend_user_list(url, auth_file, auth_url, regex):
 
 
 def get_user_list(url, auth_file):
-
     auth_url = url
 
     url += '/jms/manager/people/all'
@@ -261,6 +266,17 @@ def get_user_list(url, auth_file):
     matches = parse_backend_user_list(url, auth_file, auth_url, regex)
 
     return matches
+
+
+def map_review_recommendation(recommentdation):
+    recommendations = {
+        '2': 'minor_revisions',
+        '3': 'major_revisions',
+        '5': 'reject',
+        '1': 'accept'
+    }
+
+    return recommendations.get(recommentdation, None)
 
 
 def import_issue_images(journal, user, url):
@@ -350,7 +366,6 @@ def import_issue_images(journal, user, url):
             article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
 
             if article and article not in processed:
-
                 journal_models.ArticleOrdering.objects.create(issue=issue,
                                                               article=article,
                                                               order=article_order)
@@ -388,6 +403,9 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
                 print("Country not found")
                 profile_dict['Country'] = None
 
+        if not profile_dict.get('Salutation') in dict(core_models.SALUTATION_CHOICES):
+            profile_dict['Salutation'] = ''
+
         account = core_models.Account.objects.create(email=profile_dict['email'],
                                                      username=profile_dict['Username'],
                                                      institution=profile_dict['Affiliation'],
@@ -404,26 +422,440 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
             account.add_account_role(journal=journal, role_slug='reviewer')
 
 
+def process_resp(resp):
+    resp = resp.decode("utf-8")
 
-def import_in_review_article(url, journal, auth_file, base_url, article_id):
+    known_strings = {
+        '\\u00a0': " ",
+        '\\u00e0': "à",
+        '\\u0085': "...",
+        '\\u0091': "'",
+        '\\u0092': "'",
+        '\\u0093': '\\"',
+        '\\u0094': '\\"',
+        '\\u0096': "-",
+        '\\u0097': "-",
+        '\\u00F6': 'ö',
+        '\\u009a': 'š',
+
+        '\\u00FC': 'ü',
+    }
+
+    for string, replacement in known_strings.items():
+        resp = resp.replace(string, replacement)
+    return resp
+
+
+def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-    # Fetch the summary page and parse its metdata
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
-    soup_article_summary = BeautifulSoup(resp, 'lxml')
-    summary_dict = shared.get_metadata(soup_article_summary)
 
-    # Fetch the review page and parse its data
-    review_url = '{base_url}/jms/editor/submissionReview/{article_id}'.format(base_url=base_url, article_id=article_id)
-    resp, mime = utils_models.ImportCacheEntry.fetch(url=review_url, up_auth_file=auth_file, up_base_url=base_url)
-    soup_article_review = BeautifulSoup(resp, 'lxml')
-    files = shared.get_files(soup_article_review)
-    print(files)
+    resp = process_resp(resp)
 
-    # Fetch peer-reviewers
-    peer_reviewers = shared.get_peer_reviewers(soup_article_review)
-    print(peer_reviewers)
+    _dict = json.loads(resp)
 
-    # Get article status
-    article_status = shared.get_jms_article_status(soup_article_review)
-    print(article_status)
+    for article_dict in _dict:
+        create_article_with_review_content(article_dict, journal, auth_file, base_url)
+        print('Importing {article}.'.format(article=article_dict.get('title')))
+
+
+def ojs_plugin_import_editing_articles(url, journal, auth_file, base_url):
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
+
+    resp = process_resp(resp)
+
+    _dict = json.loads(resp)
+
+    for article_dict in _dict:
+        print('#{id} {article}.'.format(id=article_dict.get('ojs_id'), article=article_dict.get('title')))
+        article = create_article_with_review_content(article_dict, journal, auth_file, base_url)
+        complete_article_with_production_content(article, article_dict, journal, auth_file, base_url)
+
+
+def create_article_with_review_content(article_dict, journal, auth_file, base_url):
+    date_started = timezone.make_aware(dateparser.parse(article_dict.get('date_submitted')))
+
+    # Create a base article
+    article = models.Article(
+        journal=journal,
+        title=article_dict.get('title'),
+        abstract=article_dict.get('abstract'),
+        language=article_dict.get('language'),
+        stage=models.STAGE_UNDER_REVIEW,
+        is_import=True,
+        date_submitted=date_started,
+    )
+
+    article.save()
+
+    # Add a new review round
+    round = review_models.ReviewRound.objects.create(article=article, round_number=1)
+
+    # Add keywords
+    keywords = article_dict.get('keywords')
+    if keywords:
+        for keyword in keywords.split(';'):
+            word, created = models.Keyword.objects.get_or_create(word=keyword)
+            article.keywords.add(word)
+
+    # Add authors
+    for author in article_dict.get('authors'):
+        try:
+            author_record = core_models.Account.objects.get(email=author.get('email'))
+        except core_models.Account.DoesNotExist:
+            author_record = core_models.Account.objects.create(
+                email=author.get('email'),
+                first_name=author.get('first_name'),
+                last_name=author.get('last_name'),
+                institution=author.get('affiliation'),
+                biography=author.get('bio'),
+            )
+
+        # If we have a country, fetch its record
+        if author.get('country'):
+            try:
+                country = core_models.Country.objects.get(code=author.get('country'))
+                author_record.country = country
+                author_record.save()
+            except core_models.Country.DoesNotExist:
+                pass
+        # Add authors to m2m and create an order record
+        article.authors.add(author_record)
+        models.ArticleAuthorOrder.objects.create(article=article,
+                                                 author=author_record,
+                                                 order=article.next_author_sort())
+
+        # Set the primary author
+        article.owner = core_models.Account.objects.get(email=article_dict.get('correspondence_author'))
+        article.correspondence_author = article.owner
+
+        # Get or create the article's section
+        try:
+            section = models.Section.objects.language().fallbacks('en').get(journal=journal,
+                                                                            name=article_dict.get('section'))
+        except models.Section.DoesNotExist:
+            section = None
+
+        article.section = section
+
+        article.save()
+
+    # Attempt to get the default review form
+    form = setting_handler.get_setting('general',
+                                       'default_review_form',
+                                       journal,
+                                       create=True).processed_value
+
+    if not form:
+        try:
+            form = review_models.ReviewForm.objects.filter(journal=journal)[0]
+        except:
+            form = None
+            print('You must have at least one review form for the journal before importing.')
+            exit()
+
+    for review in article_dict.get('reviews'):
+        try:
+            reviewer = core_models.Account.objects.get(email=review.get('email'))
+        except core_models.Account.DoesNotExist:
+            reviewer = core_models.Account.objects.create(
+                email=review.get('email'),
+                first_name=review.get('first_name'),
+                last_name=review.get('last_name'),
+            )
+
+        # Parse the dates
+        date_requested = timezone.make_aware(dateparser.parse(review.get('date_requested')))
+        date_due = timezone.make_aware(dateparser.parse(review.get('date_due')))
+        date_complete = timezone.make_aware(dateparser.parse(review.get('date_complete'))) if review.get(
+            'date_complete') else None
+        date_confirmed = timezone.make_aware(dateparser.parse(review.get('date_confirmed'))) if review.get(
+            'date_confirmed') else None
+
+        # If the review was declined, setup a date declined date stamp
+        review.get('declined')
+        if review.get('declined') == '1':
+            date_declined = date_confirmed
+            date_accepted = None
+            date_complete = date_confirmed
+        else:
+            date_accepted = date_confirmed
+            date_declined = None
+
+        new_review = review_models.ReviewAssignment.objects.create(
+            article=article,
+            reviewer=reviewer,
+            review_round=round,
+            review_type='traditional',
+            visibility='double-blind',
+            date_due=date_due,
+            date_requested=date_requested,
+            date_complete=date_complete,
+            date_accepted=date_accepted,
+            access_code=uuid.uuid4(),
+            form=form
+        )
+
+        if review.get('declined') or review.get('recommendation'):
+            new_review.is_complete = True
+
+        if review.get('recommendation'):
+            new_review.decision = map_review_recommendation(review.get('recommendation'))
+
+        if review.get('review_file_url'):
+            filename, mime = shared.fetch_file(base_url, review.get('review_file_url'), None, None, article, None,
+                                               handle_images=False, auth_file=auth_file)
+            extension = os.path.splitext(filename)[1]
+
+            review_file = shared.add_file(mime, extension, 'Reviewer file', reviewer, filename, article,
+                                          galley=False)
+            new_review.review_file = review_file
+
+        if review.get('comments'):
+            filepath = core_files.create_temp_file(review.get('comments'), 'comment.txt')
+            file = open(filepath, 'r')
+            comment_file = core_files.save_file_to_article(file,
+                                                           article,
+                                                           article.owner,
+                                                           label='Review Comments',
+                                                           save=False)
+            import shutil
+            directory = os.path.dirname(comment_file.self_article_path())
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+            shutil.copy(filepath, comment_file.self_article_path())
+            new_review.review_file = comment_file
+
+        new_review.save()
+
+    # Get MS File
+    ms_file = get_ojs_file(base_url, article_dict.get('manuscript_file_url'), article, auth_file, 'MS File')
+    article.manuscript_files.add(ms_file)
+
+    # Get RV File
+    rv_file = get_ojs_file(base_url, article_dict.get('review_file_url'), article, auth_file, 'RV File')
+    round.review_files.add(rv_file)
+
+    # Get Supp Files
+    if article_dict.get('supp_files'):
+        for file in article_dict.get('supp_files'):
+            file = get_ojs_file(base_url, file.get('url'), article, auth_file, file.get('title'))
+            article.data_figure_files.add(file)
+
+    article.save()
+    round.save()
+
+    return article
+
+
+def get_ojs_file(base_url, url, article, auth_file, label):
+    filename, mime = shared.fetch_file(base_url, url, None, None, article, None, handle_images=False,
+                                       auth_file=auth_file)
+    extension = os.path.splitext(filename)[1]
+    file = shared.add_file(mime, extension, label, article.owner, filename, article, galley=False)
+
+    return file
+
+
+def determine_production_stage(article_dict):
+    stage = models.STAGE_AUTHOR_COPYEDITING
+
+    publication = True if article_dict.get('publication') and article_dict['publication'].get('date_published') else False
+    typesetting = True if article_dict.get('layout') and article_dict['layout'].get('galleys') else False
+    proofing = True if typesetting and article_dict.get('proofing') else False
+
+    print(typesetting, proofing, publication)
+
+    if publication:
+        stage = models.STAGE_READY_FOR_PUBLICATION
+    elif typesetting and not proofing:
+        stage = models.STAGE_TYPESETTING
+    elif proofing:
+        stage = models.STAGE_PROOFING
+
+    return stage
+
+
+def attempt_to_make_timezone_aware(datetime):
+    if datetime:
+        dt = dateparser.parse(datetime)
+        return timezone.make_aware(dt)
+    else:
+        return None
+
+
+def import_copyeditors(article, article_dict, auth_file, base_url):
+    copyediting = article_dict.get('copyediting', None)
+
+    if copyediting:
+
+        initial = copyediting.get('initial')
+        author = copyediting.get('author')
+        final = copyediting.get('final')
+
+        from copyediting import models
+
+        if initial:
+            initial_copyeditor = core_models.Account.objects.get(email=initial.get('email'))
+            initial_decision = True if (initial.get('underway') or initial.get('complete')) else False
+
+            print('Adding copyeditor: {copyeditor}'.format(copyeditor=initial_copyeditor.full_name()))
+
+            assigned = attempt_to_make_timezone_aware(initial.get('notified'))
+            underway = attempt_to_make_timezone_aware(initial.get('underway'))
+            complete = attempt_to_make_timezone_aware(initial.get('complete'))
+
+            copyedit_assignment = models.CopyeditAssignment.objects.create(
+                article=article,
+                copyeditor=initial_copyeditor,
+                assigned=assigned,
+                notified=True,
+                decision=initial_decision,
+                date_decided=underway if underway else complete,
+                copyeditor_completed=complete,
+                copyedit_accepted=complete
+            )
+
+            if initial.get('file'):
+                file = get_ojs_file(base_url, initial.get('file'), article, auth_file, 'Copyedited File')
+                copyedit_assignment.copyeditor_files.add(file)
+
+            if initial and author.get('notified'):
+                print('Adding author review.')
+                assigned = attempt_to_make_timezone_aware(author.get('notified'))
+                complete = attempt_to_make_timezone_aware(author.get('complete'))
+
+                author_review = models.AuthorReview.objects.create(
+                    author=article.owner,
+                    assignment=copyedit_assignment,
+                    assigned=assigned,
+                    notified=True,
+                    decision='accept',
+                    date_decided=complete,
+                )
+
+                if author.get('file'):
+                    file = get_ojs_file(base_url, author.get('file'), article, auth_file, 'Author Review File')
+                    author_review.files_updated.add(file)
+
+            if final and initial_copyeditor and final.get('notified'):
+                print('Adding final copyedit assignment.')
+
+                assigned = attempt_to_make_timezone_aware(initial.get('notified'))
+                underway = attempt_to_make_timezone_aware(initial.get('underway'))
+                complete = attempt_to_make_timezone_aware(initial.get('complete'))
+
+                final_decision = True if underway or complete else False
+
+                final_assignment = models.CopyeditAssignment.objects.create(
+                    article=article,
+                    copyeditor=initial_copyeditor,
+                    assigned=assigned,
+                    notified=True,
+                    decision=final_decision,
+                    date_decided=underway if underway else complete,
+                    copyeditor_completed=complete,
+                    copyedit_accepted=complete,
+                )
+
+                if final.get('file'):
+                    file = get_ojs_file(base_url, final.get('file'), article, auth_file, 'Final File')
+                    final_assignment.copyeditor_files.add(file)
+
+def import_typesetters(article, article_dict, auth_file, base_url):
+    layout = article_dict.get('layout')
+    task = None
+
+    if layout.get('email'):
+        typesetter = core_models.Account.objects.get(email=layout.get('email'))
+
+        print('Adding typesetter {name}'.format(name=typesetter.full_name()))
+
+        from production import models as production_models
+
+        assignment = production_models.ProductionAssignment.objects.create(
+            article=article,
+            assigned=timezone.now(),
+            notified=True
+        )
+
+        assigned = attempt_to_make_timezone_aware(layout.get('notified'))
+        accepted = attempt_to_make_timezone_aware(layout.get('underway'))
+        complete = attempt_to_make_timezone_aware(layout.get('complete'))
+
+        task = production_models.TypesetTask.objects.create(
+            assignment=assignment,
+            typesetter=typesetter,
+            assigned=assigned,
+            accepted=accepted,
+            completed=complete,
+        )
+
+
+    galleys = import_galleys(article, layout, auth_file, base_url)
+
+    if task and galleys:
+        for galley in galleys:
+            task.galleys_loaded.add(galley.file)
+
+
+def import_proofing(article, article_dict, auth_file, base_url):
+    pass
+
+
+def import_galleys(article, layout_dict, auth_file, base_url):
+    galleys = list()
+
+    if layout_dict.get('galleys'):
+
+        for galley in layout_dict.get('galleys'):
+            print('Adding Galley with label {label}'.format(label=galley.get('label')))
+            file = get_ojs_file(base_url, galley.get('file'), article, auth_file, galley.get('label'))
+
+            new_galley = core_models.Galley.objects.create(
+                article=article,
+                file=file,
+                label=galley.get('label'),
+            )
+
+            galleys.append(new_galley)
+
+    return galleys
+
+def process_for_copyediting(article, article_dict, auth_file, base_url):
+    import_copyeditors(article, article_dict, auth_file, base_url)
+
+
+def process_for_typesetting(article, article_dict, auth_file, base_url):
+    import_copyeditors(article, article_dict, auth_file, base_url)
+    import_typesetters(article, article_dict, auth_file, base_url)
+
+def process_for_proofing(article, article_dict, auth_file, base_url):
+    import_copyeditors(article, article_dict, auth_file, base_url)
+    import_typesetters(article, article_dict, auth_file, base_url)
+    import_galleys(article, article_dict, auth_file, base_url)
+    import_proofing(article, article_dict, auth_file, base_url)
+
+
+def process_for_publication(article, article_dict, auth_file, base_url):
+    process_for_proofing(article, article_dict, auth_file, base_url)
+    # mark proofing complete
+
+
+def complete_article_with_production_content(article, article_dict, journal, auth_file, base_url):
+    """
+    Completes the import of journal article that are in editing
+    """
+    article.stage = determine_production_stage(article_dict)
+    article.save()
+
+    print('Stage: {stage}'.format(stage=article.stage))
+
+    if article.stage == models.STAGE_READY_FOR_PUBLICATION:
+        process_for_publication(article, article_dict, auth_file, base_url)
+    elif article.stage == models.STAGE_TYPESETTING:
+        process_for_typesetting(article, article_dict, auth_file, base_url)
+    else:
+        process_for_copyediting(article, article_dict, auth_file, base_url)

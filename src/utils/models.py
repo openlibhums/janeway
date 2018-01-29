@@ -6,20 +6,19 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json as jason
 import os
 from uuid import uuid4
-import re
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from django.utils import timezone
 
+from django.utils import timezone
 from django.core.serializers import json
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.conf import settings
 
 from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
 from utils import notify
-import core.settings as settings
 
 
 
@@ -225,19 +224,22 @@ class ImportCacheEntry(models.Model):
 
             if cached.date_time < timezone.now() - timezone.timedelta(minutes=30):
                 cached.delete()
-                print("[CACHE] Found old cached entry, expiring.")
+                if not settings.SILENT_IMPORT_CACHE:
+                    print("[CACHE] Found old cached entry, expiring.")
                 ImportCacheEntry.fetch(url, up_auth_file, up_base_url, ojs_auth_file)
             else:
                 cached.date_time = timezone.now()
                 cached.save()
 
-            print("[CACHE] Using cached version of {0}".format(url))
+            if not settings.SILENT_IMPORT_CACHE:
+                print("[CACHE] Using cached version of {0}".format(url))
 
             with open(cached.on_disk, 'rb') as on_disk_file:
                 return on_disk_file.read(), cached.mime_type
 
         except ImportCacheEntry.DoesNotExist:
-            print("[CACHE] Fetching remote version of {0}".format(url))
+            if not settings.SILENT_IMPORT_CACHE:
+                print("[CACHE] Fetching remote version of {0}".format(url))
 
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -263,22 +265,17 @@ class ImportCacheEntry(models.Model):
 
             if do_auth:
                 # load the login page
-                auth_url = '{0}{1}'.format(up_base_url, '/author/login/')
+                auth_url = '{0}{1}'.format(up_base_url, '/login/')
                 fetched = session.get(auth_url, headers=headers, stream=True, verify=False)
 
-                regex = "name\='csrfmiddlewaretoken' value\='(.+?)'"
-
-                csrf = re.search(r"'csrfmiddlewaretoken' value\='(.+?)'", fetched.text, flags=re.MULTILINE).group(1)
-
-                post_dict = {'csrfmiddlewaretoken': csrf, 'username': username, 'password': password, 'login': 'login'}
-
-                fetched = session.post('{0}{1}'.format(up_base_url, '/author/login/'), data=post_dict,
-                                       headers={'Referer':auth_url,
+                post_dict = {'username': username, 'password': password, 'login': 'login'}
+                fetched = session.post('{0}{1}'.format(up_base_url, '/login/signIn/'), data=post_dict,
+                                       headers={'Referer': auth_url,
                                                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
                                                               'Chrome/39.0.2171.95 Safari/537.36'
                                                 })
-
-                print("[CACHE] Sending auth")
+                if not settings.SILENT_IMPORT_CACHE:
+                    print("[CACHE] Sending auth")
 
             fetched = session.get(url, headers=headers, stream=True, verify=False)
 

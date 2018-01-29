@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import random
+import mimetypes
+
 from django.core.cache import cache
 
 # NB: this module should not import any others in the application. It is a space for communal functions to avoid
@@ -35,3 +37,25 @@ def get_ip_address(request):
 
 def clear_cache():
     cache.clear()
+
+
+def guess_extension(mime):
+    """
+    This function gets extensions from mimes, and if it can't find it uses the standard guesses
+    :param mime: a mimetype string
+    :return: a string containing a file extension eg. doc or docx
+    """
+    if mime == 'text/plain':
+        extension = 'txt'
+    elif mime == 'application/msword':
+        extension = 'doc'
+    elif mime == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        extension = 'docx'
+    elif mime == 'application/vnd.oasis.opendocument.text':
+        extension = 'odt'
+    elif mime == 'text/html;charset=UTF-8':
+        extension = 'html'
+    else:
+        extension = mimetypes.guess_extension(mime)
+
+    return extension
