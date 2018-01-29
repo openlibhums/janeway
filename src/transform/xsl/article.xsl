@@ -1304,6 +1304,24 @@
         </xsl:choose>
     </xsl:template>
 
+    <xsl:template match="//graphic[not(ancestor::fig)]">
+        <xsl:variable name="caption" select="child::caption/text()"/>
+        <xsl:variable name="graphics" select="./@xlink:href"/>
+        <div class="fig-inline-img-set">
+            <div class="acta-fig-image-caption-wrapper">
+                <div class="fig-expansion">
+                    <div class="fig-inline-img">
+                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}"/>
+                        </a>
+                    </div>
+                    <xsl:apply-templates/>
+                </div>
+            </div>
+        </div>
+    </xsl:template>
+
+
     <xsl:template match="fig" mode="testing">
         <xsl:variable name="caption" select="child::label/text()"/>
         <xsl:variable name="id">
