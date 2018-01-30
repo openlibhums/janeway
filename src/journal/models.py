@@ -356,13 +356,73 @@ class Issue(models.Model):
 
     @property
     def manage_issue_list(self):
-        articles = self.articles.all()
+        section_article_dict = collections.OrderedDict()
 
-        ordered_list = list()
+        article_pks = [article.pk for article in self.articles.all()]
+
+        # Find explicitly ordered sections for this issue
+        ordered_sections = SectionOrdering.objects.filter(issue=self)
+
+        for ordered_section in ordered_sections:
+            article_list = list()
+
+            ordered_articles = ArticleOrdering.objects.filter(issue=self, section=ordered_section.section)
+
+            for article in ordered_articles:
+                article_list.append(article)
+
+            articles = self.articles.filter(section=ordered_section.section, pk__in=article_pks)
+
+            for article in articles:
+                if not article in article_list:
+                    article_list.append(article)
+
+            section_article_dict[ordered_section.section] = article_list
+
+        # Handle all other sections that have articles in this issue.
+        for article in self.articles.all():
+            if not section_article_dict.get(article.section):
+                article_list = list()
+                articles = self.articles.filter(section=article.section, pk__in=article_pks).order_by('section')
+
+                for article in articles:
+                    article_list.append(article)
+
+                section_article_dict[article.section] = article_list
+
+        return section_article_dict
+
+
+    @property
+    def all_sections(self):
+        ordered_sections =[order.section for order in SectionOrdering.objects.filter(issue=self)]
+        articles = self.articles.all().order_by('section')
+
         for article in articles:
-            ordered_list.append({'article': article, 'order': self.get_article_order(article)})
+            if not article.section in ordered_sections:
+                ordered_sections.append(article.section)
 
-        return sorted(ordered_list, key=itemgetter('order'))
+        return ordered_sections
+
+
+    @property
+    def first_section(self):
+        all_sections = self.all_sections
+
+        if all_sections:
+            return all_sections[0]
+        else:
+            return 0
+
+
+    @property
+    def last_section(self):
+        all_sections = self.all_sections
+
+        if all_sections:
+            return all_sections[-1]
+        else:
+            return 0
 
     @property
     def issue_articles(self):
@@ -375,32 +435,27 @@ class Issue(models.Model):
 
         return sorted(ordered_list, key=itemgetter('order'))
 
-    def structure(self, articles):
+
+    def structure(self):
         structure = collections.OrderedDict()
 
-        # first add any sections that are explicitly ordered within this issue
-        ordered_sections = SectionOrdering.objects.filter(issue=self).order_by('order')
+        sections = self.all_sections
+        articles = self.articles.all()
 
-        for ordered_section in ordered_sections:
-            if ordered_section.section.issue_display() not in structure:
-                structure[ordered_section.section.issue_display()] = []
+        for section in sections:
+            article_with_order = ArticleOrdering.objects.filter(issue=self, section=section)
 
-        # now add any articles that are explicitly ordered
-        ordered_articles = ArticleOrdering.objects.filter(issue=self).order_by('order')
-        for article_object in ordered_articles:
-            if article_object.article.section.issue_display() not in structure:
-                structure[article_object.article.section.issue_display()] = []
-            if article_object.article not in structure[article_object.article.section.issue_display()]:
-                structure[article_object.article.section.issue_display()].append(article_object.article)
+            article_list = list()
+            for order in article_with_order:
+                article_list.append(order.article)
 
-        # now add any remaining articles
-        for article_object in articles:
-            if article_object.section and article_object.section.issue_display() not in structure:
-                structure[article_object.section.issue_display()] = []
-            if article_object.section and article_object not in structure[article_object.section.issue_display()]:
-                structure[article_object.section.issue_display()].append(article_object)
+            for article in articles.filter(section=section):
+                if not article in article_list:
+                    article_list.append(article)
+            structure[section] = article_list
 
         return structure
+
 
     @property
     def article_pks(self):

@@ -19,8 +19,8 @@
             {% if issue.issue_description %}<p>{{ issue.issue_description }}</p>{% endif %}
         {% endif %}
 
-        {% for category, articles in structure.items %}
-            <h4 class="em">{{ category }}</h4>
+        {% for section, articles in structure.items %}
+            <h4 class="em">{{ section.name }}</h4>
             {% for article in articles %}
                 {% include "elements/article_listing.html" with article=article %}
             {% endfor %}

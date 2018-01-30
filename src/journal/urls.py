@@ -69,6 +69,11 @@ urlpatterns = [
     url(r'^manage/issues/(?P<issue_id>\d+)/(?P<event>[-\w.]+)/$',
         views.manage_issues, name='manage_issues_event'),
 
+    # Sorting
+    url(r'^manage/issues/(?P<issue_id>\d+)/sort/sections/$',
+        views.sort_issue_sections, name='manage_sort_issue_sections'),
+
+
     url(r'^manage/archive/$',
         views.manage_archive, name='manage_archive'),
     url(r'^manage/archive/article/(?P<article_id>\d+)/$',

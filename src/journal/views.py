@@ -115,7 +115,8 @@ def articles(request):
     pinned_article_pks = [article.pk for article in pinned_articles]
     article_objects = submission_models.Article.objects.filter(journal=request.journal,
                                                                date_published__lte=timezone.now(),
-                                                               section__pk__in=filters).prefetch_related('frozenauthor_set').order_by(sort).exclude(
+                                                               section__pk__in=filters).prefetch_related(
+        'frozenauthor_set').order_by(sort).exclude(
         pk__in=pinned_article_pks)
 
     paginator = Paginator(article_objects, show)
@@ -182,7 +183,7 @@ def issue(request, issue_id, show_sidebar=True):
     context = {
         'issue': issue_object,
         'issues': issue_objects,
-        'structure': issue_object.structure(articles),
+        'structure': issue_object.structure(),
         'show_sidebar': show_sidebar
     }
 
@@ -227,7 +228,7 @@ def collection(request, collection_id, show_sidebar=True):
     context = {
         'issue': collection,
         'issues': collections,
-        'structure': collection.structure(articles),
+        'structure': collection.structure(),
         'show_sidebar': show_sidebar,
         'collection': True,
     }
@@ -690,7 +691,7 @@ def publish_article(request, article_id):
 @production_user_or_editor_required
 def publish_article_check(request, article_id):
     """
-    A POST onl view that updates checklist items on the prepublication page.
+    A POST only view that updates checklist items on the prepublication page.
     :param request: HttpRequest object
     :param article_id: Artcle object PK
     :return: HttpResponse object
@@ -792,6 +793,65 @@ def manage_issues(request, issue_id=None, event=None):
 
 
 @editor_user_required
+def sort_issue_sections(request, issue_id):
+    issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
+    sections = issue.all_sections
+
+    if request.POST:
+        if 'up' in request.POST:
+            section_id = request.POST.get('up')
+            section_to_move_up = get_object_or_404(submission_models.Section, pk=section_id, journal=request.journal)
+
+            if section_to_move_up != issue.first_section:
+                section_to_move_up_index = sections.index(section_to_move_up)
+                section_to_move_down = sections[section_to_move_up_index - 1]
+
+                section_to_move_up_ordering, c = models.SectionOrdering.objects.get_or_create(
+                    issue=issue,
+                    section=section_to_move_up)
+                section_to_move_down_ordering, c = models.SectionOrdering.objects.get_or_create(
+                    issue=issue,
+                    section=section_to_move_down)
+
+                section_to_move_up_ordering.order = section_to_move_up_index - 1
+                section_to_move_down_ordering.order = section_to_move_up_index
+
+                section_to_move_up_ordering.save()
+                section_to_move_down_ordering.save()
+            else:
+                messages.add_message(request, messages.WARNING, 'You cannot move the first section up the order list')
+
+
+        elif 'down' in request.POST:
+            section_id = request.POST.get('down')
+            section_to_move_down = get_object_or_404(submission_models.Section, pk=section_id, journal=request.journal)
+
+            if section_to_move_down != issue.last_section:
+                section_to_move_down_index = sections.index(section_to_move_down)
+                section_to_move_up = sections[section_to_move_down_index + 1]
+
+                section_to_move_up_ordering, c = models.SectionOrdering.objects.get_or_create(
+                    issue=issue,
+                    section=section_to_move_up)
+                section_to_move_down_ordering, c = models.SectionOrdering.objects.get_or_create(
+                    issue=issue,
+                    section=section_to_move_down)
+
+                section_to_move_up_ordering.order = section_to_move_down_index
+                section_to_move_down_ordering.order = section_to_move_down_index + 1
+
+                section_to_move_up_ordering.save()
+                section_to_move_down_ordering.save()
+
+            else:
+                messages.add_message(request, messages.WARNING, 'You cannot move the last section down the order list')
+
+    else:
+        messages.add_message(request, messages.WARNING, 'This page accepts post requests only.')
+    return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+
+
+@editor_user_required
 def issue_add_article(request, issue_id):
     """
     Allows an editor to add an article to an issue.
@@ -873,6 +933,13 @@ def issue_order(request):
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist('issues[]')]
 
+        for issue in issues:
+            order = ids.index(issue.pk)
+            issue.order = order
+            issue.save()
+
+    return HttpResponse('Thanks')
+
 
 @csrf_exempt
 @editor_user_required
@@ -885,17 +952,20 @@ def issue_article_order(request, issue_id=None):
     """
 
     issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-
     if request.POST:
         ids = request.POST.getlist('articles[]')
         ids = [int(_id) for _id in ids]
-        for _dict in issue.manage_issue_list:
-            order = ids.index(_dict['article'].id)
+        section = get_object_or_404(submission_models.Article, pk=ids[0], journal=request.journal).section
+
+        for article in issue.structure().get(section):
+            order = ids.index(article.id)
             article_issue_order, created = models.ArticleOrdering.objects.get_or_create(issue=issue,
-                                                                                        article=_dict['article'],
-                                                                                        defaults={'order': order})
+                                                                                        article=article,
+                                                                                        defaults={'order': order,
+                                                                                                  'section': section})
             if not created:
                 article_issue_order.order = order
+                article_issue_order.section = section
                 article_issue_order.save()
 
     return HttpResponse('Thanks')
@@ -1048,7 +1118,7 @@ def contact(request):
     """
     subject = request.GET.get('subject', '')
     contacts = core_models.Contacts.objects.filter(content_type=request.model_content_type,
-                                                        object_id=request.site_type.pk)
+                                                   object_id=request.site_type.pk)
 
     contact_form = forms.ContactForm(subject=subject, contacts=contacts)
 

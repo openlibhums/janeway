@@ -18,8 +18,8 @@
         {% endif %}
         <br/>
 
-        {% for category, articles in structure.items %}
-            <h3 class="em">{{ category }}</h3>
+        {% for section, articles in structure.items %}
+            <h3 class="em">{{ section.name }}</h3>
             {% for article in articles %}
                 {% include "elements/article_listing.html" with article=article %}
             {% endfor %}

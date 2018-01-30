@@ -30,8 +30,8 @@
 
 
         <div class="large-{% if not show_sidebar %}12{% else %}8 border-right{% endif %} columns end">
-            {% for category, articles in structure.items %}
-                <h3 class="em">{{ category }}</h3>
+            {% for section, articles in structure.items %}
+                <h3 class="em">{{ section.name }}</h3>
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% endfor %}
