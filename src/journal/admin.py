@@ -28,6 +28,7 @@ admin_list = [
     (models.PrePublicationChecklistItem,),
     (models.FixedPubCheckItems,),
     (models.ArticleOrdering,),
+    (models.SectionOrdering,)
 ]
 
 [admin.site.register(*t) for t in admin_list]

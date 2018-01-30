@@ -23,7 +23,7 @@ def yield_homepage_element_context(request, homepage_elements):
             context = {
                 'issue': issue_object,
                 'issues': issue_objects,
-                'structure': issue_object.structure(articles),
+                'structure': issue_object.structure(),
                 'show_sidebar': False
             }
 

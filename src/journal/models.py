@@ -434,19 +434,24 @@ class SectionOrdering(models.Model):
     order = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return "{0}: {1}, {2}".format(self.order, self.issue.issue_title, self.section)
+        return "{0}: {1}, ({2} {3}) {4}".format(self.order, self.issue.issue_title, self.issue.volume, self.issue.issue, self.section)
+
+    class Meta:
+        ordering = ('order', 'section')
 
 
 class ArticleOrdering(models.Model):
     article = models.ForeignKey('submission.Article')
     issue = models.ForeignKey(Issue)
+    section = models.ForeignKey('submission.Section')
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
-        unique_together = ('article', 'issue')
+        unique_together = ('article', 'issue', 'section')
+        ordering = ('order', 'section')
 
     def __str__(self):
-        return "{0}: {1}, {2}".format(self.order, self.issue.issue_title, self.article.title)
+        return "{0}: {1}, {2}".format(self.order, self.section, self.article.title)
 
 
 class FixedPubCheckItems(models.Model):
