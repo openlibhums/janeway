@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         for account in accounts:
 
-            print('Updating {full_name} - {email}'.format(full_name=account.first_name,
+            print('Updating {full_name} - {email}'.format(full_name=account.full_name(),
                                                           email=account.author.email))
 
             first_update, middle_update, last_update = False, False, False
@@ -56,8 +56,10 @@ class Command(BaseCommand):
                 print('Anomaly detected in middle name')
                 if not account.middle_name == account.author.middle_name:
                     middle_update = shared.yes_or_no('Update from the author record ({author_mname})'.format(
-                    author_mname=account.author.middle_name))
-                if not middle_update:
+                    author_mname=account.author.middle_name))#
+                    if middle_update:
+                        middle_update = account.author.middle_name if account.author.middle_name else ''
+                if not middle_update == '' and not middle_update:
                     middle_update = input('Insert new middle name: ')
 
             if anomaly in account.last_name:
@@ -72,7 +74,7 @@ class Command(BaseCommand):
             if first_update:
                 account.first_name = first_update
 
-            if middle_update:
+            if middle_update == '' or middle_update:
                 account.middle_name  = middle_update
 
             if last_update:
