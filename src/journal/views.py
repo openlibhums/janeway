@@ -567,6 +567,21 @@ def article_file_make_galley(request, article_id, file_id):
     return redirect(request.GET['return'])
 
 
+def identifier_figure(request, identifier_type, identifier, file_name):
+    """
+    Returns a galley figure from identifier.
+    :param request: HttpRequest object
+    :param identifier_type: Identifier type string
+    :param identifier: An Identifier
+    :param file_name: a File object name
+    :return: a streaming file reponse
+    """
+    figure_article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    galley = figure_article.render_galley
+    figure = get_object_or_404(galley.images, original_filename=file_name)
+
+    return files.serve_file(request, figure, figure_article)
+
 def article_figure(request, article_id, galley_id, file_name):
     """ Returns a galley article figure
 
@@ -578,8 +593,8 @@ def article_figure(request, article_id, galley_id, file_name):
     """
     figure_article = get_object_or_404(submission_models.Article, pk=article_id)
     galley = get_object_or_404(core_models.Galley, pk=galley_id, article=figure_article)
-
     figure = get_object_or_404(galley.images, original_filename=file_name)
+
     return files.serve_file(request, figure, figure_article)
 
 
