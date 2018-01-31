@@ -46,7 +46,7 @@ class PublisherNoteAdmin(admin.ModelAdmin):
 
 class KeywordAdmin(admin.ModelAdmin):
     list_display = ('word',)
-    list_filter = ('word',)
+    search_fields = ('word',)
 
 
 class SectionAdmin(TranslatableAdmin):
