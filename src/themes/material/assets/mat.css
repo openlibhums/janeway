@@ -70,3 +70,7 @@ a:hover .article-title {
 .carousel-text-wrapper a {
     color: white;
 }
+
+.card {
+    max-height: 400px;
+}
