@@ -93,12 +93,21 @@
 
 
                     <span class="card-title">
-                        <div class="carousel-text-wrapper">
+                        <div class="carousel-text-wrapper hide-on-small-only">
                         <small>
                             {{ article.section.name }}
                         </small>
                         <br/>
                         {{ article.title|safe }}
+                            </div>
+                    </span>
+                    <span class="card-title" style="font-size: 17px;">
+                        <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
+                        <small>
+                            {{ article.section.name }}
+
+                        <br/>
+                        {{ article.title|safe }}</small>
                             </div>
                     </span>
 

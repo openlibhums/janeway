@@ -66,3 +66,7 @@ a:hover .article-title {
     position: fixed !important;
     width: 300px;
 }
+
+.carousel-text-wrapper a {
+    color: white;
+}
