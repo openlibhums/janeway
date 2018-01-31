@@ -128,7 +128,7 @@
                         <div class="divider"></div>
                     </div>
 
-                    {% if article.keywords.all|length > 0 %}
+                    {% if article.keywords.count > 0 %}
                         <h5>{% trans "Keywords" %}</h5>
                         <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
