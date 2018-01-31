@@ -34,7 +34,7 @@
 				</titles>
 				<contributors>
                     {% for author in authors %}
-					<person_name contributor_role="author" sequence="first">
+					<person_name contributor_role="author" {% if forloop.first %}sequence="first"{% endif %}>
 						<given_name>{{ author.first_names }}</given_name>
 						<surname>{{ author.last_name }}</surname>
 					</person_name>
