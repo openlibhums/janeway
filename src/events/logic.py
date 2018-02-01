@@ -235,7 +235,11 @@ class Events:
         if event_name not in Events._hooks:
             return
         else:
-            [func(**kwargs) for func in Events._hooks[event_name]]
+            event_return = [func(**kwargs) for func in Events._hooks[event_name]]
+
+            if event_return:
+                return event_return[0]
+
 
     @staticmethod
     def register_for_event(event_name, function):

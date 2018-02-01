@@ -138,7 +138,7 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       workflow_tasks.create_copyedit_task)
 
 event_logic.Events.register_for_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                                      workflow.workflow_next)
+                                      workflow.workflow_element_complete)
 
 # wire up the core task destroyer
 # N.B. this is critical to the operation of the task framework. It automatically tears down tasks that have registered
