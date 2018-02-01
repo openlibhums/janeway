@@ -9,3 +9,11 @@ def get(o, index):
         return o[str(index)]
     except BaseException:
         return 'INVALID STRING'
+
+
+@register.simple_tag
+def tag_get(o, index):
+    try:
+        return o[str(index)]
+    except BaseException:
+        return 'INVALID STRING'
