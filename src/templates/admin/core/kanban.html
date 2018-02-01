@@ -2,6 +2,7 @@
 {% load static from staticfiles %}
 
 {% load article %}
+{% load dict %}
 
 <!-- NOTE: this page is deprecated for now. Doing the task/event wireup was deemed too massive a task for v1-->
 
@@ -12,65 +13,58 @@
     <div class="row expanded column">
         <div class="kanban">
             <div class="inner">
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Review</h2>
+
+                {% for element in workflow.elements.all %}
+                    <div class="box">
+                        <div class="title-area">
+                            <h2>{{ element.element_name }}</h2>
+                        </div>
+                        <div class="content">
+                            {% if element.element_name == 'review' %}
+                                {% for article in unassigned_articles %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='unassigned' %}
+                                {% endfor %}
+                                {% for article in in_review %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='assigned' %}
+                                {% endfor %}
+
+                            {% elif element.element_name == 'copyediting' %}
+                                {% for article in copyediting %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='copyedit' %}
+                                {% endfor %}
+
+                            {% elif element.element_name == 'production' %}
+                                {% for article in production %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='production_unassigned' %}
+                                {% endfor %}
+                                {% for article in production_assigned %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='production_assigned' %}
+                                {% endfor %}
+
+                            {% elif element.element_name == 'proofing' %}
+                                {% for article in proofing %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='proof_unassigned' %}
+                                {% endfor %}
+                                {% for article in proofing_assigned %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='proof_assigned' %}
+                                {% endfor %}
+
+                            {% elif element.element_name == 'prepublication' %}
+                                {% for article in prepubs %}
+                                    {% include "elements/core/kanban/card.html" with article=article type='prepublication' %}
+                                {% endfor %}
+
+                            {% else %}
+                                {% tag_get articles_in_workflow_stages element.element_name as element_dict %}
+
+                                {% for article in element_dict.articles %}
+                                    {% include element_dict.template %}
+                                {% endfor %}
+                            {% endif %}
+
+                        </div>
                     </div>
-                    <div class="content">
-                        {% for article in unassigned_articles %}
-                            {% include "elements/core/kanban/card.html" with article=article type='unassigned' %}
-                        {% endfor %}
-                        {% for article in in_review %}
-                            {% include "elements/core/kanban/card.html" with article=article type='assigned' %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Copyediting</h2>
-                    </div>
-                    <div class="content">
-                        {% for article in copyediting %}
-                            {% include "elements/core/kanban/card.html" with article=article type='copyedit' %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Production</h2>
-                    </div>
-                    <div class="content">
-                        {% for article in production %}
-                            {% include "elements/core/kanban/card.html" with article=article type='production_unassigned' %}
-                        {% endfor %}
-                        {% for article in production_assigned %}
-                            {% include "elements/core/kanban/card.html" with article=article type='production_assigned' %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Proofing</h2>
-                    </div>
-                    <div class="content">
-                        {% for article in proofing %}
-                            {% include "elements/core/kanban/card.html" with article=article type='proof_unassigned' %}
-                        {% endfor %}
-                        {% for article in proofing_assigned %}
-                            {% include "elements/core/kanban/card.html" with article=article type='proof_assigned' %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Pre Publication</h2>
-                    </div>
-                    <div class="content">
-                        {% for article in prepubs %}
-                            {% include "elements/core/kanban/card.html" with article=article type='prepublication' %}
-                        {% endfor %}
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -78,7 +72,7 @@
 {% endblock body %}
 
 {% block js %}
-<script>
-  kanbanInit();
-</script>
+    <script>
+        kanbanInit();
+    </script>
 {% endblock js %}
