@@ -20,7 +20,7 @@ from django.dispatch import receiver
 from utils.function_cache import cache
 from utils import setting_handler
 from submission import models as submission_models
-from core import models as core_models
+from core import models as core_models, workflow
 from press import models as press_models
 
 # Issue types
@@ -312,6 +312,12 @@ class Journal(models.Model):
         directory = os.path.join(settings.BASE_DIR, 'files', 'journals', str(self.pk))
         if not os.path.exists(directory):
             os.makedirs(directory)
+
+    def workflow(self):
+        try:
+            return core_models.Workflow.objects.get(journal=self)
+        except core_models.Workflow.DoesNotExist:
+            return workflow.create_default_workflow(self)
 
 
 class PinnedArticle(models.Model):

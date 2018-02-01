@@ -1,8 +1,11 @@
+from collections import OrderedDict
+
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.http import Http404
 
 from core import models
+from submission import models as submission_models
 
 
 def workflow_element_complete(**kwargs):
@@ -61,3 +64,38 @@ def set_stage(article):
     first_element = workflow.elements.all()[0]
     article.stage = first_element.stage
     article.save()
+
+
+def create_default_workflow(journal):
+    """
+    Creates a default workflow for a given journal
+    :param journal: Journal object
+    :return: None
+    """
+
+    workflow = models.Workflow.objects.get_or_create(journal=journal)
+
+    for element in models.BASE_ELEMENTS:
+        e = models.WorkflowElement.objects.get_or_create(journal=journal,
+                                                         element_name=element.get('name'),
+                                                         handshake_url=element['handshake_url'],
+                                                         stage=element['stage'])
+
+        workflow.elements.add(e)
+
+    return workflow
+
+
+def articles_in_workflow_stages(request):
+    """
+    Returns an ordered dict {'stage': [articles]}
+    :param request: HttpRequest object
+    :return: Dictionary
+    """
+
+    workflow = request.journal.workflow()
+    workflow_dict = OrderedDict()
+
+    for element in workflow.elements:
+        articles = submission_models.Article.objects.filter(stage=element.stage)
+

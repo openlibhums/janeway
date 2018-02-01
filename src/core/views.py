@@ -22,7 +22,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.conf import settings as django_settings
 
-from core import models, forms, files, logic
+from core import models, forms, files, logic, workflow
 from security.decorators import editor_user_required, article_author_required
 from submission import models as submission_models
 from review import models as review_models
@@ -1373,6 +1373,9 @@ def kanban(request):
     prepub = submission_models.Article.objects.filter(Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
                                                       journal=request.journal) \
         .order_by('-date_submitted')
+
+    articles_in_workflow_stages = workflow.get_articles_in_workflow_stages(request)
+
 
     context = {
         'unassigned_articles': unassigned_articles,
