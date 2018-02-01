@@ -38,10 +38,15 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     """
 
     workflow = models.Workflow.objects.get(journal=request.journal)
+    workflow_elements = workflow.elements.all()
+
+    if handshake_url == 'submit_review':
+        set_stage(article)
+        return redirect(reverse('core_dashboard'))
+
     current_element = workflow.elements.get(handshake_url=handshake_url)
 
     try:
-        workflow_elements = workflow.elements.all()
         index = list(workflow_elements).index(current_element) + 1
         next_element = workflow_elements[index]
 
