@@ -1,7 +1,26 @@
 from django.urls import reverse
 from django.shortcuts import redirect
+from django.http import Http404
 
 from core import models
+
+
+def workflow_element_complete(**kwargs):
+    """
+    Handler for workflow complete event
+    :param kwargs: A dict containing three keys handshake_url, request, article and optionally switch_stage
+    :return: HttpRedirect
+    """
+
+    handshake_url = kwargs.get('handshake_url')
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    switch_stage = kwargs.get('switch_stage')
+
+    if not handshake_url or not request or not article:
+        raise Http404
+
+    return workflow_next(handshake_url, request, article, switch_stage)
 
 
 def workflow_next(handshake_url, request, article, switch_stage=False):
