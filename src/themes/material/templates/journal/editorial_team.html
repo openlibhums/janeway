@@ -14,7 +14,7 @@
             </div>
             {% for member in group.members %}
                 <div class="col s12 m3">
-                    <div class="card">
+                    <div class="card editorial-card">
                         <div class="card-image">
                             <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
                         </div>
@@ -23,7 +23,7 @@
                             <p>
                                 <small>{{ member.user.affiliation }}</small>
                             </p>
-                            {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+
                         </div>
                     </div>
                 </div>
