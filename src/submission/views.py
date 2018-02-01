@@ -345,6 +345,12 @@ def submit_review(request, article_id):
                                        task_object=article,
                                        **kwargs)
 
+        event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                                       {'handshake_url': 'submit_review',
+                                        'request': request,
+                                        'article': article,
+                                        'switch_stage': False})
+
         return redirect(reverse('core_dashboard'))
 
     template = "admin/submission//submit_review.html"

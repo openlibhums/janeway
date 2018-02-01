@@ -1079,6 +1079,13 @@ def review_decision(request, article_id, decision):
         if decision == 'accept':
             article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
+
+            workflow_kwargs = {'handshake_url': 'review_unassigned_article',
+                               'request': request,
+                               'article': article,
+                               'switch_stage': True}
+            return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
+                                                  **workflow_kwargs)
         elif decision == 'decline':
             article.decline_article()
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
