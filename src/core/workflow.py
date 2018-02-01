@@ -1,8 +1,10 @@
 from collections import OrderedDict
+from importlib import import_module
 
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.http import Http404
+from django.conf import settings
 
 from core import models
 from submission import models as submission_models
@@ -94,8 +96,22 @@ def articles_in_workflow_stages(request):
     """
 
     workflow = request.journal.workflow()
-    workflow_dict = OrderedDict()
+    workflow_list = {}
 
-    for element in workflow.elements:
-        articles = submission_models.Article.objects.filter(stage=element.stage)
+    for element in workflow.elements.all():
+        element_dict = {}
+
+        try:
+            settings_module = import_module(settings.WORKFLOW_PLUGINS[element.element_name])
+
+            element_dict['articles'] = submission_models.Article.objects.filter(stage=element.stage)
+            element_dict['name'] = element.element_name
+            element_dict['template'] = settings_module.KANBAN_CARD
+
+            workflow_list[element.element_name] = element_dict
+        except KeyError as e:
+            if settings.DEBUG:
+                print(e)
+
+    return workflow_list
 
