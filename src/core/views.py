@@ -1374,7 +1374,7 @@ def kanban(request):
                                                       journal=request.journal) \
         .order_by('-date_submitted')
 
-    articles_in_workflow_stages = workflow.get_articles_in_workflow_stages(request)
+    articles_in_workflow_stages = workflow.articles_in_workflow_stages(request)
 
 
     context = {
@@ -1386,6 +1386,8 @@ def kanban(request):
         'proofing': proof_unassigned_articles,
         'proofing_assigned': proof_assigned_articles,
         'prepubs': prepub,
+        'articles_in_workflow_stages': articles_in_workflow_stages,
+        'workflow': request.journal.workflow()
     }
 
     template = 'core/kanban.html'
