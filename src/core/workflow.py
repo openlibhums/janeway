@@ -5,6 +5,13 @@ from core import models
 
 
 def workflow_next(handshake_url, request, article):
+    """
+    Works out what the next workflow element should be so we can redirect the user there.
+    :param handshake_url: Current workflow element's handshake url
+    :param request: HttpRequest object
+    :param article: Article object
+    :return: HttpRedirect
+    """
 
     workflow = models.Workflow.objects.get(journal=request.journal)
     current_element = workflow.elements.get(handshake_url=handshake_url)
@@ -18,7 +25,13 @@ def workflow_next(handshake_url, request, article):
         return redirect(reverse('core_dashboard'))
 
 
-def set_stage(stage, article):
+def set_stage(article):
+    """
+    Sets the article stage on submission to the first element in the workflow.
+    :param article: Article object
+    :return:
+    """
+
     workflow = models.Workflow.objects.get(journal=article.journal)
     first_element = workflow.elements.all()[0]
     article.stage = first_element.stage
