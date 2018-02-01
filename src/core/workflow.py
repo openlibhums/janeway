@@ -18,7 +18,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
 
     try:
         workflow_elements = workflow.elements.all()
-        index = workflow_elements.index(current_element) + 1
+        index = list(workflow_elements).index(current_element) + 1
         next_element = workflow_elements[index]
 
         if switch_stage:
