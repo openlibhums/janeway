@@ -47,8 +47,12 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     current_element = workflow.elements.get(handshake_url=handshake_url)
 
     try:
-        index = list(workflow_elements).index(current_element) + 1
-        next_element = workflow_elements[index]
+        try:
+            index = list(workflow_elements).index(current_element) + 1
+            next_element = workflow_elements[index]
+        except IndexError:
+            # An index error will occur here when the workflow is complete
+            return redirect(reverse('manage_archive_article',  kwargs={'article_id': article.pk}))
 
         if switch_stage:
             article.stage = next_element.stage
