@@ -37,7 +37,7 @@ from security.decorators import article_stage_accepted_or_later_required, \
     editor_user_required
 from submission import models as submission_models
 from utils import models as utils_models, shared
-
+from events import logic as event_logic
 
 @has_journal
 def home(request):
@@ -685,7 +685,18 @@ def publish_article(request, article_id):
                 if identifier.id_type == 'doi':
                     identifier.register()
 
-            return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+            messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
+
+            if request.journal.element_in_workflow(element_name='prepublication'):
+                workflow_kwargs = {'handshake_url': 'publish_article',
+                                   'request': request,
+                                   'article': article,
+                                   'switch_stage': True}
+                return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                                                      task_object=article,
+                                                      **workflow_kwargs)
+
+        return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
 
     template = 'journal/publish_article.html'
     context = {
