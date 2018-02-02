@@ -319,6 +319,16 @@ class Journal(models.Model):
         except core_models.Workflow.DoesNotExist:
             return workflow.create_default_workflow(self)
 
+    def element_in_workflow(self, element_name):
+        try:
+            element = core_models.WorkflowElement.objects.get(element_name=element_name)
+            if element in self.workflow().elements.all():
+                return True
+            else:
+                return False
+        except core_models.WorkflowElement.DoesNotExist:
+            return False
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(Journal)
