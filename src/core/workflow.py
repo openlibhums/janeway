@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.http import Http404
 from django.conf import settings
+from django.urls.resolvers import NoReverseMatch
 
 from core import models
 from submission import models as submission_models
