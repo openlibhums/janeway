@@ -59,7 +59,10 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             article.stage = next_element.stage
             article.save()
 
-        return redirect(reverse(next_element.handshake_url, kwargs={'article_id': article.pk}))
+        try:
+            return redirect(reverse(next_element.handshake_url, kwargs={'article_id': article.pk}))
+        except NoReverseMatch:
+            return redirect(reverse(next_element.handshake_url))
     except BaseException as e:
         print(e)
         return redirect(reverse('core_dashboard'))
