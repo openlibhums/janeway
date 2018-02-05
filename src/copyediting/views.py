@@ -66,10 +66,10 @@ def article_copyediting(request, article_id):
 
     if request.POST and 'complete' in request.POST:
         event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_COMPLETE, task_object=article, **message_kwargs)
-        if article.stage in submission_models.COPYEDITING_STAGES:
-            article.stage = submission_models.STAGE_TYPESETTING
-            article.save()
-        return redirect(reverse('production_list'))
+        workflow_kwargs = {'handshake_url': 'article_copyediting', 'request': request, 'article': article,
+                           'switch_stage': True}
+        return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
+                                              **workflow_kwargs)
 
     template = 'copyediting/article_copyediting.html'
     context = {
