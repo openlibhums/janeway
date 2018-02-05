@@ -64,7 +64,7 @@ def article_copyediting(request, article_id):
         assignment.delete()
         return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
 
-    if request.POST:
+    if request.POST and 'complete' in request.POST:
         event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_COMPLETE, task_object=article, **message_kwargs)
         if article.stage in submission_models.COPYEDITING_STAGES:
             article.stage = submission_models.STAGE_TYPESETTING
