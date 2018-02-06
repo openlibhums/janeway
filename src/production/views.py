@@ -107,8 +107,6 @@ def production_done(request, article_id):
     :return: HttpRedirect
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    article.stage = submission_models.STAGE_PROOFING
-    article.save()
 
     assignment = models.ProductionAssignment.objects.get(article=article)
     assignment.closed = timezone.now()
@@ -130,7 +128,13 @@ def production_done(request, article_id):
     }
     event_logic.Events.raise_event(event_logic.Events.ON_PRODUCTION_COMPLETE, **kwargs)
 
-    return redirect('proofing_list')
+    if request.journal.element_in_workflow(element_name='production'):
+        workflow_kwargs = {'handshake_url': 'production_list', 'request': request, 'article': article,
+                           'switch_stage': True}
+        return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
+                                              **workflow_kwargs)
+    else:
+        return redirect('proofing_list')
 
 
 @production_user_or_editor_required
