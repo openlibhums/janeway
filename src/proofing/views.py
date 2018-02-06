@@ -557,7 +557,14 @@ def complete_proofing(request, article_id):
         kwargs = {'request': request, 'article': article, 'user_message': message,
                   'skip': True if 'skip' in request.POST else False}
         event_logic.Events.raise_event(event_logic.Events.ON_PROOFING_COMPLETE, task_object=article, **kwargs)
-        return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+
+        if request.journal.element_in_workflow(element_name='proofing'):
+            workflow_kwargs = {'handshake_url': 'proofing_list', 'request': request, 'article': article,
+                               'switch_stage': True}
+            return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
+                                                  **workflow_kwargs)
+        else:
+            return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
 
     template = 'proofing/complete_proofing.html'
     context = {
