@@ -22,6 +22,7 @@ from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
 from preprint import models as preprint_models
+from core import models as core_models
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
@@ -922,6 +923,10 @@ class Article(models.Model):
             return subjects[0]
         else:
             return None
+
+    @cache(600)
+    def workflow_stages(self):
+        return core_models.WorkflowLog.objects.filter(article=self)
 
 
 class FrozenAuthor(models.Model):
