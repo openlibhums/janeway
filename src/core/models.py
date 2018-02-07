@@ -215,6 +215,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
+    class Meta:
+        ordering = ('first_name', 'last_name', 'username')
+
     def save(self, *args, **kwargs):
         self.username = self.email.lower()
         self.email = self.email.lower()
@@ -893,6 +896,7 @@ class WorkflowElement(models.Model):
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
+    stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
     order = models.PositiveIntegerField(default=20)
 
     class Meta:
@@ -906,6 +910,9 @@ class WorkflowLog(models.Model):
     article = models.ForeignKey('submission.Article')
     element = models.ForeignKey(WorkflowElement)
     timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ('timestamp',)
 
 
 class HomepageElement(models.Model):

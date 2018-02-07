@@ -83,6 +83,7 @@ admin_list = [
     (models.Country, CountryAdmin),
     (models.WorkflowElement,),
     (models.HomepageElement, HomepageElementAdmin),
+    (models.WorkflowLog,),
     (models.LoginAttempt,),
 ]
 

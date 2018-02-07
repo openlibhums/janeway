@@ -56,6 +56,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             return redirect(reverse('manage_archive_article',  kwargs={'article_id': article.pk}))
 
         if switch_stage:
+            log_stage_change(article, next_element)
             article.stage = next_element.stage
             article.save()
 
@@ -68,15 +69,25 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
         return redirect(reverse('core_dashboard'))
 
 
+def log_stage_change(article, next_element):
+    """
+    Crates a WorkflowLog entry for this change.
+    :param article: Article object
+    :param next_element: WorkflowElement object
+    :return: None
+    """
+    models.WorkflowLog.objects.create(article=article, element=next_element)
+
+
 def set_stage(article):
     """
     Sets the article stage on submission to the first element in the workflow.
     :param article: Article object
     :return: None
     """
-
     workflow = models.Workflow.objects.get(journal=article.journal)
     first_element = workflow.elements.all()[0]
+    log_stage_change(article, first_element)
     article.stage = first_element.stage
     article.save()
 
