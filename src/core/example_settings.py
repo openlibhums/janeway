@@ -41,6 +41,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+ENABLE_TEXTURE = False
+
 
 # Application definition
 
@@ -85,7 +87,7 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
-    'foundationform',
+    'materialize',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps()
@@ -116,7 +118,8 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'), os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates() +
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),
+                 os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates() +
         plugin_installed_apps.load_homepage_element_templates(),
         'OPTIONS': {
             'context_processors': [
