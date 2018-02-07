@@ -876,13 +876,16 @@ class DomainAlias(models.Model):
 
 
 BASE_ELEMENTS = [
-    {'name': 'review', 'handshake_url': 'review_unassigned_article', 'stage': submission_models.STAGE_UNASSIGNED},
+    {'name': 'review', 'handshake_url': 'review_unassigned_article', 'stage': submission_models.STAGE_UNASSIGNED,
+     'article_url': True},
     {'name': 'copyediting', 'handshake_url': 'article_copyediting',
-     'stage': submission_models.STAGE_EDITOR_COPYEDITING},
-    {'name': 'production', 'handshake_url': 'production_list', 'stage': submission_models.STAGE_TYPESETTING},
-    {'name': 'proofing', 'handshake_url': 'proofing_list', 'stage': submission_models.STAGE_PROOFING},
+     'stage': submission_models.STAGE_EDITOR_COPYEDITING, 'article_url': True},
+    {'name': 'production', 'handshake_url': 'production_list', 'stage': submission_models.STAGE_TYPESETTING,
+     'article_url': False},
+    {'name': 'proofing', 'handshake_url': 'proofing_list', 'stage': submission_models.STAGE_PROOFING,
+     'article_url': False},
     {'name': 'prepublication', 'handshake_url': 'publish_article',
-     'stage': submission_models.STAGE_READY_FOR_PUBLICATION}
+     'stage': submission_models.STAGE_READY_FOR_PUBLICATION, 'article_url': True}
 ]
 
 
@@ -896,7 +899,7 @@ class WorkflowElement(models.Model):
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
-    stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
+    article_url = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=20)
 
     class Meta:

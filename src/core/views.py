@@ -1376,7 +1376,6 @@ def kanban(request):
 
     articles_in_workflow_stages = workflow.articles_in_workflow_stages(request)
 
-
     context = {
         'unassigned_articles': unassigned_articles,
         'in_review': in_review,

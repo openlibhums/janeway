@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from importlib import import_module
 
 from django.urls import reverse
@@ -9,6 +8,7 @@ from django.urls.resolvers import NoReverseMatch
 
 from core import models
 from submission import models as submission_models
+from utils.shared import clear_cache
 
 
 def workflow_element_complete(**kwargs):
@@ -43,6 +43,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
 
     if handshake_url == 'submit_review':
         set_stage(article)
+        clear_cache()
         return redirect(reverse('core_dashboard'))
 
     current_element = workflow.elements.get(handshake_url=handshake_url)
@@ -57,6 +58,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
 
         if switch_stage:
             log_stage_change(article, next_element)
+            clear_cache()
             article.stage = next_element.stage
             article.save()
 
@@ -106,7 +108,8 @@ def create_default_workflow(journal):
                                                             element_name=element.get('name'),
                                                             handshake_url=element['handshake_url'],
                                                             stage=element['stage'],
-                                                            defaults={'order': index})
+                                                            defaults={'order': index,
+                                                                      'article_url': element.get('article_url')})
 
         workflow.elements.add(e)
 
