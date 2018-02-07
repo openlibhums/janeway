@@ -595,3 +595,9 @@ def create_sites_folder(sender, instance, created, **kwargs):
                                                      number_of_reviewers=2,
                                                      name='Article',
                                                      plural='Articles')
+
+
+@receiver(post_save, sender=Journal)
+def setup_default_workflow(sender, instance, created, **kwargs):
+    if created:
+        workflow.create_default_workflow(instance)
