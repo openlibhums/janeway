@@ -150,7 +150,6 @@ def submit_authors(request, article_id):
     if request.GET.get('add_self', None) == 'True':
         new_author = logic.add_self_as_author(request.user, article)
         messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
-        models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     if request.POST and 'add_author' in request.POST:
