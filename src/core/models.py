@@ -902,6 +902,12 @@ class WorkflowElement(models.Model):
         return self.element_name
 
 
+class WorkflowLog(models.Model):
+    article = models.ForeignKey('submission.Article')
+    element = models.ForeignKey(WorkflowElement)
+    timestamp = models.DateTimeField(default=timezone.now)
+
+
 class HomepageElement(models.Model):
     # the URL to configure this homepage element, or null/blank if no configuration is needed
     configure_url = models.CharField(max_length=200, blank=True, null=True)
