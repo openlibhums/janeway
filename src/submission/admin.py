@@ -44,6 +44,11 @@ class PublisherNoteAdmin(admin.ModelAdmin):
     list_filter = ('creator',)
 
 
+class KeywordAdmin(admin.ModelAdmin):
+    list_display = ('word',)
+    search_fields = ('word',)
+
+
 class SectionAdmin(TranslatableAdmin):
     pass
 
@@ -58,6 +63,7 @@ admin_list = [
     (models.FrozenAuthor, FrozenAuthorAdmin),
     (models.Field,),
     (models.FieldAnswer,),
+    (models.Keyword, KeywordAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

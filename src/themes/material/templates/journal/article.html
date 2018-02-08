@@ -93,12 +93,21 @@
 
 
                     <span class="card-title">
-                        <div class="carousel-text-wrapper">
+                        <div class="carousel-text-wrapper hide-on-small-only">
                         <small>
                             {{ article.section.name }}
                         </small>
                         <br/>
                         {{ article.title|safe }}
+                            </div>
+                    </span>
+                    <span class="card-title" style="font-size: 17px;">
+                        <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
+                        <small>
+                            {{ article.section.name }}
+
+                        <br/>
+                        {{ article.title|safe }}</small>
                             </div>
                     </span>
 
@@ -119,7 +128,7 @@
                         <div class="divider"></div>
                     </div>
 
-                    {% if article.keywords.all and article.keywords.all|length > 0 %}
+                    {% if article.keywords.count > 0 %}
                         <h5>{% trans "Keywords" %}</h5>
                         <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
@@ -283,7 +292,7 @@
         });
         $(document).scroll(function () {
             var y = $(this).scrollTop();
-            if (y > 700) {
+            if (y > 1000) {
                 $('#toc-card').fadeIn();
             } else {
                 $('#toc-card').fadeOut();

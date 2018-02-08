@@ -208,6 +208,11 @@ class Events:
     # raised when a new comment is submitted for a preprint
     ON_PREPRINT_COMMENT = 'on_preprint_comment'
 
+    # kwargs: handshake_url, request, article, switch_stage (optional)
+    # raised when a workflow element completes to hand over to the next one
+    ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
+
+
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
         """
@@ -230,7 +235,11 @@ class Events:
         if event_name not in Events._hooks:
             return
         else:
-            [func(**kwargs) for func in Events._hooks[event_name]]
+            event_return = [func(**kwargs) for func in Events._hooks[event_name]]
+
+            if event_return:
+                return event_return[0]
+
 
     @staticmethod
     def register_for_event(event_name, function):

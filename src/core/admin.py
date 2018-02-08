@@ -63,6 +63,18 @@ class FileAdmin(admin.ModelAdmin):
     list_filter = ('mime_type',)
 
 
+class WorkflowElementAdmin(admin.ModelAdmin):
+    search_fields = ('element_name',)
+    list_display = ('element_name', 'journal', 'handshake_url', 'stage', 'order')
+    list_filter = ('journal',)
+    
+
+class WorkflowLogAdmin(admin.ModelAdmin):
+    search_fields = ('article',)
+    list_display = ('article', 'element', 'timestamp')
+    list_filter = ('element',)
+
+
 admin_list = [
     (models.Account, AccountAdmin),
     (models.Role, RoleAdmin,),
@@ -81,8 +93,9 @@ admin_list = [
     (models.OrcidToken,),
     (models.DomainAlias,),
     (models.Country, CountryAdmin),
-    (models.WorkflowElement,),
+    (models.WorkflowElement, WorkflowElementAdmin),
     (models.HomepageElement, HomepageElementAdmin),
+    (models.WorkflowLog, WorkflowLogAdmin),
     (models.LoginAttempt,),
 ]
 

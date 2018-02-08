@@ -150,7 +150,6 @@ def submit_authors(request, article_id):
     if request.GET.get('add_self', None) == 'True':
         new_author = logic.add_self_as_author(request.user, article)
         messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
-        models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     if request.POST and 'add_author' in request.POST:
@@ -344,6 +343,12 @@ def submit_review(request, article_id):
         event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                        task_object=article,
                                        **kwargs)
+
+        event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                                       **{'handshake_url': 'submit_review',
+                                        'request': request,
+                                        'article': article,
+                                        'switch_stage': False})
 
         return redirect(reverse('core_dashboard'))
 

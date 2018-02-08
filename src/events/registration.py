@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from core import models as core_models
+from core import models as core_models, workflow
 from utils import transactional_emails, workflow_tasks
 from events import logic as event_logic
 from journal import logic as journal_logic
@@ -136,6 +136,9 @@ event_logic.Events.register_for_event(event_logic.Events.ON_REVIEWER_ACCEPTED,
 
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       workflow_tasks.create_copyedit_task)
+
+event_logic.Events.register_for_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                                      workflow.workflow_element_complete)
 
 # wire up the core task destroyer
 # N.B. this is critical to the operation of the task framework. It automatically tears down tasks that have registered

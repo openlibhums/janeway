@@ -969,7 +969,7 @@
                     <xsl:variable name="graphics" select="following-sibling::graphic/@xlink:href"/>
                     <div class="fig-inline-img">
                         <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}"/>
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img" />
                         </a>
                     </div>
                 </xsl:if>
@@ -1343,7 +1343,7 @@
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
                         <a href="{$graphics}" class="figure-expand-popup" title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}"/>
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img" />
                         </a>
                     </div>
                     <xsl:apply-templates/>
@@ -1363,7 +1363,7 @@
                         <xsl:variable name="primarycap" select="child::fig[not(@specific-use)]//label/text()"/>
                         <xsl:variable name="graphichref" select="substring-before(concat(child::fig[not(@specific-use)]/graphic/@xlink:href, '.'), '.')"/>
                         <a href="{$primaryid}">
-                            <img src="{$graphichref}" alt="{$primarycap}"/>
+                            <img src="{$graphichref}" alt="{$primarycap}" class="responsive-img"/>
                         </a>
                     </div>
                     <div class="figure-carousel-inner-wrapper">
@@ -1374,7 +1374,7 @@
                                 <xsl:variable name="secgraphichref" select="substring-before(concat(child::graphic/@xlink:href, '.'), '.')"/>
                                 <div class="acta-fig-slider-img acta-fig-slider-secondary">
                                     <a href="#{@id}">
-                                        <img src="{$secgraphichref}" alt="{$secondarycap}"/>
+                                        <img src="{$secgraphichref}" alt="{$secondarycap}" class="responsive-img"/>
                                     </a>
                                 </div>
                             </xsl:for-each>

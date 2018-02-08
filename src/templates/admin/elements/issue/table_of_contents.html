@@ -1,38 +1,53 @@
 <div class="large-12 columns">
     <div class="box">
-        <div class="title-area">
-            <h2>Table of Contents</h2>
-            <a href="{% url 'issue_add_article' issue.pk %}" class="small success button float-right"><i class="fa fa-plus">&nbsp;</i>Add Article</a>
-        </div>
-        <div class="content">
-            <table class="small">
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Authors</th>
-                    <th>Section</th>
-                    <th>DOI</th>
-                    <th>Pub ID</th>
-                    <th>Page Numbers</th>
-                    <th></th>
-                </tr>
-                <tbody id="sortable">
-                {% for dict in issue.manage_issue_list %}
-                <tr id="articles-{{ dict.article.pk }}">
-                    <td><i class="fa fa-sort">&nbsp;</i>{{ dict.article.id }}</td>
-                    <td><a href="{% url 'manage_archive_article' dict.article.pk %}">{{ dict.article.title|safe }}</a></td>
-                    <td>{{ dict.article.author_list }}</td>
-                    <td>{{ dict.article.section.name }}</td>
-                    <td>{{ dict.article.get_doi }}</td>
-                    <td>{{ dict.article.get_pubid }}</td>
-                    <td>{{ dict.article.page_numbers }}</td>
-                    <th><td><a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ dict.article.pk }}"><i class="fa fa-chain-broken">&nbsp;</i>Remove</a></td></th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% for section, articles in issue.structure.items %}
+            {% if not section == 'structure' %}
+                <div class="title-area">
+                    {{ section.name }} (ID: {{ section.pk }})
+                    <form method="POST" action="{% url 'manage_sort_issue_sections' issue.pk %}">
+                        {% csrf_token %}
+                        {% if not section == issue.first_section %}
+                            <button name="up" value="{{ section.pk }}" class="button" href=""><i
+                                    class="fa fa-arrow-up"></i></button>&nbsp;{% endif %}
+                        {% if not section == issue.last_section %}
+                            <button name="down" value="{{ section.pk }}" class="button"><i class="fa fa-arrow-down"></i>
+                            </button>{% endif %}
+                    </form>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="30%">Title</th>
+                            <th width="15%">Authors</th>
+                            <th width="10%">Section</th>
+                            <th width="10%">DOI</th>
+                            <th width="10%">Pub ID</th>
+                            <th width="10%">Page Numbers</th>
+                            <th width="10%"></th>
+                        </tr>
+                        <tbody class="sortable">
+                        {% for article in articles %}
+                            <tr id="articles-{{ article.pk }}">
+                                <td><i class="fa fa-sort"></i> {{ article.id }}</td>
+                                <td>
+                                    <a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a>
+                                </td>
+                                <td>{{ article.author_list }}</td>
+                                <td>{{ article.section.name }}</td>
+                                <td>{{ article.get_doi }}</td>
+                                <td>{{ article.get_pubid }}</td>
+                                <td>{{ article.page_numbers }}</td>
+                                <td>
+                                    <a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ article.pk }}"><i
+                                            class="fa fa-chain-broken">&nbsp;</i>Remove</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 </div>
-
 

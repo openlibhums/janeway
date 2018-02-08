@@ -35,6 +35,10 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
             hooks.append(load_hooks(module_name))
 
+            workflow_check = check_plugin_workflow(module_name)
+            if workflow_check:
+                settings.WORKFLOW_PLUGINS[workflow_check] = module_name
+
     if settings.PLUGIN_HOOKS:
         super_hooks = settings.PLUGIN_HOOKS
     else:
@@ -48,6 +52,7 @@ def load(directory="plugins", prefix="plugins", permissive=False):
 
     for k, v in super_hooks.items():
         settings.PLUGIN_HOOKS[k] = v
+
     return plugins
 
 
@@ -69,3 +74,12 @@ def get_plugin(module_name, permissive):
 def load_hooks(module_name):
     plugin_settings = import_module(module_name)
     return plugin_settings.hook_registry()
+
+
+def check_plugin_workflow(module_name):
+    plugin_settings = import_module(module_name)
+    try:
+        if plugin_settings.IS_WORKFLOW_PLUGIN:
+            return plugin_settings.PLUGIN_NAME
+    except AttributeError:
+        return False

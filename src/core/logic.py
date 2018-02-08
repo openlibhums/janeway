@@ -392,7 +392,7 @@ def get_available_elements(workflow):
             if plugin_settings.IS_WORKFLOW_PLUGIN:
                 our_elements.append(
                     {'name': plugin_settings.PLUGIN_NAME, 'handshake_url': plugin_settings.HANDSHAKE_URL,
-                     'stage': plugin_settings.STAGE}
+                     'stage': plugin_settings.STAGE, 'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL}
                 )
     return clear_active_elements(our_elements, workflow, plugins)
 

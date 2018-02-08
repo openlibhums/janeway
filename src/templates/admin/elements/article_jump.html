@@ -1,12 +1,19 @@
 <button class="tiny secondary button float-right dropdown" data-toggle="articledropdown">Article Jump</button>
 <div class="dropdown-pane bottom small" id="articledropdown" data-dropdown>
-  <ul>
-      <li><a href="{% url 'review_in_review' article.pk %}">Review</a></li>
-      <li><a href="{% url 'article_copyediting' article.pk %}">Editing</a></li>
-      {% if article.stage == 'Proofing' or article.stage == 'pre_publication' or article.stage == 'Typesetting' %}<li><a href="{% url 'production_article' article.pk %}">Production</a></li>{% endif %}
-      {% if article.stage == 'Proofing' or article.stage == 'pre_publication' %}<li><a href="{% url 'proofing_article' article.pk %}">Proofing</a></li>{% endif %}
-      {% if article.stage == 'pre_publication' %}<li><a href="{% url 'publish_article' article.pk %}">Pre Publication</a></li>{% endif %}
-      <li><a href="{% url 'manage_article_log' article.pk %}">Log</a></li>
-      {% if article.is_published %}<li><a href="{{ article.url }}">Live Article</a></li>{% endif %}
-  </ul>
+    <ul>
+        {% for stage in article.workflow_stages %}
+            <li>{% if stage.element.article_url %}
+                <a href="{% url stage.element.handshake_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
+                {% else %}
+                <a href="{% url stage.element.handshake_url %}">{{ stage.element.element_name|capfirst }}</a>
+            {% endif %}</li>
+        {% endfor %}
+        <li><a href="{% url 'manage_article_log' article.pk %}">Log</a></li>
+        {% if article.is_published %}
+            <li><a href="{{ article.url }}">Live Article</a></li>{% endif %}
+        {% if request.user.is_superuser %}
+            <li><a target="_blank" href="/admin/submission/article/{{ article.pk }}/">Admin <i
+                    class="fa fa-external-link"></i></a></li>
+        {% endif %}
+    </ul>
 </div>

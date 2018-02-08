@@ -18,7 +18,7 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Issue Management</h2>
-                    {% if not issue %}<a href="#" data-open="issue" class="button small success"><i class="fa fa-plus">&nbsp;</i>Create Issue</a>{% endif %}
+                    {% if not issue %}<a href="#" data-open="issue" class="button small success"><i class="fa fa-plus">&nbsp;</i>Create Issue</a>{% else %}<a class="button" href="{% url 'journal_issue' issue.pk %}">View Issue</a>{% endif %}
                 </div>
                 <div class="content">
                     <table>
@@ -33,7 +33,7 @@
                             <th colspan="3"></th>
                         </tr>
                         </thead>
-                        <tbody {% if not issue %}id="sortable"{% endif %}>
+                        <tbody {% if not issue %}class="sortable"{% endif %}>
                         {% for i in issues %}
                             <tr {% if not issue %}id="issues-{{ i.pk }}"{% endif %}>
                                 <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
@@ -41,7 +41,7 @@
                                 <td>{{ i.volume }}</td>
                                 <td>{{ i.issue }}</td>
                                 <td>{{ i.date|date:"Y-m-d" }}</td>
-                                <td>{{ i.manage_issue_list|length }}</td>
+                                <td>{{ i.articles.all|length }}</td>
                                 <td>
                                     {% if issue %}<a href="#" data-open="issue"><i class="fa fa-edit">&nbsp;</i>Edit Details</a>{% endif %}
                                     {%  if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i class="fa fa-eye">&nbsp;</i>View</a>{%  endif %}
@@ -72,7 +72,7 @@
     <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script>
-        $( "#sortable" ).sortable({
+        $( ".sortable" ).sortable({
             update: function (event, ui) {
                 var data = $(this).sortable('serialize');
                 console.log(data);
@@ -84,6 +84,6 @@
                 });
             }
         });
-        $( "#sortable" ).disableSelection();
+        $( ".sortable" ).disableSelection();
     </script>
 {% endblock js %}

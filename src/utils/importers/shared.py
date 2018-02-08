@@ -42,7 +42,7 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user):
     }
 
     # iterate over all found elements
-    for element, attribute in elements. items():
+    for element, attribute in elements.items():
         images = soup.findAll(element)
 
         # iterate over all found elements of each type in the elements dictionary
