@@ -75,7 +75,7 @@ class NewsItem(models.Model):
         str_tags = [tag.text for tag in self.tags.all()]
 
         for tag in posted_tags:
-            if tag not in str_tags:
+            if tag not in str_tags and tag != '':
                 new_tag, c = Tag.objects.get_or_create(text=tag)
                 self.tags.add(new_tag)
 

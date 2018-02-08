@@ -200,7 +200,9 @@ def news_item(request, news_pk):
     :param news_pk: PK of a NewsItem object
     :return: HttpResponse object
     """
-    item = get_object_or_404(models.NewsItem, pk=news_pk, content_type=request.model_content_type)
+    item = get_object_or_404(models.NewsItem.objects.prefetch_related('tags'),
+                             pk=news_pk,
+                             content_type=request.model_content_type)
 
     if request.journal:
         template = 'core/news/item.html'

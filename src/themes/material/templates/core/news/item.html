@@ -20,7 +20,6 @@
                     <h6><em>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</em>
                     </h6>
                     <p>{{ news_item.body|safe }}</p>
-
                     {% if news_item.tags.all %}
                         <br />
                         <h7>Tags <i class="fa fa-tags">&nbsp;</i></h7>

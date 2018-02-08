@@ -14,7 +14,6 @@ class NewsItemForm(forms.ModelForm):
         news_item = super(NewsItemForm, self).save()
         posted_tags = self.cleaned_data['tags'].split(',')
         news_item.set_tags(posted_tags=posted_tags)
-
         news_item.save()
 
         return news_item
