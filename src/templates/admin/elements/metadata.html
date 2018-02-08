@@ -128,10 +128,17 @@
             <td>{{ article.pk }}</td>
         </tr>
         {% if use_crossref %}
-        <tr>
-            <td>Example DOI Based on Pattern</td>
-            <td>{{ article.render_sample_doi }}</td>
-        </tr>
+            <tr>
+                {% with article.get_doi as doi %}
+                {% if doi %}
+                    <td>DOI</td>
+                    <td>{{ doi }}</td>
+                {% else %}
+                    <td>Example DOI Based on Pattern</td>
+                    <td>{{ article.render_sample_doi }}</td>
+                {% endif %}
+                {% endwith %}
+            </tr>
         {% endif %}
     </table>
 </div>
