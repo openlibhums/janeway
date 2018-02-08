@@ -3434,6 +3434,13 @@ class TestSecurity(TestCase):
                                                           journal_id=self.journal_one.id)
         self.article_proofing.save()
 
+        self.test_galley = core_models.Galley(
+            article=self.article_proofing,
+            file=self.third_file,
+            label='TXT'
+        )
+        self.test_galley.save()
+
         assigned = production_models.ProductionAssignment(article=self.article_in_production,
                                                           production_manager=self.production)
         assigned.save()
