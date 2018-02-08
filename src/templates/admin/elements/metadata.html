@@ -1,3 +1,5 @@
+{% load settings %}
+
 {% if not view_type == "author" %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
             class="fa fa-edit">&nbsp;</i>Edit</a>{% endif %}
@@ -5,14 +7,12 @@
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
 <table class="small">
     <tr>
-        <th>ID</th>
         <th>Section</th>
         <th>Owner</th>
         <th>Licence</th>
         <th>Language</th>
     </tr>
     <tr>
-        <td>#{{ article.pk }}</td>
         <td>{{ article.section.name }}</td>
         <td>{{ article.owner.full_name }}</td>
         <td>{{ article.license.short_name }}</td>
@@ -112,6 +112,30 @@
         </tr>
     {% endfor %}
 </table>
+
+<div class="title-area">
+    <h2>Identifiers</h2>
+</div>
+{% setting_var request.journal 'use_crossref' as use_crossref %}
+<div class="content">
+    <table>
+        <tr>
+            <th>ID Type</th>
+            <th>Identifier</th>
+        </tr>
+        <tr>
+            <td>ID</td>
+            <td>{{ article.pk }}</td>
+        </tr>
+        {% if use_crossref %}
+        <tr>
+            <td>Example DOI Based on Pattern</td>
+            <td>{{ article.render_sample_doi }}</td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+
 {% if files %}
     <h4>Files</h4>
     <table class="table table-bordered table-condensed small">

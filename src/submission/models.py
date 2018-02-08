@@ -923,6 +923,10 @@ class Article(models.Model):
         else:
             return None
 
+    @cache(600)
+    def render_sample_doi(self):
+        return id_logic.render_doi_from_pattern(self)
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
