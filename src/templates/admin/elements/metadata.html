@@ -5,12 +5,14 @@
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
 <table class="small">
     <tr>
+        <th>ID</th>
         <th>Section</th>
         <th>Owner</th>
         <th>Licence</th>
         <th>Language</th>
     </tr>
     <tr>
+        <td>#{{ article.pk }}</td>
         <td>{{ article.section.name }}</td>
         <td>{{ article.owner.full_name }}</td>
         <td>{{ article.license.short_name }}</td>
