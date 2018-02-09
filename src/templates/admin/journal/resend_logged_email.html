@@ -11,6 +11,7 @@
 
 {% block body %}
     <div class="box">
+        {% if not close %}
         <form method="POST">
             {% csrf_token %}
             <div class="large-12 columns">
@@ -21,17 +22,12 @@
                 <button name="resend" class="success button">Resend Email</button>
                 <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
             </div>
-            <br />
+            <br/>
         </form>
-    </div>
-{% endblock %}
+        {% else %}
+        <p>This email has been resent.</p>
+        <a class="warning button" href="javascript:self.close()">Close this Window</a>
 
-{% block js %}
-    {% if close %}
-    <script>
-        $(document).ready(function () {
-            self.close();
-        });
-    </script>
-    {% endif %}
+        {% endif %}
+    </div>
 {% endblock %}
