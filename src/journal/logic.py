@@ -341,3 +341,7 @@ def create_html_snippet(note):
     html_content = template.render({'note': note})
 
     return html_content
+
+
+def resend_email(article, log):
+    pass
