@@ -1301,18 +1301,21 @@ def resend_logged_email(request, article_id, log_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     log_entry = get_object_or_404(utils_models.LogEntry, pk=log_id)
     form = forms.ResendEmailForm(log_entry=log_entry)
+    close = False
 
     if request.POST and 'resend' in request.POST:
         form = forms.ResendEmailForm(request.POST, log_entry=log_entry)
 
         if form.is_valid():
             logic.resend_email(article, log_entry, request, form)
+            close = True
 
     template = 'journal/resend_logged_email.html'
     context = {
         'article': article,
         'log_entry': log_entry,
         'form': form,
+        'close': close,
     }
 
     return render(request, template, context)

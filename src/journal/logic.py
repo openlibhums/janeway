@@ -13,6 +13,7 @@ from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import get_template
+from django.core.validators import validate_email, ValidationError
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -343,5 +344,26 @@ def create_html_snippet(note):
     return html_content
 
 
+def validate_to_list(to_list):
+    """Removes any strings from a list that aren't an email address"""
+    for address in to_list:
+        try:
+            validate_email(address)
+        except ValidationError:
+            to_list.remove(address)
+
+    return to_list
+
+
 def resend_email(article, log_entry, request, form):
-    pass
+    to_list = [x.strip() for x in form.cleaned_data['to'].split(';') if x]
+    valid_email_addresses = validate_to_list(to_list)
+
+    subject = form.cleaned_data['subject']
+    message = form.cleaned_data['body']
+    log_dict = {'level': 'Info',
+                'action_text': 'Resending an email.',
+                'types': 'Email Resend',
+                'target': article}
+
+    notify_helpers.send_email_with_body_from_user(request, subject, valid_email_addresses, message, log_dict=log_dict)

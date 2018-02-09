@@ -24,5 +24,14 @@
             <br />
         </form>
     </div>
+{% endblock %}
 
+{% block js %}
+    {% if close %}
+    <script>
+        $(document).ready(function () {
+            self.close();
+        });
+    </script>
+    {% endif %}
 {% endblock %}
