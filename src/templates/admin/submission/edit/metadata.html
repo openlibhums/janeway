@@ -23,39 +23,43 @@
                 <div class="content">
                     {% include "elements/forms/errors.html" with form=info_form %}
                     {% csrf_token %}
-                    <div class="large-6 columns">
-                        {{ info_form.title|foundation }}
-                    </div>
-                    <div class="large-6 columns">
-                        {{ info_form.subtitle|foundation }}
-                    </div>
-                    <div class="large-12 columns">
-                        {{ info_form.abstract|foundation }}
-                    </div>
-                    <div class="large-3 columns">
-                        {{ info_form.language|foundation }}
-                    </div>
-                    <div class="large-3 columns">
-                        {{ info_form.section|foundation }}
-                    </div>
-                    <div class="large-3 columns">
-                        {{ info_form.license|foundation }}
-                    </div>
-                    <div class="large-3 columns">
-                        {{ info_form.page_numbers|foundation }}
-                    </div>
-                    <div class="large-4 columns">
-                        <div class="large-12 columns">
-                            <label>{{ info_form.is_remote.label }}</label>
-                            {{ info_form.is_remote }} {{ info_form.is_remote.field.help_text }}
+                    <div class="row expanded">
+                        <div class="large-6 columns">
+                            {{ info_form.title|foundation }}
+                        </div>
+                        <div class="large-6 columns">
+                            {{ info_form.subtitle|foundation }}
+                        </div>
+                        <div class="large-10 columns end">
+                            {{ info_form.abstract|foundation }}
                         </div>
                     </div>
-                    <div class="large-4 columns">
-                        {{ info_form.remote_url|foundation }}
-                    </div>
-                    <div class="large-4 columns">
-                        {{ info_form.primary_issue|foundation }}
-                    </div>
+                    <div class="row expanded">
+                        <div class="large-3 columns">
+                            {{ info_form.language|foundation }}
+                        </div>
+                        <div class="large-3 columns">
+                            {{ info_form.section|foundation }}
+                        </div>
+                        <div class="large-3 columns">
+                            {{ info_form.license|foundation }}
+                        </div>
+                        <div class="large-3 columns">
+                            {{ info_form.page_numbers|foundation }}
+                        </div>
+                        <div class="large-3 columns">
+                            <div class="large-12 columns">
+                                <label>{{ info_form.is_remote.label }}</label>
+                                {{ info_form.is_remote }} {{ info_form.is_remote.field.help_text }}
+                            </div>
+                        </div>
+                        <div class="large-3 columns">
+                            {{ info_form.remote_url|foundation }}
+                        </div>
+                        <div class="large-3 columns end">
+                            {{ info_form.primary_issue|foundation }}
+                        </div>
+                     </div>
                     <div class="large-12 columns">
                         <label for="id_keywords">Keywords</label>
                         <input type="text" id="id_keywords" name="keywords" value="
@@ -141,4 +145,5 @@
         });
         $( "#sortable" ).disableSelection();
     </script>
+    {% include "elements/jqte.html" %} 1
 {% endblock js %}

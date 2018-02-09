@@ -11,62 +11,63 @@
 {% block body %}
     <article>
         <div class="box">
-        <form method="POST">
-            {% csrf_token %}
+            <form method="POST">
+                {% csrf_token %}
 
-            {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
+                {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
                 {% include "submission/timeline.html" with data=article %}
 
-            <div class="row">
-                {% include "elements/forms/errors.html" with form=form %}
-                <div class="large-6 columns">
-                    {{ form.title|foundation }}
-                </div>
-                <div class="large-6 columns">
-                    {{ form.subtitle|foundation }}
-                </div>
-                <div class="large-12 columns">
-                    {{ form.abstract|foundation }}
-                </div>
-                <div class="large-4 columns">
-                    {{ form.language|foundation }}
-                </div>
-                <div class="large-4 columns">
-                    {{ form.section|foundation }}
-                </div>
-                <div class="large-4 columns error">
-                    {{ form.license|foundation }}
-                    <p class="help-text"><a href="#" data-open="license">View license information</a></p>
-                </div>
-                <hr/>
-
-                <div class="large-12 columns">
-                    <label for="id_keywords">Keywords</label>
-                    <input type="text" id="id_keywords" name="keywords" value="
-                            {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
-                    Hit Enter to add a new keyword.
-                </div>
-
-                {% if additional_fields %}
-                    <div class="large-12 columns">
-                        <p></p>
-                        <h4>Additional Fields</h4>
+                <div class="row">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    <div class="large-6 columns">
+                        {{ form.title|foundation }}
                     </div>
-                    {% for additional_field in additional_fields %}
-                        {% get_form_field form additional_field.name as field %}
-                        <div class="{{ field.field.widget.attrs.div_class }} columns">
-                            {{ field|foundation }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
+                    <div class="large-6 columns">
+                        {{ form.subtitle|foundation }}
+                    </div>
+                    <div class="large-12 columns">
+                        {{ form.abstract|foundation }}
+                    </div>
+                    <div class="large-4 columns">
+                        {{ form.language|foundation }}
+                    </div>
+                    <div class="large-4 columns">
+                        {{ form.section|foundation }}
+                    </div>
+                    <div class="large-4 columns error">
+                        {{ form.license|foundation }}
+                        <p class="help-text"><a href="#" data-open="license">View license information</a></p>
+                    </div>
+                    <hr/>
 
-                <div class="large-12 columns">
-                    <button class="success button pull-right" type="submit" name="start_submission"><i
-                            class="fa fa-check">&nbsp;</i>{% trans "Save and Continue" %}
-                    </button>
+                    <div class="large-12 columns">
+                        <label for="id_keywords">Keywords</label>
+                        <input type="text" id="id_keywords" name="keywords" value="
+
+                                {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                        Hit Enter to add a new keyword.
+                    </div>
+
+                    {% if additional_fields %}
+                        <div class="large-12 columns">
+                            <p></p>
+                            <h4>Additional Fields</h4>
+                        </div>
+                        {% for additional_field in additional_fields %}
+                            {% get_form_field form additional_field.name as field %}
+                            <div class="{{ field.field.widget.attrs.div_class }} columns">
+                                {{ field|foundation }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="large-12 columns">
+                        <button class="success button pull-right" type="submit" name="start_submission"><i
+                                class="fa fa-check">&nbsp;</i>{% trans "Save and Continue" %}
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
     </article>
 
     <!-- License information modal -->
@@ -91,14 +92,16 @@
 
 
 {% block js %}
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-<script src="{% static "common/js/tagit.js" %}"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
 
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#id_keywords").tagit(
-        {allowSpaces: true});
-  });
-</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+    {% include "elements/jqte.html" %}
+
 {% endblock %}
