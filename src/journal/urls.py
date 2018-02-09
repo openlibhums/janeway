@@ -85,6 +85,9 @@ urlpatterns = [
     url(r'^manage/article/(?P<article_id>\d+)/log/$',
         views.manage_article_log, name='manage_article_log'),
 
+    url(r'^manage/article/(?P<article_id>\d+)/log/(?P<log_id>\d+)/resend/$',
+        views.resend_logged_email, name='manage_resend_logged_email'),
+
     # Reviewer
     url(r'^reviewer/$',
         views.become_reviewer, name='become_reviewer'),

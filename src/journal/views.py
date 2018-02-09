@@ -1281,15 +1281,6 @@ def manage_article_log(request, article_id):
     content_type = ContentType.objects.get_for_model(article)
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
 
-    if request.POST and 'resend' in request.POST:
-        log_id = request.POST.get('resend')
-        log = log_entries.get(pk=log_id)
-
-        if log.to:
-            logic.resend_email(article, log)
-        else:
-            messages.add_message(request, messages.WARNING, 'Only emails with a recorded To address can be resent.')
-
     if request.POST and settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
         call_command('check_mailgun_stat')
         return redirect(reverse('manage_article_log', kwargs={'article_id': article.pk}))
@@ -1302,6 +1293,30 @@ def manage_article_log(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def resend_logged_email(request, article_id, log_id):
+
+    article = get_object_or_404(submission_models.Article, pk=article_id)
+    log_entry = get_object_or_404(utils_models.LogEntry, pk=log_id)
+    form = forms.ResendEmailForm(log_entry=log_entry)
+
+    if request.POST and 'resend' in request.POST:
+        form = forms.ResendEmailForm(request.POST, log_entry=log_entry)
+
+        if form.is_valid():
+            logic.resend_email(article, log_entry, request, form)
+
+    template = 'journal/resend_logged_email.html'
+    context = {
+        'article': article,
+        'log_entry': log_entry,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
 
 
 @editor_user_required

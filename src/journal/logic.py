@@ -343,5 +343,5 @@ def create_html_snippet(note):
     return html_content
 
 
-def resend_email(article, log):
+def resend_email(article, log_entry, request, form):
     pass
