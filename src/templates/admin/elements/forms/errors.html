@@ -1,22 +1,23 @@
 {% if form.errors %}
-<div class="bs-callout bs-callout-danger">
-    <small>
-    <ul>
-        {% if form.non_field_errors %}
-        <li>Non Field Errors</li>
-        <ul>
-            {{ form.non_field_errors }}
-        </ul>
-        {% endif %}
-        {% for field in form %}
-            {% if field.errors %}
-            <li>{{ field.label }}</li>
-            <ul>
-                {{ field.errors }}
-            </ul>
-            {% endif %}
-        {% endfor %}
-    </ul>
-    </small>
-</div>
+    <div class="card card-alert">
+        <div class="card-section">
+            <small>
+                <p>Form errors:</p>
+                <ul>
+                    {% if form.non_field_errors %}
+                        <li>Non Field Errors</li>
+                        <ul>
+                            {{ form.non_field_errors }}
+                        </ul>
+                    {% endif %}
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li>{{ field.label }}</li>
+                            {{ field.errors }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </small>
+        </div>
+    </div>
 {% endif %}

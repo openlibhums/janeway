@@ -380,3 +380,7 @@ th {
 .amber {
   color: darkorange;
 }
+
+.card-alert {
+    border-color: darkred !important;
+}
