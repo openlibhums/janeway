@@ -25,10 +25,6 @@ class Migration(migrations.Migration):
             name='current_issue',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='current_issue', to='journal.Issue'),
         ),
-        migrations.RemoveField(
-            model_name='articleordering',
-            name='issue',
-        ),
         migrations.AlterUniqueTogether(
             name='articleordering',
             unique_together=set([('article',)]),

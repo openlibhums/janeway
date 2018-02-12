@@ -363,3 +363,5 @@ INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
 CAPTCHA_TYPE = 'select a value'  # should be either simple_math or recaptcha to enable captcha fields
 RECAPTCHA_PRIVATE_KEY = 'your private key'
 RECAPTCHA_PUBLIC_KEY = 'your public key'
+
+SILENT_IMPORT_CACHE = False
