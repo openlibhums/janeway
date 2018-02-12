@@ -105,8 +105,9 @@ class ArticleInfo(forms.ModelForm):
 
         posted_keywords = self.cleaned_data['keywords'].split(',')
         for keyword in posted_keywords:
-            new_keyword, c = models.Keyword.objects.get_or_create(word=keyword)
-            article.keywords.add(new_keyword)
+            if keyword != '':
+                new_keyword, c = models.Keyword.objects.get_or_create(word=keyword)
+                article.keywords.add(new_keyword)
 
         for keyword in article.keywords.all():
             if keyword.word not in posted_keywords:
