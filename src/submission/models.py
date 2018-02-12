@@ -955,6 +955,16 @@ class FrozenAuthor(models.Model):
         else:
             return u"%s %s" % (self.first_name, self.last_name)
 
+    def citation_name(self):
+        first_initial, middle_initial = '', ''
+        
+        if self.middle_name:
+            middle_initial = '{0}.'.format(self.middle_name[:1])
+        if self.first_name:
+            first_initial = '{0}.'.format(self.first_name[:1])
+
+        return '{0} {1}{2}'.format(self.last_name, first_initial, middle_initial)
+
 
 class Section(TranslatableModel):
     journal = models.ForeignKey('journal.Journal')
