@@ -895,10 +895,10 @@ def edit_review(request, article_id, review_id):
         messages.add_message(request, messages.WARNING, 'You cannot edit a review that is already complete.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
-    form = forms.ReviewAssignmentForm(instance=review)
+    form = forms.ReviewAssignmentForm(instance=review, journal=request.journal)
 
     if request.POST:
-        form = forms.ReviewAssignmentForm(request.POST, instance=review)
+        form = forms.ReviewAssignmentForm(request.POST, instance=review, journal=request.journal)
 
         if form.is_valid():
             form.save()
