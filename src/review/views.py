@@ -605,6 +605,10 @@ def do_review(request, assignment_id):
             assignment.save_review_form(form, assignment)
             assignment.date_complete = timezone.now()
             assignment.is_complete = True
+
+            if not assignment.date_accepted:
+                assignment.date_accepted = timezone.now()
+                
             assignment.save()
 
             kwargs = {'review_assignment': assignment,
