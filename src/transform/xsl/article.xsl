@@ -1477,9 +1477,10 @@
               
               <xsl:if test="person-group and person-group/@person-group-type = 'editor'">
                 <xsl:variable name="eds-name-count" select="count(person-group/string-name)"/>
+                <xsl:variable name="eds-name-count-minus-one" select="$eds-name-count - 1"/>
                 <xsl:for-each select="person-group/string-name">
                   <xsl:if test="surname">
-                    <xsl:value-of select="surname"/><xsl:text> </xsl:text><xsl:value-of select="given-names"/><xsl:choose><xsl:when test="position() = $name-count-minus-one"><xsl:text> and </xsl:text></xsl:when><xsl:when test="$name-count &gt; 2 and position() != $name-count"><xsl:text>, </xsl:text></xsl:when></xsl:choose>
+                    <xsl:value-of select="surname"/><xsl:text> </xsl:text><xsl:value-of select="given-names"/><xsl:choose><xsl:when test="position() = $eds-name-count-minus-one"><xsl:text> and </xsl:text></xsl:when><xsl:when test="$eds-name-count &gt; 2 and position() != $eds-name-count"><xsl:text>, </xsl:text></xsl:when></xsl:choose>
                   </xsl:if>
                 </xsl:for-each>
                 <xsl:text> </xsl:text>
