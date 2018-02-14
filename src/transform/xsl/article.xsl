@@ -1,9 +1,3 @@
-<!--
-
-
-
- -->
-
 <xsl:stylesheet version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -1444,11 +1438,6 @@
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
-      <xsl:when test="count(element-citation)=0">
-          <p id="{@id}">
-          <xsl:apply-templates select="*[not(self::label)]"/>
-          </p>
-      </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="element-citation | nlm-citation">
             <p id="{@id}">
@@ -1457,6 +1446,75 @@
             </xsl:if>
             <xsl:apply-templates select="."/>
             </p>
+        </xsl:for-each>
+        <xsl:for-each select="mixed-citation">
+          <xsl:variable name="pub-type" select="current()/@publication-type"/>
+          <p id="{@id}">
+            <xsl:if test="parent::ref/label">
+              <span class="mixed-label">
+                <xsl:value-of select="parent::ref/label"/><xsl:text>. </xsl:text>
+              </span>
+            </xsl:if>
+            
+            <xsl:variable name="name-count" select="count(string-name)"/>
+            <xsl:variable name="name-count-minus-one" select="$name-count - 1"/>
+            
+            <xsl:for-each select="string-name">
+              <xsl:if test="surname">
+                <xsl:value-of select="surname"/><xsl:text> </xsl:text><xsl:value-of select="given-names"/><xsl:choose><xsl:when test="position() = $name-count-minus-one"><xsl:text> and </xsl:text></xsl:when><xsl:when test="$name-count &gt; 2 and position() != $name-count"><xsl:text>, </xsl:text></xsl:when></xsl:choose>
+              </xsl:if>
+            </xsl:for-each>
+                       
+            <!-- Handle book stuff -->
+            <xsl:if test="$pub-type = 'book'">
+              <xsl:if test="year">
+                <xsl:text> </xsl:text><xsl:value-of select="year"/>
+              </xsl:if>
+              
+              <xsl:if test="chapter-title">
+                <xsl:text> </xsl:text><xsl:value-of select="chapter-title"/><xsl:text> In: </xsl:text>
+              </xsl:if>
+              
+              <xsl:if test="person-group and person-group/@person-group-type = 'editor'">
+                <xsl:variable name="eds-name-count" select="count(person-group/string-name)"/>
+                <xsl:for-each select="person-group/string-name">
+                  <xsl:if test="surname">
+                    <xsl:value-of select="surname"/><xsl:text> </xsl:text><xsl:value-of select="given-names"/><xsl:choose><xsl:when test="position() = $name-count-minus-one"><xsl:text> and </xsl:text></xsl:when><xsl:when test="$name-count &gt; 2 and position() != $name-count"><xsl:text>, </xsl:text></xsl:when></xsl:choose>
+                  </xsl:if>
+                </xsl:for-each>
+                <xsl:text> </xsl:text>
+                <xsl:choose><xsl:when test="$eds-name-count &gt; 1">(eds.)</xsl:when><xsl:otherwise>(ed.)</xsl:otherwise></xsl:choose>
+                <xsl:text> </xsl:text>
+                <xsl:value-of select="source"/><xsl:text>, </xsl:text>
+              </xsl:if>
+              
+              <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
+              <xsl:if test="fpage and lpage">-</xsl:if>
+              <xsl:if test="lpage"><xsl:value-of select="lpage"/></xsl:if>
+              <xsl:if test="fpage or lpage">. </xsl:if>
+              <xsl:if test="publisher-loc"><xsl:value-of select="publisher-loc"></xsl:value-of></xsl:if>
+              <xsl:if test="publisher-loc and publisher-name">: </xsl:if>
+              <xsl:if test="publisher-name"><xsl:value-of select="publisher-name"/></xsl:if>
+              
+            </xsl:if>
+            
+            <!-- Handled article -->
+            <xsl:if test="$pub-type = 'journal'">
+              <xsl:if test="year">
+                <xsl:text> (</xsl:text><xsl:value-of select="year"/><xsl:text>) </xsl:text>
+              </xsl:if>
+              <xsl:text>"</xsl:text><xsl:value-of select="article-title"/><xsl:text>", </xsl:text>
+              <xsl:value-of select="source"/><xsl:text>. </xsl:text>
+              <xsl:if test="volume">
+                <xsl:text>(</xsl:text><xsl:value-of select="volume"/><xsl:text>)</xsl:text>
+              </xsl:if>
+              <xsl:if test="issue">
+                <xsl:value-of select="issue"/>
+              </xsl:if>
+            </xsl:if>
+            
+            
+          </p>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
@@ -1768,7 +1826,6 @@
 -->
 
     <xsl:call-template name="make-persons-in-mode"/>
-    <xsl:call-template name="choose-person-type-string"/>
     <xsl:call-template name="choose-person-group-end-punct"/>
 
   </xsl:template>
@@ -1796,32 +1853,6 @@
     </xsl:choose>
 
   </xsl:template>
-
-
-  <xsl:template name="choose-person-type-string">
-
-    <xsl:variable name="person-group-type">
-      <xsl:value-of select="@person-group-type"/>
-    </xsl:variable>
-
-    <xsl:choose>
-      <!-- allauthors is an exception to the usual choice pattern -->
-      <xsl:when test="$person-group-type='allauthors'"/>
-
-      <!-- the usual choice pattern: singular or plural? -->
-      <xsl:when test="count(name) > 1 or etal ">
-        <xsl:text>, </xsl:text>
-        <xsl:value-of select="($person-strings[@source=$person-group-type]/@plural)"/>
-      </xsl:when>
-
-      <xsl:otherwise>
-        <xsl:text>, </xsl:text>
-        <xsl:value-of select="($person-strings[@source=$person-group-type]/@singular)"/>
-      </xsl:otherwise>
-    </xsl:choose>
-
-  </xsl:template>
-
 
   <xsl:template name="choose-person-group-end-punct">
 
@@ -2909,18 +2940,6 @@
     <!-- XX review logic -->
     <xsl:if test="article-title[@xml:lang!='en']
                or article-title[@xml:lang!='EN']">
-
-      <xsl:call-template name="language">
-        <xsl:with-param name="lang" select="article-title/@xml:lang"/>
-      </xsl:call-template>
-    </xsl:if>
-
-    <xsl:if test="source[@xml:lang!='en']
-              or source[@xml:lang!='EN']">
-
-      <xsl:call-template name="language">
-        <xsl:with-param name="lang" select="source/@xml:lang"/>
-      </xsl:call-template>
     </xsl:if>
 
     <xsl:apply-templates select="comment" mode="citation"/>
