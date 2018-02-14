@@ -1472,7 +1472,7 @@
               </xsl:if>
               
               <xsl:if test="chapter-title">
-                <xsl:text> </xsl:text><xsl:value-of select="chapter-title"/><xsl:text> In: </xsl:text>
+                <xsl:text> </xsl:text><xsl:value-of select="chapter-title"/><xsl:text>. In: </xsl:text>
               </xsl:if>
               
               <xsl:if test="person-group and person-group/@person-group-type = 'editor'">
@@ -1484,7 +1484,7 @@
                   </xsl:if>
                 </xsl:for-each>
                 <xsl:text> </xsl:text>
-                <xsl:choose><xsl:when test="$eds-name-count &gt; 1">(eds.)</xsl:when><xsl:otherwise>(ed.)</xsl:otherwise></xsl:choose>
+                <xsl:choose><xsl:when test="$eds-name-count &gt; 1">(eds.)</xsl:when><xsl:otherwise>(ed.)</xsl:otherwise></xsl:choose><xsl:text>, </xsl:text>
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="source"/><xsl:text>, </xsl:text>
               </xsl:if>
