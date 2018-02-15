@@ -757,7 +757,7 @@ def send_proofreader_complete_notification(**kwargs):
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'notify_proofreader_complete',
                                                               'subject_notify_proofreader_complete',
-                                                              proofing_task.proofreader.email,
+                                                              proofing_task.round.assignment.proofing_manager.email,
                                                               {'proofing_task': proofing_task})
 
 
