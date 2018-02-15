@@ -41,6 +41,7 @@ IMAGE_MIMETYPES = (
     'image/tiff',
 )
 
+
 def mkdirs(path):
     if not os.path.exists(path):
         os.makedirs(path)

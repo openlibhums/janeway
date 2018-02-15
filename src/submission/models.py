@@ -954,6 +954,18 @@ class FrozenAuthor(models.Model):
         else:
             return u"%s %s" % (self.first_name, self.last_name)
 
+    def given_names(self):
+        if self.middle_name:
+            return '{first_name} {middle_name}'.format(first_name=self.first_name, middle_name=self.middle_name)
+        else:
+            return self.first_name
+
+    def affiliation(self):
+        if self.department:
+            return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
+        else:
+            return self.institution
+
 
 class Section(TranslatableModel):
     journal = models.ForeignKey('journal.Journal')
