@@ -9,13 +9,22 @@ import codecs
 from utils import setting_handler
 
 
+def ithenticate_is_enabled(journal):
+    username = setting_handler.get_setting('crosscheck', 'username', journal).value
+    password = setting_handler.get_setting('crosscheck', 'password', journal).value
+
+    if username and password:
+        return True
+    else:
+        return False
+
 def build_server(journal):
     username = setting_handler.get_setting('crosscheck', 'username', journal).value
     password = setting_handler.get_setting('crosscheck', 'password', journal).value
     server = xmlrpclib.ServerProxy("https://api.ithenticate.com/rpc")
     login = server.login({"username": username, "password": password})
 
-    assert (login['status'] == 200)
+    assert(login['status'] == 200)
     sid = login['sid']
 
     return {'server': server, 'sid': sid}

@@ -17,8 +17,11 @@ class Command(BaseCommand):
         :param options: Dictionary containing 'doi_suffix'
         :return: None
         """
-        for journal in journal_models.Journal.objects.all():
+        for journal in journal_models.Journal.objects.filter(is_remote=False):
 
-            print("Processing journal {0}...".format(journal.name))
-            articles = models.Article.objects.filter(journal=journal, ithenticate_id__isnull=False)
-            ithenticate.fetch_percentage(journal, articles)
+            if ithenticate.ithenticate_is_enabled(journal):
+                print("Processing journal {0}...".format(journal.name))
+                articles = models.Article.objects.filter(journal=journal, ithenticate_id__isnull=False)
+                ithenticate.fetch_percentage(journal, articles)
+            else:
+                print('Ithenticate is not enabled for {journal}. Skipping.'.format(journal=journal.name))

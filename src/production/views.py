@@ -420,7 +420,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     :return: HttpRedirect or HttpResponse
     """
     return_url = request.GET.get('return', None)
-    
+
     if typeset_id:
         typeset_task = get_object_or_404(models.TypesetTask,
                                          pk=typeset_id,

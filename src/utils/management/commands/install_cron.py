@@ -35,7 +35,8 @@ class Command(BaseCommand):
         virtualenv = os.environ.get('VIRTUAL_ENV', None)
 
         jobs = [
-            {'name': 'janeway_cron_job', 'time': 10, 'task': 'execute_cron_tasks'},
+            {'name': 'janeway_cron_job', 'time': 30, 'task': 'execute_cron_tasks'},
+            {'name': 'janeway_ithenticate_job', 'time': 30, 'task': 'store_ithenticate_scores'},
         ]
 
         if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
