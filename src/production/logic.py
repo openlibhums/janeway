@@ -75,6 +75,16 @@ def replace_galley_file(article, request, galley, uploaded_file):
 
 
 def save_galley_image(galley, request, uploaded_file, label="Galley Image", fixed=False):
+
+    if fixed:
+        filename = request.POST.get('file_name')
+        uploaded_file_mime = files.check_in_memory_mime(uploaded_file)
+        expected_mime = files.guess_mime(filename)
+
+        if not uploaded_file_mime == expected_mime:
+            messages.add_message(request, messages.WARNING, 'The file you uploaded does not match the mime of the '
+                                                            'file expected.')
+
     new_file = files.save_file_to_article(uploaded_file, galley.article, request.user)
     new_file.is_galley = False
     new_file.label = label
