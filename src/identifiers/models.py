@@ -4,12 +4,15 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+import sys
+
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 from submission import models as submission_models
 from identifiers import logic
-
-from utils import setting_handler
-import sys
+from utils import shared
 
 
 identifier_choices = (
@@ -54,3 +57,9 @@ class BrokenDOI(models.Model):
     checked = models.DateTimeField()
     resolves_to = models.URLField()
     expected_to_resolve_to = models.URLField()
+
+
+# Signals
+@receiver(post_save, sender=Identifier)
+def reset_article_url_cache(sender, instance, created, **kwargs):
+    shared.clear_cache()
