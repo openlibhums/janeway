@@ -22,7 +22,8 @@
     <div class="box">
         <div class="title-area">
             <h2>Metadata</h2>
-            {% if return_url %}<a class="button" href="{{ return_url }}"><i class="fa fa-arrow-left"></i> Back</a>{% endif %}
+            {% if return_url %}
+                <a class="button" href="{{ return_url }}"><i class="fa fa-arrow-left"></i> Back</a>{% endif %}
         </div>
         <div class="content">
             <table class="table table-bordered table-condensed small">
@@ -88,22 +89,22 @@
                 </form>
             </div>
         </div>
-        </div>
-        <div class="title-area">
-            <h2>Galley Label</h2>
-        </div>
-        <div class="content">
-            <p>You can update the label your Galley will have. This is displayed in the download block.</p>
-            <div class="row expanded">
-                <div class="large-6 columns end">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input value="{{ galley.label }}" name="galley_label" type="text">
-                        <button name="galley-label" type="submit" class="button small success">Update Label</button>
-                    </form>
-                </div>
+    </div>
+    <div class="title-area">
+        <h2>Galley Label</h2>
+    </div>
+    <div class="content">
+        <p>You can update the label your Galley will have. This is displayed in the download block.</p>
+        <div class="row expanded">
+            <div class="large-6 columns end">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input value="{{ galley.label }}" name="galley_label" type="text">
+                    <button name="galley-label" type="submit" class="button small success">Update Label</button>
+                </form>
             </div>
         </div>
+    </div>
     </div>
     <div class="box">
 
@@ -128,37 +129,38 @@
                     <th>History</th>
                     <th>Delete</th>
                 </tr>
-                <form method="POST" action="{% url 'pm_edit_galley' article.pk galley.pk %}?return{% url 'pm_edit_galley' article.pk galley.pk %}">
-                    {% csrf_token %}
-                    {% for image in galley.images.all %}
-                        {% can_view_file image as can_view_file_flag %}
-                        {% can_edit_file image article as can_edit_file_flag %}
-                        {% can_view_file_history image article as can_view_file_history_flag %}
-                        <tr>
-                            <td>{{ image.label }}</td>
-                            <td>{{ image.original_filename }}</td>
-                            <td>Galley Images</td>
-                            <td>{% if can_view_file_flag %}
-                                <a href="{% url 'article_file_download' 'id' article.pk image.pk %}"><i
-                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
-                            </td>
-                            <td>{% if can_edit_file_flag %}
-                                <a href="{% url 'article_file_replace' 'id' article.pk image.pk %}?return={{ request.path|urlencode }}"><i
-                                        class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
-                            </td>
-                            <td>{% if can_view_file_history_flag %}
-                                <a href="{% url 'file_history' article.pk image.pk %}?return={{ request.path|urlencode }}"><i
-                                        class="fa fa-history">
-                                    &nbsp;</i></a>{% endif %}
-                            </td>
-                            <td>{% if can_edit_file_flag %}
-                                <button type="submit" name="delete" value="{{ image.pk }}"><i
-                                        class="fa fa-trash">
-                                    &nbsp;</i></button>{% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </form>
+                {% for image in galley.images.all %}
+                    {% can_view_file image as can_view_file_flag %}
+                    {% can_edit_file image article as can_edit_file_flag %}
+                    {% can_view_file_history image article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ image.label }}</td>
+                        <td>{{ image.original_filename }}</td>
+                        <td>Galley Images</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk image.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'article_file_replace' 'id' article.pk image.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_view_file_history_flag %}
+                            <a href="{% url 'file_history' article.pk image.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-history">
+                                &nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_edit_file_flag %}
+                            <form method="POST"
+                                  action="{% url 'pm_edit_galley' article.pk galley.pk %}?return={% url 'pm_edit_galley' article.pk galley.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" name="delete" value="{{ image.pk }}"><i
+                                    class="fa fa-trash">
+                                &nbsp;</i></button>{% endif %}</form>
+                        </td>
+                    </tr>
+                {% endfor %}
+
             </table>
             <div class="row expanded">
                 {% if galley.file.mime_type == 'application/xml' %}
@@ -180,12 +182,15 @@
                                                            data-buttonName="btn-primary">
                                                     {% if data_files %}
                                                         <p>Or, you can choose an existing figure file.</p>
-                                                    <select name="datafile">
-                                                        <option value="">---------</option>
-                                                        {% for file in data_files %}
-                                                            {% if file not in galley_images %}<option value="{{ file.pk }}">{{ file.label }} ({{ file.original_filename }})</option>{% endif %}
-                                                        {% endfor %}
-                                                    </select>
+                                                        <select name="datafile">
+                                                            <option value="">---------</option>
+                                                            {% for file in data_files %}
+                                                                {% if file not in galley_images %}
+                                                                    <option value="{{ file.pk }}">{{ file.label }}
+                                                                        ({{ file.original_filename }})
+                                                                    </option>{% endif %}
+                                                            {% endfor %}
+                                                        </select>
                                                     {% endif %}
                                                 </div>
                                                 <div class="large-4 columns">
@@ -232,89 +237,90 @@
                 </div>
             </div>
             <div class="row expanded">
-            <div class="large-12 columns">
-                <div class="title-area">
-                    <h2>CSS File</h2>
-                </div>
-                <div class="content">
+                <div class="large-12 columns">
+                    <div class="title-area">
+                        <h2>CSS File</h2>
+                    </div>
+                    <div class="content">
 
-                    <p>
-                        You can upload a CSS file associated with this article for individual style. You should be wary
-                        not
-                        to
-                        make
-                        style changes
-                        to header and footer type elements as this will effect the layout of the page.
-                    </p>
-                    <table class="table table-bordered table-condensed small">
-                        <tr style="text-align: left">
-                            <th>Label</th>
-                            <th width="25%">Filename</th>
-                            <th>Type</th>
-                            <th>Download</th>
-                            <th>Replace</th>
-                            <th>History</th>
-                            <th>Delete</th>
-                        </tr>
-                        {% if galley.css_file %}
-                            {% can_view_file galley.css_file as can_view_file_flag %}
-                            {% can_edit_file galley.css_file article as can_edit_file_flag %}
-                            {% can_view_file_history galley.css_file article as can_view_file_history_flag %}
-                            <tr>
-                                <td>{{ galley.css_file.label }}</td>
-                                <td>{{ galley.css_file.original_filename }}</td>
-                                <td>Galley Images</td>
-                                <td>{% if can_view_file_flag %}
-                                    <a href="{% url 'article_file_download' 'id' article.pk galley.css_file.pk %}"><i
-                                            class="fa fa-download">&nbsp;</i></a>{% endif %}
-                                </td>
-                                <td>{% if can_edit_file_flag %}
-                                    <a href="{% url 'article_file_replace' 'id' article.pk galley.css_file.pk %}?return={{ request.path|urlencode }}"><i
-                                            class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
-                                </td>
-                                <td>{% if can_view_file_history_flag %}
-                                    <a href="{% url 'file_history' article.pk galley.css_file.pk %}?return={{ request.path|urlencode }}"><i
-                                            class="fa fa-history">
-                                        &nbsp;</i></a>{% endif %}
-                                </td>
-                                <td>{% if can_edit_file_flag %}
-                                    <a href="?delete={{ galley.css_file.pk }}"><i
-                                            class="fa fa-trash">
-                                        &nbsp;</i></a>{% endif %}
-                                </td>
+                        <p>
+                            You can upload a CSS file associated with this article for individual style. You should be
+                            wary
+                            not
+                            to
+                            make
+                            style changes
+                            to header and footer type elements as this will effect the layout of the page.
+                        </p>
+                        <table class="table table-bordered table-condensed small">
+                            <tr style="text-align: left">
+                                <th>Label</th>
+                                <th width="25%">Filename</th>
+                                <th>Type</th>
+                                <th>Download</th>
+                                <th>Replace</th>
+                                <th>History</th>
+                                <th>Delete</th>
                             </tr>
-                        {% endif %}
-                    </table>
-                </div>
-            </div>
-            {% if not galley.css_file %}
-                <div class="large-6 columns float-left">
-                    <div class="callout">
-                        <small>
-                            <form method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="row">
-                                    <div class="large-8 columns">
-                                        <h6>Upload CSS File</h6>
-                                        <label for="labelcss">File Label</label>
-                                        <input name="label" id="labelcss" placeholder="eg. Figure 1"><br/><br/>
-                                        <input name="css" type="file" class="float-left"
-                                               data-placeholder="No file"
-                                               data-buttonName="btn-primary">
-                                    </div>
-                                    <div class="large-4 columns">
-                                        <button type="submit" class="button success small float-right"
-                                                name="css-upload"><i
-                                                class="fa fa-upload">
-                                            &nbsp;</i>Upload
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </small>
+                            {% if galley.css_file %}
+                                {% can_view_file galley.css_file as can_view_file_flag %}
+                                {% can_edit_file galley.css_file article as can_edit_file_flag %}
+                                {% can_view_file_history galley.css_file article as can_view_file_history_flag %}
+                                <tr>
+                                    <td>{{ galley.css_file.label }}</td>
+                                    <td>{{ galley.css_file.original_filename }}</td>
+                                    <td>Galley Images</td>
+                                    <td>{% if can_view_file_flag %}
+                                        <a href="{% url 'article_file_download' 'id' article.pk galley.css_file.pk %}"><i
+                                                class="fa fa-download">&nbsp;</i></a>{% endif %}
+                                    </td>
+                                    <td>{% if can_edit_file_flag %}
+                                        <a href="{% url 'article_file_replace' 'id' article.pk galley.css_file.pk %}?return={{ request.path|urlencode }}"><i
+                                                class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
+                                    </td>
+                                    <td>{% if can_view_file_history_flag %}
+                                        <a href="{% url 'file_history' article.pk galley.css_file.pk %}?return={{ request.path|urlencode }}"><i
+                                                class="fa fa-history">
+                                            &nbsp;</i></a>{% endif %}
+                                    </td>
+                                    <td>{% if can_edit_file_flag %}
+                                        <a href="?delete={{ galley.css_file.pk }}"><i
+                                                class="fa fa-trash">
+                                            &nbsp;</i></a>{% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </table>
                     </div>
                 </div>
-            {% endif %}
+                {% if not galley.css_file %}
+                    <div class="large-6 columns float-left">
+                        <div class="callout">
+                            <small>
+                                <form method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="large-8 columns">
+                                            <h6>Upload CSS File</h6>
+                                            <label for="labelcss">File Label</label>
+                                            <input name="label" id="labelcss" placeholder="eg. Figure 1"><br/><br/>
+                                            <input name="css" type="file" class="float-left"
+                                                   data-placeholder="No file"
+                                                   data-buttonName="btn-primary">
+                                        </div>
+                                        <div class="large-4 columns">
+                                            <button type="submit" class="button success small float-right"
+                                                    name="css-upload"><i
+                                                    class="fa fa-upload">
+                                                &nbsp;</i>Upload
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </small>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
