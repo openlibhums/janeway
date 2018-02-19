@@ -420,6 +420,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     :return: HttpRedirect or HttpResponse
     """
     return_url = request.GET.get('return', None)
+    
     if typeset_id:
         typeset_task = get_object_or_404(models.TypesetTask,
                                          pk=typeset_id,
@@ -454,15 +455,19 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                 logic.use_data_file_as_galley_image(galley, request, label)
             for uploaded_file in request.FILES.getlist('image'):
                 logic.save_galley_image(galley, request, uploaded_file, label, fixed=True)
+
         if 'image-upload' in request.POST:
             for uploaded_file in request.FILES.getlist('image'):
                 logic.save_galley_image(galley, request, uploaded_file, label, fixed=False)
+
         elif 'css-upload' in request.POST:
             for uploaded_file in request.FILES.getlist('css'):
                 logic.save_galley_css(galley, request, uploaded_file, 'galley-{0}.css'.format(galley.id), label)
+
         if 'galley-label' in request.POST:
             galley.label = request.POST.get('galley_label')
             galley.save()
+
         if 'replace-galley' in request.POST:
             logic.replace_galley_file(article, request, galley, request.FILES.get('galley'))
 
