@@ -31,34 +31,37 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        email_logs = models.LogEntry.objects.filter(is_email=True,
-                                                    message_id__isnull=False,
-                                                    status_checks_complete=False)
+        if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
+            email_logs = models.LogEntry.objects.filter(is_email=True,
+                                                        message_id__isnull=False,
+                                                        status_checks_complete=False)
 
-        for log in email_logs:
-            logs = get_logs(log.message_id.replace('<', '').replace('>', ''))
-            event_dict = logs.json()
-            print('Processing ', log.message_id, '...', end='')
+            for log in email_logs:
+                logs = get_logs(log.message_id.replace('<', '').replace('>', ''))
+                event_dict = logs.json()
+                print('Processing ', log.message_id, '...', end='')
 
-            events = []
-            for event in event_dict.get('items'):
-                events.append(event['event'])
+                events = []
+                for event in event_dict.get('items'):
+                    events.append(event['event'])
 
-            if 'delivered' in events:
-                log.message_status = 'delivered'
-                log.status_checks_complete = True
-            elif 'failed' in events:
-                if check_for_perm_failure(event_dict, log):
-                    log.message_status = 'failed'
+                if 'delivered' in events:
+                    log.message_status = 'delivered'
                     log.status_checks_complete = True
-                else:
+                elif 'failed' in events:
+                    if check_for_perm_failure(event_dict, log):
+                        log.message_status = 'failed'
+                        log.status_checks_complete = True
+                    else:
+                        log.message_status = 'accepted'
+
+                elif 'accepted' in events:
                     log.message_status = 'accepted'
 
-            elif 'accepted' in events:
-                log.message_status = 'accepted'
+                log.number_status_checks += 1
 
-            log.number_status_checks += 1
+                print(' status {0}'.format(log.message_status))
 
-            print(' status {0}'.format(log.message_status))
-
-            log.save()
+                log.save()
+        else:
+            print('ENHANCED_MAILGUN_FEATURES is set to FALSE in settings.py')
