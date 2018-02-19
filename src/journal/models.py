@@ -363,6 +363,9 @@ class Issue(models.Model):
     # guest editors
     guest_editors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='guest_editors')
 
+    class Meta:
+        ordering = ('year', 'volume', 'issue', 'title')
+
     @property
     def display_title(self):
         if self.issue_title:
