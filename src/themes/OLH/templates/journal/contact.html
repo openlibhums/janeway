@@ -10,21 +10,17 @@
 {% endblock %}
 
 {% block body %}
-	<section id="content" class="no-padding">
+	<section id="content">
 		<div class="row column">
             <div class="large-4 columns contact">
-                {% if request.journal %}
-                <h4>{% trans "Journal Representatives" %}</h4>
-                {% else %}
-                <h4>{% trans "Press Representatives" %}</h4>
-                {% endif %}
+                <h3>{% trans "Representatives" %}</h3>
                 {% for contact in contacts %}
                 <h5>{{ contact.name }}</h5>
                 <p>{{ contact.role }}</p>
                 {% endfor %}
             </div>
             <div class="large-8 columns">
-                <h4>{% trans "Contact" %}</h4>
+                <h3>{% trans "Contact" %}</h3>
                 <form method="POST">
                     {% include "elements/forms/errors.html" with form=contact_form %}
                     {% csrf_token %}

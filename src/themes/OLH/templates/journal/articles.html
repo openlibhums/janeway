@@ -14,12 +14,12 @@
         <div class="row">
             <div class="large-8 columns border-right">
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
-                <h4>Pinned Articles</h4>
+                <h3>Pinned Articles</h3>
                     {% for article in pinned_articles %}
                         {% include "elements/journal/box_article.html" with article=article %}
                     {% endfor %}
                 {% endif %}
-                <h4>{% trans "Articles" %}</h4>
+                <h3>{% trans "Articles" %}</h3>
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% empty %}

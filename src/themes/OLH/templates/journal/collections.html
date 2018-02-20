@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
 {% load hooks %}
+{% load i18n %}
 
 {% block page_title %}Collections{% endblock %}
 
@@ -8,23 +9,29 @@
 
 {% block body %}
 
-    <section id="content" class="no-padding">
-        <div class="row" data-equalizer data-equalize-on="medium">
-            {% for collection in collections %}
-                <div class="large-4 columns {% if forloop.last %}end{% endif %}">
-                    <div class="box collection " data-equalizer-watch>
-                        <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
-                        <img src="{% static 'common/img/sample/article-small.jpg' %}" alt="box 1">
-                        <div class="content">
-                            <p>Collection<br /><small>Launched: {{ collection.date|date:"d/m/y" }}</small></p>
-                            <h2>{{ collection.title }}</h2>
-                            <p>{{ collection.issue_description|safe }}</p>
+    <section id="content">
+        <div class="row">
+            <div class="large-12 columns">
+                <h3>{% trans 'Collections' %}</h3>
+            </div>
+            <div class="row" data-equalizer data-equalize-on="medium">
+                {% for collection in collections %}
+                    <div class="large-4 columns {% if forloop.last %}end{% endif %}">
+                        <div class="box collection " data-equalizer-watch>
+                            <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
+                            <img src="{% static 'common/img/sample/article-small.jpg' %}" alt="box 1">
+                            <div class="content">
+                                <p>Collection<br/>
+                                    <small>Launched: {{ collection.date|date:"d/m/y" }}</small>
+                                </p>
+                                <h2>{{ collection.title }}</h2>
+                                <p>{{ collection.issue_description|safe }}</p>
+                            </div>
                         </div>
                     </div>
+                    {% if forloop.counter|divisibleby:3 %}</div>
+                        <div class="row">{% endif %}
+                {% endfor %}
                 </div>
-                {% if forloop.counter|divisibleby:3 %}</div>
-                    <div class="row">{% endif %}
-            {% endfor %}
-            </div>
     </section>
 {% endblock %}
