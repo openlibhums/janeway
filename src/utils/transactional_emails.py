@@ -794,7 +794,7 @@ def send_proofing_typeset_decision(**kwargs):
         decision
     )
     log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Typesetting',
-                'target': typeset_task.assignment.article}
+                'target': typeset_task.proofing_task.round.assignment.article}
     notify_helpers.send_email_with_body_from_user(request, 'Proofing Typesetting Changes',
                                                   typeset_task.proofing_task.round.assignment.proofing_manager.email,
                                                   description, log_dict=log_dict)
