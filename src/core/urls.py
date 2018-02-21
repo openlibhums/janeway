@@ -28,7 +28,7 @@ if settings.URL_CONFIG == 'domain':
 
 else:
 
-    urlpatterns = [
+    urlpatterns += [
         url(r'^(?P<journal_code>[-\w.]+)/', include('core.include_urls')),
     ]
 
