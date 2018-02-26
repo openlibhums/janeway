@@ -346,11 +346,11 @@ def submit_review(request, article_id):
 
         event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
                                        **{'handshake_url': 'submit_review',
-                                        'request': request,
-                                        'article': article,
-                                        'switch_stage': False})
+                                          'request': request,
+                                          'article': article,
+                                          'switch_stage': False})
 
-        return redirect(reverse('core_dashboard'))
+        return redirect(reverse('core_dashboard_article', kwargs={'article_id': article.pk}))
 
     template = "admin/submission//submit_review.html"
     context = {

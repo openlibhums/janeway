@@ -1,6 +1,8 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 {% load i18n %}
+{% load hooks %}
+{% load text %}
 
 {% block css %}
     <link href="{% static "admin/css/timeline.css" %}" rel="stylesheet"/>{% endblock %}
@@ -19,11 +21,10 @@
             <div class="row">
                 <div class="large-12 columns">
                     {% if article.comments_editor %}
-                        <h4>{% trans "Comments to Editor" %}</h4>
-                        {{ article.comments_editor }}
-                        <hr/>
+                    <div class="title-area"><h2>{% trans "Comments to Editor" %}</h2></div>
+                    {% if article.comments_editor|startswith:'<p' %}{{ article.comments_editor }}{% else %}<p>{{ article.comments_editor }}</p>{% endif %}
                     {% endif %}
-                    <h4>{% trans "Article Info" %}</h4>
+                    <div class="title-area"><h2>{% trans "Article Info" %}</h2></div>
                     <table class="table table-condensed">
                         <tr>
                             <th colspan="2">Title</th>
@@ -51,8 +52,7 @@
                         </tr>
                     </table>
 
-                    <hr/>
-                    <h4>{% trans "Author Info" %}</h4>
+                    <div class="title-area"><h2>{% trans "Author Info" %}</h2></div>
                     <div class="row">
                         <div class="large-6 columns">
                             <ul class="list-group">
@@ -69,9 +69,8 @@
                         </div>
                     </div>
 
-                    <hr/>
 
-                    <h4>{% trans "Article Files" %}</h4>
+                    <div class="title-area"><h2>{% trans "Article Files" %}</h2></div>
                     <div class="row">
                         <div class="large-6 columns">
                             <p><strong>{% trans "Manuscript Files" %}</strong></p>
@@ -112,6 +111,8 @@
                             </table>
                         </div>
                     </div>
+
+                    {% hook 'submission_review' %}
 
                     <div class="large-12 columns">
                         <button class="success button pull-right" type="submit" name="next_step"><i class="fa fa-check">&nbsp;</i>{% trans "Complete" %} {% trans "Submission" %}

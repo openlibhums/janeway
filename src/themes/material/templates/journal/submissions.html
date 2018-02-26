@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load static from staticfiles %}
+{% load hooks %}
 
 {% block title %}{% trans 'Submissions' %}{% endblock title %}
 
@@ -58,6 +59,7 @@
 
                     <span class="card-title">{% trans 'Publication Fees' %}</span>
                     {{ journal_settings.general.publication_fees|safe }}
+                    {% hook 'publication_fees' %}
                     <div class="divider spacer"></div>
 
                     <span class="card-title">{% trans 'Peer Review' %}</span>
