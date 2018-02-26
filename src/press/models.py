@@ -111,9 +111,10 @@ class Press(models.Model):
 
     @staticmethod
     def press_url(request):
-        return 'http{0}://{1}{2}'.format('s' if request.is_secure() else '',
+        return 'http{0}://{1}{2}{3}'.format('s' if request.is_secure() else '',
                                          Press.get_press(request).domain,
-                                         ':{0}'.format(request.port) if request != 80 or request.port == 443 else '')
+                                         ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',
+                                         '/press' if settings.URL_CONFIG == 'path' else '')
 
     @staticmethod
     def press_cover(request, absolute=True):
