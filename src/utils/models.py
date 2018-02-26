@@ -175,7 +175,7 @@ class PluginSettingValue(TranslatableModel):
     )
 
     def __repr__(self):
-        return "[{0}]: {1}, {2}".format(self.journal.code, self.setting.name, self.value)
+        return "{0}, {1}".format(self.setting.name, self.value)
 
     def __str__(self):
         return "[{0}]: {1}".format(self.journal, self.setting.name)
