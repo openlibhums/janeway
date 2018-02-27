@@ -966,7 +966,7 @@ def settings_home(request):
         element_id = request.POST.get('add')
         homepage_element = get_object_or_404(models.HomepageElement, pk=element_id,
                                              content_type=request.model_content_type, object_id=request.site_type.pk)
-        if homepage_element.name == 'Carousel' and not request.journal.default_large_image:
+        if homepage_element.name == 'Carousel' and request.journal and not request.journal.default_large_image:
             messages.add_message(request, messages.WARNING, 'You cannot enable the carousel until you add a default'
                                                             'large image file.')
         else:
