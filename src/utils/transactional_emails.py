@@ -779,7 +779,7 @@ def send_proofing_typeset_request(**kwargs):
         notify_helpers.send_slack(request, description, ['slack_editors'])
         notify_helpers.send_email_with_body_from_user(
             request, 'subject_notify_typesetter_proofing_changes',
-            typeset_task.proofing_task.round.assignment.proofing_manager.email,
+            typeset_task.typesetter.email,
             user_content_message, log_dict=log_dict)
 
 
