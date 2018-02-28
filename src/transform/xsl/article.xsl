@@ -1528,7 +1528,7 @@
                 <xsl:text> </xsl:text>
                 <xsl:choose><xsl:when test="$eds-name-count &gt; 1">(eds.)</xsl:when><xsl:otherwise>(ed.)</xsl:otherwise></xsl:choose><xsl:text>, </xsl:text>
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="source"/><xsl:text>, </xsl:text>
+                  <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>, </xsl:text>
               </xsl:if>
 
               <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
@@ -1547,7 +1547,7 @@
                 <xsl:text> (</xsl:text><xsl:value-of select="year"/><xsl:text>) </xsl:text>
               </xsl:if>
               <xsl:text>"</xsl:text><xsl:value-of select="article-title"/><xsl:text>", </xsl:text>
-              <xsl:value-of select="source"/><xsl:text>. </xsl:text>
+              <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>. </xsl:text>
               <xsl:if test="volume">
                 <xsl:text>(</xsl:text><xsl:value-of select="volume"/><xsl:text>)</xsl:text>
               </xsl:if>
