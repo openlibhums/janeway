@@ -1491,7 +1491,7 @@
         </xsl:for-each>
         <xsl:for-each select="mixed-citation">
           <xsl:variable name="pub-type" select="current()/@publication-type"/>
-          <p id="{@id}">
+          <p id="{../@id}">
             <xsl:if test="parent::ref/label">
               <span class="mixed-label">
                 <xsl:value-of select="parent::ref/label"/><xsl:text>. </xsl:text>
