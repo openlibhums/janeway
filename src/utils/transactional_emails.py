@@ -871,7 +871,7 @@ def send_author_publication_notification(**kwargs):
 
     notify_helpers.send_email_with_body_from_user(request,
                                                   '{0} Publication'.format(article.title),
-                                                  article.editor_emails(),
+                                                  article.correspondence_author.email,
                                                   user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
