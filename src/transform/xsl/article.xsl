@@ -1125,24 +1125,6 @@
     </span>
   </xsl:template>
 
-  <xsl:template match="disp-formula/graphic">
-    <noscript>
-      <img class="noborder">
-        <xsl:call-template name="make-src"/>
-        <xsl:call-template name="make-id"/>
-      </img>
-    </noscript>
-  </xsl:template>
-
-  <xsl:template match="inline-formula/graphic">
-    <noscript>
-      <img class="noborder inline">
-        <xsl:call-template name="make-src"/>
-        <xsl:call-template name="make-id"/>
-      </img>
-    </noscript>
-  </xsl:template>
-
   <!-- MathML Inline -->
   <xsl:template match="inline-formula/mml:math">
     <span class="inline-formula mathml">
@@ -1528,7 +1510,7 @@
             <!-- Handle book stuff -->
             <xsl:if test="$pub-type = 'book'">
               <xsl:if test="year">
-                <xsl:text> </xsl:text><xsl:value-of select="year"/>
+                <xsl:text> </xsl:text><xsl:value-of select="year"/><xsl:text> </xsl:text>
               </xsl:if>
 
               <xsl:if test="chapter-title">
