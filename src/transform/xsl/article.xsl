@@ -1527,9 +1527,10 @@
                 </xsl:for-each>
                 <xsl:text> </xsl:text>
                 <xsl:choose><xsl:when test="$eds-name-count &gt; 1">(eds.)</xsl:when><xsl:otherwise>(ed.)</xsl:otherwise></xsl:choose><xsl:text>, </xsl:text>
-                <xsl:text> </xsl:text>
-                  <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>, </xsl:text>
               </xsl:if>
+
+                <xsl:text> </xsl:text>
+              <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>, </xsl:text>
 
               <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
               <xsl:if test="fpage and lpage">-</xsl:if>
