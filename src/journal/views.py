@@ -668,6 +668,7 @@ def publish_article(request, article_id):
 
         if 'image' in request.POST or 'delete_image' in request.POST:
             logic.set_article_image(request, article)
+            shared.clear_cache()
             return redirect("{0}{1}".format(reverse('publish_article', kwargs={'article_id': article.pk}),
                                             "?m=article_image"))
 
