@@ -1079,8 +1079,23 @@
         </span>
     </xsl:template>
 
+    <!-- MathML Inline -->
+  <xsl:template match="alternatives/mml:math">
+    <span class="inline-formula mathml">
+      <math xmlns:mml="http://www.w3.org/1998/Math/MathML">
+      <xsl:copy-of select="text() | *"/>
+    </math>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="alternatives/tex-math">
+  </xsl:template>
+
+  <xsl:template match="alternatives/graphic">
+  </xsl:template>
+
     <xsl:template match="disp-formula">
-        <span class="disp-formula">
+        <p class="disp-formula">
             <xsl:if test="@id">
                 <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
             </xsl:if>
@@ -1090,16 +1105,61 @@
                     <xsl:value-of select="label/text()"/>
                 </span>
             </xsl:if>
-        </span>
+        </p>
     </xsl:template>
 
-    <xsl:template match="*[local-name()='math']">
-        <span class="mathjax mml-math">
-            <xsl:text disable-output-escaping="yes">&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</xsl:text>
-            <xsl:apply-templates/>
-            <xsl:text disable-output-escaping="yes">&lt;/math&gt;</xsl:text>
-        </span>
-    </xsl:template>
+
+      <xsl:template match="disp-formula/tex-math">
+    <div class="formula tex-math hidden">
+        <xsl:copy>
+          <xsl:apply-templates select="@* | node()"/>
+        </xsl:copy>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="inline-formula/tex-math">
+    <span class="inline-formula tex-math hidden">
+        <xsl:copy>
+          <xsl:apply-templates select="@* | node()"/>
+        </xsl:copy>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="disp-formula/graphic">
+    <noscript>
+      <img class="noborder">
+        <xsl:call-template name="make-src"/>
+        <xsl:call-template name="make-id"/>
+      </img>
+    </noscript>
+  </xsl:template>
+
+  <xsl:template match="inline-formula/graphic">
+    <noscript>
+      <img class="noborder inline">
+        <xsl:call-template name="make-src"/>
+        <xsl:call-template name="make-id"/>
+      </img>
+    </noscript>
+  </xsl:template>
+
+  <!-- MathML Inline -->
+  <xsl:template match="inline-formula/mml:math">
+    <span class="inline-formula mathml">
+      <math xmlns:mml="http://www.w3.org/1998/Math/MathML">
+      <xsl:copy-of select="text() | *"/>
+    </math>
+    </span>
+  </xsl:template>
+
+  <!-- MathML in Div -->
+  <xsl:template match="disp-formula/mml:math">
+    <div class="math-formulae mathml">
+      <math xmlns:mml="http://www.w3.org/1998/Math/MathML">
+      <xsl:copy-of select="text() | *"/>
+    </math>
+    </div>
+  </xsl:template>
 
     <!-- END Table Handling -->
 
@@ -1455,26 +1515,26 @@
                 <xsl:value-of select="parent::ref/label"/><xsl:text>. </xsl:text>
               </span>
             </xsl:if>
-            
+
             <xsl:variable name="name-count" select="count(string-name)"/>
             <xsl:variable name="name-count-minus-one" select="$name-count - 1"/>
-            
+
             <xsl:for-each select="string-name">
               <xsl:if test="surname">
                 <xsl:value-of select="surname"/><xsl:text> </xsl:text><xsl:value-of select="given-names"/><xsl:choose><xsl:when test="position() = $name-count-minus-one"><xsl:text> and </xsl:text></xsl:when><xsl:when test="$name-count &gt; 2 and position() != $name-count"><xsl:text>, </xsl:text></xsl:when></xsl:choose>
               </xsl:if>
             </xsl:for-each>
-                       
+
             <!-- Handle book stuff -->
             <xsl:if test="$pub-type = 'book'">
               <xsl:if test="year">
                 <xsl:text> </xsl:text><xsl:value-of select="year"/>
               </xsl:if>
-              
+
               <xsl:if test="chapter-title">
                 <xsl:text> </xsl:text><xsl:value-of select="chapter-title"/><xsl:text>. In: </xsl:text>
               </xsl:if>
-              
+
               <xsl:if test="person-group and person-group/@person-group-type = 'editor'">
                 <xsl:variable name="eds-name-count" select="count(person-group/string-name)"/>
                 <xsl:variable name="eds-name-count-minus-one" select="$eds-name-count - 1"/>
@@ -1488,7 +1548,7 @@
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="source"/><xsl:text>, </xsl:text>
               </xsl:if>
-              
+
               <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
               <xsl:if test="fpage and lpage">-</xsl:if>
               <xsl:if test="lpage"><xsl:value-of select="lpage"/></xsl:if>
@@ -1496,9 +1556,9 @@
               <xsl:if test="publisher-loc"><xsl:value-of select="publisher-loc"></xsl:value-of></xsl:if>
               <xsl:if test="publisher-loc and publisher-name">: </xsl:if>
               <xsl:if test="publisher-name"><xsl:value-of select="publisher-name"/></xsl:if>
-              
+
             </xsl:if>
-            
+
             <!-- Handled article -->
             <xsl:if test="$pub-type = 'journal'">
               <xsl:if test="year">
@@ -1513,8 +1573,8 @@
                 <xsl:value-of select="issue"/>
               </xsl:if>
             </xsl:if>
-            
-            
+
+
           </p>
         </xsl:for-each>
       </xsl:otherwise>
