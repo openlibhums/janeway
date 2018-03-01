@@ -13,6 +13,7 @@ import re
 import shutil
 import magic
 import tempfile
+import hashlib
 
 from django.conf import settings
 from django.contrib import messages
@@ -627,3 +628,11 @@ def serve_temp_file(file_path, file_name):
 def unlink_temp_file(file_path):
     if os.path.isfile(file_path):
         os.unlink(file_path)
+
+
+def checksum(file_path):
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()

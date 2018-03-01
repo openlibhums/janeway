@@ -249,6 +249,17 @@
 
                             </ul>
                         </div>
+
+                        <div class="section hide-for-small-only">
+                            <h3>{% trans "File Checksums (MD5)" %}</h3>
+                            <ul>
+                                {% for galley in galleys %}
+                                    <li>
+                                        <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </aside>
             </div>

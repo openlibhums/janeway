@@ -582,6 +582,7 @@ def identifier_figure(request, identifier_type, identifier, file_name):
 
     return files.serve_file(request, figure, figure_article)
 
+
 def article_figure(request, article_id, galley_id, file_name):
     """ Returns a galley article figure
 

@@ -636,6 +636,9 @@ class File(models.Model):
         except IndexError:
             return 0
 
+    def checksum(self):
+        return files.checksum(self.self_article_path())
+
     def __str__(self):
         return u'%s' % self.original_filename
 

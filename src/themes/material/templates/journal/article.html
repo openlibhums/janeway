@@ -155,7 +155,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col m6">
+                <div class="col m6 l6 s6">
                     <div class="card">
                         <div class="card-content">
                             <h5>
@@ -165,7 +165,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col m6">
+                <div class="col m6 l6 s6">
                     <div class="card">
                         <div class="card-content">
                             <h5>
@@ -268,6 +268,21 @@
                         Peer Review
                     </h5>
                     {% if article.peer_reviewed %}<p><i class="fa fa-check-circle-o" style="color: green"></i> This article has been peer reviewed.</p>{% else %}<p>This article has not been peer reviewed.</p>{% endif %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h5>
+                        File Checksums (MD5)
+                    </h5>
+                    <ul>
+                        {% for galley in galleys %}
+                            <li>
+                                <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
             <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
