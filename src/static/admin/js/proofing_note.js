@@ -26,6 +26,7 @@ $.ajaxSetup({
 
 function submit_note(proofing_task_id, galley_id){
     var text = $('#' + galley_id + '_new_note').val();
+    $('#' + galley_id + '_new_note').jqteVal("");
     data = {'note': text}
     $.ajax({
             "type": "POST",
@@ -34,7 +35,7 @@ function submit_note(proofing_task_id, galley_id){
             "data": data,
             "success": function(data) {
                 console.log(data);
-                $('#' + galley_id + '_new_note').val("")
+                $('#' + galley_id + '_new_note').val("");
                 $('#' + galley_id + '-note-holder').prepend(data.html);
             },
         });

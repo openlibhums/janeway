@@ -5,7 +5,7 @@
     </div>
     <div class="large-11 columns">
         <div class="panel  callout radius" style="margin-bottom: 0px;">
-        {{ note.text|markdown }}
+        {{ note.text|safe }}
         </div>
         <p class="pull-right" style="margin-top: 0px;"><small>Added {{ note.date_time }} by {{ note.creator.full_name }} - <button type="submit" onclick="delete_note({{ proofing_task.pk }}, {{ galley.pk }}, {{note.pk}})"><i class="fa fa-trash">&nbsp;</i></button></small></p>
     </div>
