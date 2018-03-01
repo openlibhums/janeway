@@ -74,3 +74,7 @@ a:hover .article-title {
 .editorial-card {
     max-height: 400px;
 }
+
+.disp-formula {
+    overflow-x: auto;
+}
