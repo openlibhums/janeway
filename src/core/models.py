@@ -731,8 +731,8 @@ class Galley(models.Model):
         else:
             return missing_elements
 
-    def file_content(self):
-        if self.file.mime_type == "text/html":
+    def file_content(self, dont_render=False):
+        if self.file.mime_type == "text/html" or dont_render:
             # get raw HTML and render
             return self.file.get_file(self.article)
         elif self.file.mime_type == "application/xml" or self.file.mime_type == 'text/xml':

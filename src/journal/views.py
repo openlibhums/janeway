@@ -1379,6 +1379,25 @@ def download_journal_file(request, file_id):
         raise Http404
 
 
+def download_table(request, identifier_type, identifier, table_name):
+    """
+    For an JATS xml document, renders it into HTML and pulls a CSV from there.
+    :param request: HttpRequest
+    :param identifier_type: Article Identifier type eg. id or doi
+    :param identifier: Article Identifier eg. 123 or 10.1167/1234
+    :param table_name: The ID of the table inside the HTML
+    :return: StreamingHTTPResponse with CSV attached
+    """
+    article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    galley = article.get_render_galley
+
+    if galley.file.mime_type.endswith('/xml'):
+        content = galley.file_content()
+        table = logic.get_table_from_html(table_name, content)
+        csv = logic.parse_html_table_to_csv(table, table_name)
+        return files.serve_temp_file(csv, '{0}.csv'.format(table_name))
+
+
 def texture_edit(request, file_id):
     file = get_object_or_404(core_models.File, pk=file_id)
 

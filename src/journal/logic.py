@@ -7,6 +7,8 @@ from os import listdir, makedirs
 from os.path import isfile, join
 import requests
 from dateutil import parser as dateparser
+from bs4 import BeautifulSoup
+import csv
 
 from django.contrib import messages
 from django.conf import settings
@@ -367,3 +369,29 @@ def resend_email(article, log_entry, request, form):
                 'target': article}
 
     notify_helpers.send_email_with_body_from_user(request, subject, valid_email_addresses, message, log_dict=log_dict)
+
+
+def get_table_from_html(table_name, content):
+    """
+    Uses BS4 to fetch an HTML table.
+    :param table_name: ID of the tabe eg T1
+    :param content: HTML Content that contains the table
+    :return: A table object
+    """
+
+    soup = BeautifulSoup(str(content), 'lxml')
+    table_div = soup.find("div", {'id': table_name})
+    table = table_div.find("table")
+    return table
+
+
+def parse_html_table_to_csv(table, table_name):
+    filepath = files.get_temp_file_path_from_name('{0}.csv'.format(table_name))
+    headers = [th.text for th in table.select("tr th")]
+
+    with open(filepath, "w") as f:
+        wr = csv.writer(f)
+        wr.writerow(headers)
+        wr.writerows([[td.text for td in row.find_all("td")] for row in table.select("tr + tr")])
+
+    return filepath

@@ -979,7 +979,7 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/table">
-        <table>
+        <table class="striped">
             <xsl:apply-templates/>
         </table>
     </xsl:template>
@@ -4005,7 +4005,7 @@
         <div>
           <xsl:call-template name="a-id"/>
           <div>
-            <table>
+            <table class="striped">
               <xsl:if test="string(tei:head)">
                 <xsl:call-template name="tableHead"/>
               </xsl:if>
@@ -4079,7 +4079,7 @@
       <xsl:call-template name="a-id"/>
       <!-- Type only changes if a project needs different formatting-->
       <div>
-        <table>
+        <table class="striped">
           <xsl:if test="string(tei:head)">
             <xsl:call-template name="tableHead"/>
           </xsl:if>
