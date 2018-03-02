@@ -27,7 +27,7 @@
                 <div class="callout">
                     <div class="row column log-in-form">
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/" class="success button expanded">{% trans "Log in with ORCiD" %}</a>
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}/login/orcid/" class="success button expanded">{% trans "Log in with ORCiD" %}</a>
                         <label>Email
                             <input name="user_name" type="text" placeholder="somebody@example.com">
                         </label>

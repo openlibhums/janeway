@@ -15,6 +15,7 @@ from django.contrib import messages
 
 import sys
 from utils import models as util_models
+from utils.function_cache import cache
 
 CROSSREF_TEST_URL = 'https://api.crossref.org/deposits?test=true'
 CROSSREF_LIVE_URL = 'https://api.crossref.org/deposits'
@@ -173,6 +174,19 @@ def generate_crossref_doi_with_pattern(article):
     from identifiers import models as identifier_models
 
     return identifier_models.Identifier.objects.create(**doi_options)
+
+
+@cache(600)
+def render_doi_from_pattern(article):
+    from utils import setting_handler, render_template
+
+    doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal).value
+    doi_suffix = render_template.get_requestless_content({'article': article},
+                                                         article.journal,
+                                                         'doi_pattern',
+                                                         group_name='Identifiers')
+
+    return '{0}/{1}'.format(doi_prefix, doi_suffix)
 
 
 def get_preprint_tempate_context(request, identifier):

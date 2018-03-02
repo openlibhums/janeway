@@ -25,7 +25,8 @@ def get_typesetters(article):
                                                             completed__isnull=True)
     typesetters = [task.typesetter.pk for task in typeset_assignments]
 
-    return core_models.AccountRole.objects.filter(role__slug='typesetter').exclude(user__pk__in=typesetters)
+    return core_models.AccountRole.objects.filter(role__slug='typesetter', journal=article.journal).exclude(
+        user__pk__in=typesetters)
 
 
 def get_all_galleys(article):

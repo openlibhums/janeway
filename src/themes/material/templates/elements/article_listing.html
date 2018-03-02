@@ -7,12 +7,12 @@
         <div class="col m2">
             {% if article.thumbnail_image_file %}
                 <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                     alt="{{ article.title|striptags|escape }}" class="circle">
+                     alt="{{ article.title|striptags|escape }}" class="circle responsive-img">
             {% elif request.journal.thumbnail_image %}
-                <img src="{% url 'journal_cover_download' %}" class="circle">
+                <img src="{% url 'journal_cover_download' %}" class="circle responsive-img">
             {% else %}
                 <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
-                     class="circle">
+                     class="circle responsive-img">
             {% endif %}
         </div>
         <div class="col m10">

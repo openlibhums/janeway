@@ -757,7 +757,7 @@ def send_proofreader_complete_notification(**kwargs):
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'notify_proofreader_complete',
                                                               'subject_notify_proofreader_complete',
-                                                              proofing_task.proofreader.email,
+                                                              proofing_task.round.assignment.proofing_manager.email,
                                                               {'proofing_task': proofing_task})
 
 
@@ -779,7 +779,7 @@ def send_proofing_typeset_request(**kwargs):
         notify_helpers.send_slack(request, description, ['slack_editors'])
         notify_helpers.send_email_with_body_from_user(
             request, 'subject_notify_typesetter_proofing_changes',
-            typeset_task.proofing_task.round.assignment.proofing_manager.email,
+            typeset_task.typesetter.email,
             user_content_message, log_dict=log_dict)
 
 
@@ -794,7 +794,7 @@ def send_proofing_typeset_decision(**kwargs):
         decision
     )
     log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Typesetting',
-                'target': typeset_task.assignment.article}
+                'target': typeset_task.proofing_task.round.assignment.article}
     notify_helpers.send_email_with_body_from_user(request, 'Proofing Typesetting Changes',
                                                   typeset_task.proofing_task.round.assignment.proofing_manager.email,
                                                   description, log_dict=log_dict)
@@ -871,7 +871,7 @@ def send_author_publication_notification(**kwargs):
 
     notify_helpers.send_email_with_body_from_user(request,
                                                   '{0} Publication'.format(article.title),
-                                                  article.editor_emails(),
+                                                  article.correspondence_author.email,
                                                   user_message, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 

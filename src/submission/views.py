@@ -465,7 +465,7 @@ def edit_identifiers(request, article_id, identifier_id=None, event=None):
             return redirect(reverse_url)
 
     if request.POST:
-        if 'issue_doi' in request.POST and article.is_published:
+        if 'issue_doi' in request.POST:
             # assuming there is only one DOI
             for identifier in identifiers:
                 identifier.register()

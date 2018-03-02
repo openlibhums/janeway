@@ -22,7 +22,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="card-divider">
-                        <h4>To {{ proofing_task.proofreader.full_name }}</h4>
+                        <h4>To {{ typeset_task.typesetter.full_name }}</h4>
                         <h5>From {{ request.user.full_name }}</h5>
                     </div>
                     <div class="card-section">

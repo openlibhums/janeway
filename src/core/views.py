@@ -109,9 +109,10 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
+    domain = request.journal_base_url if request.journal else request.press_base_url
 
     if orcid_code:
-        auth = orcid.retrieve_tokens(orcid_code, domain=request.journal_base_url)
+        auth = orcid.retrieve_tokens(orcid_code, domain=domain)
         orcid_id = auth.get('orcid', None)
 
         if orcid_id:

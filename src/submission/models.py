@@ -927,6 +927,9 @@ class Article(models.Model):
     @cache(600)
     def workflow_stages(self):
         return core_models.WorkflowLog.objects.filter(article=self)
+    @cache(600)
+    def render_sample_doi(self):
+        return id_logic.render_doi_from_pattern(self)
 
 
 class FrozenAuthor(models.Model):
@@ -962,8 +965,20 @@ class FrozenAuthor(models.Model):
             middle_initial = '{0}.'.format(self.middle_name[:1])
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
+    def given_names(self):
+        if self.middle_name:
+            return '{first_name} {middle_name}'.format(first_name=self.first_name, middle_name=self.middle_name)
+        else:
+            return self.first_name
 
         return '{0} {1}{2}'.format(self.last_name, first_initial, middle_initial)
+
+
+    def affiliation(self):
+        if self.department:
+            return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
+        else:
+            return self.institution
 
 
 class Section(TranslatableModel):
