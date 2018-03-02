@@ -67,4 +67,5 @@ class Command(BaseCommand):
 
         print('Create a super user.')
         call_command('createsuperuser')
-        print('Open your browser to your new journal domain {domain}/install/ to continue this setup process.'.format(domain=journal.domain))
+        print('Open your browser to your new journal domain {domain}/install/ to continue this setup process.'.format(
+            domain=journal.domain))
