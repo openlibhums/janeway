@@ -44,7 +44,8 @@ def install():
             template_path='journal/homepage_elements/html_block.html',
             content_type=content_type,
             object_id=press.pk,
-            has_config=True)
+            has_config=True,
+            available_to_press=True)
 
         element.save()
 
