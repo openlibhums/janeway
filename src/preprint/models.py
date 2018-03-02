@@ -66,6 +66,7 @@ def version_choices():
         ('version', 'New Version'),
     )
 
+
 class VersionQueue(models.Model):
     article = models.ForeignKey('submission.Article')
     galley = models.ForeignKey('core.Galley')

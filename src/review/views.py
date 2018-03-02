@@ -608,7 +608,7 @@ def do_review(request, assignment_id):
 
             if not assignment.date_accepted:
                 assignment.date_accepted = timezone.now()
-                
+
             assignment.save()
 
             kwargs = {'review_assignment': assignment,

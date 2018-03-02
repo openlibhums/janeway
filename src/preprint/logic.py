@@ -200,6 +200,7 @@ def get_pending_update_from_post(request):
         messages.add_message(request, messages.WARNING, 'No valid version id provided.')
         return None
 
+
 def approve_pending_update(request):
     """
     Approves a pending versioning request and updates files/galleys.
@@ -231,7 +232,6 @@ def approve_pending_update(request):
         pending_update.date_decision = timezone.now()
         pending_update.approved = True
         pending_update.save()
-
 
     else:
         messages.add_message(request, messages.WARNING, 'No valid pending update found.')

@@ -67,7 +67,7 @@ class WorkflowElementAdmin(admin.ModelAdmin):
     search_fields = ('element_name',)
     list_display = ('element_name', 'journal', 'handshake_url', 'stage', 'order')
     list_filter = ('journal',)
-    
+
 
 class WorkflowLogAdmin(admin.ModelAdmin):
     search_fields = ('article',)

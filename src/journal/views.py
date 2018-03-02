@@ -39,6 +39,7 @@ from submission import models as submission_models
 from utils import models as utils_models, shared
 from events import logic as event_logic
 
+
 @has_journal
 def home(request):
     """ Renders a journal homepage.
@@ -849,7 +850,6 @@ def sort_issue_sections(request, issue_id):
             else:
                 messages.add_message(request, messages.WARNING, 'You cannot move the first section up the order list')
 
-
         elif 'down' in request.POST:
             section_id = request.POST.get('down')
             section_to_move_down = get_object_or_404(submission_models.Section, pk=section_id, journal=request.journal)
@@ -1320,7 +1320,6 @@ def resend_logged_email(request, article_id, log_id):
     }
 
     return render(request, template, context)
-
 
 
 @editor_user_required

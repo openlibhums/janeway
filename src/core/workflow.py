@@ -54,7 +54,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             next_element = workflow_elements[index]
         except IndexError:
             # An index error will occur here when the workflow is complete
-            return redirect(reverse('manage_archive_article',  kwargs={'article_id': article.pk}))
+            return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
 
         if switch_stage:
             log_stage_change(article, next_element)
@@ -142,4 +142,3 @@ def articles_in_workflow_stages(request):
                 print(e)
 
     return workflow_list
-

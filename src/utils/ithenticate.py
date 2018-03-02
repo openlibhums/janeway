@@ -18,6 +18,7 @@ def ithenticate_is_enabled(journal):
     else:
         return False
 
+
 def build_server(journal):
     username = setting_handler.get_setting('crosscheck', 'username', journal).value
     password = setting_handler.get_setting('crosscheck', 'password', journal).value

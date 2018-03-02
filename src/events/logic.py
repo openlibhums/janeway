@@ -212,7 +212,6 @@ class Events:
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
 
-
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
         """
@@ -239,7 +238,6 @@ class Events:
 
             if event_return:
                 return event_return[0]
-
 
     @staticmethod
     def register_for_event(event_name, function):

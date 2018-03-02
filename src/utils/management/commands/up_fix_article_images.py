@@ -40,7 +40,6 @@ class Command(BaseCommand):
         except journal_models.Journal.DoesNotExist:
             print('No journal with that code found.')
 
-
         if journal:
             articles = models.Article.objects.filter(stage=models.STAGE_PUBLISHED, journal=journal)
 
@@ -61,7 +60,6 @@ class Command(BaseCommand):
                             galley_images = galley_soup.findAll('graphic')
 
                             galley_hrefs = [image.get('xlink:href') for image in galley_images]
-
 
                             print(url)
 
@@ -87,5 +85,3 @@ class Command(BaseCommand):
                                     print('File not found in files directory.')
 
                                 loop_counter += 1
-
-

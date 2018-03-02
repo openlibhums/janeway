@@ -21,7 +21,6 @@ from utils.shared import get_ip_address
 from utils import notify
 
 
-
 LOG_TYPES = [
     ('Email', 'Email'),
     ('PageView', 'PageView'),
@@ -218,7 +217,7 @@ class ImportCacheEntry(models.Model):
             cache.delete()
 
     @staticmethod
-    def fetch(url, up_auth_file = '', up_base_url = '', ojs_auth_file = ''):
+    def fetch(url, up_auth_file='', up_base_url='', ojs_auth_file=''):
         try:
             cached = ImportCacheEntry.objects.get(url=url)
 

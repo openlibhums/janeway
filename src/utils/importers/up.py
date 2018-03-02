@@ -152,8 +152,9 @@ def import_article(journal, user, url, thumb_path=None):
             metrics_models.HistoricArticleAccess.objects.create(article=new_article,
                                                                 views=views,
                                                                 downloads=downloads)
-    except:
+    except BaseException:
         pass
+
 
 def import_oai(journal, user, soup, domain):
     """ Initiate an OAI import on a Ubiquity Press journal.
@@ -415,7 +416,7 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
         else:
             try:
                 profile_dict['Country'] = core_models.Country.objects.get(name=profile_dict['Country'])
-            except:
+            except BaseException:
                 print("Country not found")
                 profile_dict['Country'] = None
 
@@ -517,7 +518,7 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
             account.add_account_role('section-editor', journal)
             review_models.EditorAssignment.objects.create(article=article, editor=account, editor_type='section-editor')
             print('Editor added to article')
-        except:
+        except BaseException:
             print('Editor account was not found.')
 
     # Add a new review round
@@ -581,7 +582,7 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
     if not form:
         try:
             form = review_models.ReviewForm.objects.filter(journal=journal)[0]
-        except:
+        except BaseException:
             form = None
             print('You must have at least one review form for the journal before importing.')
             exit()
@@ -795,6 +796,7 @@ def import_copyeditors(article, article_dict, auth_file, base_url):
                     file = get_ojs_file(base_url, final.get('file'), article, auth_file, 'Final File')
                     final_assignment.copyeditor_files.add(file)
 
+
 def import_typesetters(article, article_dict, auth_file, base_url):
     layout = article_dict.get('layout')
     task = None
@@ -823,7 +825,6 @@ def import_typesetters(article, article_dict, auth_file, base_url):
             accepted=accepted,
             completed=complete,
         )
-
 
     galleys = import_galleys(article, layout, auth_file, base_url)
 
@@ -855,6 +856,7 @@ def import_galleys(article, layout_dict, auth_file, base_url):
 
     return galleys
 
+
 def process_for_copyediting(article, article_dict, auth_file, base_url):
     import_copyeditors(article, article_dict, auth_file, base_url)
 
@@ -862,6 +864,7 @@ def process_for_copyediting(article, article_dict, auth_file, base_url):
 def process_for_typesetting(article, article_dict, auth_file, base_url):
     import_copyeditors(article, article_dict, auth_file, base_url)
     import_typesetters(article, article_dict, auth_file, base_url)
+
 
 def process_for_proofing(article, article_dict, auth_file, base_url):
     import_copyeditors(article, article_dict, auth_file, base_url)

@@ -116,7 +116,7 @@ def import_from_jats_xml(path, journal):
         for author in authors:
             if not author.get('email') or author.get('email') == '':
                 author['email'] = '{first}.{last}@journal.com'.format(first=author.get('first_name'),
-                                                                             last=author.get('last_name'))
+                                                                      last=author.get('last_name'))
             try:
                 author = core_models.Account.objects.get(Q(email=author['email']) | Q(username=author['email']))
             except core_models.Account.DoesNotExist:

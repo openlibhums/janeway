@@ -123,7 +123,6 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
     else:
         file_mime = guess_mime(filename)
 
-
     from core import models
     new_file = models.File(
         mime_type=file_mime,

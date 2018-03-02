@@ -36,8 +36,8 @@ class Command(BaseCommand):
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
             ojs_plugin_import_review_articles(url,
-                                             journal,
-                                             auth_file=options.get('auth_file'),
-                                             base_url=options.get('base_url'))
+                                              journal,
+                                              auth_file=options.get('auth_file'),
+                                              base_url=options.get('base_url'))
         except models.Journal.DoesNotExist:
             print('Journal not found.')

@@ -652,4 +652,3 @@ def fetch_email_from_href(a_soup):
         return email.group(1)
     else:
         return None
-

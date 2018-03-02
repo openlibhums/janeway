@@ -82,4 +82,3 @@ class ResendEmailForm(forms.Form):
         self.fields['to'].initial = '{to}; '.format(to=log_entry.to)
         self.fields['subject'].initial = log_entry.subject
         self.fields['body'].initial = mark_safe(log_entry.description)
-

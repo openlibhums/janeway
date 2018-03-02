@@ -35,7 +35,7 @@ class Command(BaseCommand):
             management.call_command('nuke_import_cache')
 
         url = '{base_url}/manager/userProfile/{user_id}'.format(base_url=options.get('base_url'),
-                                                                    user_id=options.get('user_id'))
+                                                                user_id=options.get('user_id'))
         print(url)
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
@@ -46,4 +46,3 @@ class Command(BaseCommand):
                             user_id=options.get('user_id'))
         except models.Journal.DoesNotExist:
             print('Journal not found.')
-

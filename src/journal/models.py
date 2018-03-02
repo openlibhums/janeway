@@ -411,10 +411,9 @@ class Issue(models.Model):
 
         return section_article_dict
 
-
     @property
     def all_sections(self):
-        ordered_sections =[order.section for order in SectionOrdering.objects.filter(issue=self)]
+        ordered_sections = [order.section for order in SectionOrdering.objects.filter(issue=self)]
         articles = self.articles.all().order_by('section')
 
         for article in articles:
@@ -422,7 +421,6 @@ class Issue(models.Model):
                 ordered_sections.append(article.section)
 
         return ordered_sections
-
 
     @property
     def first_section(self):
@@ -432,7 +430,6 @@ class Issue(models.Model):
             return all_sections[0]
         else:
             return 0
-
 
     @property
     def last_section(self):
@@ -454,7 +451,6 @@ class Issue(models.Model):
 
         return sorted(ordered_list, key=itemgetter('order'))
 
-
     def structure(self):
         structure = collections.OrderedDict()
 
@@ -474,7 +470,6 @@ class Issue(models.Model):
             structure[section] = article_list
 
         return structure
-
 
     @property
     def article_pks(self):

@@ -14,5 +14,3 @@ def yield_homepage_element_context(request, homepage_elements):
         html_block_content = '<p>This element has no content.</p>'
 
     return {'html_content': html_block_content}
-
-
