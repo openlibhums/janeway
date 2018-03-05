@@ -1093,6 +1093,7 @@ def review_decision(request, article_id, decision):
         elif decision == 'decline':
             article.decline_article()
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
+            return redirect(reverse('core_dashboard'))
 
         messages.add_message(request, messages.INFO, 'Article {0} has been {1}ed'.format(article.title, decision))
         return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))

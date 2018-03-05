@@ -187,7 +187,11 @@ class ArticleMetrics:
 
 def store_article_access(request, article, access_type, galley_type='view'):
 
-    user_agent = parse_ua_string(request.META.get('HTTP_USER_AGENT', None))
+    try:
+        user_agent = parse_ua_string(request.META.get('HTTP_USER_AGENT', None))
+    except TypeError:
+        user_agent = None
+        
     counter_tracking_id = request.session.get('counter_tracking')
     identifier = counter_tracking_id if counter_tracking_id else shared.get_ip_address(request)
 

@@ -27,7 +27,9 @@ urlpatterns = [
     url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+?/.+?)/(?P<file_name>.+)$',
         views.identifier_figure,
         name='article_figure'),
+
     url(r'^articles/$', views.articles, name='journal_articles'),
+
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
     url(r'^issue/(?P<issue_id>\d+)/info/$', views.issue, name='journal_issue'),
@@ -39,6 +41,8 @@ urlpatterns = [
     url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/print/$', views.print_article,
         name='article_print_article'),
     url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/$', views.article, name='article_view'),
+
+    # Article management
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/info/$', views.submit_files_info,
         name='submit_replacement_files_info'),
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/history/$', views.file_history,
@@ -60,6 +64,8 @@ urlpatterns = [
         views.publish_article, name='publish_article'),
     url(r'^publish/article/(?P<article_id>\d+)/check/$',
         views.publish_article_check, name='publish_article_check'),
+
+    # Issues
     url(r'^manage/issues/$',
         views.manage_issues, name='manage_issues'),
     url(r'^manage/issues/order/$',
@@ -74,12 +80,10 @@ urlpatterns = [
         views.add_guest_editor, name='manage_add_guest_editor'),
     url(r'^manage/issues/(?P<issue_id>\d+)/(?P<event>[-\w.]+)/$',
         views.manage_issues, name='manage_issues_event'),
-
-    # Sorting
     url(r'^manage/issues/(?P<issue_id>\d+)/sort/sections/$',
         views.sort_issue_sections, name='manage_sort_issue_sections'),
 
-
+    # Article Archive
     url(r'^manage/archive/$',
         views.manage_archive, name='manage_archive'),
     url(r'^manage/archive/article/(?P<article_id>\d+)/$',
@@ -90,6 +94,9 @@ urlpatterns = [
 
     url(r'^manage/article/(?P<article_id>\d+)/log/(?P<log_id>\d+)/resend/$',
         views.resend_logged_email, name='manage_resend_logged_email'),
+
+    url(r'^manage/articles/schedule/$',
+        views.publication_schedule, name='publication_schedule'),
 
     # Reviewer
     url(r'^reviewer/$',

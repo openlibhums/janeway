@@ -578,10 +578,14 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     :return: a streaming file reponse
     """
     figure_article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
-    galley = figure_article.get_render_galley
-    figure = get_object_or_404(galley.images, original_filename=file_name)
 
-    return files.serve_file(request, figure, figure_article)
+    if figure_article:
+        galley = figure_article.get_render_galley
+        figure = get_object_or_404(galley.images, original_filename=file_name)
+
+        return files.serve_file(request, figure, figure_article)
+    else:
+        raise Http404
 
 
 def article_figure(request, article_id, galley_id, file_name):
@@ -1101,6 +1105,24 @@ def manage_archive_article(request, article_id):
     return render(request, template, context)
 
 
+@editor_user_required
+def publication_schedule(request):
+    """
+    Displays a list of articles that have been set for publication but are not yet published.
+    :param request: HttpRequest object
+    :return: HttpReponse
+    """
+    article_list = submission_models.Article.objects.filter(journal=request.journal,
+                                                            date_published__gte=timezone.now())
+
+    template = 'journal/manage/publication_schedule.html'
+    context = {
+        'articles': article_list,
+    }
+
+    return render(request, template, context)
+
+
 @login_required
 def become_reviewer(request):
     """
@@ -1397,6 +1419,7 @@ def download_table(request, identifier_type, identifier, table_name):
         return files.serve_temp_file(csv, '{0}.csv'.format(table_name))
 
 
+@staff_member_required
 def texture_edit(request, file_id):
     file = get_object_or_404(core_models.File, pk=file_id)
 
