@@ -56,23 +56,30 @@
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{{ task.due|date:"Y-m-d" }}</td>
                                         <td>{{ task.status.friendly }}</td>
+
                                         <td>
-                                            {% if task.status.slug == 'completed' %}
-                                                <a href="{% url 'review_proofing_task' article.pk task.pk %}"><i
-                                                        class="fa fa-file-o" aria-hidden="true">&nbsp;</i>Review</a> |
-                                                <a href="{% url 'request_typesetting_changes' article.pk task.pk %}"><i
-                                                        class="fa fa-pencil" aria-hidden="true">&nbsp;</i>Request
-                                                    Changes</a>
-                                                {% if not task.acknowledged %} |
-                                                    <a href="{% url 'acknowledge_proofing' article.pk 'proofing' task.pk %}"><i
-                                                            class="fa fa-envelope-o" aria-hidden="true">&nbsp;</i>Acknowledge</a>
-                                                {% else %}| Acknowledged<br/>
-                                                    {{ task.acknowledged|date:"Y-m-d H:i" }}{% endif %}
-                                            {% elif not task.complerte %}
-                                                <a href="{% url 'edit_proofing_assignment' article.pk task.pk %}" class="tiny button">Edit</a>
-                                            {% else %}
-                                                Awaiting<br/>proofreader
-                                            {% endif %}
+                                            <button class="button" type="button"
+                                                    data-toggle="copy-dropdown-{{ task.pk }}">Actions <i class="fa fa-caret-down"></i>
+                                            </button>
+                                            <div class="dropdown-pane" id="copy-dropdown-{{ task.pk }}" data-dropdown data-position="left" data-alignment="center">
+                                                {% if task.status.slug == 'completed' %}
+                                                    <a class="button expanded" href="{% url 'review_proofing_task' article.pk task.pk %}"><i
+                                                            class="fa fa-file-o" aria-hidden="true">&nbsp;</i>Review</a>
+
+                                                    <a class="button expanded" href="{% url 'request_typesetting_changes' article.pk task.pk %}"><i
+                                                            class="fa fa-pencil" aria-hidden="true">&nbsp;</i>Request
+                                                        Changes</a>
+                                                    {% if not task.acknowledged %}
+                                                        <a class="button expanded" href="{% url 'acknowledge_proofing' article.pk 'proofing' task.pk %}"><i
+                                                                class="fa fa-envelope-o" aria-hidden="true">&nbsp;</i>Acknowledge</a>
+                                                    {% else %}<hr /><p>Acknowledged {{ task.acknowledged|date:"Y-m-d H:i" }}{% endif %}</p>
+                                                {% elif not task.complete %}
+                                                    <a href="{% url 'edit_proofing_assignment' article.pk task.pk %}"
+                                                       class="button expanded"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+                                                {% else %}
+                                                    Awaiting<br/>proofreader
+                                                {% endif %}
+                                            </div>
                                         </td>
                                     </tr>
                                 {% empty %}
