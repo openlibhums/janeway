@@ -578,10 +578,14 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     :return: a streaming file reponse
     """
     figure_article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
-    galley = figure_article.get_render_galley
-    figure = get_object_or_404(galley.images, original_filename=file_name)
 
-    return files.serve_file(request, figure, figure_article)
+    if figure_article:
+        galley = figure_article.get_render_galley
+        figure = get_object_or_404(galley.images, original_filename=file_name)
+
+        return files.serve_file(request, figure, figure_article)
+    else:
+        raise Http404
 
 
 def article_figure(request, article_id, galley_id, file_name):
