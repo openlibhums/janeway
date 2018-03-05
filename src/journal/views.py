@@ -1415,6 +1415,7 @@ def download_table(request, identifier_type, identifier, table_name):
         return files.serve_temp_file(csv, '{0}.csv'.format(table_name))
 
 
+@staff_member_required
 def texture_edit(request, file_id):
     file = get_object_or_404(core_models.File, pk=file_id)
 
