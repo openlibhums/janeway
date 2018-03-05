@@ -33,6 +33,8 @@
             Issues</a></li>
         <li><a href="{% url 'manage_archive' %}"><i class="fa fa-file">&nbsp;</i>
             Articles</a></li>
+        <li><a href="{% url 'publication_schedule' %}"><i class="fa fa-calendar">&nbsp;</i>
+            Publication Schedule</a></li>
         {% endif %}
         {% if request.user.is_staff %}
             <li class="subtitle"><a href="#">Staff</a></li>

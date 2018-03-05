@@ -1101,6 +1101,24 @@ def manage_archive_article(request, article_id):
     return render(request, template, context)
 
 
+@editor_user_required
+def publication_schedule(request):
+    """
+    Displays a list of articles that have been set for publication but are not yet published.
+    :param request: HttpRequest object
+    :return: HttpReponse
+    """
+    article_list = submission_models.Article.objects.filter(journal=request.journal,
+                                                            date_published__gte=timezone.now())
+
+    template = 'journal/manage/publication_schedule.html'
+    context = {
+        'articles': article_list,
+    }
+
+    return render(request, template, context)
+
+
 @login_required
 def become_reviewer(request):
     """
