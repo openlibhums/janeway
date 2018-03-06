@@ -14,10 +14,12 @@
             <div class="card">
                 <div class="card-block">
                     <div class="col-md-12">
+                        {% if settings.ENABLE_ORCID %}
                         <h2 class="text-center">{% trans "Log in with your account" %}</h2>
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/"
                            class="btn btn-primary btn-block">{% trans "Log in with ORCiD" %}</a>
                         <br/>
+                        {% endif %}
                         <form method="POST">
                             {% csrf_token %}
                             <div class="form-group">
