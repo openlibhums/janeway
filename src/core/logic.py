@@ -160,6 +160,9 @@ def get_settings_to_edit(group, journal):
             {'name': 'submission_checklist',
              'object': setting_handler.get_setting('general', 'submission_checklist', journal)
              },
+            {'name': 'acceptance_criteria',
+             'object': setting_handler.get_setting('general', 'acceptance_criteria', journal)
+             },
             {'name': 'publication_fees',
              'object': setting_handler.get_setting('general', 'publication_fees', journal)
              },

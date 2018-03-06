@@ -64,6 +64,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "<p>Displayed on the Submission pages. You should update this to display the Journal's acceptance criteria.",
+            "is_translatable": true,
+            "name": "acceptance_criteria",
+            "pretty_name": "Acceptance Criteria",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Displayed on the About and Submission pages. You should update this with an ordered list of submission requirements.",
             "is_translatable": true,
             "name": "submission_checklist",
