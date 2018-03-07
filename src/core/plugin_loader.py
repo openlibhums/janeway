@@ -33,12 +33,19 @@ def load(directory="plugins", prefix="plugins", permissive=False):
         if plugin:
             plugins.append(plugin)
             module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
+
+            # Load hooks
             hooks.append(load_hooks(module_name))
 
+            # Check for workflow
             workflow_check = check_plugin_workflow(module_name)
             if workflow_check:
                 settings.WORKFLOW_PLUGINS[workflow_check] = module_name
 
+            # Call event registry
+            register_for_events(module_name)
+
+    # Register plugin hooks
     if settings.PLUGIN_HOOKS:
         super_hooks = settings.PLUGIN_HOOKS
     else:
@@ -83,3 +90,13 @@ def check_plugin_workflow(module_name):
             return plugin_settings.PLUGIN_NAME
     except AttributeError:
         return False
+
+
+def register_for_events(module_name):
+    plugin_settings = import_module(module_name)
+
+    try:
+        plugin_settings.register_for_events()
+    except AttributeError:
+        # Pass, this module has no register_for_events func
+        pass
