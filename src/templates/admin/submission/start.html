@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 {% load i18n %}
+{% load hooks %}
 
 {% block title %}{% trans "Submit an Article" %}{% endblock title %}
 
@@ -23,7 +24,7 @@
                 </div>
                 <div class="content submission-content">
                     {{ journal_settings.general.publication_fees|safe }}
-
+                    {% hook 'publication_fees' %}
                     {{ form.publication_fees }}&nbsp;&nbsp;<label
                         for="id_publication_fees">{% trans "Author(s) agrees to the above statement" %}</label>
                 </div>
