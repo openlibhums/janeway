@@ -2,15 +2,19 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from datetime import timedelta
 from uuid import uuid4
+import os
 
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
+from django.conf import settings
+from docx import Document
 
 from utils import render_template, setting_handler
-from core import models as core_models
+from core import models as core_models, files
 from review import models
 from events import logic as event_logic
 from submission import models as submission_models
@@ -274,3 +278,47 @@ def generate_access_code_url(url_name, assignment, access_code):
         reverse_url = '{reverse_url}?access_code={access_code}'.format(reverse_url=reverse_url, access_code=access_code)
 
     return reverse_url
+
+
+def render_choices(choices):
+    c_split = choices.split('|')
+    return [(choice.capitalize(), choice) for choice in c_split]
+
+
+def serve_review_file(assignment):
+    """
+    Produces a word document representing the review form.
+    :param assignment: ReviewAssignment object
+    :return: HttpStreamingResponse
+    """
+    elements = assignment.form.elements.all()
+    document = Document()
+    document.add_heading('Review #{pk}'.format(pk=assignment.pk), 0)
+    document.add_heading('Review of `{article_title}` by {reviewer}'.format(article_title=assignment.article.title,
+                                                                           reviewer=assignment.reviewer.full_name()),
+                         level=1)
+    document.add_paragraph()
+    document.add_paragraph('Complete the form below, then upload it under the "FILE UPLOAD" section on your review page'
+                           '. There is no need to complete the form on the web page if you are uploading this '
+                           'document.')
+    document.add_paragraph()
+
+    for element in elements:
+        document.add_heading(element.name, level=2)
+        document.add_paragraph(element.help_text)
+        if element.choices:
+            choices = render_choices(element.choices)
+            table = document.add_table(rows=1, cols=2)
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = 'Choice'
+            hdr_cells[1].text = 'Indication'
+
+            for choice in element.choices.split('|'):
+                row_cells = table.add_row().cells
+                row_cells[0].text = str(choice)
+        document.add_paragraph()
+
+    filename = '{uuid}.docx'.format(uuid=uuid4())
+    filepath = os.path.join(settings.BASE_DIR, 'files', 'temp', filename)
+    document.save(filepath)
+    return files.serve_temp_file(filepath, filename)

@@ -34,6 +34,7 @@ pycparser==2.14
 python-crontab==2.2.3
 python-dateutil==2.6.0
 python-magic==0.4.13
+python-docx==0.8.6
 raven==6.0.0 # TODO: Optional for sentry
 requests==2.9.1
 six==1.10.0

@@ -583,6 +583,9 @@ def do_review(request, assignment_id):
     form = forms.GeneratedForm(review_assignment=assignment)
     decision_form = forms.ReviewerDecisionForm(instance=assignment)
 
+    if 'review_file' in request.GET:
+        return logic.serve_review_file(assignment)
+
     if request.POST:
         if 'decline' in request.POST:
             return redirect(logic.generate_access_code_url('decline_review', assignment, access_code))

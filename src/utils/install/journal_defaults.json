@@ -2333,5 +2333,20 @@
         "group": {
             "name": "general"
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Enables reviewer form download link.",
+            "is_translatable": false,
+            "name": "reviewer_form_download",
+            "pretty_name": "Review Form Download",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

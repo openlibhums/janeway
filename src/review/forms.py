@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from datetime import timedelta
 
 from django import forms
@@ -9,6 +10,7 @@ from django.utils import timezone
 from django.template.defaultfilters import linebreaksbr
 
 from review import models
+from review.logic import render_choices
 from core import models as core_models
 from utils import setting_handler
 
@@ -97,11 +99,6 @@ class DoRevisions(forms.ModelForm):
         fields = (
             'author_note',
         )
-
-
-def render_choices(choices):
-    c_split = choices.split('|')
-    return [(choice.capitalize(), choice) for choice in c_split]
 
 
 class GeneratedForm(forms.Form):

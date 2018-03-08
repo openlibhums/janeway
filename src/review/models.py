@@ -208,6 +208,10 @@ class ReviewFormElement(models.Model):
     def __str__(self):
         return "Element: {0} ({1})".format(self.name, self.kind)
 
+    def choices_list(self):
+        if self.choices:
+            return
+
 
 class ReviewAssignmentAnswer(models.Model):
     assignment = models.ForeignKey(ReviewAssignment)

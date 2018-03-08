@@ -221,6 +221,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'default_review_form',
                 'object': setting_handler.get_setting('general', 'default_review_form', journal),
                 'choices': review_form_choices
+            },
+            {
+                'name': 'reviewer_form_download',
+                'object': setting_handler.get_setting('general', 'reviewer_form_download', journal),
             }
         ]
         setting_group = 'general'
