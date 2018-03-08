@@ -74,5 +74,8 @@ def alt_metric_choices():
 class AltMetric(models.Model):
     article = models.ForeignKey('submission.Article')
     source = models.CharField(max_length=30, choices=alt_metric_choices())
-    pid = models.TextField()
+    pid = models.CharField(max_length=500)
     timestamp = models.DateTimeField()
+
+    class Meta:
+        unique_together = ('article', 'source', 'pid')

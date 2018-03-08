@@ -25,8 +25,12 @@ class HistoricArticleAccessAdmin(admin.ModelAdmin):
     list_display = ('article', 'views', 'downloads')
 
 
+class AltMetricAdmin(admin.ModelAdmin):
+    list_display = ('article', 'source', 'pid')
+
+
 admin_list = [
-    (models.AltMetric,),
+    (models.AltMetric, AltMetricAdmin),
     (models.ArticleAccess, ArticleAccessAdmin),
     (models.HistoricArticleAccess, HistoricArticleAccessAdmin),
 ]
