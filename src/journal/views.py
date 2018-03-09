@@ -273,7 +273,7 @@ def article(request, identifier_type, identifier):
         'galleys': galleys,
         'identifier_type': identifier_type,
         'identifier': identifier,
-        'article_content': content
+        'article_content': content,
     }
 
     return render(request, template, context)

@@ -199,8 +199,7 @@
                                         </div>
                                         <div class="large-4 columns">
                                             <h4 class="number">
-                                                <div class='altmetric-embed' data-badge-type='medium-bar' data-badge-popover="right" data-doi="{{ article.identifier.identifier }}" data-hide-no-mentions="false" class="altmetric-embed"></div>
-                                                <span>{% trans "Altmetrics" %}</span>
+                                                {{ article.metrics.alm.total }}<span>{% trans "Alt Metrics" %}</span>
                                             </h4>
                                         </div>
                                     </div>

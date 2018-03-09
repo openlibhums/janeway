@@ -155,26 +155,50 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col m6 l6 s6">
-                    <div class="card">
-                        <div class="card-content">
-                            <h5>
-                                {{ article.metrics.views }}
-                            </h5>
-                            <p><i class="fa fa-eye"></i> Views</p>
+                {% if article.metrics.alm %}
+                    <div class="col m12 l12 s12">
+                        <div class="card">
+                            <div class="card-content center">
+                                <div class="alm">
+                                    <h5>
+                                        {{ article.metrics.views }}
+                                    </h5>
+                                    <p><i class="fa fa-eye"></i> Views</p>
+                                </div>
+                                <div class="alm">
+                                    <h5>
+                                        {{ article.metrics.downloads }}
+                                    </h5>
+                                    <p><i class="fa fa-download"></i> Downloads</p>
+                                </div>
+                                {% if article.metrics.alm.twitter %}
+                                    <div class="alm">
+                                        <h5>
+                                            {{ article.metrics.alm.twitter }}
+                                        </h5>
+                                        <p><i class="fa fa-twitter"></i> Tweets</p>
+                                    </div>
+                                {% endif %}
+                                {% if article.metrics.alm.wikipedia %}
+                                    <div class="alm">
+                                        <h5>
+                                            {{ article.metrics.alm.wikipedia }}
+                                        </h5>
+                                        <p><i class="fa fa-wikipedia-w"></i> Wikipedia</p>
+                                    </div>
+                                {% endif %}
+                            {% if article.metrics.alm.reddit %}
+                                    <div class="alm">
+                                        <h5>
+                                            {{ article.metrics.alm.reddit }}
+                                        </h5>
+                                        <p><i class="fa fa-reddit"></i> Reddit</p>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col m6 l6 s6">
-                    <div class="card">
-                        <div class="card-content">
-                            <h5>
-                                {{ article.metrics.downloads }}
-                            </h5>
-                            <p><i class="fa fa-download"></i> Downloads</p>
-                        </div>
-                    </div>
-                </div>
+                {% endif %}
             </div>
             <article>
                 <div itemprop="articleBody" class="article-body">
