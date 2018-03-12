@@ -67,6 +67,7 @@ class Press(models.Model):
     random_featured_journals = models.BooleanField(default=False)
     featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
     carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)
+    tracking_code = models.TextField(blank=True, null=True)
 
     password_reset_text = models.TextField(blank=True, null=True, default=press_text('reset'))
     registration_text = models.TextField(blank=True, null=True, default=press_text('registration'))
