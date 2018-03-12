@@ -433,8 +433,8 @@ class Role(models.Model):
 
 
 class AccountRole(models.Model):
-    journal = models.ForeignKey('journal.Journal')
     user = models.ForeignKey(Account)
+    journal = models.ForeignKey('journal.Journal')
     role = models.ForeignKey(Role)
 
     class Meta:
