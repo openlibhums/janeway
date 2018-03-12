@@ -434,7 +434,8 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
                                                      middle_name=profile_dict.get('Middle Name', None),
                                                      country=profile_dict.get('Country', None),
                                                      biography=profile_dict.get('Bio Statement', None),
-                                                     salutation=profile_dict.get('Salutation', None))
+                                                     salutation=profile_dict.get('Salutation', None),
+                                                     is_active=True)
         account.save()
 
         if account:
