@@ -14,6 +14,7 @@ class ArticleAccessAdmin(admin.ModelAdmin):
     list_display = ('article', 'type', 'identifier', 'accessed')
     list_filter = ('type', 'galley_type')
     search_fields = ('identifier',)
+    raw_id_fields = ('article',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(ArticleAccessAdmin, self).get_form(request, obj, **kwargs)
@@ -23,10 +24,13 @@ class ArticleAccessAdmin(admin.ModelAdmin):
 
 class HistoricArticleAccessAdmin(admin.ModelAdmin):
     list_display = ('article', 'views', 'downloads')
+    raw_id_fields = ('article',)
 
 
 class AltMetricAdmin(admin.ModelAdmin):
     list_display = ('article', 'source', 'pid')
+    list_filter = ('article', 'source')
+    raw_id_fields = ('article',)
 
 
 admin_list = [
