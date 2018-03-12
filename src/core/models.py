@@ -844,7 +844,7 @@ class Contacts(models.Model):
         ordering = ('sequence', 'name')
 
     def __str__(self):
-        return "{0}, {1} - {2}".format(self.user.full_name(), self.journal, self.role)
+        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
 
 
 class Contact(models.Model):

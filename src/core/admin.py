@@ -115,6 +115,64 @@ class SettingGroupAdmin(admin.ModelAdmin):
     list_filter = ('enabled',)
 
 
+class GalleyAdmin(admin.ModelAdmin):
+    list_display = ('label', 'type', 'is_remote', 'article_pk', 'file_link')
+    list_filter = ('type', 'is_remote', 'article')
+    search_fields = ('label',)
+    raw_id_fields = ('article', 'file', 'css_file')
+    filter_horizontal = ('images',)
+
+    def article_pk(self, obj):
+        if obj.article:
+            link = '<a href="/admin/submission/article/{pk}/change/">{pk}</a>'.format(pk=obj.article.pk)
+            return mark_safe(link)
+        else:
+            return '-'
+
+    def file_link(self, obj):
+        if obj.file:
+            link = '<a href="/admin/core/file/{pk}/change/">{pk}</a>'.format(pk=obj.file.pk)
+            return mark_safe(link)
+        else:
+            return '-'
+
+
+class EditorialGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'journal', 'sequence')
+    list_filter = ('journal',)
+    search_fields = ('name',)
+
+
+class EditorialMemberAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'group', 'user', 'sequence')
+    list_filter = ('group', 'user')
+    raw_id_fields = ('group', 'user')
+
+
+class ContactsAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'role', 'object', 'sequence')
+    search_fields = ('name', 'email', 'role')
+
+
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'sender', 'subject', 'client_ip', 'date_sent', 'object')
+    list_filter = ('client_ip',)
+
+
+class DomainAliasAdmin(admin.ModelAdmin):
+    list_display = ('domain', 'redirect', 'site_id')
+
+
+class WorkflowAdmin(admin.ModelAdmin):
+    list_display = ('journal',)
+    filter_horizontal = ('elements',)
+
+
+class LoginAttemptAdmin(admin.ModelAdmin):
+    list_display = ('ip_address', 'user_agent', 'timestamp')
+    list_filter = ('ip_address',)
+
+
 admin_list = [
     (models.AccountRole, AccountRoleAdmin),
     (models.Account, AccountAdmin),
@@ -126,17 +184,20 @@ admin_list = [
     (models.Interest,),
     (models.Task,),
     (models.TaskCompleteEvents,),
-    (models.Galley,),
-    (models.EditorialGroup,),
-    (models.EditorialGroupMember,),
+    (models.Galley, GalleyAdmin),
+    (models.EditorialGroup, EditorialGroupAdmin),
+    (models.EditorialGroupMember, EditorialMemberAdmin),
     (models.PasswordResetToken, PasswordResetAdmin),
     (models.OrcidToken, OrcidTokenAdmin),
-    (models.DomainAlias,),
+    (models.DomainAlias, DomainAliasAdmin),
     (models.Country, CountryAdmin),
     (models.WorkflowElement, WorkflowElementAdmin),
     (models.HomepageElement, HomepageElementAdmin),
+    (models.Workflow, WorkflowAdmin),
     (models.WorkflowLog, WorkflowLogAdmin),
-    (models.LoginAttempt,),
+    (models.LoginAttempt, LoginAttemptAdmin),
+    (models.Contacts, ContactsAdmin),
+    (models.Contact, ContactAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
