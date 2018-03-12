@@ -561,6 +561,9 @@ class BannedIPs(models.Model):
     ip = models.GenericIPAddressField()
     date_banned = models.DateField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = "Banned IPs"
+
 
 def notification_type():
     return (

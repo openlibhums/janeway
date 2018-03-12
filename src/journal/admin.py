@@ -9,16 +9,23 @@ from journal import models
 
 
 class IssueAdmin(admin.ModelAdmin):
-    """Displays Setting objects in the Django admin interface."""
     list_display = ('volume', 'issue', 'issue_title', 'journal', 'issue_type')
     list_filter = ('journal', 'issue_type')
     search_fields = ('issue_title',)
+    filter_horizontal = ('articles', 'guest_editors')
 
 
 class JournalAdmin(admin.ModelAdmin):
-    """Displays Setting objects in the Django admin interface."""
     list_display = ('name', 'code', 'domain', 'is_remote', 'hide_from_press')
     list_filter = ('is_remote', 'hide_from_press')
+
+
+class BannedIPAdmin(admin.ModelAdmin):
+    list_display = ('ip', 'date_banned')
+
+
+class NotificationsAdmin(admin.ModelAdmin):
+    pass
 
 
 admin_list = [
@@ -28,7 +35,9 @@ admin_list = [
     (models.PrePublicationChecklistItem,),
     (models.FixedPubCheckItems,),
     (models.ArticleOrdering,),
-    (models.SectionOrdering,)
+    (models.SectionOrdering,),
+    (models.BannedIPs, BannedIPAdmin),
+    (models.Notifications,),
 ]
 
 [admin.site.register(*t) for t in admin_list]
