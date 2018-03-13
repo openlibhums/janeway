@@ -40,6 +40,9 @@ class ProofingAssignment(models.Model):
             return True
         return False
 
+    def __str__(self):
+        return 'Proofing Assignment {pk}'.format(pk=self.pk)
+
 
 class ProofingRound(models.Model):
     assignment = models.ForeignKey(ProofingAssignment)
