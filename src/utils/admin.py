@@ -18,10 +18,23 @@ class ImportCacheAdmin(admin.ModelAdmin):
     list_filter = ('url', 'mime_type')
 
 
+class PluginSettingAdmin(admin.ModelAdmin):
+    list_display = ('name', 'plugin', 'types', 'pretty_name', 'is_translatable')
+    list_filter = ('plugin', 'types')
+
+
+class PluginAdmin(admin.ModelAdmin):
+    list_display = ('name', 'version', 'date_installed', 'enabled', 'display_name', 'press_wide')
+
+
+class LogAdmin(admin.ModelAdmin):
+    list_display = ('types', 'date', 'level', 'actor', 'ip_address', 'is_email', 'target')
+
+
 admin_list = [
-    (models.LogEntry,),
-    (models.Plugin,),
-    (models.PluginSetting,),
+    (models.LogEntry, LogAdmin),
+    (models.Plugin, PluginAdmin),
+    (models.PluginSetting, PluginSettingAdmin),
     (models.PluginSettingValue, SettingValueAdmin),
     (models.ImportCacheEntry, ImportCacheAdmin),
 ]
