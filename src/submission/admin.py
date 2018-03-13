@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.contrib import admin
 
 from hvad.admin import TranslatableAdmin
@@ -25,6 +26,7 @@ class ArticleAdmin(admin.ModelAdmin):
 
 class ArticleLogAdmin(admin.ModelAdmin):
     list_display = ('article', 'stage_from', 'stage_to', 'date_time')
+    list_filter = ('article', 'stage_from', 'stage_to')
     readonly_fields = ('date_time',)
 
 
@@ -37,6 +39,7 @@ class LicenseAdmin(admin.ModelAdmin):
 class NoteAdmin(admin.ModelAdmin):
     list_display = ('article', 'creator', 'date_time')
     list_filter = ('article',)
+    raw_id_fields = ('article', 'creator')
 
 
 class PublisherNoteAdmin(admin.ModelAdmin):
@@ -50,7 +53,23 @@ class KeywordAdmin(admin.ModelAdmin):
 
 
 class SectionAdmin(TranslatableAdmin):
-    pass
+    list_display = ('section_name', 'section_journal', 'number_of_reviewers', 'is_filterable', 'public_submissions', 'indexing')
+    list_filter = ('journal',)
+
+    @staticmethod
+    def apply_select_related(self, qs):
+        return qs.prefetch_related('journal')
+
+    def section_journal(self, obj):
+        return obj.journal
+
+    def section_name(self, obj):
+        return obj.name
+
+
+class FieldAdmin(admin.ModelAdmin):
+    list_display = ('name', 'journal', 'press', 'kind', 'width', 'required')
+    list_filter = ('journal', 'press', 'kind', 'width')
 
 
 admin_list = [
@@ -61,7 +80,7 @@ admin_list = [
     (models.PublisherNote, PublisherNoteAdmin),
     (models.Note, NoteAdmin),
     (models.FrozenAuthor, FrozenAuthorAdmin),
-    (models.Field,),
+    (models.Field, FieldAdmin),
     (models.FieldAnswer,),
     (models.Keyword, KeywordAdmin),
 ]
