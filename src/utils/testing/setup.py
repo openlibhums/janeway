@@ -3,6 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.core.management import call_command
+
 from core import models as core_models
 from journal import models as journal_models
 from press import models as press_models
@@ -53,6 +55,12 @@ def create_journals():
     journal_two = journal_models.Journal(code="TSA", domain="journal2.localhost")
     journal_two.save()
 
+    call_command('sync_settings_to_journals', '--silent')
+    call_command('sync_journals_to_sites')
+
+    journal_one.name = 'Journal One'
+    journal_two.name = 'Journal Two'
+
     return journal_one, journal_two
 
 
@@ -86,3 +94,28 @@ def create_author(journal):
     author.is_active = True
     author.save()
     return author
+
+
+class Request(object):
+    """
+    A fake request class for sending emails outside of the client-server request loop.
+    """
+
+    def __init__(self):
+        self.journal = None
+        self.site_type = None
+        self.port = 8000
+        self.secure = False
+        self.user = False
+        self.FILES = None
+        self.META = {'REMOTE_ADDR': '127.0.0.1'}
+        self.model_content_type = None
+
+    def is_secure(self):
+        if self.secure is False:
+            return False
+        else:
+            return True
+
+    def get_host(self):
+        return 'testserver'

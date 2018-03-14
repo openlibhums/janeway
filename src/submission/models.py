@@ -22,7 +22,6 @@ from metrics.logic import ArticleMetrics
 from review import models as review_models
 from utils.function_cache import cache
 from preprint import models as preprint_models
-from core import models as core_models
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
@@ -926,6 +925,7 @@ class Article(models.Model):
 
     @cache(600)
     def workflow_stages(self):
+        from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
 
     @cache(600)
