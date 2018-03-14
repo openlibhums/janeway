@@ -58,3 +58,31 @@ def create_journals():
 
 def create_press():
     return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+
+
+def create_regular_user():
+    regular_user = create_user("regularuser@martineve.com")
+    regular_user.is_active = True
+    regular_user.save()
+    return regular_user
+
+
+def create_second_user(journal):
+    second_user = create_user("seconduser@martineve.com", ["reviewer"], journal=journal)
+    second_user.is_active = True
+    second_user.save()
+    return second_user
+
+
+def create_editor(journal):
+    editor = create_user("editoruser@martineve.com", ["editor"], journal=journal)
+    editor.is_active = True
+    editor.save()
+    return editor
+
+
+def create_author(journal):
+    author = create_user("authoruser@martineve.com", ["author"], journal=journal)
+    author.is_active = True
+    author.save()
+    return author

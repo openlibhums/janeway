@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('press', '0002_auto_20170813_1302'),
+        ('comms', '0001_initial'),
     ]
 
     operations = [

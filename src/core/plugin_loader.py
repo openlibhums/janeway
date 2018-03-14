@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.conf import settings
+from django.db.utils import ProgrammingError
 
 from utils import models
 
@@ -74,7 +75,7 @@ def get_plugin(module_name, permissive):
     try:
         plugin = models.Plugin.objects.get(name=module_name, enabled=True)
         return plugin
-    except models.Plugin.DoesNotExist:
+    except (models.Plugin.DoesNotExist, ProgrammingError):
         return False
 
 
