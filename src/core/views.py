@@ -1103,7 +1103,7 @@ def contacts(request):
             contact = form.save(commit=False)
             contact.content_type = request.model_content_type
             contact.object_id = request.site_type.pk
-            contact.sequence = request.journal.next_contact_order()
+            contact.sequence = request.site_type.next_contact_order()
             contact.save()
             return redirect(reverse('core_journal_contacts'))
 

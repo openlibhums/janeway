@@ -61,7 +61,7 @@ class JournalContactForm(forms.ModelForm):
 
     class Meta:
         model = models.Contacts
-        exclude = ('content_type', 'object_id',)
+        exclude = ('content_type', 'object_id', 'sequence',)
 
 
 class EditorialGroupForm(forms.ModelForm):
