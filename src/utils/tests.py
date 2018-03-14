@@ -17,44 +17,46 @@ from submission import models as submission_models
 
 class UtilsTests(TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         setup.create_press()
         setup.create_journals()
         setup.create_roles(['reviewer', 'editor', 'author'])
 
-        self.journal_one = journal_models.Journal.objects.get(code="TST", domain="testserver")
+        cls.journal_one = journal_models.Journal.objects.get(code="TST", domain="testserver")
 
-        self.regular_user = setup.create_regular_user()
-        self.second_user = setup.create_second_user(self.journal_one)
-        self.editor = setup.create_editor(self.journal_one)
-        self.author = setup.create_author(self.journal_one)
+        cls.regular_user = setup.create_regular_user()
+        cls.second_user = setup.create_second_user(cls.journal_one)
+        cls.editor = setup.create_editor(cls.journal_one)
+        cls.author = setup.create_author(cls.journal_one)
 
-        self.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
-                                                                   journal=self.journal_one)
+        cls.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
+                                                                  journal=cls.journal_one)
 
-        self.article_under_review = submission_models.Article.objects.create(owner=self.regular_user,
-                                                                             title="A Test Article",
-                                                                             abstract="An abstract",
-                                                                             stage=submission_models.STAGE_UNDER_REVIEW,
-                                                                             journal_id=self.journal_one.id)
+        cls.article_under_review = submission_models.Article.objects.create(owner=cls.regular_user,
+                                                                            correspondence_author=cls.regular_user,
+                                                                            title="A Test Article",
+                                                                            abstract="An abstract",
+                                                                            stage=submission_models.STAGE_UNDER_REVIEW,
+                                                                            journal_id=cls.journal_one.id)
 
-        self.review_assignment = review_models.ReviewAssignment.objects.create(article=self.article_under_review,
-                                                                               reviewer=self.second_user,
-                                                                               editor=self.editor,
-                                                                               date_due=timezone.now(),
-                                                                               form=self.review_form)
+        cls.review_assignment = review_models.ReviewAssignment.objects.create(article=cls.article_under_review,
+                                                                              reviewer=cls.second_user,
+                                                                              editor=cls.editor,
+                                                                              date_due=timezone.now(),
+                                                                              form=cls.review_form)
 
-        self.request = setup.Request()
-        self.request.journal = self.journal_one
-        self.request.site_type = self.journal_one
-        self.request.user = self.editor
-        self.request.model_content_type = ContentType.objects.get_for_model(self.request.journal)
+        cls.request = setup.Request()
+        cls.request.journal = cls.journal_one
+        cls.request.site_type = cls.journal_one
+        cls.request.user = cls.editor
+        cls.request.model_content_type = ContentType.objects.get_for_model(cls.request.journal)
 
-        self.test_message = 'This message is a test for outgoing email, nothing else.'
+        cls.test_message = 'This message is a test for outgoing email, nothing else.'
 
-        self.base_kwargs = {
-            'request': self.request,
-            'user_message_content': self.test_message,
+        cls.base_kwargs = {
+            'request': cls.request,
+            'user_message_content': cls.test_message,
             'skip': False,
         }
 
@@ -83,3 +85,14 @@ class UtilsTests(TestCase):
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
         self.assertEqual(expected_recipient_two, mail.outbox[1].to[0])
+
+    def test_send_article_decision(self):
+        kwargs = self.base_kwargs
+        kwargs['article'] = self.article_under_review
+        kwargs['decision'] = 'accept'
+
+        expected_recipient_one = self.article_under_review.correspondence_author.email
+
+        transactional_emails.send_article_decision(**kwargs)
+
+        self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])

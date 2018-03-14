@@ -3,6 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.utils.six import StringIO
+import sys
+
 from django.core.management import call_command
 
 from core import models as core_models
@@ -55,8 +58,11 @@ def create_journals():
     journal_two = journal_models.Journal(code="TSA", domain="journal2.localhost")
     journal_two.save()
 
-    call_command('sync_settings_to_journals', '--silent')
-    call_command('sync_journals_to_sites')
+    out = StringIO()
+    sys.stdout = out
+
+    call_command('sync_settings_to_journals', stdout=out)
+    call_command('sync_journals_to_sites', stdout=out)
 
     journal_one.name = 'Journal One'
     journal_two.name = 'Journal Two'
