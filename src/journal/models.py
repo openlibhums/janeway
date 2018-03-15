@@ -602,3 +602,28 @@ def create_sites_folder(sender, instance, created, **kwargs):
 def setup_default_workflow(sender, instance, created, **kwargs):
     if created:
         workflow.create_default_workflow(instance)
+
+
+@receiver(post_save, sender=Journal)
+def setup_default_form(sender, instance, created, **kwargs):
+    if created:
+        from review import models as review_models
+
+        default_review_form = review_models.ReviewForm.objects.create(
+            journal=instance,
+            name='Default Form',
+            slug='default-form',
+            intro='Please compelete the form below.',
+            thanks='Thank you for completing the review.'
+        )
+
+        main_element = review_models.ReviewFormElement.objects.create(
+            name='Review',
+            kind='textarea',
+            required=True,
+            order=1,
+            width='large-12 columns',
+            help_text='Please add as much detail as you can.'
+        )
+
+        default_review_form.elements.add(main_element)
