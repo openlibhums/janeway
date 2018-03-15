@@ -3,7 +3,7 @@
 Janeway is a journal platform designed for publishing scholarly research material. It is developed and maintained by the Centre for Technology and Publishing at Birkbeck, University of London.
 
 # Technology
-Janeway is written in Python (3.4+) and utilises the Django framework (1.11 LTS). 
+Janeway is written in Python (3.5+) and utilises the Django framework (1.11 LTS). 
 
 # Installation instructions
 Developer installation [instructions are available on our Wiki](https://github.com/BirkbeckCTP/janeway/wiki/Installation).
