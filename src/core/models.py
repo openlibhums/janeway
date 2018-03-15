@@ -20,6 +20,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 if settings.URL_CONFIG == 'path':
     from core.monkeypatch import reverse
@@ -965,3 +967,10 @@ class LoginAttempt(models.Model):
     ip_address = models.GenericIPAddressField()
     user_agent = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
+
+
+@receiver(post_save, sender=Account)
+def setup_default_workflow(sender, instance, created, **kwargs):
+    if created and not instance.signature:
+        instance.signature = instance.full_name()
+        instance.save()
