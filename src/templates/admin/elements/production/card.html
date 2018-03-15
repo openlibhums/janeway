@@ -1,3 +1,6 @@
+{% load roles %}
+{% user_has_role request 'production' as prod_manager %}
+
 <div class="card">
     <div class="card-divider">
         <h4>{{ article.title|safe }}</h4>
@@ -11,8 +14,8 @@
         <div class="button-group">
             {% if type == "assignment" %}
                 <a class="button tiny" data-open="modal{{ article.pk }}">Assign production manager</a>
-                <a class="button tiny warning" href="{% url 'production_assign_article' article.pk user.id %}">Assign
-                    self</a>
+                {% if prod_manager %}<a class="button tiny warning" href="{% url 'production_assign_article' article.pk user.id %}">Assign
+                    self</a>{% endif %}
             {% elif type == 'assigned' %}
                 <a class="button tiny alert" href="{% url 'production_unassign_article' article.pk %}">Unassign</a>
                 {% if user_is_editor %}
