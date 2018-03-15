@@ -365,7 +365,9 @@ def send_revisions_complete(**kwargs):
                                                                                       revision.article.title,
                                                                                       action_text)
 
-    notify_helpers.send_email_with_body_from_user(request, 'Article Revisions Complete', revision.editor.email,
+    notify_helpers.send_email_with_body_from_user(request,
+                                                  'Article Revisions Complete',
+                                                  revision.editor.email,
                                                   description)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
@@ -683,7 +685,7 @@ def cancel_proofing_task(**kwargs):
                                                               'notify_proofreader_cancelled',
                                                               'subject_notify_proofreader_cancelled',
                                                               proofing_task.proofreader.email,
-                                                              context)
+                                                              context, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
