@@ -89,7 +89,7 @@ class CopyeditAssignment(models.Model):
         if self.copyedit_reopened:
             log.append({'date': self.copyedit_reopened, 'event': 'Copyedit reopened', 'slug': 'reopened'})
         if self.date_decided:
-            log.append({'date': self.date_decided, 'event': 'Author {0}ed the request'.format(self.decision),
+            log.append({'date': self.date_decided, 'event': 'Copyeditor {0}ed the request'.format(self.decision),
                         'slug': 'decision'})
         if self.copyedit_reopened_complete:
             log.append({'date': self.copyedit_reopened_complete, 'event': 'Copyeditor completed additional edits',

@@ -26,7 +26,7 @@ def send_reviewer_withdrawl_notice(**kwargs):
     if not skip:
         log_dict = {'level': 'Info', 'action_text': description, 'types': 'Review Withdrawl',
                     'target': review_assignment.article}
-        notify_helpers.send_email_with_body_from_user(request, 'subject_review_withdrawl', request.user.email,
+        notify_helpers.send_email_with_body_from_user(request, 'subject_review_withdrawl', review_assignment.reviewer.email,
                                                       user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
@@ -321,7 +321,8 @@ def send_article_decision(**kwargs):
                 'target': article}
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'Article Review Decision', request.user.email,
+        notify_helpers.send_email_with_body_from_user(request, 'Article Review Decision',
+                                                      article.correspondence_author.email,
                                                       user_message_content, log_dict=log_dict)
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
@@ -364,7 +365,9 @@ def send_revisions_complete(**kwargs):
                                                                                       revision.article.title,
                                                                                       action_text)
 
-    notify_helpers.send_email_with_body_from_user(request, 'Article Revisions Complete', revision.editor.email,
+    notify_helpers.send_email_with_body_from_user(request,
+                                                  'Article Revisions Complete',
+                                                  revision.editor.email,
                                                   description)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
@@ -682,7 +685,7 @@ def cancel_proofing_task(**kwargs):
                                                               'notify_proofreader_cancelled',
                                                               'subject_notify_proofreader_cancelled',
                                                               proofing_task.proofreader.email,
-                                                              context)
+                                                              context, log_dict=log_dict)
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 

@@ -67,6 +67,7 @@ class Press(models.Model):
     random_featured_journals = models.BooleanField(default=False)
     featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
     carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)
+    tracking_code = models.TextField(blank=True, null=True)
 
     password_reset_text = models.TextField(blank=True, null=True, default=press_text('reset'))
     registration_text = models.TextField(blank=True, null=True, default=press_text('registration'))
@@ -163,6 +164,11 @@ class Press(models.Model):
             return 0
         else:
             return max_number + 1
+
+    def next_contact_order(self):
+        contacts = core_models.Contacts.objects.filter(content_type__model='press', object_id=self.pk)
+        orderings = [contact.sequence for contact in contacts]
+        return max(orderings) + 1 if orderings else 0
 
     @property
     def active_carousel(self):

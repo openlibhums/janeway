@@ -163,6 +163,10 @@ def production_article(request, article_id):
             for uploaded_file in request.FILES.getlist('other-file'):
                 logic.save_galley(article, request, uploaded_file, True, "Other", True)
 
+        if 'prod' in request.POST:
+            for uploaded_file in request.FILES.getlist('prod-file'):
+                logic.save_prod_file(article, request, uploaded_file, 'Production Ready File')
+
         return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
 
     manuscripts = article.manuscript_files.filter(is_galley=False)
