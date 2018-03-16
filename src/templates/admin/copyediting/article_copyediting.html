@@ -49,12 +49,15 @@
                                 </td>
                                 <td>
                                     <div class="button-group">
-                                        <a href="{% url 'copyedit_edit_assignment' article.pk assignment.pk %}"
-                                           class="button">Edit</a>
                                         {% if not assignment.decision %}
-                                        <a class="dropdown button arrow-only"
-                                           data-toggle="review-dropdown-{{ assignment.pk }}"><span
-                                                class="show-for-sr">Show menu</span></a>
+                                            <a href="{% url 'copyedit_edit_assignment' article.pk assignment.pk %}"
+                                               class="button">Edit</a>
+
+                                            <a class="dropdown button arrow-only"
+                                               data-toggle="review-dropdown-{{ assignment.pk }}"><span
+                                                    class="show-for-sr">Show menu</span></a>
+                                        {% else %}
+                                            <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
                                         {% endif %}
                                     </div>
                                     <div class="dropdown-pane right"
@@ -64,7 +67,9 @@
                                             <form method="POST">
                                                 {% csrf_token %}
                                                 <li>
-                                                    <button name="delete" value="{{ assignment.pk }}" class="button warning"><i class="fa fa-trash action-icon">&nbsp;</i>Delete</button>
+                                                    <button name="delete" value="{{ assignment.pk }}"
+                                                            class="button warning"><i class="fa fa-trash action-icon">&nbsp;</i>Delete
+                                                    </button>
                                                 </li>
                                             </form>
                                         </ul>
@@ -78,31 +83,33 @@
                                 <h2>Author Reviews</h2>
                             </div>
                             <div class="content">
-                            <table>
-                                <tr>
-                                    <th>Requested</th>
-                                    <th>Notified</th>
-                                    <th>Decision</th>
-                                    <th>Decision Date</th>
-                                </tr>
-                                {% for review in assignment.author_reviews %}
+                                <table>
                                     <tr>
-                                    <td>{{ review.assigned|date:"Y-m-d" }}</td>
-                                    <td>
-                                        <i class="fa {% if review.notified %}fa-check-circle-o{% else %}fa-times-circle-o{% endif %}"></i>
-                                    </td>
-                                    <td>{% if review.decision %} {{ review.get_decision_display }} {% else %}Awaiting
-                                        response{% endif %}</td>
-                                    <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }} {% else %}--
-                                {% endif %}
-                                {% endfor %}
-                            </table>
+                                        <th>Requested</th>
+                                        <th>Notified</th>
+                                        <th>Decision</th>
+                                        <th>Decision Date</th>
+                                    </tr>
+                                    {% for review in assignment.author_reviews %}
+                                        <tr>
+                                        <td>{{ review.assigned|date:"Y-m-d" }}</td>
+                                        <td>
+                                            <i class="fa {% if review.notified %}fa-check-circle-o{% else %}fa-times-circle-o{% endif %}"></i>
+                                        </td>
+                                        <td>{% if review.decision %} {{ review.get_decision_display }} {% else %}
+                                            Awaiting
+                                            response{% endif %}</td>
+                                        <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }}
+                                    {% else %}--
+                                    {% endif %}
+                                    {% endfor %}
+                                </table>
                             </div>
                         {% endif %}
                     </div>
                 </div>
 
-            {% empty %}
+                {% empty %}
 
                 <div class="box">
                     <div class="title-area">
@@ -132,9 +139,12 @@
                 </div>
                 <div class="content">
                     <ul class="menu vertical actions">
-                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
-                        <li><a href="{% url 'add_copyeditor_assignment' article.pk %}"><i class="fa fa-plus-circle action-icon">&nbsp;</i>Add Copyedit Assignment</a></li>
-                        <li><a data-open="complete"><i class="fa fa-check action-icon">&nbsp;</i>Complete Copyediting</a></li>
+                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
+                        </li>
+                        <li><a href="{% url 'add_copyeditor_assignment' article.pk %}"><i
+                                class="fa fa-plus-circle action-icon">&nbsp;</i>Add Copyedit Assignment</a></li>
+                        <li><a data-open="complete"><i class="fa fa-check action-icon">&nbsp;</i>Complete
+                            Copyediting</a></li>
                     </ul>
                 </div>
             </div>
