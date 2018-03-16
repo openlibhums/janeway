@@ -161,7 +161,6 @@ def production_article(request, article_id):
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
-                print(uploaded_file)
                 logic.save_prod_file(article, request, uploaded_file, 'Production Ready File')
 
         return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
