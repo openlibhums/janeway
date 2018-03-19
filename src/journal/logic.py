@@ -259,7 +259,7 @@ def send_contact_message(new_contact, request):
     notify_email.send_email(
         new_contact.subject,
         new_contact.recipient,
-        message,
+        message.replace('\n', '<br>'),
         request.journal,
         request,
         replyto=[new_contact.sender],
