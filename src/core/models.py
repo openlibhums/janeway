@@ -646,9 +646,11 @@ class File(models.Model):
         if article:
             file_elements = os.path.splitext(self.original_filename)
             extension = file_elements[-1]
-            file_name = '{code}-{pk}-{surname}.{extension}'.format(code=article.journal.code,
+            author_surname = article.correspondence_author.last_name if article.correspondence_author else \
+            article.frozen_authors()[0].last_name
+            file_name = '{code}-{pk}-{surname}{extension}'.format(code=article.journal.code,
                                                                    pk=article.pk,
-                                                                   surname=article.correspondence_author.last_name,
+                                                                   surname=author_surname,
                                                                    extension=extension)
             return file_name.lower()
         else:
