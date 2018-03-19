@@ -542,3 +542,20 @@ def handle_file(request, setting_value, file):
 
     file = files.save_file_to_journal(request, file, setting_value.setting.name, 'A setting file.')
     return file.pk
+
+
+def no_password_check(username):
+    try:
+        check = models.Account.objects.get(username=username, password='')
+        return check
+    except models.Account.DoesNotExist:
+        return False
+
+
+def start_reset_process(request, account):
+    # Expire any existing tokens for this user
+    models.PasswordResetToken.objects.filter(account=account).update(expired=True)
+
+    # Create a new token
+    new_reset_token = models.PasswordResetToken.objects.create(account=account)
+    send_reset_token(request, new_reset_token)

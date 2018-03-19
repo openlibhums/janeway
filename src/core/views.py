@@ -86,13 +86,24 @@ def user_login(request):
                 else:
                     return redirect(reverse('website_index'))
             else:
-                messages.add_message(request, messages.ERROR, 'Account not found or account not active. Please ensure'
-                                                              'you have activated your account.')
-                util_models.LogEntry.add_entry(types='Authentication',
-                                               description='Failed login attempt for user {0}'.format(
-                                                   request.POST.get('user_name')),
-                                               level='Info', actor=None, request=request)
-                logic.add_failed_login_attempt(request)
+
+                empty_password_check = logic.no_password_check(request.POST.get('user_name').lower())
+
+                if empty_password_check:
+                    messages.add_message(request, messages.INFO,
+                                         'Password reset process has been initiated, please check your inbox for a'
+                                         ' reset request link.')
+                    logic.start_reset_process(request, empty_password_check)
+                else:
+
+                    messages.add_message(request, messages.ERROR,
+                                         'Account not found or account not active. Please ensure'
+                                         ' you have activated your account.')
+                    util_models.LogEntry.add_entry(types='Authentication',
+                                                   description='Failed login attempt for user {0}'.format(
+                                                       request.POST.get('user_name')),
+                                                   level='Info', actor=None, request=request)
+                    logic.add_failed_login_attempt(request)
 
     context = {
         'form': form,
@@ -170,12 +181,7 @@ def get_reset_token(request):
         messages.add_message(request, messages.INFO, 'If your account was found, an email has been sent to you.')
         try:
             account = models.Account.objects.get(email__iexact=email_address)
-            # Expire any existing tokens for this user
-            models.PasswordResetToken.objects.filter(account=account).update(expired=True)
-
-            # Create a new token
-            new_reset_token = models.PasswordResetToken.objects.create(account=account)
-            logic.send_reset_token(request, new_reset_token)
+            logic.start_reset_process(request, account)
             return redirect(reverse('core_login'))
         except models.Account.DoesNotExist:
             return redirect(reverse('core_login'))
