@@ -280,30 +280,32 @@ def render_xml(file_to_render, article, galley=None):
         return transform(etree.XML(xml_string))
 
 
-def serve_file(request, file_to_serve, article):
+def serve_file(request, file_to_serve, article, public=False):
     """Serve a file to the user using a StreamingHttpResponse.
 
     :param request: the active request
     :param file_to_serve: the file object to retrieve and serve
     :param article: the associated article
+    :param public: boolean
     :return: a StreamingHttpResponse object with the requested file or an HttpResponseRedirect if there is an IO or
     permission error
     """
     file_path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(file_to_serve.uuid_filename))
 
     try:
-        return serve_file_to_browser(file_path, file_to_serve)
+        return serve_file_to_browser(file_path, file_to_serve, public=public)
     except IOError:
         messages.add_message(request, messages.ERROR, 'File not found. {0}'.format(file_path))
         raise Http404
 
 
 @cache_control(max_age=600)
-def serve_file_to_browser(file_path, file_to_serve):
+def serve_file_to_browser(file_path, file_to_serve, public=False):
     """ Stream a file to the browser in a safe way
 
     :param file_path: the path on disk to the file
     :param file_to_serve: the core.models.File object to serve
+    :param public: boolean
     :return: HttpStreamingResponse object
     """
     # stream the response to the browser
@@ -317,7 +319,10 @@ def serve_file_to_browser(file_path, file_to_serve):
         response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
 
     response['Content-Length'] = os.path.getsize(file_path)
-    response['Content-Disposition'] = 'attachment; filename="{0}{1}"'.format(slugify(filename), extension)
+    if public:
+        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_to_serve.public_download_name())
+    else:
+        response['Content-Disposition'] = 'attachment; filename="{0}{1}"'.format(slugify(filename), extension)
 
     return response
 

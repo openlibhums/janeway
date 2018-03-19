@@ -641,6 +641,19 @@ class File(models.Model):
     def checksum(self):
         return files.checksum(self.self_article_path())
 
+    def public_download_name(self):
+        article = self.article
+        if article:
+            file_elements = os.path.splitext(self.original_filename)
+            extension = file_elements[-1]
+            file_name = '{code}-{pk}-{surname}.{extension}'.format(code=article.journal.code,
+                                                                   pk=article.pk,
+                                                                   surname=article.correspondence_author.last_name,
+                                                                   extension=extension)
+            return file_name.lower()
+        else:
+            return self.original_filename
+
     def __str__(self):
         return u'%s' % self.original_filename
 

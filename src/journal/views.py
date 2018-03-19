@@ -353,7 +353,7 @@ def download_galley(request, article_id, galley_id):
 
     if not embed == 'True':
         store_article_access(request, article, 'download', galley_type=galley.file.label)
-    return files.serve_file(request, galley.file, article)
+    return files.serve_file(request, galley.file, article, public=True)
 
 
 @has_request
