@@ -68,5 +68,3 @@ def yes_or_no(question):
             return True
         if reply[0] == 'n':
             return False
-
-
