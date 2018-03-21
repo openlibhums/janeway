@@ -72,6 +72,26 @@
                             </td>
                         </tr>
                     {% endfor %}
+                    {% for file in proofing_task.proofed_files.all %}
+                        {% can_view_file file as can_view_file_flag %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
+                        <tr>
+                            <td><input type="checkbox" name="files_for_proofing" value="{{ file.id }}"
+                                       {% if galley in galleys %}checked="checked"{% endif %}></td>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>Proofing</td>
+                            <td>{% if can_view_file_flag %}
+                                <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>{% if can_view_file_history_flag %}
+                                <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                        class="fa fa-history">
+                                    &nbsp;</i></a>{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </table>
             </div>
             <div class="title-area">

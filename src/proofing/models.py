@@ -145,6 +145,7 @@ class TypesetterProofingTask(models.Model):
 
     task = models.TextField(verbose_name="Typesetter Task")
     galleys = models.ManyToManyField('core.Galley')
+    files = models.ManyToManyField('core.File')
     notes = models.TextField(verbose_name="Correction Note", blank=True, null=True)
 
     class Meta:

@@ -25,6 +25,15 @@
         <div class="content">
             {{ typeset_task.task|safe }}
         </div>
+        {% if typeset_task.files.all %}
+            <div class="title-area">
+                <h2>Annotated Proof Files</h2>
+            </div>
+
+            <div class="content">
+                <p>You can use these annotated file versions to update the Galleys below.</p>
+            </div>
+        {% endif %}
 
         <div class="title-area">
             <h2>Galleys</h2>

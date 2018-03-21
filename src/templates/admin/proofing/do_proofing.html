@@ -73,10 +73,29 @@
             {% endfor %}
         </ul>
 
-        {% if not proofing_manager %}
+
             <div class="title-area">
                 <h2>Annotated File</h2>
             </div>
+            <table>
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    {% if proofing_manager %}<th>Download</th>{% endif %}
+                </tr>
+                {% for file in proofing_task.proofed_files.all %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    {% if proofing_manager %}<td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>{% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td>No annotated files have been uploaded yet.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% if not proofing_manager %}
             <a href="#" class="button" data-open="uploadbox">Upload Annotated File</a>
             <form method="POST">
                 {% csrf_token %}

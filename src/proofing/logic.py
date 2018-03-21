@@ -70,6 +70,12 @@ def get_galleys_from_post(request):
     return [core_models.Galley.objects.get(pk=galley_id) for galley_id in galley_id_list]
 
 
+def get_files_from_post(request):
+    file_id_list = request.POST.getlist('files_for_proofing')
+
+    return [core_models.File.objects.get(pk=file_id) for file_id in file_id_list]
+
+
 def get_notify_proofreader(request, article, proofing_task):
     context = {
         'article': article,
@@ -207,13 +213,14 @@ def get_typesetters(article, proofing_task):
 
 def handle_annotated_galley_upload(request, proofing_task, article):
     uploaded_files = request.FILES.getlist('file')
-    print(uploaded_files)
 
     if uploaded_files:
         for file in uploaded_files:
             new_file = files.save_file_to_article(file, article, request.user)
+            new_file.label = 'Annotated Proof'
+            new_file.save()
             proofing_task.proofed_files.add(new_file)
+            messages.add_message(request, messages.SUCCESS, 'Annotated file uploaded.')
         return None
     else:
-        print('hello')
         return 'uploadbox'
