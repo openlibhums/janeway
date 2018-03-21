@@ -11,8 +11,3 @@ class TypesetterNote(forms.ModelForm):
     class Meta:
         model = models.TypesetTask
         fields = ('note_from_typesetter',)
-
-    def __init__(self, *args, **kwargs):
-        super(TypesetterNote, self).__init__(*args, **kwargs)
-
-        self.fields['note_from_typesetter'].required = True
