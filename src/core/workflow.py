@@ -137,7 +137,7 @@ def articles_in_workflow_stages(request):
             element_dict['template'] = settings_module.KANBAN_CARD
 
             workflow_list[element.element_name] = element_dict
-        except KeyError as e:
+        except (KeyError, AttributeError) as e:
             if settings.DEBUG:
                 print(e)
 
