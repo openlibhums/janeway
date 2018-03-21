@@ -19,6 +19,8 @@ def install():
     import journal.models as journal_models
     import press.models as press_models
 
+    print('install for html')
+
     # check whether this homepage element has already been installed for all journals
     journals = journal_models.Journal.objects.all()
 
@@ -49,12 +51,18 @@ def install():
 
         element.save()
 
-    models.Plugin.objects.get_or_create(
+    plugin, c = models.Plugin.objects.get_or_create(
         name=PLUGIN_NAME,
         version=VERSION,
         enabled=True,
         display_name='HTML',
         press_wide=True,
+    )
+
+    models.PluginSetting.objects.get_or_create(
+        name='html_block_content',
+        plugin=plugin,
+        defaults={'pretty_name': 'HTML Block Content'}
     )
 
 
