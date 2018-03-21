@@ -35,13 +35,15 @@
                     <span class="card-title">
                         {% trans "Contact" %}
                     </span>
-                    {% include "elements/forms/errors.html" with form=contact_form %}
-                    {% csrf_token %}
+                    <form method="POST">
+                        {% include "elements/forms/errors.html" with form=contact_form %}
+                        {% csrf_token %}
 
-                    {% materialize_form form=contact_form %}
+                        {% materialize_form form=contact_form %}
 
-                    <button type="submit" class="btn">{% trans "Send Message" %}</button>
-                    </div>
+                        <button type="submit" class="btn">{% trans "Send Message" %}</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

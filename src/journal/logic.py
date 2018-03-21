@@ -245,6 +245,7 @@ def set_article_image(request, article):
 
 
 def send_contact_message(new_contact, request):
+    body = new_contact.body.replace('\n', '<br>')
     message = """
     <p>This message is from {0}'s contact form.</p>
     <br />
@@ -254,7 +255,7 @@ def send_contact_message(new_contact, request):
     <p>Body:</p>
     <p>{4}</p>
     """.format(request.journal if request.journal else request.press, new_contact.sender, new_contact.recipient,
-               new_contact.subject, new_contact.body)
+               new_contact.subject, body)
 
     notify_email.send_email(
         new_contact.subject,
