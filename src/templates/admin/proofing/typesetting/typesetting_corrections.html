@@ -17,7 +17,8 @@
     <div class="large-12 columns">
     <div class="box">
         <div class="content">
-            <p>The Proofing Manager has requested that you make the changes to the Galleys listed below. If the proofreader has supplied any notes, they will be available using the notes button.</p>
+            <p>The Proofing Manager has requested that you make the changes to the Galleys listed below. If the
+                proofreader has supplied any notes, they will be available using the notes button.</p>
         </div>
         <div class="title-area">
             <h2>Task Detail</h2>
@@ -32,6 +33,21 @@
 
             <div class="content">
                 <p>You can use these annotated file versions to update the Galleys below.</p>
+                <table>
+                    <tr>
+                        <th>Label</th>
+                        <th>Filename</th>
+                        <th>Download</th>
+                    </tr>
+                    {% for file in typeset_task.files.all %}
+                        <tr>
+                            <td>{{ file.label }}</td>
+                            <td>{{ file.original_filename }}</td>
+                            <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
         {% endif %}
 
@@ -70,7 +86,7 @@
                                     class="fa fa-history">
                                 &nbsp;</i></a>{% endif %}
                         </td>
-                    <td><a href="#" data-open="galley-{{ galley.pk }}"><i class="fa fa-sticky-note"></i></a></td>
+                        <td><a href="#" data-open="galley-{{ galley.pk }}"><i class="fa fa-sticky-note"></i></a></td>
                     </tr>
                 {% endfor %}
             </table>
