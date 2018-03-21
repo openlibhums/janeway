@@ -89,6 +89,7 @@ class ProofingTask(models.Model):
 
     task = models.TextField(verbose_name="Proofing Task")
     galleys_for_proofing = models.ManyToManyField('core.Galley')
+    proofed_files = models.ManyToManyField('core.File')
     notes = models.ManyToManyField('proofing.Note')
 
     def __str__(self):

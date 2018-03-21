@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 
-from core import models as core_models
+from core import models as core_models, files
 from events import logic as event_logic
 from utils import render_template
 from proofing import models
@@ -203,3 +203,17 @@ def get_typesetters(article, proofing_task):
     typesetters = [task.typesetter.pk for task in correction_tasks]
 
     return core_models.AccountRole.objects.filter(role__slug='typesetter').exclude(user__pk__in=typesetters)
+
+
+def handle_annotated_galley_upload(request, proofing_task, article):
+    uploaded_files = request.FILES.getlist('file')
+    print(uploaded_files)
+
+    if uploaded_files:
+        for file in uploaded_files:
+            new_file = files.save_file_to_article(file, article, request.user)
+            proofing_task.proofed_files.add(new_file)
+        return None
+    else:
+        print('hello')
+        return 'uploadbox'

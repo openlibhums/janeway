@@ -306,6 +306,8 @@ def do_proofing(request, proofing_task_id, article_id=None):
     :param article_id: Article object PK
     :return: HttpResponse object
     """
+    modal = None
+
     if not article_id:
         proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id, completed__isnull=True)
         proofing_manager = False
@@ -324,11 +326,17 @@ def do_proofing(request, proofing_task_id, article_id=None):
                                        **kwargs)
         return redirect(reverse('proofing_requests'))
 
+    elif request.POST and 'upload' in request.POST:
+        modal = logic.handle_annotated_galley_upload(request, proofing_task, article)
+
+    print(modal)
+
     template = 'proofing/do_proofing.html'
     context = {
         'proofing_task': proofing_task,
         'article': article,
         'proofing_manager': proofing_manager,
+        'modal': modal
     }
 
     return render(request, template, context)
