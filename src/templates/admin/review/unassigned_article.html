@@ -39,6 +39,19 @@
                     <tr>
                         <td colspan="4">{{ article.abstract|safe }}</td>
                     </tr>
+                    {% if journal_settings.general.submission_summary %}
+                        <tr>
+                            <th colspan="4">Non Specialist Summary</th>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                {% if article.competing_interests %}{{ article.non_specialist_summary|safe }}
+                                {% else %}
+                                    No Summary Supplied
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
                     <tr>
                         <th colspan="4">Comments to Editor</th>
                     </tr>
