@@ -241,6 +241,14 @@
                                 {% endfor %}
                             </ul>
                         </div>
+                        {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
+                            <div class="section hide-for-small-only">
+                                <h3>{% trans "Non Specialist Summary" %}</h3>
+                                <ul>
+                                    <li><a href="#" data-open="summarymodal">{% trans 'View Summary' %}</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
 
                         <div class="section hide-for-small-only">
                             <h3>{% trans "Jump to" %}</h3>
@@ -267,7 +275,7 @@
 
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}
-
+    {% include "elements/journal/summary_modal.html" %}
     <div class="hline"></div>
     <br/>
 
