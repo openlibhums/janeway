@@ -1444,6 +1444,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "Enables the Non Specialist Summary submission field.",
+            "is_translatable": false,
+            "name": "submission_summary",
+            "pretty_name": "Non Specialist Summary",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Journal's twitter handle.",
             "is_translatable": false,
             "name": "twitter_handle",
