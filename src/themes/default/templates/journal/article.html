@@ -166,6 +166,11 @@
                     <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
                     <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}<i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
                     <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" title="{{ article.license.text }}">{{ article.license.name }}</a></li>
+                    {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#summary">{% trans 'Non Specialist Summary' %}</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <h4>{% trans "Metrics" %}</h4>
                 <ul>
@@ -200,7 +205,10 @@
         </div>
     </div>
 
-{% include "elements/journal/citation_modals.html" %}
+    {% include "elements/journal/citation_modals.html" %}
+    {% if journal_settings.general.submission_summary %}
+        {% include "elements/journal/summary_modal.html" %}
+    {% endif %}
 
 {% endblock body %}
 
