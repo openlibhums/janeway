@@ -33,6 +33,11 @@
                         <div class="large-10 columns end">
                             {{ info_form.abstract|foundation }}
                         </div>
+                        {% if journal_settings.general.submission_summary %}
+                        <div class="large-10 columns end">
+                            {{ info_form.non_specialist_summary|foundation }}
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="row expanded">
                         <div class="large-3 columns">
