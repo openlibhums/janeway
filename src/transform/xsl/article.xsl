@@ -1543,11 +1543,16 @@
             </xsl:if>
 
             <!-- Handled article -->
-            <xsl:if test="$pub-type = 'journal'">
+
+            <xsl:if test="$pub-type = 'journal' or $pub-type = 'newspaper'">
               <xsl:if test="year">
                 <xsl:text> (</xsl:text><xsl:value-of select="year"/><xsl:text>) </xsl:text>
               </xsl:if>
-              <xsl:text>"</xsl:text><xsl:value-of select="article-title"/><xsl:text>", </xsl:text>
+
+                <xsl:variable name="title" select="article-title"/>
+                <xsl:value-of select="title"></xsl:value-of>
+
+                <xsl:if test="not(starts-with($title, '&#8220;'))"><xsl:text>&#8220;</xsl:text></xsl:if><xsl:value-of select="article-title"/><xsl:if test="not(starts-with($title, '&#8220;'))"><xsl:text>&#8221;</xsl:text></xsl:if><xsl:text>, </xsl:text>
               <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>. </xsl:text>
               <xsl:if test="volume">
                 <xsl:text>(</xsl:text><xsl:value-of select="volume"/><xsl:text>)</xsl:text>
@@ -1555,6 +1560,10 @@
               <xsl:if test="issue">
                 <xsl:value-of select="issue"/>
               </xsl:if>
+              <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
+              <xsl:if test="fpage and lpage">-</xsl:if>
+              <xsl:if test="lpage"><xsl:value-of select="lpage"/></xsl:if>
+              <xsl:if test="fpage or lpage">. </xsl:if>
             </xsl:if>
 
 
