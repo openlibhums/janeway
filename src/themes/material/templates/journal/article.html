@@ -253,6 +253,14 @@
                         <div class="divider"></div>
                     </div>
 
+                    {% if journal_settings.general.submission_summary %}
+                        <h5>Non Specialist Summary</h5>
+                        <a href="#summarymodal" class="modal-trigger">View Summary</a>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
+
                     <h5>
                         Dates
                     </h5>
@@ -321,6 +329,7 @@
         </div>
 
     </div>
+    {% include "elements/summary_modal.html" %}
 {% endblock %}
 
 {% block js %}
