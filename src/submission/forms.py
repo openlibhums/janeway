@@ -39,8 +39,8 @@ class ArticleInfo(forms.ModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('title', 'subtitle', 'abstract', 'language', 'section', 'license', 'primary_issue',
-                  'page_numbers', 'is_remote', 'remote_url')
+        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary', 'language', 'section', 'license',
+                  'primary_issue', 'page_numbers', 'is_remote', 'remote_url')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
@@ -50,6 +50,8 @@ class ArticleInfo(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         elements = kwargs.pop('additional_fields', None)
+        submission_summary = kwargs.pop('submission_summary', None)
+
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
@@ -60,6 +62,9 @@ class ArticleInfo(forms.ModelForm):
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()
+
+            if submission_summary:
+                self.fields['non_specialist_summary'].required = True
 
             if elements:
                 for element in elements:

@@ -92,10 +92,14 @@ def submit_info(request, article_id):
     """
     article = get_object_or_404(models.Article, pk=article_id)
     additional_fields = models.Field.objects.filter(journal=request.journal)
-    form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
+    submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
+    form = forms.ArticleInfo(instance=article,
+                             additional_fields=additional_fields,
+                             submission_summary=submission_summary)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article, additional_fields=additional_fields)
+        form = forms.ArticleInfo(request.POST, instance=article,
+                                 additional_fields=additional_fields, submission_summary=submission_summary)
 
         if form.is_valid():
             form.save(request=request)
