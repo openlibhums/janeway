@@ -140,8 +140,10 @@
         <div class="large-2 columns very-dark-primary-color text-center" data-equalizer-watch>
             {% if request.journal.press_image_override %}
                 {% svg request.journal_cover %}
+            {% elif 'svg' in request.press_cover %}
+                <a href="/">{% svg request.press_cover %}</a>
             {% else %}
-                {% svg request.press_cover %}
+                <a href="/">{% svg "static/common/img/sample/janeway.svg" %}</a>
             {% endif %}
         </div>
         <div class="large-5 columns" data-equalizer-watch>
