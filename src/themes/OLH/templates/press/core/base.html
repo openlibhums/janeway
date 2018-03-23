@@ -36,7 +36,7 @@
                     {% if 'svg' in request.press_cover %}
                         <a href="/">{% svg request.press_cover %}</a>
                     {% else %}
-                        <a href="/"><img class="top-bar-image" src="/cover" alt="{{ request.press.name }}"></a>
+                        <a href="/"><img class="top-bar-image" src="/press/cover/" alt="{{ request.press.name }}"></a>
                     {% endif %}
                 {% endif %}
 
