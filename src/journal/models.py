@@ -613,7 +613,7 @@ def setup_default_form(sender, instance, created, **kwargs):
             journal=instance,
             name='Default Form',
             slug='default-form',
-            intro='Please compelete the form below.',
+            intro='Please complete the form below.',
             thanks='Thank you for completing the review.'
         )
 
