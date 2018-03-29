@@ -352,6 +352,20 @@ def add_files(request, article_id, round_id):
     review_round = get_object_or_404(models.ReviewRound.objects.prefetch_related('review_files'), pk=round_id)
 
     if request.POST:
+
+        if 'upload' in request.POST:
+            review_files = request.FILES.getlist('review_file')
+
+            if review_files:
+                for review_file in review_files:
+                    new_file_obj = files.save_file_to_article(review_file, article, request.user, 'Review File')
+                    article.manuscript_files.add(new_file_obj)
+                messages.add_message(request, messages.SUCCESS, 'File uploaded')
+            else:
+                messages.add_message(request, messages.WARNING, 'No file uploaded.')
+
+            return redirect(reverse('review_add_files', kwargs={'article_id': article.pk, 'round_id': review_round.pk}))
+
         for file in request.POST.getlist('file'):
             file = core_models.File.objects.get(id=file)
             review_round.review_files.add(file)
@@ -695,6 +709,11 @@ def add_review_assignment(request, article_id):
     user_list = logic.get_enrollable_users(request)
 
     modal = None
+
+    # Check if this review round has files
+    if not article.current_review_round_object().review_files.all():
+        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviwers.')
+        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
 
