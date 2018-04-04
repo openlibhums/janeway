@@ -14,12 +14,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='articleordering',
-            name='issue',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='journal.Issue'),
-            preserve_default=False,
-        ),
         migrations.AlterUniqueTogether(
             name='articleordering',
             unique_together=set([('article', 'issue', 'section')]),
