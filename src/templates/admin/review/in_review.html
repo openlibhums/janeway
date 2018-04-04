@@ -65,6 +65,16 @@
                                                     </ul>
                                                 </div>
                                             </div>
+                                        {% empty %}
+                                            <div class="large-3 columns{% if forloop.last %} end{% endif %}">
+                                                <div class="callout breakdown file" data-equalizer-watch>
+                                                    <div class="callout-title">
+                                                        <h4>No Review Files</h4>
+                                                    </div>
+                                                    <p>Click "Add Files" to select files for review.</p>
+
+                                                </div>
+                                            </div>
                                         {% endfor %}
                                     </div>
                                 </div>
