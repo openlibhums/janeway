@@ -20,26 +20,37 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 import logging
-
+import configparser as configparser
 from django.contrib import messages
-
 from core import plugin_installed_apps
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # ll: /path/to/janeway/src
+PROJECT_DIR = os.path.dirname(BASE_DIR) # ll: /path/to/janeway
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
 
+CFG_NAME = 'app.cfg'
+DYNCONFIG = configparser.SafeConfigParser(**{
+    'allow_no_value': True,
+    'defaults': {'dir': PROJECT_DIR, 'base': BASE_DIR}})
+DYNCONFIG.read(os.path.join(PROJECT_DIR, CFG_NAME)) # ll: /path/to/janeway/app.cfg
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+def cfg(path, default=0xDEADBEEF):
+    lu = {'True': True, 'true': True, 'False': False, 'false': False} # cast any obvious booleans
+    try:
+        val = DYNCONFIG.get(*path.split('.'))
+        return lu.get(val, val)
+    except (configparser.NoOptionError, configparser.NoSectionError): # given key in section hasn't been defined
+        if default == 0xDEADBEEF:
+            raise ValueError("no value/section set for setting at %r" % path)
+        return default
+    except Exception as err:
+        print('error on %r: %s' % (path, err))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# You should change this key before you go live!
-SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
+SECRET_KEY = cfg('general.secret-key')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = cfg('general.debug', True)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = cfg('general.allowed-hosts', '').split(',')
 
 ENABLE_TEXTURE = False
 
@@ -158,7 +169,7 @@ SETTINGS_EXPORT = [
 
 
 WSGI_APPLICATION = 'core.wsgi.application'
-SITES_DIR = os.path.join(os.path.dirname(__file__), 'sites')
+SITES_DIR = os.path.join(BASE_DIR, 'sites')
 DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no other sites are found.
 
 # Database
@@ -167,16 +178,16 @@ DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no o
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
+        'ENGINE': cfg('database.engine'),
+        'NAME': cfg('database.name'),
+        'USER': cfg('database.user', ''),
+        'PASSWORD': cfg('database.password', ''),
+        'HOST': cfg('database.host', ''),
+        'PORT': cfg('database.port', '')
     }
 }
-
+if cfg('database.engine') == 'django.db.backends.mysql':
+    DATABASES['default']['OPTIONS'] = {'init_command': 'SET default_storage_engine=INNODB'}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -240,40 +251,58 @@ SUMMERNOTE_CONFIG = {
 
 # 1.9 appears confused about where null and blank are required for many to
 # many fields, so we're hiding these warning from the console
+# TODO: code smell, revisit
 SILENCED_SYSTEM_CHECKS = (
     'fields.W340',
 )
 
-'''
-# This section should only be enabled if you intend to use Sentry for error reporting.
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    # TODO: do we really need to be affecting the root logger here?
     'root': {
         'level': 'WARNING',
-        'handlers': ['sentry'],
+        'handlers': [],
     },
+    
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s '
                       '%(process)d %(thread)d %(message)s'
         },
     },
+    
     'handlers': {
-        'sentry': {
-            'level': 'ERROR', # To capture more than ERROR, change to WARNING, INFO, etc.
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-            'tags': {'custom-tag': 'x'},
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         }
     },
+    
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}
+
+RAVEN_CONFIG = {
+    'dsn': cfg('sentry.raven-dsn', ''),
+}
+
+if cfg('general.sentry-logging', False):
+    LOGGING['handlers']['sentry'] = {
+        'level': 'ERROR', # To capture more than ERROR, change to WARNING, INFO, etc.
+        'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        'tags': {'custom-tag': 'x'},
+    }
+    LOGGING['root']['handlers'].append('sentry')
+    LOGGING['loggers'].update({
+        'sentry.errors': {
+            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         },
@@ -281,20 +310,11 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
-        },
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-    },
-}
-RAVEN_CONFIG = {
-    'dsn': '',
-}
-'''
+        }
+    })
 
 
+# TODO: code smell, remove
 class SuppressDeprecated(logging.Filter):
     def filter(self, record):
         WARNINGS_TO_SUPPRESS = [
@@ -337,17 +357,17 @@ NOTIFY_FUNCS = []
 ORCID_API_URL = 'https://pub.orcid.org/v1.2_rc7/'
 ORCID_URL = 'https://orcid.org/oauth/authorize'
 ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
-ORCID_CLIENT_SECRET = ''
-ORCID_CLIENT_ID = ''
+ORCID_CLIENT_SECRET = cfg('orcid.client-secret', '')
+ORCID_CLIENT_ID = cfg('orcid.client-id', '')
 
 
 SESSION_COOKIE_NAME = 'JANEWAYSESSID'
 
-S3_ACCESS_KEY = ''
-S3_SECRET_KEY = ''
-S3_BUCKET_NAME = ''
-END_POINT = 'eu-west-2'  # eg. eu-west-1
-S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com
+S3_ACCESS_KEY = cfg('s3.access-key', '')
+S3_SECRET_KEY = cfg('s3.secret-key', '')
+S3_BUCKET_NAME = cfg('s3.bucket-name', '')
+END_POINT = cfg('s3.region', 'eu-west-2')  # ll: eu-west-1, us-east-1
+S3_HOST = 's3.{region}.amazonaws.com'.format(region=END_POINT)
 
 BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
@@ -358,10 +378,12 @@ URL_CONFIG = 'domain'  # path or domain
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
 # You can set either to use Google's reCaptcha or a basic math field with no external requirements
-INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
+CAPTCHA_TYPE = cfg('captcha.type', 'recaptcha')  # should be either simple_math or recaptcha to enable captcha fields
 
-CAPTCHA_TYPE = 'select a value'  # should be either simple_math or recaptcha to enable captcha fields
-RECAPTCHA_PRIVATE_KEY = 'your private key'
-RECAPTCHA_PUBLIC_KEY = 'your public key'
+if CAPTCHA_TYPE == 'recaptcha':
+    INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
+
+RECAPTCHA_PRIVATE_KEY = cfg('captcha.recaptcha-private-key', 'your private key')
+RECAPTCHA_PUBLIC_KEY = cfg('captcha.recaptcha-public-key', 'your public key')
 
 SILENT_IMPORT_CACHE = False
