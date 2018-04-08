@@ -1,0 +1,18 @@
+language: python
+python:
+    - "3.4" # Ubuntu 14.04 LTS, "Trusty"
+    - "3.5" # Ubuntu 16.04 LTS, "Xenial"
+    - "3.6" # Ubuntu 18.04 LTS, "Bionic"
+services:
+    - mysql
+before_install:
+    - sudo apt-get update -qq
+    # - python3-dev libmysqlclient-dev mysql-client mysql-server # necessary?
+    - sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev git -y
+install:
+    # when language=python Travis will run everything within a venv
+    # https://docs.travis-ci.com/user/languages/python/
+    - pip install -r requirements.txt
+    - cp travis.cfg app.cfg
+script:
+    - ./.test.sh
