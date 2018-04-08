@@ -1,7 +1,8 @@
 language: python
 python:
-    - "3.4" # Ubuntu 14.04 LTS, "Trusty"
-    - "3.5" # Ubuntu 16.04 LTS, "Xenial"
+    # disabled 3.4 + 3.5 until testing ironed out
+    #- "3.4" # Ubuntu 14.04 LTS, "Trusty"
+    #- "3.5" # Ubuntu 16.04 LTS, "Xenial"
     - "3.6" # Ubuntu 18.04 LTS, "Bionic"
 services:
     - mysql
