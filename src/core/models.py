@@ -896,16 +896,31 @@ class DomainAlias(models.Model):
 
 
 BASE_ELEMENTS = [
-    {'name': 'review', 'handshake_url': 'review_unassigned_article', 'stage': submission_models.STAGE_UNASSIGNED,
+    {'name': 'review',
+     'handshake_url': 'review_unassigned_article',
+     'jump_url': 'review_in_review',
+     'stage': submission_models.STAGE_UNASSIGNED,
      'article_url': True},
-    {'name': 'copyediting', 'handshake_url': 'article_copyediting',
-     'stage': submission_models.STAGE_EDITOR_COPYEDITING, 'article_url': True},
-    {'name': 'production', 'handshake_url': 'production_list', 'stage': submission_models.STAGE_TYPESETTING,
+    {'name': 'copyediting',
+     'handshake_url': 'article_copyediting',
+     'jump_url': 'article_copyediting',
+     'stage': submission_models.STAGE_EDITOR_COPYEDITING,
+     'article_url': True},
+    {'name': 'production',
+     'handshake_url': 'production_list',
+     'jump_url': 'production_article',
+     'stage': submission_models.STAGE_TYPESETTING,
      'article_url': False},
-    {'name': 'proofing', 'handshake_url': 'proofing_list', 'stage': submission_models.STAGE_PROOFING,
+    {'name': 'proofing',
+     'handshake_url': 'proofing_list',
+     'jump_url': 'proofing_article',
+     'stage': submission_models.STAGE_PROOFING,
      'article_url': False},
-    {'name': 'prepublication', 'handshake_url': 'publish_article',
-     'stage': submission_models.STAGE_READY_FOR_PUBLICATION, 'article_url': True}
+    {'name': 'prepublication',
+     'handshake_url': 'publish_article',
+     'jump_url': 'publish_article',
+     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
+     'article_url': True}
 ]
 
 
@@ -918,6 +933,7 @@ class WorkflowElement(models.Model):
     journal = models.ForeignKey('journal.Journal')
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
+    jump_url = models.CharField(max_length=255)
     stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
     article_url = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=20)

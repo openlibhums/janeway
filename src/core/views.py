@@ -1608,6 +1608,11 @@ def journal_workflow(request):
     :return: template contextualised
     """
     workflow, created = models.Workflow.objects.get_or_create(journal=request.journal)
+
+    if created:
+        from core import workflow as workflow_utils
+        workflow_utils.create_default_workflow(request.journal)
+
     available_elements = logic.get_available_elements(workflow)
 
     if request.POST:
