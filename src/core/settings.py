@@ -259,7 +259,6 @@ SILENCED_SYSTEM_CHECKS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
-    # TODO: do we really need to be affecting the root logger here?
     'root': {
         'level': 'WARNING',
         'handlers': [],
