@@ -12,6 +12,7 @@ def copyeditor_decisions():
     return (
         ('accept', 'Accept'),
         ('decline', 'Decline'),
+        ('cancelled', 'Cancelled'),
     )
 
 

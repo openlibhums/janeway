@@ -934,6 +934,31 @@ class Article(models.Model):
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
 
+    def close_core_workflow_objects(self):
+        from review import models as review_models
+        from copyediting import models as copyedit_models
+        from production import models as prod_models
+        from proofing import models as proof_models
+
+        review_models.ReviewAssignment.objects.filter(article=self).update(date_complete=timezone.now(),
+                                                                           is_complete=True)
+
+        copyedit_models.CopyeditAssignment.objects.filter(article=self).update(copyeditor_completed=timezone.now(),
+                                                                               copyedit_acknowledged=True,
+                                                                               copyedit_accepted=timezone.now(),
+                                                                               date_decided=timezone.now(),
+                                                                               decision='cancelled')
+        copyedit_models.AuthorReview.objects.filter(assignment__article=self).update(date_decided=timezone.now())
+
+        prod_models.ProductionAssignment.objects.filter(article=self).update(closed=timezone.now())
+        prod_models.TypesetTask.objects.filter(assignment__article=self).update(completed=timezone.now())
+
+        proof_models.ProofingAssignment.objects.filter(article=self).update(completed=timezone.now())
+        proof_models.ProofingTask.objects.filter(round__assignment__article=self).update(cancelled=True)
+        proof_models.TypesetterProofingTask.objects.filter(proofing_task__round__assignment__article=self).update(
+            cancelled=True
+        )
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)

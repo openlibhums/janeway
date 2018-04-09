@@ -681,6 +681,7 @@ def publish_article(request, article_id):
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(article)
+            article.close_core_workflow_objects()  # TODO: handle plugin elements?
 
             if not article.date_published:
                 article.date_published = timezone.now()
