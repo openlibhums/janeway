@@ -179,6 +179,15 @@ class Journal(models.Model):
         url_path = reverse(url_name, kwargs=kwargs)
         return "{0}{1}".format(base_url, url_path)
 
+    def requestless_url(self):
+        from core.middleware import GlobalRequestMiddleware
+        local_request = GlobalRequestMiddleware.get_current_request()
+
+        if local_request.journal:
+            return local_request.journal_base_url
+        else:
+            return local_request.press_base_url
+
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
         return max(issue_orders) + 1 if issue_orders else 0

@@ -22,6 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 if settings.URL_CONFIG == 'path':
     from core.monkeypatch import reverse
@@ -755,6 +756,12 @@ class Galley(models.Model):
         elif self.file.mime_type == "application/xml" or self.file.mime_type == 'text/xml':
             # perform an XSLT render
             return self.file.render_xml(self.article, galley=self)
+
+    def path(self):
+        url = reverse('article_download_galley', kwargs={'article_id': self.article.pk,
+                                                         'galley_id': self.pk})
+        base_url = self.article.journal.requestless_url()
+        return '{base_url}{url}'.format(base_url=base_url, url=url)
 
 
 class Task(models.Model):

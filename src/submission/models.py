@@ -1000,8 +1000,6 @@ class FrozenAuthor(models.Model):
         else:
             return self.first_name
 
-        return '{0} {1}{2}'.format(self.last_name, first_initial, middle_initial)
-
     def affiliation(self):
         if self.department:
             return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
