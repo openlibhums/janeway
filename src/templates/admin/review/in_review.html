@@ -264,6 +264,7 @@
                                 <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
                                         class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
                                 </li>
+                            {% elif article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
                                 <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
                                         class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
                                     Article</a></li>
