@@ -641,7 +641,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the&nbsp;<a href=\"{{request.journal_base_url}}{% url 'copyedit_requests' %}\">journal site</a>.<br><br>[ADD FEEDBACK HERE].<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the&nbsp;<a href=\"{{request.journal_base_url}}{% url 'copyedit_requests' %}\">journal site</a>.<br><br>[ADD FEEDBACK HERE].<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
