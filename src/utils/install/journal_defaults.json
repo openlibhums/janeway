@@ -671,7 +671,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ copyedit.editor.full_name }},<br><br>The author {{ author_review.author.full_name }} has completed their review.<br><br>Their comments can be accessed <a href=\"{% url 'editor_review' copyedit.article.id copyedit.id %}\">here</a>.<br>"
+            "default": "Dear {{ copyedit.editor.full_name }},<br><br>The author {{ author_review.author.full_name }} has completed their review.<br><br>Their comments can be accessed <a href=\"{{request.journal_base_url}}{% url 'editor_review' copyedit.article.id copyedit.id %}\">here</a>.<br>"
         }
     },
     {
