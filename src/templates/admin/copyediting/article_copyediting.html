@@ -133,6 +133,7 @@
                 <div class="content">
                     <ul class="menu vertical actions">
                         <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
+                        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                         <li><a href="{% url 'add_copyeditor_assignment' article.pk %}"><i class="fa fa-plus-circle action-icon">&nbsp;</i>Add Copyedit Assignment</a></li>
                         <li><a data-open="complete"><i class="fa fa-check action-icon">&nbsp;</i>Complete Copyediting</a></li>
                     </ul>

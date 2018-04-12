@@ -244,6 +244,7 @@
 
                         <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
                         </li>
+                        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                         <li>
                             <form method="POST">{% csrf_token %}
                                 <button name="new_review_round" type="submit" class="expanded"><i

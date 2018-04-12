@@ -1,0 +1,141 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% load securitytags %}
+{% load files %}
+
+{% block title %}Article Document Management{% endblock title %}
+{% block title-section %}Article Document Management{% endblock %}
+
+{% block body %}
+    {% csrf_token %}
+    <div class="row expanded box">
+        <div class="large-12 columns">
+            <div class="title-area">
+                Article #{{ article.pk }} {{ article.title }} Files
+            </div>
+            <table id="files">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    <th>Download</th>
+                    <th>Replace</th>
+                    <th>Delete</th>
+                    <th>Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for file in files %}
+                    {% can_edit_file file article as can_edit_file_flag %}
+                    {% can_view_file file as can_view_file_flag %}
+                    <tr class="active">
+                        <td>{{ file.pk }}</td>
+                        <td>{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
+                        <td>{{ file }}</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">
+                                &nbsp;</i></a>{% endif %}</td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
+                                    class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.GET.return|urlencode }}"><i
+                                    class="fa fa-trash">
+                                &nbsp;</i></a>{% endif %}</td>
+                        <td>{% file_type article file %}</td>
+                    </tr>
+                    </tbody>
+                {% endfor %}
+            </table>
+
+            <p>If required, you can upload new files to various sections of the workflow.</p>
+            <a class="button success" data-open="uploadbox" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
+                    class="fa fa-cloud-upload">
+                &nbsp;</i>Upload File</a>
+
+        </div>
+    </div>
+
+
+
+    <div class="large-12 columns">
+        <form method="POST">
+            {% csrf_token %}
+            <a class="button success float-right" href="{{ return_url }}"><i class="fa fa-check">&nbsp;</i>Return
+            </a>
+        </form>
+    </div>
+
+    <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload Galley</h4>
+            </div>
+        </div>
+        <div class="card-section">
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="upload" value="upload">
+                <h4>New Manuscript File</h4>
+                <div class="clearfix">
+                    <div>
+                        <p><small>MS files are used in review and copyediting.</small></p>
+                        <input name="manu-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="manu"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <h4>Production</h4>
+                <div class="clearfix">
+                    <div>
+                        <p><small>Upload a new file for use in Production/Typesetting.</small></p>
+                        <input name="prod-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="prod"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <h4>Proofing</h4>
+                <div class="clearfix">
+                    <div>
+                        <p><small>Upload a new file for use in Proofing.</small></p>
+                        <input name="proof-file" type="file" class="float-left" style="width:50%;"
+                               data-placeholder="No file"
+                               data-buttonName="btn-primary">
+                        <button type="submit" class="button success float-right" name="proof"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+{% endblock body %}
+
+{% block js %}
+    {% include "admin/elements/datatables.html" with target="#files" %}
+{% endblock js %}
