@@ -161,6 +161,7 @@ def production_article(request, article_id):
 
         if 'other' in request.POST:
             for uploaded_file in request.FILES.getlist('other-file'):
+                logic.save_
                 logic.save_galley(article, request, uploaded_file, True, "Other", True)
 
         return redirect(reverse('production_article', kwargs={'article_id': article.pk}))

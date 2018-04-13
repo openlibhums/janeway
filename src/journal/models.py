@@ -168,7 +168,10 @@ class Journal(models.Model):
         else:
             return False
 
-    def full_url(self, request):
+    def full_url(self, request=None):
+        if not request:
+            return self.requestless_url()
+
         return 'http{0}://{1}{2}'.format(
             's' if request.is_secure() else '',
             self.domain,

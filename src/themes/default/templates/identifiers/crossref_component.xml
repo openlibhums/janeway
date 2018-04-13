@@ -1,0 +1,30 @@
+<doi_batch xmlns="http://www.crossref.org/schema/4.3.7" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           version="4.3.7"
+           xsi:schemaLocation="http://www.crossref.org/schema/4.3.7 http://www.crossref.org/schema/deposit/crossref4.3.7.xsd">
+    <head>
+        <doi_batch_id>{{ batch_id }}</doi_batch_id>
+        <timestamp>{{ timestamp }}</timestamp>
+        <depositor>
+            <depositor_name>{{ depositor_name }}</depositor_name>
+            <email_address>{{ depositor_email }}</email_address>
+        </depositor>
+        <registrant>{{ registrant }}</registrant>
+    </head>
+    <body>
+        <sa_component parent_doi="{{ parent_doi }}">
+            <component_list>
+                <component parent_relation="isPartOf">
+                    <titles>
+                        <title>{{ file.original_filename }}</title>
+                    </titles>
+                    <description>{{ file.description }}</description>
+                    <format mime_type="{{ supp_file.mime_type }}"/>
+                    <doi_data>
+                        <doi>{{ supp_file.doi }}</doi>
+                        <resource>{{ supp_file.url }}</resource>
+                    </doi_data>
+                </component>
+            </component_list>
+        </sa_component>
+    </body>
+</doi_batch>

@@ -764,6 +764,27 @@ class Galley(models.Model):
         return '{base_url}{url}'.format(base_url=base_url, url=url)
 
 
+class SupplementaryFile(models.Model):
+    file = models.ForeignKey(File)
+    doi = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.file.label
+
+    @property
+    def label(self):
+        return self.file.label
+
+    def path(self):
+        return self.file.self_article_path()
+
+    def mime_type(self):
+        return files.file_path_mime(self.path())
+
+    def url(self):
+        base_url = self.file.article().journal.requestless_url()
+
+
 class Task(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='task_content_type', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
