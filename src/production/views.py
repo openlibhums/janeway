@@ -161,12 +161,16 @@ def production_article(request, article_id):
 
         if 'other' in request.POST:
             for uploaded_file in request.FILES.getlist('other-file'):
-                logic.save_
                 logic.save_galley(article, request, uploaded_file, True, "Other", True)
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
                 logic.save_prod_file(article, request, uploaded_file, 'Production Ready File')
+
+        if 'supp' in request.POST:
+            label = request.POST.get('label', 'Supplementary File')
+            for uploaded_file in request.FILES.getlist('supp-file'):
+                logic.save_supp_file(article, request, uploaded_file, label)
 
         return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
 
