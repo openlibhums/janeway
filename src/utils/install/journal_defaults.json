@@ -2363,5 +2363,18 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Matomo Tracking Code",
+            "is_translatable": true,
+            "description": "Tracking code for Matomo.",
+            "name": "matromo_tracking_code"
+        },
+        "group": {
+            "name": "general"
+        }
     }
 ]
