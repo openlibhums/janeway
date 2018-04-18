@@ -253,7 +253,7 @@ else:
 
     urlpatterns = [
         url(r'^admin/', include(admin.site.urls)),
-        url(r'^summernote/', include('django_summernote.urls')),
+        url(r'^(?P<journal_code>[-\w.]+)/summernote/', include('django_summernote.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/submit/', include('submission.urls')),
         url(r'^(?P<journal_code>[-\w.]+)/', include(journal_urls)),
         url(r'^(?P<journal_code>[-\w.]+)/review/', include('review.urls')),

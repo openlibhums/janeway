@@ -169,10 +169,13 @@ class Journal(models.Model):
             return False
 
     def full_url(self, request):
-        return 'http{0}://{1}{2}'.format(
+        return 'http{0}://{1}{2}{3}'.format(
             's' if request.is_secure() else '',
             self.domain,
-            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '')
+            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '',
+            '{0}{1}'.format('/' if settings.URL_CONFIG == 'path' else '',
+                            self.code if settings.URL_CONFIG == 'path' else '')
+        )
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)
