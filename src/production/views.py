@@ -534,3 +534,16 @@ def delete_galley(request, typeset_id, galley_id):
     galley.delete()
 
     return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_id}))
+
+
+@production_user_or_editor_required
+def supp_file_doi(request, supp_file_id):
+    """
+    Presents an interface for minting a supplementary file DOI
+    :param request: HttpRequest
+    :param supp_file_id: SupplementaryFile PK
+    :return: HttpResponse or HttpRedirect
+    """
+    supplementary_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
+
+    

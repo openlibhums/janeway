@@ -251,12 +251,9 @@
                     <tr style="text-align: left">
                         <th>Label</th>
                         <th width="25%">Filename</th>
-                        <th>Type</th>
-                        <th>Edit</th>
                         <th>Download</th>
                         <th>History</th>
-                        <th>Create PDF</th>
-                        <th>Create EPUB</th>
+                        <th>DOI</th>
                     </tr>
                     {% for galley in article.supplementary_files.all %}
                         {% can_view_file galley.file as can_view_file_flag %}
@@ -265,8 +262,6 @@
                         <tr>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
-                            <td>Galley</td>
-                            <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -276,34 +271,7 @@
                                         class="fa fa-history">
                                     &nbsp;</i></a>{% endif %}
                             </td>
-                            <td>
-                                {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
-                                    <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
-                                        <i class="fa fa-file-text-o">&nbsp;</i>
-                                    </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
-                                    Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
-                                             data-disable-hover="false"
-                                             tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
-                                    <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
-                                        <i class="fa fa-book">&nbsp;</i>
-                                    </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
-                                    Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
-                                             data-disable-hover="false"
-                                             tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
-                                {% endif %}
-                            </td>
+                        <td></td>
                         </tr>
                     {% empty %}
                         <tr>
