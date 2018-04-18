@@ -271,7 +271,9 @@
                                         class="fa fa-history">
                                     &nbsp;</i></a>{% endif %}
                             </td>
-                        <td></td>
+                        <td>
+                            <a href="{% url 'supp_file_doi' article.pk galley.pk %}">Issue DOI</a>
+                        </td>
                         </tr>
                     {% empty %}
                         <tr>

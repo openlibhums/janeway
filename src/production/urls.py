@@ -28,6 +28,8 @@ urlpatterns = [
     url(r'^typeset/(?P<typeset_id>\d+)/delete/$',
         views.edit_typesetter_assignment, name='edit_typesetter_assignment'),
 
+    url(r'^(?P<article_id>\d+)/supp_file/(?P<supp_file_id>\d+)/doi/$', views.supp_file_doi, name='supp_file_doi'),
+
     # Typesetter
     url(r'^requests/$', views.typesetter_requests, name='typesetter_requests'),
     url(r'^requests/(?P<typeset_id>\d+)/decision/(?P<decision>accept|decline)/$', views.typesetter_requests,

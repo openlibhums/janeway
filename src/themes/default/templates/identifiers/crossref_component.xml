@@ -15,12 +15,11 @@
             <component_list>
                 <component parent_relation="isPartOf">
                     <titles>
-                        <title>{{ file.original_filename }}</title>
+                        <title>{{ supp_file.file.label }}</title>
                     </titles>
-                    <description>{{ file.description }}</description>
                     <format mime_type="{{ supp_file.mime_type }}"/>
                     <doi_data>
-                        <doi>{{ supp_file.doi }}</doi>
+                        <doi>{{ parent_doi }}.{{ supp_file.pk }}</doi>
                         <resource>{{ supp_file.url }}</resource>
                     </doi_data>
                 </component>

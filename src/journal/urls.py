@@ -123,4 +123,10 @@ urlpatterns = [
     # Edit file with Texture
     url(r'^texture/(?P<file_id>\d+)/edit/$',
         views.texture_edit, name='texture_edit'),
+
+    # Download supplementary file
+    url(r'^article/(?P<article_id>\d+)/supp_file/(?P<supp_file_id>\d+)/download/',
+        views.download_galley,
+        name='article_download_supp_file'),
+
 ]

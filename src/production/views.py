@@ -3,12 +3,15 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import datetime
+import uuid
 
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
 
 from events import logic as event_logic
 from core import models as core_models
@@ -18,6 +21,7 @@ from security.decorators import editor_user_required, production_user_or_editor_
     article_production_user_required, article_stage_production_required, has_journal, \
     typesetter_or_editor_required, typesetter_user_required
 from submission import models as submission_models
+from utils import setting_handler
 
 
 @production_user_or_editor_required
@@ -537,13 +541,40 @@ def delete_galley(request, typeset_id, galley_id):
 
 
 @production_user_or_editor_required
-def supp_file_doi(request, supp_file_id):
+def supp_file_doi(request, article_id, supp_file_id):
     """
     Presents an interface for minting a supplementary file DOI
     :param request: HttpRequest
+    :param article_id: Article object PK
     :param supp_file_id: SupplementaryFile PK
     :return: HttpResponse or HttpRedirect
     """
+    article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
     supplementary_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
 
-    
+    if not article.get_doi():
+        messages.add_message(request, messages.INFO, 'Parent article must have a DOI before you can assign a'
+                                                     'supplementary file a DOI.')
+
+    xml_context = {'supp_file': supplementary_file,
+                   'article': article,
+                   'batch_id': uuid.uuid4(),
+                   'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
+                   'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
+                                                                 article.journal).processed_value,
+                   'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
+                                                                  article.journal).processed_value,
+                   'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
+                                                             article.journal).processed_value,
+                   'parent_doi': article.get_doi()
+                   }
+    xml_content = render_to_string('identifiers/crossref_component.xml', xml_context, request)
+
+    template = 'production/supp_file_doi.html'
+    context = {
+        'article': article,
+        'supp_file': supplementary_file,
+        'xml_content': xml_content,
+    }
+
+    return render(request, template, context)
