@@ -12,9 +12,9 @@ fi
 
 source venv/bin/activate
 
-#./.test.sh || true
+./.test.sh
 
-# run coverage test if tests pass
+# run coverage test if unittests pass
 # only report coverage if we're running a complete set of tests
 
 required_coverage=38 # bump this as coverage improves
