@@ -2,10 +2,10 @@
 set -e # everything must succeed.
 echo "[-] install.sh"
 
-python=/usr/bin/python3.6
-py=${python##*/} # ll: python3.6
+python=$(which python3) # ll: /usr/bin/python3
+py=${python##*/} # ll: python3
 
-# check for exact version of python3
+# check for python3
 if [ ! -e "venv/bin/$py" ]; then
     echo "could not find venv/bin/$py, recreating venv"
     rm -rf venv
