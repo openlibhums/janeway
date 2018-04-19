@@ -346,7 +346,8 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id,
+                                stage=submission_models.STAGE_PUBLISHED)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
     embed = request.GET.get('embed', False)
@@ -1418,6 +1419,14 @@ def download_table(request, identifier_type, identifier, table_name):
         table = logic.get_table_from_html(table_name, content)
         csv = logic.parse_html_table_to_csv(table, table_name)
         return files.serve_temp_file(csv, '{0}.csv'.format(table_name))
+
+
+def download_supp_file(request, article_id, supp_file_id):
+    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id,
+                                stage=submission_models.STAGE_PUBLISHED)
+    supp_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
+
+    return files.serve_file(request, supp_file.file, article, public=True)
 
 
 @staff_member_required
