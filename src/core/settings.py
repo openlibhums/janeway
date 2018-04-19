@@ -387,3 +387,28 @@ RECAPTCHA_PRIVATE_KEY = cfg('captcha.recaptcha-private-key', 'your private key')
 RECAPTCHA_PUBLIC_KEY = cfg('captcha.recaptcha-public-key', 'your public key')
 
 SILENT_IMPORT_CACHE = False
+
+
+#
+# harmless settings to make testing faster and more convenient
+#
+
+class DisableMigrations(object):
+    def __contains__(self, item):
+        return True
+    def __getitem__(self, item):
+        return None
+
+TESTS_IN_PROGRESS = False
+if 'test' in sys.argv[1:]:
+    # quieten logging output
+    logging.disable(logging.CRITICAL)
+    PASSWORD_HASHERS = (
+        # faster than everything else
+        'django.contrib.auth.hashers.MD5PasswordHasher', 
+    )
+    # we don't test in DEBUG mode
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+    TESTS_IN_PROGRESS = True
+    MIGRATION_MODULES = DisableMigrations()
