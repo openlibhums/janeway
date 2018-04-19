@@ -80,7 +80,6 @@ INSTALLED_APPS = [
     'django_summernote',
     'dynamicsites',
     'markdown_deux',
-    'foundationform',
     'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
