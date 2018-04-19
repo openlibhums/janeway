@@ -16,9 +16,15 @@
             <h2>Supplementary File #{{ supp_file.pk }}</h2>
         </div>
         <div class="content">
-            <div class="row">
+            <div class="row expanded">
                 <div class="large-6 columns">
-
+                    <p>Click the button below to register a DOI for this component. The DOI will be:</p>
+                    <p><strong>{{ article.get_doi }}.{{ supp_file.pk }}</strong></p>
+                    <p>{% if test_mode %}Crossref integration is currently in test mode{% else %}Crossref integration is in live mode{% endif %}</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button class="success button">Mint DOI</button>
+                    </form>
                 </div>
                 <div class="large-6 columns">
                     <h5>Component XML</h5>

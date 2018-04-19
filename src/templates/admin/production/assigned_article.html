@@ -272,7 +272,13 @@
                                     &nbsp;</i></a>{% endif %}
                             </td>
                         <td>
-                            <a href="{% url 'supp_file_doi' article.pk galley.pk %}">Issue DOI</a>
+                            {% if galley.doi %}
+                                {{ galley.doi }}
+                                &nbsp;<a href="{% url 'supp_file_doi' article.pk galley.pk %}"><i
+                                        class="fa fa-refresh"></i></a>
+                            {% else %}
+                                <a href="{% url 'supp_file_doi' article.pk galley.pk %}">Issue DOI</a>
+                            {% endif %}
                         </td>
                         </tr>
                     {% empty %}
