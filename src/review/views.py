@@ -14,6 +14,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
@@ -1777,6 +1778,48 @@ def preview_form(request, form_id):
     context = {
         'form': form,
         'generated_form': generated_form,
+    }
+
+    return render(request, template, context)
+
+
+@reviewer_user_for_assignment_required
+def hypothesis_review(request, assignment_id):
+    """
+    Rendering of the review form for user to complete.
+    :param request: the request object
+    :param assignment_id: ReviewAssignment PK
+    :return: a context for a Django template
+    """
+
+    access_code = logic.get_access_code(request)
+
+    if access_code:
+        assignment = models.ReviewAssignment.objects.get(
+            Q(pk=assignment_id) &
+            Q(is_complete=False) &
+            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(access_code=access_code)
+        )
+    else:
+        assignment = models.ReviewAssignment.objects.get(
+            Q(pk=assignment_id) &
+            Q(is_complete=False) &
+            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(reviewer=request.user)
+        )
+
+    pdf = assignment.review_round.review_files.get(mime_type='application/pdf')
+    grant_token = logic.generate_grant_token(assignment.reviewer)
+
+    print(grant_token)
+
+    template = 'review/annotation_pdf_review.html'
+    context = {
+        'assignment': assignment,
+        'pdf': pdf,
+        'grant_token': grant_token,
+        'authority': settings.HYPOTHESIS_CLIENT_AUTHORITY,
     }
 
     return render(request, template, context)
