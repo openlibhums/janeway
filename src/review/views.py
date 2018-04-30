@@ -18,7 +18,7 @@ from django.conf import settings
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
-from review import models, logic, forms
+from review import models, logic, forms, hypothesis
 from security.decorators import editor_user_required, reviewer_user_required, reviewer_user_for_assignment_required, \
     article_edit_user_required, file_user_required, article_decision_not_made, article_author_required, \
     editor_is_not_author, senior_editor_user_required, section_editor_draft_decisions
@@ -1810,7 +1810,8 @@ def hypothesis_review(request, assignment_id):
         )
 
     pdf = assignment.review_round.review_files.get(mime_type='application/pdf')
-    grant_token = logic.generate_grant_token(assignment.reviewer)
+    hypothesis.create_hypothesis_account(assignment.reviewer)
+    grant_token = hypothesis.generate_grant_token(assignment.reviewer)
 
     print(grant_token)
 

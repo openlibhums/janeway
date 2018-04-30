@@ -3,10 +3,10 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from datetime import timedelta, datetime
+from datetime import timedelta
 from uuid import uuid4
 import os
-import jwt
+
 
 from django.urls import reverse
 from django.utils import timezone
@@ -323,27 +323,3 @@ def serve_review_file(assignment):
     filepath = os.path.join(settings.BASE_DIR, 'files', 'temp', filename)
     document.save(filepath)
     return files.serve_temp_file(filepath, filename)
-
-
-def generate_grant_token(account):
-    """
-    Generated a hypothesis grant toke for the given user
-    :param account: Account object
-    :return: jwt encoded token
-    """
-    now = datetime.utcnow()
-    #userid = 'acct:{username}@{authority}'.format(username=account.uuid,
-    #                                              authority=settings.HYPOTHESIS_CLIENT_AUTHORITY)
-    userid = 'acct:{username}@{authority}'.format(username='andybyers',
-                                                  authority=settings.HYPOTHESIS_CLIENT_AUTHORITY)
-    payload = {
-        'aud': 'hypothes.is',
-        'iss': settings.HYPOTHESIS_CLIENT_ID,
-        'sub': userid,
-        'nbf': now,
-        'exp': now + timedelta(minutes=10),
-    }
-
-    print(payload)
-
-    return jwt.encode(payload, settings.HYPOTHESIS_CLIENT_SECRET, algorithm='HS256')
