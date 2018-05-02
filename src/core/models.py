@@ -387,6 +387,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         subjects = preprint_models.Subject.objects.filter(editors__exact=self)
         return subjects
 
+    @property
+    def hypothesis_username(self):
+        username = '{pk}{first_name}{last_name}'.format(pk=self.pk,
+                                                        first_name=self.first_name,
+                                                        last_name=self.last_name)[:30]
+        return username.lower()
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)

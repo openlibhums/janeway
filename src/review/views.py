@@ -1813,8 +1813,6 @@ def hypothesis_review(request, assignment_id):
     hypothesis.create_hypothesis_account(assignment.reviewer)
     grant_token = hypothesis.generate_grant_token(assignment.reviewer)
 
-    print(grant_token)
-
     template = 'review/annotation_pdf_review.html'
     context = {
         'assignment': assignment,
