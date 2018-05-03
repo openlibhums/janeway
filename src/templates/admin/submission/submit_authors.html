@@ -10,7 +10,7 @@
     <article>
 
     <form method="POST">
-    <div class="row box">
+    <div class="row box expanded">
         {% csrf_token %}
         {% include "submission/timeline.html" with data=article %}
         <div class="large-7 columns">
