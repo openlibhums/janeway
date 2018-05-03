@@ -66,6 +66,7 @@ class ArticleInfo(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         elements = kwargs.pop('additional_fields', None)
         submission_summary = kwargs.pop('submission_summary', None)
+        journal = kwargs.pop('journal', None)
 
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
@@ -81,6 +82,24 @@ class ArticleInfo(forms.ModelForm):
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
 
+            # Pop fields based on journal.submissionconfiguration
+            if journal:
+                if not journal.submissionconfiguration.subtitle:
+                    self.fields.pop('subtitle')
+
+                if not journal.submissionconfiguration.abstract:
+                    self.fields.pop('abstract')
+
+                if not journal.submissionconfiguration.language:
+                    self.fields.pop('language')
+
+                if not journal.submissionconfiguration.license:
+                    self.fields.pop('license')
+
+                if not journal.submissionconfiguration.keywords:
+                    self.fields.pop('keywords')
+
+            # Add additional fields
             if elements:
                 for element in elements:
                     if element.kind == 'text':

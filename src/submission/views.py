@@ -94,11 +94,14 @@ def submit_info(request, article_id):
     submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
     form = forms.ArticleInfo(instance=article,
                              additional_fields=additional_fields,
-                             submission_summary=submission_summary)
+                             submission_summary=submission_summary,
+                             journal=request.journal)
 
     if request.POST:
         form = forms.ArticleInfo(request.POST, instance=article,
-                                 additional_fields=additional_fields, submission_summary=submission_summary)
+                                 additional_fields=additional_fields,
+                                 submission_summary=submission_summary,
+                                 journal=request.journal)
 
         if form.is_valid():
             form.save(request=request)

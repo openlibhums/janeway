@@ -1167,3 +1167,13 @@ class SubmissionConfiguration(models.Model):
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)
+
+    def lang_section_license_width(self):
+        if self.language and self.license:
+            return '4'
+        elif not self.language and not self.license:
+            return '12'
+        elif not self.language and self.license:
+            return '6'
+        elif self.language and not self.license:
+            return '6'
