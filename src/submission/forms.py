@@ -27,11 +27,26 @@ class ArticleStart(forms.ModelForm):
                   'competing_interests')
 
     def __init__(self, *args, **kwargs):
-        ci = kwargs.pop('ci', False)
+        journal = kwargs.pop('journal', False)
         super(ArticleStart, self).__init__(*args, **kwargs)
 
-        if not ci:
-            self.fields['competing_interests'].required = False
+        self.fields['competing_interests'].label = ''
+        self.fields['comments_editor'].label = ''
+
+        if not journal.submissionconfiguration.publication_fees:
+            self.fields.pop('publication_fees')
+
+        if not journal.submissionconfiguration.submission_check:
+            self.fields.pop('submission_requirements')
+
+        if not journal.submissionconfiguration.copyright_notice:
+            self.fields.pop('copyright_notice')
+
+        if not journal.submissionconfiguration.competing_interests:
+            self.fields.pop('competing_interests')
+
+        if not journal.submissionconfiguration.comments_to_the_editor:
+            self.fields.pop('comments_editor')
 
 
 class ArticleInfo(forms.ModelForm):

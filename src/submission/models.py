@@ -312,7 +312,9 @@ class Article(models.Model):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
-    competing_interests = models.TextField(blank=True, null=True)
+    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any competing or conflict"
+                                                                            "of insterests in the publication of this "
+                                                                            "article please state them here.")
 
     # Files
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')
@@ -343,7 +345,8 @@ class Article(models.Model):
     publication_fees = models.BooleanField(default=False)
     submission_requirements = models.BooleanField(default=False)
     copyright_notice = models.BooleanField(default=False)
-    comments_editor = models.TextField(blank=True, null=True, verbose_name="Comments to the Editor")
+    comments_editor = models.TextField(blank=True, null=True, verbose_name="Comments to the Editor",
+                                       help_text="Add any comments you'd like the editor to consider here.")
 
     # an image of recommended size: 750 x 324
     large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='image_file',
@@ -1143,3 +1146,24 @@ class ArticleAuthorOrder(models.Model):
 
     class Meta:
         ordering = ('order',)
+
+
+class SubmissionConfiguration(models.Model):
+    journal = models.OneToOneField('journal.Journal')
+
+    publication_fees = models.BooleanField(default=True)
+    submission_check = models.BooleanField(default=True)
+    copyright_notice = models.BooleanField(default=True)
+    competing_interests = models.BooleanField(default=True)
+    comments_to_the_editor = models.BooleanField(default=True)
+
+    subtitle = models.BooleanField(default=True)
+    abstract = models.BooleanField(default=True)
+    language = models.BooleanField(default=True)
+    license = models.BooleanField(default=True)
+    keywords = models.BooleanField(default=True)
+
+    figures_data = models.BooleanField(default=True)
+
+    def __str__(self):
+        return 'SubmissionConfiguration for {0}'.format(self.journal.name)

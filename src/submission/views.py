@@ -32,14 +32,13 @@ def start(request, type=None):
     :param type: string, None or 'preprint'
     :return: HttpRedirect or HttpResponse
     """
-    competing_interests = setting_handler.get_setting('general', 'submission_competing_interests', request.journal)
-    form = forms.ArticleStart(ci=competing_interests)
+    form = forms.ArticleStart(journal=request.journal)
 
     if not request.user.is_author(request):
         request.user.add_account_role('author', request.journal)
 
     if request.POST:
-        form = forms.ArticleStart(request.POST, ci=competing_interests)
+        form = forms.ArticleStart(request.POST, journal=request.journal)
 
         if form.is_valid():
             new_article = form.save(commit=False)

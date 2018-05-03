@@ -72,6 +72,12 @@ class FieldAdmin(admin.ModelAdmin):
     list_filter = ('journal', 'press', 'kind', 'width')
 
 
+class SubmissionConfigAdmin(admin.ModelAdmin):
+    list_display = ('journal', 'publication_fees', 'submission_check', 'copyright_notice', 'competing_interests',
+                    'comments_to_the_editor', 'subtitle', 'abstract', 'language', 'license', 'keywords',
+                    'figures_data')
+
+
 admin_list = [
     (models.Article, ArticleAdmin),
     (models.Licence, LicenseAdmin),
@@ -83,6 +89,7 @@ admin_list = [
     (models.Field, FieldAdmin),
     (models.FieldAnswer,),
     (models.Keyword, KeywordAdmin),
+    (models.SubmissionConfiguration, SubmissionConfigAdmin)
 ]
 
 [admin.site.register(*t) for t in admin_list]
