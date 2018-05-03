@@ -144,20 +144,6 @@
                         <div class="divider"></div>
                     </div>
 
-                    {% if article.supplementary_files.all %}
-                        <h5>{% trans "Supplementary Files" %}</h5>
-
-                        <ul>
-                            {% for file in article.supplementary_files.all %}
-                                <li><a href="{{ file.url }}">{{ file.label }} ({{ file.file.original_filename }})</a></li>
-                            {% endfor %}
-                        </ul>
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    {% endif %}
-
                     {% if article.publisher_notes.all %}
                         <h5>Publisher Notes</h5>
                         <ul>
@@ -266,6 +252,20 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
+
+                    {% if article.supplementary_files.all %}
+                        <h5>{% trans "Supplementary Files" %}</h5>
+
+                        <ul>
+                            {% for file in article.supplementary_files.all %}
+                                <li><a href="{{ file.url }}">{{ file.label }}</a></li>
+                            {% endfor %}
+                        </ul>
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+                    {% endif %}
 
                     {% if journal_settings.general.submission_summary %}
                         <h5>Non Specialist Summary</h5>

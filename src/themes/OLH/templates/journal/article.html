@@ -241,6 +241,20 @@
                                 {% endfor %}
                             </ul>
                         </div>
+
+                        {% if article.supplementary_files.all %}
+                            <div class="section">
+                                <h3>{% trans "Supplementary Files" %}</h3>
+                                <ul>
+                                    {% for file in article.supplementary_files.all %}
+                                        <li>
+                                            <a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
                         {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                             <div class="section hide-for-small-only">
                                 <h3>{% trans "Non Specialist Summary" %}</h3>

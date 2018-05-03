@@ -161,6 +161,14 @@
                         </li>
                     {% endfor %}
                 </ul>
+                {% if article.supplementary_files.all %}
+                    <h4>{% trans "Supplementary Files" %}</h4>
+                    <ul>
+                    {% for file in article.supplementary_files.all %}
+                        <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a></li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
                 <h4>{% trans "Information" %}</h4>
                 <ul>
                     <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
