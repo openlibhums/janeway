@@ -4,10 +4,16 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
+from django import forms
 
 from hvad.admin import TranslatableAdmin
 
 from submission import models
+
+
+class LicenseChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{0}: {1}".format(obj.journal.code, obj.short_name)
 
 
 class FrozenAuthorAdmin(admin.ModelAdmin):
@@ -22,6 +28,11 @@ class ArticleAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return self.model.allarticles.get_queryset()
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'license':
+            return LicenseChoiceField(queryset=models.Licence.objects.all().order_by('journal__code'))
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class ArticleLogAdmin(admin.ModelAdmin):
@@ -53,7 +64,8 @@ class KeywordAdmin(admin.ModelAdmin):
 
 
 class SectionAdmin(TranslatableAdmin):
-    list_display = ('section_name', 'section_journal', 'number_of_reviewers', 'is_filterable', 'public_submissions', 'indexing')
+    list_display = ('section_name', 'section_journal', 'number_of_reviewers', 'is_filterable', 'public_submissions',
+                    'indexing')
     list_filter = ('journal',)
 
     @staticmethod
@@ -76,6 +88,11 @@ class SubmissionConfigAdmin(admin.ModelAdmin):
     list_display = ('journal', 'publication_fees', 'submission_check', 'copyright_notice', 'competing_interests',
                     'comments_to_the_editor', 'subtitle', 'abstract', 'language', 'license', 'keywords',
                     'figures_data')
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'default_license':
+            return LicenseChoiceField(queryset=models.Licence.objects.all().order_by('journal__code'))
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 admin_list = [

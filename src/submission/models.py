@@ -1069,7 +1069,7 @@ class Licence(models.Model):
         ordering = ('order', 'name')
 
     def __str__(self):
-        return u'%s' % self.short_name
+        return '{short_name}'.format(short_name=self.short_name)
 
     def object(self):
         if not self.journal:
@@ -1170,7 +1170,7 @@ class SubmissionConfiguration(models.Model):
     default_language = models.CharField(max_length=200, null=True, choices=LANGUAGE_CHOICES,
                                         help_text=_('The default language of articles when lang is hidden'))
     default_section = models.ForeignKey(Section, null=True,
-                                        help_text=('The default section of articles when no option is presented'))
+                                        help_text=_('The default section of articles when no option is presented'))
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)
