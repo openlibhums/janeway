@@ -13,12 +13,12 @@
     <div class="box">
         <form method="POST">
             {% csrf_token %}
-            <div class="row">
+            <div class="row expanded">
                 <div class="col-lg-9">
                     {% include "submission/timeline.html" with data=article %}
                 </div>
             </div>
-            <div class="row">
+            <div class="row expanded">
                 <div class="large-12 columns">
                     {% if article.comments_editor %}
                     <div class="title-area"><h2>{% trans "Comments to Editor" %}</h2></div>
@@ -53,7 +53,7 @@
                     </table>
 
                     <div class="title-area"><h2>{% trans "Author Info" %}</h2></div>
-                    <div class="row">
+                    <div class="row expanded">
                         <div class="large-6 columns">
                             <ul class="list-group">
                                 {% for author in article.authors.all %}
@@ -71,7 +71,7 @@
 
 
                     <div class="title-area"><h2>{% trans "Article Files" %}</h2></div>
-                    <div class="row">
+                    <div class="row expanded">
                         <div class="large-6 columns">
                             <p><strong>{% trans "Manuscript Files" %}</strong></p>
                             <table class="table table-condensed small">
