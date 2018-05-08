@@ -593,3 +593,20 @@ def licenses(request, license_pk=None):
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def configurator(request):
+    """
+    Presents an interface for enabling and disabling fixed submission fields.
+    :param request: HttpRequest object
+    :return: HttpResponse or HttpRedirect
+    """
+    configuration = request.journal.submissionconfiguration
+
+    template = 'submission/manager/configurator.html'
+    context = {
+        'configuration': configuration,
+    }
+
+    return render(request, template, context)
