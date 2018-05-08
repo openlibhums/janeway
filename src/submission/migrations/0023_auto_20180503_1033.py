@@ -22,5 +22,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_submission_configuration)
+        migrations.RunPython(create_submission_configuration, reverse_code=migrations.RunPython.noop)
     ]
