@@ -1165,6 +1165,13 @@ class SubmissionConfiguration(models.Model):
 
     figures_data = models.BooleanField(default=True)
 
+    default_license = models.ForeignKey(Licence, null=True,
+                                        help_text=_('The default license applied when no option is presented'))
+    default_language = models.CharField(max_length=200, null=True, choices=LANGUAGE_CHOICES,
+                                        help_text=_('The default language of articles when lang is hidden'))
+    default_section = models.ForeignKey(Section, null=True,
+                                        help_text=('The default section of articles when no option is presented'))
+
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)
 
