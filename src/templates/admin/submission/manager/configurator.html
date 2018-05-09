@@ -14,12 +14,17 @@
 
 {% block body %}
     <div class="box">
-        <p>Here you can configure the submission system fields. Any unchecked field will not display during the submission process.</p>
         <div class="row expanded">
             <div class="large-6 columns">
-                {{ form|foundationinline }}
+                <p>Here you can configure the submission system fields. Any unchecked field will not display during the
+                    submission process. You should set a default license, language and section so that these fields
+                    can be configured when the fields are not being used.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundationinline }}
+                    <button class="success button">Save Configuration</button>
+                </form>
             </div>
         </div>
-
     </div>
 {% endblock %}

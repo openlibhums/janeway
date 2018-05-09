@@ -1163,7 +1163,7 @@ class SubmissionConfiguration(models.Model):
     license = models.BooleanField(default=True)
     keywords = models.BooleanField(default=True)
 
-    figures_data = models.BooleanField(default=True)
+    figures_data = models.BooleanField(default=True, verbose_name=_('Figures and Data Files'))
 
     default_license = models.ForeignKey(Licence, null=True,
                                         help_text=_('The default license applied when no option is presented'))
