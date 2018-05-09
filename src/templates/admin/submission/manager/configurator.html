@@ -1,0 +1,25 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Submission Configurator{% endblock %}
+{% block title-section %}Submission Configurator{% endblock %}
+{% block title-sub %}Control journal submission fields{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'submission_configurator' %}">Submission Configurator</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <p>Here you can configure the submission system fields. Any unchecked field will not display during the submission process.</p>
+        <div class="row expanded">
+            <div class="large-6 columns">
+                {{ form|foundationinline }}
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

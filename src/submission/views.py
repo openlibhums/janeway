@@ -604,9 +604,20 @@ def configurator(request):
     """
     configuration = request.journal.submissionconfiguration
 
+    form = forms.ConfiguratorForm(instance=configuration)
+
+    if request.POST:
+        form = forms.ConfiguratorForm(request.POST, instance=configuration)
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, 'Configuration updated.')
+            return redirect(reverse('submission_configurator'))
+
     template = 'submission/manager/configurator.html'
     context = {
         'configuration': configuration,
+        'form': form,
     }
 
     return render(request, template, context)
