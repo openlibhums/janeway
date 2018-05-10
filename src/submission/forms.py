@@ -99,6 +99,9 @@ class ArticleInfo(forms.ModelForm):
                 if not journal.submissionconfiguration.keywords:
                     self.fields.pop('keywords')
 
+                if not journal.submissionconfiguration.section:
+                    self.fields.pop('section')
+
             # Add additional fields
             if elements:
                 for element in elements:
@@ -142,7 +145,7 @@ class ArticleInfo(forms.ModelForm):
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
 
-        posted_keywords = self.cleaned_data['keywords'].split(',')
+        posted_keywords = self.cleaned_data.get('keywords', '').split(',')
         for keyword in posted_keywords:
             if keyword != '':
                 new_keyword, c = models.Keyword.objects.get_or_create(word=keyword)
@@ -164,6 +167,8 @@ class ArticleInfo(forms.ModelForm):
                         field_answer.save()
                     except models.FieldAnswer.DoesNotExist:
                         field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
+
+            request.journal.submissionconfiguration.handle_defaults(article)
 
         if commit:
             article.save()

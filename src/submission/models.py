@@ -1185,3 +1185,15 @@ class SubmissionConfiguration(models.Model):
             return '6'
         elif self.language and not self.license:
             return '6'
+
+    def handle_defaults(self, article):
+        if not self.section and self.default_section:
+            article.section = self.default_section
+
+        if not self.language and self.default_language:
+            article.language = self.default_language
+
+        if not self.license and self.default_license:
+            article.license = self.default_license
+
+        article.save()
