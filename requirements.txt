@@ -14,7 +14,7 @@ django-simple-math-captcha==1.0.7
 django-recaptcha2==1.0.3
 django-summernote==0.8.8.1
 djangorestframework==3.6.3
--e git+https://github.com/BirkbeckCTP/django-dynamicsites@#egg=dynamicsites
+-e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
 enum34==1.1.6
 html2text==2017.10.4
@@ -31,9 +31,11 @@ pdfkit
 Pillow==3.1.1
 pyasn1==0.1.9
 pycparser==2.14
+PyJWT==1.6.1
 python-crontab==2.2.3
 python-dateutil==2.6.0
 python-magic==0.4.13
+python-docx==0.8.6
 raven==6.0.0 # TODO: Optional for sentry
 requests==2.9.1
 six==1.10.0

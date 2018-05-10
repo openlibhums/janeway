@@ -40,6 +40,9 @@ class ProofingAssignment(models.Model):
             return True
         return False
 
+    def __str__(self):
+        return 'Proofing Assignment {pk}'.format(pk=self.pk)
+
 
 class ProofingRound(models.Model):
     assignment = models.ForeignKey(ProofingAssignment)
@@ -86,6 +89,7 @@ class ProofingTask(models.Model):
 
     task = models.TextField(verbose_name="Proofing Task")
     galleys_for_proofing = models.ManyToManyField('core.Galley')
+    proofed_files = models.ManyToManyField('core.File')
     notes = models.ManyToManyField('proofing.Note')
 
     def __str__(self):
@@ -141,6 +145,7 @@ class TypesetterProofingTask(models.Model):
 
     task = models.TextField(verbose_name="Typesetter Task")
     galleys = models.ManyToManyField('core.Galley')
+    files = models.ManyToManyField('core.File')
     notes = models.TextField(verbose_name="Correction Note", blank=True, null=True)
 
     class Meta:

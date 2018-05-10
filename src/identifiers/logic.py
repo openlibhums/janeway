@@ -49,6 +49,53 @@ def register_crossref_doi(identifier):
     send_crossref_deposit(test_url if test_mode else live_url, identifier)
 
 
+def register_crossref_component(article, xml, supp_file):
+    from utils import setting_handler
+
+    test_url = CROSSREF_TEST_URL
+    live_url = CROSSREF_LIVE_URL
+
+    use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
+                                               article.journal).processed_value
+
+    if not use_crossref:
+        print("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
+        return
+
+    test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
+
+    server = test_url if test_mode else live_url
+
+    if test_mode:
+        util_models.LogEntry.add_entry('Submission', "DOI component registration running in test mode", 'Info',
+                                       target=article)
+    else:
+        util_models.LogEntry.add_entry('Submission', "DOI component registration running in live mode", 'Info',
+                                       target=article)
+
+    response = requests.post(server, data=xml.encode('utf-8'),
+                             auth=(setting_handler.get_setting('Identifiers',
+                                                               'crossref_username',
+                                                               article.journal).processed_value,
+                                   setting_handler.get_setting('Identifiers', 'crossref_password',
+                                                               article.journal).processed_value),
+                             headers={"Content-Type": "application/vnd.crossref.deposit+xml"})
+
+    if response.status_code != 200:
+        util_models.LogEntry.add_entry('Error',
+                                       "Error depositing: {0}. {1}".format(response.status_code, response.text),
+                                       'Debug',
+                                       target=article)
+        print("Error depositing: {}".format(response.status_code), file=sys.stderr)
+        print(response.text, file=sys.stderr)
+    else:
+        token = response.json()['message']['batch-id']
+        status = response.json()['message']['status']
+        util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
+                                       target=article)
+        print("Status of {} in {}: {}".format(token, '{0}.{1}'.format(article.get_doi(), supp_file.pk), status))
+
+
 def send_crossref_deposit(server, identifier):
     # todo: work out whether this is acceptance or publication
     # if it's acceptance, then we use "0" for volume and issue

@@ -24,7 +24,8 @@ def get_copyeditors(article):
     copyeditor_assignments = models.CopyeditAssignment.objects.filter(article=article)
     copyeditors = [assignment.copyeditor.pk for assignment in copyeditor_assignments]
 
-    return core_models.AccountRole.objects.filter(role__slug='copyeditor').exclude(user__pk__in=copyeditors)
+    return core_models.AccountRole.objects.filter(role__slug='copyeditor',
+                                                  journal=article.journal).exclude(user__pk__in=copyeditors)
 
 
 def get_user_from_post(post):

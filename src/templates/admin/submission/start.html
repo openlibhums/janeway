@@ -1,6 +1,8 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 {% load i18n %}
+{% load hooks %}
+{% load foundation %}
 
 {% block title %}{% trans "Submit an Article" %}{% endblock title %}
 
@@ -18,64 +20,63 @@
 
                 {% include "admin/submission/timeline.html" with data=article %}
 
-                <div class="title-area">
-                    <h2>{% trans "Publication Fees" %}</h2>
-                </div>
-                <div class="content submission-content">
-                    {{ journal_settings.general.publication_fees|safe }}
+                {% if request.journal.submissionconfiguration.publication_fees %}
+                    <div class="title-area">
+                        <h2>{% trans "Publication Fees" %}</h2>
+                    </div>
+                    <div class="content submission-content">
+                        {{ journal_settings.general.publication_fees|safe }}
+                        {% hook 'publication_fees' %}
+                        {{ form.publication_fees }}&nbsp;&nbsp;<label
+                            for="id_publication_fees">{% trans "Author(s) agrees to the above statement" %}</label>
+                    </div>
+                {% endif %}
 
-                    {{ form.publication_fees }}&nbsp;&nbsp;<label
-                        for="id_publication_fees">{% trans "Author(s) agrees to the above statement" %}</label>
-                </div>
+                {% if request.journal.submissionconfiguration.submission_check %}
+                    <div class="title-area">
+                        <h2>{% trans "Submission Checklist" %}</h2>
+                    </div>
+                    <div class="content submission-content">
+                        {{ journal_settings.general.submission_checklist|safe }}
 
+                        {{ form.submission_requirements }}&nbsp;&nbsp;<label
+                            for="id_submission_requirements">{% trans "Author(s) confirms that this article adheres to the above requirements" %}</label>
+                    </div>
+                {% endif %}
 
-                <div class="title-area">
-                    <h2>{% trans "Submission Checklist" %}</h2>
-                </div>
-                <div class="content submission-content">
-                    {{ journal_settings.general.submission_checklist|safe }}
+                {% if request.journal.submissionconfiguration.copyright_notice %}
+                    <div class="title-area">
+                        <h2>{% trans "Copyright Notice" %}</h2>
+                    </div>
+                    <div class="content submission-content">
+                        {{ journal_settings.general.copyright_notice|safe }}
 
-                    {{ form.submission_requirements }}&nbsp;&nbsp;<label
-                        for="id_submission_requirements">{% trans "Author(s) confirms that this article adheres to the above requirements" %}</label>
-                </div>
+                        {{ form.copyright_notice }}&nbsp;&nbsp;<label
+                            for="id_copyright_notice">{% trans "Author(s) agrees to copyright notice, which will apply to this submission if accepted" %}</label>
+                    </div>
+                {% endif %}
 
-
-                <div class="title-area">
-                    <h2>{% trans "Copyright Notice" %}</h2>
-                </div>
-                <div class="content submission-content">
-                    {{ journal_settings.general.copyright_notice|safe }}
-
-                    {{ form.copyright_notice }}&nbsp;&nbsp;<label
-                        for="id_copyright_notice">{% trans "Author(s) agrees to copyright notice, which will apply to this submission if accepted" %}</label>
-                </div>
-
-
-                {% if journal_settings.general.submission_competing_interests %}
+                {% if request.journal.submissionconfiguration.competing_interests %}
                     <div class="title-area">
                         <h2>{% trans "Competing Interests" %}</h2>
                     </div>
                     <div class="content submission-content">
-                    <textarea class="form-control" cols="40" id="id_competing_interests" name="competing_interests"
-                              placeholder="{% trans "If you have any competing interests that may effect this article, enter information here." %}."
-                              rows="10" title=""></textarea>
+                        {{ form.competing_interests|foundation }}
                     </div>
-
-                    <hr/>
                 {% endif %}
 
-                <div class="title-area">
-                    <h2>{% trans "Comments to the Editor" %}</h2>
-                </div>
-                <div class="content submission-content">
-                    <textarea class="form-control" cols="40" id="id_comments_editor" name="comments_editor"
-                              placeholder="{% trans "If you have any information you'd like to supply to the editor, do so here" %}."
-                              rows="10" title=""></textarea>
-                </div>
+                {% if request.journal.submissionconfiguration.comments_to_the_editor %}
+                    <div class="title-area">
+                        <h2>{% trans "Comments to the Editor" %}</h2>
+                    </div>
+                    <div class="content submission-content">
+                        {{ form.comments_editor|foundation }}
+                    </div>
+                {% endif %}
 
                 <button class="success button pull-right" type="submit" name="start_submission"><i class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
                 </button>
-            <br />
+                <br/>
             </div>
         </form>
     </article>

@@ -160,6 +160,9 @@ def get_settings_to_edit(group, journal):
             {'name': 'submission_checklist',
              'object': setting_handler.get_setting('general', 'submission_checklist', journal)
              },
+            {'name': 'acceptance_criteria',
+             'object': setting_handler.get_setting('general', 'acceptance_criteria', journal)
+             },
             {'name': 'publication_fees',
              'object': setting_handler.get_setting('general', 'publication_fees', journal)
              },
@@ -172,6 +175,9 @@ def get_settings_to_edit(group, journal):
              },
             {'name': 'submission_competing_interests',
              'object': setting_handler.get_setting('general', 'submission_competing_interests', journal),
+             },
+            {'name': 'submission_summary',
+             'object': setting_handler.get_setting('general', 'submission_summary', journal),
              },
             {'name': 'limit_manuscript_types',
              'object': setting_handler.get_setting('general', 'limit_manuscript_types', journal),
@@ -218,6 +224,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'default_review_form',
                 'object': setting_handler.get_setting('general', 'default_review_form', journal),
                 'choices': review_form_choices
+            },
+            {
+                'name': 'reviewer_form_download',
+                'object': setting_handler.get_setting('general', 'reviewer_form_download', journal),
             }
         ]
         setting_group = 'general'
@@ -535,3 +545,20 @@ def handle_file(request, setting_value, file):
 
     file = files.save_file_to_journal(request, file, setting_value.setting.name, 'A setting file.')
     return file.pk
+
+
+def no_password_check(username):
+    try:
+        check = models.Account.objects.get(username=username, password='')
+        return check
+    except models.Account.DoesNotExist:
+        return False
+
+
+def start_reset_process(request, account):
+    # Expire any existing tokens for this user
+    models.PasswordResetToken.objects.filter(account=account).update(expired=True)
+
+    # Create a new token
+    new_reset_token = models.PasswordResetToken.objects.create(account=account)
+    send_reset_token(request, new_reset_token)

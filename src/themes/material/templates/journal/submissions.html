@@ -48,6 +48,12 @@
                     {{ journal_settings.general.submission_checklist|safe }}
                     <div class="divider spacer"></div>
 
+                    {% if not journal_settings.general.acceptance_criteria == '' %}
+                    <span class="card-title">{% trans 'Acceptance Criteria' %}</span>
+                    {{ journal_settings.general.acceptance_criteria|safe }}
+                    <div class="divider spacer"></div>
+                    {% endif %}
+
                     <span class="card-title">{% trans 'Copyright Notice' %}</span>
                     {{ journal_settings.general.copyright_notice|safe }}
                     <div class="divider spacer"></div>

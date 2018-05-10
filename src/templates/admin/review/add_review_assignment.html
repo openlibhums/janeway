@@ -33,9 +33,9 @@
                             <th>Name</th>
                             <th>Email Address</th>
                             <th>Active Reviews</th>
-                            <th width="35%">Interests</th>
+                            <th width="30%">Interests</th>
                             <th>Average Score</th>
-                            <th>Quick Assign</th>
+                            <th width="15%">Quick Assign</th>
                         </tr>
                         </thead>
 
@@ -83,15 +83,21 @@
                 </div>
                 <div class="content">
                     <div class="row expanded">
-                    <div class="large-6 columns">{{ form.review_type|foundation }}</div>
-                    <div class="large-6 columns">{{ form.visibility|foundation }}</div>
-                    <div class="large-6 columns">{{ form.form|foundation }}</div>
-                    <div class="large-6 columns">{{ form.date_due|foundation }}</div>
-                    <div class="large-12 columns">
-                        <button class="button success" name="delete" type="submit">Add Reviewer</button>
-                        &nbsp;</div>
+                        <div class="large-6 columns">{{ form.review_type|foundation }}</div>
+                        <div class="large-6 columns">{{ form.visibility|foundation }}</div>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-6 columns">{{ form.form|foundation }}</div>
+                        <div class="large-6 columns">{{ form.date_due|foundation }}</div>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <button class="button success" name="delete" type="submit">Add Reviewer</button>
+                            &nbsp;
+                        </div>
                     </div>
                 </div>
+            </div>
             </div>        &nbsp;&nbsp;
         </form>
     </div>

@@ -12,7 +12,7 @@
 
 {% block body %}
 
-    <div class="large-12 columns">
+    <div class="large-8 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Files</h2>
@@ -23,46 +23,70 @@
                     <table class="table" id="files">
                         <thead>
                         <tr>
+                            <th>Select</th>
                             <th>Label</th>
                             <th>Filename</th>
                             <th>Type</th>
                             <th>Download</th>
                             <th>Replace</th>
-                            <th>Select</th>
+
                         </tr>
                         </thead>
                         {% for file in article.manuscript_files.all %}
                             <tbody>
                             <tr>
+                                <td><input type="checkbox" name="file" value="{{ file.id }}"
+                                           {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
-                                <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                                <td><input type="checkbox" name="file" value="{{ file.id }}" {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
+                                <td>
+                                    <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i
+                                            class="fa fa-cloud-upload">&nbsp;</i></a></td>
+
                             </tr>
                         {% endfor %}
                         {% for file in article.data_figure_files.all %}
                             <tr>
+                                <td><input type="checkbox" name="file" value="{{ file.id }}"
+                                           {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Data/Figure</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
-                                <td><a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                                <td><input type="checkbox" name="file" value="{{ file.id }}" {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
+                                <td>
+                                    <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i
+                                            class="fa fa-cloud-upload">&nbsp;</i></a></td>
+
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                    <button class="button success" type="submit">Add Files</button>
+
+                    <button class="button success" type="submit">Select Files for Review</button>
                     <a href="{% url 'review_in_review' article.pk %}" class="button alert" type="submit">Cancel</a>
                 </form>
             </div>
         </div>
-
-
+    </div>
+    <div class="large-4 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Upload Files</h2>
+            </div>
+            <div class="content">
+                <p>If you want to upload a file for review that isn't already linked to this article, you can do so here. Note, if you simply want to
+                anonymise the existing manuscript, use the "Replace" button in the table.</p>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="review_file">
+                    <button name="upload" class="success button"><i class="fa fa-upload">&nbsp;</i>Upload File</button>
+                </form>
+            </div>
+        </div>
     </div>
 
 {% endblock body %}

@@ -64,6 +64,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "<p>Displayed on the Submission pages. You should update this to display the Journal's acceptance criteria.",
+            "is_translatable": true,
+            "name": "acceptance_criteria",
+            "pretty_name": "Acceptance Criteria",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Displayed on the About and Submission pages. You should update this with an ordered list of submission requirements.",
             "is_translatable": true,
             "name": "submission_checklist",
@@ -1429,6 +1444,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "Enables the Non Specialist Summary submission field.",
+            "is_translatable": false,
+            "name": "submission_summary",
+            "pretty_name": "Non Specialist Summary",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Journal's twitter handle.",
             "is_translatable": false,
             "name": "twitter_handle",
@@ -2317,6 +2347,21 @@
         },
         "group": {
             "name": "general"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Enables reviewer form download link.",
+            "is_translatable": false,
+            "name": "reviewer_form_download",
+            "pretty_name": "Review Form Download",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         }
     },
     {

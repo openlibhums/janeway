@@ -8,12 +8,17 @@ from identifiers import models
 
 
 class DOIAdmin(admin.ModelAdmin):
-    """Displays Setting objects in the Django admin interface."""
     list_display = ('identifier', 'resolves_to', 'expected_to_resolve_to', 'checked')
+    raw_id_fields = ('article', 'identifier')
+
+
+class Identifier(admin.ModelAdmin):
+    list_display = ('pk', 'id_type', 'identifier', 'enabled', 'article')
+    raw_id_fields = ('article',)
 
 
 admin_list = [
-    (models.Identifier,),
+    (models.Identifier, Identifier),
     (models.BrokenDOI, DOIAdmin),
 ]
 

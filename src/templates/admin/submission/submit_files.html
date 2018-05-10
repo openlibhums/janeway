@@ -9,7 +9,7 @@
 {% block body %}
 
     <article class="box">
-        <div class="row">
+        <div class="row expanded">
             {% if error %}
                 <p>**{{ error }}**</p>
             {% endif %}
@@ -17,15 +17,17 @@
             {% include "submission/timeline.html" with data=article %}
         </div>
 
-        <div class="row">
+        <div class="row expanded">
             <div class="large-12 columns">
 
                 <p><strong>{% trans "Submission guidelines" %}</strong>: {% blocktrans %}To upload a file, select it
                     using one of the 'Choose file' buttons, then upload it with the 'Upload file' button next to it. You
                     will then be asked for some additional information (label, description etc.){% endblocktrans %}</p>
-                <h4>{% trans "Manuscript File" %}</h4>
-                <div class="row">
-                    <div class="large-4 columns">
+                <div class="title-area">
+                    <h2>{% trans "Manuscript File" %}</h2>
+                </div>
+                <div class="row expanded">
+                    <div class="large-3 columns">
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             <h4></h4>
@@ -34,7 +36,7 @@
                             </a>
                         </form>
                     </div>
-                    <div class="large-8 columns col-md-offset-1">
+                    <div class="large-9 columns col-md-offset-1">
                         <table class="table table-condensed small">
                             <tr>
                                 <th>{% trans "Label" %}</th>
@@ -53,7 +55,7 @@
                                                     class="fa fa-trash"></i></button>
                                         </td>
                                     </tr>
-                                {% empty %}
+                                    {% empty %}
                                     <tr>
                                         <td colspan="3">{% trans "No files uploaded" %}</td>
                                     </tr>
@@ -62,41 +64,45 @@
                         </table>
                     </div>
                 </div>
-                <hr/>
-                <h4>Figure/Data Files</h4>
-                <div class="row">
-                    <div class="large-4 columns">
-                        <a href="#" data-open="data" class="button success" name="data"><i class="fa fa-upload">
-                            &nbsp;</i>{% trans "Upload" %}
-                        </a>
+
+                {% if request.journal.submissionconfiguration.figures_data %}
+                    <div class="title-area">
+                        <h2>{% trans 'Figures and Date Files' %}</h2>
                     </div>
-                    <div class="large-8 columns col-md-offset-1">
-                        <table class="table table-condensed small">
-                            <tr>
-                                <th>{% trans "Label" %}</th>
-                                <th>{% trans "File Name" %}</th>
-                                <th></th>
-                            </tr>
-                            <form method="POST">
-                                {% csrf_token %}
-                                {% for file in article.data_figure_files.all %}
-                                    <tr>
-                                        <td>{{ file.label }}</td>
-                                        <td>{{ file }}</td>
-                                        <td>
-                                            <button name="delete" type="submit" value="{{ file.pk }}"><i
-                                                    class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="3">{% trans "No files uploaded" %}</td>
-                                    </tr>
-                                {% endfor %}
-                            </form>
-                        </table>
+                    <div class="row expanded">
+                        <div class="large-3 columns">
+                            <a href="#" data-open="data" class="button success" name="data"><i class="fa fa-upload">
+                                &nbsp;</i>{% trans "Upload" %}
+                            </a>
+                        </div>
+                        <div class="large-9 columns col-md-offset-1">
+                            <table class="table table-condensed small">
+                                <tr>
+                                    <th>{% trans "Label" %}</th>
+                                    <th>{% trans "File Name" %}</th>
+                                    <th></th>
+                                </tr>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {% for file in article.data_figure_files.all %}
+                                        <tr>
+                                            <td>{{ file.label }}</td>
+                                            <td>{{ file }}</td>
+                                            <td>
+                                                <button name="delete" type="submit" value="{{ file.pk }}"><i
+                                                        class="fa fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="3">{% trans "No files uploaded" %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </form>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
 
 

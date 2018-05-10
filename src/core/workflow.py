@@ -109,7 +109,8 @@ def create_default_workflow(journal):
                                                             handshake_url=element['handshake_url'],
                                                             stage=element['stage'],
                                                             defaults={'order': index,
-                                                                      'article_url': element.get('article_url')})
+                                                                      'article_url': element.get('article_url'),
+                                                                      'jump_url': element.get('jump_url')})
 
         workflow.elements.add(e)
 

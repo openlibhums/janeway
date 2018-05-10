@@ -32,6 +32,19 @@
     <tr>
         <td colspan="4">{{ article.abstract|safe }}</td>
     </tr>
+    {% if journal_settings.general.submission_summary %}
+        <tr>
+            <th colspan="4">Non Specialist Summary</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                {% if article.competing_interests %}{{ article.non_specialist_summary|safe }}
+                {% else %}
+                    No Summary Supplied
+                {% endif %}
+            </td>
+        </tr>
+    {% endif %}
     <tr>
         <th colspan="4">Comments to Editor</th>
     </tr>
@@ -61,24 +74,38 @@
 <div class="title-area">
     <h2>Authors</h2>
 </div>
+
 <table class="small" id="unassigned">
     <tr>
         <th>Name</th>
         <th>Email</th>
         <th>Primary?</th>
     </tr>
-    {% if not article.frozenauthor_set.all %}
-        {% for order in article.articleauthororder_set.all %}
-            <tr>
-                <td>{{ order.author.full_name }}</td>
-                <td>{{ order.author.email }}</td>
-                <td>{% if order.author == article.correspondence_author %}
-                    <i class="fa fa-check-circle" style="color: green;"></i>
-                {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-    {% else %}
+    {% for order in article.articleauthororder_set.all %}
+        <tr>
+            <td>{{ order.author.full_name }}</td>
+            <td>{{ order.author.email }}</td>
+            <td>{% if order.author == article.correspondence_author %}
+                <i class="fa fa-check-circle" style="color: green;"></i>
+            {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% if article.frozenauthor_set.all %}
+    <div class="title-area">
+        <h2>Frozen Authors</h2>
+    </div>
+
+    <p>These records are those of the article authors frozen at the point of submission.</p>
+
+    <table class="small" id="unassigned">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Primary?</th>
+        </tr>
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
@@ -89,8 +116,9 @@
                 </td>
             </tr>
         {% endfor %}
-    {% endif %}
-</table>
+    </table>
+{% endif %}
+
 <div class="title-area">
     <h2>Editors</h2>
 </div>

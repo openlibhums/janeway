@@ -1,4 +1,5 @@
-import hashlib, hmac
+import hashlib
+import hmac
 
 from django.conf import settings
 

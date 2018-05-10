@@ -19,6 +19,9 @@ class ProductionAssignment(models.Model):
     class Meta:
         unique_together = ('article', 'production_manager')
 
+    def __str__(self):
+        return 'PM Assignment {pk}'.format(pk=self.pk)
+
     def typeset_tasks(self):
         return self.typesettask_set.all()
 

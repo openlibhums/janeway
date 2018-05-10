@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 
-from core import models as core_models
+from core import models as core_models, files
 from events import logic as event_logic
 from utils import render_template
 from proofing import models
@@ -68,6 +68,12 @@ def get_galleys_from_post(request):
     galley_id_list = request.POST.getlist('galleys_for_proofing')
 
     return [core_models.Galley.objects.get(pk=galley_id) for galley_id in galley_id_list]
+
+
+def get_files_from_post(request):
+    file_id_list = request.POST.getlist('files_for_proofing')
+
+    return [core_models.File.objects.get(pk=file_id) for file_id in file_id_list]
 
 
 def get_notify_proofreader(request, article, proofing_task):
@@ -203,3 +209,18 @@ def get_typesetters(article, proofing_task):
     typesetters = [task.typesetter.pk for task in correction_tasks]
 
     return core_models.AccountRole.objects.filter(role__slug='typesetter').exclude(user__pk__in=typesetters)
+
+
+def handle_annotated_galley_upload(request, proofing_task, article):
+    uploaded_files = request.FILES.getlist('file')
+
+    if uploaded_files:
+        for file in uploaded_files:
+            new_file = files.save_file_to_article(file, article, request.user)
+            new_file.label = 'Annotated Proof'
+            new_file.save()
+            proofing_task.proofed_files.add(new_file)
+            messages.add_message(request, messages.SUCCESS, 'Annotated file uploaded.')
+        return None
+    else:
+        return 'uploadbox'

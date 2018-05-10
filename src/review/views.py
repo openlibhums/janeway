@@ -14,10 +14,11 @@ from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
-from review import models, logic, forms
+from review import models, logic, forms, hypothesis
 from security.decorators import editor_user_required, reviewer_user_required, reviewer_user_for_assignment_required, \
     article_edit_user_required, file_user_required, article_decision_not_made, article_author_required, \
     editor_is_not_author, senior_editor_user_required, section_editor_draft_decisions
@@ -352,6 +353,20 @@ def add_files(request, article_id, round_id):
     review_round = get_object_or_404(models.ReviewRound.objects.prefetch_related('review_files'), pk=round_id)
 
     if request.POST:
+
+        if 'upload' in request.POST:
+            review_files = request.FILES.getlist('review_file')
+
+            if review_files:
+                for review_file in review_files:
+                    new_file_obj = files.save_file_to_article(review_file, article, request.user, 'Review File')
+                    article.manuscript_files.add(new_file_obj)
+                messages.add_message(request, messages.SUCCESS, 'File uploaded')
+            else:
+                messages.add_message(request, messages.WARNING, 'No file uploaded.')
+
+            return redirect(reverse('review_add_files', kwargs={'article_id': article.pk, 'round_id': review_round.pk}))
+
         for file in request.POST.getlist('file'):
             file = core_models.File.objects.get(id=file)
             review_round.review_files.add(file)
@@ -399,12 +414,21 @@ def accept_review_request(request, assignment_id):
     :return: a context for a Django template
     """
 
+    access_code = logic.get_access_code(request)
+
     # update the ReviewAssignment object
-    assignment = models.ReviewAssignment.objects.get(Q(pk=assignment_id) &
-                                                     Q(is_complete=False) &
-                                                     Q(reviewer=request.user) &
-                                                     Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
-                                                     Q(date_accepted__isnull=True))
+    if access_code:
+        assignment = models.ReviewAssignment.objects.get(Q(pk=assignment_id) &
+                                                         Q(is_complete=False) &
+                                                         Q(access_code=access_code) &
+                                                         Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+                                                         Q(date_accepted__isnull=True))
+    else:
+        assignment = models.ReviewAssignment.objects.get(Q(pk=assignment_id) &
+                                                         Q(is_complete=False) &
+                                                         Q(reviewer=request.user) &
+                                                         Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+                                                         Q(date_accepted__isnull=True))
 
     assignment.date_accepted = timezone.now()
     assignment.save()
@@ -416,7 +440,7 @@ def accept_review_request(request, assignment_id):
                                    task_object=assignment.article,
                                    **kwargs)
 
-    return redirect(reverse('do_review', kwargs={'assignment_id': assignment.pk}))
+    return redirect(logic.generate_access_code_url('do_review', assignment, access_code))
 
 
 @reviewer_user_for_assignment_required
@@ -583,6 +607,9 @@ def do_review(request, assignment_id):
     form = forms.GeneratedForm(review_assignment=assignment)
     decision_form = forms.ReviewerDecisionForm(instance=assignment)
 
+    if 'review_file' in request.GET:
+        return logic.serve_review_file(assignment)
+
     if request.POST:
         if 'decline' in request.POST:
             return redirect(logic.generate_access_code_url('decline_review', assignment, access_code))
@@ -683,6 +710,11 @@ def add_review_assignment(request, article_id):
     user_list = logic.get_enrollable_users(request)
 
     modal = None
+
+    # Check if this review round has files
+    if not article.current_review_round_object().review_files.all():
+        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviwers.')
+        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
 
@@ -1746,6 +1778,47 @@ def preview_form(request, form_id):
     context = {
         'form': form,
         'generated_form': generated_form,
+    }
+
+    return render(request, template, context)
+
+
+@reviewer_user_for_assignment_required
+def hypothesis_review(request, assignment_id):
+    """
+    Rendering of the review form for user to complete.
+    :param request: the request object
+    :param assignment_id: ReviewAssignment PK
+    :return: a context for a Django template
+    """
+
+    access_code = logic.get_access_code(request)
+
+    if access_code:
+        assignment = models.ReviewAssignment.objects.get(
+            Q(pk=assignment_id) &
+            Q(is_complete=False) &
+            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(access_code=access_code)
+        )
+    else:
+        assignment = models.ReviewAssignment.objects.get(
+            Q(pk=assignment_id) &
+            Q(is_complete=False) &
+            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+            Q(reviewer=request.user)
+        )
+
+    pdf = assignment.review_round.review_files.get(mime_type='application/pdf')
+    hypothesis.create_hypothesis_account(assignment.reviewer)
+    grant_token = hypothesis.generate_grant_token(assignment.reviewer)
+
+    template = 'review/annotation_pdf_review.html'
+    context = {
+        'assignment': assignment,
+        'pdf': pdf,
+        'grant_token': grant_token,
+        'authority': settings.HYPOTHESIS_CLIENT_AUTHORITY,
     }
 
     return render(request, template, context)

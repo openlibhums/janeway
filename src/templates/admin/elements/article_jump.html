@@ -2,11 +2,9 @@
 <div class="dropdown-pane bottom small" id="articledropdown" data-dropdown>
     <ul>
         {% for stage in article.workflow_stages %}
-            <li>{% if stage.element.article_url %}
-                <a href="{% url stage.element.handshake_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
-                {% else %}
-                <a href="{% url stage.element.handshake_url %}">{{ stage.element.element_name|capfirst }}</a>
-            {% endif %}</li>
+            <li>
+                <a href="{% url stage.element.jump_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
+            </li>
         {% endfor %}
         <li><a href="{% url 'manage_article_log' article.pk %}">Log</a></li>
         {% if article.is_published %}

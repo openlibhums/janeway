@@ -1,0 +1,13 @@
+<div id="summarymodal" class="modal">
+    <div class="modal-content">
+        <h4>Non Specialist Summary</h4>
+        {% if article.non_specialist_summary %}
+            {{ article.non_specialist_summary|safe }}
+        {% else %}
+            <p>This article has no summary</p>
+        {% endif %}
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
+</div>

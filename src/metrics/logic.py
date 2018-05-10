@@ -176,13 +176,32 @@ def get_article_downloads(article):
     return historic_record.downloads + download_access_count
 
 
+def get_altmetrics(article):
+    alt_metrics = models.AltMetric.objects.filter(article=article)
+    alm_dict = {}
+    total = 0
+
+    for metric in alt_metrics:
+        if alm_dict.get(metric.source):
+            alm_dict[metric.source] = alm_dict[metric.source] + 1
+        else:
+            alm_dict[metric.source] = 1
+        total += 1
+
+    alm_dict['total'] = total
+
+    return alm_dict
+
+
 class ArticleMetrics:
     views = 0
     downloads = 0
+    alm = 0
 
     def __init__(self, article):
         self.views = get_article_views(article)
         self.downloads = get_article_downloads(article)
+        self.alm = get_altmetrics(article)
 
 
 def store_article_access(request, article, access_type, galley_type='view'):
@@ -191,7 +210,7 @@ def store_article_access(request, article, access_type, galley_type='view'):
         user_agent = parse_ua_string(request.META.get('HTTP_USER_AGENT', None))
     except TypeError:
         user_agent = None
-        
+
     counter_tracking_id = request.session.get('counter_tracking')
     identifier = counter_tracking_id if counter_tracking_id else shared.get_ip_address(request)
 

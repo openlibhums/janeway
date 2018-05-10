@@ -61,7 +61,7 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Review Files</h2>
-                    <a href="{% url 'review_download_all_files' assignment.pk %}" class="button"><i
+                    <a href="{% url 'review_download_all_files' assignment.pk %}{% if access_code %}?access_code={{ access_code }}{% endif %}" class="button"><i
                             class="fa fa-download">&nbsp;</i>Download all as ZIP</a>
                 </div>
                 <div class="content">
@@ -120,6 +120,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     <div class="title-area">
                         <h2>Review Form</h2>
+                        {% if journal_settings.general.reviewer_form_download %}<a class="button" href="{% url 'do_review' assignment.pk %}{% if access_code %}?access_code={{ access_code }}&review_file=True{% else %}?review_file=True{% endif %}">Download Review File (Docx)</a>{% endif %}
                     </div>
                     <div class="content">
                         <div class="row expanded">

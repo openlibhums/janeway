@@ -29,7 +29,7 @@
                         <div class="tabs-panel{% if forloop.first %} is-active{% endif %}"
                              id="tab{{ round.round_number }}">
                             <div class="content">
-                                <div class="row">
+                                <div class="row expanded">
                                     <div class="title-area">
                                         <h2>Files</h2>
                                         {% if round.round_number == article.current_review_round %}<a
@@ -63,6 +63,16 @@
                                                                     title="Remove"><i class="fa fa-trash action-icon">&nbsp;</i></span></a>
                                                         </li>
                                                     </ul>
+                                                </div>
+                                            </div>
+                                        {% empty %}
+                                            <div class="large-3 columns{% if forloop.last %} end{% endif %}">
+                                                <div class="callout breakdown file" data-equalizer-watch>
+                                                    <div class="callout-title">
+                                                        <h4>No Review Files</h4>
+                                                    </div>
+                                                    <p>Click "Add Files" to select files for review.</p>
+
                                                 </div>
                                             </div>
                                         {% endfor %}
@@ -233,6 +243,17 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="title-area">
+                    <h2>Steps</h2>
+                </div>
+                <div class="content">
+                    <ol>
+                        <li>Add files to your review round.</li>
+                        <li>Select reviewers for your review round.</li>
+                        <li>Once reviews are complete decide if revisions are required, if they are: add a revision task.</li>
+                        <li>After revisions are complete, you may want to add a new round of peer review, go to: 1.</li>
+                    </ol>
+                </div>
             </div>
             <div class="box">
                 <div class="title-area">
@@ -264,6 +285,7 @@
                                 <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
                                         class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
                                 </li>
+                            {% elif article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
                                 <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
                                         class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
                                     Article</a></li>
@@ -274,7 +296,7 @@
             </div>
         </div><!--/col-lg-12 -->
     </div>
-    {% include "elements/summary_modal.html" %}
+    {% include "admin/elements/summary_modal.html" %}
 
 {% endblock body %}
 

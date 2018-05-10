@@ -70,7 +70,7 @@ def active(request):
     try:
         url_list = request.path.split('/')
         return {'active': url_list[1]}
-    except IndexError:
+    except (IndexError, AttributeError):
         return {'active': ''}
 
 

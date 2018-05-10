@@ -1,12 +1,18 @@
 {% load foundation %}
-<div class="small reveal" id="identifier" data-reveal>
-    <h5>{% if identifier %}Edit {{ identifier.id_type }} ({{identifier.pk }}){% else %}Add New Identifier {% endif %}</h5>
-    {% include "elements/forms/errors.html" with form=form %}
-    <form method="POST">
+<div class="reveal small" id="identifier" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% if identifier %}Edit {{ identifier.id_type }} ({{identifier.pk }}){% else %}Add New Identifier {% endif %}</h4>
+        </div>
+        <div class="card-section">
+            <form method="POST">
         {% csrf_token %}
         {{ form|foundation }}
         <button type="submit" name="ident_button" class="small success button">Save Identifier</button>
     </form>
+        </div>
+    </div>
     <button class="close-button" data-close aria-label="Close reveal" type="button">
         <span aria-hidden="true">&times;</span>
     </button>

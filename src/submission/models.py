@@ -290,6 +290,8 @@ class Article(models.Model):
     subtitle = models.CharField(max_length=300, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
     abstract = models.TextField(blank=True)
+    non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
+                                                                               ' non specialists.')
     keywords = models.ManyToManyField(Keyword, blank=True, null=True)
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
@@ -310,11 +312,14 @@ class Article(models.Model):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
-    competing_interests = models.TextField(blank=True, null=True)
+    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any competing or conflict"
+                                                                            "of insterests in the publication of this "
+                                                                            "article please state them here.")
 
     # Files
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')
     data_figure_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='data_figure_files')
+    supplementary_files = models.ManyToManyField('core.SupplementaryFile', null=True, blank=True, related_name='supp')
 
     # Galley
     render_galley = models.ForeignKey('core.Galley', related_name='render_galley', blank=True, null=True,
@@ -340,7 +345,8 @@ class Article(models.Model):
     publication_fees = models.BooleanField(default=False)
     submission_requirements = models.BooleanField(default=False)
     copyright_notice = models.BooleanField(default=False)
-    comments_editor = models.TextField(blank=True, null=True, verbose_name="Comments to the Editor")
+    comments_editor = models.TextField(blank=True, null=True, verbose_name="Comments to the Editor",
+                                       help_text="Add any comments you'd like the editor to consider here.")
 
     # an image of recommended size: 750 x 324
     large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='image_file',
@@ -932,6 +938,31 @@ class Article(models.Model):
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
 
+    def close_core_workflow_objects(self):
+        from review import models as review_models
+        from copyediting import models as copyedit_models
+        from production import models as prod_models
+        from proofing import models as proof_models
+
+        review_models.ReviewAssignment.objects.filter(article=self).update(date_complete=timezone.now(),
+                                                                           is_complete=True)
+
+        copyedit_models.CopyeditAssignment.objects.filter(article=self).update(copyeditor_completed=timezone.now(),
+                                                                               copyedit_acknowledged=True,
+                                                                               copyedit_accepted=timezone.now(),
+                                                                               date_decided=timezone.now(),
+                                                                               decision='cancelled')
+        copyedit_models.AuthorReview.objects.filter(assignment__article=self).update(date_decided=timezone.now())
+
+        prod_models.ProductionAssignment.objects.filter(article=self).update(closed=timezone.now())
+        prod_models.TypesetTask.objects.filter(assignment__article=self).update(completed=timezone.now())
+
+        proof_models.ProofingAssignment.objects.filter(article=self).update(completed=timezone.now())
+        proof_models.ProofingTask.objects.filter(round__assignment__article=self).update(cancelled=True)
+        proof_models.TypesetterProofingTask.objects.filter(proofing_task__round__assignment__article=self).update(
+            cancelled=True
+        )
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
@@ -973,8 +1004,6 @@ class FrozenAuthor(models.Model):
         else:
             return self.first_name
 
-        return '{0} {1}{2}'.format(self.last_name, first_initial, middle_initial)
-
     def affiliation(self):
         if self.department:
             return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
@@ -1003,7 +1032,7 @@ class Section(TranslatableModel):
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.safe_translation_getter('name', str(self.pk))
+        return self.name
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
@@ -1040,7 +1069,7 @@ class Licence(models.Model):
         ordering = ('order', 'name')
 
     def __str__(self):
-        return u'%s' % self.short_name
+        return '{short_name}'.format(short_name=self.short_name)
 
     def object(self):
         if not self.journal:
@@ -1117,3 +1146,54 @@ class ArticleAuthorOrder(models.Model):
 
     class Meta:
         ordering = ('order',)
+
+
+class SubmissionConfiguration(models.Model):
+    journal = models.OneToOneField('journal.Journal')
+
+    publication_fees = models.BooleanField(default=True)
+    submission_check = models.BooleanField(default=True)
+    copyright_notice = models.BooleanField(default=True)
+    competing_interests = models.BooleanField(default=True)
+    comments_to_the_editor = models.BooleanField(default=True)
+
+    subtitle = models.BooleanField(default=True)
+    abstract = models.BooleanField(default=True)
+    language = models.BooleanField(default=True)
+    license = models.BooleanField(default=True)
+    keywords = models.BooleanField(default=True)
+    section = models.BooleanField(default=True)
+
+    figures_data = models.BooleanField(default=True, verbose_name=_('Figures and Data Files'))
+
+    default_license = models.ForeignKey(Licence, null=True,
+                                        help_text=_('The default license applied when no option is presented'))
+    default_language = models.CharField(max_length=200, null=True, choices=LANGUAGE_CHOICES,
+                                        help_text=_('The default language of articles when lang is hidden'))
+    default_section = models.ForeignKey(Section, null=True,
+                                        help_text=_('The default section of articles when no option is presented'))
+
+    def __str__(self):
+        return 'SubmissionConfiguration for {0}'.format(self.journal.name)
+
+    def lang_section_license_width(self):
+        if self.language and self.license:
+            return '4'
+        elif not self.language and not self.license:
+            return '12'
+        elif not self.language and self.license:
+            return '6'
+        elif self.language and not self.license:
+            return '6'
+
+    def handle_defaults(self, article):
+        if not self.section and self.default_section:
+            article.section = self.default_section
+
+        if not self.language and self.default_language:
+            article.language = self.default_language
+
+        if not self.license and self.default_license:
+            article.license = self.default_license
+
+        article.save()

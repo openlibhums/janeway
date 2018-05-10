@@ -23,64 +23,101 @@
         <div class="title-area">
             <h2>Current galleys and data/figure files</h2>
         </div>
-            {% if not proofing_manager %}
-                <p>You can download and preview your assigned galleys and then provide notes to the Editor so that they
-                    can
-                    make or request further changes from the typesetter.</p>{% endif %}
+        {% if not proofing_manager %}
+            <p>You can download and preview your assigned galleys and then provide notes to the Editor so that they
+                can make or request further changes from the typesetter. Click on the proof title to view more
+                information about it.</p>
+            <p>You have two options:</p>
+            <ol>
+                <li>Add notes using the rich text editor (you can add multiple notes)</li>
+                <li>Upload an annotated version of your proofs with the changes highlighted</li>
+            </ol>
 
-            <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
-                {% for galley in proofing_task.galleys_for_proofing.all %}
-                    <li class="accordion-item" data-accordion-item>
-                        <a href="#" class="accordion-title">{{ galley.label }} ({{ galley.file.original_filename }})</a>
-                        <div class="accordion-content" data-tab-content>
-                            <div class="row expanded">
-                                <div class="large-10 columns">
+        {% endif %}
+
+        <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+            {% for galley in proofing_task.galleys_for_proofing.all %}
+                <li class="accordion-item" data-accordion-item>
+                    <a href="#" class="accordion-title">{{ galley.label }} ({{ galley.file.original_filename }})</a>
+                    <div class="accordion-content" data-tab-content>
+                        <div class="row expanded">
+                            <div class="large-10 columns">
                                     <textarea id='{{ galley.pk }}_new_note' class="form-control" rows="3"
                                               placeholder="Write a note..."></textarea>
-                                    <button type="submit" onclick="submit_note({{ proofing_task.pk }}, {{ galley.pk }})"
-                                            class="button success">Save Note
-                                    </button>
-                                    <div class="row expanded {{ galley.pk }}-note-holder"
-                                         id="{{ galley.pk }}-note-holder">
-                                        {% for note in galley.note_set.all %}
-                                            {% include "proofing/note_snip.html" with note=note %}
-                                        {% endfor %}
-                                    </div>
+                                <button type="submit" onclick="submit_note({{ proofing_task.pk }}, {{ galley.pk }})"
+                                        class="button success">Save Note
+                                </button>
+                                <div class="row expanded {{ galley.pk }}-note-holder"
+                                     id="{{ galley.pk }}-note-holder">
+                                    {% for note in galley.note_set.all %}
+                                        {% include "proofing/note_snip.html" with note=note %}
+                                    {% endfor %}
                                 </div>
-                                <div class="large-2 columns">
-                                    <a class="button small success"
-                                       href="{% url 'proofing_download' proofing_task.pk galley.file.pk %}"><i
-                                            class="fa fa-download">&nbsp;</i>Download</a>
-                                    <a class="button small success"
-                                       href="{% url 'preview_galley' proofing_task.pk galley.pk %}" target="_blank"><i
-                                            class="fa fa-eye">&nbsp;</i>View</a>
-                                </div>
+                                {% if not proofing_manager %}
+                                    <p>When you've added all the notes you need to, you can mark this task as complete
+                                        and the Proofing
+                                        Manager will be notified.</p>
+                                {% endif %}
+                            </div>
+                            <div class="large-2 columns">
+                                <a class="button small success"
+                                   href="{% url 'proofing_download' proofing_task.pk galley.file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i>Download</a>
+                                <a class="button small success"
+                                   href="{% url 'preview_galley' proofing_task.pk galley.pk %}" target="_blank"><i
+                                        class="fa fa-eye">&nbsp;</i>View</a>
                             </div>
                         </div>
-                    </li>
-                {% endfor %}
-            </ul>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
 
-            {% if not proofing_manager %}
-                <p>When you've added all the notes you need to, you can mark this task as complete and the Proofing
-                    Manager will be notified.</p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <button class="button success float-right" name="complete">Mark Task Compelte</button>
-                </form>
-            {% else %}
-                <div class="float-right">
-                    <a href="{% url 'proofing_article' article.pk %}" class="button alert" name="complete">Go Back</a>
-                    <a href="{% url 'request_typesetting_changes' article.pk proofing_task.pk %}" class="button success"
-                       name="complete">Request Changes</a>
-                </div>
-            {% endif %}
-        </div>
+
+            <div class="title-area">
+                <h2>Annotated File</h2>
+            </div>
+            <table>
+                <tr>
+                    <th>Label</th>
+                    <th>Filename</th>
+                    {% if proofing_manager %}<th>Download</th>{% endif %}
+                </tr>
+                {% for file in proofing_task.proofed_files.all %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    {% if proofing_manager %}<td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>{% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td>No annotated files have been uploaded yet.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% if not proofing_manager %}
+            <a href="#" class="button" data-open="uploadbox">Upload Annotated File</a>
+            <form method="POST">
+                {% csrf_token %}
+                <button class="button success float-right" name="complete">Mark Task Compelte</button>
+            </form>
+        {% else %}
+            <div class="float-right">
+                <a href="{% url 'proofing_article' article.pk %}" class="button alert" name="complete">Go Back</a>
+                <a href="{% url 'request_typesetting_changes' article.pk proofing_task.pk %}" class="button success"
+                   name="complete">Request Changes</a>
+            </div>
+        {% endif %}
     </div>
+    </div>
+    {% include "elements/proofing/annotated_file.html" %}
 {% endblock body %}
 
 {% block js %}
     <script src="{% static "admin/js/csrf.js" %}"></script>
     <script src="{% static "admin/js/proofing_note.js" %}"></script>
     {% include "elements/jqte.html" %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
 {% endblock js %}

@@ -27,11 +27,26 @@ class ArticleStart(forms.ModelForm):
                   'competing_interests')
 
     def __init__(self, *args, **kwargs):
-        ci = kwargs.pop('ci', False)
+        journal = kwargs.pop('journal', False)
         super(ArticleStart, self).__init__(*args, **kwargs)
 
-        if not ci:
-            self.fields['competing_interests'].required = False
+        self.fields['competing_interests'].label = ''
+        self.fields['comments_editor'].label = ''
+
+        if not journal.submissionconfiguration.publication_fees:
+            self.fields.pop('publication_fees')
+
+        if not journal.submissionconfiguration.submission_check:
+            self.fields.pop('submission_requirements')
+
+        if not journal.submissionconfiguration.copyright_notice:
+            self.fields.pop('copyright_notice')
+
+        if not journal.submissionconfiguration.competing_interests:
+            self.fields.pop('competing_interests')
+
+        if not journal.submissionconfiguration.comments_to_the_editor:
+            self.fields.pop('comments_editor')
 
 
 class ArticleInfo(forms.ModelForm):
@@ -39,8 +54,8 @@ class ArticleInfo(forms.ModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('title', 'subtitle', 'abstract', 'language', 'section', 'license', 'primary_issue',
-                  'page_numbers', 'is_remote', 'remote_url')
+        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary', 'language', 'section', 'license',
+                  'primary_issue', 'page_numbers', 'is_remote', 'remote_url')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
@@ -50,6 +65,9 @@ class ArticleInfo(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         elements = kwargs.pop('additional_fields', None)
+        submission_summary = kwargs.pop('submission_summary', None)
+        journal = kwargs.pop('journal', None)
+
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
@@ -61,6 +79,30 @@ class ArticleInfo(forms.ModelForm):
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()
 
+            if submission_summary:
+                self.fields['non_specialist_summary'].required = True
+
+            # Pop fields based on journal.submissionconfiguration
+            if journal:
+                if not journal.submissionconfiguration.subtitle:
+                    self.fields.pop('subtitle')
+
+                if not journal.submissionconfiguration.abstract:
+                    self.fields.pop('abstract')
+
+                if not journal.submissionconfiguration.language:
+                    self.fields.pop('language')
+
+                if not journal.submissionconfiguration.license:
+                    self.fields.pop('license')
+
+                if not journal.submissionconfiguration.keywords:
+                    self.fields.pop('keywords')
+
+                if not journal.submissionconfiguration.section:
+                    self.fields.pop('section')
+
+            # Add additional fields
             if elements:
                 for element in elements:
                     if element.kind == 'text':
@@ -103,7 +145,7 @@ class ArticleInfo(forms.ModelForm):
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
 
-        posted_keywords = self.cleaned_data['keywords'].split(',')
+        posted_keywords = self.cleaned_data.get('keywords', '').split(',')
         for keyword in posted_keywords:
             if keyword != '':
                 new_keyword, c = models.Keyword.objects.get_or_create(word=keyword)
@@ -125,6 +167,8 @@ class ArticleInfo(forms.ModelForm):
                         field_answer.save()
                     except models.FieldAnswer.DoesNotExist:
                         field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
+
+            request.journal.submissionconfiguration.handle_defaults(article)
 
         if commit:
             article.save()
@@ -233,4 +277,18 @@ class LicenseForm(forms.ModelForm):
         exclude = (
             'journal',
             'press',
+        )
+
+
+class ConfiguratorForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ConfiguratorForm, self).__init__(*args, **kwargs)
+        self.fields['default_section'].queryset = models.Section.objects.filter(journal=self.instance.journal)
+        self.fields['default_license'].queryset = models.Licence.objects.filter(journal=self.instance.journal)
+
+    class Meta:
+        model = models.SubmissionConfiguration
+        exclude = (
+            'journal',
         )

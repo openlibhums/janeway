@@ -20,6 +20,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.urls import reverse
 
 if settings.URL_CONFIG == 'path':
     from core.monkeypatch import reverse
@@ -384,6 +387,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         subjects = preprint_models.Subject.objects.filter(editors__exact=self)
         return subjects
 
+    @property
+    def hypothesis_username(self):
+        username = '{pk}{first_name}{last_name}'.format(pk=self.pk,
+                                                        first_name=self.first_name,
+                                                        last_name=self.last_name)[:30]
+        return username.lower()
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
@@ -433,8 +443,8 @@ class Role(models.Model):
 
 
 class AccountRole(models.Model):
-    journal = models.ForeignKey('journal.Journal')
     user = models.ForeignKey(Account)
+    journal = models.ForeignKey('journal.Journal')
     role = models.ForeignKey(Role)
 
     class Meta:
@@ -639,6 +649,21 @@ class File(models.Model):
     def checksum(self):
         return files.checksum(self.self_article_path())
 
+    def public_download_name(self):
+        article = self.article
+        if article:
+            file_elements = os.path.splitext(self.original_filename)
+            extension = file_elements[-1]
+            author_surname = article.correspondence_author.last_name if article.correspondence_author else \
+                article.frozen_authors()[0].last_name
+            file_name = '{code}-{pk}-{surname}{extension}'.format(code=article.journal.code,
+                                                                  pk=article.pk,
+                                                                  surname=author_surname,
+                                                                  extension=extension)
+            return file_name.lower()
+        else:
+            return self.original_filename
+
     def __str__(self):
         return u'%s' % self.original_filename
 
@@ -738,6 +763,36 @@ class Galley(models.Model):
         elif self.file.mime_type == "application/xml" or self.file.mime_type == 'text/xml':
             # perform an XSLT render
             return self.file.render_xml(self.article, galley=self)
+
+    def path(self):
+        url = reverse('article_download_galley', kwargs={'article_id': self.article.pk,
+                                                         'galley_id': self.pk})
+        base_url = self.article.journal.requestless_url()
+        return '{base_url}{url}'.format(base_url=base_url, url=url)
+
+
+class SupplementaryFile(models.Model):
+    file = models.ForeignKey(File)
+    doi = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.file.label
+
+    @property
+    def label(self):
+        return self.file.label
+
+    def path(self):
+        return self.file.self_article_path()
+
+    def mime_type(self):
+        return files.file_path_mime(self.path())
+
+    def url(self):
+        base_url = self.file.article.journal.requestless_url()
+        path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
+                                                             'supp_file_id': self.pk})
+        return '{base}{path}'.format(base=base_url, path=path)
 
 
 class Task(models.Model):
@@ -844,7 +899,7 @@ class Contacts(models.Model):
         ordering = ('sequence', 'name')
 
     def __str__(self):
-        return "{0}, {1} - {2}".format(self.user.full_name(), self.journal, self.role)
+        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
 
 
 class Contact(models.Model):
@@ -879,16 +934,31 @@ class DomainAlias(models.Model):
 
 
 BASE_ELEMENTS = [
-    {'name': 'review', 'handshake_url': 'review_unassigned_article', 'stage': submission_models.STAGE_UNASSIGNED,
+    {'name': 'review',
+     'handshake_url': 'review_unassigned_article',
+     'jump_url': 'review_in_review',
+     'stage': submission_models.STAGE_UNASSIGNED,
      'article_url': True},
-    {'name': 'copyediting', 'handshake_url': 'article_copyediting',
-     'stage': submission_models.STAGE_EDITOR_COPYEDITING, 'article_url': True},
-    {'name': 'production', 'handshake_url': 'production_list', 'stage': submission_models.STAGE_TYPESETTING,
+    {'name': 'copyediting',
+     'handshake_url': 'article_copyediting',
+     'jump_url': 'article_copyediting',
+     'stage': submission_models.STAGE_EDITOR_COPYEDITING,
+     'article_url': True},
+    {'name': 'production',
+     'handshake_url': 'production_list',
+     'jump_url': 'production_article',
+     'stage': submission_models.STAGE_TYPESETTING,
      'article_url': False},
-    {'name': 'proofing', 'handshake_url': 'proofing_list', 'stage': submission_models.STAGE_PROOFING,
+    {'name': 'proofing',
+     'handshake_url': 'proofing_list',
+     'jump_url': 'proofing_article',
+     'stage': submission_models.STAGE_PROOFING,
      'article_url': False},
-    {'name': 'prepublication', 'handshake_url': 'publish_article',
-     'stage': submission_models.STAGE_READY_FOR_PUBLICATION, 'article_url': True}
+    {'name': 'prepublication',
+     'handshake_url': 'publish_article',
+     'jump_url': 'publish_article',
+     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
+     'article_url': True}
 ]
 
 
@@ -901,6 +971,7 @@ class WorkflowElement(models.Model):
     journal = models.ForeignKey('journal.Journal')
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
+    jump_url = models.CharField(max_length=255)
     stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
     article_url = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=20)
@@ -965,3 +1036,10 @@ class LoginAttempt(models.Model):
     ip_address = models.GenericIPAddressField()
     user_agent = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
+
+
+@receiver(post_save, sender=Account)
+def setup_default_workflow(sender, instance, created, **kwargs):
+    if created and not instance.signature:
+        instance.signature = instance.full_name()
+        instance.save()

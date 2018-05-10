@@ -168,7 +168,10 @@ class Journal(models.Model):
         else:
             return False
 
-    def full_url(self, request):
+    def full_url(self, request=None):
+        if not request:
+            return self.requestless_url()
+
         return 'http{0}://{1}{2}'.format(
             's' if request.is_secure() else '',
             self.domain,
@@ -178,6 +181,15 @@ class Journal(models.Model):
         base_url = self.full_url(request)
         url_path = reverse(url_name, kwargs=kwargs)
         return "{0}{1}".format(base_url, url_path)
+
+    def requestless_url(self):
+        from core.middleware import GlobalRequestMiddleware
+        local_request = GlobalRequestMiddleware.get_current_request()
+
+        if local_request.journal:
+            return local_request.journal_base_url
+        else:
+            return local_request.press_base_url
 
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
@@ -561,6 +573,9 @@ class BannedIPs(models.Model):
     ip = models.GenericIPAddressField()
     date_banned = models.DateField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = "Banned IPs"
+
 
 def notification_type():
     return (
@@ -599,3 +614,28 @@ def create_sites_folder(sender, instance, created, **kwargs):
 def setup_default_workflow(sender, instance, created, **kwargs):
     if created:
         workflow.create_default_workflow(instance)
+
+
+@receiver(post_save, sender=Journal)
+def setup_default_form(sender, instance, created, **kwargs):
+    if created:
+        from review import models as review_models
+
+        default_review_form = review_models.ReviewForm.objects.create(
+            journal=instance,
+            name='Default Form',
+            slug='default-form',
+            intro='Please complete the form below.',
+            thanks='Thank you for completing the review.'
+        )
+
+        main_element = review_models.ReviewFormElement.objects.create(
+            name='Review',
+            kind='textarea',
+            required=True,
+            order=1,
+            width='large-12 columns',
+            help_text='Please add as much detail as you can.'
+        )
+
+        default_review_form.elements.add(main_element)

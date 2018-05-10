@@ -17,17 +17,35 @@
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
                 <div class="title-area">
-                    <h2>Settings</h2>
+                    <h2>Journal Settings</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'home_settings_index' %}">Journal Home Settings</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">Journal Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "review" %}">Review Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
                         <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
+                    </div>
+                </div>
+
+                <div class="title-area">
+                    <h2>Review</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_edit_settings_group' "review" %}">Review Settings</a>
+                        <a class="button" href="{% url 'review_review_forms' %}">Review Forms</a>
+                    </div>
+                </div>
+
+                <div class="title-area">
+                    <h2>Submission Setup</h2>
+                </div>
+
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a>
+                        <a class="button" href="{% url 'submission_configurator' %}">Submission Fields Configurator</a>
+                        <a class="button" href="{% url 'submission_fields' %}">Additional Submission Fields</a>
                     </div>
                 </div>
 
@@ -36,29 +54,47 @@
 
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
+
                 <div class="title-area">
-                    <h2>Managers</h2>
+                    <h2>Content</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
                         <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
-                        <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
-                        <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
                         <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
                         <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
-                        <a class="button" href="{% url 'review_review_forms' %}">Review Forms</a>
+                    </div>
+                </div>
+
+                <div class="title-area">
+                    <h2>Articles & Issues</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
+                        <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
                         <a class="button" href="{% url 'core_manager_sections' %}">Article Sections</a>
-                        <a class="button" href="{% url 'submission_fields' %}">Additional Submission Fields</a>
                         <a class="button" href="{% url 'submission_licenses' %}">Licence Manager</a>
                     </div>
                 </div>
+
             </div>
         </div>
 
 
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Crossref</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
+                    </div>
+                </div>
+
                 <div class="title-area">
                     <h2>Users</h2>
                 </div>

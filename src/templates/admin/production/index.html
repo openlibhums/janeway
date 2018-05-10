@@ -86,11 +86,18 @@
                     <p>Below is a list of tasks that are required to be complete in order to move the article to the
                         next stage.</p>
                     <p><i class="fa fa-check-circle">&nbsp;</i>Assign production manager: </p>
-                        {% for production_manager in production_managers %}
-                            <div class="line-item">
-                                <span class="title"><a href="{% url 'production_assign_article' article.pk production_manager.user.id %}">{{ production_manager.user.full_name }}</a></span>
-                              </div>
-                        {% endfor %}
+                    {% for production_manager in production_managers %}
+                        <div class="line-item">
+                            <span class="title">
+                                <a href="{% url 'production_assign_article' article.pk production_manager.user.id %}">{{ production_manager.user.full_name }}</a>
+                            </span>
+                        </div>
+                    {% endfor %}
+                    <div class="line-item">
+                        <span class="title">
+                            <a href="{% url 'core_manager_role' 'production' %}"><i class="fa fa-plus">&nbsp;</i>Enrol New Production Managers</a>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

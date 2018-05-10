@@ -45,6 +45,25 @@
         </div>
     </div>
     {% endif %}
+
+    {% if article.is_published %}
+    <div class="box">
+        <div class="title-area">
+            <h2>View and Download Stats</h2>
+            <table>
+                <tr>
+                    <th>Views</th>
+                    <td>{{ article.metrics.views }}</td>
+                </tr>
+                <tr>
+                    <th>Downloads</th>
+                    <td>{{ article.metrics.downloads }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="box">
         <div class="title-area">
             <h2>Tasks</h2>

@@ -14,9 +14,15 @@ class PressAdmin(SummernoteModelAdmin):
     list_display = ('name', 'domain', 'theme', 'is_secure')
 
 
+class PressSettingAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'is_boolean')
+    list_filter = ('is_boolean',)
+    search_fields = ('name', 'value')
+
+
 admin_list = [
     (models.Press, PressAdmin),
-    (models.PressSetting,)
+    (models.PressSetting, PressSettingAdmin)
 ]
 
 [admin.site.register(*t) for t in admin_list]

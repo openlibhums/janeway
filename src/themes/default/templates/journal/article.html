@@ -161,16 +161,32 @@
                         </li>
                     {% endfor %}
                 </ul>
+                {% if article.supplementary_files.all %}
+                    <h4>{% trans "Supplementary Files" %}</h4>
+                    <ul>
+                    {% for file in article.supplementary_files.all %}
+                        <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a></li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
                 <h4>{% trans "Information" %}</h4>
                 <ul>
                     <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
                     <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}<i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
                     <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" title="{{ article.license.text }}">{{ article.license.name }}</a></li>
+                    {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#summary">{% trans 'Non Specialist Summary' %}</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <h4>{% trans "Metrics" %}</h4>
                 <ul>
                     <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
                     <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                    {% if article.metrics.alm.twitter %}<li>{% trans "Twitter" %}: {{ article.metrics.alm.twitter }}</li>{% endif %}
+                    {% if article.metrics.alm.wikipedia %}<li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
+                    {% if article.metrics.alm.reddit %}<li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
                 </ul>
                 <h4>{% trans "Citation" %}</h4>
                 <div class="btn-group-vertical">
@@ -197,7 +213,10 @@
         </div>
     </div>
 
-{% include "elements/journal/citation_modals.html" %}
+    {% include "elements/journal/citation_modals.html" %}
+    {% if journal_settings.general.submission_summary %}
+        {% include "elements/journal/summary_modal.html" %}
+    {% endif %}
 
 {% endblock body %}
 

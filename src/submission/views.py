@@ -32,14 +32,13 @@ def start(request, type=None):
     :param type: string, None or 'preprint'
     :return: HttpRedirect or HttpResponse
     """
-    competing_interests = setting_handler.get_setting('general', 'submission_competing_interests', request.journal)
-    form = forms.ArticleStart(ci=competing_interests)
+    form = forms.ArticleStart(journal=request.journal)
 
     if not request.user.is_author(request):
         request.user.add_account_role('author', request.journal)
 
     if request.POST:
-        form = forms.ArticleStart(request.POST, ci=competing_interests)
+        form = forms.ArticleStart(request.POST, journal=request.journal)
 
         if form.is_valid():
             new_article = form.save(commit=False)
@@ -92,10 +91,17 @@ def submit_info(request, article_id):
     """
     article = get_object_or_404(models.Article, pk=article_id)
     additional_fields = models.Field.objects.filter(journal=request.journal)
-    form = forms.ArticleInfo(instance=article, additional_fields=additional_fields)
+    submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
+    form = forms.ArticleInfo(instance=article,
+                             additional_fields=additional_fields,
+                             submission_summary=submission_summary,
+                             journal=request.journal)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article, additional_fields=additional_fields)
+        form = forms.ArticleInfo(request.POST, instance=article,
+                                 additional_fields=additional_fields,
+                                 submission_summary=submission_summary,
+                                 journal=request.journal)
 
         if form.is_valid():
             form.save(request=request)
@@ -369,7 +375,8 @@ def edit_metadata(request, article_id):
     :return: contextualised django template
     """
     article = get_object_or_404(models.Article, pk=article_id)
-    info_form = forms.ArticleInfo(instance=article)
+    submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
+    info_form = forms.ArticleInfo(instance=article, submission_summary=submission_summary)
     frozen_author, modal = None, None
     return_param = request.GET.get('return')
     reverse_url = '{0}?return={1}'.format(reverse('edit_metadata', kwargs={'article_id': article.pk}), return_param)
@@ -383,7 +390,7 @@ def edit_metadata(request, article_id):
     if request.POST:
 
         if 'metadata' in request.POST:
-            info_form = forms.ArticleInfo(request.POST, instance=article)
+            info_form = forms.ArticleInfo(request.POST, instance=article, submission_summary=submission_summary)
 
             if info_form.is_valid():
                 info_form.save(request=request)
@@ -583,6 +590,34 @@ def licenses(request, license_pk=None):
         'license': license_obj,
         'form': form,
         'licenses': licenses,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def configurator(request):
+    """
+    Presents an interface for enabling and disabling fixed submission fields.
+    :param request: HttpRequest object
+    :return: HttpResponse or HttpRedirect
+    """
+    configuration = request.journal.submissionconfiguration
+
+    form = forms.ConfiguratorForm(instance=configuration)
+
+    if request.POST:
+        form = forms.ConfiguratorForm(request.POST, instance=configuration)
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, 'Configuration updated.')
+            return redirect(reverse('submission_configurator'))
+
+    template = 'submission/manager/configurator.html'
+    context = {
+        'configuration': configuration,
+        'form': form,
     }
 
     return render(request, template, context)
