@@ -78,3 +78,7 @@ a:hover .article-title {
 .disp-formula {
     overflow-x: auto;
 }
+
+.table-wrap {
+    overflow-x: auto;
+}
