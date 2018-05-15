@@ -796,6 +796,7 @@ def import_copyeditors(article, article_dict, auth_file, base_url):
                     file = get_ojs_file(base_url, final.get('file'), article, auth_file, 'Final File')
                     final_assignment.copyeditor_files.add(file)
 
+
 def import_typesetters(article, article_dict, auth_file, base_url):
     layout = article_dict.get('layout')
     task = None
