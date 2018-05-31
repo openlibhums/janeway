@@ -1525,15 +1525,70 @@
               </xsl:if>
             </xsl:for-each>
 
-            <!-- Handle book stuff -->
-            <xsl:if test="$pub-type = 'book'">
-              <xsl:if test="year">
-                <xsl:text> </xsl:text><xsl:value-of select="year"/><xsl:text> </xsl:text>
+              <!-- Handle web pages -->
+              <xsl:if test="$pub-type = 'webpage'">
+                  <xsl:if test="year">
+                      <xsl:text> (</xsl:text>
+                      <xsl:value-of select="year"/>
+                      <xsl:text>) </xsl:text>
+                  </xsl:if>
+                  <xsl:if test="article-title">
+                      <xsl:value-of select="article-title"></xsl:value-of>
+                      <xsl:text> </xsl:text>
+                  </xsl:if>
+                  <xsl:if test="ext-link">
+                      <em>
+                          <xsl:value-of select="ext-link"/>
+                          <xsl:text>. </xsl:text>
+                      </em>
+                  </xsl:if>
+                  <xsl:if test="uri">
+                      <xsl:value-of select="uri"></xsl:value-of>
+                      <xsl:text>.</xsl:text>
+                  </xsl:if>
               </xsl:if>
 
-              <xsl:if test="chapter-title">
-                <xsl:text> </xsl:text><xsl:value-of select="chapter-title"/><xsl:text>. In: </xsl:text>
+              <xsl:if test="$pub-type = 'confproc'">
+                  <xsl:if test="year">
+                      <xsl:text> (</xsl:text>
+                      <xsl:value-of select="year"/>
+                      <xsl:text>) </xsl:text>
+                  </xsl:if>
+                  <xsl:if test="article-title">
+
+                      <xsl:value-of select="article-title"></xsl:value-of>
+                      <xsl:text> </xsl:text>
+                  </xsl:if>
+                  <xsl:if test="conf-name">
+                      <em>
+                          <xsl:value-of select="conf-name"></xsl:value-of>
+                          <xsl:text> </xsl:text>
+                      </em>
+                  </xsl:if>
+                  <xsl:if test="conf-loc">
+                      <xsl:text>, </xsl:text>
+                      <xsl:value-of select="conf-loc"></xsl:value-of>
+                  </xsl:if>
+                  <xsl:if test="conf-date">
+                      <xsl:text> on </xsl:text>
+                      <xsl:value-of select="conf-date"></xsl:value-of>
+                      <xsl:text>.</xsl:text>
+                  </xsl:if>
               </xsl:if>
+
+              <!-- Handle book stuff -->
+            <xsl:if test="$pub-type = 'book'">
+              <xsl:if test="year">
+                <xsl:text> (</xsl:text><xsl:value-of select="year"/><xsl:text>) </xsl:text>
+              </xsl:if>
+
+                <xsl:if test="chapter-title">
+                    <em>
+                        <xsl:text></xsl:text>
+                        <xsl:value-of select="chapter-title"/>
+                    </em>
+                    <xsl:text>. In: </xsl:text>
+                </xsl:if>
 
               <xsl:if test="person-group and person-group/@person-group-type = 'editor'">
                 <xsl:variable name="eds-name-count" select="count(person-group/string-name)"/>
@@ -1548,7 +1603,16 @@
               </xsl:if>
 
                 <xsl:text> </xsl:text>
-              <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>, </xsl:text>
+              <xsl:element name="i"><xsl:value-of select="source"/></xsl:element>
+                <xsl:if test="edition">
+                    <xsl:text>. </xsl:text>
+                    <xsl:value-of select="edition"></xsl:value-of>
+                    <xsl:text> 6-</xsl:text>
+                </xsl:if>
+                <xsl:if test="not(edition)">
+                    <xsl:text>, </xsl:text>
+                </xsl:if>
+
 
               <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
               <xsl:if test="fpage and lpage">-</xsl:if>
@@ -1561,11 +1625,16 @@
             </xsl:if>
 
             <!-- Handled article -->
-            <xsl:if test="$pub-type = 'journal'">
+
+            <xsl:if test="$pub-type = 'journal' or $pub-type = 'newspaper'">
               <xsl:if test="year">
                 <xsl:text> (</xsl:text><xsl:value-of select="year"/><xsl:text>) </xsl:text>
               </xsl:if>
-              <xsl:text>"</xsl:text><xsl:value-of select="article-title"/><xsl:text>", </xsl:text>
+
+                <xsl:variable name="title" select="article-title"/>
+                <xsl:value-of select="title"></xsl:value-of>
+
+                <xsl:if test="not(starts-with($title, '&#8220;'))"><xsl:text>&#8220;</xsl:text></xsl:if><xsl:value-of select="article-title"/><xsl:if test="not(starts-with($title, '&#8220;'))"><xsl:text>&#8221;</xsl:text></xsl:if><xsl:text>, </xsl:text>
               <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>. </xsl:text>
               <xsl:if test="volume">
                 <xsl:text>(</xsl:text><xsl:value-of select="volume"/><xsl:text>)</xsl:text>
@@ -1573,6 +1642,10 @@
               <xsl:if test="issue">
                 <xsl:value-of select="issue"/>
               </xsl:if>
+              <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
+              <xsl:if test="fpage and lpage">-</xsl:if>
+              <xsl:if test="lpage"><xsl:value-of select="lpage"/></xsl:if>
+              <xsl:if test="fpage or lpage">. </xsl:if>
             </xsl:if>
 
 

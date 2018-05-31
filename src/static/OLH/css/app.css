@@ -4518,7 +4518,7 @@ header #main-menu {
   header .top-bar-image {
     max-height: 90px;
     max-width: 330px;
-    padding: 0;
+    padding: 5px;
     margin-top: -20px; } }
 
 @media screen and (max-width: 39.9375em) {

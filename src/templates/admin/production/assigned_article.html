@@ -340,6 +340,7 @@
                         <i class="fa fa-plus-circle action-icon">&nbsp;</i>Add New Typesetter
                     </a></li>
                 {% endif %}
+                <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                 {% if galleys and not production_assignment.closed %}
                     <li><a data-open="productionmodal">
                     <i class="fa fa-check action-icon">&nbsp;</i>Mark production as complete

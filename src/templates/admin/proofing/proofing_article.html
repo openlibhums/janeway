@@ -234,6 +234,7 @@
         <div class="content">
             <ul class="menu vertical actions">
                 <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
+                <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                 <li><a href="{% url 'production_article' article.pk %}"><i class="fa fa-files-o action-icon">&nbsp;</i>Manage Galleys</a></li>
                 <li><a href="{% url 'complete_proofing' article.pk %}"><i class="fa fa-check action-icon">&nbsp;</i>Complete Proofing</a></li>
                 {% if article.has_galley and production_assignment.typeset_tasks and not production_assignment.closed %}
@@ -256,6 +257,6 @@
     <script src="{% static "admin/js/csrf.js" %}"></script>
     <script src="{% static "common/js/accountrole.js" %}"></script>
     {% if modal %}
-        {% include "elements/open_modal.html" with target=modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
 {% endblock js %}

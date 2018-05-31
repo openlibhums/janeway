@@ -408,7 +408,7 @@ class Article(models.Model):
 
         idx = 0
 
-        for author in self.authors.all():
+        for author in self.frozenauthor_set.all():
             if idx > 0:
                 idx = 1
                 carousel_text += ', '
