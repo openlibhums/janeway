@@ -24,6 +24,10 @@ class Command(BaseCommand):
         upgrade_module_name = options.get('upgrade_module')
         upgrade_module_path = 'utils.upgrade.{module_name}'.format(module_name=upgrade_module_name)
 
-        upgrade_module = import_module(upgrade_module_path)
-        upgrade_module.execute()
+        try:
+            upgrade_module = import_module(upgrade_module_path)
+            upgrade_module.execute()
+        except ImportError as e:
+            print('There was an error running the requested upgrade: ')
+            print(e)
 
