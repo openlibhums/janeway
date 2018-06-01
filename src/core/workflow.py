@@ -104,13 +104,14 @@ def create_default_workflow(journal):
     workflow, c = models.Workflow.objects.get_or_create(journal=journal)
 
     for index, element in enumerate(models.BASE_ELEMENTS):
+        print(element.get('name'), element.get('jump_url'))
         e, c = models.WorkflowElement.objects.get_or_create(journal=journal,
                                                             element_name=element.get('name'),
                                                             handshake_url=element['handshake_url'],
                                                             stage=element['stage'],
-                                                            defaults={'order': index,
-                                                                      'article_url': element.get('article_url'),
-                                                                      'jump_url': element.get('jump_url')})
+                                                            jump_url=element['jump_url'],
+                                                            article_url=element['article_url'],
+                                                            defaults={'order': index})
 
         workflow.elements.add(e)
 
