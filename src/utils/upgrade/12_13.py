@@ -75,4 +75,4 @@ def process_article_workflow():
 def execute():
     run_journal_signals()
     process_article_workflow()
-    setting_handler.update_settings(SETTINGS_TO_CHANGE)
+    setting_handler.update_settings(SETTINGS_TO_CHANGE, journal)
