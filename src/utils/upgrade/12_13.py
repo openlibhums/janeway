@@ -2,6 +2,15 @@ from journal import models as journal_models
 from submission import models as submission_models
 from core import models as core_models, workflow
 
+from utils import setting_handler
+
+
+SETTINGS_TO_CHANGE = [
+    {'group': 'email', 'name': 'copyeditor_reopen_task', 'action': 'update'},
+    {'group': 'email', 'name': 'author_copyedit_complete', 'action': 'update'},
+    {'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
+]
+
 
 def run_journal_signals():
     """
@@ -58,8 +67,7 @@ def process_article_workflow():
             stage_log_objects = submission_models.ArticleStageLog.objects.filter(article=article).order_by('date_time')
 
             if article.is_import:
-                pass
-                #print('Article is import and has no workflow records.')
+                print('Article is import and has no workflow records.')
             else:
                 add_workflow_log_entries(article, stage_log_objects)
 
@@ -67,3 +75,4 @@ def process_article_workflow():
 def execute():
     run_journal_signals()
     process_article_workflow()
+    setting_handler.update_settings(SETTINGS_TO_CHANGE)

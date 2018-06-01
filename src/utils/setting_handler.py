@@ -169,3 +169,12 @@ def get_email_subject_setting(setting_group, setting_name, journal, create=False
         return _get_setting(setting_group, setting, journal, lang, create, fallback).value
     except core_models.Setting.DoesNotExist:
         return setting_name
+
+
+def update_settings(settings_to_change):
+    for setting in settings_to_change:
+
+        if setting.get('action', None) == 'update':
+            pass
+        elif setting.get('action', None) == 'drop':
+            pass
