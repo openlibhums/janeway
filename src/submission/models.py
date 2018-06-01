@@ -204,6 +204,12 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
+REVIEW_STAGES = [
+    STAGE_ASSIGNED,
+    STAGE_UNDER_REVIEW,
+    STAGE_UNDER_REVISION
+]
+
 COPYEDITING_STAGES = [
     STAGE_EDITOR_COPYEDITING,
     STAGE_AUTHOR_COPYEDITING,
@@ -243,6 +249,12 @@ class ArticleStageLog(models.Model):
 
     class Meta:
         ordering = ('-date_time',)
+
+    def __str__(self):
+        return "Article {article_pk} from {stage_from} to {stage_to} at {date_time}".format(article_pk=self.article.pk,
+                                                                                            stage_from=self.stage_from,
+                                                                                            stage_to=self.stage_to,
+                                                                                            date_time=self.date_time)
 
 
 class PublisherNote(models.Model):
