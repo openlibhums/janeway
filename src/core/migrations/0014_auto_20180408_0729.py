@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 #from django.db import models
 from django.db import migrations
 
+
 def addfield(name):
     return {
         'sql': "ALTER TABLE django_site ADD COLUMN %s VARCHAR(255)" % name,
@@ -13,6 +14,7 @@ def addfield(name):
         #'state_operations': [migrations.AddField('django.contrib.sites.Site', name, models.CharField(max_length=255))]
     }
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -21,6 +23,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(**addfield("folder_name")),
-        migrations.RunSQL(**addfield("subdomains"))
+        # TODO: Currently causing issues where these already exist
+        # migrations.RunSQL(**addfield("folder_name")),
+        # migrations.RunSQL(**addfield("subdomains"))
     ]
