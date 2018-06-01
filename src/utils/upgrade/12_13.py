@@ -41,6 +41,9 @@ def add_workflow_log_entries(article, stage_log_objects):
         if entry.stage_to not in non_workflow_stages:
             workflow_element = core_models.WorkflowElement.objects.get(journal=article.journal,
                                                                        stage=stage)
+            core_models.WorkflowLog.objects.get_or_create(article=article,
+                                                          element=workflow_element,
+                                                          defaults={'timestamp': entry.date_time})
 
 
 def process_article_workflow():
