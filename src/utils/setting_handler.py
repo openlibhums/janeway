@@ -172,11 +172,16 @@ def get_email_subject_setting(setting_group, setting_name, journal, create=False
 
 
 def update_settings(settings_to_change, journal):
+    print('Updating {journal} settings... '.format(journal=journal.code))
     for setting in settings_to_change:
 
-        setting_object = get_setting(setting.get('group'), settings.get('name'), journal)
+        try:
+            setting_object = get_setting(setting.get('group'), setting.get('name'), journal)
 
-        if setting.get('action', None) == 'update':
-            pass
-        elif setting.get('action', None) == 'drop':
-            setting_object.delete()
+            if setting.get('action', None) == 'update':
+                print('Updating {setting}, action: {action}'.format(setting=setting.get('name'),
+                                                                    action=setting.get('action')))
+            elif setting.get('action', None) == 'drop':
+                setting_object.delete()
+        except BaseException as e:
+            print(e)
