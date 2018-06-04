@@ -43,7 +43,6 @@ def add_workflow_log_entries(article, stage_log_objects):
                            'Author Copyediting', 'Final Copyediting', 'Rejected']
 
     for entry in stage_log_objects:
-        print(entry.stage_to)
 
         if entry.stage_to == 'Under Review':
             stage = 'Unassigned'
