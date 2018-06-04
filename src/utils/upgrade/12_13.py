@@ -1,3 +1,5 @@
+from django.db.models.signals import post_save
+
 from journal import models as journal_models
 from submission import models as submission_models
 from core import models as core_models, workflow
@@ -22,9 +24,10 @@ def run_journal_signals():
     journals = journal_models.Journal.objects.all()
 
     for journal in journals:
-        print('Processing {journal_code}'.format(journal_code=journal.code), end='...')
-        journal.save()
-        workflow.create_default_workflow(journal)
+        print('Firing signals for {journal_code}'.format(journal_code=journal.code), end='...')
+
+        post_save.send(journal_models.Journal, instance=journal, created=True)
+
         print(' [OK]')
 
 
