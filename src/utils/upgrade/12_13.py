@@ -64,17 +64,25 @@ def process_article_workflow():
     """
     print('Processing workflow migration')
     for journal in journal_models.Journal.objects.all():
-        print('Working on {journal_code}'.format(journal_code=journal.code))
+        print('Working on {journal_code}'.format(journal_code=journal.code), end='...')
         for article in submission_models.Article.objects.filter(journal=journal):
             stage_log_objects = submission_models.ArticleStageLog.objects.filter(article=article).order_by('date_time')
 
             if article.is_import:
-                print('Article is import and has no workflow records.')
+                pass
             else:
                 add_workflow_log_entries(article, stage_log_objects)
+        print('[OK]')
+
+
+
+def update_settings():
+    for journal in journal_models.Journal.objects.all():
+        setting_handler.update_settings(SETTINGS_TO_CHANGE, journal)
 
 
 def execute():
     run_journal_signals()
     process_article_workflow()
-    setting_handler.update_settings(SETTINGS_TO_CHANGE, journal)
+    #update_settings()
+
