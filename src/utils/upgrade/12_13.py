@@ -75,7 +75,6 @@ def process_article_workflow():
         print('[OK]')
 
 
-
 def update_settings():
     for journal in journal_models.Journal.objects.all():
         setting_handler.update_settings(SETTINGS_TO_CHANGE, journal)
@@ -84,5 +83,4 @@ def update_settings():
 def execute():
     run_journal_signals()
     process_article_workflow()
-    #update_settings()
-
+    update_settings()
