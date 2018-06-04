@@ -4,9 +4,12 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import os
+import codecs
 
 from django.conf import settings
 from django.utils.translation import get_language
+from django.core.management import call_command
 
 from utils import models
 from core import models as core_models
@@ -171,6 +174,14 @@ def get_email_subject_setting(setting_group, setting_name, journal, create=False
         return setting_name
 
 
+def fetch_defaults_value(setting):
+    with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), 'r+', encoding='utf-8') as json_data:
+        default_data = json.load(json_data)
+        for item in default_data:
+            if item['setting']['name'] == setting.get('name'):
+                return item['value']['default']
+
+
 def update_settings(settings_to_change, journal):
     print('Updating {journal} settings... '.format(journal=journal.code))
     for setting in settings_to_change:
@@ -181,6 +192,11 @@ def update_settings(settings_to_change, journal):
             if setting.get('action', None) == 'update':
                 print('Updating {setting}, action: {action}'.format(setting=setting.get('name'),
                                                                     action=setting.get('action')))
+                check = input('If you want to update this setting, respond with y: ')
+                if check == 'y':
+                    defaults_value = fetch_defaults_value(setting)
+                    setting_object.value = defaults_value
+                    setting_object.save()
             elif setting.get('action', None) == 'drop':
                 setting_object.delete()
         except BaseException as e:

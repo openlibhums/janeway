@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 
 from journal import models as journal_models
 from submission import models as submission_models
-from core import models as core_models, workflow
+from core import models as core_models
 
 from utils import setting_handler
 
@@ -10,7 +10,7 @@ from utils import setting_handler
 SETTINGS_TO_CHANGE = [
     {'group': 'email', 'name': 'copyeditor_reopen_task', 'action': 'update'},
     {'group': 'email', 'name': 'author_copyedit_complete', 'action': 'update'},
-    {'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
+    #{'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
 ]
 
 
