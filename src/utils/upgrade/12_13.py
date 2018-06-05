@@ -40,7 +40,7 @@ def add_workflow_log_entries(article, stage_log_objects):
     """
 
     non_workflow_stages = ['Published', 'Assigned', 'Under Revision',
-                           'Author Copyediting', 'Final Copyediting', 'Rejected']
+                           'Author Copyediting', 'Final Copyediting', 'Rejected', 'Accepted']
 
     for entry in stage_log_objects:
 
