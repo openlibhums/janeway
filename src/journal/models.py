@@ -175,7 +175,10 @@ class Journal(models.Model):
         return 'http{0}://{1}{2}'.format(
             's' if request.is_secure() else '',
             self.domain,
-            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '')
+            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '',
+            '{0}{1}'.format('/' if settings.URL_CONFIG == 'path' else '',
+                            self.code if settings.URL_CONFIG == 'path' else '')
+        )
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)
@@ -621,21 +624,23 @@ def setup_default_form(sender, instance, created, **kwargs):
     if created:
         from review import models as review_models
 
-        default_review_form = review_models.ReviewForm.objects.create(
-            journal=instance,
-            name='Default Form',
-            slug='default-form',
-            intro='Please complete the form below.',
-            thanks='Thank you for completing the review.'
-        )
+        if not review_models.ReviewForm.objects.filter(slug='default-form', journal=instance).exists():
 
-        main_element = review_models.ReviewFormElement.objects.create(
-            name='Review',
-            kind='textarea',
-            required=True,
-            order=1,
-            width='large-12 columns',
-            help_text='Please add as much detail as you can.'
-        )
+            default_review_form = review_models.ReviewForm.objects.create(
+                journal=instance,
+                name='Default Form',
+                slug='default-form',
+                intro='Please complete the form below.',
+                thanks='Thank you for completing the review.'
+            )
 
-        default_review_form.elements.add(main_element)
+            main_element = review_models.ReviewFormElement.objects.create(
+                name='Review',
+                kind='textarea',
+                required=True,
+                order=1,
+                width='large-12 columns',
+                help_text='Please add as much detail as you can.'
+            )
+
+            default_review_form.elements.add(main_element)

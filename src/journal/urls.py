@@ -42,7 +42,8 @@ urlpatterns = [
         name='article_print_article'),
     url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/$', views.article, name='article_view'),
 
-    # Article management
+    url(r'^(?P<article_id>\d+)/files/management/$', views.document_management,
+        name='document_management'),
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/info/$', views.submit_files_info,
         name='submit_replacement_files_info'),
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/history/$', views.file_history,

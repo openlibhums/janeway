@@ -24,11 +24,11 @@
                     <h4 class="card-title">{{ article.title|safe }}{% if article.is_remote %}&nbsp;
                         <i class="fa fa-external-link small-icon-text"></i>{% endif %}</h4>
                 </a>
-                <h6 class="card-subtitle mb-2 text-muted">{% for author in article.authors.all %}{% if forloop.last %}
-                    {% if article.authors.all|length > 1 %} and
+                <h6 class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}
+                    {% if article.frozen_authors.all|length > 1 %} and
                     {% endif %}{% endif %}{{ author.full_name }}
                     {% if not forloop.last %}
-                        {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                        {% if not forloop.counter == article.frozen_authors.all|length|add:-1 %},
                         {% endif %}{% endif %}{% endfor %}
                 </h6>
                 <p class="card-text"><span class="date"><i

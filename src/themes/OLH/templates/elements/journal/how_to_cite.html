@@ -4,4 +4,4 @@
 {% endfor %}
 ({{ article.date_published.year }}) “{{ article.title|safe }}”,
 <i>{{ journal.name }}</i>.{% if article.issue.volume %} {{ article.issue.volume }}{% endif %}{% if article.issue.issue %}({{ article.issue.issue }}).{% endif %}
-{% if article.identifier.id_type == 'doi' %}doi: <a href="{{ article.identifier }}">{{ article.identifier }}</a>{% endif %}</p>
+{% if article.identifier.id_type == 'doi' %}doi: <a href="https://doi.org/{{ article.identifier.identifier }}">{{ article.identifier.identifier }}</a>{% endif %}</p>

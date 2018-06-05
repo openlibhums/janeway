@@ -79,6 +79,10 @@ a:hover .article-title {
     overflow-x: auto;
 }
 
+.table-wrap {
+    overflow-x: auto;
+}
+
 .alm {
     display: inline-block;
     text-align: center;

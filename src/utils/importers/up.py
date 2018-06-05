@@ -385,6 +385,7 @@ def import_issue_images(journal, user, url):
                 if article and article not in processed:
                     journal_models.ArticleOrdering.objects.create(issue=issue,
                                                                   article=article,
+                                                                  section=article.section,
                                                                   order=article_order)
 
                     article_order += 1
@@ -510,7 +511,7 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
     article.save()
 
     # Check for editors and assign them as section editors.
-    editors = article_dict.get('editors')
+    editors = article_dict.get('editors', [])
 
     for editor in editors:
         try:

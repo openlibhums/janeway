@@ -132,7 +132,7 @@
 {% block js %}
     {% include "elements/datatables.html" with target="#latest-pubs" sort=2 %}
     {% if modal %}
-    {% include "elements/open_modal.html" with target=modal %}
+    {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
 
     <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">

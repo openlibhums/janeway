@@ -376,10 +376,13 @@ def create_new_article(date_published, date_submitted, journal, soup_object, use
     :param user: the user to be set as the owner of this article
     :return: a tuple of a dictionary information about the article and the new article object
     """
+    import html
+    abstract_html = get_soup(soup_object.find('meta', attrs={'name': 'DC.Description'}), 'content', ''),
+    abstract = html.unescape(abstract_html)
 
     article_dict = {
         'title': get_soup(soup_object.find('meta', attrs={'name': 'DC.Title'}), 'content'),
-        'abstract': get_soup(soup_object.find('meta', attrs={'name': 'DC.Description'}), 'content', ''),
+        'abstract': abstract[0],
         'language': get_soup(soup_object.find('meta', attrs={'name': 'DC.Language'}), 'content'),
         'date_published': date_published,
         'date_submitted': date_submitted,

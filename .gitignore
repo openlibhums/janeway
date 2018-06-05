@@ -94,6 +94,7 @@ src/static/mater
 ial/
 src/texture/**
 /src/static/material/**
-/src/static/admin/hypothesis
+/src/static/admin/hypothesis/**
+Dockerfile
 
 Dockerfile

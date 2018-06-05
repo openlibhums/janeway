@@ -1440,3 +1440,43 @@ def texture_edit(request, file_id):
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def document_management(request, article_id):
+    document_article = get_object_or_404(submission_models.Article, pk=article_id)
+    article_files = core_models.File.objects.filter(article_id=document_article.pk)
+    return_url = request.GET.get('return', '/dashboard/')
+
+    if request.POST and request.FILES:
+
+        if 'manu' in request.POST:
+            from core import files as core_files
+            file = request.FILES.get('manu-file')
+            new_file = core_files.save_file_to_article(file, document_article,
+                                                       request.user, label='MS File', is_galley=False)
+            document_article.manuscript_files.add(new_file)
+            messages.add_message(request, messages.SUCCESS, 'Production file uploaded.')
+
+        if 'prod' in request.POST:
+            from production import logic as prod_logic
+            file = request.FILES.get('prod-file')
+            prod_logic.save_prod_file(document_article, request, file, 'Production Ready File')
+            messages.add_message(request, messages.SUCCESS, 'Production file uploaded.')
+
+        if 'proof' in request.POST:
+            from production import logic as prod_logic
+            file = request.FILES.get('proof-file')
+            prod_logic.save_galley(document_article, request, file, True, 'File for Proofing', is_other=False)
+            messages.add_message(request, messages.SUCCESS, 'Proofing file uploaded.')
+
+        return redirect(reverse('document_management', kwargs={'article_id': document_article.pk}))
+
+    template = 'admin/journal/document_management.html'
+    context = {
+        'files': article_files,
+        'article': document_article,
+        'return_url': return_url,
+    }
+
+    return render(request, template, context)

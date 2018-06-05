@@ -176,7 +176,7 @@
     {% include "elements/datatables.html" with target="#reviewers" %}
     {% include "elements/datepicker.html" with target="#id_date_due" %}
     {% if modal %}
-        {% include "elements/open_modal.html" with target=modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
     {% include "elements/datatables.html" with target="#enrolluser" %}
 {% endblock js %}
