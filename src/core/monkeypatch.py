@@ -10,7 +10,7 @@ def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
     This monkey patch will add the journal_code to reverse kwargs if the URL_CONFIG setting is set to 'patch'
     """
 
-    if not viewname.startswith('djdt'):
+    if not viewname.startswith('djdt') and not viewname.startswith('django_summernote'):
         local_request = GlobalRequestMiddleware.get_current_request()
 
         if settings.URL_CONFIG == 'path':
