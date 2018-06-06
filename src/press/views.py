@@ -4,13 +4,14 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse
+from django.contrib.sites import models as site_models
 
 from core import files, models as core_models, plugin_loader
 from journal import models as journal_models, views as journal_views, forms as journal_forms
@@ -166,3 +167,29 @@ def journal_order(request):
         journal.save()
 
     return HttpResponse('Thanks')
+
+
+@staff_member_required
+def journal_domain(request, journal_id):
+    journal = get_object_or_404(journal_models.Journal, pk=journal_id)
+
+    if request.POST:
+        new_domain = request.POST.get('domain', None)
+
+        if new_domain:
+            site = site_models.Site.objects.get(domain=journal.domain)
+            site.domain = new_domain
+            site.save()
+            journal.domain = new_domain
+            journal.save()
+            messages.add_message(request, messages.SUCCESS, 'Domain updated')
+            return redirect(reverse('core_manager_index'))
+        else:
+            messages.add_message(request, messages.WARNING, 'No new domain supplied.')
+
+    template = 'press/journal_domain.html'
+    context = {
+        'journal': journal,
+    }
+
+    return render(request, template, context)

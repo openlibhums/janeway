@@ -150,6 +150,9 @@ urlpatterns = [
     url(r'^manager/press/journal_order/$',
         press_views.journal_order,
         name='press_journal_order'),
+    url(r'^manager/press/journal/(?P<journal_id>\d+)/domain/$',
+        press_views.journal_domain,
+        name='press_journal_domain'),
 
     # Workflow
     url(r'^workflow/$',

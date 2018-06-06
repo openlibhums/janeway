@@ -1,0 +1,32 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Journal Domain{% endblock %}
+{% block title-section %}Edit Journal Domain{% endblock %}
+
+{% block nav %}
+{% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+    <section>
+    <div class="row expanded" data-equalizer>
+        <div class="large-12 columns end">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>{{ journal.name }}</h2>
+                </div>
+                <div class="content">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="text" name="domain" value="{{ journal.domain }}">
+                        <button type="submit" name="save_press" class="success button">Save</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </section>
+{% endblock %}
