@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+
+{% block title %}News - {{ news_item.title }}{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-image">
+                    <img{% if news_item.large_image_file %}
+                        src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
+                    {% else %}
+                        src="{{ request.press.default_carousel_image.url }}"
+                    {% endif %}
+                        alt="{{ news_item.title }}"/>
+                    <span class="card-title news-card-title">{{ news_item.title }}</span>
+                </div>
+                <div class="card-content">
+                    <h6><em>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</em>
+                    </h6>
+                    <p>{{ news_item.body|safe }}</p>
+                    {% if news_item.tags.all %}
+                        <br />
+                        <h7>Tags <i class="fa fa-tags">&nbsp;</i></h7>
+                        <p>{% for tag in news_item.tags.all %}
+                            <a href="{% url 'core_news_list_tag' tag.text %}"
+                               class="button success tiny">{{ tag.text }}</a>
+                            {% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
+                    {% endif %}
+                </div>
+                <div class="card-action">
+                    <a href="{% url 'core_news_list' %}" class="button success">Back to News List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

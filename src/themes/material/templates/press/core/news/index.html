@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+
+{% block title %}News{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12">
+            <h3>News</h3>
+            {% if tag %}<h3>Filtering tag: {{ tag }}</h3>{% endif %}
+        </div>
+        {% for item in news_items %}
+            <div class="col m12">
+                <div class="card">
+                    <div class="card-image">
+                        <img{% if item.large_image_file %}
+                                    src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
+                                {% else %}
+                                    src="{{ request.press.default_carousel_image.url }}"
+                                {% endif %}
+                                    alt="{{ item.title }}"/>
+                        <span class="card-title news-card-title">{{ item.title }}</span>
+                    </div>
+                    <div class="card-content">
+                        <h6><em>Posted by {{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="{% url 'core_news_item' item.pk %}">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <h4>This journal currently has no news items to display.</h4>
+        {% endfor %}
+    </div>
+    <div class="pagination-block">{{ page }}
+        <ul class="d-flex justify-content-center">
+            {% if news_items.has_previous %}
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                &nbsp;{% endif %}
+            {{ news_items.page.page_range }}
+            {% for page in news_items.paginator.page_range %}
+                <a href="?page={{ page }}"
+                   class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
+                &nbsp;
+            {% endfor %}
+            {% if news_items.has_next %}
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
