@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 from django.db.models import Q
 from django.contrib import messages
 from django.utils import timezone
@@ -106,26 +105,35 @@ def get_tasks(request):
     new = models.ProofingTask.objects.filter(completed__isnull=True,
                                              accepted__isnull=True,
                                              cancelled=False,
-                                             proofreader=request.user)
+                                             proofreader=request.user,
+                                             round__assignment__article__journal=request.journal)
     active = models.ProofingTask.objects.filter(completed__isnull=True,
                                                 accepted__isnull=False,
                                                 cancelled=False,
-                                                proofreader=request.user)
+                                                proofreader=request.user,
+                                                round__assignment__article__journal=request.journal)
     completed = models.ProofingTask.objects.filter(completed__isnull=False,
                                                    cancelled=False,
-                                                   proofreader=request.user)
+                                                   proofreader=request.user,
+                                                   round__assignment__article__journal=request.journal)
 
-    new_typesetting = models.TypesetterProofingTask.objects.filter(completed__isnull=True,
-                                                                   accepted__isnull=True,
-                                                                   cancelled=False,
-                                                                   typesetter=request.user)
-    active_typesetting = models.TypesetterProofingTask.objects.filter(completed__isnull=True,
-                                                                      accepted__isnull=False,
-                                                                      cancelled=False,
-                                                                      typesetter=request.user)
-    completed_typesetting = models.TypesetterProofingTask.objects.filter(completed__isnull=False,
-                                                                         cancelled=False,
-                                                                         typesetter=request.user)
+    new_typesetting = models.TypesetterProofingTask.objects.filter(
+        completed__isnull=True,
+        accepted__isnull=True,
+        cancelled=False,
+        typesetter=request.user,
+        proofing_task__round__assignment__article__journal=request.journal)
+    active_typesetting = models.TypesetterProofingTask.objects.filter(
+        completed__isnull=True,
+        accepted__isnull=False,
+        cancelled=False,
+        typesetter=request.user,
+        proofing_task__round__assignment__article__journal=request.journal)
+    completed_typesetting = models.TypesetterProofingTask.objects.filter(
+        completed__isnull=False,
+        cancelled=False,
+        typesetter=request.user,
+        proofing_task__round__assignment__article__journal=request.journal)
 
     return new, active, completed, new_typesetting, active_typesetting, completed_typesetting
 
