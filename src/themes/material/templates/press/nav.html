@@ -6,11 +6,12 @@
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
-        <a id="logo-container" href="#" class="brand-logo">
-            {% if request.journal %}
-                {{ request.journal.name }}
+        <a id="logo-container" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo"
+            {% if 'svg' in request.press_cover %}
+                {% svg request.press_cover %}
             {% else %}
-                {{ request.press.name }}
+                <img class="top-bar-image" src="{% url 'press_cover_download' %}"
+                                 alt="{{ request.press.name }}">
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">

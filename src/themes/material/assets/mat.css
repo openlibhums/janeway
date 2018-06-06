@@ -89,3 +89,9 @@ a:hover .article-title {
     padding: 15px;
     width: 140px;
 }
+
+#logo-container svg {
+    max-width: 100px;
+    max-height: 49px;
+    margin-top: 20px;
+}
