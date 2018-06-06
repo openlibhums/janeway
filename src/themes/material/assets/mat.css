@@ -89,3 +89,15 @@ a:hover .article-title {
     padding: 15px;
     width: 140px;
 }
+
+#logo-container svg {
+    max-width: 100px;
+    max-height: 49px;
+    margin-top: 20px;
+}
+
+.news-card-title {
+    background-color: rgba(0, 0, 0, 0.7);
+    margin: 10px 10px 10px 10px;
+    width: 50%;
+}
