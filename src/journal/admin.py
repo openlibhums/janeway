@@ -21,13 +21,19 @@ class JournalAdmin(admin.ModelAdmin):
     list_filter = ('is_remote', 'hide_from_press')
 
 
+class ArticleOrderingAdmin(admin.ModelAdmin):
+    list_display = ('article', 'issue', 'section', 'order')
+    list_filter = ('issue', 'section')
+    search_fields = ('article__title',)
+
+
 admin_list = [
     (models.Issue, IssueAdmin),
     (models.Journal, JournalAdmin),
     (models.PresetPublicationCheckItem,),
     (models.PrePublicationChecklistItem,),
     (models.FixedPubCheckItems,),
-    (models.ArticleOrdering,),
+    (models.ArticleOrdering, ArticleOrderingAdmin),
     (models.SectionOrdering,)
 ]
 
