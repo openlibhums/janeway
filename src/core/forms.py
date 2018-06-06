@@ -180,6 +180,9 @@ class AdminUserForm(forms.ModelForm):
         active = kwargs.pop('active', None)
         super(AdminUserForm, self).__init__(*args, **kwargs)
 
+        if not kwargs.get('instance', None):
+            self.fields['is_active'].initial = True
+
         if active == 'add':
             self.fields['password_1'] = forms.CharField(widget=forms.PasswordInput, label="Password")
             self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat password")
