@@ -329,8 +329,6 @@ def do_proofing(request, proofing_task_id, article_id=None):
     elif request.POST and 'upload' in request.POST:
         modal = logic.handle_annotated_galley_upload(request, proofing_task, article)
 
-    print(modal)
-
     template = 'proofing/do_proofing.html'
     context = {
         'proofing_task': proofing_task,

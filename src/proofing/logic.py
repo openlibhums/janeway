@@ -56,7 +56,6 @@ def get_user_from_post(request):
 
     if user_id:
         user = core_models.Account.objects.get(pk=user_id)
-        user.add_account_role('proofreader', request.journal)
     else:
         user = None
 
