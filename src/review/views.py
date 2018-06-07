@@ -262,6 +262,7 @@ def in_review(request, article_id):
 
     if not review_rounds:
         models.ReviewRound.objects.create(article=article, round_number=1)
+        return redirect(reverse('review_in_review', kwargs={'article_id': article.id}))
 
     if request.POST:
 
