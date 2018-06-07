@@ -1125,3 +1125,15 @@ button.list-group-item-danger.active:focus {
   padding-bottom: 1rem;
   margin: 1rem 0 0;
 }
+
+.articleBody a {
+  word-wrap: break-word;
+}
+
+.footnotes li a {
+  word-wrap: break-word;
+}
+
+#reflist p {
+    word-wrap: break-word;
+}

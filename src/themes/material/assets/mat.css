@@ -51,6 +51,10 @@ a:hover .article-title {
     font-weight: 300;
 }
 
+.article-body a {
+    word-break: break-all;
+}
+
 .toc-card {
     position: fixed !important;
     bottom: 40%;
@@ -100,4 +104,8 @@ a:hover .article-title {
     background-color: rgba(0, 0, 0, 0.7);
     margin: 10px 10px 10px 10px;
     width: 50%;
+}
+
+#reflist p {
+    word-wrap: break-word;
 }
