@@ -531,9 +531,10 @@ def clear_bad_login_attempts(request):
 
 def check_for_bad_login_attempts(request):
     user_agent, ip_address = get_ua_and_ip(request)
-    time = timezone.now() - timedelta(minutes=30)
+    time = timezone.now() - timedelta(minutes=10)
 
-    attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address)
+    attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address, timestamp__gte=time)
+    print(time, attempts.count())
     return attempts.count()
 
 
