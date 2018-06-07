@@ -24,7 +24,7 @@
                 {% for task in typeset_tasks %}
                     <li class="tabs-title {% if forloop.first %} is-active{% endif %}"><a
                             href="#tab{{ task.pk }}"
-                            aria-selected="true">Task # {{ task.pk }}</a></li>
+                            aria-selected="true">Task #{{ forloop.counter }}</a></li>
                 {% endfor %}
             </ul>
             <div class="tabs-content" data-tabs-content="round-tabs">
