@@ -1115,6 +1115,7 @@ def review_decision(request, article_id, decision):
 
         if decision == 'accept':
             article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
+            article.snapshot_authors(article)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
             workflow_kwargs = {'handshake_url': 'review_unassigned_article',

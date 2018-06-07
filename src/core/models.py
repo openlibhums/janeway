@@ -363,7 +363,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 setattr(frozen_author, k, v)
                 frozen_author.save()
         else:
-            submission_models.FrozenAuthor.objects.create(**frozen_dict)
+            submission_models.FrozenAuthor.objects.get_or_create(**frozen_dict)
 
     def frozen_author(self, article):
         try:
