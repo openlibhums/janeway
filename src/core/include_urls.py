@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^transform/', include('transform.urls')),
     url(r'^copyediting/', include('copyediting.urls')),
     url(r'^rss/', include('rss.urls')),
+    url(r'^feed/', include('rss.urls')),
     url(r'^cron/', include('cron.urls')),
     url(r'^install/', include('install.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
