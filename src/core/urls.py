@@ -343,7 +343,7 @@ else:
         url(r'^(?P<journal_code>[-\w.]+)/manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit,
             name='core_user_edit'),
         url(r'^(?P<journal_code>[-\w.]+)/manager/user/(?P<user_id>\d+)/history/$', core_views.user_history,
-            name='core_user_history')
+            name='core_user_history'),
 
         # Templates
         url(r'^(?P<journal_code>[-\w.]+)/manager/templates/$', core_views.email_templates,
