@@ -122,6 +122,11 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+
+        # Ensure temp dir exists:
+        if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'temp')):
+            os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'temp'))
+
         start_time = str(timezone.now())
         try:
             tmp_path = os.path.join(settings.BASE_DIR, 'files', 'temp', start_time)
