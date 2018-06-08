@@ -399,12 +399,21 @@ def accept_review_request(request, assignment_id):
     :return: a context for a Django template
     """
 
+    access_code = logic.get_access_code(request)
+
     # update the ReviewAssignment object
-    assignment = models.ReviewAssignment.objects.get(Q(pk=assignment_id) &
-                                                     Q(is_complete=False) &
-                                                     Q(reviewer=request.user) &
-                                                     Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
-                                                     Q(date_accepted__isnull=True))
+    if access_code:
+        assignment = models.ReviewAssignment.objects.get(Q(pk=assignment_id) &
+                                                         Q(is_complete=False) &
+                                                         Q(access_code=access_code) &
+                                                         Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+                                                         Q(date_accepted__isnull=True))
+    else:
+        assignment = models.ReviewAssignment.objects.get(Q(pk=assignment_id) &
+                                                         Q(is_complete=False) &
+                                                         Q(reviewer=request.user) &
+                                                         Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
+                                                         Q(date_accepted__isnull=True))
 
     assignment.date_accepted = timezone.now()
     assignment.save()
@@ -416,7 +425,7 @@ def accept_review_request(request, assignment_id):
                                    task_object=assignment.article,
                                    **kwargs)
 
-    return redirect(reverse('do_review', kwargs={'assignment_id': assignment.pk}))
+    return redirect(logic.generate_access_code_url('do_review', assignment, access_code))
 
 
 @reviewer_user_for_assignment_required
