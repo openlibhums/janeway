@@ -425,7 +425,7 @@ def accept_review_request(request, assignment_id):
                                    task_object=assignment.article,
                                    **kwargs)
 
-    return redirect(reverse('do_review', kwargs={'assignment_id': assignment.pk}))
+    return redirect(logic.generate_access_code_url('do_review', assignment, access_code))
 
 
 @reviewer_user_for_assignment_required
