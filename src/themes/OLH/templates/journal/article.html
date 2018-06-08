@@ -87,6 +87,7 @@
                             <figcaption class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
                                 <h3>{{ article.title|safe }}</h3>
+                                {% if article.is_published %}
                                 <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
                                     {% for author in article.frozen_authors.all %}
                                         <span>{% if forloop.first == False %}, {% endif %}<span itemscope
@@ -102,6 +103,7 @@
                                             {% if not '@journal.org' in author.author.email %}<a itemprop="email" href="mailto:{{ author.author.email }}"
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
+                                {% endif %}
                             </figcaption>
                         </div>
                     </li>
@@ -169,8 +171,10 @@
                                 <p>{{ article.abstract | safe }}</p>
                             {% endif %}
                             {% if article.keywords.all %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            {% if article.is_published %}
                             <p><strong>{% trans "How to Cite" %}:</strong>
                             {% include "elements/journal/how_to_cite.html" with article=article %}
+                            {% endif %}
                             {% if article.publisher_notes.all %}
                                 <div class="callout primary">
                                     <h2>{% trans "Publisher Notes" %}</h2>
@@ -182,7 +186,9 @@
                                 </div>
                             {% endif %}
 
+
                             <div class="summary">
+                            {% if article.is_published %}
                                 <div class="top">
                                     <div class="row">
                                         <div class="large-4 columns">
@@ -204,10 +210,17 @@
                                         </div>
                                     </div>
                                 </div>
+                            {% endif %}
                                 <div class="bottom">
                                     <div class="row" data-equalizer>
                                         <div class="large-4 columns" data-equalizer-watch>
-                                            <h5>{% trans "Published on" %} <br> {{ article.date_published|date:"d M Y" }}</h5>
+                                            {% if article.is_published %}
+                                                <h5>{% trans "Published on" %} <br>
+                                                    {{ article.date_published|date:"d M Y" }}</h5>
+                                            {% else %}
+                                                <h5>{% trans "Accepted on" %} <br>
+                                                    {{ article.date_accepted|date:"d M Y" }}</h5>
+                                            {% endif %}
                                         </div>
                                         <div class="large-4 columns" data-equalizer-watch>
                                             {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
@@ -231,6 +244,7 @@
                 </div>
                 <aside class="large-4 columns" data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                        {% if article.is_published %}
                         <div class="section">
                             <h3>{% trans "Download" %}</h3>
                             <ul>
@@ -282,6 +296,7 @@
                             </ul>
                         </div>
                     </div>
+                {% endif %}
                 </aside>
             </div>
         </section>
