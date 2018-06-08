@@ -256,7 +256,8 @@ def article(request, identifier_type, identifier):
     if article_object.stage == submission_models.STAGE_PUBLISHED:
         content = list_galleys(article_object, galleys)
     else:
-        article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
+        article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
+                                  "that is not yet published.</strong></p>" + article_object.abstract
 
     if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
         article_object.large_image_file = core_models.File()
@@ -265,7 +266,8 @@ def article(request, identifier_type, identifier):
         article_object.large_image_file.uuid_filename = "carousel1.png"
         article_object.large_image_file.is_remote = True
 
-    store_article_access(request, article_object, 'view')
+    if article_object.is_published:
+        store_article_access(request, article_object, 'view')
 
     template = 'journal/article.html'
     context = {
@@ -1322,7 +1324,6 @@ def manage_article_log(request, article_id):
 
 @editor_user_required
 def resend_logged_email(request, article_id, log_id):
-
     article = get_object_or_404(submission_models.Article, pk=article_id)
     log_entry = get_object_or_404(utils_models.LogEntry, pk=log_id)
     form = forms.ResendEmailForm(log_entry=log_entry)
