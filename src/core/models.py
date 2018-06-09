@@ -312,6 +312,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_section_editor(self, request):
         return self.check_role(request.journal, 'section-editor')
 
+    def has_an_editor_role(self, request):
+        editor = self.is_editor(request)
+        section_editor = self.is_section_editor(request)
+
+        if editor or section_editor:
+            return True
+
+        return False
+
     def is_reviewer(self, request):
         return self.check_role(request.journal, 'reviewer')
 

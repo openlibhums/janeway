@@ -139,6 +139,11 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     editor = get_object_or_404(core_models.Account, pk=editor_id)
+
+    if not editor.has_an_editor_role(request):
+        messages.add_message(request, messages.WARNING, 'User is not an Editor or Section Editor')
+        return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+
     try:
         assignment = models.EditorAssignment.objects.create(article=article, editor=editor, editor_type=assignment_type)
         messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
