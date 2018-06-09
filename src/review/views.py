@@ -746,7 +746,7 @@ def add_review_assignment(request, article_id):
             form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
 
             if form.is_valid():
-                reviewer = logic.get_reviewer_from_post(request.POST)
+                reviewer = logic.get_reviewer_from_post(request)
 
                 if not reviewer:
                     form.add_error(None, 'You must select a reviewer.')
