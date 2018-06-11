@@ -80,13 +80,13 @@
                 &nbsp;
             </div>
             <div class="small-6 columns text-center show-for-large">
-                <h1><a href="/">{{ request.journal.name }}</a></h1>
+                <h1><a href="{% url 'website_index' %}">{{ request.journal.name }}</a></h1>
             </div>
             <div class="small-6 columns text-center show-for-medium-only">
-                <h1><a href="/">{{ request.journal.code }}</a></h1>
+                <h1><a href="{% url 'website_index' %}">{{ request.journal.code }}</a></h1>
             </div>
             <div class="small-6 columns text-center show-for-small-only">
-                <h1><a href="/">{{ request.journal.code }}</a></h1>
+                <h1><a href="{% url 'website_index' %}">{{ request.journal.code }}</a></h1>
             </div>
             <div class="small-3 columns text-right">
                 {% if request.user.is_authenticated %}
