@@ -219,6 +219,8 @@ def reset_password(request, token):
         if form.is_valid():
             password = form.cleaned_data['password_2']
             reset_token.account.set_password(password)
+            reset_token.account.is_active = True
+            logic.clear_bad_login_attempts(request)
             reset_token.account.save()
             reset_token.expired = True
             reset_token.save()

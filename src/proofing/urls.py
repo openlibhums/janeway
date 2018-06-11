@@ -49,6 +49,9 @@ urlpatterns = [
         views.delete_note,
         name='proofing_delete_note'),
 
+    url(r'^requests/(?P<proofing_task_id>\d+)/preview/(?P<galley_id>\d+)/(?P<file_name>.*)$', views.preview_figure,
+        name='preview_figure'),
+
     # Corrections
     url(r'^requests/corrections/(?P<typeset_task_id>\d+)/decision/(?P<decision>accept|decline)/$',
         views.proofing_requests,

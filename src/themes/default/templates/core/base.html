@@ -26,6 +26,7 @@
           title="News Feed for Journal">
     {% if journal.favicon %}
         <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>{% endif %}
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{% url 'rss_articles' %}"/>
 </head>
 
 <body>

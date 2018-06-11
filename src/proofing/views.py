@@ -20,8 +20,8 @@ from submission import models as submission_models
 from core import models as core_models, files
 from proofing import models, logic, forms
 from events import logic as event_logic
-from production import logic as production_logic
 from journal import models as journal_models
+from journal.views import article_figure
 
 
 @proofing_manager_or_editor_required
@@ -328,8 +328,6 @@ def do_proofing(request, proofing_task_id, article_id=None):
 
     elif request.POST and 'upload' in request.POST:
         modal = logic.handle_annotated_galley_upload(request, proofing_task, article)
-
-    print(modal)
 
     template = 'proofing/do_proofing.html'
     context = {
@@ -670,3 +668,9 @@ def proofing_download(request, proofing_task_id, file_id):
     else:
         messages.add_message(request, messages.WARNING, 'Requested file is not a galley for proofing')
         return redirect(request.META.get('HTTP_REFERER'))
+
+
+@proofreader_for_article_required
+def preview_figure(request, proofing_task_id, galley_id, file_name):
+    galley = get_object_or_404(core_models.Galley, pk=galley_id, article__journal=request.journal)
+    return article_figure(request, galley.article.pk, galley_id, file_name)

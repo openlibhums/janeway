@@ -312,6 +312,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_section_editor(self, request):
         return self.check_role(request.journal, 'section-editor')
 
+    def has_an_editor_role(self, request):
+        editor = self.is_editor(request)
+        section_editor = self.is_section_editor(request)
+
+        if editor or section_editor:
+            return True
+
+        return False
+
     def is_reviewer(self, request):
         return self.check_role(request.journal, 'reviewer')
 
@@ -363,7 +372,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 setattr(frozen_author, k, v)
                 frozen_author.save()
         else:
-            submission_models.FrozenAuthor.objects.create(**frozen_dict)
+            submission_models.FrozenAuthor.objects.get_or_create(**frozen_dict)
 
     def frozen_author(self, article):
         try:

@@ -26,7 +26,8 @@ def get_reviewers(article, request=None):
     reviewers = [review.reviewer.pk for review in review_assignments]
     reviewers.append(request.user.pk)
 
-    return core_models.AccountRole.objects.filter(role__slug='reviewer').exclude(user__pk__in=reviewers)
+    return core_models.AccountRole.objects.filter(role__slug='reviewer', journal=request.journal).exclude(
+        user__pk__in=reviewers)
 
 
 def get_suggested_reviewers(article, reviewers):
@@ -105,11 +106,16 @@ def get_revision_request_content(request, article, revision):
     return render_template.get_message_content(request, email_context, 'request_revisions')
 
 
-def get_reviewer_from_post(post):
-    reviewer_id = post.get('reviewer')
+def get_reviewer_from_post(request):
+    reviewer_id = request.POST.get('reviewer')
 
     if reviewer_id:
         reviewer = core_models.Account.objects.get(pk=reviewer_id)
+
+        # if this user is not a reviewer, return None to force an error on the form.
+        if not reviewer.is_reviewer(request):
+            return None
+
         return reviewer
     else:
         return None

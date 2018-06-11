@@ -6,6 +6,7 @@ from django.conf.urls import url
 from rss import views
 
 urlpatterns = [
+    url(r'^', views.LatestArticlesFeed(), name='rss_articles'),
     url(r'^news/$', views.LatestNewsFeed(), name='rss_news'),
     url(r'^articles/$', views.LatestArticlesFeed(), name='rss_articles'),
 ]

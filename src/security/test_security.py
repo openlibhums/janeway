@@ -3198,7 +3198,8 @@ class TestSecurity(TestCase):
 
         return journal_one, journal_two
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(self):
         """
         Setup the test environment.
         :return: None

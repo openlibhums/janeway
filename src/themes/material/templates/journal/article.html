@@ -33,6 +33,8 @@
 
     <meta name="DC.Identifier.URI" content="
 
+
+
             {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
@@ -57,11 +59,15 @@
     <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
     <meta name="citation_abstract_html_url" content="
 
+
+
             {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="citation_language" content="{{ article.language }}"/>
 
     {% if article.keywords %}
         <meta name="citation_keywords" xml:lang="en" content="
+
+
 
                 {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
     {% endif %}
@@ -107,7 +113,7 @@
                             {{ article.section.name }}
 
                         <br/>
-                        {{ article.title|safe }}</small>
+                            {{ article.title|safe }}</small>
                             </div>
                     </span>
 
@@ -136,13 +142,14 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
+                    {% if article.is_published %}
+                        <h5>{% trans "How to Cite" %}</h5>
+                        {% include "elements/journal/how_to_cite.html" with article=article %}
 
-                    <h5>{% trans "How to Cite" %}</h5>
-                    {% include "elements/journal/how_to_cite.html" with article=article %}
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
 
                     {% if article.publisher_notes.all %}
                         <h5>Publisher Notes</h5>
@@ -155,7 +162,7 @@
                 </div>
             </div>
             <div class="row">
-                {% if article.metrics.alm %}
+                {% if article.metrics.alm and article.is_published %}
                     <div class="col m12 l12 s12">
                         <div class="card">
                             <div class="card-content center">
@@ -187,7 +194,7 @@
                                         <p><i class="fa fa-wikipedia-w"></i> Wikipedia</p>
                                     </div>
                                 {% endif %}
-                            {% if article.metrics.alm.reddit %}
+                                {% if article.metrics.alm.reddit %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.metrics.alm.reddit }}
@@ -200,16 +207,18 @@
                     </div>
                 {% endif %}
             </div>
-            <article>
-                <div itemprop="articleBody" class="article-body">
-                    <div class="card">
-                        <div class="card-content">
-                            {{ article_content|safe }}
-                            {% hook 'article_footer_block' %}
+            {% if article.is_published %}
+                <article>
+                    <div itemprop="articleBody" class="article-body">
+                        <div class="card">
+                            <div class="card-content">
+                                {{ article_content|safe }}
+                                {% hook 'article_footer_block' %}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </article>
+                </article>
+            {% endif %}
         </div>
 
         <div class="col m4">
@@ -221,37 +230,38 @@
 
                     {% for author in article.frozen_authors.all %}
                         <small>
-                        {% if not forloop.first %}<br /> {% endif %}
-                        {{ author.full_name }}
-                        {% if author.institution %}
-                            <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
-                            <span itemprop="name">({{ author.institution }})
-                        {% endif %}
-                        {% if not '@journal.org' in author.author.email %}
-                                    <a itemprop="email" href="mailto:{{ author.author.email }}"
-                                       class="fa fa-envelope email-link"></a>{% endif %}
+                            {% if not forloop.first %}<br/> {% endif %}
+                            {{ author.full_name }}
+                            {% if author.institution %}
+                                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+                                <span itemprop="name">({{ author.institution }})
+                            {% endif %}
+                            {% if not '@journal.org' in author.author.email %}
+                                <a itemprop="email" href="mailto:{{ author.author.email }}"
+                                   class="fa fa-envelope email-link"></a>{% endif %}
                         </small>
                     {% endfor %}
 
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
+                    {% if article.is_published %}
+                        <h5>
+                            {% trans "Download" %}
+                        </h5>
 
-                    <h5>
-                        {% trans "Download" %}
-                    </h5>
+                        <ul>
+                            {% for galley in galleys %}
+                                <li>
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
 
-                    <ul>
-                        {% for galley in galleys %}
-                            <li>
-                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
 
                     {% if article.supplementary_files.all %}
                         <h5>{% trans "Supplementary Files" %}</h5>
@@ -262,9 +272,9 @@
                             {% endfor %}
                         </ul>
 
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
                     {% endif %}
 
                     {% if journal_settings.general.submission_summary %}
@@ -285,10 +295,10 @@
                             <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                         </tr>
                         {% if article.date_accepted %}
-                        <tr>
-                            <th>Accepted</th>
-                            <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
-                        </tr>
+                            <tr>
+                                <th>Accepted</th>
+                                <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
+                            </tr>
                         {% endif %}
                         <tr>
                             <th>Published</th>
@@ -313,27 +323,30 @@
                     <h5>
                         Peer Review
                     </h5>
-                    {% if article.peer_reviewed %}<p><i class="fa fa-check-circle-o" style="color: green"></i> This article has been peer reviewed.</p>{% else %}<p>This article has not been peer reviewed.</p>{% endif %}
+                    {% if article.peer_reviewed %}
+                        <p><i class="fa fa-check-circle-o" style="color: green"></i> This article has been peer
+                            reviewed.</p>{% else %}<p>This article has not been peer reviewed.</p>{% endif %}
 
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
-
-                    <h5>
-                        File Checksums (MD5)
-                    </h5>
-                    <ul>
-                        {% for galley in galleys %}
-                            <li>
-                                <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    {% if article.is_published %}
+                        <h5>
+                            File Checksums (MD5)
+                        </h5>
+                        <ul>
+                            {% for galley in galleys %}
+                                <li>
+                                    <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
             </div>
             <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
                 <div class="card-content">
-                        <h5>
+                    <h5>
                         Table of Contents
                     </h5>
                     <ul id="toc" class="section table-of-contents">

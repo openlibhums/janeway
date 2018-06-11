@@ -23,46 +23,6 @@
                 {% endif %}
             {% endfor %}
 
-            <div data-sticky-container>
-                <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                    <div class="row">
-                        <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
-                            <button class="menu-icon" type="button" data-toggle></button>
-                            <div class="title-bar-title">Options</div>
-                        </div>
-                        <div id="options-menu">
-                            <div class="large-6 columns">
-                                <ul class="menu vertical medium-horizontal"
-                                    data-responsive-menu="drilldown medium-dropdown">
-                                    <li>Share:</li>
-                                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                </ul>
-                            </div>
-                            <div class="large-6 columns">
-                                <ul class="menu vertical medium-horizontal align-right"
-                                    data-responsive-menu="drilldown medium-dropdown">
-                                    <li><a href="javascript:resizeText(-1)">A-</a></li>
-                                    <li><a href="javascript:resizeText(1)">A+</a></li>
-                                    {% if article.correspondence_author.email %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
-                                    <li><a href="#">Dyslexia Friendly</a></li>
-                                    <li>
-                                        <a><i class="fa fa-comments"></i></a>
-                                        <ul class="menu">
-                                            <li><a data-open="HarvardModal">View Harvard Citation Style</a></li>
-                                            <li><a data-open="VancouverModal">View Vancouver Citation Style</a></li>
-                                            <li><a data-open="APAModal">View APA Citation Style</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <section id="content" class="no-padding">
                 <div class="row">
                     <div class="large-8 columns border-right">
@@ -78,43 +38,7 @@
                                     ({{ article.date_published.year }}) '{{ article.title|safe }}',
                                     <i>{{ journal.name }}</i>. 0(0).
                                     doi: {{ article.identifier.identifier }}</p>
-                                <div class="summary">
-                                    <div class="top">
-                                        <div class="row">
-                                            <div class="large-4 columns">
-                                                <h4 class="number">
-                                                    865
-                                                    <span>Views</span>
-                                                </h4>
-                                            </div>
-                                            <div class="large-4 columns">
-                                                <h4 class="number">
-                                                    60
-                                                    <span>Downloads</span>
-                                                </h4>
-                                            </div>
-                                            <div class="large-4 columns">
-                                                <h4 class="number">
-                                                    70
-                                                    <span>Twitter</span>
-                                                </h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="bottom">
-                                        <div class="row" data-equalizer>
-                                            <div class="large-4 columns" data-equalizer-watch>
-                                                <h5>Published on <br> {{ article.date_published|date:"d M Y" }}</h5>
-                                            </div>
-                                            <div class="large-4 columns" data-equalizer-watch>
-                                                {% if article.peer_reviewed %}<h5>Peer Reviewed</h5>{% endif %}
-                                            </div>
-                                            <div class="large-4 columns" data-equalizer-watch>
-                                                <h5>CC by 4.0</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
                                 <h2>Article</h2>
                                 <div itemprop="articleBody">
                                     {{ galley.file_content|safe }}
@@ -122,27 +46,6 @@
                             </div>
                         </div>
                     </div>
-                    <aside class="large-4 columns" data-sticky-container>
-                        <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                            <div class="section">
-                                <h3>Download</h3>
-                                <ul>
-                                    {% for galley in proofing_task.galleys_for_proofing.all %}
-                                        <li>
-                                            <a href="{% url 'proofing_download' proofing_task.pk galley.file.pk %}">Download {{ galley.label }}</a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-
-                            <div class="section hide-for-small-only">
-                                <h3>Jump To</h3>
-                                <ul id="toc">
-
-                                </ul>
-                            </div>
-                        </div>
-                    </aside>
                 </div>
             </section>
         </div>

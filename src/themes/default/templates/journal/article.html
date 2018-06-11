@@ -31,6 +31,8 @@
 
 
 
+
+
             {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
@@ -57,11 +59,15 @@
 
 
 
+
+
             {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="citation_language" content="{{ article.language }}"/>
 
     {% if article.keywords %}
         <meta name="citation_keywords" xml:lang="en" content="
+
+
 
 
 
@@ -96,7 +102,8 @@
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h4 class="card-title align-text-bottom">{{ article.title|safe }}</h4>
-                        <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
+                        {% if article.is_published %}
+                            <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
                             {% trans "Author" %}{% endif %}:</strong>
                             {% for author in article.frozen_authors.all %}
                                 <span>{% if forloop.first == False %}, {% endif %}<span itemscope
@@ -104,7 +111,10 @@
                                                                                         itemprop="author"
                                                                                         href="#"
                                                                                         {% if author.author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
-                                                                                        {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
+                                                                                        {% if author.author.enable_public_profile %}
+                                                                                            <a class="profilelink"
+                                                                                               href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
+                                                                                            {{ author.full_name }}{% endif %}
                                     {% if author.institution %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
@@ -113,6 +123,7 @@
                                         <a itemprop="email" href="mailto:{{ author.author.email }}"
                                            class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                             {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -129,86 +140,103 @@
                 {% if article.keywords and article.keywords|length > 0 %}<p><strong>{% trans "Keywords" %}:</strong>
                     {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                     {% endif %}{% endfor %}</p>{% endif %}
-                <p><strong>{% trans "How to Cite" %}:</strong>
+                {% if article.is_published %}
+                    <p><strong>{% trans "How to Cite" %}:</strong>
                     {% include "elements/journal/how_to_cite.html" with article=article %}
-                    {% if article.publisher_notes.all %}
-                        <div class="callout primary">
-                            <h2>{% trans "Publisher Notes" %}</h2>
-                            <ul>
-                                {% for note in article.publisher_notes.all %}
-                                    <li>{{ note.text }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
+                {% endif %}
+                {% if article.publisher_notes.all %}
+                    <div class="callout primary">
+                        <h2>{% trans "Publisher Notes" %}</h2>
+                        <ul>
+                            {% for note in article.publisher_notes.all %}
+                                <li>{{ note.text }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
                 {% if article_content %}
-                <h2>{% trans "Article" %}</h2>
-                <div itemprop="articleBody">
-                    {{ article_content|safe }}
-                    {% hook 'article_footer_block' %}
-                </div>
+                    <h2>{% trans "Article" %}</h2>
+                    <div itemprop="articleBody">
+                        {{ article_content|safe }}
+                        {% hook 'article_footer_block' %}
+                    </div>
                 {% endif %}
             </div>
         </div>
 
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
-                <h4>{% trans "Download" %}</h4>
-                <ul>
-                    {% for galley in galleys %}
-                        <li>
-                            <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% if article.is_published %}
+                    <h4>{% trans "Download" %}</h4>
+                    <ul>
+                        {% for galley in galleys %}
+                            <li>
+                                <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 {% if article.supplementary_files.all %}
                     <h4>{% trans "Supplementary Files" %}</h4>
                     <ul>
-                    {% for file in article.supplementary_files.all %}
-                        <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a></li>
-                    {% endfor %}
+                        {% for file in article.supplementary_files.all %}
+                            <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                 {% endif %}
                 <h4>{% trans "Information" %}</h4>
                 <ul>
+                    {% if article.is_published %}
                     <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
-                    <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}<i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
-                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" title="{{ article.license.text }}">{{ article.license.name }}</a></li>
+                    {% else %}
+                    <li>{% trans "Accepted on" %} {{ article.date_accepted|date:"d M Y" }}</li>
+                    {% endif %}
+                    <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}
+                        <i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
+                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
+                                                 title="{{ article.license.text }}">{{ article.license.name }}</a></li>
                     {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                         <li>
-                            <a href="#" data-toggle="modal" data-target="#summary">{% trans 'Non Specialist Summary' %}</a>
+                            <a href="#" data-toggle="modal"
+                               data-target="#summary">{% trans 'Non Specialist Summary' %}</a>
                         </li>
                     {% endif %}
                 </ul>
-                <h4>{% trans "Metrics" %}</h4>
-                <ul>
-                    <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
-                    <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
-                    {% if article.metrics.alm.twitter %}<li>{% trans "Twitter" %}: {{ article.metrics.alm.twitter }}</li>{% endif %}
-                    {% if article.metrics.alm.wikipedia %}<li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
-                    {% if article.metrics.alm.reddit %}<li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
-                </ul>
-                <h4>{% trans "Citation" %}</h4>
-                <div class="btn-group-vertical">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
-                        Harvard-Style Citation
-                    </button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">
-                        Vancouver-Style Citation
-                    </button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
-                        APA-Style Citation
-                    </button>
-                    <br />
-                </div>
-                <h4>File Checksums (MD5)</h4>
-                <ul>
-                    {% for galley in galleys %}
-                        <li>
-                            <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% if article.is_published %}
+                    <h4>{% trans "Metrics" %}</h4>
+                    <ul>
+                        <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
+                        <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                        {% if article.metrics.alm.twitter %}
+                            <li>{% trans "Twitter" %}: {{ article.metrics.alm.twitter }}</li>{% endif %}
+                        {% if article.metrics.alm.wikipedia %}
+                            <li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
+                        {% if article.metrics.alm.reddit %}
+                            <li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
+                    </ul>
+                    <h4>{% trans "Citation" %}</h4>
+                    <div class="btn-group-vertical">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
+                            Harvard-Style Citation
+                        </button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">
+                            Vancouver-Style Citation
+                        </button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
+                            APA-Style Citation
+                        </button>
+                        <br/>
+                    </div>
+                    <h4>File Checksums (MD5)</h4>
+                    <ul>
+                        {% for galley in galleys %}
+                            <li>
+                                <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
         </div>
     </div>

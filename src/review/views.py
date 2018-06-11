@@ -139,6 +139,11 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     editor = get_object_or_404(core_models.Account, pk=editor_id)
+
+    if not editor.has_an_editor_role(request):
+        messages.add_message(request, messages.WARNING, 'User is not an Editor or Section Editor')
+        return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+
     try:
         assignment = models.EditorAssignment.objects.create(article=article, editor=editor, editor_type=assignment_type)
         messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
@@ -262,6 +267,7 @@ def in_review(request, article_id):
 
     if not review_rounds:
         models.ReviewRound.objects.create(article=article, round_number=1)
+        return redirect(reverse('review_in_review', kwargs={'article_id': article.id}))
 
     if request.POST:
 
@@ -740,7 +746,7 @@ def add_review_assignment(request, article_id):
             form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
 
             if form.is_valid():
-                reviewer = logic.get_reviewer_from_post(request.POST)
+                reviewer = logic.get_reviewer_from_post(request)
 
                 if not reviewer:
                     form.add_error(None, 'You must select a reviewer.')
@@ -1114,6 +1120,7 @@ def review_decision(request, article_id, decision):
 
         if decision == 'accept':
             article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
+            article.snapshot_authors(article)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
             workflow_kwargs = {'handshake_url': 'review_unassigned_article',

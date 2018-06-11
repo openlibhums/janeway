@@ -7,7 +7,8 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
+    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% else %}{{ request.press.name }}
+    {% endif %}{% endblock title %}</title>
 
     {% block head %}{% endblock head %}
     <link href="{% static "admin/css/app.css" %}" rel="stylesheet">
@@ -23,9 +24,9 @@
     {% block css %}{% endblock %}
 
     {% if journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon" />
+        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
     {% elif press.favicon %}
-        <link rel="icon" href="{{ press.favicon.url }}" type="image/vnd.microsoft.icon" />
+        <link rel="icon" href="{{ press.favicon.url }}" type="image/vnd.microsoft.icon"/>
     {% endif %}
 </head>
 <body>
@@ -48,7 +49,8 @@
             <nav aria-label="You are here:" role="navigation">
                 <ul class="breadcrumbs">
                     {% block breadcrumbs %}
-                        {% if request.journal %}<li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>{% endif %}
+                        {% if request.journal %}
+                            <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>{% endif %}
                     {% endblock breadcrumbs %}
                 </ul>
             </nav>

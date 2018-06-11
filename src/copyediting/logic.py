@@ -28,16 +28,20 @@ def get_copyeditors(article):
                                                   journal=article.journal).exclude(user__pk__in=copyeditors)
 
 
-def get_user_from_post(post):
+def get_user_from_post(request):
     """
     Grabs a string from POST and fetches the related user, returns None if no user_id is found.
     :param post: request.POST object
     :return: a Account object or None
     """
-    user_id = post.get('copyeditor')
+    user_id = request.POST.get('copyeditor')
 
     if user_id:
         user = core_models.Account.objects.get(pk=user_id)
+
+        if not user.is_copyeditor(request):
+            return None
+
         return user
     else:
         return None
