@@ -56,6 +56,9 @@ def get_user_from_post(request):
 
     if user_id:
         user = core_models.Account.objects.get(pk=user_id)
+
+        if not user.is_proofreader(request):
+            return None
     else:
         user = None
 
