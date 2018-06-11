@@ -186,8 +186,12 @@ def handle_assigning_typesetter(production_assignment, request):
              'files': [int(f) for f in file] if file else None,
              'task': task}
 
+    user = core_models.Account.objects.get(pk=user)
+
     if not user:
         errors.append('You must select a user.')
+    if not user.is_typesetter(request):
+        errors.append('Selected user is not a typesetter.')
     if not file:
         errors.append('You must select at least one file.')
 
@@ -195,7 +199,6 @@ def handle_assigning_typesetter(production_assignment, request):
         return None, errors, _dict
 
     else:
-        user = core_models.Account.objects.get(pk=user)
         typeset_task = models.TypesetTask(
             assignment=production_assignment,
             typesetter=user,
