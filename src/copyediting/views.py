@@ -96,7 +96,7 @@ def add_copyeditor_assignment(request, article_id):
 
     if request.POST:
         form = forms.CopyeditAssignmentForm(request.POST)
-        user = logic.get_user_from_post(request.POST)
+        user = logic.get_user_from_post(request)
         file_list = [int(file_id) for file_id in request.POST.getlist('files')]
 
         if not user:
