@@ -26,7 +26,7 @@
                 <div class="content">
 
                     <h5></h5>
-                    <table class="small" id="reviewers">
+                    <table class="small scroll" id="reviewers">
                         <thead>
                         <tr>
                             <th>Select</th>
@@ -141,7 +141,7 @@
                     <form method="POST">
                         {% include "elements/forms/errors.html" with form=new_reviewer_form %}
                         {% csrf_token %}
-                        <table class="small" id="enrolluser">
+                        <table class="small scroll" id="enrolluser">
                             <thead>
                             <tr>
                                 <th>Select</th>

@@ -15,7 +15,7 @@
             {% if filter == 'me' %}<a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>{% else %}<a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>{% endif %}
         </div>
         <div class="content">
-            <table class="small" id="unassigned">
+            <table class="small scroll" id="unassigned">
                 <thead>
                     <tr>
                         <th>ID</th>

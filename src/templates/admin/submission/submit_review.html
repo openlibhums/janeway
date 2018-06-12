@@ -25,7 +25,7 @@
                     {% if article.comments_editor|startswith:'<p' %}{{ article.comments_editor }}{% else %}<p>{{ article.comments_editor }}</p>{% endif %}
                     {% endif %}
                     <div class="title-area"><h2>{% trans "Article Info" %}</h2></div>
-                    <table class="table table-condensed">
+                    <table class="scroll small">
                         <tr>
                             <th colspan="{% if request.journal.submissionconfiguration.subtitle %}2{% else %}3{% endif %}">{% trans 'Title' %}</th>
                             {% if request.journal.submissionconfiguration.subtitle %}<th>{% trans "Subtitle" %}</th>{% endif %}
@@ -79,7 +79,7 @@
                     <div class="row expanded">
                         <div class="large-6 columns">
                             <p><strong>{% trans "Manuscript Files" %}</strong></p>
-                            <table class="table table-condensed small">
+                            <table class="scroll small">
                                 <tr>
                                     <th>{% trans "Label" %}</th>
                                     <th>{% trans "File Name" %}</th>
@@ -99,7 +99,7 @@
                         {% if request.journal.submissionconfiguration.figures_data %}
                         <div class="large-6 columns">
                             <p><strong>{% trans "Figure/Data" %}</strong></p>
-                            <table class="table table-condensed small">
+                            <table class="scroll small">
                                 <tr>
                                     <th>{% trans "Label" %}</th>
                                     <th>{% trans "File Name" %}</th>
