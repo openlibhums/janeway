@@ -5,7 +5,7 @@
             class="fa fa-edit">&nbsp;</i>Edit</a>{% endif %}
 <h4>{{ article.title|safe }}</h4>
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
-<table class="small">
+<table class="scroll small">
     <tr>
         <th>Section</th>
         <th>Owner</th>
@@ -75,7 +75,7 @@
     <h2>Authors</h2>
 </div>
 
-<table class="small" id="unassigned">
+<table class="scroll small" id="unassigned">
     <tr>
         <th>Name</th>
         <th>Email</th>
@@ -100,7 +100,7 @@
 
     <p>These records are those of the article authors frozen at the point of submission.</p>
 
-    <table class="small" id="unassigned">
+    <table class="scroll small" id="unassigned">
         <tr>
             <th>Name</th>
             <th>Email</th>
@@ -122,7 +122,7 @@
 <div class="title-area">
     <h2>Editors</h2>
 </div>
-<table id="unassigned" class="small">
+<table id="unassigned" class="scroll small">
     <tr style="text-align: left">
         <th>Name</th>
         <th>Email</th>
@@ -146,7 +146,7 @@
 </div>
 {% setting_var request.journal 'use_crossref' as use_crossref %}
 <div class="content">
-    <table>
+    <table class="scroll">
         <tr>
             <th>ID Type</th>
             <th>Identifier</th>
@@ -173,7 +173,7 @@
 
 {% if files %}
     <h4>Files</h4>
-    <table class="table table-bordered table-condensed small">
+    <table class="small scroll">
         <tr>
             <th>Label</th>
             <th>Filename</th>

@@ -45,7 +45,7 @@
                 <a class="button" href="{% url 'edit_identifiers' article.pk %}?return={{ request.path }}"><i class="fa fa-edit">&nbsp;</i>Edit</a>
             </div>
             <div class="content">
-                <table class="small">
+                <table class="small scroll">
                     <tr>
                         <th>Identifier Type</th>
                         <th>Identifier</th>
@@ -68,7 +68,7 @@
                 <h2>Galleys</h2>
             </div>
             <div class="content">
-                <table class="small">
+                <table class="small scroll">
                     <tr style="text-align: left">
                         <th>Label</th>
                         <th width="25%">Filename</th>
@@ -151,7 +151,7 @@
                 <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
             </div>
             <div class="content">
-                <table class="small">
+                <table class="small scroll">
                     <tr>
                         <th>Title</th>
                         <th>Volume</th>

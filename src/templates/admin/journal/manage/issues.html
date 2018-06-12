@@ -21,7 +21,7 @@
                     {% if not issue %}<a href="#" data-open="issue" class="button small success"><i class="fa fa-plus">&nbsp;</i>Create Issue</a>{% else %}<a class="button" href="{% url 'journal_issue' issue.pk %}">View Issue</a>{% endif %}
                 </div>
                 <div class="content">
-                    <table>
+                    <table class="scroll">
                         <thead>
                         <tr>
                             <th>Title</th>

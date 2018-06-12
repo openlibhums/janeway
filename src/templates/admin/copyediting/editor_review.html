@@ -20,7 +20,7 @@
             </div>
             <div class="content">
                 <p>Files you sent the copyeditor to complete their task.</p>
-                <table class="table table-bordered table-condensed small">
+                <table class="scroll small">
                     <tr>
                         <th>Label</th>
                         <th>Filename</th>
@@ -40,7 +40,7 @@
             </div>
             <div class="content">
                 <p>Files the copyeditor has uploaded.</p>
-                <table class="table table-bordered table-condensed small">
+                <table class="scroll small">
                     <tr>
                         <th>Label</th>
                         <th>Filename</th>
@@ -73,7 +73,7 @@
                 </div>
                 <div class="content">
                     {% for review in copyedit.author_reviews %}
-                        <table>
+                        <table class="scroll">
                             <tr>
                                 <th>Requested</th>
                                 <th>Notified</th>
@@ -92,7 +92,7 @@
                                     --{% endif %}</td>
                             </tr>
                         </table>
-                        <table class="table table-bordered table-condensed small">
+                        <table class="scroll small">
                             <tr>
                                 <th>Label</th>
                                 <th>Filename</th>
