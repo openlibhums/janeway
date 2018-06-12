@@ -106,11 +106,6 @@ class LogEntry(models.Model):
 
         new_entry = LogEntry.objects.create(**kwargs).save()
 
-        if request and request.journal:
-            if request.journal.slack_logging_enabled:
-                notify.notification(**{'slack_message': '[{0}] {1}'.format(kwargs['ip_address'], description),
-                                       'action': ['slack_admins'], 'request': request})
-
         return new_entry
 
 
