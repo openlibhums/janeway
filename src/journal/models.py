@@ -168,13 +168,18 @@ class Journal(models.Model):
         else:
             return False
 
+    @property
+    def press(self):
+        press = press_models.Press.objects.all()[0]
+        return press
+
     def full_url(self, request=None):
         if not request:
             return self.requestless_url()
 
         return 'http{0}://{1}{2}'.format(
             's' if request.is_secure() else '',
-            self.domain,
+            self.domain if settings.URL_CONFIG == 'domain' else self.press.domain,
             ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '',
             '{0}{1}'.format('/' if settings.URL_CONFIG == 'path' else '',
                             self.code if settings.URL_CONFIG == 'path' else '')
