@@ -162,7 +162,7 @@
         </div>
         <div class="large-5 columns large-text-right" data-equalizer-watch>
             <ul class="inline-list">
-                <li><a href="/site/privacy/">{% trans "Privacy Policy" %}</a></li>
+                <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
                 <li><a href="/sitemap">{% trans "Sitemap" %}</a></li>
                 <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
                 {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">Login</a></li>{% endif %}
