@@ -797,7 +797,9 @@ class Article(models.Model):
         self.save()
 
         if self.journal.use_crossref:
-            id_logic.generate_crossref_doi_with_pattern(self)
+            id = id_logic.generate_crossref_doi_with_pattern(self)
+            #id.register()
+
 
     def decline_article(self):
         self.date_declined = timezone.now()
