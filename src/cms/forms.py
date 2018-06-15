@@ -35,5 +35,6 @@ class NavForm(forms.ModelForm):
 
         self.fields['top_level_nav'].queryset = models.NavigationItem.objects.filter(
             content_type=request.model_content_type,
+            object_id=request.site_type.pk,
             has_sub_nav=True,
         )
