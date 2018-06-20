@@ -727,6 +727,8 @@ class Article(models.Model):
 
         if issues:
             issues = issues[0]
+        else:
+            return None
 
         return issues
 
@@ -798,8 +800,7 @@ class Article(models.Model):
 
         if self.journal.use_crossref:
             id = id_logic.generate_crossref_doi_with_pattern(self)
-            #id.register()
-
+            id.register()
 
     def decline_article(self):
         self.date_declined = timezone.now()

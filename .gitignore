@@ -98,3 +98,5 @@ src/texture/**
 Dockerfile
 
 Dockerfile
+
+*.ipynb

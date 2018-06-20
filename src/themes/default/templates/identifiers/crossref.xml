@@ -17,17 +17,22 @@
 				<full_title>{{ journal_title }}</full_title>
 				<issn media_type="electronic">{{ journal_issn }}</issn>
 			</journal_metadata>
+            {% if issue %}
 			<journal_issue>
+                {% if date_published %}
 				<publication_date media_type="online">
-					<month>{{ journal_month }}</month>
-					<day>{{ journal_day }}</day>
-					<year>{{ journal_year }}</year>
+					<month>{{ date_published.month }}</month>
+					<day>{{ date_published.day }}</day>
+					<year>{{ date_published.year }}</year>
 				</publication_date>
+                {% endif %}
+
 				<journal_volume>
-					<volume>{{ journal_volume }}</volume>
+					<volume>{{ issue.volume }}</volume>
 				</journal_volume>
-				<issue>{{ journal_issue }}</issue>
+				<issue>{{ issue.issue }}</issue>
 			</journal_issue>
+            {% endif %}
 			<journal_article publication_type="full_text">
 				<titles>
 					<title>{{ article_title }}</title>
@@ -40,10 +45,11 @@
 					</person_name>
                     {%  endfor %}
 				</contributors>
+
 				<publication_date media_type="online">
-					<month>{{ article_month }}</month>
-					<day>{{ article_day }}</day>
-					<year>{{ article_year }}</year>
+					<month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
+					<day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
+					<year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
 				</publication_date>
 				<doi_data>
 					<doi>{{ doi }}</doi>

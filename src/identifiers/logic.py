@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.contrib import messages
+from django.utils import timezone
 
 import sys
 from utils import models as util_models
@@ -105,6 +106,8 @@ def send_crossref_deposit(server, identifier):
     from utils import setting_handler
     article = identifier.article
 
+    print(identifier.article.issue)
+
     template_context = {
         'batch_id': uuid4(),
         'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
@@ -116,21 +119,16 @@ def send_crossref_deposit(server, identifier):
                                                   identifier.article.journal).processed_value,
         'journal_title': identifier.article.journal.name,
         'journal_issn': identifier.article.journal.issn,
-        'journal_month': identifier.article.date_published.month,
-        'journal_day': identifier.article.date_published.day,
-        'journal_year': identifier.article.date_published.year,
-        'journal_volume': identifier.article.issue.volume,
-        'journal_issue': identifier.article.issue.issue,
+        'date_published': identifier.article.date_published,
+        'issue': identifier.article.issue,
         'article_title': '{0}{1}{2}'.format(
             identifier.article.title,
             ' ' if identifier.article.subtitle is not None else '',
             identifier.article.subtitle if identifier.article.subtitle is not None else ''),
         'authors': identifier.article.authors.all(),
-        'article_month': identifier.article.date_published.month,
-        'article_day': identifier.article.date_published.day,
-        'article_year': identifier.article.date_published.year,
         'doi': identifier.identifier,
         'article_url': identifier.article.url,
+        'now': timezone.now(),
     }
 
     pdfs = identifier.article.pdfs
