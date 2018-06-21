@@ -1,0 +1,27 @@
+{% load truncate %}
+<li class="list-group-item list-group-item-dashboard">
+    <div class="row expanded">
+        <div class="medium-1 columns">{{ article.pk }}</div>
+        <div class="medium-9 columns">
+            <p class="submission">{{ article.title|truncatesmart:80 }}<br/>
+                <small>
+                    Authors: {{ article.author_list }}<br/>
+                    Editors:
+                    {% for editor in article.editors %}{{ editor.editor.full_name }} (
+                        {% if editor.editor_type == 'section-editor' %}SE{% else %}E
+                        {% endif %}){% if not forloop.last %}, {% endif %}{% endfor %}
+
+                </small>
+            </p>
+        </div>
+        <div class="medium-2 columns">
+            <small>
+                <p>
+                    Section: {{ article.section.name }}
+                    <br/>
+                    Stage: {{ article.get_stage_display }}
+                </p>
+            </small>
+        </div>
+    </div>
+</li>

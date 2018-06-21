@@ -1,0 +1,112 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Active Submissions{% endblock title %}
+{% block title-section %}Active Submissions{% endblock title-section %}
+
+{% block body %}
+    <div class="large-12 columns">
+
+        <div class="row expanded">
+            <div class="large-8 columns end">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Submission List</h2>
+                    </div>
+                    <div class="content" id="submission_list">
+                        <input type="text" class="search"
+                               placeholder="Start typing to filter submissions (title, authors, editors)"/>
+                        <ul class="list-group list" id="list_container">
+                            {% for article in active_submissions %}
+                                {% include "elements/core/submission_list_element.html" %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="large-4 columns">
+                <div class="box">
+
+                    <div class="content">
+
+                        <div class="row">
+                            <form id="filter_form" method="POST">
+                                <div class="title-area">
+                                    <h2>Assignments</h2>
+                                </div>
+                                <div class="medium-2 columns">
+                                    <div class="switch tiny">
+                                        <input class="switch-input" id="tinySwitch" type="checkbox"
+                                               name="my_assignments">
+                                        <label class="switch-paddle" for="tinySwitch">
+                                            <span class="show-for-sr">Tiny Sandwiches Enabled</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="medium-10 columns">
+                                    <p>My Assignments</p>
+                                </div>
+
+                                <div class="title-area">
+                                    <h2>Section</h2>
+                                </div>
+
+                                {% for section in sections %}
+                                    <div class="medium-2 columns">
+                                        <div class="switch tiny">
+                                            <input class="switch-input" id="section_{{ section.pk }}" type="checkbox"
+                                                   name="section_{{ section.pk }}">
+                                            <label class="switch-paddle" for="section_{{ section.pk }}">
+                                                <span class="show-for-sr">{{ section.name }}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="medium-10 columns">
+                                        <p>{{ section.name }}</p>
+                                    </div>
+                                {% endfor %}
+                                <button type="button" class="success button" id="filter" onclick="send_post()"><i
+                                        class="fa fa-filter">&nbsp;</i> Filter
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script>
+        var options = {
+            valueNames: ['submission']
+        };
+
+        var submission_list = new List('submission_list', options);
+
+        function send_post() {
+            $("#list_container").html('<h1 class="text-center"><i class="fa fa-circle-o-notch fa-spin"></i></h1>');
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'core_submission_filter' %}",
+                data: $("#filter_form").serialize(),
+                dataType: 'json',
+                success: function (result) {
+
+                    console.log(result);
+
+                    if (result.status === 200) {
+                        $("#list_container").html(result.html);
+                        submission_list.reIndex();
+                    } else {
+                        alert('There was an error retrieving fresh data.')
+                    }
+                }
+            });
+        };
+    </script>
+{% endblock js %}

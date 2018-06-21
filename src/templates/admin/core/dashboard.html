@@ -10,13 +10,14 @@
     <section>
         <div class="row expanded" data-equalizer data-equalize-on="medium">
             {% if is_editor %}
-                <div class="large-8 columns end" data-equalizer-watch>
+                <div class="large-12 columns end" data-equalizer-watch>
                     <div class="box">
                         <div class="title-area">
                             <h2>Editor</h2>
+                            <a class="button" href="{% url 'core_active_submissions' %}">Active Submissions</a>
                         </div>
                         <div class="row expanded">
-                            <div class="large-6 columns">
+                            <div class="large-4 columns">
                                 <div class="content">
                                     <div class="summary">
                                         <span class="stat">{{ unassigned_articles_count }}</span>
@@ -28,20 +29,25 @@
                                         <span class="title">Review</span>
                                         <a href="{% url 'review_home' %}" class="box-link"></a>
                                     </div>
-                                    <div class="summary">
-                                        <span class="stat">{{ editing_articles_count }}</span>
-                                        <span class="title">Copyediting</span>
-                                        <a href="{% url 'copyediting' %}" class="box-link"></a>
-                                    </div>
                                 </div>
                             </div>
-                            <div class="large-6 columns">
+                            <div class="large-4 columns">
+                                <div class="summary">
+                                    <span class="stat">{{ editing_articles_count }}</span>
+                                    <span class="title">Copyediting</span>
+                                    <a href="{% url 'copyediting' %}" class="box-link"></a>
+                                </div>
                                 <div class="content">
                                     <div class="summary">
                                         <span class="stat">{{ production_articles_count }}</span>
                                         <span class="title">Production</span>
                                         <a href="{% url 'production_list' %}" class="box-link"></a>
                                     </div>
+
+                                </div>
+                            </div>
+                            <div class="large-4 columns">
+                                <div class="content">
                                     <div class="summary">
                                         <span class="stat">{{ proofing_articles_count }}</span>
                                         <span class="title">Proofing</span>
@@ -59,166 +65,143 @@
                 </div>
             {% endif %}
 
-            {% if is_reviewer %}
-                <div class="large-4 columns end" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Reviewer</h2>
-                            <a href="{% url 'review_requests' %}" class="button">View Requests</a>
+        {% if is_reviewer %}
+            <div class="large-4 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Reviewer</h2>
+                        <a href="{% url 'review_requests' %}" class="button">View Requests</a>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat alert">{{ assigned_articles_for_user_review_count }}</span>
+                            <span class="title">Review Requests</span>
                         </div>
-                        <div class="content">
-                            <div class="summary">
-                                <span class="stat alert">{{ assigned_articles_for_user_review_count }}</span>
-                                <span class="title">Review Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat">{{ assigned_articles_for_user_review_accepted_count }}</span>
-                                <span class="title">Accepted Reviews</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat success">{{ assigned_articles_for_user_review_completed_count }}</span>
-                                <span class="title">Completed Reviews</span>
-                            </div>
+                        <div class="summary">
+                            <span class="stat">{{ assigned_articles_for_user_review_accepted_count }}</span>
+                            <span class="title">Accepted Reviews</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat success">{{ assigned_articles_for_user_review_completed_count }}</span>
+                            <span class="title">Completed Reviews</span>
                         </div>
                     </div>
                 </div>
-            {% endif %}
-            {% user_has_role request 'copyeditor' as copyeditor %}
-            {% if copyeditor %}
-                <div class="large-4 columns end" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Copyeditor</h2>
-                            <a href="{% url 'copyedit_requests' %}" class="button">View Requests</a>
+            </div>
+        {% endif %}
+        {% user_has_role request 'copyeditor' as copyeditor %}
+        {% if copyeditor and 'copyediting' in workflow_elements %}
+            <div class="large-4 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Copyeditor</h2>
+                        <a href="{% url 'copyedit_requests' %}" class="button">View Requests</a>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat alert">{{ copyeditor_requests }}</span>
+                            <span class="title">Copyedit Requests</span>
                         </div>
-                        <div class="content">
-                            <div class="summary">
-                                <span class="stat alert">{{ copyeditor_requests }}</span>
-                                <span class="title">Copyedit Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat">{{ copyeditor_accepted_requests }}</span>
-                                <span class="title">Accepted Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat success">{{ copyeditor_completed_requests }}</span>
-                                <span class="title">Completed Requests</span>
-                            </div>
+                        <div class="summary">
+                            <span class="stat">{{ copyeditor_accepted_requests }}</span>
+                            <span class="title">Accepted Requests</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat success">{{ copyeditor_completed_requests }}</span>
+                            <span class="title">Completed Requests</span>
                         </div>
                     </div>
                 </div>
-            {% endif %}
-            {% user_has_role request 'typesetter' as typesetter %}
-            {% if typesetter %}
-                <div class="large-4 columns end" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Production</h2>
-                            <a href="{% url 'typesetter_requests' %}" class="button">View Requests</a>
+            </div>
+        {% endif %}
+        {% user_has_role request 'typesetter' as typesetter %}
+        {% if typesetter and 'production' in workflow_elements %}
+            <div class="large-4 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Production</h2>
+                        <a href="{% url 'typesetter_requests' %}" class="button">View Requests</a>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat alert">{{ typeset_tasks }}</span>
+                            <span class="title">Production Requests</span>
                         </div>
-                        <div class="content">
-                            <div class="summary">
-                                <span class="stat alert">{{ typeset_tasks }}</span>
-                                <span class="title">Production Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat">{{ typeset_in_progress_tasks }}</span>
-                                <span class="title">Accepted Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat success">{{ typeset_completed_tasks }}</span>
-                                <span class="title">Completed Requests</span>
-                            </div>
+                        <div class="summary">
+                            <span class="stat">{{ typeset_in_progress_tasks }}</span>
+                            <span class="title">Accepted Requests</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat success">{{ typeset_completed_tasks }}</span>
+                            <span class="title">Completed Requests</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="large-4 columns end" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Proofing Production</h2>
-                            <a href="{% url 'proofing_requests' %}" class="button">View Requests</a>
+            </div>
+        {% endif %}
+        {% user_has_role request 'proofreader' as proofreader %}
+        {% if proofreader and 'proofing' in workflow_elements %}
+            <div class="large-4 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Proofreader</h2>
+                        <a href="{% url 'proofing_requests' %}" class="button">View Requests</a>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat alert">{{ new_proofing }}</span>
+                            <span class="title">Requests</span>
                         </div>
-                        <div class="content">
-                            <div class="summary">
-                                <span class="stat alert">{{ new_proofing_typesetting }}</span>
-                                <span class="title">Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat">{{ active_proofing_typesetting }}</span>
-                                <span class="title">Accepted</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat success">{{ completed_proofing_typesetting }}</span>
-                                <span class="title">Completed</span>
-                            </div>
+                        <div class="summary">
+                            <span class="stat">{{ active_proofing }}</span>
+                            <span class="title">Accepted</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat success">{{ completed_proofing }}</span>
+                            <span class="title">Completed</span>
                         </div>
                     </div>
                 </div>
-            {% endif %}
-            {% user_has_role request 'proofreader' as proofreader %}
-            {% if proofreader %}
-                <div class="large-4 columns end" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Proofreader</h2>
-                            <a href="{% url 'proofing_requests' %}" class="button">View Requests</a>
-                        </div>
-                        <div class="content">
-                            <div class="summary">
-                                <span class="stat alert">{{ new_proofing }}</span>
-                                <span class="title">Requests</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat">{{ active_proofing }}</span>
-                                <span class="title">Accepted</span>
-                            </div>
-                            <div class="summary">
-                                <span class="stat success">{{ completed_proofing }}</span>
-                                <span class="title">Completed</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+            </div>
+        {% endif %}
 
 
-            {% user_has_role request 'section-editor' as sectioneditor %}
-            {% if sectioneditor %}
-                <div class="large-8 columns end" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Section Editor</h2>
-                        </div>
-                        <div class="content">
-                            <table class="scroll">
-                                <thead>
+        {% user_has_role request 'section-editor' as sectioneditor %}
+        {% if sectioneditor %}
+            <div class="large-8 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Section Editor</h2>
+                    </div>
+                    <div class="content">
+                        <table class="scroll">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Authors</th>
+                                <th>Submitted</th>
+                                <th>Current Stage</th>
+                            </tr>
+                            </thead>
+                            {% for assignment in section_editor_articles %}
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Authors</th>
-                                    <th>Submitted</th>
-                                    <th>Current Stage</th>
+                                    <td>
+                                        <a href="{{ assignment.article.current_stage_url }}">{{ assignment.article.title }}</a>
+                                    </td>
+                                    <td>{{ assignment.article.author_list }}</td>
+                                    <td>{{ assignment.article.date_submitted }}</td>
+                                    <td>{{ assignment.article.stage }}</td>
                                 </tr>
-                                </thead>
-                                {% for assignment in section_editor_articles %}
-                                    <tr>
-                                        <td>
-                                            <a href="{{ assignment.article.current_stage_url }}">{{ assignment.article.title }}</a>
-                                        </td>
-                                        <td>{{ assignment.article.author_list }}</td>
-                                        <td>{{ assignment.article.date_submitted }}</td>
-                                        <td>{{ assignment.article.stage }}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4">No Articles Assigned</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4">No Articles Assigned</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
                     </div>
                 </div>
-            {% endif %}
+            </div>
+        {% endif %}
         </div>
 
         <div class="row expanded">
@@ -255,48 +238,48 @@
                     </div>
                 </div>
                 <div class="large-6 columns">
-                    <div class="box">
+                <div class="box">
                     <div class="title-area">
                         <h2>Submitted Articles</h2>
                     </div>
                     <div class="content">
-                    <table class="scroll">
-                        <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Current Stage</th>
-                            <th>Date Started</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for article in active_submissions %}
+                        <table class="scroll">
+                            <thead>
                             <tr>
-                                <td>{% if article.title %}{{ article.title }}{% else %}No Title
-                                    Assigned{% endif %}</td>
-                                <td>{{ article.get_stage_display }}</td>
-                                <td>{{ article.date_started }}</td>
-                                <td>
-                                    <a href="{% url 'core_dashboard_article' article.pk %}">View Status</a>
-                                    {% for revision in article.active_revision_requests %}
-                                        {% if not revision.date_completed %}
-                                            <a href="{% url 'do_revisions' article.pk revision.pk %}">Revision
-                                                Request</a>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                    {% for review in article.active_author_copyedits %}
-                                        <a href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting
-                                            Review</a>
-                                    {% endfor %}
-                                </td>
+                                <th>Title</th>
+                                <th>Current Stage</th>
+                                <th>Date Started</th>
+                                <th>Actions</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {% for article in active_submissions %}
+                                <tr>
+                                    <td>{% if article.title %}{{ article.title }}{% else %}No Title
+                                        Assigned{% endif %}</td>
+                                    <td>{{ article.get_stage_display }}</td>
+                                    <td>{{ article.date_started }}</td>
+                                    <td>
+                                        <a href="{% url 'core_dashboard_article' article.pk %}">View Status</a>
+                                        {% for revision in article.active_revision_requests %}
+                                            {% if not revision.date_completed %}
+                                                <a href="{% url 'do_revisions' article.pk revision.pk %}">Revision
+                                                    Request</a>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% for review in article.active_author_copyedits %}
+                                            <a href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting
+                                                Review</a>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             {% endif %}
-        </div>
+            </div>
     </section>
 {% endblock body %}

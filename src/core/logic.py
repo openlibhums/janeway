@@ -3,18 +3,21 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 import os
 from PIL import Image
 import uuid
 from importlib import import_module
 from datetime import timedelta
+import operator
+import re
+from functools import reduce
 
 from django.conf import settings
 from django.utils.translation import get_language
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
+from django.template.loader import get_template
 from django.db.models import Q
 
 from core import models, files, plugin_installed_apps
@@ -144,7 +147,6 @@ def process_setting_list(settings_to_get, type, journal):
 
 
 def get_settings_to_edit(group, journal):
-
     review_form_choices = list()
     for form in review_models.ReviewForm.objects.filter(journal=journal):
         review_form_choices.append([form.pk, form])
@@ -253,7 +255,8 @@ def get_settings_to_edit(group, journal):
     elif group == 'journal':
         journal_settings = [
             'journal_name', 'journal_issn', 'journal_theme', 'journal_description', 'is_secure',
-            'enable_editorial_display', 'mulit_page_editorial', 'enable_editorial_images', 'main_contact', 'publisher_name', 'publisher_url',
+            'enable_editorial_display', 'mulit_page_editorial', 'enable_editorial_images', 'main_contact',
+            'publisher_name', 'publisher_url',
             'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
             'twitter_handle', 'switch_language', 'google_analytics_code'
         ]
@@ -539,7 +542,6 @@ def check_for_bad_login_attempts(request):
 
 
 def handle_file(request, setting_value, file):
-
     if setting_value.value:
         file_to_delete = models.File.objects.get(pk=setting_value.value)
         files.unlink_journal_file(request, file_to_delete)
@@ -563,3 +565,50 @@ def start_reset_process(request, account):
     # Create a new token
     new_reset_token = models.PasswordResetToken.objects.create(account=account)
     send_reset_token(request, new_reset_token)
+
+
+def build_submission_list(request):
+    section_list = list()
+    my_assignments = False
+
+    to_exclude = [
+        submission_models.STAGE_PUBLISHED,
+        submission_models.STAGE_REJECTED,
+        submission_models.STAGE_UNSUBMITTED
+    ]
+
+    for key, value in request.POST.items():
+
+        if key.startswith('section_'):
+            section_id = re.findall(r'\d+', key)
+            if section_id:
+                section_list.append(Q(section__pk=section_id[0]))
+
+        elif key.startswith('my_assignments'):
+            my_assignments = True
+
+    if not section_list:
+        section_list = [Q(section__pk=section.pk) for section in
+                        submission_models.Section.objects.filter(journal=request.journal, is_filterable=True)]
+
+    articles = submission_models.Article.objects.filter(
+        journal=request.journal).exclude(
+        stage__in=to_exclude
+    ).filter(
+        reduce(operator.or_, section_list)
+    )
+
+    if my_assignments:
+        assignments = review_models.EditorAssignment.objects.filter(article__journal=request.journal,
+                                                                    editor=request.user)
+        assignment_article_pks = [assignment.article.pk for assignment in assignments]
+        articles = articles.filter(pk__in=assignment_article_pks)
+
+    return articles
+
+
+def create_html_snippet(name, object, template):
+    template = get_template(template)
+    html_content = template.render({name: object})
+
+    return html_content

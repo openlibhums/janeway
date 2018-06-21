@@ -143,3 +143,7 @@ def articles_in_workflow_stages(request):
                 print(e)
 
     return workflow_list
+
+
+def element_names(elements):
+    return [element.element_name for element in elements]

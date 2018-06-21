@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from importlib import import_module
+import json
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -494,10 +495,40 @@ def dashboard(request):
         'progress_submissions': submission_models.Article.objects.filter(
             journal=request.journal,
             owner=request.user,
-            stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started')
+            stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started'),
+        'workflow_elements': workflow.element_names(request.journal.workflow().elements.all()),
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def active_submissions(request):
+    template = 'core/active_submissions.html'
+    context = {
+        'active_submissions': submission_models.Article.objects.exclude(
+            stage=submission_models.STAGE_PUBLISHED).exclude(
+            stage=submission_models.STAGE_REJECTED).exclude(
+            stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal),
+        'sections': submission_models.Section.objects.filter(is_filterable=True,
+                                                             journal=request.journal),
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def active_submission_filter(request):
+    articles = logic.build_submission_list(request)
+    html = ''
+
+    for article in articles:
+        html = html + logic.create_html_snippet('article', article, 'elements/core/submission_list_element.html')
+
+    if not articles:
+        html = '<p>There are no articles to display</p>'
+
+    return HttpResponse(json.dumps({'status': 200, 'html': html}))
 
 
 @article_author_required
