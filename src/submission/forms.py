@@ -35,12 +35,18 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.publication_fees:
             self.fields.pop('publication_fees')
+        else:
+            self.fields['publication_fees'].required = True
 
         if not journal.submissionconfiguration.submission_check:
             self.fields.pop('submission_requirements')
+        else:
+            self.fields['submission_requirements'].required = True
 
         if not journal.submissionconfiguration.copyright_notice:
             self.fields.pop('copyright_notice')
+        else:
+            self.fields['copyright_notice'].required = True
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
