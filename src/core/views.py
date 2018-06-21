@@ -509,7 +509,7 @@ def active_submissions(request):
         'active_submissions': submission_models.Article.objects.exclude(
             stage=submission_models.STAGE_PUBLISHED).exclude(
             stage=submission_models.STAGE_REJECTED).exclude(
-            stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal),
+            stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal).order_by('pk', 'title'),
         'sections': submission_models.Section.objects.filter(is_filterable=True,
                                                              journal=request.journal),
     }

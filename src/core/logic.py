@@ -604,7 +604,7 @@ def build_submission_list(request):
         assignment_article_pks = [assignment.article.pk for assignment in assignments]
         articles = articles.filter(pk__in=assignment_article_pks)
 
-    return articles
+    return articles.order_by('pk')
 
 
 def create_html_snippet(name, object, template):
