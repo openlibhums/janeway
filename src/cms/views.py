@@ -20,14 +20,15 @@ def index(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    pages = models.Page.objects.filter(content_type=request.model_content_type)
+    pages = models.Page.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
     top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
 
     if request.POST and 'delete' in request.POST:
         page_id = request.POST.get('delete')
-        page = get_object_or_404(models.Page, pk=page_id, content_type=request.model_content_type)
+        page = get_object_or_404(models.Page, pk=page_id,
+                                 content_type=request.model_content_type, object_id=request.site_type.pk)
         page.delete()
         return redirect(reverse('cms_index'))
 
@@ -63,7 +64,9 @@ def view_page(request, page_name):
     :param page_name: a string matching models.Page.page_name
     :return: HttpResponse object
     """
-    current_page = get_object_or_404(models.Page, name=page_name, content_type=request.model_content_type)
+    current_page = get_object_or_404(models.Page, name=page_name,
+                                     content_type=request.model_content_type,
+                                     object_id=request.site_type.pk)
 
     if request.journal:
         template = 'cms/page.html'
@@ -85,7 +88,8 @@ def page_manage(request, page_id=None):
     :return: HttpResponse object
     """
     if page_id:
-        page = get_object_or_404(models.Page, pk=page_id, content_type=request.model_content_type)
+        page = get_object_or_404(models.Page, pk=page_id,
+                                 content_type=request.model_content_type, object_id=request.site_type.pk)
         page_form = forms.PageForm(instance=page)
         edit = True
     else:
