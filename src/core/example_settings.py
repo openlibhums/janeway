@@ -28,7 +28,6 @@ from core import plugin_installed_apps
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -86,6 +85,7 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
+    'foundationform',
     'materialize',
 ]
 
@@ -153,8 +153,8 @@ SETTINGS_EXPORT = [
     'ORCID_CLIENT_ID',
     'ORCID_URL',
     'ENABLE_ENHANCED_MAILGUN_FEATURES',
+    'ENABLE_ORCID',
 ]
-
 
 WSGI_APPLICATION = 'core.wsgi.application'
 SITES_DIR = os.path.join(os.path.dirname(__file__), 'sites')
@@ -175,7 +175,6 @@ DATABASES = {
         'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
     }
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -214,6 +213,8 @@ STATICFILES_DIRS = (
 )
 STATIC_URL = '/static/'
 
+if ENABLE_TEXTURE:
+    STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
 
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode
@@ -235,6 +236,7 @@ SUMMERNOTE_CONFIG = {
 
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,
+    'attachment_filesize_limit': 2056 * 2056,
 }
 
 # 1.9 appears confused about where null and blank are required for many to
@@ -333,7 +335,8 @@ PLUGIN_HOOKS = {}
 
 NOTIFY_FUNCS = []
 
-ORCID_API_URL = 'https://pub.orcid.org/v1.2_rc7/'
+ENABLE_ORCID = True
+ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
 ORCID_URL = 'https://orcid.org/oauth/authorize'
 ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
 ORCID_CLIENT_SECRET = ''
@@ -357,10 +360,19 @@ URL_CONFIG = 'domain'  # path or domain
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
 # You can set either to use Google's reCaptcha or a basic math field with no external requirements
+
 INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
 
-CAPTCHA_TYPE = 'select a value'  # should be either simple_math or recaptcha to enable captcha fields
-RECAPTCHA_PRIVATE_KEY = 'your private key'
-RECAPTCHA_PUBLIC_KEY = 'your public key'
+CAPTCHA_TYPE = 'recaptcha'  # should be either simple_math or recaptcha to enable captcha fields otherwise disabled
+RECAPTCHA_PRIVATE_KEY = ''
+RECAPTCHA_PUBLIC_KEY = ''
+
+BOOTSTRAP4 = {
+    'required_css_class': 'required',
+}
+
+SILENT_IMPORT_CACHE = True
+
+WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
