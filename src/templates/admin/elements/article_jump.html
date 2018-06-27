@@ -7,6 +7,7 @@
             </li>
         {% endfor %}
         <li><a href="{% url 'manage_article_log' article.pk %}">Log</a></li>
+        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Documents</a></li>
         {% if article.is_published %}
             <li><a href="{{ article.url }}">Live Article</a></li>{% endif %}
         {% if request.user.is_superuser %}
