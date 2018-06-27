@@ -570,6 +570,7 @@ def start_reset_process(request, account):
 def build_submission_list(request):
     section_list = list()
     my_assignments = False
+    order = 'pk'
 
     to_exclude = [
         submission_models.STAGE_PUBLISHED,
@@ -586,6 +587,8 @@ def build_submission_list(request):
 
         elif key.startswith('my_assignments'):
             my_assignments = True
+        elif key.startswith('order'):
+            order = request.POST.get('order', 'pk')
 
     if not section_list:
         section_list = [Q(section__pk=section.pk) for section in
@@ -604,7 +607,7 @@ def build_submission_list(request):
         assignment_article_pks = [assignment.article.pk for assignment in assignments]
         articles = articles.filter(pk__in=assignment_article_pks)
 
-    return articles.order_by('pk')
+    return articles.order_by(order)
 
 
 def create_html_snippet(name, object, template):

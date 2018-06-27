@@ -66,9 +66,21 @@
                                         <p>{{ section.name }}</p>
                                     </div>
                                 {% endfor %}
-                                <button type="button" class="success button" id="filter" onclick="send_post()"><i
-                                        class="fa fa-filter">&nbsp;</i> Filter
-                                </button>
+
+                                <div class="title-area">
+                                    <h2>Order</h2>
+                                </div>
+                                <div class="large-12 columns">
+                                    <select name="order">
+                                        <option value="pk">Article ID</option>
+                                        <option value="title">Title</option>
+                                        <option value="section">Section</option>
+                                        <option value="stage">Stage</option>
+                                    </select>
+                                    <button type="button" class="success button" id="filter" onclick="send_post()"><i
+                                            class="fa fa-filter">&nbsp;</i> Filter
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
