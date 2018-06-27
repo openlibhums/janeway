@@ -10,13 +10,15 @@
     <section id="content">
         <div class="row column">
             {% if request.META.maintenance_mode %}
-            <h2>Maintenance Mode</h2>
-            <p>{{ request.META.maintenance_mode.value|safe }}</p>
+                <h2>Maintenance Mode</h2>
+                <p>{{ request.META.maintenance_mode.value|safe }}</p>
             {% else %}
-            <h2>Permission Denied</h2>
-             {% if exception %}
-              <p>{{ exception }}</p>
-            {% endif %}
+                <h2>Permission Denied</h2>
+                {% if exception %}
+                    <p>{{ exception }}</p>
+                {% else %}
+                    <p>You do not have permission to view this page.</p>
+                {% endif %}
             {% endif %}
         </div>
     </section>
