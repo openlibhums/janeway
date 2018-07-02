@@ -92,7 +92,8 @@ def user_login(request):
                                                description='Failed login attempt for user {0}'.format(
                                                    request.POST.get('user_name')),
                                                level='Info', actor=None, request=request)
-                logic.add_failed_login_attempt(request)
+                # This is disabled as it does not work properly, will be reinstated in 1.3
+                # logic.add_failed_login_attempt(request)
 
     context = {
         'form': form,
