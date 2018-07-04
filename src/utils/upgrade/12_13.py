@@ -11,13 +11,14 @@ SETTINGS_TO_CHANGE = [
     {'group': 'email', 'name': 'copyeditor_reopen_task', 'action': 'update'},
     {'group': 'email', 'name': 'author_copyedit_complete', 'action': 'update'},
     {'group': 'email', 'name': 'production_manager_notification', 'action': 'update'},
+    {'group': 'email', 'name': 'review_complete_reviewer_acknowledgement', 'action': 'update'},
     #{'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
 ]
 
 
 def run_journal_signals():
     """
-    Gets and saves all journal objects forcing them to fire signals, 1.2 -> 1.3 introduced a couple of signales
+    Gets and saves all journal objects forcing them to fire signals, 1.2 -> 1.3 introduced a couple of signals
     so we want them to be fired on upgrade.
     :return: None
     """
