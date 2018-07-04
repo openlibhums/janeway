@@ -836,7 +836,7 @@ def users(request):
 
     template = 'core/manager/users/index.html'
     context = {
-        'users': models.Account.objects.filter(is_active=True),
+        'users': request.journal.journal_users(objects=True),
         'roles': models.Role.objects.all().order_by(('name')),
     }
     return render(request, template, context)
@@ -918,7 +918,7 @@ def user_edit(request, user_id):
     return render(request, template, context)
 
 
-@editor_user_required
+@staff_member_required
 def inactive_users(request):
     """
     Displays a list of inactive user accounts.
