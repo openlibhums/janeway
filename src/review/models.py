@@ -280,7 +280,7 @@ class EditorOverride(models.Model):
     overwritten = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return "{0} overwrote their access to {1}".format(self.editor.full_name(), self.article.title)
+        return "{0} overrode their access to {1}".format(self.editor.full_name(), self.article.title)
 
 
 class DecisionDraft(models.Model):

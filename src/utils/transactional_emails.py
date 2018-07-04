@@ -900,7 +900,7 @@ def review_sec_override_notification(**kwargs):
     request = kwargs['request']
     override = kwargs['override']
 
-    description = "{0} overwrote their access to {1}".format(override.editor.full_name(), override.article.title)
+    description = "{0} overrode their access to {1}".format(override.editor.full_name(), override.article.title)
     log_dict = {'level': 'Warning', 'action_text': description, 'types': 'Security Override',
                 'target': override.article}
     notify_helpers.send_slack(request, description, ['slack_editors'])
