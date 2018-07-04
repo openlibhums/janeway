@@ -53,8 +53,8 @@ def save_supp_file(article, request, uploaded_file, label):
     article.supplementary_files.add(supp_file)
 
 
-def save_galley(article, request, uploaded_file, is_galley, label, is_other):
-    new_file = files.save_file_to_article(uploaded_file, article, request.user)
+def save_galley(article, request, uploaded_file, is_galley, label, is_other, save_to_disk=True):
+    new_file = files.save_file_to_article(uploaded_file, article, request.user, save=save_to_disk)
     new_file.is_galley = is_galley
     new_file.label = label
 

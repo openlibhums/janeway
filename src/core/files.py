@@ -99,7 +99,8 @@ def copy_local_file_to_article(file_to_handle, file_name, article, owner, label=
     return new_file
 
 
-def save_file_to_article(file_to_handle, article, owner, label=None, description=None, replace=None, is_galley=False, save=True):
+def save_file_to_article(file_to_handle, article, owner, label=None, description=None, replace=None, is_galley=False,
+                         save=True):
     """Save a file into an article's folder with appropriate mime type and permissions.
 
     :param file_to_handle: the uploaded file object we need to handle
