@@ -80,7 +80,13 @@ def update_settings():
         setting_handler.update_settings(SETTINGS_TO_CHANGE, journal)
 
 
+def delete_existing_workflows():
+    core_models.Workflow.objects.all().delete()
+    core_models.Workflow.objects.all().delete()
+
+
 def execute():
+    delete_existing_workflows()
     run_journal_signals()
     process_article_workflow()
     update_settings()
