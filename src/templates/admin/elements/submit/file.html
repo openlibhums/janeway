@@ -17,20 +17,53 @@
                     <p>{% trans "Please upload your manuscript file, it should be in RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage." %}</p>
                 {% endif %}
             {% endif %}
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row">
-                    <div class="large-12 columns">
-                        <input name="file" type="file" class="filestyle" data-placeholder="No file"
-                               data-buttonName="btn-primary">
+
+            {% if modaltype == 'manuscript' %}
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <input name="file" type="file" class="filestyle" data-placeholder="No file"
+                                   data-buttonname="btn-primary">
+                        </div>
                     </div>
-                </div>
-                {{ form|foundation }}
-                <button type="submit" name="{{ modaltype }}" class="success button">{% trans "Add File" %}</button>
-                <button class="close-button" data-close aria-label="Close reveal" type="button">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </form>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <label>
+                                Label <span class="red">*</span>
+                            </label>
+                            <input type="text" name="label" id="id_label" required="" maxlength="200" value="Manuscript">
+                        </div>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <label>
+                                Description
+                            </label>
+                            <textarea name="description" id="id_description" rows="10" cols="40"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" name="manuscript" class="success button">Add File</button>
+                    <button class="close-button" data-close="" aria-label="Close reveal" type="button">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </form>
+            {% else %}
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <input name="file" type="file" class="filestyle" data-placeholder="No file"
+                                   data-buttonName="btn-primary">
+                        </div>
+                    </div>
+                    {{ form|foundation }}
+                    <button type="submit" name="{{ modaltype }}" class="success button">{% trans "Add File" %}</button>
+                    <button class="close-button" data-close aria-label="Close reveal" type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -239,6 +239,7 @@ class FileDetails(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FileDetails, self).__init__(*args, **kwargs)
         self.fields['label'].required = True
+        self.fields['label'].inital = 'Manuscript'
 
 
 class EditFrozenAuthor(forms.ModelForm):
