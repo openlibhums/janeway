@@ -144,7 +144,7 @@
                                         <a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i
                                                 class="fa fa-book">&nbsp;</i>View Report
                                             {% if article.ithenticate_score %} ({{ article.ithenticate_score }}
-                                                %){% endif %}</a>
+                                                %){% else %}(Score Pending){% endif %}</a>
                                     {% endif %}
                                     </td>
                                 {% endif %}

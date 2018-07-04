@@ -116,7 +116,18 @@ def unassigned_article(request, article_id):
 def view_ithenticate_report(request, article_id):
     """Allows editor to view similarity report."""
     article = get_object_or_404(submission_models.Article, pk=article_id, ithenticate_id__isnull=False)
-    return redirect(ithenticate.fetch_url(article))
+
+    ithenticate_url = ithenticate.fetch_url(article)
+
+    if ithenticate_url:
+        return redirect(ithenticate_url)
+
+    template = 'review/ithenticate_failure.html'
+    context = {
+        'article': article,
+    }
+
+    return render(request, template, context)
 
 
 @senior_editor_user_required

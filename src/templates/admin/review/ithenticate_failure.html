@@ -1,0 +1,26 @@
+{% extends "admin/core/base.html" %}}
+
+{% block title %}iThenticate{% endblock title %}
+{% block title-section %}iThenticate{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>iThenticate Request</h2>
+        </div>
+        <div class="content">
+            <p>Unfortunately your request to iThenticate has not been processed there are two possible reasons for this:</p>
+            <ol>
+                <li>You have not submitted a document in a format that iThenticate can utilise</li>
+                <li>The file is still being processed</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}

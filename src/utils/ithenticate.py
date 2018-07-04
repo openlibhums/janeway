@@ -109,11 +109,16 @@ def send_to_ithenticate(article, file):
 def fetch_url(article):
     server = build_server(article.journal)
 
-    document = server['server'].document.get({'id': int(article.ithenticate_id), 'sid': server['sid']})
-    part_id = document['documents'][0]['parts'][0].get('id')
-    report = server['server'].report.get({'id': int(part_id), 'sid': server['sid']})
+    try:
+        document = server['server'].document.get({'id': int(article.ithenticate_id), 'sid': server['sid']})
+        part_id = document['documents'][0]['parts'][0].get('id')
+        report = server['server'].report.get({'id': int(part_id), 'sid': server['sid']})
 
-    return report['view_only_url']
+        url = report['view_only_url']
+    except KeyError:
+        url = None
+
+    return url
 
 
 def fetch_percentage(journal, articles):
