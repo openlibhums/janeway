@@ -7,13 +7,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
-from django.contrib.admin.views.decorators import staff_member_required
 
+from security.decorators import editor_user_required
 from cms import models, forms
 from core import files
 
 
-@staff_member_required
+@editor_user_required
 def index(request):
     """
     Displays a list of pages and the sites navigation structure.
@@ -79,7 +79,7 @@ def view_page(request, page_name):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def page_manage(request, page_id=None):
     """
     Allows a staff member to add a new or edit an existing page.
@@ -123,7 +123,7 @@ def page_manage(request, page_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def nav(request, nav_id=None):
     """
     Allows a staff member to edit or add nav objects.
