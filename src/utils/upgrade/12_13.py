@@ -10,6 +10,7 @@ from utils import setting_handler
 SETTINGS_TO_CHANGE = [
     {'group': 'email', 'name': 'copyeditor_reopen_task', 'action': 'update'},
     {'group': 'email', 'name': 'author_copyedit_complete', 'action': 'update'},
+    {'group': 'email', 'name': 'production_manager_notification', 'action': 'update'},
     #{'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
 ]
 
