@@ -104,6 +104,7 @@ class ReviewAssignment(models.Model):
                                            these will not be shared with the Author.",
                                            verbose_name="Comments for the Editor")
     review_file = models.ForeignKey('core.File', blank=True, null=True)
+    display_review_file = models.BooleanField(default=False)
 
     def review_form_answers(self):
         return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('element__order')
