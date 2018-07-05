@@ -42,7 +42,7 @@
                     </div>
                     {% endif %}
                 {% endfor %}
-                {% if review.review_file and review.for_author_consumption %}
+                {% if review.review_file and review.for_author_consumption and review.display_review_file %}
                 <div class="large-12 columns">
                     <h6>Review File</h6>
                     <a href="?file_id={{ review.review_file.id }}"><i

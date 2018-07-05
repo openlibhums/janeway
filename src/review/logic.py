@@ -150,7 +150,7 @@ def group_files(article, reviews):
         files.append(file)
 
     for review in reviews:
-        if review.for_author_consumption:
+        if review.for_author_consumption and review.display_review_file:
             files.append(review.review_file)
 
     return files
@@ -329,3 +329,12 @@ def serve_review_file(assignment):
     filepath = os.path.join(settings.BASE_DIR, 'files', 'temp', filename)
     document.save(filepath)
     return files.serve_temp_file(filepath, filename)
+
+
+def handle_review_file_switch(review, switch):
+    if switch == 'true':
+        review.display_review_file = True
+    else:
+        review.display_review_file = False
+
+    review.save()

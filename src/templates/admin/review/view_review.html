@@ -39,7 +39,9 @@
                             {% else %}Awaiting acknowledgement{% endif %}
                             </td>
                             <td>{{ review.date_due|date:"Y-m-d" }}</td>
-                            <td><a href="{% url 'do_review' review.pk %}?access_code={{ review.access_code }}">{{ review.access_code }}</a></td>
+                            <td>
+                                <a href="{% url 'do_review' review.pk %}?access_code={{ review.access_code }}">{{ review.access_code }}</a>
+                            </td>
                             <td>{% if review.decision %}{{ review.get_decision_display|capfirst }}{% else %}
                                 --{% endif %}</td>
                             <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
@@ -113,8 +115,41 @@
                         <h2>Review File</h2>
                     </div>
                     <div class="content">
-                        <a href="{% url 'editor_file_download' review.article.id review.review_file.id %}"><i
-                                class="fa fa-download">&nbsp;</i>{{ review.review_file.original_filename }}</a>
+
+                        <table class="scroll small">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Download</th>
+                                <th>Replace</th>
+                                {% if review.for_author_consumption %}
+                                    <th width="20%">Visible to Author</th>{% endif %}
+                            </tr>
+                            <tr>
+                                <td>{{ review.review_file.pk }}</td>
+                                <td>{{ review.review_file.original_filename }}</td>
+                                <td>
+                                    <a href="{% url 'editor_file_download' review.article.id review.review_file.id %}"><i
+                                            class="fa fa-download">&nbsp;</i></a></td>
+                                <td>
+                                    <a href="{% url 'article_file_replace' 'id' article.pk review.review_file.pk %}?return={{ request.path }}"><i
+                                            class="fa fa-cloud-upload">&nbsp;</i></a>
+                                </td>
+                                {% if review.for_author_consumption %}
+                                    <td>
+                                        <form method="POST">
+                                            {% csrf_token %}
+                                            <button name="review_file_visible" class="success button"
+                                                    value="{% if review.display_review_file %}false{% else %}true{% endif %}">
+                                                {% if review.display_review_file %}Hide File{% else %}Allow Author to
+                                                    View File{% endif %}</button>
+                                        </form>
+                                    </td>{% endif %}
+                            </tr>
+                        </table>
+
+                        <p></p>
+
                     </div>
                 {% endif %}
 
@@ -128,6 +163,6 @@
                 {% endif %}
             </div>
 
-    </form>
+        </form>
     </div>
 {% endblock %}

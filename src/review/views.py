@@ -883,6 +883,10 @@ def view_review(request, article_id, review_id):
             answer.edited_answer = None
             answer.save()
 
+        if 'review_file_visible' in request.POST:
+            logic.handle_review_file_switch(review, request.POST.get('review_file_visible'))
+            messages.add_message(request, messages.SUCCESS, 'Review File visibility updated.')
+
         return redirect(reverse('review_view_review', kwargs={'article_id': article.pk, 'review_id': review.pk}))
 
     template = 'review/view_review.html'
