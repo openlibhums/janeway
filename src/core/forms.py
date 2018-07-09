@@ -97,8 +97,8 @@ class PasswordResetForm(forms.Form):
 class RegistrationForm(forms.ModelForm):
     """ A form that creates a user, with no privileges, from the given username and password."""
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password 1'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Password 2'))
+    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
+    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
 
     if settings.CAPTCHA_TYPE == 'simple_math':
         question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
