@@ -3,13 +3,14 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
+from security.decorators import editor_user_required
 
-@staff_member_required
+
+@editor_user_required
 def journal_description(request):
     if request.POST:
         description = request.POST.get('description')

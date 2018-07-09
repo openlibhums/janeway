@@ -1,12 +1,12 @@
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.shortcuts import redirect, render
 from core.homepage_elements.carousel import forms
 
 from core import models
+from security.decorators import editor_user_required
 
 
-@staff_member_required
+@editor_user_required
 def settings_carousel(request):
     home_form = forms.CarouselForm(request=request)
 

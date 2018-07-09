@@ -55,7 +55,7 @@ urlpatterns = [
     url(r'^logout/$', core_views.user_logout, name='core_logout'),
     url(r'^dashboard/$', core_views.dashboard, name='core_dashboard'),
     url(r'^dashboard/active/$', core_views.active_submissions, name='core_active_submissions'),
-url(r'^dashboard/active/filters/$', core_views.active_submission_filter, name='core_submission_filter'),
+    url(r'^dashboard/active/filters/$', core_views.active_submission_filter, name='core_submission_filter'),
     url(r'^dashboard/article/(?P<article_id>\d+)/$', core_views.dashboard_article, name='core_dashboard_article'),
 
     url(r'^press/cover/$', press_views.serve_press_cover, name='press_cover_download'),

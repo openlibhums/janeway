@@ -3,15 +3,15 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
 from utils import setting_handler, models
+from security.decorators import editor_user_required
 
 
-@staff_member_required
+@editor_user_required
 def html_settings(request):
     plugin = models.Plugin.objects.get(name='HTML')
     html_block_content = setting_handler.get_plugin_setting(plugin, 'html_block_content', request.journal, create=True,

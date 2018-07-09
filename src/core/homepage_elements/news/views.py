@@ -1,12 +1,12 @@
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
 from utils import setting_handler, models
+from security.decorators import editor_user_required
 
 
-@staff_member_required
+@editor_user_required
 def news_config(request):
     plugin = models.Plugin.objects.get(name='News')
     number_of_articles = setting_handler.get_plugin_setting(plugin, 'number_of_articles', request.journal, create=True,

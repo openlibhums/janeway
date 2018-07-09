@@ -1,12 +1,13 @@
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from core.homepage_elements.featured import models
 from submission import models as submission_models
 
+from security.decorators import editor_user_required
 
-@staff_member_required
+
+@editor_user_required
 def featured_articles(request):
 
     featured_arts = models.FeaturedArticle.objects.filter(journal=request.journal)
@@ -43,7 +44,7 @@ def featured_articles(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def featured_articles_order(request):
     if request.POST:
         ids = request.POST.getlist('article[]')
