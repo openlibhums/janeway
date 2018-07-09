@@ -1,3 +1,8 @@
+{% load securitytags %}
+
+{% is_editor as editor %}
+
+{% if editor %}
 <button class="tiny secondary button float-right dropdown" data-toggle="articledropdown">Article Jump</button>
 <div class="dropdown-pane bottom small" id="articledropdown" data-dropdown>
     <ul>
@@ -16,3 +21,4 @@
         {% endif %}
     </ul>
 </div>
+{% endif %}
