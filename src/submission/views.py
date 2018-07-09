@@ -572,8 +572,13 @@ def licenses(request, license_pk=None):
 
             save_license.save()
             messages.add_message(request, messages.INFO, 'License saved.')
-
             return redirect(reverse('submission_licenses'))
+
+    if request.POST and 'delete' in request.POST:
+        license_to_delete = get_object_or_404(models.Licence, pk=request.POST.get('delete'), journal=request.journal)
+        messages.add_message(request, messages.INFO, 'License {0} deleted'.format(license_to_delete.name))
+        license_to_delete.delete()
+        return redirect(reverse('submission_licenses'))
 
     elif 'order[]' in request.POST:
         ids = [int(_id) for _id in request.POST.getlist('order[]')]
