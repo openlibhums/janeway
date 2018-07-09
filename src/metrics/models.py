@@ -74,7 +74,7 @@ def alt_metric_choices():
 class AltMetric(models.Model):
     article = models.ForeignKey('submission.Article')
     source = models.CharField(max_length=30, choices=alt_metric_choices())
-    pid = models.CharField(max_length=500)
+    pid = models.CharField(max_length=200)
     timestamp = models.DateTimeField()
 
     class Meta:

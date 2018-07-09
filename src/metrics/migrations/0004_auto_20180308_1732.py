@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='altmetric',
             name='pid',
-            field=models.CharField(max_length=500),
+            field=models.CharField(max_length=200),
         ),
         migrations.AlterUniqueTogether(
             name='altmetric',
