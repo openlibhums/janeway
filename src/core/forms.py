@@ -178,11 +178,19 @@ class AdminUserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         active = kwargs.pop('active', None)
+        request = kwargs.pop('request', None)
         super(AdminUserForm, self).__init__(*args, **kwargs)
 
         if active == 'add':
             self.fields['password_1'] = forms.CharField(widget=forms.PasswordInput, label="Password")
             self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat password")
+
+        if request and not request.user.is_admin:
+            self.fields.pop('is_staff', None)
+            self.fields.pop('is_admin', None)
+
+        if request and not request.user.is_superuser:
+            self.fields.pop('is_superuser')
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")

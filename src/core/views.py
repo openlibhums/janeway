@@ -814,12 +814,12 @@ def add_user(request):
     :return: HttpResponse object
     """
     form = forms.EditAccountForm()
-    registration_form = forms.AdminUserForm(active='add')
+    registration_form = forms.AdminUserForm(active='add', request=request)
     return_url = request.GET.get('return', None)
     role = request.GET.get('role', None)
 
     if request.POST:
-        registration_form = forms.AdminUserForm(request.POST, active='add')
+        registration_form = forms.AdminUserForm(request.POST, active='add', request=request)
 
         if registration_form.is_valid():
             new_user = registration_form.save()
@@ -859,11 +859,11 @@ def user_edit(request, user_id):
     """
     user = models.Account.objects.get(pk=user_id)
     form = forms.EditAccountForm(instance=user)
-    registration_form = forms.AdminUserForm(instance=user)
+    registration_form = forms.AdminUserForm(instance=user, request=request)
 
     if request.POST:
         form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
-        registration_form = forms.AdminUserForm(request.POST, instance=user)
+        registration_form = forms.AdminUserForm(request.POST, instance=user, request=request)
 
         if form.is_valid() and registration_form.is_valid():
             registration_form.save()
