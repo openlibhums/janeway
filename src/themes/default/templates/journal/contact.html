@@ -17,6 +17,10 @@
                 <h5>{{ contact.name }}</h5>
                 <p>{{ contact.role }}</p>
             {% endfor %}
+            {% if request.journal and request.journal.contact_info %}
+                <h4>{% trans 'Contact Information' %}</h4>
+                {{ request.journal.contact_info|safe }}
+            {% endif %}
         </div>
         <div class="col-md-8">
             <h4>{% trans "Contact" %}</h4>

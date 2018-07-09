@@ -68,6 +68,7 @@ class Journal(models.Model):
     header_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
+    contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
 
     is_remote = models.BooleanField(default=False)
     remote_submit_url = models.URLField(blank=True, null=True)

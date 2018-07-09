@@ -297,7 +297,7 @@ class JournalAttributeForm(forms.ModelForm):
 
     class Meta:
         model = journal_models.Journal
-        fields = ('header_image', 'default_cover_image', 'default_large_image', 'favicon',
+        fields = ('contact_info', 'header_image', 'default_cover_image', 'default_large_image', 'favicon',
                   'is_remote', 'remote_view_url', 'remote_submit_url', 'hide_from_press')
 
 

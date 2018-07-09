@@ -10,18 +10,22 @@
 {% endblock %}
 
 {% block body %}
-	<section id="content" class="no-padding">
-		<div class="row column">
+    <section id="content" class="no-padding">
+        <div class="row column">
             <div class="large-4 columns contact">
                 {% if request.journal %}
-                <h4>{% trans "Journal Representatives" %}</h4>
+                    <h4>{% trans "Journal Representatives" %}</h4>
                 {% else %}
-                <h4>{% trans "Press Representatives" %}</h4>
+                    <h4>{% trans "Press Representatives" %}</h4>
                 {% endif %}
                 {% for contact in contacts %}
-                <h5>{{ contact.name }}</h5>
-                <p>{{ contact.role }}</p>
+                    <h5>{{ contact.name }}</h5>
+                    <p>{{ contact.role }}</p>
                 {% endfor %}
+                {% if request.journal and request.journal.contact_info %}
+                    <h4>{% trans 'Contact Information' %}</h4>
+                    {{ request.journal.contact_info|safe }}
+                {% endif %}
             </div>
             <div class="large-8 columns">
                 <h4>{% trans "Contact" %}</h4>
@@ -30,7 +34,8 @@
                     {% csrf_token %}
                     <label for="id_recipient">{% trans "Who would you like to contact?" %}</label>
                     <select id="id_recipient" name="recipient">
-                        {% for contact in contacts %}<option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
+                        {% for contact in contacts %}
+                            <option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
                     </select>
                     {{ contact_form.sender|foundation }}
                     {{ contact_form.subject|foundation }}
@@ -40,6 +45,6 @@
                 </form>
             </div>
 
-		</div>
-	</section>
+        </div>
+    </section>
 {% endblock body %}
