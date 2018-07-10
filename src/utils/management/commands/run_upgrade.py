@@ -46,4 +46,3 @@ class Command(BaseCommand):
             except ImportError as e:
                 print('There was an error running the requested upgrade: ')
                 print(e)
-

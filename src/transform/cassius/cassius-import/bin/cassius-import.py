@@ -54,7 +54,7 @@ class CassiusImport (Debuggable):
         command = "java -cp '{0}{1}saxon9.jar':'{0}{1}..{1}runtime{1}xml-resolver-1.1.jar':'{0}{1}..{1}runtime{1}' net.sf.saxon.Transform -r:org.apache.xml.resolver.tools.CatalogResolver -y:org.apache.xml.resolver.tools.ResolvingXMLReader -x:org.apache.xml.resolver.tools.ResolvingXMLReader -u -o '{2}' '{3}' '{0}{1}..{1}transform{1}xsl{1}cassius-main.xsl'".format(self.dir, os.sep, self.out_file, self.in_file)
         #command = "java -jar '{0}{1}saxon9.jar';'{0}{1}..{1}runtime{1}xml-resolver-1.1.jar' -o '{2}' '{3}' '{0}{1}..{1}transform{1}xsl{1}cassius-main.xsl'".format(self.dir, os.sep, self.out_file, self.in_file)
 
-        #-r org.apache.xml.resolver.tools.CatalogResolver -catalog '{0}{1}..{1}runtime{1}catalog.xml'
+        # -r org.apache.xml.resolver.tools.CatalogResolver -catalog '{0}{1}..{1}runtime{1}catalog.xml'
 
         self.debug.print_debug(self, u'Running saxon transform (JATS -> CaSSius)')
 

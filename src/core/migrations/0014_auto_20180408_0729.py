@@ -11,7 +11,7 @@ def addfield(name):
         'reverse_sql': "ALTER TABLE django_site DROP COLUMN %s" % name,
         # wish this worked :(
         # https://docs.djangoproject.com/en/1.11/ref/migration-operations/#runsql
-        #'state_operations': [migrations.AddField('django.contrib.sites.Site', name, models.CharField(max_length=255))]
+        # 'state_operations': [migrations.AddField('django.contrib.sites.Site', name, models.CharField(max_length=255))]
     }
 
 
