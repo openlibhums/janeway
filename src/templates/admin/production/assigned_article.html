@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load files %}
 {% load securitytags %}
+{% load hooks %}
 {% load static from staticfiles %}
 
 {% block title %}Article - {{ article.pk }}{% endblock title %}
@@ -18,7 +19,8 @@
         <div class="box">
             <div class="title-area">
                 <h2>Typesetters</h2>
-                <a href="{% url 'assign_typesetter' article.pk production_assignment.pk %}" class="button">Add Typesetter</a>
+                <a href="{% url 'assign_typesetter' article.pk production_assignment.pk %}" class="button">Add
+                    Typesetter</a>
             </div>
             <ul class="tabs" data-tabs id="round-tabs">
                 {% for task in typeset_tasks %}
@@ -55,30 +57,30 @@
                                             <i style="color: red;" class="fa fa-times-circle info">&nbsp;</i>{% endif %}
                                         </td>
                                         <td>{{ task.status.friendly|safe }}</td>
-                                    <td>
-                                        <div class="button-group">
-                                            <a href="{% url 'edit_typesetter_assignment' task.pk %}"
-                                               class="button">Edit</a>
-                                            {% if task.status.slug == 'completed' %}
-                                            <a class="dropdown button arrow-only"
-                                               data-toggle="review-dropdown-{{ task.pk }}"><span
-                                                    class="show-for-sr">Show menu</span></a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="dropdown-pane right"
-                                             id="review-dropdown-{{ task.pk }}"
-                                             data-dropdown data-close-on-click="true">
-                                            <ul class="menu vertical actions">
-                                                <form method="POST">
-                                                    {% csrf_token %}
-                                                    <li>
-                                                        <a href="{% url 'review_typeset_task' article.pk task.pk %}"
-                                                   class="button success tiny">Mark as Reviewed</a>
-                                                    </li>
-                                                </form>
-                                            </ul>
-                                        </div>
-                                    </td>
+                                        <td>
+                                            <div class="button-group">
+                                                <a href="{% url 'edit_typesetter_assignment' task.pk %}"
+                                                   class="button">Edit</a>
+                                                {% if task.status.slug == 'completed' %}
+                                                    <a class="dropdown button arrow-only"
+                                                       data-toggle="review-dropdown-{{ task.pk }}"><span
+                                                            class="show-for-sr">Show menu</span></a>
+                                                {% endif %}
+                                            </div>
+                                            <div class="dropdown-pane right"
+                                                 id="review-dropdown-{{ task.pk }}"
+                                                 data-dropdown data-close-on-click="true">
+                                                <ul class="menu vertical actions">
+                                                    <form method="POST">
+                                                        {% csrf_token %}
+                                                        <li>
+                                                            <a href="{% url 'review_typeset_task' article.pk task.pk %}"
+                                                               class="button success tiny">Mark as Reviewed</a>
+                                                        </li>
+                                                    </form>
+                                                </ul>
+                                            </div>
+                                        </td>
                                     </tr>
                                     {% if task.status.slug == 'completed' or task.status.slug == 'closed' %}
                                         <tr>
@@ -123,7 +125,7 @@
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
                             </td>
-                            <td></td>
+                            <td>{% hook 'conversion_buttons' %}</td>
                         </tr>
                     {% endfor %}
                     {% for file in data_files %}
@@ -229,7 +231,7 @@
                                 {% endif %}
                             </td>
                         </tr>
-                    {% empty %}
+                        {% empty %}
                         <tr>
                             <td colspan="9">No galleys have been uploaded.</td>
                         </tr>
@@ -271,17 +273,17 @@
                                         class="fa fa-history">
                                     &nbsp;</i></a>{% endif %}
                             </td>
-                        <td>
-                            {% if galley.doi %}
-                                {{ galley.doi }}
-                                &nbsp;<a href="{% url 'supp_file_doi' article.pk galley.pk %}"><i
+                            <td>
+                                {% if galley.doi %}
+                                    {{ galley.doi }}
+                                    &nbsp;<a href="{% url 'supp_file_doi' article.pk galley.pk %}"><i
                                         class="fa fa-refresh"></i></a>
-                            {% else %}
-                                <a href="{% url 'supp_file_doi' article.pk galley.pk %}">Issue DOI</a>
-                            {% endif %}
-                        </td>
+                                {% else %}
+                                    <a href="{% url 'supp_file_doi' article.pk galley.pk %}">Issue DOI</a>
+                                {% endif %}
+                            </td>
                         </tr>
-                    {% empty %}
+                        {% empty %}
                         <tr>
                             <td colspan="9">No supplementary have been uploaded.</td>
                         </tr>
@@ -303,50 +305,52 @@
     <div class="large-4 columns">
 
         <div class="box">
-        <div class="title-area">
-            <h2>Status</h2>
-        </div>
-        <div class="content">
-            <small>
-                <ol>
-                    <li>
-                        Assign a Typesetter {% if production_assignment.typeset_tasks %}
-                        <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
-                    </li>
-                    {% for task in production_assignment.typeset_tasks %}
+            <div class="title-area">
+                <h2>Status</h2>
+            </div>
+            <div class="content">
+                <small>
+                    <ol>
                         <li>
-                            Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}
+                            Assign a Typesetter {% if production_assignment.typeset_tasks %}
                             <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
                         </li>
-                    {% endfor %}
-                    <li>Have at lease one Galley {% if article.has_galley %}
-                        <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i>{% endif %}
-                    </li>
-                </ol>
-            </small>
-        </div>
+                        {% for task in production_assignment.typeset_tasks %}
+                            <li>
+                                Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}
+                                <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
+                            </li>
+                        {% endfor %}
+                        <li>Have at lease one Galley {% if article.has_galley %}
+                            <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i>{% endif %}
+                        </li>
+                    </ol>
+                </small>
+            </div>
         </div>
         <div class="box">
             <div class="title-area">
                 <h2>Actions</h2>
             </div>
             <div class="content">
-            <ul class="menu vertical actions">
-                <li><a data-open="summarymodal">
-                    <i class="fa fa-server action-icon">&nbsp;</i>View Metadata
-                </a></li>
-                {% if not production_assignment.closed %}
-                    <li><a href="{% url 'assign_typesetter' article.pk production_assignment.pk %}">
-                        <i class="fa fa-plus-circle action-icon">&nbsp;</i>Add New Typesetter
+                <ul class="menu vertical actions">
+                    <li><a data-open="summarymodal">
+                        <i class="fa fa-server action-icon">&nbsp;</i>View Metadata
                     </a></li>
-                {% endif %}
-                <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
-                {% if galleys and not production_assignment.closed %}
-                    <li><a data-open="productionmodal">
-                    <i class="fa fa-check action-icon">&nbsp;</i>Mark production as complete
-                </a><li>
-                {% endif %}
-            </ul>
+                    {% if not production_assignment.closed %}
+                        <li><a href="{% url 'assign_typesetter' article.pk production_assignment.pk %}">
+                            <i class="fa fa-plus-circle action-icon">&nbsp;</i>Add New Typesetter
+                        </a></li>
+                    {% endif %}
+                    <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i
+                            class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
+                    {% if galleys and not production_assignment.closed %}
+                        <li><a data-open="productionmodal">
+                            <i class="fa fa-check action-icon">&nbsp;</i>Mark production as complete
+                        </a>
+                        <li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
 

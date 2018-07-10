@@ -82,7 +82,7 @@ class FileAdmin(admin.ModelAdmin):
     """displays files"""
     search_fields = ('original_filename',)
     list_display = ('id', 'original_filename', 'self_article_path', 'article_pk', 'mime_type')
-    list_filter = ('mime_type',)
+    list_filter = ('mime_type', 'article_id')
     raw_id_fields = ('owner',)
     filter_horizontal = ('history',)
 
