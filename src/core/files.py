@@ -242,9 +242,14 @@ def get_file(file_to_get, article):
     if not os.path.isfile(path):
         return ""
 
-    with open(path, 'r') as content_file:
-        content = content_file.read()
-        return content
+    try:
+        with open(path, 'r') as content_file:
+            content = content_file.read()
+            return content
+    except UnicodeDecodeError:
+        with open(path, 'r', encoding='utf-8') as content_file:
+            content = content_file.read()
+            return content
 
 
 def render_xml(file_to_render, article, galley=None):
