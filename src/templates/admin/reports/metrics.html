@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 
+{% load humanize %}
+
 {% block title %}Article Metrics Report{% endblock %}
 {% block title-section %}Article Metrics Report{% endblock %}
 {% block title-sub %}Displays view and download counts for articles{% endblock %}
@@ -12,7 +14,22 @@
 {% block body %}
     <div class="box">
         <div class="content">
-            <table id="metricsreport" class="scroll">
+
+            <div class="large-3 columns">
+                <div class="callout small">
+                    <h4>Total Views</h4>
+                    <p>{{ total_views|intcomma }}</p>
+                </div>
+            </div>
+
+            <div class="large-3 columns end">
+                <div class="callout small">
+                    <h4>Total Downloads</h4>
+                    <p>{{ total_downs|intcomma }}</p>
+                </div>
+            </div>
+
+            <table id="metricsreport">
                 <thead>
                 <tr>
                     <th>Title</th>
@@ -56,5 +73,5 @@
 {% endblock %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#metricsreport" hide_length="false" hide_page="true" %}
+    {% include "elements/datatables.html" with target="#metricsreport" hide_length="false" hide_page="true" sort="desc" order=2 %}
 {% endblock %}

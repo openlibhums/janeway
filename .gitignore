@@ -97,6 +97,4 @@ src/texture/**
 /src/static/admin/hypothesis/**
 Dockerfile
 
-Dockerfile
-
 *.ipynb

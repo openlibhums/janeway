@@ -28,6 +28,12 @@ class NotificationsAdmin(admin.ModelAdmin):
     pass
 
 
+class ArticleOrderingAdmin(admin.ModelAdmin):
+    list_display = ('article', 'issue', 'section', 'order')
+    list_filter = ('issue', 'section')
+    search_fields = ('article__title',)
+
+
 admin_list = [
     (models.Issue, IssueAdmin),
     (models.Journal, JournalAdmin),

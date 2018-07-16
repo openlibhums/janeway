@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load hooks %}
 
+
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
         <a id="logo-container" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo">
@@ -40,7 +41,15 @@
                 <li><a href="{% url 'contact' %}">Contact</a></li>
             {% endif %}
 
-
+            {% for item in navigation_items %}
+                {% if item.has_sub_nav %}
+                    <li><a class="dropdown-button" href="#!"
+                           data-activates="{{ item.link_name|slugify }}">{{ item.link_name }}<i
+                            class="material-icons right">arrow_drop_down</i></a></li>
+                {% else %}
+                    <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                {% endif %}
+            {% endfor %}
 
             {% if request.journal.nav_review %}
                 <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>Become a Reviewer</a></li>
@@ -77,6 +86,17 @@
             {% if request.journal.nav_contact %}
                 <li><a href="{% url 'contact' %}">Contact</a></li>
             {% endif %}
+
+            {% for item in navigation_items %}
+                {% if item.has_sub_nav %}
+                    <li><a class="dropdown-button" href="#!"
+                           data-activates="{{ item.link_name|slugify }}-mobile">{{ item.link_name }}<i
+                            class="material-icons right">arrow_drop_down</i></a></li>
+                {% else %}
+                    <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                {% endif %}
+            {% endfor %}
+
             {% if request.user.is_authenticated %}
                 <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Account<i
                         class="material-icons right">arrow_drop_down</i></a></li>
@@ -152,3 +172,26 @@
         <li><a class="dropdown-item" href="{% url 'core_logout' %}">Logout</a></li>
     </ul>
 {% endif %}
+
+
+{% for item in navigation_items %}
+    {% if item.has_sub_nav %}
+        <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
+            <li><a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            {% for subnav in item.sub_nav_items %}
+                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endfor %}
+
+{% for item in navigation_items %}
+    {% if item.has_sub_nav %}
+        <ul id="{{ item.link_name|slugify }}-mobile" class="dropdown-content">
+            <li><a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            {% for subnav in item.sub_nav_items %}
+                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endfor %}

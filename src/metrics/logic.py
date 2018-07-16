@@ -253,3 +253,15 @@ def store_article_access(request, article, access_type, galley_type='view'):
     else:
 
         return None
+
+
+@cache(300)
+def get_view_and_download_totals(articles):
+    total_views = 0
+    total_downs = 0
+
+    for article in articles:
+        total_views += article.metrics.views
+        total_downs += article.metrics.downloads
+
+    return total_views, total_downs
