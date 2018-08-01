@@ -98,3 +98,9 @@ src/texture/**
 Dockerfile
 
 *.ipynb
+
+janeway\.sublime-project
+
+janeway\.sublime-workspace
+
+terminal\.glue
