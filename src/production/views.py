@@ -29,12 +29,14 @@ def production_list(request):
     """
     assigned_table = models.ProductionAssignment.objects.all()
     my_table = models.ProductionAssignment.objects.values_list('article_id', flat=True).filter(
-        production_manager=request.user)
+        production_manager=request.user, article__journal=request.journal)
 
     assigned = [assignment.article.pk for assignment in assigned_table]
-    unassigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING).exclude(
+    unassigned_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING, journal=request.journal).exclude(
         id__in=assigned)
-    assigned_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING).exclude(
+    assigned_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING, journal=request.journal).exclude(
         id__in=unassigned_articles)
 
     my_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING, id__in=my_table)
@@ -133,6 +135,7 @@ def production_done(request, article_id):
     return redirect('proofing_list')
 
 
+@article_stage_production_required
 @production_user_or_editor_required
 def production_article(request, article_id):
     """
@@ -184,6 +187,7 @@ def production_article(request, article_id):
     return render(request, template, context)
 
 
+@article_stage_production_required
 @production_user_or_editor_required
 def assign_typesetter(request, article_id, production_assignment_id):
     """
@@ -224,6 +228,7 @@ def assign_typesetter(request, article_id, production_assignment_id):
     return render(request, template, context)
 
 
+@article_stage_production_required
 @production_user_or_editor_required
 def notify_typesetter(request, typeset_id):
     """
@@ -257,6 +262,7 @@ def notify_typesetter(request, typeset_id):
     return render(request, template, context)
 
 
+@article_stage_production_required
 @production_user_or_editor_required
 def edit_typesetter_assignment(request, typeset_id):
     """
