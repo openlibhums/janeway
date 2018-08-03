@@ -83,7 +83,7 @@ def production_assign_article(request, user_id, article_id):
     else:
         messages.add_message(request, messages.WARNING, 'User is not a production manager.')
 
-    return redirect('production_list')
+    return redirect(reverse('production_list'))
 
 
 @editor_user_required
@@ -99,7 +99,7 @@ def production_unassign_article(request, article_id):
 
     models.ProductionAssignment.objects.filter(article=article).delete()
 
-    return redirect('production_list')
+    return redirect(reverse('production_list'))
 
 
 @require_POST
