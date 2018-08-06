@@ -301,7 +301,7 @@ class Article(models.Model):
     title = models.CharField(max_length=300, help_text=_('Your article title'))
     subtitle = models.CharField(max_length=300, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
-    abstract = models.TextField(blank=True)
+    abstract = models.TextField(blank=True, null=True)
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
     keywords = models.ManyToManyField(Keyword, blank=True, null=True)
