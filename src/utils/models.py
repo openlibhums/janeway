@@ -18,7 +18,6 @@ from django.conf import settings
 
 from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
-from utils import notify
 
 
 LOG_TYPES = [
@@ -107,6 +106,14 @@ class LogEntry(models.Model):
         new_entry = LogEntry.objects.create(**kwargs).save()
 
         return new_entry
+
+
+class Version(models.Model):
+    number = models.CharField(max_length=5)
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return 'Version {number}, upgraded {date}'.format(number=self.number, date=self.date)
 
 
 class Plugin(models.Model):
