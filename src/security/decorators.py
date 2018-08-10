@@ -401,7 +401,7 @@ def article_stage_production_required(func):
 
         article = models.Article.get_article(request.journal, 'id', article_id)
 
-        if article.stage == models.STAGE_TYPESETTING:
+        if article and article.stage == models.STAGE_TYPESETTING:
             return func(request, *args, **kwargs)
         else:
             raise PermissionDenied

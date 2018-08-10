@@ -31,12 +31,17 @@ class LogAdmin(admin.ModelAdmin):
     list_display = ('types', 'date', 'level', 'actor', 'ip_address', 'is_email', 'target')
 
 
+class VersionAdmin(admin.ModelAdmin):
+    list_display = ('number', 'date')
+
+
 admin_list = [
     (models.LogEntry, LogAdmin),
     (models.Plugin, PluginAdmin),
     (models.PluginSetting, PluginSettingAdmin),
     (models.PluginSettingValue, SettingValueAdmin),
     (models.ImportCacheEntry, ImportCacheAdmin),
+    (models.Version, VersionAdmin)
 ]
 
 [admin.site.register(*t) for t in admin_list]

@@ -301,7 +301,7 @@ class Article(models.Model):
     title = models.CharField(max_length=300, help_text=_('Your article title'))
     subtitle = models.CharField(max_length=300, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
-    abstract = models.TextField(blank=True)
+    abstract = models.TextField(blank=True, null=True)
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
     keywords = models.ManyToManyField(Keyword, blank=True, null=True)
@@ -569,10 +569,11 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier)[0]
+                article = Article.allarticles.filter(id=identifier, journal=journal)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
-                article = identifier_models.Identifier.objects.filter(id_type=identifier_type, identifier=identifier)[0].article
+                article = identifier_models.Identifier.objects.filter(
+                    id_type=identifier_type, identifier=identifier)[0].article
 
                 # check that the retrieved article is listed in an issue TOC for the current journal
                 article_journals = [issue.journal for issue in article.issues.all()]

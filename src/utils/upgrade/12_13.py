@@ -5,6 +5,7 @@ from submission import models as submission_models
 from core import models as core_models
 
 from utils import setting_handler
+from utils.upgrade import shared
 
 
 SETTINGS_TO_CHANGE = [
@@ -12,7 +13,7 @@ SETTINGS_TO_CHANGE = [
     {'group': 'email', 'name': 'author_copyedit_complete', 'action': 'update'},
     {'group': 'email', 'name': 'production_manager_notification', 'action': 'update'},
     {'group': 'email', 'name': 'review_complete_reviewer_acknowledgement', 'action': 'update'},
-    #{'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
+    # {'group': 'general', 'name': 'submission_competing_interests', 'action': 'drop'},
 ]
 
 
@@ -84,11 +85,12 @@ def update_settings():
 
 def delete_existing_workflows():
     core_models.Workflow.objects.all().delete()
-    core_models.Workflow.objects.all().delete()
+    core_models.WorkflowElement.objects.all().delete()
 
 
 def execute():
-    delete_existing_workflows()
-    run_journal_signals()
-    process_article_workflow()
-    update_settings()
+    shared.current_version()
+    # delete_existing_workflows()
+    # run_journal_signals()
+    # process_article_workflow()
+    # update_settings()
