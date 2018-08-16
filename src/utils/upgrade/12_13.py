@@ -94,3 +94,4 @@ def execute():
     # run_journal_signals()
     # process_article_workflow()
     # update_settings()
+    shared.set_version('1.3')
