@@ -10,7 +10,10 @@ def create_version(apps, schema_editor):
 
     versions = Version.objects.all()
 
+    print(versions)
+
     if not versions:
+        print('hi')
         Version.objects.create(number='1.2')
 
 

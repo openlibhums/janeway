@@ -89,9 +89,8 @@ def delete_existing_workflows():
 
 
 def execute():
-    shared.check_version(script='1.3')
-    delete_existing_workflows()
-    run_journal_signals()
-    process_article_workflow()
-    update_settings()
-    shared.set_version('1.3')
+    shared.current_version()
+    # delete_existing_workflows()
+    # run_journal_signals()
+    # process_article_workflow()
+    # update_settings()
