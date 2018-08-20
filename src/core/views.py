@@ -528,6 +528,8 @@ def active_submission_filter(request):
     if not articles:
         html = '<p>There are no articles to display</p>'
 
+    return HttpResponse(json.dumps({'status': 200, 'html': html}))
+
 
 @article_author_required
 def dashboard_article(request, article_id):
