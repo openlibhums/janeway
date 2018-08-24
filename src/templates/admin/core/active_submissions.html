@@ -30,7 +30,7 @@
                     <div class="content">
 
                         <div class="row">
-                            <form id="filter_form" method="POST">
+                            <form id="filter_form" class="autoSubmit" method="POST">
                                 <div class="title-area">
                                     <h2>Assignments</h2>
                                 </div>
@@ -120,5 +120,10 @@
                 }
             });
         };
+
+
+        $('.autoSubmit, .autoSubmit select, .autoSubmit input, .autoSubmit textarea').change(function () {
+            send_post()
+        });
     </script>
 {% endblock js %}

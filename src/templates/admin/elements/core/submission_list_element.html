@@ -20,6 +20,8 @@
                     Section: {{ article.section.name }}
                     <br/>
                     Stage: {{ article.get_stage_display }}
+                    <br />
+                    <a href="{{ article.current_stage_url }}">View Article</a>
                 </p>
             </small>
         </div>
