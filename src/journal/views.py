@@ -1498,6 +1498,7 @@ def download_issue(request, issue_id):
 
     for article in articles:
         for galley in article.galley_set.all():
+            store_article_access(request, article, 'download', galley_type=galley.file.label)
             galley_files.append(galley.file)
 
     zip_file, file_name = files.zip_files(galley_files, article_specific=True)
