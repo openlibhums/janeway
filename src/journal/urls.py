@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
     url(r'^issue/(?P<issue_id>\d+)/info/$', views.issue, name='journal_issue'),
+    url(r'^issue/(?P<issue_id>\d+)/download/$', views.download_issue, name='journal_issue_download'),
     url(r'^collections/$', views.collections, name='journal_collections'),
     url(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),

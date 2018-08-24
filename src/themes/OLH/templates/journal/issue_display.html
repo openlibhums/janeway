@@ -39,6 +39,8 @@
         <aside class="large-4 columns" data-sticky-container>
             <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
                 <div class="section">
+                    <h3>{% trans 'Downloads' %}</h3>
+                    <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>Download Issue</a></p>
                     <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
                         {% trans "Collections" %}{% endif %}</h3>
                     <ul>

@@ -1482,3 +1482,23 @@ def document_management(request, article_id):
     }
 
     return render(request, template, context)
+
+
+def download_issue(request, issue_id):
+    issue_object = get_object_or_404(models.Issue,
+                                     pk=issue_id,
+                                     journal=request.journal,
+                                     issue_type='Issue')
+    articles = issue_object.articles.all().order_by('section',
+                                                    'page_numbers').prefetch_related('authors',
+                                                                                     'frozenauthor_set',
+                                                                                     'manuscript_files')
+
+    galley_files = []
+
+    for article in articles:
+        for galley in article.galley_set.all():
+            galley_files.append(galley.file)
+
+    zip_file, file_name = files.zip_files(galley_files, article_specific=True)
+    return files.serve_temp_file(zip_file, file_name)

@@ -22,6 +22,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django.http import Http404
 from django.views.decorators.cache import cache_control
+from django.utils.html import strip_tags
 
 from utils import models as util_models
 
@@ -611,7 +612,7 @@ def file_children(file):
     return children
 
 
-def zip_files(files):
+def zip_files(files, article_specific=False):
     file_name = '{0}.zip'.format(uuid4())
 
     # Copy files into a temp dir
@@ -619,7 +620,15 @@ def zip_files(files):
     os.makedirs(_dir, 0o775)
 
     for file in files:
-        shutil.copy(file.self_article_path(), _dir)
+
+        if article_specific and file.article_id:
+            folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
+            article_dir = os.path.join(_dir, folder_name)
+            if not os.path.exists(article_dir):
+                os.makedirs(article_dir, 0o775)
+            shutil.copy(file.self_article_path(), article_dir)
+        else:
+            shutil.copy(file.self_article_path(), _dir)
 
     zip_path = '{dir}.zip'.format(dir=_dir)
 

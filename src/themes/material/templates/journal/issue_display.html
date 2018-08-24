@@ -28,6 +28,13 @@
     </div>
     {% if show_sidebar %}
         <div class="col m3 offset-m1">
+            <h5>{% trans 'Downloads' %}</h5>
+            <ul>
+                <li>
+                    <a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i> Download Issue</a>
+                </li>
+            </ul>
+
             <h5>{% if not collection %}{% trans "Issue Archive" %}{% else %}
                 {% trans "Collections" %}{% endif %}</h5>
             <ul class="collection">
