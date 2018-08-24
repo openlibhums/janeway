@@ -373,7 +373,7 @@ class Issue(models.Model):
     date = models.DateTimeField(default=timezone.now)
     order = models.IntegerField(default=1)
     issue_type = models.CharField(max_length=200, blank=False, null=False, default='Issue', choices=ISSUE_TYPES)
-    issue_description = models.TextField()
+    issue_description = models.TextField(blank=True, null=True)
 
     cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
