@@ -104,3 +104,7 @@ janeway\.sublime-project
 janeway\.sublime-workspace
 
 terminal\.glue
+
+src/core/management/commands
+
+src/core/management/__init__\.py

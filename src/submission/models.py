@@ -1010,9 +1010,11 @@ class FrozenAuthor(models.Model):
         first_initial, middle_initial = '', ''
 
         if self.middle_name:
-            middle_initial = '{0}.'.format(self.middle_name[:1])
+            middle_initial = ' {0}.'.format(self.middle_name[:1])
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
+
+        return '{last} {first}{middle}'.format(last=self.last_name, first=first_initial, middle=middle_initial)
 
     def given_names(self):
         if self.middle_name:

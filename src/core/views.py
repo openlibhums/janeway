@@ -528,7 +528,7 @@ def active_submission_filter(request):
     if not articles:
         html = '<p>There are no articles to display</p>'
 
-    git
+    return HttpResponse(json.dumps({'status': 200, 'html': html}))
 
 
 @article_author_required
