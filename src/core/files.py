@@ -12,7 +12,6 @@ from lxml import etree
 import re
 import shutil
 import magic
-import tempfile
 import hashlib
 
 from django.conf import settings
@@ -26,6 +25,8 @@ from django.utils.html import strip_tags
 
 from utils import models as util_models
 
+
+TEMP_DIR = os.path.join(settings.BASE_DIR, 'files', 'temp')
 
 EDITABLE_FORMAT = (
     'application/rtf',
@@ -50,11 +51,14 @@ def mkdirs(path):
 
 
 def create_temp_file(content, filename):
-    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
-    filepath = os.path.join(tempfile.gettempdir(), filename)
 
-    with open(filepath, 'w') as temp_file:
-        temp_file.write(content)
+    filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
+    filepath = os.path.join(TEMP_DIR, filename)
+
+    temp_file = open(filepath, 'w')
+    temp_file.write(content)
+    temp_file.flush()
+    temp_file.close()
 
     return filepath
 
@@ -118,11 +122,12 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
     else:
         original_filename = str(file_to_handle.name)
 
-    print(original_filename)
-
     # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id))
+
+    if not os.path.exists(folder_structure):
+        mkdirs(folder_structure)
 
     if save:
         save_file_to_disk(file_to_handle, filename, folder_structure)

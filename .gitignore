@@ -108,3 +108,7 @@ terminal\.glue
 src/core/management/commands
 
 src/core/management/__init__\.py
+
+src/auth\.json
+
+src/test\.txt

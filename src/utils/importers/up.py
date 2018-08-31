@@ -424,7 +424,7 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
         if not profile_dict.get('Salutation') in dict(core_models.SALUTATION_CHOICES):
             profile_dict['Salutation'] = ''
 
-        if profile_dict.get('Middle Name', None) == '-':
+        if profile_dict.get('Middle Name', None) == '—':
             profile_dict['Middle Name'] = ''
 
         account = core_models.Account.objects.create(email=profile_dict['email'],
@@ -467,15 +467,59 @@ def process_resp(resp):
     return resp
 
 
-def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
+def get_input_value_by_name(content, name):
+    soup = BeautifulSoup(content, 'lxml')
+    value = soup.find('input', {'name': name}).get('value', None)
+
+    return value
+
+
+def get_ojs_plugin_response(url, auth_file, up_base_url):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
+    # setup auth variables
+    do_auth = True
+    username = ''
+    password = ''
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/39.0.2171.95 Safari/537.36'}
 
-    resp = process_resp(resp)
+    session = requests.Session()
 
-    _dict = json.loads(resp)
+    # first, check whether there's an auth file
+    with open(auth_file, 'r') as auth_in:
+        auth_dict = json.loads(auth_in.read())
+        do_auth = True
+        username = auth_dict['username']
+        password = auth_dict['password']
 
-    for article_dict in _dict:
+    # load the login page
+    auth_url = '{0}{1}'.format(up_base_url, '/login/')
+    fetched = session.get(auth_url, headers=headers, stream=True, verify=False)
+
+    csrf_token = get_input_value_by_name(fetched.content, 'csrfmiddlewaretoken')
+
+    post_dict = {'username': username, 'password': password, 'login': 'login', 'csrfmiddlewaretoken': csrf_token}
+    fetched = session.post('{0}{1}'.format(up_base_url, '/author/login/'), data=post_dict,
+                           headers={'Referer': auth_url,
+                                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                                  'Chrome/39.0.2171.95 Safari/537.36'
+                                    })
+
+    fetched = session.get(url, headers=headers, stream=True, verify=False)
+
+    print(fetched.text.encode('ascii', 'ignore').decode('utf8'))
+
+
+
+
+    return '' # fetched.json()
+
+
+def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
+    resp = get_ojs_plugin_response(url, auth_file, base_url)
+
+    for article_dict in resp:
         create_article_with_review_content(article_dict, journal, auth_file, base_url)
         print('Importing {article}.'.format(article=article_dict.get('title')))
 
@@ -653,12 +697,7 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
                                                            article.owner,
                                                            label='Review Comments',
                                                            save=False)
-            import shutil
-            directory = os.path.dirname(comment_file.self_article_path())
-            if not os.path.exists(directory):
-                os.makedirs(directory)
 
-            shutil.copy(filepath, comment_file.self_article_path())
             new_review.review_file = comment_file
 
         new_review.save()
