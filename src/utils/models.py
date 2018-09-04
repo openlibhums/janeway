@@ -278,7 +278,6 @@ class ImportCacheEntry(models.Model):
                                                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
                                                               'Chrome/39.0.2171.95 Safari/537.36'
                                                 })
-                print(post_dict, fetched.url, fetched.history, fetched.status_code)
                 if not settings.SILENT_IMPORT_CACHE:
                     print("[CACHE] Sending auth")
 
