@@ -18,6 +18,7 @@ from django.conf import settings
 
 from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
+from utils.importers.up import get_input_value_by_name
 
 
 LOG_TYPES = [
@@ -268,13 +269,16 @@ class ImportCacheEntry(models.Model):
                 # load the login page
                 auth_url = '{0}{1}'.format(up_base_url, '/login/')
                 fetched = session.get(auth_url, headers=headers, stream=True, verify=False)
+                csrf_token = get_input_value_by_name(fetched.content, 'csrfmiddlewaretoken')
 
-                post_dict = {'username': username, 'password': password, 'login': 'login'}
-                fetched = session.post('{0}{1}'.format(up_base_url, '/login/signIn/'), data=post_dict,
+                post_dict = {'username': username, 'password': password, 'login': 'login',
+                             'csrfmiddlewaretoken': csrf_token}
+                fetched = session.post('{0}{1}'.format(up_base_url, '/login/'), data=post_dict,
                                        headers={'Referer': auth_url,
                                                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
                                                               'Chrome/39.0.2171.95 Safari/537.36'
                                                 })
+                print(post_dict, fetched.url, fetched.history, fetched.status_code)
                 if not settings.SILENT_IMPORT_CACHE:
                     print("[CACHE] Sending auth")
 

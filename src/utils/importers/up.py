@@ -273,7 +273,7 @@ def parse_backend_user_list(url, auth_file, auth_url, regex):
 def get_user_list(url, auth_file):
     auth_url = url
 
-    url += '/manager/people/all'
+    url += '/jms/manager/people/all'
     regex = '\/manager\/userProfile\/(\d+)'
 
     matches = parse_backend_user_list(url, auth_file, auth_url, regex)
@@ -474,6 +474,10 @@ def get_input_value_by_name(content, name):
     return value
 
 
+def convert_values(value):
+    return re.sub(r'[\xc2-\xf4][\x80-\xbf]+', lambda m: m.group(0).encode('latin1').decode('utf-8'), value)
+
+
 def get_ojs_plugin_response(url, auth_file, up_base_url):
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     # setup auth variables
@@ -508,12 +512,13 @@ def get_ojs_plugin_response(url, auth_file, up_base_url):
 
     fetched = session.get(url, headers=headers, stream=True, verify=False)
 
-    print(fetched.text.encode('ascii', 'ignore').decode('utf8'))
+    json_out = fetched.json()
 
-
-
-
-    return '' # fetched.json()
+    for item in json_out:
+        for key, value in item.items():
+            if isinstance(value, str):
+                item[key] = convert_values(value)
+    return json_out
 
 
 def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
