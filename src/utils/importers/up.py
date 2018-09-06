@@ -530,15 +530,10 @@ def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
 
 
 def ojs_plugin_import_editing_articles(url, journal, auth_file, base_url):
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
+    resp = get_ojs_plugin_response(url, auth_file, base_url)
 
-    resp = process_resp(resp)
-
-    _dict = json.loads(resp)
-
-    for article_dict in _dict:
-        print('#{id} {article}.'.format(id=article_dict.get('ojs_id'), article=article_dict.get('title')))
+    for article_dict in resp:
+        print('Importing {article}.'.format(article=article_dict.get('title')))
         article = create_article_with_review_content(article_dict, journal, auth_file, base_url)
         complete_article_with_production_content(article, article_dict, journal, auth_file, base_url)
 

@@ -32,7 +32,7 @@ class Command(BaseCommand):
         if options.get('nuke'):
             management.call_command('nuke_import_cache')
 
-        url = '{base_url}/janeway/?request_type=in_editing'.format(base_url=options.get('base_url'))
+        url = '{base_url}/jms/janeway/?request_type=in_editing'.format(base_url=options.get('base_url'))
         try:
             journal = models.Journal.objects.get(code=options.get('journal_code'))
             ojs_plugin_import_editing_articles(url,
