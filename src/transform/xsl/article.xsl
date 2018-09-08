@@ -3402,15 +3402,19 @@
     </xsl:template>
 
       <xsl:template match="verse-group">
-
         <pre>
           <xsl:apply-templates/>
         </pre>
       </xsl:template>
 
       <xsl:template match="verse-line">
-
         <xsl:apply-templates/>
+      </xsl:template>
+
+      <xsl:template match="title">
+          <strong>
+            <xsl:apply-templates/>
+          </strong>
       </xsl:template>
 
     <xsl:template match="disp-quote">
