@@ -28,29 +28,14 @@
             {% if request.journal.nav_news %}
                 <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
 
-            {% for item in navigation_items %}
-                {% if item.has_sub_nav %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ item.link_name }}
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
-                            {% for subnav in item.sub_nav_items %}
-                                <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
-                            {% endfor %}
-                        </div>
-                    </li>
-                {% else %}
-                    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
-                {% endif %}
-            {% endfor %}
-
             {% if request.journal.nav_articles %}
                 <li class="nav-item"><a href="{% url 'journal_articles' %}" class="nav-link">Articles</a>
                 </li>{% endif %}
             {% if request.journal.nav_issues %}
                 <li class="nav-item"><a href="{% url 'journal_issues' %}" class="nav-link">Issues</a></li>{% endif %}
+            {% if request.journal.nav_collections %}
+                <li class="nav-item"><a href="{% url 'journal_collections' %}" class="nav-link">Collections</a></li>
+            {% endif %}
 
 
             {% if journal_settings.general.enable_editorial_display %}
@@ -75,6 +60,23 @@
             {% if request.journal.nav_sub %}
                 <li class="nav-item"><a href="{% url 'journal_submissions' %}" class="nav-link">Submission</a>
                 </li>{% endif %}
+                        {% for item in navigation_items %}
+                {% if item.has_sub_nav %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ item.link_name }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
+                            {% for subnav in item.sub_nav_items %}
+                                <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if request.journal.nav_contact %}
                 <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>{% endif %}
             {% hook 'nav_block' %}

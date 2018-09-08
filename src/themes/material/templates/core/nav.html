@@ -31,6 +31,9 @@
             {% if request.journal.nav_issues %}
                 <li><a href="{% url 'journal_issues' %}">Issues</a></li>
             {% endif %}
+            {% if request.journal.nav_collections %}
+                <li><a href="{% url 'journal_collections' %}">Collections</a></li>
+            {% endif %}
             {% if journal_settings.general.enable_editorial_display %}
                 <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>
             {% endif %}
