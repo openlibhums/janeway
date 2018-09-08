@@ -10,13 +10,13 @@
                 </div>
                 {% if issue.issue_description %}
                     <div class="card-content">
-                        {{ issue.issue_description }}
+                        {{ issue.issue_description|safe }}
                     </div>
                 {% endif %}
             </div>
         {% else %}
             <h3>{{ issue.display_title }}</h3>
-            {% if issue.issue_description %}<p>{{ issue.issue_description }}</p>{% endif %}
+            {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
         {% endif %}
 
         {% for section, articles in structure.items %}
@@ -31,7 +31,7 @@
             <h5>{% trans 'Downloads' %}</h5>
             <ul>
                 <li>
-                    <a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i> Download Issue</a>
+                    <a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i> Download {% if not collection %}{% trans "Issue" %}{% else %}{% trans "Collection" %}{% endif %}</a>
                 </li>
             </ul>
 
