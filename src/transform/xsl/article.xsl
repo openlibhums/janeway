@@ -1510,12 +1510,6 @@
         <xsl:for-each select="mixed-citation">
           <xsl:variable name="pub-type" select="current()/@publication-type"/>
           <p id="{../@id}">
-            <xsl:if test="parent::ref/label">
-              <span class="mixed-label">
-                <xsl:value-of select="parent::ref/label"/><xsl:text>. </xsl:text>
-              </span>
-            </xsl:if>
-
             <xsl:variable name="name-count" select="count(string-name)"/>
             <xsl:variable name="name-count-minus-one" select="$name-count - 1"/>
 
