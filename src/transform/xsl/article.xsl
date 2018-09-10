@@ -1510,12 +1510,6 @@
         <xsl:for-each select="mixed-citation">
           <xsl:variable name="pub-type" select="current()/@publication-type"/>
           <p id="{../@id}">
-            <xsl:if test="parent::ref/label">
-              <span class="mixed-label">
-                <xsl:value-of select="parent::ref/label"/><xsl:text>. </xsl:text>
-              </span>
-            </xsl:if>
-
             <xsl:variable name="name-count" select="count(string-name)"/>
             <xsl:variable name="name-count-minus-one" select="$name-count - 1"/>
 
@@ -1634,7 +1628,7 @@
                 <xsl:variable name="title" select="article-title"/>
                 <xsl:value-of select="title"></xsl:value-of>
 
-                <xsl:if test="not(starts-with($title, '&#8220;'))"><xsl:text>&#8220;</xsl:text></xsl:if><xsl:value-of select="article-title"/><xsl:if test="not(starts-with($title, '&#8220;'))"><xsl:text>&#8221;</xsl:text></xsl:if><xsl:text>, </xsl:text>
+                <xsl:if test="not(starts-with($title, '&#8220;')) and $title"><xsl:text>&#8220;</xsl:text></xsl:if><xsl:value-of select="article-title"/><xsl:if test="not(starts-with($title, '&#8220;')) and $title"><xsl:text>&#8221;</xsl:text></xsl:if><xsl:if test="$title"><xsl:text>, </xsl:text></xsl:if>
               <xsl:element name="i"><xsl:value-of select="source"/></xsl:element><xsl:text>. </xsl:text>
               <xsl:if test="volume">
                 <xsl:text>(</xsl:text><xsl:value-of select="volume"/><xsl:text>)</xsl:text>
@@ -3408,15 +3402,19 @@
     </xsl:template>
 
       <xsl:template match="verse-group">
-
         <pre>
           <xsl:apply-templates/>
         </pre>
       </xsl:template>
 
       <xsl:template match="verse-line">
-
         <xsl:apply-templates/>
+      </xsl:template>
+
+      <xsl:template match="title">
+          <strong>
+            <xsl:apply-templates/>
+          </strong>
       </xsl:template>
 
     <xsl:template match="disp-quote">

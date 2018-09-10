@@ -23,6 +23,8 @@
         {% endfor %}
         {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">Articles</a></li>{% endif %}
         {% if request.journal.nav_issues %}<li><a href="{% url 'journal_issues' %}">Issues</a></li>{% endif %}
+        {% if request.journal.nav_collections %}
+            <li><a href="{% url 'journal_collections' %}">Collections</a></li>{% endif %}
         {% if journal_settings.general.enable_editorial_display %}
             {% if journal_settings.general.mulit_page_editorial %}
             <li class=".is-dropdown-submenu-parent">

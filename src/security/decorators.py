@@ -397,7 +397,11 @@ def article_stage_production_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs['article_id']
+        if 'typeset_id' in kwargs:
+            typesetting_assignment = production_models.TypesetTask.objects.get(pk=kwargs.get('typeset_id'))
+            article_id = typesetting_assignment.assignment.article.pk
+        else:
+            article_id = kwargs['article_id']
 
         article = models.Article.get_article(request.journal, 'id', article_id)
 
