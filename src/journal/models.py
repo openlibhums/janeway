@@ -512,6 +512,33 @@ class Issue(models.Model):
         orderings = [ordering.order for ordering in ArticleOrdering.objects.filter(issue=self)]
         return max(orderings) + 1 if orderings else 0
 
+    @staticmethod
+    def auto_increment_volume_issue(journal):
+        """
+        Takes a journal as input
+        Looks at latest non-collection issue in journal,
+        Returns a tuple of ints representing the next (volume, issue)
+        """
+        from datetime import datetime
+
+        # get the latest issue from the specified journal
+        latest_issue = Issue.objects.filter(journal=journal, issue_type='Issue').latest('date')
+
+        # if no issues in journal, start at 1:1
+        if not latest_issue:
+            return (1, 1)
+
+        # if issues exist, iterate - if new year, add 1 to volume and reset issue to 1
+        # otherwise keep volume the same and add 1 to issue
+        else:
+            if datetime.now().year > latest_issue.date.year:
+                volume = latest_issue.volume + 1
+                issue = 1
+                return (volume, issue)
+            else:
+                issue = latest_issue.issue + 1
+                return (latest_issue.volume, issue)
+
     def __str__(self):
         return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
 
