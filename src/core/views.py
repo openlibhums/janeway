@@ -667,11 +667,19 @@ def edit_settings_group(request, group):
         raise Http404
 
     edit_form = forms.GeneratedSettingForm(settings=settings)
-    attr_form = forms.JournalAttributeForm(instance=journal)
+
+    if journal_id:
+        attr_form = forms.PressJournalAttrForm(instance=journal)
+    else:
+        attr_form = forms.JournalAttributeForm(instance=journal)
 
     if request.POST:
         edit_form = forms.GeneratedSettingForm(request.POST, settings=settings)
-        attr_form = forms.JournalAttributeForm(request.POST, request.FILES, instance=journal)
+
+        if journal_id:
+            attr_form = forms.PressJournalAttrForm(request.POST, request.FILES, instance=journal)
+        else:
+            attr_form = forms.JournalAttributeForm(request.POST, request.FILES, instance=journal)
 
         if edit_form.is_valid() and attr_form.is_valid():
             edit_form.save(group=setting_group, journal=journal)
