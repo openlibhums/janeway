@@ -188,6 +188,10 @@ class Events:
     # raised when proofing is complete
     ON_PROOFING_COMPLETE = 'on_proofing_complete'
 
+    #kwargs: request, article
+    # raised when an article is marked as published
+    ON_ARTICLE_PUBLISHED = 'on_article_published'
+
     # kwargs: request, article
     # raised when an Editor notifies an author that publication is set
     ON_AUTHOR_PUBLICATION = 'on_author_publication'
