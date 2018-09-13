@@ -162,7 +162,7 @@
                 </div>
             </div>
             <div class="row">
-                {% if article.metrics.alm and article.is_published %}
+                {% if article.metrics and article.is_published and not request.journal.disable_metrics_display %}
                     <div class="col m12 l12 s12">
                         <div class="card">
                             <div class="card-content center">

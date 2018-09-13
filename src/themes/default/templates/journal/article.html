@@ -204,6 +204,7 @@
                     {% endif %}
                 </ul>
                 {% if article.is_published %}
+                    {% if not request.journal.disable_metrics_display %}
                     <h4>{% trans "Metrics" %}</h4>
                     <ul>
                         <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
@@ -215,6 +216,7 @@
                         {% if article.metrics.alm.reddit %}
                             <li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
                     </ul>
+                    {% endif %}
                     <h4>{% trans "Citation" %}</h4>
                     <div class="btn-group-vertical">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
