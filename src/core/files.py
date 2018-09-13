@@ -46,13 +46,26 @@ IMAGE_MIMETYPES = (
 
 
 def mkdirs(path):
+    """
+    Creates a directiroy structure if it doesn't already exist.
+    :param path: a file path eg /home/user/folder/
+    :return: None
+    """
     if not os.path.exists(path):
         os.makedirs(path)
 
 
 def create_temp_file(content, filename):
-
+    """
+    Creates a temp file and writes content to it.
+    :param content: Contents of file to be created.
+    :param filename: Filename of the temp file
+    :return: Temp file's path eg /src/files/temp/temp.txt
+    """
     filename = '{uuid}-{filename}'.format(uuid=uuid4(), filename=filename)
+
+    # Check if the temp folder exists and, if not, create it.
+    mkdirs(TEMP_DIR)
     filepath = os.path.join(TEMP_DIR, filename)
 
     temp_file = open(filepath, 'w')
