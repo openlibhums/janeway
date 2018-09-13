@@ -309,7 +309,7 @@ class JournalAttributeForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = ('contact_info', 'header_image', 'default_cover_image', 'default_large_image', 'favicon',
-                  'is_remote', 'remote_view_url', 'remote_submit_url')
+                  'is_remote', 'remote_view_url', 'remote_submit_url', 'disable_metrics_display')
 
 
 class PressJournalAttrForm(forms.ModelForm):
@@ -320,7 +320,7 @@ class PressJournalAttrForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = ('contact_info', 'header_image', 'default_cover_image', 'default_large_image', 'favicon',
-                  'is_remote', 'remote_view_url', 'remote_submit_url', 'hide_from_press')
+                  'is_remote', 'remote_view_url', 'remote_submit_url', 'hide_from_press', 'disable_metrics_display')
 
 
 class NotificationForm(forms.ModelForm):
