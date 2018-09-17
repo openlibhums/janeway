@@ -282,7 +282,7 @@
                             <li><a href="{% url 'review_request_revisions' article.pk %}"><i
                                     class="fa fa-inbox action-icon">&nbsp;</i>Request
                                 Revisions</a></li>
-                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' %}
+                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
                                 <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
                                         class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
                                 </li>
