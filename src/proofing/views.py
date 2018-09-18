@@ -388,7 +388,7 @@ def request_typesetting_changes(request, article_id, proofing_task_id):
 
     if request.POST:
         form = forms.AssignTypesetter(request.POST)
-        user = logic.get_user_from_post(request)
+        user = logic.get_user_from_post(request, typesetter=True)
         galleys = logic.get_galleys_from_post(request)
         files = logic.get_files_from_post(request)
 
