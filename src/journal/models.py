@@ -523,10 +523,11 @@ class Issue(models.Model):
         from datetime import datetime
 
         # get the latest issue from the specified journal
-        latest_issue = Issue.objects.filter(journal=journal, issue_type='Issue').latest('date')
+        try:
+            latest_issue = Issue.objects.filter(journal=journal, issue_type='Issue').latest('date')
 
         # if no issues in journal, start at 1:1
-        if not latest_issue:
+        except Issue.DoesNotExist:
             return (1, 1)
 
         # if issues exist, iterate - if new year, add 1 to volume and reset issue to 1
