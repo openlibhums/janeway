@@ -218,7 +218,8 @@ def get_typesetters(article, proofing_task):
 
     typesetters = [task.typesetter.pk for task in correction_tasks]
 
-    return core_models.AccountRole.objects.filter(role__slug='typesetter').exclude(user__pk__in=typesetters)
+    return core_models.AccountRole.objects.filter(role__slug='typesetter', journal=article.journal).exclude(
+        user__pk__in=typesetters)
 
 
 def handle_annotated_galley_upload(request, proofing_task, article):
