@@ -375,7 +375,7 @@ def request_typesetting_changes(request, article_id, proofing_task_id):
     :param request: HttpRequest object
     :param article_id: Article object PK
     :param proofing_task_id: ProofingTask PK
-    :return: HttpReponse
+    :return: HttpResponse
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
@@ -414,7 +414,7 @@ def request_typesetting_changes(request, article_id, proofing_task_id):
     context = {
         'article': article,
         'proofing_task': proofing_task,
-        'typesetters': logic.get_typesetters(article, proofing_task),
+        'typesetters': core_models.AccountRole.objects.filter(role__slug='typesetter', journal=article.journal),
         'user': user if request.POST else None,
         'galleys': galleys if request.POST else None,
         'form': form,

@@ -52,7 +52,7 @@
                         <th>Download</th>
                         <th>History</th>
                     </tr>
-                    {% for galley in proofing_task.galleys_for_proofing.all %}
+                    {% for galley in article.galley_set.all %}
                         {% can_view_file galley.file as can_view_file_flag %}
                         {% can_view_file_history galley.file article as can_view_file_history_flag %}
                         <tr>
@@ -60,7 +60,7 @@
                                        {% if galley in galleys %}checked="checked"{% endif %}></td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
-                            <td>Galley</td>
+                            <td>Galley {% if galley in proofing_task.galleys_for_proofing.all %}(Proofed){% else %}(Not Proofed){% endif %}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
