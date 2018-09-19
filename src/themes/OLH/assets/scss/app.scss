@@ -1137,3 +1137,7 @@ button.list-group-item-danger.active:focus {
 #reflist p {
     word-wrap: break-word;
 }
+
+.sidebar-item a sup {
+  display: none;
+}
