@@ -51,14 +51,21 @@ def get_all_possible_proofers(journal, article):
     return all_possible_proofers
 
 
-def get_user_from_post(request, typesetter=False):
+def get_user_from_post(request, article=False, typesetter=False):
     user_id = request.POST.get('proofreader')
 
     if user_id:
         user = core_models.Account.objects.get(pk=user_id)
 
-        if not typesetter and not user.is_proofreader(request):
+        # check if the user is an author of this paper
+        if article and not typesetter and user in article.authors.all():
+            return user
+
+        # return None if we aren't checking for typesetting and the user isn't a proofreder
+        elif not typesetter and not user.is_proofreader(request):
             return None
+
+        # return None if we are checking for a typesetter and the user isn't a typesetter
         elif typesetter and not user.is_typesetter(request):
             return None
     else:
