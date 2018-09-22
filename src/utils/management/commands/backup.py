@@ -3,8 +3,10 @@ import shutil
 import boto
 from boto.s3.key import Key
 import subprocess
+from io import StringIO
 
 from django.core.management.base import BaseCommand
+from django.core.management import call_command
 from django.conf import settings
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -130,8 +132,16 @@ class Command(BaseCommand):
         start_time = str(timezone.now())
         try:
             tmp_path = os.path.join(settings.BASE_DIR, 'files', 'temp', start_time)
+
+            # dump database out to JSON and store in StringIO for saving
             print('Dumping json db file')
-            subprocess.call('python3 manage.py dumpdata --indent=4 > files/temp/janeway.json', shell=True)
+            json_out = StringIO()
+            call_command('dumpdata', '--indent=4', '--natural-foreign', '--exclude=contenttypes', stdout=json_out)
+
+            with open(os.path.join(settings.BASE_DIR, 'files', 'temp', 'janeway.json'), 'w') as write:
+                json_out.seek(0)
+                shutil.copyfileobj(json_out, write)
+
             os.mkdir(tmp_path)
             copy_file('files/temp/janeway.json', 'files/temp/{0}/janeway.json'.format(start_time))
             copy_files(os.path.join(settings.BASE_DIR, 'media'), os.path.join(tmp_path, 'media'))
