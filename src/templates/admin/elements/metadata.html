@@ -32,6 +32,12 @@
     <tr>
         <td colspan="4">{{ article.abstract|safe }}</td>
     </tr>
+    <tr>
+        <th colspan="4">Keywords</th>
+    </tr>
+    <tr>
+        <td colspan="4">{% for keyword in article.keywords.all %}{{ keyword }}{% if not forloop.last %}, {% endif %}{% empty %}No keywords recorded{% endfor %}</td>
+    </tr>
     {% if journal_settings.general.submission_summary %}
         <tr>
             <th colspan="4">Non Specialist Summary</th>
