@@ -292,6 +292,25 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def active_copyedits(self):
         return copyediting_models.CopyeditAssignment.objects.filter(copyeditor=self, copyedit_acknowledged=False)
 
+    def active_typesets(self):
+        """
+        Gathers typesetting tasks a user account has and returns a list of them.
+        :return: List of objects
+        """
+        from production import models as production_models
+        from proofing import models as proofing_models
+        task_list = list()
+        typeset_tasks = production_models.TypesetTask.objects.filter(typesetter=self, completed__isnull=True)
+        proofing_tasks = proofing_models.TypesetterProofingTask.objects.filter(typesetter=self, completed__isnull=True)
+
+        for task in typeset_tasks:
+            task_list.append(task)
+
+        for task in proofing_tasks:
+            task_list.append(task)
+
+        return task_list
+
     def add_account_role(self, role_slug, journal):
         role = Role.objects.get(slug=role_slug)
         return AccountRole.objects.get_or_create(role=role, user=self, journal=journal)
