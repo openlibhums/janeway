@@ -19,6 +19,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.template.loader import get_template
 from django.db.models import Q
+from django.http import JsonResponse
+from django.forms.models import model_to_dict
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -615,3 +617,13 @@ def create_html_snippet(name, object, template):
     html_content = template.render({name: object})
 
     return html_content
+
+
+def export_gdpr_user_profile(user):
+    user = models.Account.objects.get(pk=user.pk)
+    user_dict = model_to_dict(user)
+    [user_dict.pop(key) for key in
+     ['profile_image', 'interest', 'password', 'groups', 'user_permissions', 'activation_code', 'is_superuser',
+      'is_staff']]
+    response = JsonResponse(user_dict)
+    return response

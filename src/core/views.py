@@ -368,6 +368,9 @@ def edit_profile(request):
                 messages.add_message(request, messages.SUCCESS, 'Profile updated.')
                 return redirect(reverse('core_edit_profile'))
 
+        elif 'export' in request.POST:
+            return logic.export_gdpr_user_profile(user)
+
     template = 'core/accounts/edit_profile.html'
     context = {
         'form': form,

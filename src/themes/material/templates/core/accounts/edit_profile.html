@@ -7,7 +7,7 @@
 
 {% block body %}
     <div class="row">
-        <div class="col m12">
+        <div class="col m6">
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">Change Your Email Address</span>
@@ -28,6 +28,18 @@
                 </div>
             </div>
         </div>
+    <div class="col m6">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Data Export</span>
+                <p>You may export your data into a JSON file for reuse.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <button name="export" class="btn btn-warning">Export</button>
+                </form>
+            </div>
+        </div>
+    </div>
     </div>
 
     <div class="row">
