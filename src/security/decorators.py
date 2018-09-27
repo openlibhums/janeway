@@ -855,7 +855,8 @@ def press_only(func):
         if not base_check(request):
             return redirect('{0}?next={1}'.format(reverse('core_login'), request.path))
         if request.journal:
-            return redirect(reverse('core_manager'))
+            messages.add_message(request, messages.INFO, 'This is a press only page.')
+            return redirect(reverse('core_manager_index'))
 
         return func(request, *args, **kwargs)
 
