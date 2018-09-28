@@ -3,6 +3,7 @@
 {% load files %}
 {% load static from staticfiles %}
 {% load foundation %}
+{% load hooks %}
 
 {% block title %}Article Archive {{ article.pk }}{% endblock title %}
 {% block title-section %}Article Archive {{ article.pk }}{% endblock %}
@@ -21,6 +22,7 @@
                 <a class="button" href="{% url 'core_article_image_edit' article.pk %}">Edit Article Images</a>
                 <a class="button" href="{% url 'publish_article' article.pk %}">Edit Publication Info</a>
                 {% if article.is_remote %}<a class="button" href="{{ article.remote_url }}">Remote Article View <i class="fa fa-external-link"></i></a>{% endif %}
+                {% hook 'request_edit' %}
             </div>
             <div class="content">
                 {% include "elements/metadata.html" %}
