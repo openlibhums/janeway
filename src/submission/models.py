@@ -575,10 +575,13 @@ class Article(models.Model):
                 article = identifier_models.Identifier.objects.filter(
                     id_type=identifier_type, identifier=identifier)[0].article
 
-                # check that the retrieved article is listed in an issue TOC for the current journal
-                article_journals = [issue.journal for issue in article.issues.all()]
+                if article.is_published:
+                    # check that the retrieved article is listed in an issue TOC for the current journal
+                    article_journals = [issue.journal for issue in article.issues.all()]
 
-                if journal not in article_journals:
+                    if journal not in article_journals:
+                        return None
+                elif not article.journal == journal:
                     return None
 
             return article
