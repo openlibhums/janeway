@@ -236,7 +236,7 @@
                                 <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
                                 <span itemprop="name">({{ author.institution }})
                             {% endif %}
-                            {% if not '@journal.org' in author.author.email %}
+                            {% if not '@journal.org' in author.author.email and author.author.email %}
                                 <a itemprop="email" href="mailto:{{ author.author.email }}"
                                    class="fa fa-envelope email-link"></a>{% endif %}
                         </small>
