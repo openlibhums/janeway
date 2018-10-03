@@ -149,7 +149,9 @@ def issues(request):
     :param request: the request associated with this call
     :return: a rendered template of all issues
     """
-    issue_objects = models.Issue.objects.filter(journal=request.journal, issue_type='Issue').order_by("-order")
+    issue_objects = models.Issue.objects.filter(journal=request.journal,
+                                                issue_type='Issue',
+                                                date__lte=timezone.now()).order_by("-order")
     template = 'journal/issues.html'
     context = {
         'issues': issue_objects,
@@ -172,7 +174,8 @@ def issue(request, issue_id, show_sidebar=True):
     :param show_sidebar: whether or not to show the sidebar of issues
     :return: a rendered template of this issue
     """
-    issue_object = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal, issue_type='Issue')
+    issue_object = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal, issue_type='Issue',
+                                     date__lte=timezone.now())
     articles = issue_object.articles.all().order_by('section',
                                                     'page_numbers').prefetch_related('authors', 'frozenauthor_set',
                                                                                      'manuscript_files').select_related(
