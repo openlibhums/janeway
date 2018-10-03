@@ -52,6 +52,14 @@
                         <div class="large-3 columns">
                             {{ info_form.page_numbers|foundation }}
                         </div>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-3 columns">
+                            <div class="large-12 columns">
+                                <label>{{ info_form.peer_reviewed.label }}</label>
+                                {{ info_form.peer_reviewed }} Check if this article is reviewed
+                            </div>
+                        </div>
                         <div class="large-3 columns">
                             <div class="large-12 columns">
                                 <label>{{ info_form.is_remote.label }}</label>
