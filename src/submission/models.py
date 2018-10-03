@@ -737,7 +737,10 @@ class Article(models.Model):
         return issues
 
     def author_list(self):
-        return ", ".join([author.full_name() for author in self.authors.all()])
+        if self.is_accepted():
+            return ", ".join([author.full_name() for author in self.frozen_authors()])
+        else:
+            return ", ".join([author.full_name() for author in self.authors.all()])
 
     def can_edit(self, user):
         # returns True if a user can edit an article
