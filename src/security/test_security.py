@@ -1212,11 +1212,8 @@ class TestSecurity(TestCase):
         :return:
         """
 
-        self.article_in_production.stage = submission_models.STAGE_PROOFING
-        self.article_in_production.save()
-
         proofing_models.ProofingAssignment.objects.create(
-            article=self.article_in_production,
+            article=self.article_in_proofing,
             proofing_manager=self.proofing_manager
         )
 
@@ -1224,16 +1221,13 @@ class TestSecurity(TestCase):
         decorated_func = decorators.article_production_user_required(func)
 
         request = self.prepare_request_with_user(self.proofing_manager, self.journal_one)
-        kwargs = {'article_id': self.article_in_production.pk}
+        kwargs = {'article_id': self.article_in_proofing.pk}
 
         decorated_func(request, **kwargs)
 
         # test that the callback was called
         self.assertTrue(func.called,
                         "article_production_user_required decorator wrongly prohibits proofing manager")
-
-        self.article_in_production.stage = submission_models.STAGE_TYPESETTING
-        self.article_in_production.save()
 
     # Tests for reviewer_user_for_assignment_required
     def test_reviewer_user_for_assignment_required_allows_reviewer(self):
@@ -3316,6 +3310,17 @@ class TestSecurity(TestCase):
                                                                journal_id=self.journal_one.id)
         self.article_in_production.save()
         self.article_in_production.data_figure_files.add(self.public_file)
+
+        self.article_in_proofing = submission_models.Article(owner=self.regular_user, title="A Test Article",
+                                                             abstract="An abstract",
+                                                             stage=submission_models.STAGE_PROOFING,
+                                                             journal_id=self.journal_one.id)
+        self.article_in_proofing.save()
+        self.article_in_proofing.data_figure_files.add(self.public_file)
+
+        self.proofing_assigned = production_models.ProductionAssignment(article=self.article_in_proofing,
+                                                                        production_manager=self.production)
+        self.proofing_assigned.save()
 
         self.article_unsubmitted = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                              abstract="An abstract",
