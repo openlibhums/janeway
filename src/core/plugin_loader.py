@@ -10,6 +10,7 @@ from django.db.utils import ProgrammingError
 from utils import models
 
 import os
+from django.db.utils import OperationalError
 from importlib import import_module
 
 
@@ -75,7 +76,7 @@ def get_plugin(module_name, permissive):
     try:
         plugin = models.Plugin.objects.get(name=module_name, enabled=True)
         return plugin
-    except (models.Plugin.DoesNotExist, ProgrammingError) as e:
+    except (models.Plugin.DoesNotExist, ProgrammingError, OperationalError) as e:
         if settings.DEBUG:
             print('Error loading plugin {0} {1}'.format(module_name, e))
         return False
