@@ -72,6 +72,21 @@
                             </td>
                         </tr>
                     {% endfor %}
+                </table>
+                <div class="title-area">
+                <h2>Files</h2>
+            </div>
+            <div class="content">
+                <p>Select files that the typesetter may need.</p>
+                <table class="small scroll">
+                    <tr style="text-align: left">
+                        <th></th>
+                        <th>Label</th>
+                        <th width="25%">Filename</th>
+                        <th>Type</th>
+                        <th>Download</th>
+                        <th>History</th>
+                    </tr>
                     {% for file in proofing_task.proofed_files.all %}
                         {% can_view_file file as can_view_file_flag %}
                         {% can_view_file_history file article as can_view_file_history_flag %}
