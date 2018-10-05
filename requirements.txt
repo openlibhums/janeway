@@ -2,7 +2,7 @@ beautifulsoup4==4.4.1
 boto==2.46.1
 bs4==0.0.1
 chardet==2.3.0
-Django==1.11.5
+Django==1.11.16
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
 django-debug-toolbar==1.8
