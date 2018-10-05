@@ -3019,9 +3019,15 @@ class TestSecurity(TestCase):
             decorated_func(request, **kwargs)
 
     def test_proofreader_can_download_file(self):
-        request = self.prepare_request_with_user(self.typesetter, self.journal_one)
-        test = decorators.can_view_file(request, self.typesetter, self.third_file)
-        self.assertTrue(test)
+        func = Mock()
+        decorated_func = decorators.proofreader_for_article_required(func)
+        kwargs = {'proofing_task_id': self.proofing_task.pk, 'file_id': self.third_file.pk}
+
+        request = self.prepare_request_with_user(self.proofreader, self.journal_one)
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called,
+                        "proofreader cannot download proofing file...")
 
     def test_bad_user_cant_download_file(self):
         request = self.prepare_request_with_user(self.regular_user, self.journal_one)
@@ -3506,6 +3512,7 @@ class TestSecurity(TestCase):
                                                           accepted=timezone.now(),
                                                           task='sdfsdffs')
         self.proofing_task.save()
+        self.proofing_task.galleys_for_proofing.add(self.test_galley)
 
         self.correction_task = proofing_models.TypesetterProofingTask(proofing_task=self.proofing_task,
                                                                       typesetter=self.typesetter,
