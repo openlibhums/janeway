@@ -106,7 +106,7 @@
                                 </tr>
                                 {% for task in round.typeset_tasks %}
                                     <tr>
-                                        <td>{{ task.proofing_task.pk }}</td>
+                                        <td>{{ task.pk }}</td>
                                         <td>{{ task.typesetter.full_name }}</td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{{ task.due|date:"Y-m-d" }}</td>
