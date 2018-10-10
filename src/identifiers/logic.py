@@ -106,8 +106,6 @@ def send_crossref_deposit(server, identifier):
     from utils import setting_handler
     article = identifier.article
 
-    print(identifier.article.issue)
-
     template_context = {
         'batch_id': uuid4(),
         'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
