@@ -1,0 +1,31 @@
+{% extends 'admin/core/base.html' %}
+
+{% block title %}Two Factor Authentication{% endblock %}
+{% block title-section %}Two Factor Authentication{% endblock %}
+{% block title-sub %}Register for different 2FA methods{% endblock %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Two FA Methods</h2>
+            </div>
+            <div class="content">
+                <p>Janeway currently supports {{ types|length }} methods for 2FA:</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for type in types %}
+                        {% if not type.0 in user_registrations %}
+                            <button class="tiny success button" name="register"
+                                    value="{{ type.0 }}">{{ type.1 }}</button>
+                        {% else %}
+                            <p>You are already registered for {{ type.1 }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

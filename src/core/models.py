@@ -244,6 +244,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return problems
 
+    def tfa_registrations(self):
+        from twofa import models as tfa_models
+        tfa_regs = tfa_models.UserRegistration.objects.filter(account=self)
+
+        return tfa_regs
+
     def string_id(self):
         return str(self.id)
 

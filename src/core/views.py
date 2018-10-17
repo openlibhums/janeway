@@ -67,6 +67,9 @@ def user_login(request):
 
             user = authenticate(username=user, password=pawd)
 
+            if user.tfa_registrations():
+                return redirect(reverse('twofa_handler'))
+
             if user is not None:
                 login(request, user)
                 messages.info(request, 'Login successful.')
