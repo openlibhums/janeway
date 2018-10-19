@@ -1,6 +1,8 @@
+{% load i18n %}
+
 <section>
     <div class="row column text-center">
-        <h2 class="title">Featured Journals</h2>
+        <h2 class="title">{% trans "Featured Journals" %}</h2>
     </div>
     <div class="row">
         {% for current_journal in featured_journals %}
@@ -23,7 +25,7 @@
                         </a>
                         <div class="content">
                             <h3><a href="http{% if request.port == "443" %}s{% endif %}://{{ current_journal.domain }}{% if request.port != "80" and request.port != "443" %}:{{ request.port }}{% endif %}"/>{% if current_journal.name != " " and current_journal.name != "" %}
-                                {{ current_journal.name }}{% else %}Unnamed Journal{% endif %}</a></h3>
+                                {{ current_journal.name }}{% else %}{% trans "Unnamed Journal" %}{% endif %}</a></h3>
                         </div>
                     {% endif %}
                 </div>
