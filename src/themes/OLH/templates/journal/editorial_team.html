@@ -1,12 +1,13 @@
 {% extends "core/base.html" %}
 {% load foundation %}
+{% load i18n %}
 {% load static from staticfiles %}
 
 {% block title %}
     {% if group_id %}
         {{ editorial_groups.0.name }}
     {% else %}
-        Editorial Team
+        {% trans "Editorial Team" %}
     {% endif %}
 {% endblock title %}
 
@@ -16,7 +17,7 @@
             {% if group_id %}
                 <h3>{{ editorial_groups.0.name }}</h3>
             {% else %}
-                <h3>Editorial Team</h3>
+                <h3>{% trans "Editorial Team" %}</h3>
             {% endif %}
             {% for group in editorial_groups %}
                 {% if not group_id %}

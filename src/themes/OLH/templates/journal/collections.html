@@ -3,9 +3,9 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block page_title %}Collections{% endblock %}
+{% block page_title %}{% trans "Collections" %}{% endblock %}
 
-{% block title %}Collections{% endblock %}
+{% block title %}{% trans "Collections" %}{% endblock %}
 
 {% block body %}
 
@@ -22,7 +22,7 @@
                             <img src="{% static 'common/img/sample/article-small.jpg' %}" alt="box 1">
                             <div class="content">
                                 <p>Collection<br/>
-                                    <small>Launched: {{ collection.date|date:"d/m/y" }}</small>
+                                    <small>{% trans "Launched" %}: {{ collection.date|date:"d/m/y" }}</small>
                                 </p>
                                 <h2>{{ collection.title }}</h2>
                                 <p>{{ collection.issue_description|safe }}</p>
