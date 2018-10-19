@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load staticfiles %}
+{% load i18n %}
 
 {% block page_title %}Issue {{ issue }}{% endblock %}
 
@@ -9,8 +10,8 @@
 {% block body %}
     <section id="content">
         <div class="row column">
-            <h4>Page Not Found</h4>
-             <p>Sorry, the page you were looking for was not found.</p>
+            <h4>{% trans "Page Not Found" %}</h4>
+             <p>{% trans "Sorry, the page you were looking for was not found." %}</p>
         </div>
     </section>
 {% endblock body %}

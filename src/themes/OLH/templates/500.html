@@ -1,7 +1,8 @@
 {% extends "core/base.html" %}
 {% load staticfiles %}
+{% load i18n %}
 
-{% block page_title %}Issue {{ issue }}{% endblock %}
+{% block page_title %}{% trans "Issue" %} {{ issue }}{% endblock %}
 
 {% block css %}
 {% endblock %}
@@ -9,8 +10,8 @@
 {% block body %}
     <section id="content">
         <div class="row column">
-            <h4>Server Error</h4>
-             <p>Sorry, there was a server error. Our team has been notified.</p>
+            <h4>{% trans "Server Error" %}</h4>
+             <p>{% trans "Sorry, there was a server error. Our team has been notified." %}</p>
         </div>
     </section>
 {% endblock body %}
