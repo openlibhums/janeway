@@ -1,7 +1,8 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load i18n %}
 
-{% block title %}News - {{ news_item.title }}{% endblock title %}
+{% block title %}{% trans "News" %} - {{ news_item.title }}{% endblock title %}
 
 {% block head %}
 {% include "elements/social_meta.html" %}
@@ -49,7 +50,7 @@
 
             <br />
 
-			<a href="{% url 'core_news_list' %}" class="button success">Back to News List</a>
+			<a href="{% url 'core_news_list' %}" class="button success">{% trans "News" %}</a>
 		</div>
 	</section>
 {% endblock body %}
