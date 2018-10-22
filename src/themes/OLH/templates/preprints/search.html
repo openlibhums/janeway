@@ -43,16 +43,16 @@
                             <div class="input-group">
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
                                 <input class="input-group-field" type="search" name="search_term"
-                                       placeholder="Search preprints"
+                                       placeholder="{% trans "Search preprints" %}"
                                        {% if search_term %}value="{{ search_term }}"{% endif %}>
                             </div>
                             <input type="submit" style="visibility: hidden;"/>
-                            <h5>Searching by:</h5>
+                            <h5>{% trans "Searching by" %}:</h5>
                             <ul>
-                                <li>Title</li>
-                                <li>Keywords</li>
-                                <li>Author Name</li>
-                                <li>Author Affilation</li>
+                                <li>{% trans "Title" %}</li>
+                                <li>{% trans "Keywords" %}</li>
+                                <li>{% trans "Author Name" %}</li>
+                                <li>{% trans "Author Affiliation" %}</li>
                             </ul>
                         </form>
                     </div>

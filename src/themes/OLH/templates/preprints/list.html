@@ -3,7 +3,7 @@
 {% load i18n %}
 
 
-{% block title %}{% if subject %}{{ subject.name }} Preprints{% else %}{% trans "All Preprints" %}
+{% block title %}{% if subject %}{{ subject.name }} {% trans "Preprints" %}{% else %}{% trans "All Preprints" %}
 {% endif %}{% endblock %}
 
 
@@ -58,22 +58,22 @@
                             <div class="input-group">
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
                                 <input class="input-group-field" type="search" name="search_term"
-                                       placeholder="Search preprints"
+                                       placeholder="{% trans "Search preprints" %}"
                                        {% if search_term %}value="{{ search_term }}"{% endif %}>
                             </div>
                             <input type="submit" style="visibility: hidden;"/>
-                            <h5>Searching by:</h5>
+                            <h5>{% trans "Searching by" %}:</h5>
                             <ul>
-                                <li>Title</li>
-                                <li>Keywords</li>
-                                <li>Author Name</li>
-                                <li>Author Affilation</li>
+                                <li>{% trans "Title" %}</li>
+                                <li>{% trans "Keywords" %}</li>
+                                <li>{% trans "Author Name" %}</li>
+                                <li>{% trans "Author Affiliation" %}</li>
                             </ul>
                         </form>
                     </div>
                     {% if subject %}
                         <div class="section">
-                            <h5>{{ subject.name }} Editors</h5>
+                            <h5>{{ subject.name }} {% trans "Editors" %}</h5>
                             <ul>
                                 {% for editor in subject.editors.all %}
                                     <li>{{ editor.full_name }}</li>
@@ -84,7 +84,7 @@
 
                     {% if subjects %}
                         <div class="section">
-                        <h5>Filter by Subject</h5>
+                        <h5>{% trans "Filter by Subject" %}</h5>
                         <ul>
                             {% for list_subject in subjects %}
                                 {% if not list_subject == subject %}<li><a href="{% url 'preprints_list_subject' list_subject.slug %}">{{ list_subject }}</a></li>{% endif %}

@@ -1,6 +1,7 @@
 {% extends "press/core/base.html" %}
+{% load i18n %}
 
-{% block title %}{{ request.press.name }} Preprints{% endblock %}
+{% block title %}{{ request.press.name }} {% trans "Preprints" %}{% endblock %}
 
 {% block navbar %}
     {% include "press/nav.html" %}
@@ -11,7 +12,7 @@
     <section id="content">
         <div class="row column">
             <div class="large-12 columns">
-                <h2 class="text-center">About {{ request.press.name }} Preprints</h2>
+                <h2 class="text-center">{% trans "About" %} {{ request.press.name }} {% trans "Preprints" %}</h2>
                 {% if request.press.preprints_about %}
                     {{ request.press.preprints_about|safe }}
                 {% else %}

@@ -1,7 +1,8 @@
 {% extends "press/core/base.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}{{ request.press.name }} Preprint Editors{% endblock %}
+{% block title %}{{ request.press.name }} {% trans "Preprint Editors" %}{% endblock %}
 
 {% block navbar %}
     {% include "press/nav.html" %}
@@ -12,7 +13,7 @@
     <section id="content">
         <div class="row column">
             <div class="large-12 columns">
-                <h2 class="text-center">{{ request.press.name }} Preprint Editors</h2>
+                <h2 class="text-center">{{ request.press.name }} {% trans "Preprint Editors" %}</h2>
                 {% for subject in subjects %}
                     <div class="row" data-equalizer data-equalize-on="medium">
                         <h4>{{ subject }}</h4>
@@ -31,8 +32,8 @@
                                     </i><br/>
                                     {% if member.enable_public_profile %}
                                         <p>
-                                            <small><a href="{% url 'core_public_profile' member.uuid %}">View
-                                                Profile</a></small>
+                                            <small><a href="{% url 'core_public_profile' member.uuid %}">{% trans "View
+                                                Profile" %}</a></small>
                                         </p>{% endif %}
                                 </div>
                             </div>
@@ -42,7 +43,7 @@
                         {% endfor %}
 
                     {% empty %}
-                    <h6>This repository has no subjects or editors to display.</h6>
+                    <h6>{% trans "This repository has no subjects or editors to display." %}</h6>
                 {% endfor %}
                 </div>
             </div>
