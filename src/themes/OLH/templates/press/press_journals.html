@@ -1,7 +1,8 @@
 {% extends "press/core/base.html" %}
 {% load settings %}
+{% load i18n %}
 
-{% block page_title %}Home{% endblock page_title %}
+{% block page_title %}{% trans "Journals" %}{% endblock page_title %}
 
 {% block title %}{{ press.name }}{% endblock title %}
 
@@ -73,8 +74,8 @@
                 <div>
                     <form>
                         <div class="section">
-                            <label>Filter
-                                <input type="text" placeholder="Filter" id="filter" name="filter">
+                            <label>{% trans "Filter" %}
+                                <input type="text" placeholder="{% trans "Filter" %}" id="filter" name="filter">
                             </label>
                         </div>
                     </form>
