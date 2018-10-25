@@ -1,13 +1,14 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load i18n %}
 
-{% block title %}News{% endblock title %}
+{% block title %}{% trans "News" %}{% endblock title %}
 
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h3>News</h3>
-            {% if tag %}<h3>Filtering tag: {{ tag }}</h3>{% endif %}
+            <h3>{% trans "News" %}</h3>
+            {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
         </div>
         {% for item in news_items %}
             <div class="col m12">
@@ -22,16 +23,16 @@
                         <span class="card-title news-card-title">{{ item.title }}</span>
                     </div>
                     <div class="card-content">
-                        <h6><em>Posted by {{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        <h6><em>{% trans "Posted by" %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                     </div>
                     <div class="card-action">
-                        <a href="{% url 'core_news_item' item.pk %}">Read More</a>
+                        <a href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <h4>This journal currently has no news items to display.</h4>
+            <h4>{% trans "This journal currently has no news items to display." %}</h4>
         {% endfor %}
     </div>
     <div class="pagination-block">{{ page }}

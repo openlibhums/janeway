@@ -17,7 +17,7 @@
         <ul class="right hide-on-med-and-down">
             <li><a href="/">Home</a></li>
             {% if request.press.enable_preprints %}
-                <li><a class="dropdown-button" href="#!" data-activates="preprints">Preprints<i
+                <li><a class="dropdown-button" href="#!" data-activates="preprints">{% trans "Preprints" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
             {% endif %}
 
@@ -33,18 +33,18 @@
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="account">Account<i
+                <li><a class="dropdown-button" href="#!" data-activates="account">{% trans "Account" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
-                <li><a href="{% url 'core_register' %}">Register</a></li>
+                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
+                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
 
         <ul class="side-nav" id="nav-mobile">
             <li><a href="/">Home</a></li>
             {% if request.press.enable_preprints %}
-                <li><a class="dropdown-button" href="#!" data-activates="preprints-mobile">Preprints<i
+                <li><a class="dropdown-button" href="#!" data-activates="preprints-mobile">{% trans "Preprints" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
             {% endif %}
             {% for item in navigation_items %}
@@ -57,58 +57,58 @@
                 {% endif %}
             {% endfor %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Account<i
+                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
-                <li><a href="{% url 'core_register' %}">Register</a></li>
+                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
+                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
     </div>
 </nav>
 
 {% if request.user.is_authenticated %}
     <ul id="dropdown1" class="dropdown-content">
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">Manager</a></li>
+            <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
         {% endif %}
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="/admin/">Admin</a></li>
+            <li><a class="dropdown-item" href="/admin/">{% trans "Admin" %}</a></li>
         {% endif %}
-        <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">Profile</a></li>
-        <li><a class="dropdown-item" href="{% url 'core_logout' %}">Logout</a></li>
+        <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
     </ul>
 
     <ul id="account" class="dropdown-content">
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">Manager</a></li>
+            <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
         {% endif %}
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="/admin/">Admin</a></li>
+            <li><a class="dropdown-item" href="/admin/">{% trans "Admin" %}</a></li>
         {% endif %}
-        <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">Profile</a></li>
-        <li><a class="dropdown-item" href="{% url 'core_logout' %}">Logout</a></li>
+        <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
     </ul>
 {% endif %}
 
 {% if request.press.enable_preprints %}
     <ul id="preprints" class="dropdown-content">
-        <li><a href="{% url 'preprints_home' %}" class="dropdown-item">Preprints Home</a></li>
-        <li><a href="{% url 'preprints_list' %}" class="dropdown-item">All Preprints</a></li>
-        <li><a href="{% url 'preprints_about' %}" class="dropdown-item">About Preprints</a></li>
+        <li><a href="{% url 'preprints_home' %}" class="dropdown-item">{% trans "Preprints" %} {% trans "Home" %}</a></li>
+        <li><a href="{% url 'preprints_list' %}" class="dropdown-item">{% trans "All" %} {% trans "Preprints" %}</a></li>
+        <li><a href="{% url 'preprints_about' %}" class="dropdown-item">{% trans "About" %} {% trans "Preprints" %}</a></li>
         {% if display_preprint_editors == 'On' %}
-            <li><a href="{% url 'preprints_editors' %}" class="dropdown-item">Preprint Editors</a></li>{% endif %}
-        <li><a href="{% url 'preprints_submit' %}" class="dropdown-item">Submit Preprint</a></li>
+            <li><a href="{% url 'preprints_editors' %}" class="dropdown-item">{% trans "Preprint" %} {% trans "Editors" %}</a></li>{% endif %}
+        <li><a href="{% url 'preprints_submit' %}" class="dropdown-item">{% trans "Submit" %} {% trans "Preprint" %}</a></li>
     </ul>
 
     <ul id="preprints-mobile" class="dropdown-content">
-        <li><a href="{% url 'preprints_home' %}" class="dropdown-item">Preprints Home</a></li>
-        <li><a href="{% url 'preprints_list' %}" class="dropdown-item">All Preprints</a></li>
-        <li><a href="{% url 'preprints_about' %}" class="dropdown-item">About Preprints</a></li>
+        <li><a href="{% url 'preprints_home' %}" class="dropdown-item">{% trans "Preprints" %} Home</a></li>
+        <li><a href="{% url 'preprints_list' %}" class="dropdown-item">{% trans "All" %} {% trans "Preprints" %}</a></li>
+        <li><a href="{% url 'preprints_about' %}" class="dropdown-item">{% trans "About" %} {% trans "Preprints" %}</a></li>
         {% if display_preprint_editors == 'On' %}
-            <li><a href="{% url 'preprints_editors' %}" class="dropdown-item">Preprint Editors</a></li>{% endif %}
-        <li><a href="{% url 'preprints_submit' %}" class="dropdown-item">Submit Preprint</a></li>
+            <li><a href="{% url 'preprints_editors' %}" class="dropdown-item">{% trans "Preprint" %} {% trans "Editors" %}</a></li>{% endif %}
+        <li><a href="{% url 'preprints_submit' %}" class="dropdown-item">{% trans "Submit" %} {% trans "Preprint" %}</a></li>
     </ul>
 {% endif %}
 
