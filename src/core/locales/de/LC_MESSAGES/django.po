@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-25 13:19+0000\n"
+"POT-Creation-Date: 2018-10-25 13:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,6 +211,7 @@ msgstr ""
 #: themes/OLH/templates/preprints/search.html:52
 #: themes/default/templates/journal/articles.html:60
 #: themes/material/templates/journal/articles.html:60
+#: themes/material/templates/preprints/list.html:78
 msgid "Title"
 msgstr ""
 
@@ -432,6 +433,9 @@ msgstr ""
 #: themes/default/templates/journal/search.html:5
 #: themes/default/templates/journal/search.html:7
 #: themes/default/templates/preprints/authors.html:35
+#: themes/material/templates/journal/search.html:4
+#: themes/material/templates/journal/search.html:33
+#: themes/material/templates/journal/search.html:35
 msgid "Search"
 msgstr ""
 
@@ -628,6 +632,7 @@ msgstr ""
 #: templates/admin/submission/submit_review.html:51
 #: themes/OLH/templates/preprints/review.html:41
 #: themes/default/templates/preprints/review.html:42
+#: themes/material/templates/journal/article.html:314
 msgid "Licence"
 msgstr ""
 
@@ -1097,6 +1102,7 @@ msgstr ""
 #: themes/default/templates/journal/article.html:106
 #: themes/default/templates/journal/print.html:97
 #: themes/default/templates/preprints/article.html:23
+#: themes/material/templates/journal/article.html:228
 #: themes/material/templates/preprints/article.html:29
 msgid "Authors"
 msgstr ""
@@ -1129,6 +1135,7 @@ msgstr ""
 #: themes/default/templates/journal/article.html:140
 #: themes/default/templates/journal/print.html:115
 #: themes/material/templates/journal/article.html:138
+#: themes/material/templates/preprints/list.html:79
 msgid "Keywords"
 msgstr ""
 
@@ -1142,6 +1149,7 @@ msgstr ""
 
 #: themes/OLH/templates/journal/article.html:180
 #: themes/default/templates/journal/article.html:149
+#: themes/material/templates/journal/article.html:155
 msgid "Publisher Notes"
 msgstr ""
 
@@ -1184,6 +1192,7 @@ msgstr ""
 #: themes/OLH/templates/journal/article.html:227
 #: themes/OLH/templates/journal/submissions.html:67
 #: themes/default/templates/journal/article.html:195
+#: themes/material/templates/journal/submissions.html:88
 msgid "Peer Reviewed"
 msgstr ""
 
@@ -1230,6 +1239,7 @@ msgstr "Artikel"
 
 #: themes/OLH/templates/journal/article.html:275
 #: themes/default/templates/journal/article.html:202
+#: themes/material/templates/journal/article.html:281
 msgid "Non Specialist Summary"
 msgstr ""
 
@@ -1254,6 +1264,7 @@ msgstr ""
 #: themes/material/templates/journal/articles.html:5
 #: themes/material/templates/journal/articles.html:7
 #: themes/material/templates/journal/articles.html:12
+#: themes/material/templates/journal/search.html:12
 msgid "Articles"
 msgstr "Artikel"
 
@@ -1313,6 +1324,8 @@ msgstr ""
 #: themes/OLH/templates/journal/collections.html:15
 #: themes/OLH/templates/journal/issue_display.html:45
 #: themes/default/templates/journal/issue_display.html:36
+#: themes/material/templates/journal/collections.html:6
+#: themes/material/templates/journal/collections.html:7
 #: themes/material/templates/journal/issue_display.html:39
 msgid "Collections"
 msgstr ""
@@ -1355,6 +1368,8 @@ msgstr ""
 #: themes/OLH/templates/journal/editorial_team.html:10
 #: themes/OLH/templates/journal/editorial_team.html:20
 #: themes/material/templates/core/nav.html:84
+#: themes/material/templates/preprints/editors.html:5
+#: themes/material/templates/preprints/editors.html:6
 msgid "Editorial Team"
 msgstr ""
 
@@ -1373,6 +1388,7 @@ msgid "Featured Articles"
 msgstr "Artikel"
 
 #: themes/OLH/templates/journal/homepage_elements/journals.html:5
+#: themes/material/templates/journal/homepage_elements/journals.html:6
 #, fuzzy
 #| msgid "Articles"
 msgid "Featured Journals"
@@ -1425,6 +1441,8 @@ msgstr ""
 #: themes/default/templates/journal/issues.html:6
 #: themes/default/templates/journal/issues.html:8
 #: themes/material/templates/core/nav.html:81
+#: themes/material/templates/journal/issues.html:6
+#: themes/material/templates/journal/issues.html:14
 msgid "Issues"
 msgstr ""
 
@@ -1445,6 +1463,7 @@ msgstr ""
 #: themes/default/templates/journal/submissions.html:5
 #: themes/default/templates/journal/submissions.html:21
 #: themes/material/templates/journal/submissions.html:6
+#: themes/material/templates/journal/submissions.html:23
 msgid "Submissions"
 msgstr ""
 
@@ -1466,6 +1485,8 @@ msgstr ""
 #: themes/OLH/templates/preprints/about.html:15
 #: themes/default/templates/journal/submissions.html:32
 #: themes/material/templates/journal/submissions.html:39
+#: themes/material/templates/preprints/about.html:4
+#: themes/material/templates/preprints/about.html:9
 msgid "About"
 msgstr ""
 
@@ -1490,6 +1511,7 @@ msgstr ""
 
 #: themes/OLH/templates/journal/submissions.html:52
 #: themes/default/templates/journal/submissions.html:38
+#: themes/material/templates/journal/article.html:324
 #: themes/material/templates/journal/submissions.html:71
 msgid "Peer Review"
 msgstr ""
@@ -1507,12 +1529,14 @@ msgid "Sections"
 msgstr ""
 
 #: themes/OLH/templates/journal/submissions.html:64
+#: themes/material/templates/journal/submissions.html:85
 #, fuzzy
 #| msgid "Salutation"
 msgid "Public Submissions"
 msgstr "Anrede"
 
 #: themes/OLH/templates/journal/submissions.html:70
+#: themes/material/templates/journal/submissions.html:91
 msgid "Indexed"
 msgstr ""
 
@@ -1520,6 +1544,10 @@ msgstr ""
 #: themes/OLH/templates/preprints/about.html:15
 #: themes/OLH/templates/preprints/home.html:15
 #: themes/OLH/templates/preprints/list.html:6
+#: themes/material/templates/preprints/about.html:4
+#: themes/material/templates/preprints/about.html:9
+#: themes/material/templates/preprints/home.html:4
+#: themes/material/templates/preprints/home.html:10
 #, fuzzy
 #| msgid "Articles"
 msgid "Preprints"
@@ -1613,20 +1641,24 @@ msgid "Read about"
 msgstr "Weiterlesen"
 
 #: themes/OLH/templates/preprints/home.html:29
+#: themes/material/templates/preprints/home.html:25
 msgid "preprints"
 msgstr ""
 
 #: themes/OLH/templates/preprints/home.html:30
+#: themes/material/templates/preprints/home.html:25
 msgid "or view list of"
 msgstr ""
 
 #: themes/OLH/templates/preprints/home.html:30
+#: themes/material/templates/preprints/home.html:26
 #, fuzzy
 #| msgid "Articles"
 msgid "all preprints"
 msgstr "Artikel"
 
 #: themes/OLH/templates/preprints/home.html:36
+#: themes/material/templates/preprints/home.html:32
 #, fuzzy
 #| msgid "Articles"
 msgid "Latest Preprints"
@@ -1646,6 +1678,7 @@ msgstr ""
 
 #: themes/OLH/templates/preprints/list.html:69
 #: themes/OLH/templates/preprints/search.html:54
+#: themes/material/templates/preprints/list.html:80
 #, fuzzy
 #| msgid "Articles"
 msgid "Author Name"
@@ -1674,6 +1707,8 @@ msgstr ""
 #: themes/OLH/templates/preprints/search.html:14
 #: themes/default/templates/preprints/search.html:6
 #: themes/default/templates/preprints/search.html:14
+#: themes/material/templates/preprints/home.html:18
+#: themes/material/templates/preprints/list.html:71
 msgid "Search Preprints"
 msgstr ""
 
@@ -1965,8 +2000,93 @@ msgstr ""
 msgid "Manage Editorial Team"
 msgstr ""
 
+#: themes/material/templates/elements/accounts/user_form.html:6
+msgid "Core Data"
+msgstr ""
+
+#: themes/material/templates/elements/accounts/user_form.html:33
+msgid "Social Media and Accounts"
+msgstr ""
+
+#: themes/material/templates/elements/accounts/user_form.html:57
+msgid "Biography and Signature"
+msgstr ""
+
+#: themes/material/templates/elements/accounts/user_form.html:66
+msgid "Review Interests"
+msgstr ""
+
+#: themes/material/templates/elements/accounts/user_form.html:67
+msgid "Hit Enter to add a new interest"
+msgstr ""
+
+#: themes/material/templates/elements/accounts/user_form.html:87
+msgid "Options"
+msgstr ""
+
+#: themes/material/templates/elements/summary_modal.html:9
+msgid "This article has no summary"
+msgstr ""
+
+#: themes/material/templates/journal/article.html:289
+msgid "Dates"
+msgstr ""
+
+#: themes/material/templates/journal/article.html:294
+msgid "Submitted"
+msgstr ""
+
+#: themes/material/templates/journal/article.html:299
+msgid "Accepted"
+msgstr ""
+
+#: themes/material/templates/journal/article.html:304
+msgid "Published"
+msgstr ""
+
+#: themes/material/templates/journal/article.html:328
+msgid "This article has not been peer reviewed."
+msgstr ""
+
+#: themes/material/templates/journal/article.html:335
+msgid "File Checksums"
+msgstr ""
+
+#: themes/material/templates/journal/article.html:350
+#: themes/material/templates/journal/submissions.html:121
+msgid "Table of Contents"
+msgstr ""
+
+#: themes/material/templates/journal/collections.html:25
+msgid "View Collection"
+msgstr ""
+
+#: themes/material/templates/journal/collections.html:31
+msgid "There are no collections to display"
+msgstr ""
+
 #: themes/material/templates/journal/issue_display.html:34
 msgid "Collection"
+msgstr ""
+
+#: themes/material/templates/journal/issues.html:28
+msgid "View Issue"
+msgstr ""
+
+#: themes/material/templates/journal/search.html:17
+#, fuzzy
+#| msgid "Articles"
+msgid "No articles to display."
+msgstr "Artikel"
+
+#: themes/material/templates/journal/search.html:26
+#, fuzzy
+#| msgid "Articles"
+msgid "Searching"
+msgstr "Artikel"
+
+#: themes/material/templates/journal/search.html:28
+msgid "Enter a search term to display results."
 msgstr ""
 
 #: themes/material/templates/journal/submissions.html:27
@@ -1986,3 +2106,31 @@ msgstr ""
 #: themes/material/templates/journal/submissions.html:52
 msgid "Acceptance Criteria"
 msgstr ""
+
+#: themes/material/templates/preprints/editors.html:10
+msgid "Subject Area Editors"
+msgstr ""
+
+#: themes/material/templates/preprints/home.html:16
+msgid "search"
+msgstr ""
+
+#: themes/material/templates/preprints/home.html:24
+#, fuzzy
+#| msgid "Read More"
+msgid "Read about "
+msgstr "Weiterlesen"
+
+#: themes/material/templates/preprints/list.html:37
+msgid "There are no preprints to display"
+msgstr ""
+
+#: themes/material/templates/preprints/list.html:74
+msgid "You can search by:"
+msgstr ""
+
+#: themes/material/templates/preprints/list.html:81
+#, fuzzy
+#| msgid "Articles"
+msgid "Author Institution"
+msgstr "Artikel"
