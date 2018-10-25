@@ -34,7 +34,7 @@
 
                     </div>
                     {% empty %}
-                    <p>There are no preprints to display</p>
+                    <p>{% trans "There are no preprints to display" %}</p>
                 {% endfor %}
 
                 <div class="pagination-block">{{ page }}
@@ -68,17 +68,17 @@
                                     <div class="input-field">
                                         <i class="material-icons prefix">search</i>
                                         <input id="icon_prefix" type="text" class="validate" {% if search_term %}value="{{ search_term }}"{% endif %} name="search_term">
-                                        <label for="icon_prefix" class="">Search Preprints</label>
+                                        <label for="icon_prefix" class="">{% trans "Search Preprints" %}</label>
                                     </div>
                                     <p>
-                                        <small>You can search by:</small>
+                                        <small>{% trans "You can search by:" %}</small>
                                     </p>
                                     <small>
                                         <ul>
-                                            <li>Title</li>
-                                            <li>Keywords</li>
-                                            <li>Author Name</li>
-                                            <li>Author Institution</li>
+                                            <li>{% trans "Title" %}</li>
+                                            <li>{% trans "Keywords" %}</li>
+                                            <li>{% trans "Author Name" %}</li>
+                                            <li>{% trans "Author Institution" %}</li>
                                         </ul>
                                     </small>
                                 </div>

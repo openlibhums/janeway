@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load roles %}
 
-{% block title %}Issues{% endblock %}
+{% block title %}{% trans "Issues" %}{% endblock %}
 
 {% block body %}
     {% if request.user %}
@@ -11,7 +11,7 @@
     {% endif %}
     <div class="row">
         <div class="col m12">
-            <h3>Issues</h3>
+            <h3>{% trans "Issues" %}</h3>
         </div>
 
         {% for issue in issues %}
@@ -25,7 +25,7 @@
                             <p>{% trans "Volume" %} {{ issue.volume }} {% trans "Issue" %} {{ issue.issue }} <br /> {{ issue.date.year }} <br /> {{ issue.articles.all.count }} {% trans "items" %}<br/>{{ issue.issue_title }}&nbsp;</p>
                         </div>
                         <div class="card-action">
-                            <a href="{% url 'journal_issue' issue.id %}">View Issue</a>
+                            <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
                             {% if request.user and request.user.is_staff or user_is_editor %}
                                 <a href="{% url 'manage_issues_id' issue.pk %}"><i class="fa fa-edit">&nbsp;</i></a>
                             {% endif %}

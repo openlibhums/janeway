@@ -1,11 +1,12 @@
 {% extends "core/base.html" %}
+{% load i18n %}
 
-{% block title %}About {{ request.press.name }} Preprints{% endblock %}
+{% block title %}{% trans "About" %} {{ request.press.name }} {% trans "Preprints" %}{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h4 class="text-center">About {{ request.press.name }} Preprints</h4>
+            <h4 class="text-center">{% trans "About" %} {{ request.press.name }} {% trans "Preprints" %}</h4>
         </div>
 
         <br/><br/><br/><br/>
