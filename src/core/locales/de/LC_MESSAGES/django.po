@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-25 13:31+0000\n"
+"POT-Creation-Date: 2018-10-25 14:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -82,6 +82,9 @@ msgstr "Artikel"
 #: themes/material/templates/core/nav.html:75
 #: themes/material/templates/core/news/index.html:5
 #: themes/material/templates/core/news/item.html:4
+#: themes/material/templates/press/core/news/index.html:5
+#: themes/material/templates/press/core/news/index.html:10
+#: themes/material/templates/press/core/news/item.html:5
 msgid "News"
 msgstr "Nachrichten"
 
@@ -848,6 +851,8 @@ msgstr ""
 #: themes/material/templates/core/nav.html:107
 #: themes/material/templates/journal/become_reviewer.html:16
 #: themes/material/templates/journal/submissions.html:34
+#: themes/material/templates/press/nav.html:39
+#: themes/material/templates/press/nav.html:63
 msgid "Login"
 msgstr "Anmeldung"
 
@@ -873,12 +878,16 @@ msgstr "Passwort vergessen"
 #: themes/material/templates/core/accounts/register.html:32
 #: themes/material/templates/core/nav.html:108
 #: themes/material/templates/journal/submissions.html:33
+#: themes/material/templates/press/nav.html:40
+#: themes/material/templates/press/nav.html:64
 msgid "Register"
 msgstr "Neu registrieren"
 
 #: themes/OLH/templates/core/accounts/public_profile.html:5
 #: themes/material/templates/core/nav.html:136
 #: themes/material/templates/core/nav.html:174
+#: themes/material/templates/press/nav.html:79
+#: themes/material/templates/press/nav.html:90
 msgid "Profile"
 msgstr ""
 
@@ -1053,6 +1062,7 @@ msgstr ""
 
 #: themes/OLH/templates/core/news/index.html:11
 #: themes/material/templates/core/news/index.html:11
+#: themes/material/templates/press/core/news/index.html:11
 msgid "Filtering tag"
 msgstr "Filter-Tag"
 
@@ -1062,11 +1072,13 @@ msgstr "Filter-Tag"
 #: themes/default/templates/journal/homepage_elements/news.html:16
 #: themes/material/templates/core/news/index.html:30
 #: themes/material/templates/journal/homepage_elements/news.html:23
+#: themes/material/templates/press/core/news/index.html:30
 msgid "Read More"
 msgstr "Weiterlesen"
 
 #: themes/OLH/templates/core/news/index.html:37
 #: themes/material/templates/core/news/index.html:35
+#: themes/material/templates/press/core/news/index.html:35
 msgid "This journal currently has no news items to display."
 msgstr ""
 
@@ -1410,6 +1422,8 @@ msgstr ""
 #: themes/material/templates/core/news/index.html:26
 #: themes/material/templates/core/news/item.html:20
 #: themes/material/templates/journal/homepage_elements/news.html:17
+#: themes/material/templates/press/core/news/index.html:26
+#: themes/material/templates/press/core/news/item.html:21
 msgid "Posted by"
 msgstr ""
 
@@ -1487,6 +1501,8 @@ msgstr ""
 #: themes/material/templates/journal/submissions.html:39
 #: themes/material/templates/preprints/about.html:4
 #: themes/material/templates/preprints/about.html:9
+#: themes/material/templates/press/nav.html:99
+#: themes/material/templates/press/nav.html:108
 msgid "About"
 msgstr ""
 
@@ -1548,6 +1564,14 @@ msgstr ""
 #: themes/material/templates/preprints/about.html:9
 #: themes/material/templates/preprints/home.html:4
 #: themes/material/templates/preprints/home.html:10
+#: themes/material/templates/press/nav.html:20
+#: themes/material/templates/press/nav.html:47
+#: themes/material/templates/press/nav.html:97
+#: themes/material/templates/press/nav.html:98
+#: themes/material/templates/press/nav.html:99
+#: themes/material/templates/press/nav.html:106
+#: themes/material/templates/press/nav.html:107
+#: themes/material/templates/press/nav.html:108
 #, fuzzy
 #| msgid "Articles"
 msgid "Preprints"
@@ -1692,6 +1716,8 @@ msgid "Author Affiliation"
 msgstr "Anrede"
 
 #: themes/OLH/templates/preprints/list.html:76
+#: themes/material/templates/press/nav.html:101
+#: themes/material/templates/press/nav.html:110
 msgid "Editors"
 msgstr ""
 
@@ -1760,16 +1786,20 @@ msgstr ""
 #: themes/OLH/templates/press/core/news/item.html:33
 #: themes/material/templates/core/news/index.html:26
 #: themes/material/templates/core/news/item.html:20
+#: themes/material/templates/press/core/news/index.html:26
+#: themes/material/templates/press/core/news/item.html:21
 msgid "on"
 msgstr ""
 
 #: themes/OLH/templates/press/core/news/item.html:40
 #: themes/material/templates/core/news/item.html:25
+#: themes/material/templates/press/core/news/item.html:26
 msgid "Tags"
 msgstr ""
 
 #: themes/OLH/templates/press/core/news/item.html:45
 #: themes/material/templates/core/news/item.html:33
+#: themes/material/templates/press/core/news/item.html:34
 msgid "Back to News List"
 msgstr ""
 
@@ -1945,10 +1975,13 @@ msgid "Reset Your Password"
 msgstr "Passwort vergessen"
 
 #: themes/material/templates/core/nav.html:72
+#: themes/material/templates/press/nav.html:97
 msgid "Home"
 msgstr ""
 
 #: themes/material/templates/core/nav.html:104
+#: themes/material/templates/press/nav.html:36
+#: themes/material/templates/press/nav.html:60
 msgid "Account"
 msgstr ""
 
@@ -1964,21 +1997,29 @@ msgstr ""
 
 #: themes/material/templates/core/nav.html:120
 #: themes/material/templates/core/nav.html:144
+#: themes/material/templates/press/nav.html:102
+#: themes/material/templates/press/nav.html:111
 msgid "Submit"
 msgstr ""
 
 #: themes/material/templates/core/nav.html:123
 #: themes/material/templates/core/nav.html:147
+#: themes/material/templates/press/nav.html:74
+#: themes/material/templates/press/nav.html:85
 msgid "Manager"
 msgstr ""
 
 #: themes/material/templates/core/nav.html:134
 #: themes/material/templates/core/nav.html:172
+#: themes/material/templates/press/nav.html:77
+#: themes/material/templates/press/nav.html:88
 msgid "Admin"
 msgstr ""
 
 #: themes/material/templates/core/nav.html:137
 #: themes/material/templates/core/nav.html:175
+#: themes/material/templates/press/nav.html:80
+#: themes/material/templates/press/nav.html:91
 msgid "Logout"
 msgstr ""
 
@@ -2133,4 +2174,22 @@ msgstr ""
 #, fuzzy
 #| msgid "Articles"
 msgid "Author Institution"
+msgstr "Artikel"
+
+#: themes/material/templates/press/nav.html:67
+msgid "menu"
+msgstr ""
+
+#: themes/material/templates/press/nav.html:98
+#: themes/material/templates/press/nav.html:107
+msgid "All"
+msgstr ""
+
+#: themes/material/templates/press/nav.html:101
+#: themes/material/templates/press/nav.html:102
+#: themes/material/templates/press/nav.html:110
+#: themes/material/templates/press/nav.html:111
+#, fuzzy
+#| msgid "Articles"
+msgid "Preprint"
 msgstr "Artikel"
