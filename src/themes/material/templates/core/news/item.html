@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 
-{% block title %}News - {{ news_item.title }}{% endblock title %}
+{% block title %}{% trans "News" %} - {{ news_item.title }}{% endblock title %}
 
 {% block body %}
     <div class="row">
@@ -17,12 +17,12 @@
                     <span class="card-title">{{ news_item.title }}</span>
                 </div>
                 <div class="card-content">
-                    <h6><em>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</em>
+                    <h6><em>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</em>
                     </h6>
                     <p>{{ news_item.body|safe }}</p>
                     {% if news_item.tags.all %}
                         <br />
-                        <h7>Tags <i class="fa fa-tags">&nbsp;</i></h7>
+                        <h7>{% trans "Tags" %} <i class="fa fa-tags">&nbsp;</i></h7>
                         <p>{% for tag in news_item.tags.all %}
                             <a href="{% url 'core_news_list_tag' tag.text %}"
                                class="button success tiny">{{ tag.text }}</a>
@@ -30,7 +30,7 @@
                     {% endif %}
                 </div>
                 <div class="card-action">
-                    <a href="{% url 'core_news_list' %}" class="button success">Back to News List</a>
+                    <a href="{% url 'core_news_list' %}" class="button success">{% trans "Back to News List" %}</a>
                 </div>
             </div>
         </div>

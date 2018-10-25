@@ -27,7 +27,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% materialize_form form=form %}
-                        <p>By registering an account you agree to our <a href="/site/privacy/">Privacy Policy</a>.</p>
+                        <p>{% trans "By registering an account you agree to our" %} <a href="/site/privacy/">{% trans "Privacy Policy" %}</a>.</p>
                         <button type="submit"
                                 class="btn btn-primary float-right">{% trans "Register" %}</button>
                     </form>
@@ -39,12 +39,12 @@
     <div id="passwordmodal" class="modal">
         <div class="modal-content">
             <h4>Password Guide</h4>
-            <p class="lead">When it comes to passwords, length is better than complexity.</p>
-            <p>Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and
-                uncomplicated password (our awesome moon base rocks).</p>
-            <p>We recommend selecting a long, but easy to remember password such as <i>our awesome moon base
+            <p class="lead">{% trans "When it comes to passwords, length is better than complexity." %}</p>
+            <p>{% trans "Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and
+                uncomplicated password (our awesome moon base rocks)." %}</p>
+            <p>{% blocktrans %}We recommend selecting a long, but easy to remember password such as <i>our awesome moon base
                 rocks</i> which would take an estimated septillion years to crack as opposed to a complex one
-                like <i>Jfjfy&65^87</i> which would take just over 600 years on a standard computer.</p>
+                like <i>Jfjfy&65^87</i> which would take just over 600 years on a standard computer.{% endblocktrans %}</p>
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>

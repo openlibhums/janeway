@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-19 18:44+0000\n"
+"POT-Creation-Date: 2018-10-25 13:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,8 @@ msgstr "Répéter le mot de passe"
 
 #: core/forms.py:100
 #: themes/OLH/templates/core/accounts/orcid_registration.html:33
+#: themes/OLH/templates/press/core/login.html:29
+#: themes/material/templates/core/login.html:26
 #, fuzzy
 #| msgid "Password 1"
 msgid "Password"
@@ -73,8 +75,15 @@ msgstr "Derniers articles"
 
 #: core/homepage_elements/carousel/models.py:11
 #: themes/OLH/templates/core/news/index.html:5
+#: themes/OLH/templates/core/news/index.html:10
 #: themes/OLH/templates/core/news/item.html:5
 #: themes/OLH/templates/core/news/item.html:53
+#: themes/OLH/templates/press/core/news/index.html:5
+#: themes/OLH/templates/press/core/news/index.html:10
+#: themes/OLH/templates/press/core/news/item.html:5
+#: themes/material/templates/core/nav.html:75
+#: themes/material/templates/core/news/index.html:5
+#: themes/material/templates/core/news/item.html:4
 msgid "News"
 msgstr "Nouvelles"
 
@@ -94,9 +103,11 @@ msgstr "Derniers Articles et Nouvelles"
 #: themes/OLH/templates/core/accounts/get_reset_token.html:26
 #: themes/OLH/templates/core/accounts/orcid_registration.html:30
 #: themes/OLH/templates/preprints/authors.html:57
+#: themes/OLH/templates/press/core/login.html:26
 #: themes/default/templates/core/accounts/get_reset_token.html:16
 #: themes/default/templates/preprints/authors.html:63
 #: themes/material/templates/core/accounts/get_reset_token.html:18
+#: themes/material/templates/core/login.html:22
 msgid "Email"
 msgstr "Email"
 
@@ -199,6 +210,9 @@ msgstr "Vous êtes maintenant un réviseur"
 #: preprint/forms.py:19 submission/forms.py:66
 #: templates/admin/submission/submit_review.html:30
 #: themes/OLH/templates/journal/articles.html:65
+#: themes/OLH/templates/preprints/list.html:67
+#: themes/OLH/templates/preprints/review.html:25
+#: themes/OLH/templates/preprints/search.html:52
 #: themes/default/templates/journal/articles.html:60
 #: themes/material/templates/journal/articles.html:60
 msgid "Title"
@@ -274,6 +288,7 @@ msgstr "Publié le"
 #: templates/admin/elements/submit/author.html:8
 #: templates/admin/submission/submit_authors.html:49
 #: themes/OLH/templates/elements/submit/author.html:8
+#: themes/OLH/templates/preprints/authors.html:42
 #: themes/OLH/templates/preprints/authors.html:44
 #: themes/default/templates/elements/submit/author.html:10
 #: themes/default/templates/preprints/authors.html:49
@@ -720,6 +735,7 @@ msgstr ""
 #: templates/admin/submission/submit_review.html:125
 #: themes/OLH/templates/preprints/review.html:113
 #: themes/default/templates/preprints/review.html:115
+#: themes/material/templates/core/nav.html:87
 #, fuzzy
 #| msgid "Start Submission"
 msgid "Submission"
@@ -734,31 +750,69 @@ msgstr "Début de la soumission"
 msgid "Article Information"
 msgstr "Renseignements sur l'article"
 
+#: themes/OLH/templates/403.html:17
+msgid "Permission Denied"
+msgstr ""
+
+#: themes/OLH/templates/404.html:13
+msgid "Page Not Found"
+msgstr ""
+
+#: themes/OLH/templates/404.html:14
+msgid "Sorry, the page you were looking for was not found."
+msgstr ""
+
+#: themes/OLH/templates/500.html:5
+#: themes/OLH/templates/elements/journal/box_article.html:24
+#: themes/OLH/templates/journal/issue.html:4
+#: themes/OLH/templates/journal/issues.html:26
+#: themes/default/templates/elements/article_listing.html:37
+#: themes/default/templates/journal/issues.html:19
+#: themes/material/templates/elements/article_listing.html:32
+#: themes/material/templates/journal/issue_display.html:34
+#: themes/material/templates/journal/issues.html:25
+msgid "Issue"
+msgstr "Publication"
+
+#: themes/OLH/templates/500.html:13
+msgid "Server Error"
+msgstr ""
+
+#: themes/OLH/templates/500.html:14
+msgid "Sorry, there was a server error. Our team has been notified."
+msgstr ""
+
 #: themes/OLH/templates/core/accounts/activate_account.html:5
 #: themes/OLH/templates/core/accounts/activate_account.html:22
 msgid "Activate Account"
 msgstr ""
 
 #: themes/OLH/templates/core/accounts/activate_account.html:23
+#: themes/material/templates/core/accounts/activate_account.html:15
 msgid "Your account is now active. You can now"
 msgstr ""
 
 #: themes/OLH/templates/core/accounts/activate_account.html:23
 #: themes/OLH/templates/core/accounts/activate_account.html:28
+#: themes/material/templates/core/accounts/activate_account.html:15
+#: themes/material/templates/core/accounts/activate_account.html:22
 #, fuzzy
 #| msgid "Login"
 msgid "login"
 msgstr "S'identifier"
 
 #: themes/OLH/templates/core/accounts/activate_account.html:24
+#: themes/material/templates/core/accounts/activate_account.html:17
 msgid "Please note, you will not be able to refresh this page."
 msgstr ""
 
 #: themes/OLH/templates/core/accounts/activate_account.html:26
+#: themes/material/templates/core/accounts/activate_account.html:20
 msgid "Error"
 msgstr ""
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:20
+#: themes/material/templates/core/accounts/edit_profile.html:15
 #, fuzzy
 #| msgid "Your contact email address"
 msgid "Change Your Email Address"
@@ -777,6 +831,7 @@ msgid ""
 msgstr ""
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:29
+#: themes/material/templates/core/accounts/edit_profile.html:26
 #, fuzzy
 #| msgid "Your contact email address"
 msgid "Update Email Address"
@@ -784,30 +839,36 @@ msgstr "Votre adresse email de contact"
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:38
 #: themes/OLH/templates/core/accounts/edit_profile.html:56
+#: themes/material/templates/core/accounts/edit_profile.html:49
+#: themes/material/templates/core/accounts/edit_profile.html:68
 #, fuzzy
 #| msgid "Reset Password"
 msgid "Update Password"
 msgstr "Mot de passe"
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:39
+#: themes/material/templates/core/accounts/edit_profile.html:50
 msgid ""
 "You can update your password by entering your existing password plus your "
 "new password."
 msgstr ""
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:44
+#: themes/material/templates/core/accounts/edit_profile.html:56
 #, fuzzy
 #| msgid "Reset Password"
 msgid "Current Password"
 msgstr "Mot de passe"
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:48
+#: themes/material/templates/core/accounts/edit_profile.html:60
 #, fuzzy
 #| msgid "Reset Password"
 msgid "New Password"
 msgstr "Mot de passe"
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:52
+#: themes/material/templates/core/accounts/edit_profile.html:64
 #, fuzzy
 #| msgid "Password 1"
 msgid "Enter Password Again"
@@ -815,6 +876,7 @@ msgstr "Mot de passe"
 
 #: themes/OLH/templates/core/accounts/edit_profile.html:72
 #: themes/OLH/templates/core/accounts/get_reset_token.html:5
+#: themes/material/templates/core/accounts/edit_profile.html:84
 msgid "Update"
 msgstr ""
 
@@ -845,17 +907,21 @@ msgstr ""
 #: themes/OLH/templates/core/login.html:5 themes/OLH/templates/core/nav.html:79
 #: themes/OLH/templates/journal/become_reviewer.html:16
 #: themes/OLH/templates/journal/submissions.html:29
+#: themes/OLH/templates/press/core/login.html:4
 #: themes/OLH/templates/press/nav.html:53
 #: themes/default/templates/core/login.html:5
 #: themes/default/templates/journal/become_reviewer.html:13
 #: themes/default/templates/journal/submissions.html:28
 #: themes/material/templates/core/login.html:5
+#: themes/material/templates/core/login.html:31
+#: themes/material/templates/core/nav.html:107
 #: themes/material/templates/journal/become_reviewer.html:16
 #: themes/material/templates/journal/submissions.html:34
 msgid "Login"
 msgstr "S'identifier"
 
 #: themes/OLH/templates/core/accounts/orcid_registration.html:38
+#: themes/OLH/templates/press/core/login.html:33
 #, fuzzy
 #| msgid "Forgotten your password?"
 msgid "Forgot your password?"
@@ -874,11 +940,14 @@ msgstr "Mot de passe oublié?"
 #: themes/default/templates/journal/submissions.html:27
 #: themes/material/templates/core/accounts/register.html:7
 #: themes/material/templates/core/accounts/register.html:32
+#: themes/material/templates/core/nav.html:108
 #: themes/material/templates/journal/submissions.html:33
 msgid "Register"
 msgstr "Registre"
 
 #: themes/OLH/templates/core/accounts/public_profile.html:5
+#: themes/material/templates/core/nav.html:136
+#: themes/material/templates/core/nav.html:174
 msgid "Profile"
 msgstr ""
 
@@ -926,6 +995,7 @@ msgstr ""
 "\"#\" data-open=\"password-modal\">guide des mots de passe</a>."
 
 #: themes/OLH/templates/core/accounts/register.html:78
+#: themes/material/templates/core/accounts/register.html:30
 msgid "By registering an account you agree to our"
 msgstr ""
 
@@ -933,6 +1003,7 @@ msgstr ""
 #: themes/OLH/templates/core/base.html:165
 #: themes/OLH/templates/press/core/base.html:110
 #: themes/default/templates/core/base.html:83
+#: themes/material/templates/core/accounts/register.html:30
 msgid "Privacy Policy"
 msgstr "Politique de confidentialité"
 
@@ -945,6 +1016,8 @@ msgstr "Mot de passe"
 
 #: themes/OLH/templates/core/accounts/register.html:94
 #: themes/OLH/templates/core/accounts/reset_password.html:44
+#: themes/material/templates/core/accounts/register.html:42
+#: themes/material/templates/core/accounts/reset_password.html:37
 msgid "When it comes to passwords, length is better than complexity."
 msgstr ""
 
@@ -1018,12 +1091,14 @@ msgstr "Plan du site"
 #: themes/default/templates/core/base.html:85
 #: themes/default/templates/journal/contact.html:6
 #: themes/default/templates/journal/contact.html:26
+#: themes/material/templates/core/nav.html:90
 #: themes/material/templates/journal/contact.html:6
 #: themes/material/templates/journal/contact.html:43
 msgid "Contact"
 msgstr "Contacter"
 
 #: themes/OLH/templates/core/login.html:30
+#: themes/OLH/templates/press/core/login.html:24
 #: themes/default/templates/core/login.html:18
 msgid "Log in with your account"
 msgstr "Connectez-vous avec votre compte"
@@ -1050,6 +1125,7 @@ msgid "Register a new account"
 msgstr ""
 
 #: themes/OLH/templates/core/news/index.html:11
+#: themes/material/templates/core/news/index.html:11
 #, fuzzy
 #| msgid "Filter"
 msgid "Filtering tag"
@@ -1057,12 +1133,15 @@ msgstr "Filtre"
 
 #: themes/OLH/templates/core/news/index.html:30
 #: themes/OLH/templates/journal/homepage_elements/news.html:15
+#: themes/OLH/templates/press/core/news/index.html:30
 #: themes/default/templates/journal/homepage_elements/news.html:16
+#: themes/material/templates/core/news/index.html:30
 #: themes/material/templates/journal/homepage_elements/news.html:23
 msgid "Read More"
 msgstr "Lire la suite"
 
 #: themes/OLH/templates/core/news/index.html:37
+#: themes/material/templates/core/news/index.html:35
 #, fuzzy
 #| msgid "This journal currently has no news items to display"
 msgid "This journal currently has no news items to display."
@@ -1076,16 +1155,6 @@ msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
 #: themes/material/templates/journal/issues.html:25
 msgid "Volume"
 msgstr "Tome"
-
-#: themes/OLH/templates/elements/journal/box_article.html:24
-#: themes/OLH/templates/journal/issues.html:26
-#: themes/default/templates/elements/article_listing.html:37
-#: themes/default/templates/journal/issues.html:19
-#: themes/material/templates/elements/article_listing.html:32
-#: themes/material/templates/journal/issue_display.html:34
-#: themes/material/templates/journal/issues.html:25
-msgid "Issue"
-msgstr "Publication"
 
 #: themes/OLH/templates/elements/submit/preprint_file.html:8
 #: themes/default/templates/elements/submit/preprint_file.html:17
@@ -1137,6 +1206,8 @@ msgstr "Vue"
 
 #: themes/OLH/templates/journal/article.html:173
 #: themes/OLH/templates/journal/print.html:115
+#: themes/OLH/templates/preprints/list.html:68
+#: themes/OLH/templates/preprints/search.html:53
 #: themes/default/templates/journal/article.html:140
 #: themes/default/templates/journal/print.html:115
 #: themes/material/templates/journal/article.html:138
@@ -1197,6 +1268,7 @@ msgid "Accepted on"
 msgstr ""
 
 #: themes/OLH/templates/journal/article.html:227
+#: themes/OLH/templates/journal/submissions.html:67
 #: themes/default/templates/journal/article.html:195
 msgid "Peer Reviewed"
 msgstr "Examen par les pairs"
@@ -1262,6 +1334,7 @@ msgstr ""
 #: themes/OLH/templates/journal/search.html:16
 #: themes/default/templates/journal/articles.html:5
 #: themes/default/templates/journal/articles.html:7
+#: themes/material/templates/core/nav.html:78
 #: themes/material/templates/journal/articles.html:5
 #: themes/material/templates/journal/articles.html:7
 #: themes/material/templates/journal/articles.html:12
@@ -1289,6 +1362,8 @@ msgstr "la Date"
 #: themes/OLH/templates/journal/articles.html:70
 #: themes/OLH/templates/journal/articles.html:78
 #: themes/OLH/templates/journal/search.html:30
+#: themes/OLH/templates/press/press_journals.html:77
+#: themes/OLH/templates/press/press_journals.html:78
 #: themes/default/templates/journal/articles.html:65
 #: themes/default/templates/journal/articles.html:74
 #: themes/material/templates/journal/articles.html:65
@@ -1317,12 +1392,18 @@ msgstr "Filtre"
 msgid "Become a Reviewer"
 msgstr "Devenir un évaluateur"
 
+#: themes/OLH/templates/journal/collections.html:6
+#: themes/OLH/templates/journal/collections.html:8
 #: themes/OLH/templates/journal/collections.html:15
 #: themes/OLH/templates/journal/issue_display.html:45
 #: themes/default/templates/journal/issue_display.html:36
 #: themes/material/templates/journal/issue_display.html:39
 msgid "Collections"
 msgstr "Collections"
+
+#: themes/OLH/templates/journal/collections.html:25
+msgid "Launched"
+msgstr ""
 
 #: themes/OLH/templates/journal/contact.html:17
 #: themes/default/templates/journal/contact.html:15
@@ -1359,6 +1440,12 @@ msgstr "Qui souhaitez-vous contacter?"
 msgid "Send Message"
 msgstr "Envoyer le message"
 
+#: themes/OLH/templates/journal/editorial_team.html:10
+#: themes/OLH/templates/journal/editorial_team.html:20
+#: themes/material/templates/core/nav.html:84
+msgid "Editorial Team"
+msgstr ""
+
 #: themes/OLH/templates/journal/homepage_elements/about.html:7
 #: themes/default/templates/journal/homepage_elements/about.html:4
 #: themes/material/templates/journal/homepage_elements/about.html:7
@@ -1371,6 +1458,16 @@ msgstr "À propos de la revue"
 msgid "Featured Articles"
 msgstr "Article vedette"
 
+#: themes/OLH/templates/journal/homepage_elements/journals.html:5
+#, fuzzy
+#| msgid "Featured Articles"
+msgid "Featured Journals"
+msgstr "Article vedette"
+
+#: themes/OLH/templates/journal/homepage_elements/journals.html:28
+msgid "Unnamed Journal"
+msgstr ""
+
 #: themes/OLH/templates/journal/homepage_elements/news.html:9
 #: themes/default/templates/journal/homepage_elements/news.html:8
 #: themes/material/templates/journal/homepage_elements/news.html:11
@@ -1378,7 +1475,10 @@ msgid "Latest News"
 msgstr "Dernières nouvelles"
 
 #: themes/OLH/templates/journal/homepage_elements/news.html:13
+#: themes/OLH/templates/press/core/news/item.html:33
 #: themes/default/templates/journal/homepage_elements/news.html:13
+#: themes/material/templates/core/news/index.html:26
+#: themes/material/templates/core/news/item.html:20
 #: themes/material/templates/journal/homepage_elements/news.html:17
 msgid "Posted by"
 msgstr "Posté par"
@@ -1395,6 +1495,12 @@ msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
 msgid "Featured Preprints"
 msgstr "Article vedette"
 
+#: themes/OLH/templates/journal/issue_display.html:43
+#, fuzzy
+#| msgid "Downloads"
+msgid "Download Issue"
+msgstr "Téléchargements"
+
 #: themes/OLH/templates/journal/issue_display.html:44
 #: themes/default/templates/journal/issue_display.html:35
 #: themes/material/templates/journal/issue_display.html:38
@@ -1406,6 +1512,7 @@ msgstr "Archive des numéros"
 #: themes/OLH/templates/journal/issues.html:15
 #: themes/default/templates/journal/issues.html:6
 #: themes/default/templates/journal/issues.html:8
+#: themes/material/templates/core/nav.html:81
 #, fuzzy
 #| msgid "Issue"
 msgid "Issues"
@@ -1416,6 +1523,10 @@ msgstr "Publication"
 #: themes/material/templates/journal/issues.html:25
 msgid "items"
 msgstr "articles"
+
+#: themes/OLH/templates/journal/issues.html:34
+msgid "There are no issues published in this journal yet."
+msgstr ""
 
 #: themes/OLH/templates/journal/submissions.html:5
 #: themes/OLH/templates/journal/submissions.html:22
@@ -1444,6 +1555,7 @@ msgstr ""
 "compte (ou vous connecter si vous avez un compte existant)"
 
 #: themes/OLH/templates/journal/submissions.html:33
+#: themes/OLH/templates/preprints/about.html:15
 #: themes/default/templates/journal/submissions.html:32
 #: themes/material/templates/journal/submissions.html:39
 msgid "About"
@@ -1494,6 +1606,25 @@ msgstr "Frais de publication"
 msgid "Sections"
 msgstr "Section"
 
+#: themes/OLH/templates/journal/submissions.html:64
+#, fuzzy
+#| msgid "Submissions"
+msgid "Public Submissions"
+msgstr "Soumissions"
+
+#: themes/OLH/templates/journal/submissions.html:70
+msgid "Indexed"
+msgstr ""
+
+#: themes/OLH/templates/preprints/about.html:4
+#: themes/OLH/templates/preprints/about.html:15
+#: themes/OLH/templates/preprints/home.html:15
+#: themes/OLH/templates/preprints/list.html:6
+#, fuzzy
+#| msgid "Manuscript Files"
+msgid "Preprints"
+msgstr "Fichier manuscrit"
+
 #: themes/OLH/templates/preprints/article.html:52
 #: themes/OLH/templates/preprints/submit_start.html:72
 #: themes/default/templates/preprints/article.html:49
@@ -1502,6 +1633,11 @@ msgstr "Section"
 #| msgid "Comments to Editor"
 msgid "Comments"
 msgstr "Commentaires au rédacteur"
+
+#: themes/OLH/templates/preprints/article.html:86
+msgid ""
+"There are no comments or no comments have been made public for this article."
+msgstr ""
 
 #: themes/OLH/templates/preprints/article.html:104
 #: themes/default/templates/preprints/article.html:100
@@ -1527,12 +1663,40 @@ msgstr "Altmetrics"
 msgid "Citation"
 msgstr "Salutation"
 
+#: themes/OLH/templates/preprints/article.html:131
+#: themes/OLH/templates/preprints/list.html:6
+#: themes/OLH/templates/preprints/list.html:15
+#: themes/default/templates/preprints/list.html:6
+#: themes/default/templates/preprints/list.html:14
+#: themes/material/templates/preprints/list.html:6
+#: themes/material/templates/preprints/list.html:14
+msgid "All Preprints"
+msgstr ""
+
+#: themes/OLH/templates/preprints/article.html:135
+#: themes/default/templates/preprints/article.html:114
+#: themes/material/templates/preprints/article.html:136
+#, fuzzy
+#| msgid "Section"
+msgid "Versions"
+msgstr "Section"
+
+#: themes/OLH/templates/preprints/article.html:142
+msgid "This is the only version of the preprint."
+msgstr ""
+
 #: themes/OLH/templates/preprints/authors.html:7
 #: themes/OLH/templates/preprints/authors.html:15
 #, fuzzy
 #| msgid "Current Authors"
 msgid "Preprint Authors"
 msgstr "Auteurs actuels"
+
+#: themes/OLH/templates/preprints/authors.html:16
+#, fuzzy
+#| msgid "Add Author"
+msgid "Add authors to"
+msgstr "Ajouter un auteur"
 
 #: themes/OLH/templates/preprints/authors.html:80
 #: themes/default/templates/preprints/authors.html:86
@@ -1541,13 +1705,81 @@ msgid ""
 "next step of your submission."
 msgstr ""
 
-#: themes/OLH/templates/preprints/list.html:6
-#: themes/OLH/templates/preprints/list.html:15
-#: themes/default/templates/preprints/list.html:6
-#: themes/default/templates/preprints/list.html:14
-#: themes/material/templates/preprints/list.html:6
-#: themes/material/templates/preprints/list.html:14
-msgid "All Preprints"
+#: themes/OLH/templates/preprints/editors.html:5
+#: themes/OLH/templates/preprints/editors.html:16
+#, fuzzy
+#| msgid "Current Authors"
+msgid "Preprint Editors"
+msgstr "Auteurs actuels"
+
+#: themes/OLH/templates/preprints/editors.html:46
+#, fuzzy
+#| msgid "This journal currently has no news items to display"
+msgid "This repository has no subjects or editors to display."
+msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
+
+#: themes/OLH/templates/preprints/home.html:29
+#, fuzzy
+#| msgid "Read More"
+msgid "Read about"
+msgstr "Lire la suite"
+
+#: themes/OLH/templates/preprints/home.html:29
+#, fuzzy
+#| msgid "Manuscript Files"
+msgid "preprints"
+msgstr "Fichier manuscrit"
+
+#: themes/OLH/templates/preprints/home.html:30
+msgid "or view list of"
+msgstr ""
+
+#: themes/OLH/templates/preprints/home.html:30
+#, fuzzy
+#| msgid "Featured Articles"
+msgid "all preprints"
+msgstr "Article vedette"
+
+#: themes/OLH/templates/preprints/home.html:36
+#, fuzzy
+#| msgid "Featured Articles"
+msgid "Latest Preprints"
+msgstr "Article vedette"
+
+#: themes/OLH/templates/preprints/list.html:61
+#: themes/OLH/templates/preprints/search.html:46
+#, fuzzy
+#| msgid "Featured Articles"
+msgid "Search preprints"
+msgstr "Article vedette"
+
+#: themes/OLH/templates/preprints/list.html:65
+#: themes/OLH/templates/preprints/search.html:50
+#, fuzzy
+#| msgid "Search"
+msgid "Searching by"
+msgstr "Chercher"
+
+#: themes/OLH/templates/preprints/list.html:69
+#: themes/OLH/templates/preprints/search.html:54
+#, fuzzy
+#| msgid "Author"
+msgid "Author Name"
+msgstr "Auteur"
+
+#: themes/OLH/templates/preprints/list.html:70
+#: themes/OLH/templates/preprints/search.html:55
+#, fuzzy
+#| msgid "Salutation"
+msgid "Author Affiliation"
+msgstr "Salutation"
+
+#: themes/OLH/templates/preprints/list.html:76
+msgid "Editors"
+msgstr ""
+
+#: themes/OLH/templates/preprints/list.html:87
+msgid "Filter by Subject"
 msgstr ""
 
 #: themes/OLH/templates/preprints/review.html:5
@@ -1590,6 +1822,52 @@ msgid ""
 "If you have any additional information you'd like to supply to the preprints "
 "editor, do so here"
 msgstr "Si vous avez des informations à fournir à l'éditeur, faites-le ici"
+
+#: themes/OLH/templates/preprints/submit_start.html:55
+msgid "Hit Enter to add a new keyword."
+msgstr ""
+
+#: themes/OLH/templates/preprints/submit_start.html:83
+msgid "Additional Fields"
+msgstr ""
+
+#: themes/OLH/templates/press/core/login.html:25
+#, fuzzy
+#| msgid "Log in with ORCiD"
+msgid "Login with ORCiD"
+msgstr "Connectez-vous avec ORCiD"
+
+#: themes/OLH/templates/press/core/login.html:32
+#, fuzzy
+#| msgid "Log in"
+msgid "Log In"
+msgstr "S'identifier"
+
+#: themes/OLH/templates/press/core/news/index.html:37
+#, fuzzy
+#| msgid "This journal currently has no news items to display"
+msgid "This press currently has no news items to display."
+msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
+
+#: themes/OLH/templates/press/core/news/item.html:33
+#: themes/material/templates/core/news/index.html:26
+#: themes/material/templates/core/news/item.html:20
+msgid "on"
+msgstr ""
+
+#: themes/OLH/templates/press/core/news/item.html:40
+#: themes/material/templates/core/news/item.html:25
+msgid "Tags"
+msgstr ""
+
+#: themes/OLH/templates/press/core/news/item.html:45
+#: themes/material/templates/core/news/item.html:33
+msgid "Back to News List"
+msgstr ""
+
+#: themes/OLH/templates/press/press_journals.html:5
+msgid "Journals"
+msgstr ""
 
 #: themes/default/templates/core/accounts/register.html:24
 #, fuzzy
@@ -1656,15 +1934,47 @@ msgstr ""
 msgid "Reddit"
 msgstr ""
 
-#: themes/default/templates/preprints/article.html:114
-#: themes/material/templates/preprints/article.html:136
-#, fuzzy
-#| msgid "Section"
-msgid "Versions"
-msgstr "Section"
-
 #: themes/default/templates/preprints/submit_files.html:12
 msgid "Upload Files"
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:6
+msgid "Edit Profile"
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:16
+msgid ""
+"If you want to change your email address you may do so below, however, you "
+"will be logged out and your account will be marked as inactive until you "
+"follow the instructions in the verification email."
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:17
+msgid "Note:"
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:18
+msgid ""
+"Changing your email address will also change your username as these are one "
+"and the same."
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:24
+#, fuzzy
+#| msgid "Your contact email address"
+msgid "Email Address"
+msgstr "Votre adresse email de contact"
+
+#: themes/material/templates/core/accounts/edit_profile.html:34
+msgid "Data Export"
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:35
+msgid "You may export your data into a JSON file for reuse."
+msgstr ""
+
+#: themes/material/templates/core/accounts/edit_profile.html:38
+msgid "Export"
 msgstr ""
 
 #: themes/material/templates/core/accounts/register.html:22
@@ -1688,6 +1998,17 @@ msgstr ""
 "longtemps que possible. Pour plus d'informations, reportez-vous au <a href="
 "\"#\" data-open=\"password-modal\">guide des mots de passe</a>."
 
+#: themes/material/templates/core/accounts/register.html:45
+#: themes/material/templates/core/accounts/reset_password.html:40
+msgid ""
+"We recommend selecting a long, but easy to remember password such as <i>our "
+"awesome moon base\n"
+"                rocks</i> which would take an estimated septillion years to "
+"crack as opposed to a complex one\n"
+"                like <i>Jfjfy&65^87</i> which would take just over 600 years "
+"on a standard computer."
+msgstr ""
+
 #: themes/material/templates/core/accounts/reset_password.html:17
 #, fuzzy
 #| msgid ""
@@ -1708,6 +2029,76 @@ msgstr ""
 "de contenir des caractères spécifiques, mais vous devriez le faire aussi "
 "longtemps que possible. Pour plus d'informations, reportez-vous au <a href="
 "\"#\" data-open=\"password-modal\">guide des mots de passe</a>."
+
+#: themes/material/templates/core/login.html:32
+#, fuzzy
+#| msgid "Regsiter for"
+msgid "Register an Account"
+msgstr "S'inscrire à"
+
+#: themes/material/templates/core/login.html:33
+#, fuzzy
+#| msgid "Reset Password"
+msgid "Reset Your Password"
+msgstr "Mot de passe"
+
+#: themes/material/templates/core/nav.html:72
+msgid "Home"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:104
+msgid "Account"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:117
+#: themes/material/templates/core/nav.html:141
+msgid "Dashboard"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:118
+#: themes/material/templates/core/nav.html:142
+msgid "Kanban"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:120
+#: themes/material/templates/core/nav.html:144
+#, fuzzy
+#| msgid "Start Submission"
+msgid "Submit"
+msgstr "Soumission"
+
+#: themes/material/templates/core/nav.html:123
+#: themes/material/templates/core/nav.html:147
+msgid "Manager"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:134
+#: themes/material/templates/core/nav.html:172
+msgid "Admin"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:137
+#: themes/material/templates/core/nav.html:175
+msgid "Logout"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:149
+#, fuzzy
+#| msgid "Submissions"
+msgid "Edit Submissions Page"
+msgstr "Soumissions"
+
+#: themes/material/templates/core/nav.html:150
+msgid "Edit Journal Info"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:153
+msgid "Edit Page"
+msgstr ""
+
+#: themes/material/templates/core/nav.html:156
+msgid "Manage Editorial Team"
+msgstr ""
 
 #: themes/material/templates/journal/issue_display.html:34
 #, fuzzy
@@ -1744,11 +2135,6 @@ msgstr ""
 #: themes/material/templates/journal/submissions.html:52
 msgid "Acceptance Criteria"
 msgstr ""
-
-#, fuzzy
-#~| msgid "This journal currently has no news items to display"
-#~ msgid "This press currently has no news items to display"
-#~ msgstr "Cette revue n'a actuellement aucune nouvelle à afficher"
 
 #, fuzzy
 #~| msgid "Volume"

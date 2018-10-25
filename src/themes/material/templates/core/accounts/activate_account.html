@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load foundation %}
+{% load i18n %}
 
 {% block title %}Activate Account{% endblock title %}
 
@@ -11,15 +12,14 @@
                 <div class="card-content">
                     {% if account %}
                         <span class="card-title">Account Active</span>
-                        <p>Your account is now active. You can now <a href="{% url 'core_login' %}">login</a></p>
+                        <p>{% trans "Your account is now active. You can now" %} <a href="{% url 'core_login' %}">{% trans "login" %}</a></p>
                         <p>
-                            <small>Please note, you will not be able to refresh this page.</small>
+                            <small>{% trans "Please note, you will not be able to refresh this page." %}</small>
                         </p>
                     {% else %}
-                        <span class="card-title">Error</span>
-                        <p>There was no inactive account with this activation code found. It is possible that your
-                            account is
-                            already active, you can check by attempting to <a href="{% url 'core_login' %}">login</a>.
+                        <span class="card-title">{% trans "Error" %}</span>
+                        <p>{% trans "There was no inactive account with this activation code found. It is possible that your
+                            account is already active, you can check by attempting to " %}<a href="{% url 'core_login' %}">{% trans "login" %}</a>.
                         </p>
                     {% endif %}
                 </div>
