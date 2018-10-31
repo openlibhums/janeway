@@ -376,7 +376,10 @@ def serve_article_file(request, identifier_type, identifier, file_id):
     :return: a streaming response of the requested file or 404
     """
 
-    article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    if not request.journal and request.site_type.code == 'press':
+        article_object = submission_models.Article.get_press_article(request.press, identifier_type, identifier)
+    else:
+        article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     try:
         if file_id != "None":
