@@ -364,7 +364,6 @@ def download_galley(request, article_id, galley_id):
 
 @has_request
 @article_stage_accepted_or_later_or_staff_required
-@article_exists
 @file_user_required
 def serve_article_file(request, identifier_type, identifier, file_id):
     """ Serves an article file.
