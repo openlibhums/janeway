@@ -589,6 +589,25 @@ class Article(models.Model):
             # TODO: handle better and log
             return None
 
+    @staticmethod
+    def get_press_article(press, identifier_type, identifier):
+        from identifiers import models as identifier_models
+        try:
+            article = None
+            # resolve an article from an identifier type and an identifier
+            if identifier_type.lower() == 'id':
+                # this is the hardcoded fallback type: using built-in id
+                article = Article.allarticles.filter(id=identifier)[0]
+            else:
+                # this looks up an article by an ID type and an identifier string
+                article = identifier_models.Identifier.objects.filter(
+                    id_type=identifier_type, identifier=identifier)[0].article
+
+            return article
+        except BaseException:            # no article found
+            # TODO: handle better and log
+            return None
+
     @property
     @cache(600)
     def url(self):
