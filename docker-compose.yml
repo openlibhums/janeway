@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+
+  janeway-postgres:
+    image: postgres:11
+    #restart: always
+    volumes:
+      - ./db/postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+
+  start_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+     - janeway-postgres
+    command: janeway-postgres:5432
+
+  janeway-web:
+    build: .
+    command: python3 src/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/vol/janeway
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - PYTHONDONTWRITEBYTECODE=yes
+      - DJANGO_SETTINGS_MODULE=core.example_settings
+    depends_on:
+      - "start_dependencies"
