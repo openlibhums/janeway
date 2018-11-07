@@ -164,17 +164,30 @@ DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no o
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 # We recommend mysql but Django supports PGSQL and SQLite amongst others
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
+if "POSTGRES_DB" in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ["POSTGRES_DB"],
+            'USER': os.environ["POSTGRES_USER"],
+            'PASSWORD': os.environ["POSTGRES_PASSWORD"],
+            'HOST': os.environ["POSTGRES_HOST"],
+            'PORT': os.environ["POSTGRES_PORT"],
+        }
     }
-}
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': '',
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
+            'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

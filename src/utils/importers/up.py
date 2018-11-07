@@ -304,7 +304,7 @@ def import_issue_images(journal, user, url):
 
     soup = BeautifulSoup(resp, 'lxml')
 
-    import core.settings
+    from django.conf import settings
     import os
     from django.core.files import File
 
@@ -319,7 +319,7 @@ def import_issue_images(journal, user, url):
 
             resp, mime = utils_models.ImportCacheEntry.fetch(url=img_url)
 
-            path = os.path.join(core.settings.BASE_DIR, 'files', 'journals', str(journal.id))
+            path = os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.id))
 
             os.makedirs(path, exist_ok=True)
 

@@ -56,6 +56,9 @@ docs/_build/
 # PyBuilder
 target/
 
+# DB volumes
+db/
+
 # Django
 src/core/settings.py
 *.sqlite3
@@ -79,6 +82,9 @@ src/media/profile_images/*
 # PyCharm
 .idea
 
+# vim
+*.swp
+
 # gulp
 /src/static/OLH/*
 
@@ -95,7 +101,6 @@ ial/
 src/texture/**
 /src/static/material/**
 /src/static/admin/hypothesis/**
-Dockerfile
 
 *.ipynb
 
