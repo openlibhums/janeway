@@ -1,11 +1,17 @@
+import os
+
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from django.db import transaction
 from django.utils import translation
 
 from press import models as press_models
 from journal import models as journal_models
 from utils.install import update_settings, update_license
 from submission import models as submission_models
+
+ROLES_RELATIVE_PATH = 'utils/install/roles.json'
 
 
 class Command(BaseCommand):
@@ -15,6 +21,7 @@ class Command(BaseCommand):
 
     help = "Installs a press and oe journal for Janeway."
 
+    @transaction.atomic
     def handle(self, *args, **options):
         """Installs Janeway
 
@@ -48,8 +55,8 @@ class Command(BaseCommand):
         update_license(journal, management_command=False)
         print("[okay]")
         print("Installing role fixtures")
-        call_command('loaddata', 'utils/install/roles.json')
-
+        roles_path = os.path.join(settings.BASE_DIR, ROLES_RELATIVE_PATH)
+        call_command('loaddata', roles_path)
         journal.name = input('Journal #1 name: ')
         journal.description = input('Journal #1 description: ')
         journal.save()
@@ -63,9 +70,37 @@ class Command(BaseCommand):
         print("Installing plugins.")
         call_command('install_plugins')
         print("Installing Cron jobs")
-        call_command('install_cron')
-
+        try:
+            call_command('install_cron')
+        except FileNotFoundError:
+            self.stderr.write("Error Installing cron")
         print('Create a super user.')
         call_command('createsuperuser')
         print('Open your browser to your new journal domain {domain}/install/ to continue this setup process.'.format(
             domain=journal.domain))
+        print(JANEWAY_ASCII)
+
+
+JANEWAY_ASCII = """
+===========================================================================================================================================================
+=============================================================================================================================================================
+===============================================================================================================================================================
+===============================================================================================================================================================
+===============================================================================================================================================================
+===============================================================================================================================================================
+==============================================================================================================================================================
+=============================================================================================================================================================
+==========================================================================================================================================================
+==========================================
+=========,======   ,   ==   ===========,
+=========   =  ,   ,   ==   ===,======*
+========   =   ,   ,   ==   =    =====        ========        =====       ====       ===   ============   ===       ===       ===      =====     ===       ===
+=======   =    =   ,   ==   ==   =====             ===       ======       ======     ===   ===            ====     =====     ===      =======     ====   ====
+======   =,   ==   ,   ==   ==   =====             ===      ===  ===      ========   ===   ===             ====   ======    ====     ===  ====     ==== ====
+=====    =   ===   ,   ==   ===   ====             ===     ===    ===     ===  ====  ===   ============     ===   === ===   ===     ====   ===       =====
+====    =   ====   ,   ==   ===   ====  ===        ===    ===      ===    ====   =======   ===               === ===  ==== ===     ====     ===       ===
+====   =   =====   ,   ==   ===   ====  ===       ====   ==============   ===     ======   ===               =======   =======    ==============      ===
+===   =    =====   ,   ==   ====   ===   ============   ====        ====  ===       ====   ============       =====     =====    ====         ===     ===
+=================  ,   ==   ==== =====     ========    ====          ==== ===         ==   ============        ===       ===    ====          ====    ===
+"""
+
