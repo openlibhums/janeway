@@ -23,6 +23,7 @@ install:
 rebuild:
 	docker-compose build --no-cache
 uninstall:
+	@bash -c "rm -rf db/postgres-data"
 	@bash -c "docker rm -f `docker ps --filter 'name=janeway*' -aq` >/dev/null 2>&1 | true"
 	@bash -c "docker rmi `docker images -q janeway*` >/dev/null 2>&1 | true"
 	@echo " Janeway has been uninstalled"
