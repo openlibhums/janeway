@@ -15,13 +15,15 @@ export POSTGRES_PASSWORD
 all:
 	docker-compose up
 run-janeway:
-	docker-compose run janeway-web
+	docker-compose run janeway-web $(entrypoint)
 command:
 	bash -c "docker-compose run janeway-web python3 src/manage.py $(CMD)"
 install:
 	bash -c "make command CMD=install_janeway"
 rebuild:
 	docker-compose build --no-cache
+shell:
+	bash -c "make run-janeway entrypoint=/bin/bash"
 uninstall:
 	@bash -c "rm -rf db/postgres-data"
 	@bash -c "docker rm -f `docker ps --filter 'name=janeway*' -aq` >/dev/null 2>&1 | true"
