@@ -118,14 +118,16 @@
                             </div>
                     </span>
                 </div>
-		{% else %}
+        {% else %}
+            <div class="card-content">
                     <span class="card-title">
                         <small>{{ article.section.name }}</small>
                         <br/>
-			<h5>{{ article.title|safe }}<h5>
+			            <h5>{{ article.title|safe }}<h5>
                         <br/>
                     </span>
-		{% endif %}
+            </div>
+        {% endif %}
 		<div>
 
 		</div>
