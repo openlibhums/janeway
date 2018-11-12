@@ -194,7 +194,6 @@ else:
         'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite'),
     }
 }
-print(DATABASES)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

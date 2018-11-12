@@ -49,3 +49,9 @@ services:
       - DJANGO_SETTINGS_MODULE=core.example_settings
     depends_on:
       - "start_dependencies"
+
+  janeway-sqlite:
+    build: .
+    command: /bin/bash
+    volumes:
+      - ./db/janeway.sqlite:/var/lib/janeway.sqlite
