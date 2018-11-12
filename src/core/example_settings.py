@@ -26,6 +26,7 @@ from django.contrib import messages
 from core import plugin_installed_apps
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, "plugins"))
 
 # Quick-start development settings - unsuitable for production
@@ -163,31 +164,37 @@ DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no o
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 # We recommend mysql but Django supports PGSQL and SQLite amongst others
-
-if "POSTGRES_DB" in os.environ:
+if os.environ.get("DB_VENDOR") == "postgres":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ["POSTGRES_DB"],
-            'USER': os.environ["POSTGRES_USER"],
-            'PASSWORD': os.environ["POSTGRES_PASSWORD"],
-            'HOST': os.environ["POSTGRES_HOST"],
-            'PORT': os.environ["POSTGRES_PORT"],
+            'NAME': os.environ["DB_NAME"],
+            'USER': os.environ["DB_USER"],
+            'PASSWORD': os.environ["DB_PASSWORD"],
+            'HOST': os.environ["DB_HOST"],
+            'PORT': os.environ["DB_PORT"],
         }
     }
-
-else:
+elif os.environ.get("DB_VENDOR") == "mysql":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': '',
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            'PORT': '3306',
+            'NAME': os.environ["DB_NAME"],
+            'USER': os.environ["DB_USER"],
+            'PASSWORD': os.environ["DB_PASSWORD"],
+            'HOST': os.environ["DB_HOST"],
+            'PORT': os.environ["DB_PORT"],
             'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
         }
     }
+else:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite'),
+    }
+}
+print(DATABASES)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
