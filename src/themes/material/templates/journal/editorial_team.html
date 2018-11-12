@@ -18,10 +18,14 @@
                         <div class="card-image">
                             <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
                         </div>
-                        <div class="card-content" style="min-height: 180px;">
+                        <div class="card-content" style="min-height: 190px;">
                             <span class="card-title small-card-title">{{ member.user.full_name }}</span>
                             <p>
                                 <small>{{ member.user.affiliation }}</small>
+                            </p>
+
+                            <p>
+                            {% include "elements/journal/editorial_social_content.html" with user=member.user %}
                             </p>
 
                         </div>
