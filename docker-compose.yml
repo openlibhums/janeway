@@ -4,21 +4,32 @@ services:
 
   janeway-postgres:
     image: postgres:11
-    #restart: always
     volumes:
       - ./db/postgres-data:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "${DB_PORT}:${DB_PORT}"
     environment:
-      - POSTGRES_PASSWORD
-      - POSTGRES_USER
-      - POSTGRES_DB
+      - "POSTGRES_PASSWORD=${DB_PASSWORD}"
+      - "POSTGRES_USER=${DB_USER}"
+      - "POSTGRES_DB=${DB_NAME}"
+
+  janeway-mysql:
+    image: mysql:5.7
+    volumes:
+      - ./db/mysql-data:/var/lib/mysql
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_USER=${DB_USER}"
+      - "MYSQL_DATABASE=${DB_NAME}"
 
   start_dependencies:
     image: dadarek/wait-for-dependencies
     depends_on:
-     - janeway-postgres
-    command: janeway-postgres:5432
+     - "janeway-${DB_VENDOR}"
+    command: "janeway-${DB_VENDOR}:${DB_PORT}"
 
   janeway-web:
     build: .
@@ -28,11 +39,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_HOST
-      - POSTGRES_PORT
-      - POSTGRES_PASSWORD
-      - POSTGRES_USER
-      - POSTGRES_DB
+      - DB_VENDOR
+      - DB_HOST
+      - DB_PORT
+      - DB_PASSWORD
+      - DB_USER
+      - DB_NAME
       - PYTHONDONTWRITEBYTECODE=yes
       - DJANGO_SETTINGS_MODULE=core.example_settings
     depends_on:
