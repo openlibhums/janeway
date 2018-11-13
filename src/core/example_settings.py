@@ -80,7 +80,6 @@ INSTALLED_APPS = [
 
     # 3rd Party
     'django_summernote',
-    'dynamicsites',
     'markdown_deux',
     'hvad',
     'raven.contrib.django.raven_compat',
