@@ -38,7 +38,8 @@ SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+COMMAND = sys.argv[1:]
+IN_TEST_RUNNER = COMMAND[:1] == ['test']
 ALLOWED_HOSTS = ['*']
 
 ENABLE_TEXTURE = False
@@ -394,3 +395,19 @@ SILENT_IMPORT_CACHE = True
 WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
+
+if IN_TEST_RUNNER:
+    from collections.abc import Mapping
+    class SkipMigrations(Mapping):
+        def __getitem__(self, key):
+            return None
+        def __contains__(self, key):
+            return True
+        def __iter__(self):
+            return iter("")
+        def __len__(self):
+            return 1
+
+    logging.info("Skipping migrations")
+    MIGRATION_MODULES = SkipMigrations()
+
