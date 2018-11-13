@@ -57,4 +57,4 @@ uninstall:	## Removes all janeway related docker containers, docker images and d
 	@bash -c "docker rmi `docker images -q janeway*` >/dev/null 2>&1 | true"
 	@echo " Janeway has been uninstalled"
 check:		## Runs janeway test suit
-	bash -c "make command CMD=test"
+	bash -c "DB_VENDOR=sqlite make command CMD=test"
