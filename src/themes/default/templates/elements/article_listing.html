@@ -33,8 +33,8 @@
                 </h6>
                 <p class="card-text"><span class="date"><i
                         class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                        class="fa fa-book"></i> {% trans "Volume" %} {{ article.issue.volume }},
-                    {% trans "Issue" %} {{ article.issue.issue }}
+                        class="fa fa-book"></i> <a href="{% url 'journal_issue' article.issue.pk %}">{% trans "Volume" %} {{ article.issue.volume }},
+                    {% trans "Issue" %} {{ article.issue.issue }}</a>
                 </p>
                 </a>
             </div>
