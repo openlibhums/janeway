@@ -271,6 +271,10 @@ class Press(models.Model):
 
         return True
 
+    @property
+    def code(self):
+        return 'press'
+
 
 class PressSetting(models.Model):
     press = models.ForeignKey(Press)

@@ -71,6 +71,7 @@ class Journal(models.Model):
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
 
     disable_metrics_display = models.BooleanField(default=False)
+    disable_article_images = models.BooleanField(default=False)
     is_remote = models.BooleanField(default=False)
     remote_submit_url = models.URLField(blank=True, null=True)
     remote_view_url = models.URLField(blank=True, null=True)

@@ -364,7 +364,6 @@ def download_galley(request, article_id, galley_id):
 
 @has_request
 @article_stage_accepted_or_later_or_staff_required
-@article_exists
 @file_user_required
 def serve_article_file(request, identifier_type, identifier, file_id):
     """ Serves an article file.
@@ -376,7 +375,10 @@ def serve_article_file(request, identifier_type, identifier, file_id):
     :return: a streaming response of the requested file or 404
     """
 
-    article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    if not request.journal and request.site_type.code == 'press':
+        article_object = submission_models.Article.get_press_article(request.press, identifier_type, identifier)
+    else:
+        article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     try:
         if file_id != "None":
@@ -911,9 +913,18 @@ def issue_add_article(request, issue_id):
 
     if request.POST.get('article'):
         article_id = request.POST.get('article')
-        article = get_object_or_404(submission_models.Article, pk=article_id)
-        models.ArticleOrdering.objects.create(article=article, issue=issue, order=issue.next_order())
-        issue.articles.add(article)
+        article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
+
+        if not article.section:
+            messages.add_message(request, messages.WARNING, 'Articles without a section cannot be added to an issue.')
+            return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
+        else:
+
+            models.ArticleOrdering.objects.create(article=article,
+                                                  issue=issue,
+                                                  order=issue.next_order(),
+                                                  section=article.section)
+            issue.articles.add(article)
         return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
     template = 'journal/manage/issue_add_article.html'

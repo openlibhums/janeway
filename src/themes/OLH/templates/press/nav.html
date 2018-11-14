@@ -10,12 +10,12 @@
                                                            data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
                     <ul class="menu vertical medium-horizontal">
                         {% for subnav in item.sub_nav_items %}
-                            <li><a href="/{{ subnav.link }}">{{ subnav.link_name }}</a></li>
+                            <li><a href="{% if not subnav.is_external %}/{% endif %}{{ subnav.link }}">{{ subnav.link_name }}</a></li>
                         {% endfor %}
                     </ul>
                 </li>
             {% else %}
-                <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
+                <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
             {% endif %}
         {% endfor %}
         <li><a href="{% url 'press_journals' %}">Journals</a></li>
