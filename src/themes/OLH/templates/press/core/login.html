@@ -1,6 +1,7 @@
 {% extends "press/core/base.html" %}
+{% load i18n %}
 
-{% block page_title %}Login{% endblock page_title %}
+{% block page_title %}{% trans "Login" %}{% endblock page_title %}
 
 {% block css %}
 <style>
@@ -20,16 +21,16 @@
                 {% csrf_token %}
                 <div class="callout">
                     <div class="row column log-in-form">
-                        <h4 class="text-center">Log in with your account</h4>
-                        <a href="https://orcid.org/oauth/authorize?client_id=APP-TBR6V8HS3HQPJG3J&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/" class="success button expanded">Login with ORCiD</a>
-                        <label>Email
+                        <h4 class="text-center">{% trans "Log in with your account" %}</h4>
+                        <a href="https://orcid.org/oauth/authorize?client_id=APP-TBR6V8HS3HQPJG3J&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/" class="success button expanded">{% trans "Login with ORCiD" %}</a>
+                        <label>{% trans "Email" %}
                             <input name="user_name" type="text" placeholder="somebody@example.com">
                         </label>
-                        <label>Password
+                        <label>{% trans "Password" %}
                             <input type="password" placeholder="Password" name="user_pass">
                         </label>
-                        <p><button type="submit" class="button expanded">Log In</button></p>
-                        <p class="text-center"><a href="{% url 'core_get_reset_token' %}">Forgot your password?</a></p>
+                        <p><button type="submit" class="button expanded">{% trans "Log In" %}</button></p>
+                        <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgot your password?" %}</a></p>
                     </div>
                 </div>
             </form>

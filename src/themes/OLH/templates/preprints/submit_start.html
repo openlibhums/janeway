@@ -52,7 +52,7 @@
 
 
                                     {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
-                            Hit Enter to add a new keyword.
+                            {% trans "Hit Enter to add a new keyword." %}
                         </div>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                 {% if additional_fields %}
                     <div class="large-12 columns">
                         <p></p>
-                        <h4>Additional Fields</h4>
+                        <h4>{% trans "Additional Fields" %}</h4>
                     </div>
                     {% for additional_field in additional_fields %}
                         {% get_form_field form additional_field.name as field %}

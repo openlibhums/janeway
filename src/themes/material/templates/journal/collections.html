@@ -1,9 +1,10 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
 {% load hooks %}
+{% load i18n %}
 
-{% block page_title %}Collections{% endblock %}
-{% block title %}Collections{% endblock %}
+{% block page_title %}{% trans "Collections" %}{% endblock %}
+{% block title %}{% trans "Collections" %}{% endblock %}
 
 {% block body %}
 
@@ -21,13 +22,13 @@
                             <p>{{ collection.issue_description|safe }}</p>
                         </div>
                         <div class="card-action">
-                            <a href="{% url 'journal_collection' collection.id %}">View Collection</a>
+                            <a href="{% url 'journal_collection' collection.id %}">{% trans "View Collection" %}</a>
                         </div>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <h4>There are no collections to display</h4>
+            <h4>{% trans "There are no collections to display" %}</h4>
         {% endfor %}
     </div>
 

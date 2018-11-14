@@ -1,12 +1,13 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
+{% load i18n %}
 
-{% block title %}Editorial Team{% endblock title %}
-{% block page_title %}Editorial Team{% endblock page_title %}
+{% block title %}{% trans "Editorial Team" %}{% endblock title %}
+{% block page_title %}{% trans "Editorial Team" %}{% endblock page_title %}
 
 {% block body %}
 
-    <h4>Subject Area Editors</h4>
+    <h4>{% trans "Subject Area Editors" %}</h4>
     <div class="divider"></div>
     {% for subject in subjects %}
         <div class="row">

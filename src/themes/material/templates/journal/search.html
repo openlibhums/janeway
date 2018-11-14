@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
+{% load i18n %}
 
-{% block title %}Search{% endblock %}
+{% block title %}{% trans "Search" %}{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -8,12 +9,12 @@
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">
-                        Articles
+                        {% trans "Articles" %}
                     </span>
                     {% for article in articles %}
                         {% include "elements/article_listing.html" with article=article %}
                         {% empty %}
-                        <p>No articles to display.</p>
+                        <p>{% trans "No articles to display." %}</p>
                     {% endfor %}
                 </div>
             </div>
@@ -22,16 +23,16 @@
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">
-                        Searching
+                        {% trans "Searching" %}
                     </span>
-                    <p>Enter a search term to display results.</p>
+                    <p>{% trans "Enter a search term to display results." %}</p>
                     <form method="POST">
                         {% csrf_token %}
                         <div class="input-field">
                             <input type="text" name="search" id="search" {% if search_term %}value="{{ search_term }}"{% endif %}>
-                            <label for="search">Search</label>
+                            <label for="search">{% trans "Search" %}</label>
                         </div>
-                        <button name="submit" class="btn">Search</button>
+                        <button name="submit" class="btn">{% trans "Search" %}</button>
                     </form>
                 </div>
             </div>

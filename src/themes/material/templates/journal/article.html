@@ -165,7 +165,7 @@
                     {% endif %}
 
                     {% if article.publisher_notes.all %}
-                        <h5>Publisher Notes</h5>
+                        <h5>{% trans "Publisher Notes" %}</h5>
                         <ul>
                             {% for note in article.publisher_notes.all %}
                                 <li>{{ note.text }}</li>
@@ -238,7 +238,7 @@
             <div class="card">
                 <div class="card-content">
                     <h5>
-                        Authors
+                        {% trans "Authors" %}
                     </h5>
 
                     {% for author in article.frozen_authors.all %}
@@ -291,7 +291,7 @@
                     {% endif %}
 
                     {% if journal_settings.general.submission_summary %}
-                        <h5>Non Specialist Summary</h5>
+                        <h5>{% trans "Non Specialist Summary" %}</h5>
                         <a href="#summarymodal" class="modal-trigger">View Summary</a>
                         <div class="spacer">
                             <div class="divider"></div>
@@ -299,22 +299,22 @@
                     {% endif %}
 
                     <h5>
-                        Dates
+                        {% trans "Dates" %}
                     </h5>
 
                     <table class="sidebar-table">
                         <tr>
-                            <th>Submitted</th>
+                            <th>{% trans "Submitted" %}</th>
                             <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                         </tr>
                         {% if article.date_accepted %}
                             <tr>
-                                <th>Accepted</th>
+                                <th>{% trans "Accepted" %}</th>
                                 <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                             </tr>
                         {% endif %}
                         <tr>
-                            <th>Published</th>
+                            <th>{% trans "Published" %}</th>
                             <td>{{ article.date_published|date:"Y-m-d" }}</td>
                         </tr>
                     </table>
@@ -324,7 +324,7 @@
                     </div>
 
                     <h5>
-                        Licence
+                        {% trans "Licence" %}
                     </h5>
                     <p>{{ article.license.name }} {% if article.license.url %}
                         <a href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
@@ -334,18 +334,18 @@
                     </div>
 
                     <h5>
-                        Peer Review
+                        {% trans "Peer Review" %}
                     </h5>
                     {% if article.peer_reviewed %}
-                        <p><i class="fa fa-check-circle-o" style="color: green"></i> This article has been peer
-                            reviewed.</p>{% else %}<p>This article has not been peer reviewed.</p>{% endif %}
+                        <p><i class="fa fa-check-circle-o" style="color: green"></i> {% trans "This article has been peer
+                            reviewed." %}</p>{% else %}<p>{% trans "This article has not been peer reviewed." %}</p>{% endif %}
 
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
                     {% if article.is_published %}
                         <h5>
-                            File Checksums (MD5)
+                            {% trans "File Checksums" %} (MD5)
                         </h5>
                         <ul>
                             {% for galley in galleys %}
@@ -360,7 +360,7 @@
             <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
                 <div class="card-content">
                     <h5>
-                        Table of Contents
+                        {% trans "Table of Contents" %}
                     </h5>
                     <ul id="toc" class="section table-of-contents">
                     </ul>

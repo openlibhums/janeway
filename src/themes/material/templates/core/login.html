@@ -19,18 +19,18 @@
                         <span class="card-title">Login</span>
                         <div class="input-field col s12">
                             <input id="email" type="email" class="validate" name="user_name">
-                            <label for="email">Email</label>
+                            <label for="email">{% trans "Email" %}</label>
                         </div>
                         <div class="input-field col s12">
                             <input id="password" type="password" class="validate" name="user_pass">
-                            <label for="password">Password</label>
+                            <label for="password">{% trans "Password" %}</label>
                         </div>
                         <div class="input-field col s12">
                             {{ form.captcha }}
                         </div>
-                        <button class="waves-effect waves-light btn wide-button">Login</button>
-                        <a class="waves-effect waves-light btn wide-button" href="{% url 'core_register' %}">Register an Account</a>
-                        <a class="waves-effect waves-light btn wide-button" href="{% url 'core_get_reset_token' %}">Reset Your Password</a>
+                        <button class="waves-effect waves-light btn wide-button">{% trans "Login" %}</button>
+                        <a class="waves-effect waves-light btn wide-button" href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
+                        <a class="waves-effect waves-light btn wide-button" href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
                         {% if settings.ENABLE_ORCID %}
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={{ request.journal_base_url }}/login/orcid/"
                            class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Log in with ORCiD" %}</a>

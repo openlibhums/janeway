@@ -1,7 +1,9 @@
+{% load i18n %}
+
 <div class="row">
     <div class="col m12">
         <br/>
-        <h3 class="index-header">Featured Journals</h3>
+        <h3 class="index-header">{% trans "Featured Journals" %}</h3>
     </div>
     {% for current_journal in featured_journals %}
         <div class="col m3 row-eq-height">

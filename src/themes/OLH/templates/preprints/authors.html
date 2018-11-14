@@ -13,7 +13,7 @@
             <div class="row column">
                 {% csrf_token %}
                 <h2 class="title-area">{% trans "Preprint Authors" %}</h2>
-                <p>Add authors to {{ article.title }}.</p>
+                <p>{% trans "Add authors to" %} {{ article.title }}.</p>
             </div>
             <div class="row">
                 {% include "elements/forms/errors.html" with form=form %}
@@ -39,7 +39,7 @@
                         </div>
                     </form>
 
-                    <h4>Add New Author</h4>
+                    <h4>{% trans "Add New Author" %}</h4>
                     <p>{% trans "If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details." %}</p>
                     <a href="#" data-open="author" class="small success button">{% trans "Add New Author" %}</a>
                     {% include "elements/submit/author.html" %}

@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load staticfiles %}
+{% load i18n %}
 
 {% block page_title %}Issue {{ issue }}{% endblock %}
 
@@ -13,7 +14,7 @@
             <h2>Maintenance Mode</h2>
             <p>{{ request.META.maintenance_mode.value|safe }}</p>
             {% else %}
-            <h2>Permission Denied</h2>
+            <h2>{% trans "Permission Denied" %}</h2>
              {% if exception %}
               <p>{{ exception }}</p>
             {% endif %}
