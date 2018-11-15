@@ -29,6 +29,7 @@ mock
 mysqlclient
 pdfkit
 Pillow==5.2.0
+psycopg2-binary
 pyasn1==0.1.9
 pycparser==2.14
 PyJWT==1.6.1

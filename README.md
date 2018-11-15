@@ -5,10 +5,24 @@ Janeway is a journal platform designed for publishing scholarly research materia
 # Technology
 Janeway is written in Python (3.5+) and utilises the Django framework (1.11 LTS). 
 
+
 # Installation instructions
 Developer installation [instructions are available on our Wiki](https://github.com/BirkbeckCTP/janeway/wiki/Installation).
 
 A guide for installing on the live environment with [apache and mod_wsgi](https://github.com/BirkbeckCTP/janeway/wiki/Janeway%2C-Apache-and-WSGI) is also available.
+
+## Running Janeway with docker
+Janeway's development server can be run within a docker container, avoiding the need to install and run its dependencies from your machine. A docker-compose file as well as a Makefile can be found at the root of the project wrapping the most common operations.
+Docker is compatible with multiple architectures and Operating systems, if you need help installing docker, have a look at the [docker documentation](https://docs.docker.com/install/).
+
+Simarly to the native installation, Janeway can be installed in a docker environment by running ``make install`` and following the installation steps described [above](https://github.com/BirkbeckCTP/janeway/wiki/Installation). As a result, a database volume will be populated under janeway/db/postgres-data
+Once installation is completed, just type ``make`` to run janeway with a postgres backend (default behaviour).
+
+If a change to the dependencies for Janeway is required, the Janeway container can be re-created with ``make rebuild``. The database volume will be preserved.
+
+In order to run a different RDBMS, the environment variable ``DB_VENDOR`` can be set to one of ``postgres``, ``mysql`` or ``sqlite``. e.g: ``DB_VENDOR=mysql make install && make``
+
+Uninstalling Janeway is as simple as running ``make uninstall`` which will delete all related containers as well as wipe the database volume.
 
 # Janeway design principles
 1. No code should appear to work "by magic". Readability is key.
