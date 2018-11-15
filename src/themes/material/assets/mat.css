@@ -117,3 +117,22 @@ a:hover .article-title {
 .issue-link:hover {
     text-decoration: underline;
 }
+/******************************************
+  Show hamburger earlier (default is 992px)
+******************************************/
+@media only screen and (max-width: 1440px) {
+  .hide-on-large-and-down {
+    display: none !important;
+  }
+}
+
+@media only screen and (min-width: 1441px) {
+  nav a.button-collapse {
+    display: none;
+  }
+}
+@media only screen and (max-width: 1440px) {
+  nav a.button-collapse {
+    display: block;
+  }
+}
