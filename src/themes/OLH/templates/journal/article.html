@@ -66,6 +66,7 @@
 {% block body %}
 
     <article>
+    {% if  not journal.disable_article_images %}
         <section class="no-padding meta">
             <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
@@ -110,6 +111,7 @@
                 </ul>
             </div>
         </section>
+    {% endif %}
         {% for author in article.authors.all %}
             {% if author.biography %}
                 <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
@@ -166,6 +168,11 @@
                 <div class="large-8 columns border-right">
                     <div class="row">
                         <div id="article" class="large-10 columns">
+                {% if journal.disable_article_images %}
+                    <small>{{ article.section.name }}</small>
+                    <h3>{{ article.title|safe }}</h5>
+                <hr/>
+                {% endif %}
                             {% if article.abstract != '' %}
                                 <h2>{% trans "Abstract" %}</h2>
                                 <p>{{ article.abstract | safe }}</p>

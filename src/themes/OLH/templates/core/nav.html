@@ -13,12 +13,12 @@
             <ul class="menu vertical medium-horizontal">
             <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
             {% for subnav in item.sub_nav_items %}
-                <li><a href="/{{ subnav.link }}">{{ subnav.link_name }}</a></li>
+                <li><a href="{% if not subnav.is_external %}/{% endif %}{{ subnav.link }}">{{ subnav.link_name }}</a></li>
             {% endfor %}
             </ul>
             </li>
         {% else %}
-            <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
+            <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
         {% endif %}
         {% endfor %}
         {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">Articles</a></li>{% endif %}

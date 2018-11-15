@@ -447,6 +447,9 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
         article_object = models.Article.get_article(request.journal, identifier_type, identifier)
 
+        if not request.journal and request.site_type.code == 'press':
+            article_object = models.Article.get_press_article(request.press, identifier_type, identifier)
+
         if article_object is not None and article_object.is_accepted():
             return func(request, *args, **kwargs)
         elif request.user.is_anonymous():

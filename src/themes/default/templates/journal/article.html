@@ -83,6 +83,7 @@
 {% block body %}
 
     <div class="row">
+    {% if not journal.disable_article_images %}
         <div class="col-md-12">
             <div class="card">
                 {% if article.large_image_file.id %}
@@ -128,11 +129,17 @@
                 </div>
             </div>
         </div>
+    {% endif %}
     </div>
     <div class="row">
 
         <div class="col-md-7">
             <div id="article">
+                {% if journal.disable_article_images %}
+                    <small>{{ article.section.name }}</small>
+                    <h3>{{ article.title|safe }}</h5>
+                <hr/>
+                {% endif %}
                 {% if article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
