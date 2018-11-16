@@ -13,7 +13,6 @@ from hvad.models import TranslatableModel, TranslatedFields
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -32,12 +31,12 @@ if settings.URL_CONFIG == 'path':
     urls.base.reverse = reverse
 
 from core import files
+from core.file_system import JanewayFileSystemStorage
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
 
-fs = FileSystemStorage(location=settings.MEDIA_ROOT)
-
+fs = JanewayFileSystemStorage()
 
 def profile_images_upload_path(instance, filename):
     try:
