@@ -43,6 +43,7 @@ ALLOWED_HOSTS = ['*']
 
 ENABLE_TEXTURE = False
 
+FILE_UPLOAD_PERMISSIONS = FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o644
 
 # Application definition
 
@@ -332,6 +333,7 @@ LOGIN_REDIRECT_URL = '/user/profile/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = ''
 EMAIL_PORT = ''
 EMAIL_HOST_USER = ''
