@@ -79,6 +79,36 @@
             "name": "general"
         },
         "setting": {
+            "description": "<p>Overrides the term \"Collections\" across all the templates.</p>",
+            "is_translatable": true,
+            "name": "collection_name",
+            "pretty_name": "Collection Name",
+            "type": "text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "<p>Overrides the term \"Collections\" across all the templates.</p>",
+            "is_translatable": true,
+            "name": "collection_name_plural",
+            "pretty_name": "Collection Name Plural",
+            "type": "text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Displayed on the About and Submission pages. You should update this with an ordered list of submission requirements.",
             "is_translatable": true,
             "name": "submission_checklist",
