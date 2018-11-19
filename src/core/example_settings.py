@@ -396,6 +396,13 @@ WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
 
+# Development Overrides
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    for t in TEMPLATES:
+        t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
+
+# Testing Overrides
 if IN_TEST_RUNNER:
     from collections.abc import Mapping
     class SkipMigrations(Mapping):
