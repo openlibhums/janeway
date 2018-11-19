@@ -9,19 +9,19 @@ import collections
 import uuid
 import os
 
-from django.db import models
-from django.utils import timezone
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-from django.urls import reverse
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
+from django.utils import timezone
 
+from core import models as core_models, workflow
+from core.file_system import JanewayFileSystemStorage
+from press import models as press_models
+from submission import models as submission_models
 from utils.function_cache import cache
 from utils import setting_handler
-from submission import models as submission_models
-from core import models as core_models, workflow
-from press import models as press_models
 
 # Issue types
 # Use "Issue" for regular issues (rolling or periodic)
@@ -31,7 +31,7 @@ ISSUE_TYPES = [
     ('Collection', 'Collection'),
 ]
 
-fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+fs = JanewayFileSystemStorage()
 
 
 def cover_images_upload_path(instance, filename):

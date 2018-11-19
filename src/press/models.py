@@ -9,15 +9,15 @@ import uuid
 import json
 
 from django.conf import settings
-from django.db import models
-from django.core.files.storage import FileSystemStorage
 from django.core.validators import MinValueValidator
+from django.db import models
 
 from core import models as core_models
+from core.file_system import JanewayFileSystemStorage
 from utils.function_cache import cache
 
 
-fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+fs = JanewayFileSystemStorage()
 
 
 def cover_images_upload_path(instance, filename):

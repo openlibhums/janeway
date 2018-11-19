@@ -16,12 +16,12 @@ import hashlib
 
 from django.conf import settings
 from django.contrib import messages
+from django.http import Http404
 from django.http import StreamingHttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.text import slugify
-from django.http import Http404
-from django.views.decorators.cache import cache_control
 from django.utils.html import strip_tags
+from django.utils.text import slugify
+from django.views.decorators.cache import cache_control
 
 from utils import models as util_models
 
