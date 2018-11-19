@@ -34,7 +34,7 @@
             {% if request.journal.nav_issues %}
                 <li class="nav-item"><a href="{% url 'journal_issues' %}" class="nav-link">Issues</a></li>{% endif %}
             {% if request.journal.nav_collections %}
-                <li class="nav-item"><a href="{% url 'journal_collections' %}" class="nav-link">Collections</a></li>
+            <li class="nav-item"><a href="{% url 'journal_collections' %}" class="nav-link">{% with collections=journal_settings.general.collection_name_plural %}{% if collections %}{{collections}}{% else %}{% trans 'Collections'%}asd{% endif %}{% endwith %}</a></li>
             {% endif %}
 
 

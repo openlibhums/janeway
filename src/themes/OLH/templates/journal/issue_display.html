@@ -42,7 +42,7 @@
                     <h3>{% trans 'Downloads' %}</h3>
                     <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %}</a></p>
                     <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
-                        {% trans "Collections" %}{% endif %}</h3>
+                        {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
                     <ul>
                         {% for issue in issues %}
                             {% if issue.issue_type == 'Issue' %}

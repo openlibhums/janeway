@@ -3,8 +3,8 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block page_title %}{% trans "Collections" %}{% endblock %}
-{% block title %}{% trans "Collections" %}{% endblock %}
+{% block page_title %}{% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endblock %}
+{% block title %}{% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endblock %}
 
 {% block body %}
 
