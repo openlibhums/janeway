@@ -10,7 +10,7 @@ import journal.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0015_auto_20181108_1220'),
+        ('journal', '0016_journal_full_width_navbar'),
     ]
 
     operations = [
