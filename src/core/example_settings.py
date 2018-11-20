@@ -403,7 +403,7 @@ if DEBUG:
         t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
 
 # Testing Overrides
-if IN_TEST_RUNNER:
+if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     from collections.abc import Mapping
     class SkipMigrations(Mapping):
         def __getitem__(self, key):
