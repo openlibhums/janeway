@@ -6,6 +6,9 @@ from utils import notify
 
 SANITIZE_FROM_RE = re.compile("\r|\n|\t|\"|<|>|,")
 
+def sanitize_from(from_):
+    return re.sub(SANITIZE_FROM_RE, "", from_)
+
 def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
 
     if journal:
@@ -26,7 +29,9 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         reply_to = []
         if request:
             full_from_string = "{0} <{1}>".format(
-                    request.site_type.name.strip(SANITIZE_FROM_RE), from_email)
+                    sanitize_from(request.site_type.name),
+                    from_email
+            )
         else:
             full_from_string = from_email
 
