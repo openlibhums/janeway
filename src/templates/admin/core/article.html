@@ -14,6 +14,9 @@
         <div class="title-area">
             <h2>{{ article.title }}</h2>
         </div>
+        {% if article.stage == "Published" %}
+            {% hook 'edit_article' %}
+        {% endif %}
         <div class="content">
             {% include "elements/metadata.html" with view_type="author" %}
         </div>
