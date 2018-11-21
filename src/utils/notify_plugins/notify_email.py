@@ -4,6 +4,10 @@ from django.utils.html import strip_tags
 from utils import setting_handler
 from utils import notify
 
+SANITIZE_FROM_RE = re.compile("\r|\n|\t|\"|<|>|,")
+
+def sanitize_from(from_):
+    return re.sub(SANITIZE_FROM_RE, "", from_)
 
 def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
 
@@ -24,7 +28,10 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     else:
         reply_to = []
         if request:
-            full_from_string = "{0} <{1}>".format(request.site_type.name, from_email)
+            full_from_string = "{0} <{1}>".format(
+                    sanitize_from(request.site_type.name),
+                    from_email
+            )
         else:
             full_from_string = from_email
 
