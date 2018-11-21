@@ -79,3 +79,13 @@ def file_type(article, file):
     if file in review_files:
         return 'Review Comment'
     return 'Other'
+
+@register.filter()
+def filter_html_downloads(galleys):
+    if galleys and galleys[0].article.journal.disable_html_downloads is True:
+        galleys = [
+            galley for galley in galleys
+            if galley.file.label != 'HTML'
+        ]
+
+    return galleys
