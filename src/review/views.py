@@ -1540,13 +1540,19 @@ def review_warning(request, article_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
 
-    if request.POST and request.user.is_staff:
-        override = models.EditorOverride.objects.create(article=article, editor=request.user)
+    if request.POST and request.user.is_editor(request):
+        override = models.EditorOverride.objects.create(
+                article=article, editor=request.user)
         kwargs = {'request': request, 'override': override}
-        event_logic.Events.raise_event(event_logic.Events.ON_REVIEW_SECURITY_OVERRIDE, task_object=article, **kwargs)
+        event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEW_SECURITY_OVERRIDE,
+                task_object=article,
+                **kwargs
+        )
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
-    elif not request.user.is_staff:
-        messages.add_message(request, messages.WARNING, 'You are not a staff member.')
+    else:
+        messages.add_message(
+                request, messages.WARNING, 'This action is not allowed.')
 
     template = 'review/review_warning.html'
     context = {
