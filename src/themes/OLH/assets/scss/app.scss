@@ -1141,3 +1141,11 @@ button.list-group-item-danger.active:focus {
 .sidebar-item a sup {
   display: none;
 }
+
+.issue-link {
+    color: inherit;
+}
+
+.issue-link:hover {
+    text-decoration: underline;
+}

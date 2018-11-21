@@ -31,7 +31,6 @@ export DB_PORT
 export DB_NAME
 export DB_USER
 export DB_PASSWORD
-SERVICE_PORTS=--service-ports
 
 all: janeway
 help:		## Show this help.

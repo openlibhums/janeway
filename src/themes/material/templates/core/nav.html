@@ -6,7 +6,7 @@
 
 
 <nav class="header-overrides" role="navigation">
-    <div class="nav-wrapper container">
+    <div class="nav-wrapper{% if not request.journal.full_width_navbar %} container{% endif %}">
         <a id="logo-container" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo">
             {% if request.journal %}
                 {% if request.journal.header_image %}
@@ -32,7 +32,7 @@
                 <li><a href="{% url 'journal_issues' %}">Issues</a></li>
             {% endif %}
             {% if request.journal.nav_collections %}
-                <li><a href="{% url 'journal_collections' %}">Collections</a></li>
+            <li><a href="{% url 'journal_collections' %}">{% with collections=journal_settings.general.collection_name_plural %}{% if collections %}{{collections}}{% else %}{% trans 'Collections'%}{% endif %}{% endwith %}</a></li>
             {% endif %}
             {% if journal_settings.general.enable_editorial_display %}
                 <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>

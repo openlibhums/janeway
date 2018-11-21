@@ -11,19 +11,19 @@ from dateutil import parser as dateparser
 
 from django.urls import reverse
 from django.db import models
-from django.utils import timezone
-from hvad.models import TranslatableModel, TranslatedFields
-from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from hvad.models import TranslatableModel, TranslatedFields
 
+from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
+from preprint import models as preprint_models
 from review import models as review_models
 from utils.function_cache import cache
-from preprint import models as preprint_models
 
-fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+fs = JanewayFileSystemStorage()
 
 
 def article_media_upload(instance, filename):

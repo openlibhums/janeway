@@ -109,3 +109,11 @@ a:hover .article-title {
 #reflist p {
     word-wrap: break-word;
 }
+
+.issue-link {
+    color: rgba(0,0,0,0.87);
+}
+
+.issue-link:hover {
+    text-decoration: underline;
+}
