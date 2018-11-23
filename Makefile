@@ -32,14 +32,13 @@ export DB_NAME
 export DB_USER
 export DB_PASSWORD
 
-
 all: janeway
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependant services detached.
 	docker-compose run $(NO_DEPS) --rm --service-ports janeway-web $(entrypoint)
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable
-	bash -c "make janeway entrypoint=\"src/manage.py $(CMD)\""
+	docker-compose run $(NO_DEPS) --rm janeway-web src/manage.py $(CMD)
 install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite
 	bash -c "make command CMD=install_janeway"
@@ -57,4 +56,4 @@ uninstall:	## Removes all janeway related docker containers, docker images and d
 	@bash -c "docker rmi `docker images -q janeway*` >/dev/null 2>&1 | true"
 	@echo " Janeway has been uninstalled"
 check:		## Runs janeway test suit
-	bash -c "make command CMD=test"
+	bash -c "DB_VENDOR=sqlite make command CMD=test"

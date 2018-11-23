@@ -56,9 +56,6 @@ docs/_build/
 # PyBuilder
 target/
 
-# DB volumes
-db/
-
 # Django
 src/core/settings.py
 *.sqlite3
