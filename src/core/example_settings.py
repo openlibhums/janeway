@@ -314,6 +314,46 @@ RAVEN_CONFIG = {
     'dsn': '',
 }
 '''
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'root': {
+        'level': 'DEBUG' if DEBUG else 'WARNING',
+        'handlers': ['console'],
+    },
+    'formatters': {
+        'default': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+            'P:%(process)d T:%(thread)d %(message)s',
+        },
+        'coloured': {
+            '()': 'colorlog.ColoredFormatter',
+            'format': '%(log_color)s%(levelname)s %(asctime)s %(module)s '
+            'P:%(process)d T:%(thread)d %(message)s',
+            'log_colors' : {
+                'DEBUG':    'green',
+                'WARNING':  'yellow',
+                'ERROR':    'red',
+                'CRITICAL': 'red',
+            }
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'coloured',
+            'stream': 'ext://sys.stdout',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}
 
 
 class SuppressDeprecated(logging.Filter):
