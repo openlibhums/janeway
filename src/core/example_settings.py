@@ -95,6 +95,7 @@ INSTALLED_APPS += plugin_installed_apps.load_plugin_apps()
 INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps()
 
 MIDDLEWARE_CLASSES = (
+    'utils.middleware.TimeMonitoring',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -316,7 +317,7 @@ RAVEN_CONFIG = {
 '''
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'root': {
         'level': 'DEBUG' if DEBUG else 'WARNING',
         'handlers': ['console'],
