@@ -582,7 +582,7 @@ class SettingValue(TranslatableModel):
 
 
 class File(models.Model):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
+    article_id = models.PositiveIntegerField(blank=False, null=False, verbose_name="Article PK")
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
