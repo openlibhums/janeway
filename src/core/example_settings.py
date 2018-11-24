@@ -95,7 +95,6 @@ INSTALLED_APPS += plugin_installed_apps.load_plugin_apps()
 INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps()
 
 MIDDLEWARE_CLASSES = (
-    'utils.middleware.TimeMonitoring',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -444,6 +443,8 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     for t in TEMPLATES:
         t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
+    MIDDLEWARE_CLASSES = (('utils.middleware.TimeMonitoring',)
+        + MIDDLEWARE_CLASSES)
 
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
