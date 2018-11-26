@@ -39,6 +39,9 @@ Janeway is available under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE (V
 # Contributions
 
 We welcome all code contributions via Pull Requests where they can be reviewed and suggestions for enhancements via Issues. We do not currently have a  code of conduct for this repo but expect contributors to be courteous to one another.
+In order to more easily associate changes to their respective github issues, please adhere to the following conventions:
+ - Branch names should be prefixed with the issue number they are related to, followed by either "Feature" or "Hotfix" depending on the nature of the change ( e.g: `66-Feature`)
+ - Start every commit with a reference to the github issue they are related to (e.g: `#66: Adds new feature xyz`)
 
 # Contacts
 If you wish to get in touch about Janeway, contact information is provided below.
