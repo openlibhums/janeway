@@ -190,7 +190,7 @@ class Press(models.Model):
         if self.carousel.mode == "latest":
             article_objects = core_logic.latest_articles(self.carousel, 'press')
 
-        elif self.carousel.mode == "selected":
+        elif self.carousel.mode == "selected-articles":
             article_objects = core_logic.selected_articles(self.carousel)
 
         elif self.carousel.mode == "news":
