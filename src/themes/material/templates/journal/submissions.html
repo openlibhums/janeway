@@ -75,6 +75,7 @@
                     {{ journal_settings.general.publication_fees|safe }}
                     {% hook 'publication_fees' %}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
                     {% if journal_settings.general.peer_review_info %}
                     <span class="card-title">{% trans 'Peer Review' %}</span>
