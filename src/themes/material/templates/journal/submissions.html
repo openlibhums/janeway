@@ -52,6 +52,7 @@
                     <span class="card-title">{% trans 'Submission Checklist' %}</span>
                     {{ journal_settings.general.submission_checklist|safe }}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
                     {% if not journal_settings.general.acceptance_criteria == '' %}
                     <span class="card-title">{% trans 'Acceptance Criteria' %}</span>
