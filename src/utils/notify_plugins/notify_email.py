@@ -1,9 +1,12 @@
+from collections import Iterable
+
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 
 from utils import setting_handler
 from utils import notify
 
+DUMMY_EMAIL_DOMAIN = "@journal.com"
 
 def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
 
@@ -15,8 +18,13 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     else:
         from_email = request.press.main_contact
 
-    if not type(to) in [list, tuple]:
-        to = [to]
+    if isinstance(to, str):
+        if DUMMY_EMAIL_DOMAIN in to:
+            to = []
+        else:
+            to = [to]
+    elif isinstance(to, Iterable)
+        to = [email for email in to if not DUMMY_EMAIL_DOMAIN in to]
 
     if request and request.user and not request.user.is_anonymous():
         reply_to = [request.user.email]
