@@ -36,14 +36,19 @@
                     </div>
                     <div class="divider spacer"></div>
 
+                    {% if journal_settings.general.journal_description %}
                     <span class="card-title">{% trans 'About' %} {{ request.journal.name }}</span>
                     {{ journal_settings.general.journal_description|safe }}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
+                    {% if journal_settings.general.focus_and_scope %}
                     <span class="card-title">{% trans 'Focus and Scope for' %} {{ request.journal.name }}</span>
                     {{ journal_settings.general.focus_and_scope|safe }}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
+                    {% if journal_settings.general.submission_checklist %}
                     <span class="card-title">{% trans 'Submission Checklist' %}</span>
                     {{ journal_settings.general.submission_checklist|safe }}
                     <div class="divider spacer"></div>
@@ -54,27 +59,34 @@
                     <div class="divider spacer"></div>
                     {% endif %}
 
+                    {% if journal_settings.general.copyright_notice %}
                     <span class="card-title">{% trans 'Copyright Notice' %}</span>
                     {{ journal_settings.general.copyright_notice|safe }}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
                     <span class="card-title">{% trans 'Licences' %}</span>
                     <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
                     {% include "elements/license_block.html" %}
                     <div class="divider spacer"></div>
 
+                    {% if journal_settings.general.publication_fees %}
                     <span class="card-title">{% trans 'Publication Fees' %}</span>
                     {{ journal_settings.general.publication_fees|safe }}
                     {% hook 'publication_fees' %}
                     <div class="divider spacer"></div>
 
+                    {% if journal_settings.general.peer_review_info %}
                     <span class="card-title">{% trans 'Peer Review' %}</span>
                     {{ journal_settings.general.peer_review_info|safe }}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
+                    {% if journal_settings.general.publication_cycle %}
                     <span class="card-title">{% trans 'Publication Cycle' %}</span>
                     {{ journal_settings.general.publication_cycle|safe }}
                     <div class="divider spacer"></div>
+                    {% endif %}
 
                     <span class="card-title">{% trans 'Sections' %}</span>
                     <div class="row">

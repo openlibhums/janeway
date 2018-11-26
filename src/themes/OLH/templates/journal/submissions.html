@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block body %}
-	<section id="content">
-		<div class="row columns">
+    <section id="content">
+        <div class="row columns">
             <div class="large-8">
                 <h3>{% trans 'Submissions' %}</h3>
 
@@ -30,31 +30,45 @@
                     <a href="{% url 'submission_start' %}" class="button">{% trans 'Start Submission' %}</a>{% endif %}
                 </div>
                 <hr />
+                {% if journal_settings.general.journal_description %}
                 <h5>{% trans 'About' %} {{ request.journal.name }}</h5>
                 {{ journal_settings.general.journal_description|safe }}
                 <hr />
+                {% endif %}
+                {% if journal_settings.general.focus_and_scope %}
                 <h5>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h5>
                 {{ journal_settings.general.focus_and_scope|safe }}
                 <hr />
+                {% endif %}
+                {% if journal_settings.general.submission_checklist %}
                 <h5>{% trans 'Submission Checklist' %}</h5>
                 {{ journal_settings.general.submission_checklist|safe }}
                 <hr />
+                {% endif %}
+                {% if journal_settings.general.copyright_notice %}
                 <h5>{% trans 'Copyright Notice' %}</h5>
                 {{ journal_settings.general.copyright_notice|safe }}
                 <hr />
+                {% endif %}
                 <h5>{% trans 'Licences' %}</h5>
                 <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
                 {% include "elements/license_block.html" %}
                 <hr />
+                {% if journal_settings.general.publication_fees %}
                 <h5>{% trans 'Publication Fees' %}</h5>
                 {{ journal_settings.general.publication_fees|safe }}
                 <hr />
+                {% endif %}
+                {% if journal_settings.general.peer_review_info %}
                 <h5>{% trans 'Peer Review' %}</h5>
                 {{ journal_settings.general.peer_review_info|safe }}
                 <hr/>
+                {% endif %}
+                {% if journal_settings.general.publication_cycle %}
                 <h5>{% trans 'Publication Cycle' %}</h5>
                 {{ journal_settings.general.publication_cycle|safe }}
                 <hr/>
+                {% endif %}
                 <h5>{% trans 'Sections' %}</h5>
                     <div class="row">
                         <div class="medium-6 columns">
@@ -90,6 +104,6 @@
                 {% endfor %}
             </div>
 
-		</div>
-	</section>
+        </div>
+    </section>
 {% endblock body %}
