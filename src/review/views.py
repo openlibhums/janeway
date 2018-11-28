@@ -90,9 +90,15 @@ def unassigned_article(request, article_id):
     if 'crosscheck' in request.POST:
         file_id = request.POST.get('crosscheck')
         file = get_object_or_404(core_models.File, pk=file_id)
-        id = ithenticate.send_to_ithenticate(article, file)
-        article.ithenticate_id = id
-        article.save()
+        try:
+            id = ithenticate.send_to_ithenticate(article, file)
+            article.ithenticate_id = id
+            article.save()
+        except AssertionError:
+            messages.add_message(request,
+                                 messages.ERROR,
+                                 'Error returned by iThenticate. Check login details and API status.')
+
         return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
 
     current_editors = [assignment.editor.pk for assignment in models.EditorAssignment.objects.filter(article=article)]
