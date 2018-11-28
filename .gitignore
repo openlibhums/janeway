@@ -114,3 +114,4 @@ src/core/management/__init__\.py
 src/auth\.json
 
 src/test\.txt
+venv/**

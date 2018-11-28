@@ -607,7 +607,11 @@ def configurator(request):
     :param request: HttpRequest object
     :return: HttpResponse or HttpRedirect
     """
-    configuration = request.journal.submissionconfiguration
+
+    try:
+        configuration = request.journal.submissionconfiguration
+    except models.SubmissionConfiguration.DoesNotExist:
+        configuration = models.SubmissionConfiguration.objects.create(journal=request.journal)
 
     form = forms.ConfiguratorForm(instance=configuration)
 

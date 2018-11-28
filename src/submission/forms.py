@@ -33,6 +33,11 @@ class ArticleStart(forms.ModelForm):
         self.fields['competing_interests'].label = ''
         self.fields['comments_editor'].label = ''
 
+        try:
+            journal.submissionconfiguration
+        except models.SubmissionConfiguration.DoesNotExist:
+            models.SubmissionConfiguration.objects.create(journal=journal)
+
         if not journal.submissionconfiguration.publication_fees:
             self.fields.pop('publication_fees')
         else:
