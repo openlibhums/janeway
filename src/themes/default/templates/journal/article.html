@@ -179,6 +179,11 @@
                         {% for galley in galleys %}
                             <li>
                                 <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                {% endif %}
                             </li>
                         {% endfor %}
                     </ul>
