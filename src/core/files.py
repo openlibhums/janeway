@@ -376,7 +376,7 @@ def serve_pdf_galley_to_browser(request, file, article):
 
     try:
         response = HttpResponse(
-            FileWrapper(open(file_path, 'rb'), 8192),
+            FileWrapper(open(file_path, 'rb')),
             content_type=file.mime_type
         )
         return response
