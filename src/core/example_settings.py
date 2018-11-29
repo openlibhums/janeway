@@ -318,6 +318,7 @@ EMAIL_PORT = ''
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
+DUMMY_EMAIL_DOMAIN = "@journal.com"
 
 # Settings for use with Mailgun
 MAILGUN_ACCESS_KEY = ''
