@@ -2406,5 +2406,18 @@
         "group": {
             "name": "general"
         }
+    },
+    {
+        "value": {"default": "<p>This page is designed to help you ensure your submission is ready for and fits the scope of the journal.</p><p>Before submitting you should read over the guidelines here, then register an account (or login if you have an existing account)</p>"},
+        "setting": {
+            "type": "rich-text",
+            "pretty_name": "Submission Page Text",
+            "is_translatable": true,
+            "description": "Introductory text displayed at the head of the Submission page.",
+            "name": "submission_intro_text"
+        },
+        "group": {
+            "name": "general"
+        }
     }
 ]
