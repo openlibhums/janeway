@@ -475,7 +475,8 @@ def edit_identifiers(request, article_id, identifier_id=None, event=None):
         if 'issue_doi' in request.POST:
             # assuming there is only one DOI
             for identifier in identifiers:
-                identifier.register()
+                status = identifier.register()
+                messages.add_message(request, messages.INFO, status)
         else:
             if identifier:
                 identifier_form = forms.IdentifierForm(request.POST, instance=identifier)
