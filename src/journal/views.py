@@ -351,15 +351,58 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id,
+    article = get_object_or_404(submission_models.Article.allarticles,
+                                pk=article_id,
+                                date_published__lte=timezone.now(),
                                 stage=submission_models.STAGE_PUBLISHED)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
     embed = request.GET.get('embed', False)
 
     if not embed == 'True':
-        store_article_access(request, article, 'download', galley_type=galley.file.label)
+        store_article_access(
+            request,
+            article,
+            'download',
+            galley_type=galley.file.label
+        )
     return files.serve_file(request, galley.file, article, public=True)
+
+
+def view_galley(request, article_id, galley_id):
+    """
+    Serves a PDF article to the browser.
+
+    :param request: HttpRequest object
+    :param article_id: an Article object PK
+    :param galley_id: a Galley object PK
+    :return: an HttpResponse with a PDF attachment
+    """
+    article_to_serve = get_object_or_404(
+        submission_models.Article.allarticles,
+        pk=article_id,
+        date_published__lte=timezone.now(),
+        stage=submission_models.STAGE_PUBLISHED
+    )
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=article_to_serve,
+        file__mime_type='application/pdf'
+    )
+
+    store_article_access(
+        request,
+        article_to_serve,
+        'view',
+        galley_type=galley.file.label
+    )
+
+    return files.serve_pdf_galley_to_browser(
+        request,
+        galley.file,
+        article_to_serve
+    )
 
 
 @has_request

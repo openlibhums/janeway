@@ -95,7 +95,8 @@ class PasswordResetForm(forms.Form):
 
 
 class RegistrationForm(forms.ModelForm):
-    """ A form that creates a user, with no privileges, from the given username and password."""
+    """ A form that creates a user, with no privileges,
+    from the given username and password."""
 
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
@@ -313,7 +314,7 @@ class JournalAttributeForm(forms.ModelForm):
            'default_large_image', 'favicon',
            'is_remote', 'remote_view_url', 'remote_submit_url',
            'disable_metrics_display', 'disable_article_images',
-           'full_width_navbar',
+           'full_width_navbar', 'view_pdf_button',
         )
 
 
