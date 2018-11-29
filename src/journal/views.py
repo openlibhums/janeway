@@ -706,7 +706,8 @@ def publish_article(request, article_id):
             # Attempt to register xref DOI
             for identifier in article.identifier_set.all():
                 if identifier.id_type == 'doi':
-                    identifier.register()
+                    status = identifier.register()
+                    messages.add_message(request, messages.INFO, status)
 
             messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
 
