@@ -106,6 +106,7 @@ def send_crossref_deposit(server, identifier):
 
     from utils import setting_handler
     article = identifier.article
+    error = False
 
     template_context = {
         'batch_id': uuid4(),
@@ -161,6 +162,7 @@ def send_crossref_deposit(server, identifier):
         )
         logging.error(status)
         logging.error(response.text)
+        error = True
     else:
         token = response.json()['message']['batch-id']
         status = response.json()['message']['status']
@@ -169,7 +171,7 @@ def send_crossref_deposit(server, identifier):
         status = "Status of {} in {}: {}".format(token, identifier.identifier, status)
         logging.info(status)
 
-    return status
+    return status, error
 
 
 def create_crossref_doi_identifier(article, doi_suffix=None, suffix_is_whole_doi=False):
