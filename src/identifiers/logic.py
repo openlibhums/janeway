@@ -47,7 +47,7 @@ def register_crossref_doi(identifier):
         util_models.LogEntry.add_entry('Submission', "DOI registration running in live mode", 'Info',
                                        target=identifier.article)
 
-    send_crossref_deposit(test_url if test_mode else live_url, identifier)
+    return send_crossref_deposit(test_url if test_mode else live_url, identifier)
 
 
 def register_crossref_component(article, xml, supp_file):
@@ -153,14 +153,22 @@ def send_crossref_deposit(server, identifier):
                                        "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                        'Debug',
                                        target=identifier.article)
-        print("Error depositing: {}".format(response.status_code), file=sys.stderr)
+
+        status = "Error depositing: {code}, {text}".format(
+            code=response.status_code,
+            text=response.text
+        )
+        print(status, file=sys.stderr)
         print(response.text, file=sys.stderr)
     else:
         token = response.json()['message']['batch-id']
         status = response.json()['message']['status']
         util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                        target=identifier.article)
-        print("Status of {} in {}: {}".format(token, identifier.identifier, status))
+        status = "Status of {} in {}: {}".format(token, identifier.identifier, status)
+        print(status)
+
+    return status
 
 
 def create_crossref_doi_identifier(article, doi_suffix=None, suffix_is_whole_doi=False):
