@@ -33,9 +33,10 @@ class Identifier(models.Model):
 
     def register(self):
         if self.is_doi:
-            logic.register_crossref_doi(self)
+            return logic.register_crossref_doi(self)
         else:
             print("Not a DOI", file=sys.stderr)
+            return "Identifier is not a DOI"
 
     def get_doi_url(self):
         if self.is_doi:

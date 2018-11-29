@@ -698,7 +698,7 @@ def publish_article(request, article_id):
 
             # Fire publication event
             kwargs = {'article': article,
-                        'request': request}
+                      'request': request}
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_PUBLISHED,
                                             task_object=article,
                                             **kwargs)
@@ -706,7 +706,12 @@ def publish_article(request, article_id):
             # Attempt to register xref DOI
             for identifier in article.identifier_set.all():
                 if identifier.id_type == 'doi':
-                    identifier.register()
+                    status, error = identifier.register()
+                    messages.add_message(
+                        request,
+                        messages.INFO if not error else messages.ERROR,
+                        status
+                    )
 
             messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
 

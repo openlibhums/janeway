@@ -62,7 +62,7 @@ class Loader(BaseLoader):
         if not theme_setting:
             theme_setting = 'default'
 
-        if settings.DEBUG and _local.request.GET.get('theme'):
+        if settings.DEBUG and hasattr(_local, 'request') and _local.request.GET.get('theme'):
             theme_setting = _local.request.GET.get('theme')
 
         return [os.path.join(settings.BASE_DIR, 'themes', theme_setting, 'templates'),
