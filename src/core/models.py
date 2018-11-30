@@ -8,9 +8,10 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
+from urllib.parse import urlunparse
+
 from bs4 import BeautifulSoup
 from hvad.models import TranslatableModel, TranslatedFields
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -22,13 +23,6 @@ from django.contrib.sites.models import Site
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
-
-if settings.URL_CONFIG == 'path':
-    from core.monkeypatch import reverse
-    from django import urls
-
-    urls.reverse = reverse
-    urls.base.reverse = reverse
 
 from core import files
 from core.file_system import JanewayFileSystemStorage
@@ -944,8 +938,6 @@ class Contact(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
 
-
-
 class DomainAlias(AbstractSiteModel):
     redirect = models.BooleanField(
             default=True,
@@ -956,10 +948,7 @@ class DomainAlias(AbstractSiteModel):
     journal = models.ForeignKey('journal.Journal', null=True)
 
     def build_redirect_url(self, request):
-        protocol = 'https' if request.is_secure() else 'http'
-        return "{0}://{1}{2}".format(protocol,
-                                     self.site.domain,
-                                     request.path)
+        return urlunparse(request.scheme, self.domain, request.path, None, None)
 
 
 BASE_ELEMENTS = [

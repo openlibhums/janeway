@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.contrib.sites import models as site_models
 from django.core.exceptions import ObjectDoesNotExist
 
 from journal import models as journal_models
@@ -20,15 +19,7 @@ def journal(request):
     :param request: the active request
     :return: dictionary containing a journal object under key 'journal' or None if this is a press site
     """
-    site = site_models.Site.objects._get_site_by_request(request)
-
-    try:
-
-        journal_object = {'journal': journal_models.Journal.objects.get(domain=site.domain)}
-    except ObjectDoesNotExist:
-        journal_object = {'journal': None}
-
-    return journal_object
+    return {'journal': request.journal}
 
 
 def press(request):
@@ -39,11 +30,10 @@ def press(request):
     :param request: the active request
     :return: dictionary containing a press object under key 'press'
     """
-    press = press_models.Press.get_press(request)
-
     return {
-        'press': press,
-        'display_preprint_editors': press.get_setting_value('Display Preprint Editors')
+        'press': request.press,
+        'display_preprint_editors': request.press.get_setting_value(
+            'Display Preprint Editors')
     }
 
 

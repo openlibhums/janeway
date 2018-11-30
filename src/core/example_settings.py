@@ -416,7 +416,7 @@ BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
 BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
 
-URL_CONFIG = 'domain'  # path or domain
+URL_CONFIG = 'path'  # path or domain
 
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
