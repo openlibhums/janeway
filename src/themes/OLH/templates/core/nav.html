@@ -4,7 +4,7 @@
 
 <div class="top-bar" id="main-menu" style="display: block;">
     <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
-        {% if request.journal.nav_home %}<li><a href="/">Home</a></li>{% endif %}
+        {% if request.journal.nav_home %}<li><a href="{% url 'website_index' %}">Home</a></li>{% endif %}
         {% if request.journal.nav_news %}<li><a href="{% url 'core_news_list' %}">News</a></li>{% endif %}
         {% for item in navigation_items %}
         {% if item.has_sub_nav %}

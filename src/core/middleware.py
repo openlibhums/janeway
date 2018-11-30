@@ -14,6 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from django.conf import settings
+from django.urls import set_script_prefix
 
 from press import models as press_models
 from utils import models as util_models, setting_handler
@@ -67,13 +68,20 @@ def get_site_resources(request):
 class SiteSettingsMiddleware(object):
     @staticmethod
     def process_request(request):
-        """ This middleware class sets a series of variables for templates and views to access inside the request object
+        """ This middleware class sets a series of variables for templates
+        and views to access inside the request object. It defines what site
+        is being requested based on the domain:
+
+        if settings.URL_CONFIG is set to 'domain':
+            matches alias, journal, press  models by domain (in that order)
+        if settings.URL_CONFIG is set to 'domain':
+            matches the press by domain and journal by path. If no journal code
+            is present it assumes a press site.
 
         :param request: the current request
         :return: None or an http 404 error in the event of catastrophic failure
         """
 
-        # Attempt to get the current site. If it isn't found, check for an alias object and use that site.
         journal, press, redirect_obj = get_site_resources(request)
         logging.warning(journal)
         if redirect_obj is not None:
@@ -92,12 +100,19 @@ class SiteSettingsMiddleware(object):
             request.model_content_type = ContentType.objects.get_for_model(
                     journal)
 
+            if settings.URL_CONFIG == 'path':
+                prefix = "/" + journal.code
+                logging.debug("Setting script prefix to %s" % prefix)
+                set_script_prefix(prefix)
+                request.path_info = request.path_info[len(prefix):]
+
         elif press is not None:
             request.journal = None
             request.site_type = press
             request.model_content_type = ContentType.objects.get_for_model(press)
         else:
             raise Http404()
+
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
             if request.journal and request.journal.get_setting('general', 'is_secure') and not request.is_secure() \
@@ -105,13 +120,6 @@ class SiteSettingsMiddleware(object):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
             elif not request.journal and request.press.is_secure and not request.is_secure() and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
-
-    def process_view(self, request, view_func, view_args, view_kwargs):
-        if settings.URL_CONFIG == 'path':
-            try:
-                view_kwargs.pop('journal_code')
-            except KeyError:
-                pass
 
 
 class MaintenanceModeMiddleware(object):

@@ -20,7 +20,7 @@
         </a>
         <ul class="right hide-on-med-and-down">
             {% if request.journal.nav_home %}
-                <li><a href="/">Home</a></li>
+            <li><a href="{% url 'website_index' %}">Home</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
                 <li><a href="{% url 'core_news_list' %}">News</a></li>

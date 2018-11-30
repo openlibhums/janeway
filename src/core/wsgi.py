@@ -10,17 +10,13 @@ It exposes the WSGI callable as a module-level variable named ``application``.
 For more information on this file, see
 https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 """
-
+import logging
 import os
 import sys
+import urllib.parse
 
+from django.core.handlers.wsgi import WSGIHandler, WSGIRequest
 from django.core.wsgi import get_wsgi_application
-
-# add the project path into the sys.path
-sys.path.append('/path/to/installation/')
-
-# add the virtualenv site-packages path to the sys.path
-sys.path.append('/path/to/your/virtualenv/name/lib/python3.5/site-packages/')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
