@@ -13,11 +13,13 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.http.request import split_domain_port
 from django.urls import reverse
 from django.utils import timezone
 
 from core import models as core_models, workflow
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
 from utils.function_cache import cache
@@ -54,9 +56,8 @@ def issue_large_image_path(instance, filename):
     return os.path.join(path, filename)
 
 
-class Journal(models.Model):
+class Journal(AbstractSiteModel):
     code = models.CharField(max_length=10)
-    domain = models.CharField(max_length=255, default='www.example.com', unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
@@ -358,7 +359,6 @@ class Journal(models.Model):
                 return False
         except core_models.WorkflowElement.DoesNotExist:
             return False
-
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(Journal)

@@ -14,6 +14,7 @@ from django.db import models
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from utils.function_cache import cache
 
 
@@ -49,9 +50,8 @@ def press_text(type):
         return text.get(type)
 
 
-class Press(models.Model):
+class Press(AbstractSiteModel):
     name = models.CharField(max_length=600)
-    domain = models.CharField(max_length=255, default='localhost', unique=True)
     thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='press_thumbnail_image')
     footer_description = models.TextField(null=True, blank=True)
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)

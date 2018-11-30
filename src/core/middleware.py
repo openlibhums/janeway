@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import logging
 from uuid import uuid4
 import _thread as thread
 
@@ -17,15 +18,50 @@ from django.conf import settings
 from press import models as press_models
 from utils import models as util_models, setting_handler
 from core import models as core_models
+from journal import models as journal_models
 
 
-def set_journal(request, site):
-    from journal import models as journal_models
-    if settings.URL_CONFIG == 'path':
-        journal_code = request.path.split('/')[1]
-        request.journal = journal_models.Journal.objects.get(code=journal_code)
-    else:
-        request.journal = journal_models.Journal.objects.get(domain=site.domain)
+def get_site_resources(request):
+    """ Attempts to match the relevant resources for the request url
+
+    Result depends on the value of settings.URL_CONFIG
+    :param request: A Django HttpRequest
+    :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
+    """
+    journal = press = redirect_obj = None
+    try: #try journal site
+        if settings.URL_CONFIG == 'path':
+            code = request.path.split('/')[1]
+            journal = journal_models.Journal.objects.get(code=code)
+            press = journal.press
+        elif settings.URL_CONFIG == 'domain':
+            journal = journal_models.Journal.get_by_request(request)
+            press = journal.press
+        else:
+            raise ImproperlyConfigured(
+                    "'%s' is not a valid value for settings.URL_CONFIG"
+                    "" % settings.URL_CONFIG
+            )
+    except (journal_models.Journal.DoesNotExist, IndexError):
+        try: #try press site
+            press = press_models.Press.get_by_request(request)
+        except press_models.Press.DoesNotExist:
+            try: #try press site
+                alias = core_models.DomainAlias.get_by_request(request)
+                if alias.redirect:
+                    redirect_obj = redirect(alias.build_redirect_url(request))
+                else:
+                    journal = alias.journal
+                    press = journal.press
+            except core_models.DomainAlias.DoesNotExist:
+                #Give up
+                logging.warning(
+                    "Couldn't match a resource for %s, redirecting to %s"
+                    "" % (request.path, settings.DEFAULT_HOST)
+                )
+                redirect_obj = redirect(settings.DEFAULT_HOST)
+
+    return journal, press, redirect_obj
 
 
 class SiteSettingsMiddleware(object):
@@ -38,43 +74,31 @@ class SiteSettingsMiddleware(object):
         """
 
         # Attempt to get the current site. If it isn't found, check for an alias object and use that site.
-        try:
-            site = site_models.Site.objects._get_site_by_request(request)
-        except site_models.Site.DoesNotExist:
-            try:
-                domain = request.get_host().split(':')[0]
-                alias = core_models.DomainAlias.objects.get(domain=domain)
-                if alias.redirect:
-                    return redirect(alias.build_redirect_url(request))
-                else:
-                    site = alias.site
-            except core_models.DomainAlias.DoesNotExist:
-                return redirect(settings.DEFAULT_HOST)
+        import pdb;pdb.set_trace()
+        journal, press, redirect_obj = get_site_resources(request)
+        logging.warning(journal)
+        if redirect_obj is not None:
+            return redirect_obj
 
-        request.site = site
         request.port = request.META['SERVER_PORT']
-        request.press = press_models.Press.get_press(request)
-        request.press_cover = request.press.press_cover(request)
-        request.press_base_url = request.press.press_url(request)
+        request.press = press
+        request.press_cover = press.press_cover(request)
+        request.press_base_url = press.press_url(request)
 
-        try:
-            set_journal(request, site)
-            request.journal_base_url = request.journal.full_url(request)
-            request.journal_cover = request.journal.override_cover(request)
-            request.site_type = request.journal
-            request.model_content_type = ContentType.objects.get_for_model(request.journal)
-        except ObjectDoesNotExist:
-            # likely the press site, so set journal to None
+        if journal is not None:
+            request.journal = journal
+            request.journal_base_url = journal.full_url(request)
+            request.journal_cover = journal.override_cover(request)
+            request.site_type = journal
+            request.model_content_type = ContentType.objects.get_for_model(
+                    journal)
+
+        elif press is not None:
             request.journal = None
-            request.site_type = request.press
-            request.model_content_type = ContentType.objects.get_for_model(request.press)
-        except MultipleObjectsReturned:
-            # more than one journal returned for this domain
-            # this is likely due to misconfiguration but shouldn't happen due to unique constraints
-            util_models.LogEntry.add_entry('Error', 'Multiple journal objects were returned on domain {0}.'.format(site.domain),
-                                           'Error')
+            request.site_type = press
+            request.model_content_type = ContentType.objects.get_for_model(press)
+        else:
             raise Http404()
-
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
             if request.journal and request.journal.get_setting('general', 'is_secure') and not request.is_secure() \

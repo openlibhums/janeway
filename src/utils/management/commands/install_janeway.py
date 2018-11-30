@@ -21,6 +21,15 @@ class Command(BaseCommand):
 
     help = "Installs a press and oe journal for Janeway."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-d', '--dry-run',
+            action='store_true',
+            dest='dry_run',
+            default=False,
+            help='Rolls back the transaction resulting from this command',
+        )
+
     def handle(self, *args, **options):
         """Installs Janeway
 
@@ -28,7 +37,6 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        call_command('makemigrations', 'sites')
         call_command('migrate')
         print("Please answer the following questions.\n")
         translation.activate('en')
@@ -44,7 +52,8 @@ class Command(BaseCommand):
             print("Thanks! We will now set up out first journal.\n")
             journal = journal_models.Journal()
             journal.code = input('Journal #1 code: ')
-            journal.domain = input('Journal #1 domain: ')
+            if settings.URL_CONFIG == 'domain':
+                journal.domain = input('Journal #1 domain: ')
             journal.save()
 
             print("Installing settings fixtures... ", end="")
@@ -75,9 +84,19 @@ class Command(BaseCommand):
                 self.stderr.write("Error Installing cron")
             print('Create a super user.')
             call_command('createsuperuser')
-            print('Open your browser to your new journal domain {domain}/install/ to continue this setup process.'.format(
-                domain=journal.domain))
-            print(JANEWAY_ASCII)
+            print('Open your browser to your new journal domain '
+                '{domain}/install/ to continue this setup process.'.format(
+                    domain=journal.domain
+                        if settings.URL_CONFIG == 'domain'
+                        else '{press_domain}/{journal_code}'.format(
+                            press.domain, journal.code)
+                )
+            )
+            if options['dry_run'] is True:
+                print("This was a --dry-run, rolling back...")
+                raise SystemExit()
+        call_command('makemigrations', 'sites')
+        print(JANEWAY_ASCII)
 
 
 JANEWAY_ASCII = """

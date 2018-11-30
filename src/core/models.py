@@ -32,6 +32,7 @@ if settings.URL_CONFIG == 'path':
 
 from core import files
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
@@ -943,15 +944,16 @@ class Contact(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
 
-class DomainAlias(models.Model):
-    domain = models.CharField(max_length=255)
-    redirect = models.BooleanField(default=True, verbose_name="301",
-                                   help_text="If enabled, the site will throw a 301 redirect to the master domain.")
-    site_id = models.PositiveIntegerField()
 
-    @property
-    def site(self):
-        return Site.objects.get(pk=self.site_id)
+
+class DomainAlias(AbstractSiteModel):
+    redirect = models.BooleanField(
+            default=True,
+            verbose_name="301",
+            help_text="If enabled, the site will throw a 301 redirect to the "
+                "master domain."
+    )
+    journal = models.ForeignKey('journal.Journal', null=True)
 
     def build_redirect_url(self, request):
         protocol = 'https' if request.is_secure() else 'http'
