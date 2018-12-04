@@ -1,3 +1,5 @@
+import re
+
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 
