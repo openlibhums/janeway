@@ -1,10 +1,12 @@
 import hashlib
 import hmac
+from urllib.parse import SplitResult
 
 from django.conf import settings
 
-from utils import models, notify_helpers
+from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
+from utils import models, notify_helpers
 
 
 def parse_mailgun_webhook(post):
@@ -79,3 +81,24 @@ def attempt_actor_email(event):
                                                   to,
                                                   body,
                                                   log_dict=None)
+
+def build_url(request=None, path="", query=None, fragment=""):
+    """ Returns the base url relevant for the current request context
+    :request: An instance of django.http.HTTPRequest
+    :path: A str indicating the path
+    :query: A dictionary with any GET parameters
+    :fragment: A string indicating the fragment
+    :return: An instance of urllib.parse.SplitResult
+    """
+    if request is None:
+        request = GlobalRequestMiddleware.get_current_request()
+    if query:
+        query = quote_plus(urlencode(query))
+
+    return SplitResult(
+        scheme=request.scheme,
+        netloc=request.get_host(),
+        path=path,
+        query=query or "",
+        fragment=fragment,
+    ).geturl()

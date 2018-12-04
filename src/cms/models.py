@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+from utils.logic import build_url
 
 class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
@@ -45,3 +46,10 @@ class NavigationItem(models.Model):
 
     def sub_nav_items(self):
         return NavigationItem.objects.filter(top_level_nav=self)
+
+    @property
+    def url(self):
+        if self.is_external:
+            return self.link
+        else:
+            return build_url(path=self.link)
