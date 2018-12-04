@@ -311,11 +311,17 @@ RAVEN_CONFIG = {
     'dsn': '',
 }
 '''
+if IN_TEST_RUNNER:
+    LOG_LEVEL = 'CRITICAL'
+elif DEBUG:
+    LOG_LEVEL = 'DEBUG'
+else:
+    LOG_LEVEL = 'WARNING'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'root': {
-        'level': 'DEBUG' if DEBUG else 'WARNING',
+        'level': LOG_LEVEL,
         'handlers': ['console'],
     },
     'formatters': {
