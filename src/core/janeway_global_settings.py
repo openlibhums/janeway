@@ -91,8 +91,8 @@ INSTALLED_APPS = [
     'materialize',
 ]
 
-INSTALLED_APPS += plugin_installed_apps.load_plugin_apps()
-INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps()
+INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
+INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps(BASE_DIR)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -120,8 +120,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates() +
-        plugin_installed_apps.load_homepage_element_templates(),
+                 os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates(BASE_DIR) +
+        plugin_installed_apps.load_homepage_element_templates(BASE_DIR),
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -159,7 +159,6 @@ SETTINGS_EXPORT = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-SITES_DIR = os.path.join(os.path.dirname(__file__), 'sites')
 DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no other sites are found.
 
 # Database
@@ -203,7 +202,7 @@ LANGUAGE_CODE = 'en'
 TIME_ZONE = 'UTC'
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'core', 'locales')
-] + plugin_installed_apps.load_plugin_locales()
+] + plugin_installed_apps.load_plugin_locales(BASE_DIR)
 
 
 def ugettext(s):
