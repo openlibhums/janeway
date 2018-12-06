@@ -6,8 +6,6 @@ Unassigned Article
 
 Once an Author has submitted an article it is the Editor's turn to review the unassigned article, assign an Editor and move it into the review process. An Editor will be notified once an article is submitted, the email will contain a link, or the Editor can access the article from the Dashboard page.
 
-![](/assets/Screenshot from 2017-05-03 22:36:43.png)
-
 Selecting Unassigned will provide the Editor with a list of articles that haven't yet been assigned an Editor and moved into review. You can view the data for an article by selecting "View". On the left hand of the page all of the article's metadata will be listed, on the right, its options and actions.
 
 The first thing an Editor needs to do is assign an Editor or Section Editor to the handle the article through the journal workflow. Once assigned, the Editor can then do one of the following:
@@ -19,8 +17,6 @@ The first thing an Editor needs to do is assign an Editor or Section Editor to t
 Rejecting will allow you to tell the author why, Accepting will move it into Copyediting and Moving to Review will move the article into the Review workflow.
 
 If you move the article into review and are the author of an article you will be blocked by a permission denied page.
-
-![](/assets/Screenshot from 2017-05-03 22:43:46.png)
 
 If you opt to over-ride the security warning, all other Editors will be notified of this.
 
@@ -54,7 +50,6 @@ Assuming you choose to select the options yourself, when you press "Add Reviewer
 
 Once the reviewer is assigned they will be able to access the system and let you know if they will complete the review and, if yes, access the review form you specified.
 
-![](/assets/Screenshot from 2017-05-15 09.04.45.png)
 
 New Review Round
 ----------------
@@ -82,7 +77,7 @@ Requesting revisions will allow you to ask the Author to make changes to the man
 Managing a Review
 -----------------
 
-Once you have added a review to your round, it will be listed on the review page.![](/assets/Screenshot from 2017-05-15 09.12.57.png)The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
+Once you have added a review to your round, it will be listed on the review page. The initial stage of any review is "Awaiting acknowledgement" which means we are waiting on the reviewer accepting or declining to undertake the review. At this stage we can:
 
 1. View the review, though it doesn't tell us much
 2. Withdraw the review
