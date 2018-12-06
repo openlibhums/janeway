@@ -14,14 +14,12 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 import os
 import sys
 
+from utils import load_janeway_settings
+
 from django.core.wsgi import get_wsgi_application
 
-# add the project path into the sys.path
-sys.path.append('/path/to/installation/')
+os.environ.setdefault("JANEWAY_SETTINGS_MODULE", "core.settings")
 
-# add the virtualenv site-packages path to the sys.path
-sys.path.append('/path/to/your/virtualenv/name/lib/python3.5/site-packages/')
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+load_janeway_settings()
 
 application = get_wsgi_application()
