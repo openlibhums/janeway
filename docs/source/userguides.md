@@ -2,11 +2,11 @@ User Guides
 ===========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Guides:
 
    author
-   editor
+   editor/editor
    reviewer
    copyeditor
    production
