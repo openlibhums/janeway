@@ -1,4 +1,4 @@
-Managing Peer Review
+Review
 ====================
 
 Unassigned Article
@@ -85,5 +85,11 @@ Once you have added a review to your round, it will be listed on the review page
 4. If the review is withdrawn or declined by the reviewer we can use a new option Reset to set it back to Awaiting Acknowledgement
 
 
+Finishing Up
+------------
+When in the standard workflow, after Review comes Copyediting.
 
+To complete the Review stage you can select one of either:
 
+1. Accept Article, moves the article into the next stage.
+2. Decline Article, removes the paper from the workflow.
