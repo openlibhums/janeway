@@ -64,4 +64,4 @@ To upload a galley click *Upload Galley Files*. You can then select either XML/H
 
 .. figure:: ../nstatic/production-galley-upload.png
 
-    Assigning a typesetter
+    Uploading a galley file
