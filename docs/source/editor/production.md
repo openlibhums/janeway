@@ -10,8 +10,8 @@ If you are assigning an external production manager, you will still have access 
     Production Manager assignment interface
     
     
-Assign a Procution Manager
---------------------------
+Assign a Production Manager
+---------------------------
 Select either:
 
 1. Assign production manager
@@ -24,3 +24,44 @@ After assignment the article will move from Awaiting Assignment to In Progress, 
 .. figure:: ../nstatic/production-assigned.png
 
     Production Manager with assigned article
+    
+Production Screen
+-----------------
+
+From the production screen the Production Manager can:
+
+- Assign typesetters
+- Upload galley proofs
+- Upload supplementary files and assign them DOIs
+
+
+.. figure:: ../nstatic/production-screen.png
+
+    Production Manager screen
+
+Assigning a Typesetter
+----------------------
+To assign a typesetter first select *Add Typesetter*.
+
+.. figure:: ../nstatic/production-typesetter.png
+
+    Assigning a typesetter
+    
+1. Select a Typesetter
+2. Select the files you would like this typesetter to work on
+3. Add any notes like what outputs you would like
+4. You have the option to send a notification email
+
+Note, you can add as many typesetter assignments as you like.
+
+
+Uploading Galleys
+-----------------
+Galley files are used for proofing and for displaying content on the live site. Janeway can display either JATS XML or HTML galleys and list most other formats as downloads.
+
+To upload a galley click *Upload Galley Files*. You can then select either XML/HTML, PDF or Other. 
+
+
+.. figure:: ../nstatic/production-galley-upload.png
+
+    Assigning a typesetter
