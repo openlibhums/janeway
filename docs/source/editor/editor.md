@@ -2,7 +2,7 @@ Editor Guide
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Guides for Editors:
 
    review

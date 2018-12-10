@@ -15,8 +15,8 @@ Much like Production we can assign a Proofing Manager to undertake the proofing 
     
 From this page we can assign proofreaders and upload new Galley files. To add a new Proofreader select Add New Proofreader.
 
-Adding a Proofreader
---------------------
+Assigning a Proofreader
+-----------------------
 
 1. Select the files we want the proofreader to view. XML will be rendered into HTML and PDFs and EPUBs will be displayed in the browser.
 All other file types will be served as downloads.
@@ -37,3 +37,41 @@ All other file types will be served as downloads.
     Adding a proofreader part 2
 
 After completing this for you can optionally send an email to the proofreader with information about their task.
+
+Editing a Proofing Assignment
+-----------------------------
+Before a proofing assignment has been accepted and is underway you will have the option to edit it using the _Actions_ drop down. The edit interface allows you to change the galleys, task box and the due date of an assignment. It also has a delete button that will completely remove the assignment, though some information is retained in Janeway's logs.
+
+Completed Proofing Assignments
+------------------------------
+Once a proofing assignment is completed, the _Actions_ drop down is populated with three different buttons:
+
+1. Review
+2. Request changes
+3. Acknowledge
+
+Review
+~~~~~~
+The review page will display each of the assigned galleys and allow you to view the notes the proofreader made about the paper. You can also add your own notes here if you have further things to add (this is useful if you are using an external typesetter). If the proofreader uploaded  a annotated document you can also view it on this page.
+
+.. figure:: ../nstatic/proofing-3.png
+
+    Reviewing a proofing task
+    
+If you are using external typesetters or have someone using the typesetting role, you can then request changes from them using the _Request Changes_ button on this page, or from the action menu on the main Proofing screen.
+
+Request Changes
+~~~~~~~~~~~~~~~
+You can use this page to request changes from a typesetter. The first thing to do is decide if you want to pull the proofreaders comments into the task box. If you do, press the _Import Comments_ button in the top right of the page. You can then:
+
+1. Edit the task
+2. Set a due date
+3. Select proofed galleys for editing
+4. Select a file the proofreader uploaded (if any)
+5. Select a typesetter
+
+As always you will have the option of emailing the typesetter.
+
+Acknowledge
+~~~~~~~~~~~
+Allows you to send a short thank you message to the proofreader acknowledging their work.
