@@ -1,5 +1,5 @@
-Production Management
-=====================
+Production
+==========
 Janeway allows for the use of Production Managers. These may be users who handle the production or articles, external organisations, or publishers. Their job is to assign typesetters and/or create galley proof files.
 
 For smaller organisations that do not utilise an external production team, the Editor can assign themselves as Production Manager, this will allow them to upload galley proofs or assign other users as typesetters for the article. 
