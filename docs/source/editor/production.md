@@ -65,3 +65,24 @@ To upload a galley click *Upload Galley Files*. You can then select either XML/H
 .. figure:: ../nstatic/production-galley-upload.png
 
     Uploading a galley file
+    
+When uploading an HTML or XML file, with images Janeway will warn you that you need to upload them with a message like "Missing supplementary files."
+
+.. figure:: ../nstatic/production-missing-supp.png
+
+    Missing Image files
+    
+We can upload these by selecting Edit Galley and using the upload boxes to upload the image files.
+
+.. figure:: ../nstatic/production-galley-images.png
+
+    Uploading image files
+    
+On the edit galley page we can also replace the galley file, edit its label and upload an accompanying CSS file if the article requires specific styling.
+
+Finishing Up
+------------
+Once either the typesetters have completed their task or you have uploaded the Galleys yourself we can complete the production stage.
+If in the event you require the typesetter to do some additional work on the galleys you can assign them again once their initial task is complete.
+
+To complete the Production stage select *Mark production as complete* and optionally send an email to the editor (if you are the editor you can click skip to not send the email).

@@ -8,3 +8,4 @@ Editor Guide
    review
    copyediting
    production
+   proofing
