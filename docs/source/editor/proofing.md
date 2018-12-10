@@ -75,3 +75,11 @@ As always you will have the option of emailing the typesetter.
 Acknowledge
 ~~~~~~~~~~~
 Allows you to send a short thank you message to the proofreader acknowledging their work.
+
+Corrections wihout Typesetter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you are not using a typesetter but are making corrections yourself the main Proofing interface provides a place to replace existing galleys with new versions or to upload new files.
+
+Finishing Up
+------------
+Once you are happy with the galley files you can complete the proofing stage. This will move you to the pre-publication page.
