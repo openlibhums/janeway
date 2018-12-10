@@ -13,7 +13,7 @@
              <div class="col m6">
                 <div class="card horizontal">
                     <div class="card-image">
-                        {% if collection.cover_image or journal.default_cover_image %}<img class="issue_image" src="{% if collection.cover_image %}{{ collection.cover_image.url }}{% else %}{{ journal.default_cover_image.url }}{% endif %}" alt="{{ collection.title }}" class="img-fluid">{% endif %}
+                        {% if collection.cover_image or journal.default_cover_image %}<img class="issue_image" src="{% if collection.cover_image %}{{ collection.cover_image.url }}{% else %}{{ journal.default_cover_image.url }}{% endif %}" alt="{{ collection.issue_title }}" class="img-fluid">{% endif %}
                     </div>
                     <div class="card-stacked">
                         <div class="card-content">
