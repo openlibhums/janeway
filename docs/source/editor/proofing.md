@@ -40,11 +40,11 @@ After completing this for you can optionally send an email to the proofreader wi
 
 Editing a Proofing Assignment
 -----------------------------
-Before a proofing assignment has been accepted and is underway you will have the option to edit it using the _Actions_ drop down. The edit interface allows you to change the galleys, task box and the due date of an assignment. It also has a delete button that will completely remove the assignment, though some information is retained in Janeway's logs.
+Before a proofing assignment has been accepted and is underway you will have the option to edit it using the *Actions* drop down. The edit interface allows you to change the galleys, task box and the due date of an assignment. It also has a delete button that will completely remove the assignment, though some information is retained in Janeway's logs.
 
 Completed Proofing Assignments
 ------------------------------
-Once a proofing assignment is completed, the _Actions_ drop down is populated with three different buttons:
+Once a proofing assignment is completed, the *Actions* drop down is populated with three different buttons:
 
 1. Review
 2. Request changes
@@ -58,11 +58,11 @@ The review page will display each of the assigned galleys and allow you to view 
 
     Reviewing a proofing task
     
-If you are using external typesetters or have someone using the typesetting role, you can then request changes from them using the _Request Changes_ button on this page, or from the action menu on the main Proofing screen.
+If you are using external typesetters or have someone using the typesetting role, you can then request changes from them using the *Request Changes* button on this page, or from the action menu on the main Proofing screen.
 
 Request Changes
 ~~~~~~~~~~~~~~~
-You can use this page to request changes from a typesetter. The first thing to do is decide if you want to pull the proofreaders comments into the task box. If you do, press the _Import Comments_ button in the top right of the page. You can then:
+You can use this page to request changes from a typesetter. The first thing to do is decide if you want to pull the proofreaders comments into the task box. If you do, press the *Import Comments* button in the top right of the page. You can then:
 
 1. Edit the task
 2. Set a due date
