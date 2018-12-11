@@ -17,22 +17,19 @@ class SubmissionTests(TestCase):
             self.fail('Journal does not have a submissionconfiguration object.')
 
     @staticmethod
-    def create_journals():
+    def create_journal():
         """
-        Creates a set of dummy journals for testing
-        :return: a 2-tuple of two journals
+        Creates a dummy journal for testing
+        :return: a journal
         """
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.save()
 
-        journal_two = journal_models.Journal(code="TSA", domain="journal2.localhost")
-        journal_two.save()
-
-        return journal_one, journal_two
+        return journal_one
 
     def setUp(self):
         """
         Setup the test environment.
         :return: None
         """
-        self.journal_one, self.journal_two = self.create_journals()
+        self.journal_one = self.create_journal()
