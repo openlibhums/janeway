@@ -1,0 +1,49 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Delete License{% endblock %}
+{% block title-section %}Delete License{% endblock %}
+{% block title-sub %}{{ license.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'submission_licenses' %}">Licences</a></li>
+    {% if license %}
+        <li><a href="{% url 'submission_licenses_id' license.pk %}">{{ license.name }}</a></li>{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-9 columns">
+                <div class="title-area">
+                    <h2>Articles</h2>
+                </div>
+                <div class="content">
+                    {% if license_articles %}<p>{% trans 'This license is currently used by the following articles. If you delete it these articles will no longer have a license listed.' %}</p>{% endif %}
+                    <p><strong>{% trans 'You should only delete this license if you are absolutley sure you want to remove it.' %}</strong></p>
+
+
+
+                    <ul>
+                        {% for article in license_articles %}
+                        <li>{{ article.title|safe }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="large-3 columns">
+                <div class="title-area">
+                    <h2>Confirm Deletion</h2>
+                </div>
+                <form method="POST">
+                        {% csrf_token %}
+                    <button name="delete" class="alert button">Delete License</button>
+                    </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

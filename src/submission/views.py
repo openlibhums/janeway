@@ -559,14 +559,23 @@ def licenses(request, license_pk=None):
     licenses = models.Licence.objects.filter(journal=request.journal)
 
     if license_pk and request.journal:
-        license_obj = get_object_or_404(models.Licence, journal=request.journal, pk=license_pk)
+        license_obj = get_object_or_404(
+            models.Licence,
+            journal=request.journal,
+            pk=license_pk
+        )
     elif license_pk and request.press:
-        license_obj = get_object_or_404(models.Licence, press=request.press, pk=license_pk)
+        license_obj = get_object_or_404(
+            models.Licence,
+            press=request.press,
+            pk=license_pk
+        )
 
     form = forms.LicenseForm(instance=license_obj)
 
     if request.POST and 'save' in request.POST:
-        form = forms.LicenseForm(request.POST, instance=license_obj)
+        form = forms.LicenseForm(request.POST,
+                                 instance=license_obj)
 
         if form.is_valid():
             save_license = form.save(commit=False)
@@ -576,14 +585,12 @@ def licenses(request, license_pk=None):
                 save_license.press = request.press
 
             save_license.save()
-            messages.add_message(request, messages.INFO, 'License saved.')
+            messages.add_message(
+                request,
+                messages.INFO,
+                'License saved.'
+            )
             return redirect(reverse('submission_licenses'))
-
-    if request.POST and 'delete' in request.POST:
-        license_to_delete = get_object_or_404(models.Licence, pk=request.POST.get('delete'), journal=request.journal)
-        messages.add_message(request, messages.INFO, 'License {0} deleted'.format(license_to_delete.name))
-        license_to_delete.delete()
-        return redirect(reverse('submission_licenses'))
 
     elif 'order[]' in request.POST:
         ids = [int(_id) for _id in request.POST.getlist('order[]')]
@@ -600,6 +607,42 @@ def licenses(request, license_pk=None):
         'license': license_obj,
         'form': form,
         'licenses': licenses,
+    }
+
+    return render(request, template, context)
+
+
+@staff_member_required
+def delete_license(request, license_pk):
+    """
+    Presents an interface to delete a license object.
+    :param request: HttpRequest object
+    :param license_pk: int, Licence object pk
+    :return: HttpResponse or HttpRedirect
+    """
+    license_to_delete = get_object_or_404(
+        models.Licence,
+        pk=license_pk,
+        journal=request.journal
+    )
+    license_articles = models.Article.objects.filter(
+        license=license_to_delete
+    )
+
+    if request.POST and 'delete' in request.POST:
+        messages.add_message(
+            request,
+            messages.INFO,
+            'License {0} deleted'.format(license_to_delete.name)
+        )
+        license_to_delete.delete()
+
+        return redirect(reverse('submission_licenses'))
+
+    template = 'submission/manager/delete_license.html'
+    context = {
+        'license': license_to_delete,
+        'license_articles': license_articles,
     }
 
     return render(request, template, context)
