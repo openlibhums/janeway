@@ -31,8 +31,10 @@
                                     <div class="float-right">
                                         <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
                                                 class="fa fa-edit"></i></a>
-                                        <button name="delete" value="{{ license.pk }}" class="tiny alert button"><i
-                                                class="fa fa-trash"></i></button>
+                                        {% if request.user.is_staff %}
+                                        <a href="{% url 'submission_delete_license' license.pk %}" class="tiny alert button"><i
+                                                class="fa fa-trash"></i></a>
+                                        {% endif %}
                                     </div>
                                     <div class="clear"></div>
                                 </li>
