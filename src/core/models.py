@@ -674,7 +674,10 @@ class File(models.Model):
             return 0
 
     def checksum(self):
-        return files.checksum(self.self_article_path())
+        if self.article_id:
+            return files.checksum(self.self_article_path())
+        else:
+            return 'No checksum could be calculated.'
 
     def public_download_name(self):
         article = self.article
