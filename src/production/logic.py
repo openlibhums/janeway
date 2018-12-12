@@ -175,46 +175,30 @@ def handle_self_typesetter_assignment(production_assignment, request):
     return typeset_task
 
 
-def handle_assigning_typesetter(production_assignment, request):
-    errors = []
+def check_posted_typesetter_files(article, copyedit_files, posted_files):
+    check = True
+    acceptable_file_list = list()
 
-    user = request.POST.get('typesetter', None)
-    file = request.POST.getlist('files', [])
-    task = request.POST.get('typeset_task', None)
+    for file in article.manuscript_files.all():
+        acceptable_file_list.append(file)
 
-    _dict = {'user': int(user) if user else None,
-             'files': [int(f) for f in file] if file else None,
-             'task': task}
+    for file in article.data_figure_files.all():
+        acceptable_file_list.append(file)
 
-    user = core_models.Account.objects.get(pk=user)
+    acceptable_file_list = acceptable_file_list
 
-    if not user:
-        errors.append('You must select a user.')
-    if not user.is_typesetter(request):
-        errors.append('Selected user is not a typesetter.')
-    if not file:
-        errors.append('You must select at least one file.')
-
-    if errors:
-        return None, errors, _dict
-
+    if posted_files:
+        for file in posted_files:
+            if file not in acceptable_file_list:
+                check = False
     else:
-        typeset_task = models.TypesetTask(
-            assignment=production_assignment,
-            typesetter=user,
-            typeset_task=task,
-        )
-        typeset_task.save()
+        check = False
 
-        for f in file:
-            typeset_task.files_for_typesetting.add(f)
+    return check
 
-        messages.add_message(request, messages.SUCCESS, "{0} assigned as a typesetter for {1}".format(
-            typeset_task.typesetter.full_name(),
-            production_assignment.article.title
-        ))
 
-        return typeset_task, None, _dict
+def typesetter_users(typesetters):
+    return [role.user for role in typesetters]
 
 
 def update_typesetter_task(typeset, request):
