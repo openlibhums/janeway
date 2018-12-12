@@ -189,11 +189,11 @@ elif os.environ.get("DB_VENDOR") == "mysql":
     }
 else:
     DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite'),
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite'),
+        }
     }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -372,7 +372,7 @@ LOGIN_REDIRECT_URL = '/user/profile/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = ''
 EMAIL_PORT = ''
 EMAIL_HOST_USER = ''
@@ -443,18 +443,23 @@ if DEBUG:
     for t in TEMPLATES:
         t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
     MIDDLEWARE_CLASSES = (('utils.middleware.TimeMonitoring',)
-        + MIDDLEWARE_CLASSES)
+                          + MIDDLEWARE_CLASSES)
 
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     from collections.abc import Mapping
+
     class SkipMigrations(Mapping):
+
         def __getitem__(self, key):
             return None
+
         def __contains__(self, key):
             return True
+
         def __iter__(self):
             return iter("")
+
         def __len__(self):
             return 1
 
