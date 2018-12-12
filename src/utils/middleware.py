@@ -23,13 +23,16 @@ class ThemeEngineMiddleware(object):
             del _local.request
         return response
 
+
 class TimeMonitoring(object):
     """Monitors the resource usage of a request/response cycle """
+
     def __init__(self):
         self.usage_start = None
 
     def process_request(self, _request):
         self.usage_start = self._get_usage()
+
     def process_response(self, _request, response):
         diff_usage = self._diff_usages(self.usage_start)
         logging.info("Request took %0.3f (%0.3fu, %0.3fs)" % diff_usage)
