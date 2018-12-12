@@ -58,7 +58,7 @@ target/
 
 # Django
 src/core/settings.py
-*.sqlite3
+*.sqlite*
 *.db
 /src/files/articles
 /src/files/journals
