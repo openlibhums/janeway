@@ -2,6 +2,9 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+from itertools import chain
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -176,25 +179,22 @@ def handle_self_typesetter_assignment(production_assignment, request):
 
 
 def check_posted_typesetter_files(article, copyedit_files, posted_files):
-    check = True
-    acceptable_file_list = list()
-
-    for file in article.manuscript_files.all():
-        acceptable_file_list.append(file)
-
-    for file in article.data_figure_files.all():
-        acceptable_file_list.append(file)
-
-    acceptable_file_list = acceptable_file_list
+    acceptable_file_list = list(
+        chain(
+            article.manuscript_files.all(),
+            article.data_figure_files.all(),
+            copyedit_files,
+        )
+    )
 
     if posted_files:
         for file in posted_files:
             if file not in acceptable_file_list:
-                check = False
+                return False
     else:
-        check = False
+        return False
 
-    return check
+    return True
 
 
 def typesetter_users(typesetters):
