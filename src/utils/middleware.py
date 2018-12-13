@@ -26,7 +26,6 @@ class ThemeEngineMiddleware(object):
 
 class TimeMonitoring(object):
     """Monitors the resource usage of a request/response cycle """
-
     def __init__(self):
         self.usage_start = None
 
