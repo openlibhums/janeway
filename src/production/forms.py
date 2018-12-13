@@ -17,7 +17,7 @@ class TypesetterNote(forms.ModelForm):
 class AssignTypesetter(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        self.files = kwargs.pop('files')
+        self.copyedit_files = kwargs.pop('files')
         self.article = kwargs.pop('article')
         self.typesetters = kwargs.pop('typesetters')
         self.assignment = kwargs.pop('assignment')
@@ -37,7 +37,7 @@ class AssignTypesetter(forms.ModelForm):
 
         file_check = logic.check_posted_typesetter_files(
             self.article,
-            self.files,
+            self.copyedit_files,
             cleaned_data.get('files_for_typesetting'),
         )
 
