@@ -178,7 +178,7 @@ urlpatterns = [
         name='edit_identifiers_with_event'),
 
     # Public Profiles
-    url(r'profile/(?P<uuid>[0-9a-f-]+)/$', core_views.public_profile, name='core_public_profile'),
+    url(r'profile/(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/$', core_views.public_profile, name='core_public_profile'),
 
     url(r'^sitemap/$', journal_views.sitemap, name='journal_sitemap'),
 
