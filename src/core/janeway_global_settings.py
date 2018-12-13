@@ -361,7 +361,9 @@ class SuppressDeprecated(logging.Filter):
             'RemovedInDjango110Warning',
         ]
         # Return false to suppress message.
-        return not any([warn in record.getMessage() for warn in WARNINGS_TO_SUPPRESS])
+        return not any(
+            [warn in record.getMessage() for warn in WARNINGS_TO_SUPPRESS]
+        )
 
 
 MESSAGE_TAGS = {
@@ -442,15 +444,16 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     for t in TEMPLATES:
         t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
-    MIDDLEWARE_CLASSES = (('utils.middleware.TimeMonitoring',)
-                          + MIDDLEWARE_CLASSES)
+    MIDDLEWARE_CLASSES = (
+        ('utils.middleware.TimeMonitoring',) + MIDDLEWARE_CLASSES
+    )
 
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     from collections.abc import Mapping
 
-    class SkipMigrations(Mapping):
 
+    class SkipMigrations(Mapping):
         def __getitem__(self, key):
             return None
 
