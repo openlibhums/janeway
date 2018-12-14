@@ -47,13 +47,13 @@ def get_site_resources(request):
         try: #try press site
             press = press_models.Press.get_by_request(request)
         except press_models.Press.DoesNotExist:
-            try: #try press site
+            try: #try alias
                 alias = core_models.DomainAlias.get_by_request(request)
                 if alias.redirect:
                     redirect_obj = redirect(alias.build_redirect_url(request))
                 else:
                     journal = alias.journal
-                    press = journal.press
+                    press = journal.press if journal else alias.press
             except core_models.DomainAlias.DoesNotExist:
                 #Give up
                 logging.warning(

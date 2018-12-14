@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -945,10 +946,25 @@ class DomainAlias(AbstractSiteModel):
             help_text="If enabled, the site will throw a 301 redirect to the "
                 "master domain."
     )
-    journal = models.ForeignKey('journal.Journal', null=True)
+    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+    press = models.ForeignKey('press.Press', blank=True, null=True)
+
+    @property
+    def site_object(self):
+        return self.journal or self.press
 
     def build_redirect_url(self, request):
-        return urlunparse(request.scheme, self.domain, request.path, None, None)
+        return urlunparse(
+                request.scheme, self.site_object.domain, request.path,
+                None, None
+        )
+
+    def save(self, *args, **kwargs):
+        if not bool(self.journal) ^ bool(self.press):
+            raise ValidationError(
+                    " One and only one of press or journal must be set")
+        return super().save(*args, **kwargs)
+
 
 
 BASE_ELEMENTS = [
