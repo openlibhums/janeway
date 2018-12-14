@@ -73,7 +73,6 @@ class Command(BaseCommand):
             print("Thanks, Journal #1 has been saved.\n")
 
             call_command('show_configured_journals')
-            call_command('sync_journals_to_sites')
             call_command('build_assets')
             print("Installing plugins.")
             call_command('install_plugins')
@@ -95,7 +94,6 @@ class Command(BaseCommand):
             if options['dry_run'] is True:
                 print("This was a --dry-run, rolling back...")
                 raise SystemExit()
-        call_command('makemigrations', 'sites')
         print(JANEWAY_ASCII)
 
 
