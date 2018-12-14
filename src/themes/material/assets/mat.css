@@ -51,6 +51,16 @@ a:hover .article-title {
     font-weight: 300;
 }
 
+.article-body h3 {
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.article-body h4 {
+    font-size: 18px;
+    font-weight: 300;
+}
+
 .article-body a {
     word-break: break-all;
 }
