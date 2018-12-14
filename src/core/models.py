@@ -787,9 +787,10 @@ class Galley(models.Model):
             return self.file.render_xml(self.article, galley=self)
 
     def path(self):
-        url = reverse('article_download_galley', kwargs={'article_id': self.article.pk,
-                                                         'galley_id': self.pk})
-        base_url = self.article.journal.requestless_url()
+        url = reverse('article_download_galley',
+                      kwargs={'article_id': self.article.pk,
+                              'galley_id': self.pk})
+        base_url = self.article.journal.full_url()
         return '{base_url}{url}'.format(base_url=base_url, url=url)
 
 
@@ -811,7 +812,7 @@ class SupplementaryFile(models.Model):
         return files.file_path_mime(self.path())
 
     def url(self):
-        base_url = self.file.article.journal.requestless_url()
+        base_url = self.file.article.journal.full_url()
         path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
                                                              'supp_file_id': self.pk})
         return '{base}{path}'.format(base=base_url, path=path)

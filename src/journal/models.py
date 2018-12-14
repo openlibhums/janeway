@@ -13,7 +13,6 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.http.request import split_domain_port
 from django.urls import reverse
 from django.utils import timezone
 
@@ -23,7 +22,7 @@ from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
 from utils.function_cache import cache
-from utils import setting_handler
+from utils import setting_handler, logic
 
 # Issue types
 # Use "Issue" for regular issues (rolling or periodic)
@@ -185,30 +184,20 @@ class Journal(AbstractSiteModel):
         return press
 
     def full_url(self, request=None):
-        if not request:
-            return self.requestless_url()
+        path = '{0}{1}'.format(
+            '/' if settings.URL_CONFIG == 'path' else '',
+            self.code if settings.URL_CONFIG == 'path' else '',
+        )
 
-        return 'http{0}://{1}{2}'.format(
-            's' if request.is_secure() else '',
-            self.domain if settings.URL_CONFIG == 'domain' else self.press.domain,
-            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '',
-            '{0}{1}'.format('/' if settings.URL_CONFIG == 'path' else '',
-                            self.code if settings.URL_CONFIG == 'path' else '')
+        return logic.build_url(
+            request,
+            path,
         )
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)
         url_path = reverse(url_name, kwargs=kwargs)
         return "{0}{1}".format(base_url, url_path)
-
-    def requestless_url(self):
-        from core.middleware import GlobalRequestMiddleware
-        local_request = GlobalRequestMiddleware.get_current_request()
-
-        if local_request.journal:
-            return local_request.journal_base_url
-        else:
-            return local_request.press_base_url
 
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
@@ -359,6 +348,7 @@ class Journal(AbstractSiteModel):
                 return False
         except core_models.WorkflowElement.DoesNotExist:
             return False
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(Journal)

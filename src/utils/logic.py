@@ -1,6 +1,6 @@
 import hashlib
 import hmac
-from urllib.parse import SplitResult
+from urllib.parse import SplitResult, quote_plus, urlencode
 
 from django.conf import settings
 
@@ -81,6 +81,7 @@ def attempt_actor_email(event):
                                                   to,
                                                   body,
                                                   log_dict=None)
+
 
 def build_url(request=None, path="", query=None, fragment=""):
     """ Returns the base url relevant for the current request context
