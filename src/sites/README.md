@@ -1,3 +1,0 @@
-This directory contains template overrides for specific journals.
-
-To customize journals' layouts on a one-by-one basis you should create a folder that corresponds to the "domain" name shared by the site and by the journal. (If you ever need to re-synchronize these, run python manage.py sync_journals_to_sites.) Within this folder you can then put a corresponding template location (including directories) that will be used by default for this particular journal.

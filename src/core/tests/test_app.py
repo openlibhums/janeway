@@ -62,8 +62,6 @@ class CoreTests(TestCase):
         self.admin_user.is_active = True
         self.admin_user.save()
 
-        call_command('sync_settings_to_journals')
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
-        call_command('sync_journals_to_sites')
         call_command('install_plugins')

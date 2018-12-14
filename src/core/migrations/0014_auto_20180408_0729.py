@@ -19,7 +19,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('core', '0013_auto_20180207_1525'),
-        ('sites', '0002_alter_domain_unique'),
     ]
 
     operations = [

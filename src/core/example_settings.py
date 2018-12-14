@@ -156,7 +156,6 @@ SETTINGS_EXPORT = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-SITES_DIR = os.path.join(os.path.dirname(__file__), 'sites')
 DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no other sites are found.
 
 # Database

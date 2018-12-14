@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.sites.models import Site
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -9,6 +8,7 @@ def populate_domain_alias_journals(apps, schema_editor):
     DomainAlias = apps.get_model("core", "DomainAlias")
     Journal = apps.get_model("journal", "Journal")
     Press = apps.get_model("press", "Press")
+    Site = apps.get_model("sites", "Site")
     domain_aliases = DomainAlias.objects.all()
     for da in domain_aliases:
         site = Site.objects.get(id=da.site_id)

@@ -7,7 +7,6 @@ import logging
 from uuid import uuid4
 import _thread as thread
 
-from django.contrib.sites import models as site_models
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 from django.core.exceptions import PermissionDenied

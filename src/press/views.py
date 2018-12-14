@@ -11,7 +11,6 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse
-from django.contrib.sites import models as site_models
 
 from core import files, models as core_models, plugin_loader
 from journal import models as journal_models, views as journal_views, forms as journal_forms
@@ -84,7 +83,6 @@ def manager_index(request):
             new_journal.sequence = request.press.next_journal_order()
             new_journal.save()
             call_command('sync_settings_to_journals', new_journal.code)
-            call_command('sync_journals_to_sites')
             call_command('install_plugins')
             new_journal.setup_directory()
             return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
@@ -177,9 +175,6 @@ def journal_domain(request, journal_id):
         new_domain = request.POST.get('domain', None)
 
         if new_domain:
-            site = site_models.Site.objects.get(domain=journal.domain)
-            site.domain = new_domain
-            site.save()
             journal.domain = new_domain
             journal.save()
             messages.add_message(request, messages.SUCCESS, 'Domain updated')
