@@ -183,6 +183,17 @@ class Journal(AbstractSiteModel):
         press = press_models.Press.objects.all()[0]
         return press
 
+    @property
+    def site_url(self):
+        if settings.URL_CONFIG == "path":
+            netloc = self.press.domain
+            path = self.code
+        else:
+            netloc = self.domain
+            path = None
+
+        return logic.build_url(netloc=netloc, path=path)
+
     def full_url(self, request=None):
         path = '{0}{1}'.format(
             '/' if settings.URL_CONFIG == 'path' else '',

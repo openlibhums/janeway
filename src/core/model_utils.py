@@ -9,9 +9,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db import models
 from django.http.request import split_domain_port
 
+from utils import logic
 
 class AbstractSiteModel(models.Model):
-    """Adds site-like functionality"""
+    """Adds site-like functionality to any model"""
     DOMAIN_CACHE = {}
 
     domain = models.CharField(
@@ -34,3 +35,7 @@ class AbstractSiteModel(models.Model):
                 obj = cls.objects.get(domain=domain)
             cls.DOMAIN_CACHE[domain] = obj
         return obj
+
+    @property
+    def site_url(self):
+        return logic.build_url(netloc=self.domain)

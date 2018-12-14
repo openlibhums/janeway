@@ -82,9 +82,8 @@ def attempt_actor_email(event):
                                                   body,
                                                   log_dict=None)
 
-
-def build_url(request=None, path="", query=None, fragment=""):
-    """ Returns the base url relevant for the current request context
+def build_url_for_request(request=None, path="", query=None, fragment=""):
+    """ Builds a url from the base url relevant for the current request context
     :request: An instance of django.http.HTTPRequest
     :path: A str indicating the path
     :query: A dictionary with any GET parameters
@@ -93,11 +92,33 @@ def build_url(request=None, path="", query=None, fragment=""):
     """
     if request is None:
         request = GlobalRequestMiddleware.get_current_request()
+
+    return build_url(
+        netloc=request.get_host(),
+        scheme=request.scheme,
+        path=path,
+        query=query,
+        fragment=fragment,
+    )
+
+
+def build_url(netloc, scheme, path="", query=None, fragment=""):
+    """ Builds a url given all its parts
+    :netloc: string
+    :scheme: string
+    :path: string
+    :query: A dictionary with any GET parameters
+    :fragment: string
+    :return: URL string
+    """
     if query:
         query = quote_plus(urlencode(query))
 
+    if scheme is None:
+        scheme = GlobalRequestMiddleware.get_current_request().scheme
+
     return SplitResult(
-        scheme=request.scheme,
+        scheme=scheme,
         netloc=request.get_host(),
         path=path,
         query=query or "",
