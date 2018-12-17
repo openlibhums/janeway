@@ -5,8 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import logging
 from uuid import uuid4
-import _thread as thread
-
+import threading
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
@@ -89,11 +88,9 @@ class SiteSettingsMiddleware(object):
         request.port = request.META['SERVER_PORT']
         request.press = press
         request.press_cover = press.press_cover(request)
-        request.press_base_url = press.press_url(request)
 
         if journal is not None:
             request.journal = journal
-            request.journal_base_url = journal.full_url(request)
             request.journal_cover = journal.override_cover(request)
             request.site_type = journal
             request.model_content_type = ContentType.objects.get_for_model(
@@ -185,26 +182,13 @@ class PressMiddleware(object):
                     else:
                         raise Http404('Press cannot access this page.')
 
+_threadlocal = threading.local()
 
 class GlobalRequestMiddleware(object):
-    _threadmap = {}
-
     @classmethod
     def get_current_request(cls):
-        return cls._threadmap[thread.get_ident()]
+        return _threadlocal.request
 
-    def process_request(self, request):
-        self._threadmap[thread.get_ident()] = request
-
-    def process_exception(self, request, exception):
-        try:
-            del self._threadmap[thread.get_ident()]
-        except KeyError:
-            pass
-
-    def process_response(self, request, response):
-        try:
-            del self._threadmap[thread.get_ident()]
-        except KeyError:
-            pass
-        return response
+    @staticmethod
+    def process_request(request):
+        _threadlocal.request = request
