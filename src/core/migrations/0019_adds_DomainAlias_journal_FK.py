@@ -4,19 +4,25 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
-def populate_domain_alias_journals(apps, schema_editor):
-    DomainAlias = apps.get_model("core", "DomainAlias")
-    Journal = apps.get_model("journal", "Journal")
-    Press = apps.get_model("press", "Press")
-    Site = apps.get_model("sites", "Site")
-    domain_aliases = DomainAlias.objects.all()
-    for da in domain_aliases:
-        site = Site.objects.get(id=da.site_id)
-        try:
-            da.journal = Journal.objects.get(domain=site.domain)
-        except Journal.DoesNotExist:
-            da.press = Press.objects.get(domain=site.domain)
-        da.save()
+
+JOURNAL_SITESECTOMY = """
+    UPDATE core_domainalias da SET journal_id = (
+        SELECT j.id
+            FROM journal_journal j, django_site s
+            WHERE s.id = da.site_id
+            AND s.domain = j.domain
+        );
+"""
+
+PRESS_SITESECTOMY = """
+    UPDATE core_domainalias da SET press_id = (
+        SELECT p.id
+            FROM press_press p, django_site s
+            WHERE s.id = da.site_id
+            AND s.domain = p.domain
+        );
+"""
+
 
 class Migration(migrations.Migration):
 
@@ -24,7 +30,6 @@ class Migration(migrations.Migration):
         ('journal', '0017_file_fields_for_the_last_time'),
         ('core', '0018_auto_20181116_1123'),
     ]
-
     operations = [
         migrations.AddField(
             model_name='domainalias',
@@ -47,5 +52,6 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
         ),
-        migrations.RunPython(populate_domain_alias_journals, reverse_code=migrations.RunPython.noop)
+        migrations.RunSQL(JOURNAL_SITESECTOMY, reverse_sql=migrations.RunSQL.noop),
+        migrations.RunSQL(PRESS_SITESECTOMY, reverse_sql=migrations.RunSQL.noop),
     ]
