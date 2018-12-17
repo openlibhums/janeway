@@ -91,7 +91,7 @@ def build_url_for_request(request=None, path="", query=None, fragment=""):
     :return: An instance of urllib.parse.SplitResult
     """
     if request is None:
-        request = GlobalRequestMiddleware.get_current_request()
+        request = get_current_request()
 
     return build_url(
         netloc=request.get_host(),
@@ -102,9 +102,13 @@ def build_url_for_request(request=None, path="", query=None, fragment=""):
     )
 
 
-def build_url(netloc, scheme=None, path="", query=None, fragment=""):
+def replace_netloc_port(netloc, new_port):
+    return ":".join((netloc.split(":")[0], new_port))
+
+def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
     """ Builds a url given all its parts
     :netloc: string
+    :port: int
     :scheme: string
     :path: string
     :query: A dictionary with any GET parameters
@@ -117,6 +121,9 @@ def build_url(netloc, scheme=None, path="", query=None, fragment=""):
     if scheme is None:
         scheme = GlobalRequestMiddleware.get_current_request().scheme
 
+    if port is not None:
+        netloc = replace_netloc_port(netloc, port)
+
     return SplitResult(
         scheme=scheme,
         netloc=netloc,
@@ -124,3 +131,10 @@ def build_url(netloc, scheme=None, path="", query=None, fragment=""):
         query=query or "",
         fragment=fragment,
     ).geturl()
+
+def get_current_request():
+    try:
+        return GlobalRequestMiddleware.get_current_request()
+    except KeyError:
+        return None
+
