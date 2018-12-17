@@ -10,7 +10,7 @@
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}">
+    <a class="navbar-brand" href="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}">
         {% if request.journal %}
             {% if request.journal.header_image %}
                 <a href="{% url 'website_index' %}"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>

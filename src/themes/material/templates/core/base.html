@@ -14,9 +14,9 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     {% block css %}{% endblock %}
-    <link href="{{ request.journal_base_url }}{% url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
+    <link href="{{ request.journal.site_url }}{% url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
-    <link href="{{ request.journal_base_url }}{% url 'rss_news' %}" type="application/atom+xml" rel="alternate"
+    <link href="{{ request.journal.site_url }}{% url 'rss_news' %}" type="application/atom+xml" rel="alternate"
           title="News Feed for Journal">
     {% if journal.favicon %}
         <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>{% endif %}

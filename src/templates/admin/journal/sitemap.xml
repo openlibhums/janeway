@@ -3,14 +3,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     {% for article in articles %}
     <url>
-        <loc>{{ request.journal_base_url }}{{ article.url }}</loc>
+        <loc>{{ request.journal.site_url }}{{ article.url }}</loc>
         <lastmod>{{ article.date_published|date:"Y-m-d" }}</lastmod>
         <changefreq>yearly</changefreq>
     </url>
     {% endfor%}
     {% for page in cms_pages %}
     <url>
-        <loc>{{ request.journal_base_url }}/site/{{ page.name }}</loc>
+        <loc>{{ request.journal.site_url }}/site/{{ page.name }}</loc>
         <lastmod>{{ page.edited }}</lastmod>
         <changefreq>monthly</changefreq>
     </url>
