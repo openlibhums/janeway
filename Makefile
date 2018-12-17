@@ -28,6 +28,10 @@ ifeq ($(DB_VENDOR), sqlite)
 	DB_VOLUME=db/janeway.sqlite
 endif
 
+ifdef VERBOSE
+	_VERBOSE=--verbose
+endif
+
 export DB_VENDOR
 export DB_HOST
 export DB_PORT
@@ -42,7 +46,7 @@ all: janeway
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependant services detached.
-	docker-compose run $(NO_DEPS) --rm --service-ports  janeway-web $(entrypoint)
+	docker-compose $(_VERBOSE) run $(NO_DEPS) --rm --service-ports  janeway-web $(entrypoint)
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable
 	docker-compose run $(NO_DEPS) --rm janeway-web src/manage.py $(CMD)
 install:	## Run the install_janeway command inside a container
