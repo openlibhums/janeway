@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from operator import itemgetter
 import collections
+import logging
 import uuid
 import os
 
@@ -195,15 +196,8 @@ class Journal(AbstractSiteModel):
         return logic.build_url(netloc=netloc, path=path)
 
     def full_url(self, request=None):
-        path = '{0}{1}'.format(
-            '/' if settings.URL_CONFIG == 'path' else '',
-            self.code if settings.URL_CONFIG == 'path' else '',
-        )
-
-        return logic.build_url(
-            request,
-            path,
-        )
+        logging.warning("Using journal.full_url is deprecated")
+        return self.site_url()
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)

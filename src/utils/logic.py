@@ -102,7 +102,7 @@ def build_url_for_request(request=None, path="", query=None, fragment=""):
     )
 
 
-def build_url(netloc, scheme, path="", query=None, fragment=""):
+def build_url(netloc, scheme=None, path="", query=None, fragment=""):
     """ Builds a url given all its parts
     :netloc: string
     :scheme: string
@@ -119,7 +119,7 @@ def build_url(netloc, scheme, path="", query=None, fragment=""):
 
     return SplitResult(
         scheme=scheme,
-        netloc=request.get_host(),
+        netloc=netloc,
         path=path,
         query=query or "",
         fragment=fragment,
