@@ -185,18 +185,18 @@ class Journal(AbstractSiteModel):
         return press
 
     @property
-    def site_url(self):
+    def site_url(self, path=""):
         port = None
 
         if settings.URL_CONFIG == "path":
             netloc = self.press.domain
-            path = self.code
+            path = path or self.code
             request = logic.get_current_request()
             if request is not None:
                 port = request.META["SERVER_PORT"]
         else:
             netloc = self.domain
-            path = None
+            path = path
 
         return logic.build_url(netloc=netloc, port=port, path=path)
 

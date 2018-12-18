@@ -37,5 +37,5 @@ class AbstractSiteModel(models.Model):
         return obj
 
     @property
-    def site_url(self):
-        return logic.build_url(netloc=self.domain)
+    def site_url(self, path=None):
+        return logic.build_url(netloc=self.domain, path=None)
