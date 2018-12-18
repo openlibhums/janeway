@@ -33,6 +33,7 @@ from submission import models as submission_models
 
 fs = JanewayFileSystemStorage()
 
+
 def profile_images_upload_path(instance, filename):
     try:
         filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
@@ -964,7 +965,6 @@ class DomainAlias(AbstractSiteModel):
             raise ValidationError(
                     " One and only one of press or journal must be set")
         return super().save(*args, **kwargs)
-
 
 
 BASE_ELEMENTS = [
