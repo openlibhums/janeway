@@ -105,6 +105,7 @@ def build_url_for_request(request=None, path="", query=None, fragment=""):
 def replace_netloc_port(netloc, new_port):
     return ":".join((netloc.split(":")[0], new_port))
 
+
 def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
     """ Builds a url given all its parts
     :netloc: string
@@ -131,6 +132,7 @@ def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
         query=query or "",
         fragment=fragment,
     ).geturl()
+
 
 def get_current_request():
     try:

@@ -28,7 +28,7 @@ def get_site_resources(request):
     :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
     """
     journal = press = redirect_obj = None
-    try: #try journal site
+    try: # try journal site
         if settings.URL_CONFIG == 'path':
             code = request.path.split('/')[1]
             journal = journal_models.Journal.objects.get(code=code)
@@ -42,10 +42,10 @@ def get_site_resources(request):
                     "" % settings.URL_CONFIG
             )
     except (journal_models.Journal.DoesNotExist, IndexError):
-        try: #try press site
+        try: # try press site
             press = press_models.Press.get_by_request(request)
         except press_models.Press.DoesNotExist:
-            try: #try alias
+            try: # try alias
                 alias = core_models.DomainAlias.get_by_request(request)
                 if alias.redirect:
                     redirect_obj = redirect(alias.build_redirect_url(request))
@@ -53,7 +53,7 @@ def get_site_resources(request):
                     journal = alias.journal
                     press = journal.press if journal else alias.press
             except core_models.DomainAlias.DoesNotExist:
-                #Give up
+                # Give up
                 logging.warning(
                     "Couldn't match a resource for %s, redirecting to %s"
                     "" % (request.path, settings.DEFAULT_HOST)
@@ -182,7 +182,9 @@ class PressMiddleware(object):
                     else:
                         raise Http404('Press cannot access this page.')
 
+
 _threadlocal = threading.local()
+
 
 class GlobalRequestMiddleware(object):
     @classmethod

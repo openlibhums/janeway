@@ -36,18 +36,8 @@ class NewsItem(models.Model):
 
     @property
     def url(self):
-        if self.content_type.name == 'press':
-            secure = self.object.is_secure
-        else:
-            from utils import setting_handler
-            secure = setting_handler.get_setting('general', 'is_secure', self.object).processed_value
-
         path = reverse('core_news_item', kwargs={'news_pk': self.pk})
-        base = "http{0}://{1}".format(
-            's' if secure else '',
-            self.object.domain
-        )
-        return base + path
+        return self.object.site_url(path)
 
     @property
     def carousel_subtitle(self):

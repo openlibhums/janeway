@@ -184,7 +184,6 @@ class Journal(AbstractSiteModel):
         press = press_models.Press.objects.all()[0]
         return press
 
-    @property
     def site_url(self, path=""):
         port = None
 
