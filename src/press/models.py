@@ -16,6 +16,7 @@ from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from utils.function_cache import cache
+from utils import logic
 
 
 fs = JanewayFileSystemStorage()
@@ -107,6 +108,26 @@ class Press(AbstractSiteModel):
     @staticmethod
     def users():
         return core_models.Account.objects.all()
+
+    def site_url(self, path=""):
+        port = None
+
+        if settings.URL_CONFIG == "path":
+            netloc = self.domain
+            path = path or self.code
+            request = logic.get_current_request()
+            if request is not None:
+                port = request.get_port()
+        else:
+            netloc = self.domain
+            path = path
+
+        return logic.build_url(
+                netloc=netloc,
+                scheme=self.SCHEMES[self.is_secure],
+                port=port,
+                path=path,
+        )
 
     @staticmethod
     def press_url(request):

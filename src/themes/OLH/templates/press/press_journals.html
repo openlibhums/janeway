@@ -37,7 +37,7 @@
                                                  {% if current_journal.is_remote %}
                                                 <a href="{{ current_journal.remote_view_url }}">
                                                 {% else %}
-                                                <a href="{{ current_journal.full_url }}"
+                                                <a href="{% journal_base_url current_journal %}"
                                                    class="journal-name">
                                                 {% endif %}
                                                 {{ current_journal.name }}</a>
@@ -52,11 +52,11 @@
                                                     <a href="{{ current_journal.remote_view_url }}"
                                                        class="button"><span>View</span></a>
                                                 {% else %}
-                                                    <a href="{{ current_journal.full_url }}{% url 'submission_start' %}"
+                                                    <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"
                                                        class="button"><span>Submit</span></a>
                                                     <a href="{% journal_base_url current_journal %}"
                                                        class="button"><span>View</span></a>
-                                                    <a href="{{ current_journal.full_url }}{% url 'current_issue' %}"
+                                                    <a href="{% journal_base_url current_journal %}{% url 'current_issue' %}"
                                                        class="button"><span>Current Issue</span></a>
                                                 {% endif %}
                                             </div>
