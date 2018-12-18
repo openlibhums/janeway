@@ -62,8 +62,6 @@ class Press(AbstractSiteModel):
     carousel = models.OneToOneField('carousel.Carousel', related_name='press', null=True, blank=True)
     default_carousel_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    is_secure = models.BooleanField(default=False, help_text="If the press should redirect to HTTPS, mark this.")
-
     random_featured_journals = models.BooleanField(default=False)
     featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
     carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)

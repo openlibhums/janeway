@@ -111,10 +111,13 @@ class SiteSettingsMiddleware(object):
 
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
-            if request.journal and request.journal.get_setting('general', 'is_secure') and not request.is_secure() \
-                    and not settings.DEBUG:
+            if (
+                    request.journal
+                    and request.journal.is_secure
+                    and not settings.DEBUG
+            ):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
-            elif not request.journal and request.press.is_secure and not request.is_secure() and not settings.DEBUG:
+            elif request.press.is_secure and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
 
 

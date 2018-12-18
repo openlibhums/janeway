@@ -192,12 +192,17 @@ class Journal(AbstractSiteModel):
             path = path or self.code
             request = logic.get_current_request()
             if request is not None:
-                port = request.META["SERVER_PORT"]
+                port = request.get_port()
         else:
             netloc = self.domain
             path = path
 
-        return logic.build_url(netloc=netloc, port=port, path=path)
+        return logic.build_url(
+                netloc=netloc,
+                scheme=self.SCHEMES[self.is_secure],
+                port=port,
+                path=path,
+        )
 
     def full_url(self, request=None):
         logging.warning("Using journal.full_url is deprecated")

@@ -14,9 +14,17 @@ from utils import logic
 class AbstractSiteModel(models.Model):
     """Adds site-like functionality to any model"""
     DOMAIN_CACHE = {}
+    SCHEMES = {
+        True: "https",
+        False: "http",
+    }
 
     domain = models.CharField(
             max_length=255, default="www.example.com", unique=True)
+    is_secure = models.BooleanField(
+            default=False,
+            help_text="If the site should redirect to HTTPS, mark this.",
+    )
 
     class Meta:
         abstract = True
@@ -38,4 +46,8 @@ class AbstractSiteModel(models.Model):
 
     @property
     def site_url(self, path=None):
-        return logic.build_url(netloc=self.domain, path=None)
+        return logic.build_url(
+                netloc=self.domain, 
+                scheme=self.SCHEMES[self.is_secure],
+                path=None,
+        )
