@@ -791,8 +791,7 @@ class Galley(models.Model):
         url = reverse('article_download_galley',
                       kwargs={'article_id': self.article.pk,
                               'galley_id': self.pk})
-        base_url = self.article.journal.full_url()
-        return '{base_url}{url}'.format(base_url=base_url, url=url)
+        return self.article.journal.site_url(path=url)
 
 
 class SupplementaryFile(models.Model):
