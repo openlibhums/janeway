@@ -580,7 +580,7 @@ def flush_cache(request):
     :return: HttpRedirect
     """
     cache.clear()
-    messages.add_message(request, messages.SUCCESS, 'Memcached has been flushed.')
+    messages.add_message(request, messages.SUCCESS, 'Cache has been flushed.')
 
     return redirect(reverse('core_manager_index'))
 

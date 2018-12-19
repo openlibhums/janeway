@@ -163,7 +163,7 @@
                 {% endif %}
                 {% if article_content %}
                     <h2>{% trans "Article" %}</h2>
-                    <div itemprop="articleBody">
+                    <div itemprop="articleBody" id="main_article">
                         {{ article_content|safe }}
                         {% hook 'article_footer_block' %}
                     </div>

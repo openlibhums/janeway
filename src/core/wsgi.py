@@ -15,9 +15,12 @@ import os
 import sys
 import urllib.parse
 
-from django.core.handlers.wsgi import WSGIHandler, WSGIRequest
+from utils import load_janeway_settings
+
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+os.environ.setdefault("JANEWAY_SETTINGS_MODULE", "core.settings")
+
+load_janeway_settings()
 
 application = get_wsgi_application()

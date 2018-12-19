@@ -13,7 +13,7 @@ from submission import models
 
 class LicenseChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return "{0}: {1}".format(obj.journal.code, obj.short_name)
+        return obj.short_name
 
 
 class FrozenAuthorAdmin(admin.ModelAdmin):

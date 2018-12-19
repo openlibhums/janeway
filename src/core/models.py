@@ -7,6 +7,7 @@ import os
 import uuid
 import statistics
 import json
+import logging
 from datetime import timedelta
 from urllib.parse import urlunparse
 
@@ -32,6 +33,8 @@ from copyediting import models as copyediting_models
 from submission import models as submission_models
 
 fs = JanewayFileSystemStorage()
+logger = logging.getLogger(__name__)
+
 
 
 def profile_images_upload_path(instance, filename):
@@ -670,7 +673,15 @@ class File(models.Model):
             return 0
 
     def checksum(self):
-        return files.checksum(self.self_article_path())
+        if self.article_id:
+            return files.checksum(self.self_article_path())
+        else:
+            logger.error(
+                'Galley file ({file_id}) found with no article_id.'.format(
+                    file_id=self.pk
+                ), extra={'stack': True}
+            )
+            return 'No checksum could be calculated.'
 
     def public_download_name(self):
         article = self.article

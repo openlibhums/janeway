@@ -26,7 +26,11 @@ urlpatterns = [
     url(r'^manager/additional_fields/(?P<field_id>\d+)/$', views.fields, name='submission_fields_id'),
 
     url(r'^manager/licences/$', views.licenses, name='submission_licenses'),
+    url(r'^manager/licences/(?P<license_pk>\d+)/delete/',
+        views.delete_license,
+        name='submission_delete_license'),
     url(r'^manager/licences/(?P<license_pk>\d+)/', views.licenses, name='submission_licenses_id'),
+
 
 
 ]

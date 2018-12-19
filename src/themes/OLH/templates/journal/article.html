@@ -170,7 +170,7 @@
                         <div id="article" class="large-10 columns">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h5>
+                    <h3>{{ article.title|safe }}</h3>
                 <hr/>
                 {% endif %}
                             {% if article.abstract != '' %}
@@ -241,11 +241,12 @@
                                 </div>
                             </div>
                             {% if article_content %}
-                            <h2>{% trans "Article" %}</h2>
-                            <div itemprop="articleBody">
-                                {{ article_content|safe }}
-                                {% hook 'article_footer_block' %}
-                            </div>
+                                <article id="main_article">
+                                    <div itemprop="articleBody">
+                                        {{ article_content|safe }}
+                                        {% hook 'article_footer_block' %}
+                                    </div>
+                                </article>
                             {% endif %}
                         </div>
                     </div>
