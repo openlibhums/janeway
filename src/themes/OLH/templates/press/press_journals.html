@@ -1,6 +1,7 @@
 {% extends "press/core/base.html" %}
 {% load settings %}
 {% load i18n %}
+{% load fqdn %}
 
 {% block page_title %}{% trans "Journals" %}{% endblock page_title %}
 
@@ -24,7 +25,7 @@
                                             {% if current_journal.is_remote %}
                                             <a href="{{ current_journal.remote_view_url }}">
                                             {% else %}
-                                            <a href="http{% if port == "443" %}s{% endif %}://{{ current_journal.domain }}{% if request.port != "80" and request.port != "443" %}:{{ request.port }}{% endif %}">
+                                            <a href="{{ current_journal.full_url }}">
                                             {% endif %}
                                                 <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}"
                                                      alt="{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}Unnamed Journal{% endif %}">
@@ -36,7 +37,7 @@
                                                  {% if current_journal.is_remote %}
                                                 <a href="{{ current_journal.remote_view_url }}">
                                                 {% else %}
-                                                <a href="http{% if port == "443" %}s{% endif %}://{{ current_journal.domain }}{% if request.port != "80" and request.port != "443" %}:{{ request.port }}{% endif %}"
+                                                <a href="{% journal_base_url current_journal %}"
                                                    class="journal-name">
                                                 {% endif %}
                                                 {{ current_journal.name }}</a>
@@ -51,11 +52,11 @@
                                                     <a href="{{ current_journal.remote_view_url }}"
                                                        class="button"><span>View</span></a>
                                                 {% else %}
-                                                    <a href="http{% if port == "443" %}s{% endif %}://{{ current_journal.domain }}{% if request.port != "80" and request.port != "443" %}:{{ request.port }}{% endif %}{% url 'submission_start' %}"
+                                                    <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"
                                                        class="button"><span>Submit</span></a>
-                                                    <a href="http{% if port == "443" %}s{% endif %}://{{ current_journal.domain }}{% if request.port != "80" and request.port != "443" %}:{{ request.port }}{% endif %}"
+                                                    <a href="{% journal_base_url current_journal %}"
                                                        class="button"><span>View</span></a>
-                                                    <a href="http{% if port == "443" %}s{% endif %}://{{ current_journal.domain }}{% if request.port != "80" and request.port != "443" %}:{{ request.port }}{% endif %}{% url 'current_issue' %}"
+                                                    <a href="{% journal_base_url current_journal %}{% url 'current_issue' %}"
                                                        class="button"><span>Current Issue</span></a>
                                                 {% endif %}
                                             </div>

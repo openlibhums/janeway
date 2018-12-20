@@ -182,15 +182,22 @@ def submit_authors(request, article_id):
                 return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     elif request.POST and 'search_authors' in request.POST:
-        search = request.POST.get('author_search_text')
-
-        try:
-            search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
-            article.authors.add(search_author)
-            models.ArticleAuthorOrder.objects.get_or_create(article=article, author=search_author)
-            messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
-        except core_models.Account.DoesNotExist:
-            messages.add_message(request, messages.WARNING, 'No author found with those details.')
+        search = request.POST.get('author_search_text', None)
+        
+        if not search:
+            messages.add_message(
+                request, 
+                messages.WARNING, 
+                'An empty search is not allowed.'
+            )
+        else:
+            try:
+                search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
+                article.authors.add(search_author)
+                models.ArticleAuthorOrder.objects.get_or_create(article=article, author=search_author)
+                messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
+            except core_models.Account.DoesNotExist:
+                messages.add_message(request, messages.WARNING, 'No author found with those details.')
 
     elif request.POST and 'main-author' in request.POST:
         correspondence_author = request.POST.get('main-author', None)
@@ -236,12 +243,28 @@ def submit_authors(request, article_id):
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
     """Allows submitting author to delete an author object."""
-    article = get_object_or_404(models.Article, pk=article_id)
-    author = get_object_or_404(core_models.Account, pk=author_id)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+    author = get_object_or_404(
+        core_models.Account,
+        pk=author_id
+    )
+
     article.authors.remove(author)
 
     if article.correspondence_author == author:
         article.correspondence_author = None
+
+    try:
+        ordering = models.ArticleAuthorOrder.objects.get(
+            article=article,
+            author=author,
+        ).delete()
+    except models.ArticleAuthorOrder.DoesNotExist:
+        pass
 
     return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
@@ -340,6 +363,7 @@ def submit_review(request, article_id):
         article.date_submitted = timezone.now()
         article.stage = models.STAGE_UNASSIGNED
         article.current_step = 5
+        article.snapshot_authors(article)
         article.save()
 
         messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
@@ -475,7 +499,12 @@ def edit_identifiers(request, article_id, identifier_id=None, event=None):
         if 'issue_doi' in request.POST:
             # assuming there is only one DOI
             for identifier in identifiers:
-                identifier.register()
+                status, error = identifier.register()
+                messages.add_message(
+                    request,
+                    messages.INFO if not error else messages.ERROR,
+                    status
+                )
         else:
             if identifier:
                 identifier_form = forms.IdentifierForm(request.POST, instance=identifier)
@@ -554,14 +583,23 @@ def licenses(request, license_pk=None):
     licenses = models.Licence.objects.filter(journal=request.journal)
 
     if license_pk and request.journal:
-        license_obj = get_object_or_404(models.Licence, journal=request.journal, pk=license_pk)
+        license_obj = get_object_or_404(
+            models.Licence,
+            journal=request.journal,
+            pk=license_pk
+        )
     elif license_pk and request.press:
-        license_obj = get_object_or_404(models.Licence, press=request.press, pk=license_pk)
+        license_obj = get_object_or_404(
+            models.Licence,
+            press=request.press,
+            pk=license_pk
+        )
 
     form = forms.LicenseForm(instance=license_obj)
 
     if request.POST and 'save' in request.POST:
-        form = forms.LicenseForm(request.POST, instance=license_obj)
+        form = forms.LicenseForm(request.POST,
+                                 instance=license_obj)
 
         if form.is_valid():
             save_license = form.save(commit=False)
@@ -571,14 +609,12 @@ def licenses(request, license_pk=None):
                 save_license.press = request.press
 
             save_license.save()
-            messages.add_message(request, messages.INFO, 'License saved.')
+            messages.add_message(
+                request,
+                messages.INFO,
+                'License saved.'
+            )
             return redirect(reverse('submission_licenses'))
-
-    if request.POST and 'delete' in request.POST:
-        license_to_delete = get_object_or_404(models.Licence, pk=request.POST.get('delete'), journal=request.journal)
-        messages.add_message(request, messages.INFO, 'License {0} deleted'.format(license_to_delete.name))
-        license_to_delete.delete()
-        return redirect(reverse('submission_licenses'))
 
     elif 'order[]' in request.POST:
         ids = [int(_id) for _id in request.POST.getlist('order[]')]
@@ -595,6 +631,42 @@ def licenses(request, license_pk=None):
         'license': license_obj,
         'form': form,
         'licenses': licenses,
+    }
+
+    return render(request, template, context)
+
+
+@staff_member_required
+def delete_license(request, license_pk):
+    """
+    Presents an interface to delete a license object.
+    :param request: HttpRequest object
+    :param license_pk: int, Licence object pk
+    :return: HttpResponse or HttpRedirect
+    """
+    license_to_delete = get_object_or_404(
+        models.Licence,
+        pk=license_pk,
+        journal=request.journal
+    )
+    license_articles = models.Article.objects.filter(
+        license=license_to_delete
+    )
+
+    if request.POST and 'delete' in request.POST:
+        messages.add_message(
+            request,
+            messages.INFO,
+            'License {0} deleted'.format(license_to_delete.name)
+        )
+        license_to_delete.delete()
+
+        return redirect(reverse('submission_licenses'))
+
+    template = 'submission/manager/delete_license.html'
+    context = {
+        'license': license_to_delete,
+        'license_articles': license_articles,
     }
 
     return render(request, template, context)

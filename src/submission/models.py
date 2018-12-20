@@ -15,6 +15,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
@@ -204,22 +206,22 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
-REVIEW_STAGES = [
+REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
     STAGE_UNDER_REVISION
-]
+}
 
-COPYEDITING_STAGES = [
+COPYEDITING_STAGES = {
     STAGE_EDITOR_COPYEDITING,
     STAGE_AUTHOR_COPYEDITING,
     STAGE_FINAL_COPYEDITING,
-]
+}
 
-PREPRINT_STAGES = [
+PREPRINT_STAGES = {
     STAGE_PREPRINT_REVIEW,
     STAGE_PREPRINT_PUBLISHED
-]
+}
 
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, 'Unsubmitted'),
@@ -611,16 +613,7 @@ class Article(models.Model):
     @property
     @cache(600)
     def url(self):
-        if self.is_remote:
-            return self.remote_url
-        else:
-            from utils import setting_handler
-            secure = setting_handler.get_setting('general', 'is_secure', self.journal).processed_value
-            base = "http{0}://{1}".format(
-                's' if secure else '',
-                self.journal.domain
-            )
-            return base + self.local_url
+        return self.journal.site_url(path=self.local_url)
 
     @property
     def local_url(self):
@@ -635,13 +628,11 @@ class Article(models.Model):
     def pdf_url(self):
         from utils import setting_handler
         pdfs = self.pdfs
-        secure = setting_handler.get_setting('general', 'is_secure', self.journal).processed_value
-        base = "http{0}://{1}".format(
-            's' if secure else '',
-            self.journal.domain
-        )
-        return base + reverse('article_download_galley', kwargs={'article_id': self.pk,
-                                                                 'galley_id': pdfs[0].pk})
+        path = reverse('article_download_galley', kwargs={
+            'article_id': self.pk,
+            'galley_id': pdfs[0].pk
+        })
+        return journal.site_url(path=path)
 
     def get_remote_url(self, request):
         parsed_uri = urlparse('http' + ('', 's')[request.is_secure()] + '://' + request.META['HTTP_HOST'])
@@ -900,16 +891,21 @@ class Article(models.Model):
 
     @property
     def current_stage_url(self):
-        if self.stage == STAGE_UNDER_REVIEW or self.stage == STAGE_UNDER_REVISION:
-            return reverse('review_in_review', kwargs={'article_id': self.id})
+
+        kwargs = {'article_id': self.pk}
+
+        if self.stage == STAGE_UNASSIGNED:
+            return reverse('review_unassigned_article', kwargs=kwargs)
+        elif self.stage in REVIEW_STAGES:
+            return reverse('review_in_review', kwargs=kwargs)
         elif self.stage in COPYEDITING_STAGES:
-            return reverse('article_copyediting', kwargs={'article_id': self.id})
+            return reverse('article_copyediting', kwargs=kwargs)
         elif self.stage == STAGE_TYPESETTING:
-            return reverse('production_article', kwargs={'article_id': self.id})
+            return reverse('production_article', kwargs=kwargs)
         elif self.stage == STAGE_PROOFING:
-            return reverse('proofing_article', kwargs={'article_id': self.id})
+            return reverse('proofing_article', kwargs=kwargs)
         elif self.stage == STAGE_READY_FOR_PUBLICATION:
-            return reverse('publish_article', kwargs={'article_id': self.id})
+            return reverse('publish_article', kwargs=kwargs)
 
     def get_meta_image_path(self):
         if self.meta_image and self.meta_image.url:
@@ -1240,3 +1236,25 @@ class SubmissionConfiguration(models.Model):
             article.license = self.default_license
 
         article.save()
+
+
+# Signals
+
+@receiver(pre_delete, sender=FrozenAuthor)
+def remove_author_from_article(sender, instance, **kwargs):
+    """
+    This signal will remove an author from a paper if the user deletes the
+    frozen author record to ensure they are in sync.
+    :param sender: FrozenAuthor class
+    :param instance: FrozenAuthor instance
+    :return: None
+    """
+    try:
+        ArticleAuthorOrder.objects.get(
+            author=instance.author,
+            article=instance.article,
+        ).delete()
+    except ArticleAuthorOrder.DoesNotExist:
+        pass
+
+    instance.article.authors.remove(instance.author)

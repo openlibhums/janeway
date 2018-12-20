@@ -60,6 +60,7 @@ target/
 src/core/settings.py
 *.sqlite*
 *.db
+*tar.gz
 /src/files/articles
 /src/files/journals
 /src/files/journal
@@ -114,3 +115,4 @@ src/core/management/__init__\.py
 src/auth\.json
 
 src/test\.txt
+venv/**

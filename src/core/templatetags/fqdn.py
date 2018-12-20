@@ -18,4 +18,4 @@ def journal_url(context, url_name, *args):
 def journal_base_url(context, journal):
     request = context['request']
 
-    return journal.full_url(request)
+    return journal.site_url()

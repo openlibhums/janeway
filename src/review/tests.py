@@ -367,5 +367,4 @@ class ReviewTests(TestCase):
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
         self.press.save()
-        call_command('sync_journals_to_sites')
         call_command('install_plugins')

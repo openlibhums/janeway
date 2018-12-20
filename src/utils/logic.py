@@ -1,10 +1,12 @@
 import hashlib
 import hmac
+from urllib.parse import SplitResult, quote_plus, urlencode
 
 from django.conf import settings
 
-from utils import models, notify_helpers
+from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
+from utils import models, notify_helpers
 
 
 def parse_mailgun_webhook(post):
@@ -79,3 +81,62 @@ def attempt_actor_email(event):
                                                   to,
                                                   body,
                                                   log_dict=None)
+
+def build_url_for_request(request=None, path="", query=None, fragment=""):
+    """ Builds a url from the base url relevant for the current request context
+    :request: An instance of django.http.HTTPRequest
+    :path: A str indicating the path
+    :query: A dictionary with any GET parameters
+    :fragment: A string indicating the fragment
+    :return: An instance of urllib.parse.SplitResult
+    """
+    if request is None:
+        request = get_current_request()
+
+    return build_url(
+        netloc=request.get_host(),
+        scheme=request.scheme,
+        path=path,
+        query=query,
+        fragment=fragment,
+    )
+
+
+def replace_netloc_port(netloc, new_port):
+    return ":".join((netloc.split(":")[0], new_port))
+
+
+def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
+    """ Builds a url given all its parts
+    :netloc: string
+    :port: int
+    :scheme: string
+    :path: string
+    :query: A dictionary with any GET parameters
+    :fragment: string
+    :return: URL string
+    """
+    if query:
+        query = quote_plus(urlencode(query))
+
+    if scheme is None:
+        scheme = GlobalRequestMiddleware.get_current_request().scheme
+
+    if port is not None:
+        netloc = replace_netloc_port(netloc, port)
+
+    return SplitResult(
+        scheme=scheme,
+        netloc=netloc,
+        path=path,
+        query=query or "",
+        fragment=fragment,
+    ).geturl()
+
+
+def get_current_request():
+    try:
+        return GlobalRequestMiddleware.get_current_request()
+    except KeyError:
+        return None
+

@@ -121,7 +121,7 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
-    domain = request.journal_base_url if request.journal else request.press_base_url
+    domain = request.journal.site_url if request.journal else request.press_base_url
 
     if orcid_code and django_settings.ENABLE_ORCID:
         auth = orcid.retrieve_tokens(orcid_code, domain=domain)
@@ -580,7 +580,7 @@ def flush_cache(request):
     :return: HttpRedirect
     """
     cache.clear()
-    messages.add_message(request, messages.SUCCESS, 'Memcached has been flushed.')
+    messages.add_message(request, messages.SUCCESS, 'Cache has been flushed.')
 
     return redirect(reverse('core_manager_index'))
 

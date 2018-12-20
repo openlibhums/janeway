@@ -73,7 +73,7 @@ def production_assign_article(request, user_id, article_id):
     user = core_models.Account.objects.get(id=user_id)
 
     if user.is_production(request):
-        url = request.journal_base_url + reverse('production_article', kwargs={'article_id': article.id})
+        url = request.journal.site_url() + reverse('production_article', kwargs={'article_id': article.id})
         html = logic.get_production_assign_content(user, request, article, url)
 
         prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
@@ -216,17 +216,44 @@ def assign_typesetter(request, article_id, production_assignment_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyedit_files = logic.get_copyedit_files(article)
     typesetters = logic.get_typesetters(article)
-    errors, _dict = None, None
+    typesetter_form = forms.AssignTypesetter(
+        article=article,
+        files=copyedit_files,
+        typesetters=typesetters,
+        assignment=production_assignment,
+    )
 
     if request.POST.get('typesetter_id'):
-        task = logic.handle_self_typesetter_assignment(production_assignment, request)
-        return redirect(reverse('do_typeset_task', kwargs={'typeset_id': task.id}))
+        task = logic.handle_self_typesetter_assignment(
+            production_assignment,
+            request
+        )
+        return redirect(
+            reverse(
+                'do_typeset_task',
+                kwargs={'typeset_id': task.id}
+            )
+        )
 
     if request.POST:
-        task, errors, _dict = logic.handle_assigning_typesetter(production_assignment, request)
+        typesetter_form = forms.AssignTypesetter(
+            request.POST,
+            request.FILES,
+            article=article,
+            files=copyedit_files,
+            typesetters=typesetters,
+            assignment=production_assignment,
+        )
 
-        if not errors and task:
-            return redirect(reverse('notify_typesetter', kwargs={'typeset_id': task.pk}))
+        if typesetter_form.is_valid():
+            task = typesetter_form.save()
+
+            return redirect(
+                reverse(
+                    'notify_typesetter',
+                    kwargs={'typeset_id': task.pk}
+                )
+            )
 
     template = 'production/assign_typesetter.html'
     context = {
@@ -234,8 +261,7 @@ def assign_typesetter(request, article_id, production_assignment_id):
         'article': article,
         'copyedit_files': copyedit_files,
         'typesetters': typesetters,
-        'errors': errors,
-        'dict': _dict,
+        'form': typesetter_form,
     }
 
     return render(request, template, context)
@@ -250,7 +276,8 @@ def notify_typesetter(request, typeset_id):
     :param typeset_id: TypesetTask object PK
     :return: HttpRedirect if POST otherwise HttpResponse
     """
-    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
+    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id,
+                                assignment__article__journal=request.journal)
     user_message_content = logic.get_typesetter_notification(typeset, request)
 
     if request.POST:
@@ -263,8 +290,10 @@ def notify_typesetter(request, typeset_id):
         }
         typeset.notified = True
         typeset.save()
-        event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_TASK_ASSIGNED, **kwargs)
-        return redirect(reverse('production_article', kwargs={'article_id': typeset.assignment.article.pk}))
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_TYPESET_TASK_ASSIGNED, **kwargs)
+        return redirect(reverse('production_article', kwargs={
+            'article_id': typeset.assignment.article.pk}))
 
     template = 'production/notify_typesetter.html'
     context = {

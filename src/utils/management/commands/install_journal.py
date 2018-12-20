@@ -46,4 +46,3 @@ class Command(BaseCommand):
             install.journal(name=journal_name, code=journal_code, base_url=base_url, delete=delete)
 
             call_command('show_configured_journals')
-            call_command('sync_journals_to_sites')

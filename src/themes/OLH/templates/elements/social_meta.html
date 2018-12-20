@@ -4,9 +4,9 @@
     <meta name="twitter:description" content="{{ news_item.body|striptags|truncatesmart:400 }}">
 
     {% if news_item.large_image_file %}
-        <meta name="twitter:image" content="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}">
+        <meta name="twitter:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}">
     {% else %}
-        <meta name="twitter:image" content="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}{{ request.press.default_carousel_image.url }}">
+        <meta name="twitter:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{{ request.press.default_carousel_image.url }}">
     {% endif %}
 
     <meta property="og:title" content="{{ news_item.title }}" />
@@ -14,9 +14,9 @@
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
 
     {% if news_item.large_image_file %}
-        <meta property="og:image" content="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}" />
+        <meta property="og:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}" />
     {% else %}
-        <meta property="og:image" content="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}{{ request.press.default_carousel_image.url }}" />
+        <meta property="og:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{{ request.press.default_carousel_image.url }}" />
     {% endif %}
 
     <meta property="og:description" content="{{ news_item.body|striptags|truncatesmart:400 }}" />

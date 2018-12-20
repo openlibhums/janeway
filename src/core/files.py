@@ -358,6 +358,33 @@ def serve_file_to_browser(file_path, file_to_serve, public=False):
     return response
 
 
+def serve_pdf_galley_to_browser(request, file, article):
+    """
+    Serves a file to the browser so that it displays in the browser.
+    :param request: HttpRequest object
+    :param file: File object
+    :param article: Article object
+    :return: HttpResponse
+    """
+    file_path = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'articles',
+        str(article.id),
+        str(file.uuid_filename)
+    )
+
+    try:
+        response = HttpResponse(
+            FileWrapper(open(file_path, 'rb')),
+            content_type=file.mime_type
+        )
+        return response
+    except IOError:
+        messages.add_message(request, messages.ERROR, 'File not found.')
+        raise Http404
+
+
 def delete_file(article_object, file_object):
     """ Deletes a file. Note: the actual file is not deleted, this just removes the association of the file with an
     article.

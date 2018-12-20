@@ -459,7 +459,3 @@ th {
     -o-transition: background 0.4s linear;
     transition: background 0.4s linear;
 }
-
-.list-group-item-dashboard {
-    height: 100px;
-}

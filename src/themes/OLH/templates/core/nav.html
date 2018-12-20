@@ -4,21 +4,21 @@
 
 <div class="top-bar" id="main-menu" style="display: block;">
     <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
-        {% if request.journal.nav_home %}<li><a href="/">Home</a></li>{% endif %}
+        {% if request.journal.nav_home %}<li><a href="{% url 'website_index' %}">Home</a></li>{% endif %}
         {% if request.journal.nav_news %}<li><a href="{% url 'core_news_list' %}">News</a></li>{% endif %}
         {% for item in navigation_items %}
         {% if item.has_sub_nav %}
             <li class=".is-dropdown-submenu-parent"><a href="#"
                                                        data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
             <ul class="menu vertical medium-horizontal">
-            <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
+            <li><a href="{{ item.url }}">{{ item.link_name }}</a></li>
             {% for subnav in item.sub_nav_items %}
-                <li><a href="{% if not subnav.is_external %}/{% endif %}{{ subnav.link }}">{{ subnav.link_name }}</a></li>
+                <li><a href="{{ subnav.url }}">{{ subnav.link_name }}</a></li>
             {% endfor %}
             </ul>
             </li>
         {% else %}
-            <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
+            <li><a href="{{ item.url }}">{{ item.link_name }}</a></li>
         {% endif %}
         {% endfor %}
         {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">Articles</a></li>{% endif %}

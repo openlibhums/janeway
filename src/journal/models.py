@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from operator import itemgetter
 import collections
+import logging
 import uuid
 import os
 
@@ -18,10 +19,11 @@ from django.utils import timezone
 
 from core import models as core_models, workflow
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
 from utils.function_cache import cache
-from utils import setting_handler
+from utils import setting_handler, logic
 
 # Issue types
 # Use "Issue" for regular issues (rolling or periodic)
@@ -54,9 +56,8 @@ def issue_large_image_path(instance, filename):
     return os.path.join(path, filename)
 
 
-class Journal(models.Model):
+class Journal(AbstractSiteModel):
     code = models.CharField(max_length=10)
-    domain = models.CharField(max_length=255, default='www.example.com', unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
@@ -72,11 +73,15 @@ class Journal(models.Model):
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(default=False)
-    disable_html_downloads= models.BooleanField(default=False)
+    disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(default=False)
     remote_submit_url = models.URLField(blank=True, null=True)
     remote_view_url = models.URLField(blank=True, null=True)
+    view_pdf_button = models.BooleanField(
+        default=False,
+        help_text='Enables a "View PDF" link on article pages.'
+    )
 
     # Nav Items
     nav_home = models.BooleanField(default=True)
@@ -179,31 +184,34 @@ class Journal(models.Model):
         press = press_models.Press.objects.all()[0]
         return press
 
-    def full_url(self, request=None):
-        if not request:
-            return self.requestless_url()
+    def site_url(self, path=""):
+        port = None
 
-        return 'http{0}://{1}{2}'.format(
-            's' if request.is_secure() else '',
-            self.domain if settings.URL_CONFIG == 'domain' else self.press.domain,
-            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '',
-            '{0}{1}'.format('/' if settings.URL_CONFIG == 'path' else '',
-                            self.code if settings.URL_CONFIG == 'path' else '')
+        if settings.URL_CONFIG == "path":
+            netloc = self.press.domain
+            path = path or self.code
+            request = logic.get_current_request()
+            if request is not None:
+                port = request.get_port()
+        else:
+            netloc = self.domain
+            path = path
+
+        return logic.build_url(
+                netloc=netloc,
+                scheme=self.SCHEMES[self.is_secure],
+                port=port,
+                path=path,
         )
+
+    def full_url(self, request=None):
+        logging.warning("Using journal.full_url is deprecated")
+        return self.site_url
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)
         url_path = reverse(url_name, kwargs=kwargs)
         return "{0}{1}".format(base_url, url_path)
-
-    def requestless_url(self):
-        from core.middleware import GlobalRequestMiddleware
-        local_request = GlobalRequestMiddleware.get_current_request()
-
-        if local_request.journal:
-            return local_request.journal_base_url
-        else:
-            return local_request.press_base_url
 
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
@@ -638,24 +646,17 @@ class Notifications(models.Model):
 
 
 # Signals
-@receiver(post_save, sender=Journal)
-def create_sites_folder(sender, instance, created, **kwargs):
-    path = os.path.join(settings.BASE_DIR, 'sites', instance.code)
-    if created:
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        from submission.models import Section
-        Section.objects.language('en').get_or_create(journal=instance,
-                                                     number_of_reviewers=2,
-                                                     name='Article',
-                                                     plural='Articles')
-
 
 @receiver(post_save, sender=Journal)
 def setup_default_workflow(sender, instance, created, **kwargs):
     if created:
         workflow.create_default_workflow(instance)
+
+
+@receiver(post_save, sender=Journal)
+def setup_submission_configuration(sender, instance, created, **kwargs):
+    if created:
+        submission_models.SubmissionConfiguration.objects.get_or_create(journal=instance)
 
 
 @receiver(post_save, sender=Journal)

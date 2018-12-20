@@ -10,12 +10,12 @@
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}">
+    <a class="navbar-brand" href="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}">
         {% if request.journal %}
             {% if request.journal.header_image %}
-                <a href="/"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
+                <a href="{% url 'website_index' %}"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
             {% else %}
-                <a href="/"><img src="{% static "common/img/sample/janeway.png" %}"></a>
+            <a href="{% url website_index %}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
             {% endif %}
         {% else %}
             <a href="/">{% svg request.press_cover %}</a>
@@ -24,7 +24,7 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto font-weight-bold">
             {% if request.journal.nav_home %}
-                <li class="nav-item"><a href="/" class="nav-link">Home</a></li>{% endif %}
+            <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">Home</a></li>{% endif %}
             {% if request.journal.nav_news %}
                 <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
 
@@ -69,12 +69,12 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
                             {% for subnav in item.sub_nav_items %}
-                                <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
+                                <a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a>
                             {% endfor %}
                         </div>
                     </li>
                 {% else %}
-                    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                    <li class="nav-item"><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
             {% if request.journal.nav_contact %}

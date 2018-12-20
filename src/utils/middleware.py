@@ -3,7 +3,11 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import logging
+import resource
 import threading
+import time
+
 _local = threading.local()
 
 
@@ -18,3 +22,29 @@ class ThemeEngineMiddleware(object):
         if hasattr(_local, 'request'):
             del _local.request
         return response
+
+
+class TimeMonitoring(object):
+    """Monitors the resource usage of a request/response cycle """
+    def __init__(self):
+        self.usage_start = None
+
+    def process_request(self, _request):
+        self.usage_start = self._get_usage()
+
+    def process_response(self, _request, response):
+        diff_usage = self._diff_usages(self.usage_start)
+        logging.info("Request took %0.3f (%0.3fu, %0.3fs)" % diff_usage)
+
+        return response
+
+    @classmethod
+    def _diff_usages(cls, start, end=None):
+        end = end or cls._get_usage()
+        return tuple(b-a for a,b in zip(start, end))
+
+    @staticmethod
+    def _get_usage():
+        utime, stime, *_ = resource.getrusage(resource.RUSAGE_THREAD)
+        return (time.time(), utime, stime)
+

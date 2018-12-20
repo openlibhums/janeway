@@ -5,38 +5,42 @@
 {% block title-section %}Edit Review{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/review_base.html" %}
-<li>Edit Review</li>
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Edit Review</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
-<div class="large-12 columns">
-    <div class="box">
-        <div class="title-area">
-            <h2>Set Options</h2>
-        </div>
-        <div class="content">
-            <p>Once a review is accepted you can no longer change the review type or the form.</p>
-            <div class="row expanded">
-                {% if not review.date_accepted %}
-                <div class="large-6 columns">{{ form.review_type|foundation }}</div>
-                {% endif %}
-                <div class="large-6 columns">{{ form.visibility|foundation }}</div>
-                {% if not review.date_accepted %}
-                <div class="large-6 columns">{{ form.form|foundation }}</div>
-                {% endif %}
-                <div class="large-6 columns">{{ form.date_due|foundation }}</div>
-                <div class="large-12 columns">
-                    <button class="button success" name="update" type="submit">Update Review</button>
-                    <a href="{% url 'review_in_review' article.pk %}" class="button alert" type="submit">Cancel</a>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Set Options</h2>
+            </div>
+            <div class="content">
+                <p>Once a review is accepted you can no longer change the review type or the form.</p>
+                <div class="row expanded">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if not review.date_accepted %}
+                            <div class="large-6 columns">{{ form.review_type|foundation }}</div>
+                        {% endif %}
+                        <div class="large-6 columns">{{ form.visibility|foundation }}</div>
+                        {% if not review.date_accepted %}
+                            <div class="large-6 columns">{{ form.form|foundation }}</div>
+                        {% endif %}
+                        <div class="large-6 columns">{{ form.date_due|foundation }}</div>
+                        <div class="large-12 columns">
+                            <button class="button success" name="update" type="submit">Update Review</button>
+                            <a href="{% url 'review_in_review' article.pk %}" class="button alert"
+                               type="submit">Cancel</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock body %}
 
 {% block js %}
-{% include "elements/datepicker.html" with target="#id_date_due" %}
+    {% include "elements/datepicker.html" with target="#id_date_due" %}
 {% endblock js %}

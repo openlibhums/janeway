@@ -46,7 +46,7 @@ services:
       - DB_USER
       - DB_NAME
       - PYTHONDONTWRITEBYTECODE=yes
-      - DJANGO_SETTINGS_MODULE=core.example_settings
+      - JANEWAY_SETTINGS_MODULE=core.janeway_global_settings
     depends_on:
       - "start_dependencies"
 

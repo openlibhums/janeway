@@ -30,14 +30,14 @@
     <meta name="DC.Identifier.pageNumber" content="{{ article.page_number }}"/>{% if article.identifier.id_type == "doi" %}
     <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>{% endif %}
 
-    <meta name="DC.Identifier.URI" content="{{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="DC.Identifier.URI" content="{{ request.journal.site_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
     <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
     <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
     <meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>
     <meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>
-    <meta name="DC.Source.URI" content="{{ request.journal_base_url }}{% url 'website_index' %}"/>
+    <meta name="DC.Source.URI" content="{{ request.journal.site_url }}{% url 'website_index' %}"/>
     <meta name="DC.Title" content="{{ article.title | striptags }}"/>
 
     <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
@@ -50,7 +50,7 @@
     <meta name="citation_volume" content="{{ article.issue.volume }}"/>
     <meta name="citation_issue" content="{{ article.issue.issue }}"/>{% if article.identifier.id_type == "doi" %}
     <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
-    <meta name="citation_abstract_html_url" content="{{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="citation_abstract_html_url" content="{{ request.journal.site_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="citation_language" content="{{ article.language }}"/>
 
     {% if article.keywords %}
@@ -133,7 +133,7 @@
                             <ul class="menu vertical medium-horizontal"
                                 data-responsive-menu="drilldown medium-dropdown">
                                 <li>{% trans "Share" %}:</li>
-                                <li><a href="https://www.facebook.com/share.php?p[url]={{ request.journal_base_url }}{{ request.path }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://www.facebook.com/share.php?p[url]={{ request.journal.site_url }}{{ request.path }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
                                 <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {{ article.url }}" target="_blank"><i class="fa fa-twitter"></i></a></li>
                                 <li><a href="https://plus.google.com/share?url={{ article.url }}"><i class="fa fa-google-plus"></i></a></li>
                                 <li><a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}"><i class="fa fa-linkedin"></i></a></li>
@@ -170,7 +170,7 @@
                         <div id="article" class="large-10 columns">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h5>
+                    <h3>{{ article.title|safe }}</h3>
                 <hr/>
                 {% endif %}
                             {% if article.abstract != '' %}
@@ -241,11 +241,12 @@
                                 </div>
                             </div>
                             {% if article_content %}
-                            <h2>{% trans "Article" %}</h2>
-                            <div itemprop="articleBody">
-                                {{ article_content|safe }}
-                                {% hook 'article_footer_block' %}
-                            </div>
+                                <article id="main_article">
+                                    <div itemprop="articleBody">
+                                        {{ article_content|safe }}
+                                        {% hook 'article_footer_block' %}
+                                    </div>
+                                </article>
                             {% endif %}
                         </div>
                     </div>
@@ -259,6 +260,12 @@
                                 {% for galley in galleys %}
                                     <li>
                                         <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                            </li>
+                                            <li>
+                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">View PDF</a>
+                                            </li>
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
                             </ul>

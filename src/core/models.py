@@ -7,36 +7,35 @@ import os
 import uuid
 import statistics
 import json
+import logging
 from datetime import timedelta
+from urllib.parse import urlunparse
+
 from bs4 import BeautifulSoup
 from hvad.models import TranslatableModel, TranslatedFields
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.models import Site
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
-if settings.URL_CONFIG == 'path':
-    from core.monkeypatch import reverse
-    from django import urls
-
-    urls.reverse = reverse
-    urls.base.reverse = reverse
-
 from core import files
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
 
 fs = JanewayFileSystemStorage()
+logger = logging.getLogger(__name__)
+
+
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -674,7 +673,15 @@ class File(models.Model):
             return 0
 
     def checksum(self):
-        return files.checksum(self.self_article_path())
+        if self.article_id:
+            return files.checksum(self.self_article_path())
+        else:
+            logger.error(
+                'Galley file ({file_id}) found with no article_id.'.format(
+                    file_id=self.pk
+                ), extra={'stack': True}
+            )
+            return 'No checksum could be calculated.'
 
     def public_download_name(self):
         article = self.article
@@ -792,10 +799,10 @@ class Galley(models.Model):
             return self.file.render_xml(self.article, galley=self)
 
     def path(self):
-        url = reverse('article_download_galley', kwargs={'article_id': self.article.pk,
-                                                         'galley_id': self.pk})
-        base_url = self.article.journal.requestless_url()
-        return '{base_url}{url}'.format(base_url=base_url, url=url)
+        url = reverse('article_download_galley',
+                      kwargs={'article_id': self.article.pk,
+                              'galley_id': self.pk})
+        return self.article.journal.site_url(path=url)
 
 
 class SupplementaryFile(models.Model):
@@ -816,7 +823,7 @@ class SupplementaryFile(models.Model):
         return files.file_path_mime(self.path())
 
     def url(self):
-        base_url = self.file.article.journal.requestless_url()
+        base_url = self.file.article.journal.full_url()
         path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
                                                              'supp_file_id': self.pk})
         return '{base}{path}'.format(base=base_url, path=path)
@@ -943,21 +950,31 @@ class Contact(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
 
-class DomainAlias(models.Model):
-    domain = models.CharField(max_length=255)
-    redirect = models.BooleanField(default=True, verbose_name="301",
-                                   help_text="If enabled, the site will throw a 301 redirect to the master domain.")
-    site_id = models.PositiveIntegerField()
+class DomainAlias(AbstractSiteModel):
+    redirect = models.BooleanField(
+            default=True,
+            verbose_name="301",
+            help_text="If enabled, the site will throw a 301 redirect to the "
+                "master domain."
+    )
+    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+    press = models.ForeignKey('press.Press', blank=True, null=True)
 
     @property
-    def site(self):
-        return Site.objects.get(pk=self.site_id)
+    def site_object(self):
+        return self.journal or self.press
 
     def build_redirect_url(self, request):
-        protocol = 'https' if request.is_secure() else 'http'
-        return "{0}://{1}{2}".format(protocol,
-                                     self.site.domain,
-                                     request.path)
+        return urlunparse(
+                request.scheme, self.site_object.domain, request.path,
+                None, None
+        )
+
+    def save(self, *args, **kwargs):
+        if not bool(self.journal) ^ bool(self.press):
+            raise ValidationError(
+                    " One and only one of press or journal must be set")
+        return super().save(*args, **kwargs)
 
 
 BASE_ELEMENTS = [

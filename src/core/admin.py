@@ -85,6 +85,7 @@ class FileAdmin(admin.ModelAdmin):
     list_filter = ('mime_type', 'article_id')
     raw_id_fields = ('owner',)
     filter_horizontal = ('history',)
+    readonly_fields = ['article_id']
 
     def article_pk(self, obj):
         if obj.article:
@@ -160,7 +161,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 class DomainAliasAdmin(admin.ModelAdmin):
-    list_display = ('domain', 'redirect', 'site_id')
+    list_display = ('domain', 'redirect', 'journal')
 
 
 class WorkflowAdmin(admin.ModelAdmin):

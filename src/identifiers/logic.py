@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from uuid import uuid4
 import requests
+import logging
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -35,7 +36,7 @@ def register_crossref_doi(identifier):
                                                identifier.article.journal).processed_value
 
     if not use_crossref:
-        print("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
+        logging.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return
 
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', identifier.article.journal).processed_value
@@ -47,7 +48,7 @@ def register_crossref_doi(identifier):
         util_models.LogEntry.add_entry('Submission', "DOI registration running in live mode", 'Info',
                                        target=identifier.article)
 
-    send_crossref_deposit(test_url if test_mode else live_url, identifier)
+    return send_crossref_deposit(test_url if test_mode else live_url, identifier)
 
 
 def register_crossref_component(article, xml, supp_file):
@@ -60,7 +61,7 @@ def register_crossref_component(article, xml, supp_file):
                                                article.journal).processed_value
 
     if not use_crossref:
-        print("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
+        logging.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return
 
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
@@ -87,14 +88,14 @@ def register_crossref_component(article, xml, supp_file):
                                        "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                        'Debug',
                                        target=article)
-        print("Error depositing: {}".format(response.status_code), file=sys.stderr)
-        print(response.text, file=sys.stderr)
+        logging.error("Error depositing: {}".format(response.status_code))
+        logging.error(response.text, file=sys.stderr)
     else:
         token = response.json()['message']['batch-id']
         status = response.json()['message']['status']
         util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                        target=article)
-        print("Status of {} in {}: {}".format(token, '{0}.{1}'.format(article.get_doi(), supp_file.pk), status))
+        logging.info("Status of {} in {}: {}".format(token, '{0}.{1}'.format(article.get_doi(), supp_file.pk), status))
 
 
 def send_crossref_deposit(server, identifier):
@@ -105,6 +106,7 @@ def send_crossref_deposit(server, identifier):
 
     from utils import setting_handler
     article = identifier.article
+    error = False
 
     template_context = {
         'batch_id': uuid4(),
@@ -153,14 +155,23 @@ def send_crossref_deposit(server, identifier):
                                        "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                        'Debug',
                                        target=identifier.article)
-        print("Error depositing: {}".format(response.status_code), file=sys.stderr)
-        print(response.text, file=sys.stderr)
+
+        status = "Error depositing: {code}, {text}".format(
+            code=response.status_code,
+            text=response.text
+        )
+        logging.error(status)
+        logging.error(response.text)
+        error = True
     else:
         token = response.json()['message']['batch-id']
         status = response.json()['message']['status']
         util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                        target=identifier.article)
-        print("Status of {} in {}: {}".format(token, identifier.identifier, status))
+        status = "Status of {} in {}: {}".format(token, identifier.identifier, status)
+        logging.info(status)
+
+    return status, error
 
 
 def create_crossref_doi_identifier(article, doi_suffix=None, suffix_is_whole_doi=False):
@@ -298,11 +309,11 @@ def register_preprint_doi(request, crossref_enabled, identifier):
                                            "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                            'Debug',
                                            target=identifier.article)
-            print("Error depositing: {}".format(response.status_code), file=sys.stderr)
-            print(response.text, file=sys.stderr)
+            logging.error("Error depositing: {}".format(response.status_code))
+            logging.error(response.text)
         else:
             token = response.json()['message']['batch-id']
             status = response.json()['message']['status']
             util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                            target=identifier.article)
-            print("Status of {} in {}: {}".format(token, identifier.identifier, status))
+            logging.info("Status of {} in {}: {}".format(token, identifier.identifier, status))
