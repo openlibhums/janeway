@@ -900,16 +900,23 @@ class Article(models.Model):
 
     @property
     def current_stage_url(self):
-        if self.stage == STAGE_UNDER_REVIEW or self.stage == STAGE_UNDER_REVISION:
-            return reverse('review_in_review', kwargs={'article_id': self.id})
+
+        kwargs = {'article_id': self.pk}
+
+        if self.stage == STAGE_UNASSIGNED:
+            return reverse('review_unassigned_article', kwargs=kwargs)
+        elif self.stage == STAGE_UNDER_REVIEW or \
+            self.stage == STAGE_ASSIGNED or \
+                self.stage == STAGE_UNDER_REVISION:
+            return reverse('review_in_review', kwargs=kwargs)
         elif self.stage in COPYEDITING_STAGES:
-            return reverse('article_copyediting', kwargs={'article_id': self.id})
+            return reverse('article_copyediting', kwargs=kwargs)
         elif self.stage == STAGE_TYPESETTING:
-            return reverse('production_article', kwargs={'article_id': self.id})
+            return reverse('production_article', kwargs=kwargs)
         elif self.stage == STAGE_PROOFING:
-            return reverse('proofing_article', kwargs={'article_id': self.id})
+            return reverse('proofing_article', kwargs=kwargs)
         elif self.stage == STAGE_READY_FOR_PUBLICATION:
-            return reverse('publish_article', kwargs={'article_id': self.id})
+            return reverse('publish_article', kwargs=kwargs)
 
     def get_meta_image_path(self):
         if self.meta_image and self.meta_image.url:
