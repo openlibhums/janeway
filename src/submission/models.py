@@ -15,6 +15,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
@@ -1234,3 +1236,25 @@ class SubmissionConfiguration(models.Model):
             article.license = self.default_license
 
         article.save()
+
+
+# Signals
+
+@receiver(pre_delete, sender=FrozenAuthor)
+def remove_author_from_article(sender, instance, **kwargs):
+    """
+    This signal will remove an author from a paper if the user deletes the
+    frozen author record to ensure they are in sync.
+    :param sender: FrozenAuthor class
+    :param instance: FrozenAuthor instance
+    :return: None
+    """
+    try:
+        ArticleAuthorOrder.objects.get(
+            author=instance.author,
+            article=instance.article,
+        ).delete()
+    except ArticleAuthorOrder.DoesNotExist:
+        pass
+
+    instance.article.authors.remove(instance.author)

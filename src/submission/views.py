@@ -243,12 +243,28 @@ def submit_authors(request, article_id):
 @article_edit_user_required
 def delete_author(request, article_id, author_id):
     """Allows submitting author to delete an author object."""
-    article = get_object_or_404(models.Article, pk=article_id)
-    author = get_object_or_404(core_models.Account, pk=author_id)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+    author = get_object_or_404(
+        core_models.Account,
+        pk=author_id
+    )
+
     article.authors.remove(author)
 
     if article.correspondence_author == author:
         article.correspondence_author = None
+
+    try:
+        ordering = models.ArticleAuthorOrder.objects.get(
+            article=article,
+            author=author,
+        ).delete()
+    except models.ArticleAuthorOrder.DoesNotExist:
+        pass
 
     return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
@@ -347,6 +363,7 @@ def submit_review(request, article_id):
         article.date_submitted = timezone.now()
         article.stage = models.STAGE_UNASSIGNED
         article.current_step = 5
+        article.snapshot_authors(article)
         article.save()
 
         messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
