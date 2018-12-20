@@ -87,7 +87,7 @@ class Command(BaseCommand):
                 '{domain}/install/ to continue this setup process.'.format(
                     domain=journal.domain
                         if settings.URL_CONFIG == 'domain'
-                        else '{press_domain}/{journal_code}'.format(
+                        else '{}/{}'.format(
                             press.domain, journal.code)
                 )
             )
