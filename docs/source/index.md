@@ -11,6 +11,7 @@
 
    installation
    userguides
+   manager
 
 
 # Indices and tables
