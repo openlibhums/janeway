@@ -204,22 +204,22 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
-REVIEW_STAGES = [
+REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
     STAGE_UNDER_REVISION
-]
+}
 
-COPYEDITING_STAGES = [
+COPYEDITING_STAGES = {
     STAGE_EDITOR_COPYEDITING,
     STAGE_AUTHOR_COPYEDITING,
     STAGE_FINAL_COPYEDITING,
-]
+}
 
-PREPRINT_STAGES = [
+PREPRINT_STAGES = {
     STAGE_PREPRINT_REVIEW,
     STAGE_PREPRINT_PUBLISHED
-]
+}
 
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, 'Unsubmitted'),
@@ -905,9 +905,7 @@ class Article(models.Model):
 
         if self.stage == STAGE_UNASSIGNED:
             return reverse('review_unassigned_article', kwargs=kwargs)
-        elif self.stage == STAGE_UNDER_REVIEW or \
-            self.stage == STAGE_ASSIGNED or \
-                self.stage == STAGE_UNDER_REVISION:
+        elif self.stage in REVIEW_STAGES:
             return reverse('review_in_review', kwargs=kwargs)
         elif self.stage in COPYEDITING_STAGES:
             return reverse('article_copyediting', kwargs=kwargs)
