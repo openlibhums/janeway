@@ -182,15 +182,22 @@ def submit_authors(request, article_id):
                 return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     elif request.POST and 'search_authors' in request.POST:
-        search = request.POST.get('author_search_text')
-
-        try:
-            search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
-            article.authors.add(search_author)
-            models.ArticleAuthorOrder.objects.get_or_create(article=article, author=search_author)
-            messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
-        except core_models.Account.DoesNotExist:
-            messages.add_message(request, messages.WARNING, 'No author found with those details.')
+        search = request.POST.get('author_search_text', None)
+        
+        if not search:
+            messages.add_message(
+                request, 
+                messages.WARNING, 
+                'An empty search is not allowed.'
+            )
+        else:
+            try:
+                search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
+                article.authors.add(search_author)
+                models.ArticleAuthorOrder.objects.get_or_create(article=article, author=search_author)
+                messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
+            except core_models.Account.DoesNotExist:
+                messages.add_message(request, messages.WARNING, 'No author found with those details.')
 
     elif request.POST and 'main-author' in request.POST:
         correspondence_author = request.POST.get('main-author', None)
