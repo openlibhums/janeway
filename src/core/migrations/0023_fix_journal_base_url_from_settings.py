@@ -6,15 +6,15 @@ def replace_journal_base_url(apps, schema_editor):
     SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
     settings = SettingValueTranslation.objects.all()
     for setting in settings:
-        s.value = s.value.replace("request.journal_base_url", "journal.site_url")
-        s.save()
+        setting.value = setting.value.replace("request.journal_base_url", "journal.site_url")
+        setting.save()
 
 def reverse_code(apps, schema_editor):
     SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
     settings = SettingValueTranslation.objects.all()
     for setting in settings:
-        s.value = s.value.replace("journal.site_url", "request.replace_journal_base_url")
-        s.save()
+        setting.value = setting.value.replace("journal.site_url", "request.replace_journal_base_url")
+        setting.save()
 
 class Migration(migrations.Migration):
 

@@ -187,7 +187,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite'),
+            'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite3'),
         }
     }
 
