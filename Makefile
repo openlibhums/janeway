@@ -78,4 +78,4 @@ uninstall:	## Removes all janeway related docker containers, docker images and d
 check:		## Runs janeway test suit
 	bash -c "DB_VENDOR=sqlite make command CMD=test"
 build:		## Builds the base docker image
-	bash -c "docker build --no-cache -t janeway:`git rev-parse --abbrev-ref HEAD`"
+	bash -c "docker build --no-cache -t janeway:`git rev-parse --abbrev-ref HEAD` ."
