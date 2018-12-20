@@ -1255,4 +1255,12 @@ def remove_author_from_article(sender, instance, **kwargs):
     :param instance: FrozenAuthor instance
     :return: None
     """
+    try:
+        ArticleAuthorOrder.objects.get(
+            author=instance.author,
+            article=instance.article,
+        ).delete()
+    except ArticleAuthorOrder.DoesNotExist:
+        pass
+
     instance.article.authors.remove(instance.author)
