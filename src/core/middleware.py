@@ -3,92 +3,122 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import logging
 from uuid import uuid4
-import _thread as thread
-
-from django.contrib.sites import models as site_models
+import threading
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from django.conf import settings
+from django.urls import set_script_prefix
 
 from press import models as press_models
 from utils import models as util_models, setting_handler
 from core import models as core_models
+from journal import models as journal_models
 
 
-def set_journal(request, site):
-    from journal import models as journal_models
-    if settings.URL_CONFIG == 'path':
-        journal_code = request.path.split('/')[1]
-        request.journal = journal_models.Journal.objects.get(code=journal_code)
-    else:
-        request.journal = journal_models.Journal.objects.get(domain=site.domain)
+def get_site_resources(request):
+    """ Attempts to match the relevant resources for the request url
+
+    Result depends on the value of settings.URL_CONFIG
+    :param request: A Django HttpRequest
+    :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
+    """
+    journal = press = redirect_obj = None
+    try: # try journal site
+        if settings.URL_CONFIG == 'path':
+            code = request.path.split('/')[1]
+            journal = journal_models.Journal.objects.get(code=code)
+            press = journal.press
+        elif settings.URL_CONFIG == 'domain':
+            journal = journal_models.Journal.get_by_request(request)
+            press = journal.press
+        else:
+            raise ImproperlyConfigured(
+                    "'%s' is not a valid value for settings.URL_CONFIG"
+                    "" % settings.URL_CONFIG
+            )
+    except (journal_models.Journal.DoesNotExist, IndexError):
+        try: # try press site
+            press = press_models.Press.get_by_request(request)
+        except press_models.Press.DoesNotExist:
+            try: # try alias
+                alias = core_models.DomainAlias.get_by_request(request)
+                if alias.redirect:
+                    redirect_obj = redirect(alias.build_redirect_url(request))
+                else:
+                    journal = alias.journal
+                    press = journal.press if journal else alias.press
+            except core_models.DomainAlias.DoesNotExist:
+                # Give up
+                logging.warning(
+                    "Couldn't match a resource for %s, redirecting to %s"
+                    "" % (request.path, settings.DEFAULT_HOST)
+                )
+                redirect_obj = redirect(settings.DEFAULT_HOST)
+
+    return journal, press, redirect_obj
 
 
 class SiteSettingsMiddleware(object):
     @staticmethod
     def process_request(request):
-        """ This middleware class sets a series of variables for templates and views to access inside the request object
+        """ This middleware class sets a series of variables for templates
+        and views to access inside the request object. It defines what site
+        is being requested based on the domain:
+
+        if settings.URL_CONFIG is set to 'domain':
+            matches alias, journal, press  models by domain (in that order)
+        if settings.URL_CONFIG is set to 'domain':
+            matches the press by domain and journal by path. If no journal code
+            is present it assumes a press site.
 
         :param request: the current request
         :return: None or an http 404 error in the event of catastrophic failure
         """
 
-        # Attempt to get the current site. If it isn't found, check for an alias object and use that site.
-        try:
-            site = site_models.Site.objects._get_site_by_request(request)
-        except site_models.Site.DoesNotExist:
-            try:
-                domain = request.get_host().split(':')[0]
-                alias = core_models.DomainAlias.objects.get(domain=domain)
-                if alias.redirect:
-                    return redirect(alias.build_redirect_url(request))
-                else:
-                    site = alias.site
-            except core_models.DomainAlias.DoesNotExist:
-                return redirect(settings.DEFAULT_HOST)
+        journal, press, redirect_obj = get_site_resources(request)
+        logging.warning(journal)
+        if redirect_obj is not None:
+            return redirect_obj
 
-        request.site = site
         request.port = request.META['SERVER_PORT']
-        request.press = press_models.Press.get_press(request)
-        request.press_cover = request.press.press_cover(request)
-        request.press_base_url = request.press.press_url(request)
+        request.press = press
+        request.press_cover = press.press_cover(request)
 
-        try:
-            set_journal(request, site)
-            request.journal_base_url = request.journal.full_url(request)
-            request.journal_cover = request.journal.override_cover(request)
-            request.site_type = request.journal
-            request.model_content_type = ContentType.objects.get_for_model(request.journal)
-        except ObjectDoesNotExist:
-            # likely the press site, so set journal to None
+        if journal is not None:
+            request.journal = journal
+            request.journal_cover = journal.override_cover(request)
+            request.site_type = journal
+            request.model_content_type = ContentType.objects.get_for_model(
+                    journal)
+
+            if settings.URL_CONFIG == 'path':
+                prefix = "/" + journal.code
+                logging.debug("Setting script prefix to %s" % prefix)
+                set_script_prefix(prefix)
+                request.path_info = request.path_info[len(prefix):]
+
+        elif press is not None:
             request.journal = None
-            request.site_type = request.press
-            request.model_content_type = ContentType.objects.get_for_model(request.press)
-        except MultipleObjectsReturned:
-            # more than one journal returned for this domain
-            # this is likely due to misconfiguration but shouldn't happen due to unique constraints
-            util_models.LogEntry.add_entry('Error', 'Multiple journal objects were returned on domain {0}.'.format(site.domain),
-                                           'Error')
+            request.site_type = press
+            request.model_content_type = ContentType.objects.get_for_model(press)
+        else:
             raise Http404()
 
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
-            if request.journal and request.journal.get_setting('general', 'is_secure') and not request.is_secure() \
-                    and not settings.DEBUG:
+            if (
+                    request.journal
+                    and request.journal.is_secure
+                    and not settings.DEBUG
+            ):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
-            elif not request.journal and request.press.is_secure and not request.is_secure() and not settings.DEBUG:
+            elif request.press.is_secure and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
-
-    def process_view(self, request, view_func, view_args, view_kwargs):
-        if settings.URL_CONFIG == 'path':
-            try:
-                view_kwargs.pop('journal_code')
-            except KeyError:
-                pass
 
 
 class MaintenanceModeMiddleware(object):
@@ -156,25 +186,14 @@ class PressMiddleware(object):
                         raise Http404('Press cannot access this page.')
 
 
-class GlobalRequestMiddleware(object):
-    _threadmap = {}
+_threadlocal = threading.local()
 
+
+class GlobalRequestMiddleware(object):
     @classmethod
     def get_current_request(cls):
-        return cls._threadmap[thread.get_ident()]
+        return _threadlocal.request
 
-    def process_request(self, request):
-        self._threadmap[thread.get_ident()] = request
-
-    def process_exception(self, request, exception):
-        try:
-            del self._threadmap[thread.get_ident()]
-        except KeyError:
-            pass
-
-    def process_response(self, request, response):
-        try:
-            del self._threadmap[thread.get_ident()]
-        except KeyError:
-            pass
-        return response
+    @staticmethod
+    def process_request(request):
+        _threadlocal.request = request

@@ -60,6 +60,7 @@ target/
 src/core/settings.py
 *.sqlite3
 *.db
+*tar.gz
 /src/files/articles
 /src/files/journals
 /src/files/journal

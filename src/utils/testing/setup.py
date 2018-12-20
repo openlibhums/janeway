@@ -62,7 +62,6 @@ def create_journals():
     sys.stdout = out
 
     call_command('sync_settings_to_journals', stdout=out)
-    call_command('sync_journals_to_sites', stdout=out)
 
     journal_one.name = 'Journal One'
     journal_two.name = 'Journal Two'

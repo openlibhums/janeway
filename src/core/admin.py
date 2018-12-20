@@ -161,7 +161,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 class DomainAliasAdmin(admin.ModelAdmin):
-    list_display = ('domain', 'redirect', 'site_id')
+    list_display = ('domain', 'redirect', 'journal')
 
 
 class WorkflowAdmin(admin.ModelAdmin):

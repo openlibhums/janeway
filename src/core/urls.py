@@ -18,20 +18,8 @@ urlpatterns = [
     url(r'^$', press_views.index, name='website_index'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^summernote/', include('django_summernote.urls')),
+    url(r'', include('core.include_urls')),
 ]
-
-if settings.URL_CONFIG == 'domain':
-
-    urlpatterns += [
-        url(r'', include('core.include_urls')),
-    ]
-
-else:
-
-    urlpatterns += [
-        url(r'^(?P<journal_code>[-\w.]+)/', include('core.include_urls')),
-    ]
-
 
 if settings.DEBUG:
     import debug_toolbar

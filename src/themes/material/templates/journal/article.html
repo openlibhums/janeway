@@ -36,14 +36,14 @@
 
 
 
-            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+            {{ request.journal.site_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
     <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
     <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
     <meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>
     <meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>
-    <meta name="DC.Source.URI" content="{{ request.journal_base_url }}{% url 'website_index' %}"/>
+    <meta name="DC.Source.URI" content="{{ request.journal.site_url }}{% url 'website_index' %}"/>
     <meta name="DC.Title" content="{{ article.title | striptags }}"/>
 
     <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
@@ -62,7 +62,7 @@
 
 
 
-            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+            {{ request.journal.site_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
     <meta name="citation_language" content="{{ article.language }}"/>
 
     {% if article.keywords %}

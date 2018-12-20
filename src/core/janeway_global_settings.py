@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'django.contrib.humanize',
 
     # Installed Apps
@@ -140,9 +139,6 @@ TEMPLATES = [
                 'utils.template_override_middleware.Loader',
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-            ],
-            'builtins': [
-                'core.templatetags.pathurl',
             ],
         },
     },
@@ -417,7 +413,7 @@ BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
 BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
 
-URL_CONFIG = 'domain'  # path or domain
+URL_CONFIG = 'path'  # path or domain
 
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro

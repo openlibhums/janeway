@@ -7,7 +7,7 @@
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper{% if not request.journal.full_width_navbar %} container{% endif %}">
-        <a id="logo-container" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo">
+        <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo">
             {% if request.journal %}
                 {% if request.journal.header_image %}
                     <img src="{{ request.journal.header_image.url }}" class="header-override-image">
@@ -15,12 +15,12 @@
                     <img src="{% static "common/img/sample/janeway.png" %}">
                 {% endif %}
             {% else %}
-                <a href="/">{% svg request.press_cover %}</a>
+            <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
             {% if request.journal.nav_home %}
-                <li><a href="/">Home</a></li>
+            <li><a href="{% url 'website_index' %}">Home</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
                 <li><a href="{% url 'core_news_list' %}">News</a></li>
@@ -50,7 +50,7 @@
                            data-activates="{{ item.link_name|slugify }}">{{ item.link_name }}<i
                             class="material-icons right">arrow_drop_down</i></a></li>
                 {% else %}
-                    <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                <li><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
 
@@ -69,7 +69,7 @@
 
         <ul class="side-nav" id="nav-mobile">
             {% if request.journal.nav_home %}
-                <li><a href="/">{% trans "Home" %}</a></li>
+            <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
                 <li><a href="{% url 'core_news_list' %}">{% trans "News" %}</a></li>
@@ -96,7 +96,7 @@
                            data-activates="{{ item.link_name|slugify }}-mobile">{{ item.link_name }}<i
                             class="material-icons right">arrow_drop_down</i></a></li>
                 {% else %}
-                    <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                    <li><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
 
@@ -180,9 +180,9 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
-            <li><a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            <li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>
             {% for subnav in item.sub_nav_items %}
-                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
+                <li><a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -191,9 +191,9 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}-mobile" class="dropdown-content">
-            <li><a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            <li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>
             {% for subnav in item.sub_nav_items %}
-                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
+                <li><a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}

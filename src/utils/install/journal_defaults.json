@@ -146,7 +146,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the <a href=\"{{ request.journal_base_url }}{% url 'review_in_review' article.pk %}\">journal site</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the <a href=\"{{ request.journal.site_url }}{% url 'review_in_review' article.pk %}\">journal site</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -176,7 +176,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }},<br><br>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \"{{ article.title }}\" in {{ article.journal.name }}. You can view more information on the <a href=\"{{request.journal_base_url}}{% url 'review_in_review' article.pk %}\">journal site</a>.<br><br>Regards,"
+            "default": "Dear {{ review_assignment.editor.full_name }},<br><br>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \"{{ article.title }}\" in {{ article.journal.name }}. You can view more information on the <a href=\"{{request.journal.site_url}}{% url 'review_in_review' article.pk %}\">journal site</a>.<br><br>Regards,"
         }
     },
     {
@@ -191,7 +191,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access you revision here: <a href=\"{{ request.journal_base_url }}{% url 'do_revisions' article.pk revision.pk %}\">{{ request.journal_base_url }}{% url 'do_revisions' article.pk revision.pk %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access you revision here: <a href=\"{{ request.journal.site_url }}{% url 'do_revisions' article.pk revision.pk %}\">{{ request.journal.site_url }}{% url 'do_revisions' article.pk revision.pk %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -206,7 +206,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{{ request.journal_base_url }}{% url 'do_review' review_assignment.id %}\">{{ request.journal_base_url }}{% url 'do_review' review_assignment.id %}</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{{ request.journal.site_url }}{% url 'do_review' review_assignment.id %}\">{{ request.journal.site_url }}{% url 'do_review' review_assignment.id %}</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -236,7 +236,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been <a href=\"{{ request.journal_base_url }}{% url 'review_in_review' review_assignment.article.pk %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been <a href=\"{{ request.journal.site_url }}{% url 'review_in_review' review_assignment.article.pk %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -251,7 +251,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the <a href=\"{{request.journal_base_url}}{% url 'review_in_review' article.pk %}\">journal site</a>. <br><br>Regards,"
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the <a href=\"{{request.journal.site_url}}{% url 'review_in_review' article.pk %}\">journal site</a>. <br><br>Regards,"
         }
     },
     {
@@ -641,7 +641,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br><br>This assignment is due on {{ assignment.due }}. You can access this task on the&nbsp;<a href=\"{{request.journal_base_url}}{% url 'copyedit_requests' %}\">journal site</a>.</p><p><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br><br>This assignment is due on {{ assignment.due }}. You can access this task on the&nbsp;<a href=\"{{request.journal.site_url}}{% url 'copyedit_requests' %}\">journal site</a>.</p><p><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -671,7 +671,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>The copyeditor has completed their task, you can review the <a href=\"{{request.journal_base_url}}{{ url }}\">copyedits</a>.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>The copyeditor has completed their task, you can review the <a href=\"{{request.journal.site_url}}{{ url }}\">copyedits</a>.<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -686,7 +686,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the&nbsp;<a href=\"{{request.journal_base_url}}{% url 'copyedit_requests' %}\">journal site</a>.<br><br>[ADD FEEDBACK HERE].<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the&nbsp;<a href=\"{{request.journal.site_url}}{% url 'copyedit_requests' %}\">journal site</a>.<br><br>[ADD FEEDBACK HERE].<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -716,7 +716,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ copyedit.editor.full_name }},<br><br>The author {{ author_review.author.full_name }} has completed their review.<br><br>Their comments can be accessed <a href=\"{{request.journal_base_url}}{% url 'editor_review' copyedit.article.id copyedit.id %}\">here</a>.<br>"
+            "default": "Dear {{ copyedit.editor.full_name }},<br><br>The author {{ author_review.author.full_name }} has completed their review.<br><br>Their comments can be accessed <a href=\"{{request.journal.site_url}}{% url 'editor_review' copyedit.article.id copyedit.id %}\">here</a>.<br>"
         }
     },
     {
@@ -761,7 +761,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this <a href=\"{{ request.journal_base_url }}{% url 'typesetter_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this <a href=\"{{ request.journal.site_url }}{% url 'typesetter_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -836,7 +836,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_assignment.proofing_manager.full_name }},</p><p>You have been <a href=\"{{request.journal_base_url}}{% url 'proofing_article' article.pk %}\">assigned as the Proofing Manager</a> for {{ article.title }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ proofing_assignment.proofing_manager.full_name }},</p><p>You have been <a href=\"{{request.journal.site_url}}{% url 'proofing_article' article.pk %}\">assigned as the Proofing Manager</a> for {{ article.title }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         }
     },
     {
@@ -851,7 +851,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_task.round.assignment.proofing_manager.full_name }},<br><br>I have completed <a href=\"{{request.journal_base_url}}{% url 'proofing_article' proofing_task.round.assignment.article.pk %}\">proofreading</a> for \"{{ proofing_task.round.assignment.article.title }}\".<br></p><p><br>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ proofing_task.round.assignment.proofing_manager.full_name }},<br><br>I have completed <a href=\"{{request.journal.site_url}}{% url 'proofing_article' proofing_task.round.assignment.article.pk %}\">proofreading</a> for \"{{ proofing_task.round.assignment.article.title }}\".<br></p><p><br>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         }
     },
     {
@@ -866,7 +866,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>You have been assigned a <a href=\"{{request.journal_base_url}}{% url 'proofing_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">proofreading task</a> for \"{{ article.title }}\". We would be most grateful for your assistance in proofreading this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ proofing_task.proofreader.full_name }},</p><p>You have been assigned a <a href=\"{{request.journal.site_url}}{% url 'proofing_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">proofreading task</a> for \"{{ article.title }}\". We would be most grateful for your assistance in proofreading this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         }
     },
     {
@@ -881,7 +881,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the <a href=\"{{ request.journal_base_url }}{% url 'proofing_requests' %}\">requests page</a></p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the <a href=\"{{ request.journal.site_url }}{% url 'proofing_requests' %}\">requests page</a></p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         }
     },
     {
@@ -1061,7 +1061,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ reset_token.account.full_name }},<br><br>A password reset for your account has been requested. You can reset your password at the following link:</p><p><a href=\"{{ request.journal_base_url }}{% url 'core_reset_password' reset_token.token %}\">{{ request.journal_base_url }}{% url 'core_reset_password' reset_token.token %}</a><br><br></p>"
+            "default": "<p>Dear {{ reset_token.account.full_name }},<br><br>A password reset for your account has been requested. You can reset your password at the following link:</p><p><a href=\"{{ request.journal.site_url }}{% url 'core_reset_password' reset_token.token %}\">{{ request.journal.site_url }}{% url 'core_reset_password' reset_token.token %}</a><br><br></p>"
         }
     },
     {
@@ -1076,7 +1076,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br><br>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br><a href=\"{{ request.journal_base_url }}{% url 'core_confirm_account' user.confirmation_code %}\">{{ request.journal_base_url }}{% url 'core_confirm_account' user.confirmation_code %}</a><br></p>"
+            "default": "<p>Dear {{ user.full_name }}<br><br>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br><a href=\"{{ request.journal.site_url }}{% url 'core_confirm_account' user.confirmation_code %}\">{{ request.journal.site_url }}{% url 'core_confirm_account' user.confirmation_code %}</a><br></p>"
         }
     },
     {
@@ -1121,7 +1121,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the&nbsp;<a href=\"{{ request.journal_base_url }}{% url 'review_edit_draft_decision' article.pk draft.pk %}\">journal site</a>.<br></p>"
+            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the&nbsp;<a href=\"{{ request.journal.site_url }}{% url 'review_edit_draft_decision' article.pk draft.pk %}\">journal site</a>.<br></p>"
         }
     },
     {
@@ -1136,7 +1136,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "A new article, {{ article.title }}, has been submitted.<br><br>You can assign an editor <a href=\"{{ request.journal_base_url }}{% url 'review_unassigned_article' article.pk%}\">Here</a>.<br><br>Regards, <br>"
+            "default": "A new article, {{ article.title }}, has been submitted.<br><br>You can assign an editor <a href=\"{{ request.journal.site_url }}{% url 'review_unassigned_article' article.pk%}\">Here</a>.<br><br>Regards, <br>"
         }
     },
     {
@@ -1601,7 +1601,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: <a href=\"{{ request.journal_base_url }}{% url 'core_confirm_account' user.confirmation_code %}\">confirm account</a>.</p><p>Regards,</p>"
+            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: <a href=\"{{ request.journal.site_url }}{% url 'core_confirm_account' user.confirmation_code %}\">confirm account</a>.</p><p>Regards,</p>"
         }
     },
     {

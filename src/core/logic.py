@@ -263,7 +263,7 @@ def get_settings_to_edit(group, journal):
 
     elif group == 'journal':
         journal_settings = [
-            'journal_name', 'journal_issn', 'journal_theme', 'journal_description', 'is_secure',
+            'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
             'enable_editorial_display', 'mulit_page_editorial', 'enable_editorial_images', 'main_contact',
             'publisher_name', 'publisher_url',
             'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',

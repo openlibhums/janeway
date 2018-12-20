@@ -6,7 +6,7 @@
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
-        <a id="logo-container" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo"
+        <a id="logo-container" href="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo"
             {% if 'svg' in request.press_cover %}
                 {% svg request.press_cover %}
             {% else %}

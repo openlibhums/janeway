@@ -1,7 +1,10 @@
+from itertools import chain
+
 from django.core.management.base import BaseCommand
 
-from django.contrib.sites import models as site_models
-
+from journal.models import Journal
+from press.models import Press
+from core.models import DomainAlias
 
 class Command(BaseCommand):
     """
@@ -19,7 +22,11 @@ class Command(BaseCommand):
         parser.add_argument('--serverip', default=False)
 
     def handle(self, *args, **options):
-        sites = site_models.Site.objects.all()
+        sites = chain(
+                Journal.objects.all(),
+                Press.objects.all(),
+                DomainAlias.objects.all(),
+        )
 
         for site in sites:
             print('{domain}. IN A {ipaddress}'.format(domain=site.domain, ipaddress=options.get('serverip')))
