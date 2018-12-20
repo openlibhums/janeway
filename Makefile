@@ -24,8 +24,8 @@ endif
 ifeq ($(DB_VENDOR), sqlite)
 	unexport DB_HOST
 	NO_DEPS=--no-deps
-	CLI_COMMAND=sqlite db/janeway.sqlite
-	DB_VOLUME=db/janeway.sqlite
+	CLI_COMMAND=sqlite db/janeway.sqlite3
+	DB_VOLUME=db/janeway.sqlite3
 endif
 
 ifdef VERBOSE
@@ -50,7 +50,7 @@ janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable
 	docker-compose run $(NO_DEPS) --rm janeway-web src/manage.py $(CMD)
 install:	## Run the install_janeway command inside a container
-	touch db/janeway.sqlite
+	touch db/janeway.sqlite3
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.
 	docker-compose build --no-cache janeway-web
