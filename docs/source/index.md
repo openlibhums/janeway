@@ -10,7 +10,7 @@
    :caption: Contents:
 
    installation
-   userguides
+   workflow
    manager
 
 

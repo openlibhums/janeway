@@ -1,5 +1,5 @@
-User Guides
-===========
+Workflow Guides
+===============
 
 .. toctree::
    :maxdepth: 3
