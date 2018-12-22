@@ -46,5 +46,38 @@ Current Issue
 ~~~~~~~~~~~~~
 Takes whichever Issue is marked as _Current_ and displays its table of contents on the home page. To learn how to select a current issue check the :ref:`issue page<currentissueanchor>` .
 
+HTML
+~~~~
+The HTML element is versatile, you can put any HTML you want here for example, a twitter timeline.
+
 Journal Settings
 ----------------
+The journal settings page is home to various configuration settings for the journal from this page you can configure:
+
+- Journal attributes (name, ISSN, description etc)
+- Force HTTPS
+- Publisher information
+- Control Slack logging (you can also use Discord by adding /slack onto the end of a Discord Webhook)
+- Images (header, default cover, favicon etc)
+- Remote settings (if this journal is hosted externally you can add its details)
+- Article page settings
+
+All Settings
+------------
+The all settings page lists every under-lying setting within Janeway and allows you to edit them. The setting groups are:
+
+- Crossref
+- Email
+- Email Subject
+- General
+- Identifiers
+- Preprints
+- Review
+
+This is a fallback area for editing a setting when you can't find it in the interface or for editing settings introduced into your instance. Settings can be accessed inside templates using:
+
+`{{ journal_settings.group_name.setting_name }}` for example: `{{ journal_settings.crosscheck.enable_crosscheck }}` 
+
+and in code as 
+
+`request.journal.get_setting('group_name', 'setting_name')`.
