@@ -1,7 +1,13 @@
 img {
-    border: solid 1px #5a5a5a;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    width: 100%;
 }
 
 .caption {
-    border: solid 1px #5a5a5a;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    width: 100%;
 }
