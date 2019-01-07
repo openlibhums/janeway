@@ -143,7 +143,7 @@ Creating a new group allows you to add members and display them on the Editorial
 - Description
     - Displayed under the Name header on the Editorial Team page
 - Sequence
-    - The order the groups should be displayed
+    - The order the groups should be displayed, you can reorder the groups by editing their sequence or by dragging and dropping their record
     
 Adding Members to a Group
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,3 +159,5 @@ On the left is a list of the current members, you can:
 - Reorder the members by dragging and dropping a listing
 
 Journal users are listed on the right and you can add a user to the group using the *Add* button. If a user account does not exist for the user you can use the *Add New User* button to add them.
+
+
