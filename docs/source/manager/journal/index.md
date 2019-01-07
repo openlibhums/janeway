@@ -18,10 +18,12 @@ The Journal Home Settings page presents a list of features that can be activated
 - Current Issue
 - HTML
 
-To add a homepage element, click the green _Add_ button displayed in the _Add Home Page Features_ list and then you can use the _[configure]_ buttons to configure it. You can reorder elements by dragging and dropping them.
+To add a homepage element, click the green *Add* button displayed in the *Add Home Page Features* list and then you can use the *[configure]* buttons to configure it. You can reorder elements by dragging and dropping them.
 
-Carousel
+Carousel 
 ~~~~~~~~
+.. _carouselanchor:
+
 The carousel is a rotating image that can be configured to display:
 
 - Latest Articles
@@ -44,7 +46,7 @@ The news element displays a list of the most recent news items on the home page.
 
 Current Issue
 ~~~~~~~~~~~~~
-Takes whichever Issue is marked as _Current_ and displays its table of contents on the home page. To learn how to select a current issue check the :ref:`issue page<currentissueanchor>` .
+Takes whichever Issue is marked as *Current* and displays its table of contents on the home page. To learn how to select a current issue check the :ref:`issue page<currentissueanchor>` .
 
 HTML
 ~~~~
