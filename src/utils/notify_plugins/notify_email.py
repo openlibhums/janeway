@@ -29,7 +29,7 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
             to = []
         else:
             to = [to]
-    elif isinstance(to, Iterable)
+    elif isinstance(to, Iterable):
         to = [email for email in to if not settings.DUMMY_EMAIL_DOMAIN in email]
 
     if request and request.user and not request.user.is_anonymous():
