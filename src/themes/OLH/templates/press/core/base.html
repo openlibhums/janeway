@@ -1,5 +1,6 @@
 {% load static from staticfiles %}
 {% load press_url from press_url %}
+{% load roles %}
 {% load svg from press_url %}
 {% load i18n %}
 
@@ -61,7 +62,8 @@
                         <li class=".is-dropdown-submenu-parent"><a href="#"
                                                                    data-options="is_hover:true; hover_timeout:5000">{{ request.user.full_name }}</a>
                             <ul class="menu">
-                                {% if request.user.is_staff %}<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                                {% user_has_role request 'editor' as user_is_editor %}
+                                {% if user_is_editor  or user.is_staff %}<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
                                 <li><a href="/admin/">Admin</a></li>{% endif %}
                                 {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' %}
                                     <li><a href="{% url 'cms_page_edit' page.pk %}">Edit Page</a></li>
