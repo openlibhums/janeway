@@ -314,7 +314,8 @@ class JournalAttributeForm(forms.ModelForm):
            'default_large_image', 'favicon',
            'is_remote', 'remote_view_url', 'remote_submit_url',
            'disable_metrics_display', 'disable_article_images',
-           'full_width_navbar', 'view_pdf_button',
+           'enable_correspondence_authors', 'full_width_navbar',
+           'view_pdf_button',
         )
 
 

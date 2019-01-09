@@ -23,6 +23,7 @@ from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
 from review import models as review_models
+from utils import logic
 from utils.function_cache import cache
 
 fs = JanewayFileSystemStorage()
@@ -1049,6 +1050,24 @@ class FrozenAuthor(models.Model):
         else:
             return self.institution
 
+    @property
+    def is_correspondence_author(self):
+        # early return if no email address available
+        if (not self.author.email
+                or settings.DUMMY_EMAIL_DOMAIN in self.author.email):
+            return False
+
+        elif self.article.journal.enable_correspondence_authors is True:
+            if self.article.correspondence_author is not None:
+                return self.article.correspondence_author == self.author
+            else:
+                order = ArticleAuthorOrder.objects.get(
+                        article=self.article,
+                        author=self.author,
+                ).order
+                return order == 0
+        else:
+            return True
 
 class Section(TranslatableModel):
     journal = models.ForeignKey('journal.Journal')

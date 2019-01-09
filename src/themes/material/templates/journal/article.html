@@ -248,9 +248,9 @@
                             {{ author.full_name }}
                             {% if author.institution %}
                                 <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
-                                <span itemprop="name">({{ author.institution }})
+                                    <span itemprop="name">({{ author.institution }})
                             {% endif %}
-                            {% if not '@journal.org' in author.author.email and author.author.email %}
+                            {% if author.is_correspondence_author %}
                                 <a itemprop="email" href="mailto:{{ author.author.email }}"
                                    class="fa fa-envelope email-link"></a>{% endif %}
                         </small>

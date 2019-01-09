@@ -73,6 +73,7 @@ class Journal(AbstractSiteModel):
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(default=False)
+    enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(default=False)
