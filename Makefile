@@ -38,7 +38,7 @@ export DB_PORT
 export DB_NAME
 export DB_USER
 export DB_PASSWORD
-SUFFIX ?= $(shell trap - PIPE ;cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
+SUFFIX ?= $(shell python -c "from time import time; print(hex(int(time()*10000000))[2:])")
 SUFFIX := ${SUFFIX}
 DATE := `date +"%y-%m-%d"`
 
