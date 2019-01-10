@@ -17,7 +17,7 @@ JOURNAL_SITESECTOMY = """
 PRESS_SITESECTOMY = """
     UPDATE core_domainalias SET press_id = (
         SELECT p.id
-            FROM press_press as p, django_site as
+            FROM press_press as p, django_site as s
             WHERE s.id = core_domainalias.site_id
             AND s.domain = p.domain
         );
