@@ -1288,6 +1288,20 @@ def editorial_team(request, group_id=None):
 
     return render(request, template, context)
 
+def author_list(request):
+    """
+    Displays list of authors. 
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    author_list = request.journal.users_with_role('author')
+    template = 'journal/authors.html'
+
+    context = {
+        'author_list': author_list,
+    }
+    return render(request, template, context)
+
 
 def sitemap(request):
     """
