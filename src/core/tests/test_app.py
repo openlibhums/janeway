@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.core.management import call_command
 
-from utils.testing import setup
+from utils.testing import helpers
 from core import models
 
 
@@ -43,21 +43,21 @@ class CoreTests(TestCase):
             self.fail('User account has not been saved.')
 
     def setUp(self):
-        self.press = setup.create_press()
+        self.press = helpers.create_press()
         self.press.save()
-        self.journal_one, self.journal_two = setup.create_journals()
-        setup.create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",
+        self.journal_one, self.journal_two = helpers.create_journals()
+        helpers.create_roles(["editor", "author", "reviewer", "proofreader", "production", "copyeditor", "typesetter",
                             "proofing_manager", "section-editor"])
 
-        self.regular_user = setup.create_user("regularuser@martineve.com")
+        self.regular_user = helpers.create_user("regularuser@martineve.com")
         self.regular_user.is_active = True
         self.regular_user.save()
 
-        self.second_user = setup.create_user("seconduser@martineve.com", ["reviewer"], journal=self.journal_one)
+        self.second_user = helpers.create_user("seconduser@martineve.com", ["reviewer"], journal=self.journal_one)
         self.second_user.is_active = True
         self.second_user.save()
 
-        self.admin_user = setup.create_user("adminuser@martineve.com")
+        self.admin_user = helpers.create_user("adminuser@martineve.com")
         self.admin_user.is_staff = True
         self.admin_user.is_active = True
         self.admin_user.save()
