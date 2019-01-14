@@ -1288,6 +1288,7 @@ def editorial_team(request, group_id=None):
 
     return render(request, template, context)
 
+@has_journal
 def author_list(request):
     """
     Displays list of authors. 

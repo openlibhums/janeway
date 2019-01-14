@@ -6,14 +6,8 @@
 
 {% block body %}
 
-    {% if request.journal %}
-        <h3>Authors of: {{ request.journal.name }}</h3>
-    {% else %}
-        <h3>{% trans "Authors" %}</h3>
-    {% endif %}    
-    
+    <h3>Authors</h3>
     <div class="row">
-        
         {% for author in author_list %}
             <div class="col-md-3 row-eq-height">
                 <div class="card" style="width: 20rem;">
@@ -35,8 +29,5 @@
             </div>
         {% endfor %}
     </div>
-    
 
 {% endblock body %}
-
-
