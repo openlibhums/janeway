@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.core import mail
 from django.contrib.contenttypes.models import ContentType
 
-from utils.testing import setup
+from utils.testing import helpers
 from utils import transactional_emails
 from journal import models as journal_models
 from review import models as review_models
@@ -19,16 +19,16 @@ class UtilsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        setup.create_press()
-        setup.create_journals()
-        setup.create_roles(['reviewer', 'editor', 'author'])
+        helpers.create_press()
+        helpers.create_journals()
+        helpers.create_roles(['reviewer', 'editor', 'author'])
 
         cls.journal_one = journal_models.Journal.objects.get(code="TST", domain="testserver")
 
-        cls.regular_user = setup.create_regular_user()
-        cls.second_user = setup.create_second_user(cls.journal_one)
-        cls.editor = setup.create_editor(cls.journal_one)
-        cls.author = setup.create_author(cls.journal_one)
+        cls.regular_user = helpers.create_regular_user()
+        cls.second_user = helpers.create_second_user(cls.journal_one)
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.author = helpers.create_author(cls.journal_one)
 
         cls.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
@@ -46,7 +46,7 @@ class UtilsTests(TestCase):
                                                                               date_due=timezone.now(),
                                                                               form=cls.review_form)
 
-        cls.request = setup.Request()
+        cls.request = helpers.Request()
         cls.request.journal = cls.journal_one
         cls.request.site_type = cls.journal_one
         cls.request.user = cls.editor
