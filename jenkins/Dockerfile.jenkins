@@ -13,5 +13,6 @@ RUN pip3 install -r dev-requirements.txt --src /tmp/src
 
 ENV DB_VENDOR=sqlite
 ENV NOSE_INCLUDE_EXE=1
+ENV NOSE_COVER_XML_FILE=jenkins/coverage.xml
 
 ENTRYPOINT ["./entrypoint.sh"]
