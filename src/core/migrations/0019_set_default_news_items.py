@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, connection
-from utils import setting_handler
 
 
 def set_default_news_items(apps, schema_editor):
