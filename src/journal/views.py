@@ -1303,7 +1303,6 @@ def author_list(request):
     }
     return render(request, template, context)
 
-
 def sitemap(request):
     """
     Renders an XML sitemap based on articles and pages available to the journal.

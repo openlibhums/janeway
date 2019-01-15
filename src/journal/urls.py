@@ -115,7 +115,6 @@ urlpatterns = [
     # Editorial team
     url(r'^editorialteam/(?P<group_id>\d+)/$',
         views.editorial_team, name='editorial_team_group'),
-    
     # Authors page
     url(r'^authors/$',
         views.author_list, name='authors'),
