@@ -48,7 +48,7 @@ help:		## Show this help.
 janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependant services detached.
 	docker-compose $(_VERBOSE) run $(NO_DEPS) --rm --service-ports  janeway-web $(entrypoint)
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable
-	docker-compose run $(NO_DEPS) --rm janeway-web src/manage.py $(CMD)
+	docker-compose run $(NO_DEPS) --rm janeway-web $(CMD)
 install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite3
 	bash -c "make command CMD=install_janeway"
