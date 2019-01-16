@@ -1,34 +1,44 @@
 from __future__ import unicode_literals
 
-from django.db import migrations
-from utils import setting_handler
+from django.db import migrations, connection
 
 
 def set_default_news_items(apps, schema_editor):
     Plugin = apps.get_model("utils", "Plugin")
     Journal = apps.get_model("journal", "Journal")
+    PluginSetting = apps.get_model("utils", "PluginSetting")
+    PluginSettingValue = apps.get_model("utils", "PluginSettingValue")
+
     try:
-        news_plugin = Plugin.objects.get(name="News")
+        plugin = Plugin.objects.get(name="News")
     except Plugin.DoesNotExist:
         pass
     else:
         journals = Journal.objects.all()
         for journal in journals:
-            number_of_articles = setting_handler.get_plugin_setting(
-                    plugin=news_plugin.pk,
-                    setting_name='number_of_articles',
-                    journal=journal.pk,
-                    create=True,
-                    pretty='Number of Articles',
-            ).value
-            if number_of_articles in {None, "", " "}:
 
-                setting_handler.save_plugin_setting(
-                        plugin=news_plugin,
-                        setting_name='number_of_articles',
-                        value=5,
-                        journal=journal,
-                )
+            plugin_setting, c = PluginSetting.objects.get_or_create(
+                plugin=plugin,
+                name="number_of_articles"
+            )
+
+            plugin_setting_value, c = PluginSettingValue.objects.get_or_create(
+                setting=plugin_setting,
+                journal=journal
+            )
+
+            SQL = """
+            UPDATE utils_pluginsettingvalue_translation
+                SET value = 5
+                WHERE master_id = {master_id} AND value IN (NULL, "", " ");
+            """.format(master_id=plugin_setting_value.pk)
+
+            with connection.cursor() as cursor:
+                cursor.execute(SQL)
+
+
+
+
 
 
 class Migration(migrations.Migration):
