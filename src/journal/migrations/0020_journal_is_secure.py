@@ -1,15 +1,49 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
+from django.db import migrations, models, connection, OperationalError
 
-from journal.models import Journal
 
 def populate_journal_is_secure(apps, schema_editor):
+    Journal = apps.get_model("journal", "Journal")
+    Setting = apps.get_model("core", "Setting")
+    SettingValue = apps.get_model("core", "SettingValue")
+
     journals = Journal.objects.all()
+
     for journal in journals:
-        journal.is_secure = bool(journal.get_setting("general", "is_secure"))
-        journal.save()
+
+        value = None
+
+        setting = Setting.objects.get(
+            group__name='general',
+            name='is_secure'
+        )
+
+        try:
+            value = SettingValue.objects.get(
+                setting=setting,
+                journal=journal,
+            )
+
+            SQL = """
+            SELECT * FROM core_settingvalue_translation
+            WHERE master_id = {master_id}
+            """.format(master_id=value.pk)
+
+            with connection.cursor() as cursor:
+                cursor.execute(SQL)
+                value = cursor.fetchall()[0][1]
+
+            if value == 'on':
+                journal.is_secure = True
+            else:
+                journal.is_secure = False
+
+            journal.save()
+        except SettingValue.DoesNotExist:
+            pass
+
 
 class Migration(migrations.Migration):
 
