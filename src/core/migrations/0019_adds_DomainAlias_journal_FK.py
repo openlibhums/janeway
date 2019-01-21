@@ -29,7 +29,7 @@ def sitesectomy(*args, **kwargs):
         try:
             cursor.execute(JOURNAL_SITESECTOMY)
             cursor.execute(PRESS_SITESECTOMY)
-        except utils.OperationalError:
+        except (utils.OperationalError, utils.ProgrammingError):
             # New installations won't have a django_sites table
             pass
 
