@@ -1,4 +1,5 @@
 from django.db.utils import OperationalError
+from django.db.utils import ProgrammingError
 from django.contrib.contenttypes.models import ContentType
 
 from utils import models, setting_handler
@@ -76,6 +77,6 @@ def hook_registry():
         return {'yield_homepage_element_context': {'module': 'core.homepage_elements.news.hooks',
                                                    'function': 'yield_homepage_element_context'}
                 }
-    except OperationalError:
+    except (OperationalError, ProgrammingError):
         # if we get here the database hasn't yet been created
         return {}

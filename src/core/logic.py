@@ -399,7 +399,7 @@ def clear_active_elements(elements, workflow, plugins):
 
 
 def get_available_elements(workflow):
-    plugins = plugin_installed_apps.load_plugin_apps()
+    plugins = plugin_installed_apps.load_plugin_apps(settings.BASE_DIR)
     our_elements = list()
     elements = models.BASE_ELEMENTS
 
