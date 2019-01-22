@@ -6,7 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import logging
 from uuid import uuid4
 import threading
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import ObjectDoesNotExist, \
+    MultipleObjectsReturned, ImproperlyConfigured
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
