@@ -32,9 +32,12 @@ services:
     command: "janeway-${DB_VENDOR}:${DB_PORT}"
 
   janeway-web:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     volumes:
-      - .:/vol/janeway
+      - ./src:/vol/janeway/src
+      - ./db/janeway.sqlite3:/db/janeway.sqlite3
     ports:
       - "8000:8000"
     environment:
@@ -50,7 +53,9 @@ services:
       - "start_dependencies"
 
   janeway-sqlite:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     command: /bin/bash
     volumes:
       - ./db/janeway.sqlite:/var/lib/janeway.sqlite

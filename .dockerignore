@@ -1,3 +1,2 @@
-db/mysql-data
-db/postgres-data
+db/
 *.tar.gz
