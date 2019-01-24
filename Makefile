@@ -1,26 +1,27 @@
 ifndef DB_VENDOR
-	DB_VENDOR=postgres
+	DB_VENDOR=mysql
 endif
 
 unexport NO_DEPS
-DB_HOST=janeway-postgres
-DB_PORT=5432
+DB_HOST=janeway-mysql
+DB_PORT=3306
 DB_NAME=janeway
 DB_USER=janeway-web
 DB_PASSWORD=janeway-web
-DB_VOLUME=db/postgres-data
-CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
+CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
+DB_VOLUME=db/mysql-data
 
-ifeq ($(DB_VENDOR), mysql)
+ifeq ($(DB_VENDOR), postgres)
 	unexport NO_DEPS
-	DB_HOST=janeway-mysql
-	DB_PORT=3306
+	DB_HOST=janeway-postgres
+	DB_PORT=5432
 	DB_NAME=janeway
 	DB_USER=janeway-web
 	DB_PASSWORD=janeway-web
-	CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
-	DB_VOLUME=db/mysql-data
+	DB_VOLUME=db/postgres-data
+	CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
 endif
+
 ifeq ($(DB_VENDOR), sqlite)
 	unexport DB_HOST
 	NO_DEPS=--no-deps
@@ -55,7 +56,7 @@ install:	## Run the install_janeway command inside a container
 rebuild:	## Rebuild the Janeway docker image.
 	docker-compose build --no-cache janeway-web
 shell:		## Runs the janeway-web service and starts an interactive bash process instead of the webserver
-	bash -c "make janeway entrypoint=/bin/bash"
+	docker-compose run --entrypoint=/bin/bash --rm janeway-web
 attach:		## Runs an interactive bash process within the currently running janeway-web container
 	docker exec -ti `docker ps -q --filter 'name=janeway-web'` /bin/bash
 db-client:	## runs the database CLI client interactively within the database container as per the value of DB_VENDOR

@@ -1,4 +1,4 @@
-FROM python:3.5.4
+FROM birkbeckctp/janeway-base
 ADD . /vol/janeway
 WORKDIR /vol/janeway
 RUN apt-get update
