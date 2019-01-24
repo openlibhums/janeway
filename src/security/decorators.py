@@ -937,7 +937,6 @@ def deny_access(request, *args, **kwargs):
     *args and **kwargs are passed to the PermissionDenied constructor
     :param request: A django HttpRequest
     """
-    import pdb;pdb.set_trace()
     logging.info("[ACCESS_DENIED:{request.user.email}:{request.path_info}]"
             "".format(request=request))
 
