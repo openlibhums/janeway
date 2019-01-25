@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import importlib
+import itertools
+from functools import singledispatch
 import logging
 import os
 import threading
@@ -13,6 +15,8 @@ from django.conf import settings
 from core import janeway_global_settings
 
 LOCK = threading.Lock()
+
+MERGEABLE_SETTINGS = {"INSTALLED_APPS"}
 
 def load_janeway_settings():
 
@@ -36,6 +40,26 @@ def load_janeway_settings():
                     os.environ["JANEWAY_SETTINGS_MODULE"],
                     custom_settings.keys(),
             ))
-            janeway_settings = dict(janeway_settings, **custom_settings)
+            for k, v in custom_settings.items():
+                if k in MERGEABLE_SETTINGS:
+                    janeway_settings[k] = merge_settings(janeway_settings[k], v)
+                else:
+                    janeway_settings[k] = v
 
         settings.configure(**janeway_settings)
+
+@singledispatch
+def merge_settings(base, override):
+    return override
+
+@merge_settings.register(list)
+@merge_settings.register(tuple)
+@merge_settings.register(set)
+def merge_iterable_settings(base, override):
+    factory = type(base)
+    return factory(itertools.chain(base, override))
+
+@merge_settings.register(dict)
+def merge_dict_settings(base, override):
+    return dict(base, **override)
+
