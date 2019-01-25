@@ -9,7 +9,7 @@ from django.core import mail
 from django.contrib.contenttypes.models import ContentType
 
 from utils.testing import setup
-from utils import transactional_emails
+from utils import merge_settings, transactional_emails
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
@@ -96,3 +96,31 @@ class UtilsTests(TestCase):
         transactional_emails.send_article_decision(**kwargs)
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+class TestMergeSettings(TestCase):
+
+    def test_recursive_merge(self):
+        base = {
+                "setting": "value",
+                "setting_a": "value_a",
+                "setting_list": ["value_a"],
+                "setting_dict": {"a": "a", "b": "a"},
+        }
+
+        overrides = {
+                "setting_a": "value_b",
+                "setting_list": ["value_b"],
+                "setting_dict": {"b": "b", "c": "c"},
+                "other_setting": "value",
+        }
+
+        expected = {
+                "setting": "value",
+                "setting_a": "value_b",
+                "setting_list": ["value_a", "value_b"],
+                "setting_dict": {"a": "a", "b": "b", "c": "c"},
+                "other_setting": "value",
+        }
+        result = merge_settings(base, overrides)
+
+        self.assertDictEqual(expected, result)
