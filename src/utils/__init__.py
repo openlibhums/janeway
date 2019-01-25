@@ -16,7 +16,7 @@ from core import janeway_global_settings
 
 LOCK = threading.Lock()
 
-MERGEABLE_SETTINGS = {"INSTALLED_APPS"}
+MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE_CLASSES"}
 
 def load_janeway_settings():
 
@@ -35,9 +35,12 @@ def load_janeway_settings():
                 k: v for k, v in custom_module.__dict__.items()
                 if k.isupper()
             }
-            logging.debug(
-                "Loading settings from %s: %s" % (
+            logging.info(
+                "Loading settings from %s" % (
                     os.environ["JANEWAY_SETTINGS_MODULE"],
+            ))
+            logging.debug(
+                    "Loading the following custom settings: %s" %(
                     custom_settings.keys(),
             ))
             for k, v in custom_settings.items():
@@ -61,5 +64,12 @@ def merge_iterable_settings(base, override):
 
 @merge_settings.register(dict)
 def merge_dict_settings(base, override):
-    return dict(base, **override)
+    merged = {}
 
+    for k, v in override.items():
+        if k in base:
+            merged[k] = merge_settings(base[k], v)
+        else:
+            merged[k] = v
+
+    return dict(base, **merged)
