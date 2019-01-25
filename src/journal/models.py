@@ -201,7 +201,7 @@ class Journal(AbstractSiteModel):
         if request and request.journal == self:
             return request.build_absolute_uri(path)
         else:
-            return journal.press.journal_path_url(self, path)
+            return self.press.journal_path_url(self, path)
 
     def full_url(self, request=None):
         logging.warning("Using journal.full_url is deprecated")
