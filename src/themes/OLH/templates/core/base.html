@@ -22,8 +22,8 @@
     } catch (e) {
     }</script>
     {% block css %}{% endblock %}
-    <link href="{{ request.journal.site_url }}{% url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
-    <link href="{{ request.journal.site_url }}{% url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+    <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
+    <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
     {% if request.journal and journal.favicon %}
         <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon" />
     {% elif request.press.favicon %}
