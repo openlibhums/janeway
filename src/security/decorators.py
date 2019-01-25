@@ -946,7 +946,7 @@ def deny_access(request, *args, **kwargs):
         roles = []
 
     logging.info(
-        "[ACCESS_DENIED:{ident}:{request.path_info_info}]"
+        "[ACCESS_DENIED:{ident}:{request.path_info}]"
         "[ROLES:{roles}]"
         "".format(request=request, ident=ident, roles={r.role for r in roles}),
     )
