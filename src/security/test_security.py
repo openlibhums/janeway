@@ -3564,6 +3564,7 @@ class TestSecurity(TestCase):
         request._messages = Mock()
         request._messages.add = TestSecurity.mock_messages_add
         request.path = '/a/fake/path/'
+        request.path_info = '/a/fake/path/'
         request.press = press
 
         return request
