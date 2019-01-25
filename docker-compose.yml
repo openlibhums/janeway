@@ -48,7 +48,7 @@ services:
       - DB_USER
       - DB_NAME
       - PYTHONDONTWRITEBYTECODE=yes
-      - JANEWAY_SETTINGS_MODULE=core.janeway_global_settings
+      - JANEWAY_SETTINGS_MODULE=core.dev_settings
     depends_on:
       - "start_dependencies"
 
