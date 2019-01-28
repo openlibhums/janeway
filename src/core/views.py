@@ -483,15 +483,18 @@ def dashboard(request):
         'typeset_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=True,
-            completed__isnull=True).count(),
+            completed__isnull=True,
+            typesetter=request.user).count(),
         'typeset_in_progress_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
-            completed__isnull=True).count(),
+            completed__isnull=True,
+            typesetter=request.user).count(),
         'typeset_completed_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
-            completed__isnull=False).count(),
+            completed__isnull=False,
+            typesetter=request.user).count(),
         'active_submissions': submission_models.Article.objects.filter(owner=request.user,
                                                                        journal=request.journal).exclude(
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
