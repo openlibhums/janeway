@@ -866,20 +866,36 @@ def add_user(request):
     form = forms.EditAccountForm()
     registration_form = forms.AdminUserForm(active='add', request=request)
     return_url = request.GET.get('return', None)
-    role = request.GET.get('role', 'author')
+    role = request.GET.get('role', None)
 
     if request.POST:
-        registration_form = forms.AdminUserForm(request.POST, active='add', request=request)
+        registration_form = forms.AdminUserForm(
+            request.POST,
+            active='add',
+            request=request
+        )
 
         if registration_form.is_valid():
             new_user = registration_form.save()
+            # Every new user is given the author role
+            new_user.add_account_role('author', request.journal)
+
             if role:
                 new_user.add_account_role(role, request.journal)
 
-            form = forms.EditAccountForm(request.POST, request.FILES, instance=new_user)
+            form = forms.EditAccountForm(
+                request.POST,
+                request.FILES,
+                instance=new_user
+            )
+
             if form.is_valid():
                 form.save()
-                messages.add_message(request, messages.SUCCESS, 'User created.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'User created.'
+                )
 
                 if return_url:
                     return redirect(return_url)
@@ -887,7 +903,8 @@ def add_user(request):
                 return redirect(reverse('core_manager_users'))
 
         else:
-            # If the registration form is not valid, we need to add post data to the Edit form for display.
+            # If the registration form is not valid,
+            # we need to add post data to the Edit form for display.
             form = forms.EditAccountForm(request.POST)
 
     template = 'core/manager/users/edit.html'
