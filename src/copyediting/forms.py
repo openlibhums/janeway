@@ -27,7 +27,5 @@ class AuthorCopyeditForm(forms.ModelForm):
         fields = ('decision', 'author_note')
 
     def __init__(self, *args, **kwargs):
-        # first call parent's constructor
         super(AuthorCopyeditForm, self).__init__(*args, **kwargs)
-        # there's a `fields` property now
         self.fields['decision'].required = True
