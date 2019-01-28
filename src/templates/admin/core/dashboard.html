@@ -140,7 +140,7 @@
             </div>
         {% endif %}
         {% user_has_role request 'proofreader' as proofreader %}
-        {% if proofreader and 'proofing' in workflow_elements %}
+        {% if proofreader or is_author and 'proofing' in workflow_elements %}
             <div class="large-4 columns end" data-equalizer-watch>
                 <div class="box">
                     <div class="title-area">
