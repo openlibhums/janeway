@@ -495,7 +495,7 @@ def dashboard(request):
             accepted__isnull=False,
             completed__isnull=False,
             typesetter=request.user).count(),
-        'active_submissions': submission_models.Article.objects.filter(owner=request.user,
+        'active_submissions': submission_models.Article.objects.filter(authors=request.user,
                                                                        journal=request.journal).exclude(
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
         'progress_submissions': submission_models.Article.objects.filter(
