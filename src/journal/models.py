@@ -186,28 +186,26 @@ class Journal(AbstractSiteModel):
         return press
 
     def site_url(self, path=""):
-        port = None
-
         if settings.URL_CONFIG == "path":
-            netloc = self.press.domain
-            path = path or self.code
-            request = logic.get_current_request()
-            if request is not None:
-                port = request.get_port()
-        else:
-            netloc = self.domain
-            path = path
+            return self._site_path_url(path)
 
         return logic.build_url(
-                netloc=netloc,
+                netloc=journal.domain,
                 scheme=self.SCHEMES[self.is_secure],
-                port=port,
+                port=None,
                 path=path,
         )
 
+    def _site_path_url(self, path=""):
+        request = logic.get_current_request()
+        if request and request.journal == self:
+            return request.build_absolute_uri(path)
+        else:
+            return self.press.journal_path_url(self, path)
+
     def full_url(self, request=None):
         logging.warning("Using journal.full_url is deprecated")
-        return self.site_url
+        return self.site_url()
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)

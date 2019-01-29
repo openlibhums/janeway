@@ -140,6 +140,9 @@ TEMPLATES = [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ],
+            'builtins': [
+                'core.templatetags.fqdn',
+            ]
         },
     },
 ]
@@ -187,7 +190,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite3'),
+            'NAME': '/db/janeway.sqlite3',
         }
     }
 

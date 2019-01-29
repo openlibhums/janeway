@@ -1,5 +1,4 @@
 {% extends "admin/core/base.html" %}
-{% load fqdn %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}

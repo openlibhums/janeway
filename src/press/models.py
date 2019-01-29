@@ -116,6 +116,25 @@ class Press(AbstractSiteModel):
                                             ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',
                                             '/press' if settings.URL_CONFIG == 'path' else '')
 
+    def journal_path_url(self, journal, path=None):
+        """ Returns a Journal's path mode url relative to its press """
+
+        _path = journal.code
+        request = logic.get_current_request()
+        if request:
+            port = request.get_port()
+        else:
+            port = None
+        if path is not None:
+            _path += path
+
+        return logic.build_url(
+            netloc=self.domain,
+            scheme=self.SCHEMES[self.is_secure],
+            port=port,
+            path=_path,
+        )
+
     @staticmethod
     def press_cover(request, absolute=True):
         if request.press.thumbnail_image:

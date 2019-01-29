@@ -761,7 +761,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this <a href=\"{{ request.journal.site_url }}{% url 'typesetter_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this <a href=\"{% journal_url 'typesetter_requests' %}\" style=\"background-color: rgb(255, 255, 255);\">here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -881,7 +881,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the <a href=\"{{ request.journal.site_url }}{% url 'proofing_requests' %}\">requests page</a></p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the <a href=\"{% journal_url 'proofing_requests' %}\">requests page</a></p><p>Regards,<br></p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         }
     },
     {
