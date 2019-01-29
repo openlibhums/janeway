@@ -3,7 +3,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     {% for article in articles %}
     <url>
-        <loc>{{ request.journal.site_url }}{{ article.url }}</loc>
+        <loc>{{ article.url }}</loc>
         <lastmod>{{ article.date_published|date:"Y-m-d" }}</lastmod>
         <changefreq>yearly</changefreq>
     </url>
