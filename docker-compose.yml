@@ -37,6 +37,7 @@ services:
       dockerfile: dockerfiles/Dockerfile
     volumes:
       - ./src:/vol/janeway/src
+      - ./lib:/vol/janeway/lib
       - ./db/janeway.sqlite3:/db/janeway.sqlite3
     ports:
       - "8000:8000"
