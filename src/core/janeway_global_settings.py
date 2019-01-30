@@ -88,6 +88,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'foundationform',
     'materialize',
+    'snowpenguin.django.recaptcha2',
+    'simplemathcaptcha',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
@@ -118,9 +120,13 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates(BASE_DIR) +
-        plugin_installed_apps.load_homepage_element_templates(BASE_DIR),
+        'DIRS': ([
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'templates', 'admin'),
+        ]
+            + plugin_installed_apps.load_plugin_templates(BASE_DIR)
+            + plugin_installed_apps.load_homepage_element_templates(BASE_DIR)
+        ),
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -422,10 +428,8 @@ URL_CONFIG = 'path'  # path or domain
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
 # You can set either to use Google's reCaptcha or a basic math field with no external requirements
 
-INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
-
-CAPTCHA_TYPE = 'recaptcha'  # should be either simple_math or recaptcha to enable captcha fields otherwise disabled
-RECAPTCHA_PRIVATE_KEY = ''
+CAPTCHA_TYPE = 'simple_math'  # should be either 'simple_math' or 'recaptcha' to enable captcha fields otherwise disabled
+RECAPTCHA_PRIVATE_KEY = '' # Public and private keys are required when using recaptcha
 RECAPTCHA_PUBLIC_KEY = ''
 
 BOOTSTRAP4 = {
