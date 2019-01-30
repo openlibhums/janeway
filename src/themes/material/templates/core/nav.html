@@ -149,7 +149,7 @@
                 <li><a href="{% url 'core_edit_settings_group' 'submission' %}">{% trans "Edit Submissions Page" %}</a></li>
                 <li><a href="{% url 'core_edit_settings_group' 'journal' %}">{% trans "Edit Journal Info" %}</a></li>
             {% endif %}
-            {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' %}
+            {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' and page %}
                 <li><a href="{% url 'cms_page_edit' page.pk %}">{% trans "Edit Page" %}</a></li>
             {% endif %}
             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'editorial_team' %}

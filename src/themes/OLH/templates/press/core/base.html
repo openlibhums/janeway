@@ -65,7 +65,7 @@
                                 {% user_has_role request 'editor' as user_is_editor %}
                                 {% if user_is_editor  or user.is_staff %}<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
                                 <li><a href="/admin/">Admin</a></li>{% endif %}
-                                {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' %}
+                                {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' and page %}
                                     <li><a href="{% url 'cms_page_edit' page.pk %}">Edit Page</a></li>
                                 {% endif %}
                                 {% if request.press.enable_preprints %}
