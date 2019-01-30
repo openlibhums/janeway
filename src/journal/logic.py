@@ -63,34 +63,43 @@ def list_scss(journal):
         return []
 
 
-def list_galleys(article, galleys):
-    """ Gets the correct galley content for an article
-
-    :param article: the article to handle
-    :param galleys: a list of Galley objects
-    :return: a tuple of XML and HTML galleys, PDF files, and the inline contents for an article
+def get_best_galley(article, galleys):
     """
-
-    # We should use an HTML galley if it exists, and render an XML one if it does not.
+    Attempts to get the best alley possible for an article
+    :param article: Article object
+    :param galleys: list of Galley objects
+    :return: Galley object
+    """
     if article.render_galley:
-        return article.render_galley.file_content()
+        return article.render_galley
 
     try:
         try:
-            html_galley = galleys.get(file__mime_type='text/html')
-            return html_galley.file_content()
+            html_galley = galleys.get(file__mime_type__in=files.HTML_MIMETYPES)
+            return html_galley
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type__contains='/xml')
-            return xml_galley.file_content()
+            xml_galley = galleys.get(file__mime_type__in=files.XML_MIMETYPES)
+            return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
     except core_models.Galley.MultipleObjectsReturned:
         pass
 
-    return ''
+    return None
+
+
+def get_galley_content(article, galleys):
+    """
+    Gets the best galley and returns its content
+    :param article: Article object
+    :param galleys: list of Galley objects
+    :return: Inline content of the galley, HTML
+    """
+    galley = get_best_galley(article, galleys)
+    return galley.file_content()
 
 
 def get_doi_data(article):

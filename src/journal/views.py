@@ -28,7 +28,7 @@ from django.core.management import call_command
 from cms import models as cms_models
 from core import files, models as core_models, plugin_loader
 from journal import logic, models, issue_forms, forms
-from journal.logic import list_galleys
+from journal.logic import get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms
 from security.decorators import article_stage_accepted_or_later_required, \
@@ -257,7 +257,7 @@ def article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = list_galleys(article_object, galleys)
+        content = get_galley_content(article_object, galleys)
     else:
         article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
                                   "that is not yet published.</strong></p>" + article_object.abstract
@@ -301,7 +301,7 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = list_galleys(article_object, galleys)
+        content = get_galley_content(article_object, galleys)
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
@@ -628,10 +628,15 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     :param file_name: a File object name
     :return: a streaming file reponse
     """
-    figure_article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    figure_article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier
+    )
+    article_galleys = figure_article.galley_set.all()
 
     if figure_article:
-        galley = figure_article.get_render_galley
+        galley = logic.get_best_galley(figure_article, article_galleys)
         figure = get_object_or_404(galley.images, original_filename=file_name)
 
         return files.serve_file(request, figure, figure_article)

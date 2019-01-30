@@ -44,6 +44,16 @@ IMAGE_MIMETYPES = (
     'image/tiff',
 )
 
+XML_MIMETYPES = (
+    'application/xml',
+    'text/xml',
+)
+
+HTML_MIMETYPES = (
+    'text/html',
+    'application/xhtml+xml'
+)
+
 
 def mkdirs(path):
     """
