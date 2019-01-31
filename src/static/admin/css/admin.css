@@ -459,3 +459,7 @@ th {
     -o-transition: background 0.4s linear;
     transition: background 0.4s linear;
 }
+
+.file p {
+    word-break: break-all;
+}
