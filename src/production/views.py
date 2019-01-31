@@ -143,7 +143,6 @@ def production_done(request, article_id):
         return redirect('proofing_list')
 
 
-@article_stage_production_required
 @production_user_or_editor_required
 def production_article(request, article_id):
     """

@@ -3,6 +3,7 @@
 {% load files %}
 {% load static from staticfiles %}
 {% load foundation %}
+{% load roles %}
 
 {% block title %}Proofing - {{ article.pk }}{% endblock title %}
 {% block title-section %}Proofing{% endblock %}
@@ -235,7 +236,8 @@
             <ul class="menu vertical actions">
                 <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
                 <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
-                <li><a href="{% url 'production_article' article.pk %}"><i class="fa fa-files-o action-icon">&nbsp;</i>Manage Galleys</a></li>
+                {% user_has_role request 'production_manager' as user_is_production_manager %}
+                {% if user_is_production_manager %}<li><a href="{% url 'production_article' article.pk %}"><i class="fa fa-files-o action-icon">&nbsp;</i>Manage Galleys</a></li>{% endif %}
                 <li><a href="{% url 'complete_proofing' article.pk %}"><i class="fa fa-check action-icon">&nbsp;</i>Complete Proofing</a></li>
                 {% if article.has_galley and production_assignment.typeset_tasks and not production_assignment.closed %}
                     <li><a data-open="productionmodal"><i class="fa fa-">&nbsp;</i>Mark production as complete</a></li>
