@@ -11,7 +11,7 @@ django-hvad==1.8.0
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git#egg=django-mailgun
 django-markdown-deux==1.0.5
 django-settings-export==1.2.1
-django-simple-math-captcha==1.0.7
+-e git+https://github.com/BirkbeckCTP/django-simple-math-captcha@1.11_fix#egg=django-simple-math-captcha
 django-recaptcha2==1.0.3
 django-summernote==0.8.8.1
 djangorestframework==3.6.3

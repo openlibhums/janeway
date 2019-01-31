@@ -36,7 +36,7 @@
                         {% csrf_token %}
                         <label for="label">File Label</label>
                         <input name="label" id="label" type="text" placeholder="e.g. 'Copyedited Manuscript'"
-                               value="{{ request.POST.label }}">
+                               value="{% if request.POST.label %}{{ request.POST.label }}{% endif %}">
 
                         <label for="File">File</label>
                         <input name="file" type="file" id="file" class="filestyle" data-placeholder="No file"

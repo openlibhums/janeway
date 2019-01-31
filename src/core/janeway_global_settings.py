@@ -37,7 +37,7 @@ sys.path.append(os.path.join(BASE_DIR, "plugins"))
 SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 COMMAND = sys.argv[1:]
 IN_TEST_RUNNER = COMMAND[:1] == ['test']
 ALLOWED_HOSTS = ['*']
@@ -88,6 +88,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'foundationform',
     'materialize',
+    'snowpenguin.django.recaptcha2',
+    'simplemathcaptcha',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
@@ -118,9 +120,13 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates(BASE_DIR) +
-        plugin_installed_apps.load_homepage_element_templates(BASE_DIR),
+        'DIRS': ([
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'templates', 'admin'),
+        ]
+            + plugin_installed_apps.load_plugin_templates(BASE_DIR)
+            + plugin_installed_apps.load_homepage_element_templates(BASE_DIR)
+        ),
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -422,10 +428,8 @@ URL_CONFIG = 'path'  # path or domain
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
 # You can set either to use Google's reCaptcha or a basic math field with no external requirements
 
-INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
-
-CAPTCHA_TYPE = 'recaptcha'  # should be either simple_math or recaptcha to enable captcha fields otherwise disabled
-RECAPTCHA_PRIVATE_KEY = ''
+CAPTCHA_TYPE = 'simple_math'  # should be either 'simple_math' or 'recaptcha' to enable captcha fields otherwise disabled
+RECAPTCHA_PRIVATE_KEY = '' # Public and private keys are required when using recaptcha
 RECAPTCHA_PUBLIC_KEY = ''
 
 BOOTSTRAP4 = {
@@ -437,15 +441,6 @@ SILENT_IMPORT_CACHE = True
 WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
-
-# Development Overrides
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    for t in TEMPLATES:
-        t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
-    MIDDLEWARE_CLASSES = (
-        ('utils.middleware.TimeMonitoring',) + MIDDLEWARE_CLASSES
-    )
 
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
@@ -466,5 +461,6 @@ if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
             return 1
 
     logging.info("Skipping migrations")
+    logging.disable(logging.CRITICAL)
     MIGRATION_MODULES = SkipMigrations()
 

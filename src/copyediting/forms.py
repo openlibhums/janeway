@@ -25,3 +25,7 @@ class AuthorCopyeditForm(forms.ModelForm):
     class Meta:
         model = models.AuthorReview
         fields = ('decision', 'author_note')
+
+    def __init__(self, *args, **kwargs):
+        super(AuthorCopyeditForm, self).__init__(*args, **kwargs)
+        self.fields['decision'].required = True

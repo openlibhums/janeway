@@ -483,16 +483,19 @@ def dashboard(request):
         'typeset_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=True,
-            completed__isnull=True).count(),
+            completed__isnull=True,
+            typesetter=request.user).count(),
         'typeset_in_progress_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
-            completed__isnull=True).count(),
+            completed__isnull=True,
+            typesetter=request.user).count(),
         'typeset_completed_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
-            completed__isnull=False).count(),
-        'active_submissions': submission_models.Article.objects.filter(owner=request.user,
+            completed__isnull=False,
+            typesetter=request.user).count(),
+        'active_submissions': submission_models.Article.objects.filter(authors=request.user,
                                                                        journal=request.journal).exclude(
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
         'progress_submissions': submission_models.Article.objects.filter(
@@ -866,17 +869,33 @@ def add_user(request):
     role = request.GET.get('role', None)
 
     if request.POST:
-        registration_form = forms.AdminUserForm(request.POST, active='add', request=request)
+        registration_form = forms.AdminUserForm(
+            request.POST,
+            active='add',
+            request=request
+        )
 
         if registration_form.is_valid():
             new_user = registration_form.save()
+            # Every new user is given the author role
+            new_user.add_account_role('author', request.journal)
+
             if role:
                 new_user.add_account_role(role, request.journal)
 
-            form = forms.EditAccountForm(request.POST, request.FILES, instance=new_user)
+            form = forms.EditAccountForm(
+                request.POST,
+                request.FILES,
+                instance=new_user
+            )
+
             if form.is_valid():
                 form.save()
-                messages.add_message(request, messages.SUCCESS, 'User created.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'User created.'
+                )
 
                 if return_url:
                     return redirect(return_url)
@@ -884,7 +903,8 @@ def add_user(request):
                 return redirect(reverse('core_manager_users'))
 
         else:
-            # If the registration form is not valid, we need to add post data to the Edit form for display.
+            # If the registration form is not valid,
+            # we need to add post data to the Edit form for display.
             form = forms.EditAccountForm(request.POST)
 
     template = 'core/manager/users/edit.html'
