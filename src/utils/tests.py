@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
 from django.contrib.contenttypes.models import ContentType
@@ -48,6 +48,7 @@ class UtilsTests(TestCase):
 
         cls.request = helpers.Request()
         cls.request.journal = cls.journal_one
+        cls.request.press = cls.journal_one.press
         cls.request.site_type = cls.journal_one
         cls.request.user = cls.editor
         cls.request.model_content_type = ContentType.objects.get_for_model(cls.request.journal)
@@ -74,8 +75,9 @@ class UtilsTests(TestCase):
 
         self.assertEqual(expected_recipient, mail.outbox[0].to[0])
 
+    @override_settings(URL_CONFIG="domain")
     def test_send_review_complete_acknowledgements(self):
-        kwargs = self.base_kwargs
+        kwargs = dict(**self.base_kwargs)
         kwargs['review_assignment'] = self.review_assignment
 
         expected_recipient_one = self.review_assignment.reviewer.email

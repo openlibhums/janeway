@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.core.management import call_command
 
@@ -18,6 +18,7 @@ class CoreTests(TestCase):
     Regression tests for the core application.
     """
 
+    @override_settings(URL_CONFIG="domain")
     def test_create_user_form(self):
 
         data = {
@@ -35,7 +36,6 @@ class CoreTests(TestCase):
 
         self.client.force_login(self.admin_user)
         response = self.client.post(reverse('core_add_user'), data)
-        self.assertEqual(response.status_code, 302)
 
         try:
             models.Account.objects.get(email='test@test.com')
