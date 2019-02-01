@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.utils import timezone
 from django.urls import reverse
 from django.core.management import call_command
@@ -24,11 +24,12 @@ from press import models as press_models
 # Create your tests here.
 class ReviewTests(TestCase):
 
+    @override_settings(URL_CONFIG='domain')
     def test_index_view_with_no_questions(self):
         """
         If no questions exist, an appropriate message should be displayed.
         """
-        response = self.client.get(reverse('website_index'))
+        response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
     @staticmethod

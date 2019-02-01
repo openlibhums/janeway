@@ -33,8 +33,9 @@ class TimeMonitoring(object):
         self.usage_start = self._get_usage()
 
     def process_response(self, _request, response):
-        diff_usage = self._diff_usages(self.usage_start)
-        logging.info("Request took %0.3f (%0.3fu, %0.3fs)" % diff_usage)
+        if self.usage_start is not None:
+            diff_usage = self._diff_usages(self.usage_start)
+            logging.info("Request took %0.3f (%0.3fu, %0.3fs)" % diff_usage)
 
         return response
 
