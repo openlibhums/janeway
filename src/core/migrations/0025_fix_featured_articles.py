@@ -17,7 +17,7 @@ def fix_featured_articles(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0023_fix_journal_base_url_from_settings'),
+        ('core', '0024_account_firstname_lastname_required'),
     ]
 
     operations = [
