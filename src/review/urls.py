@@ -51,6 +51,9 @@ urlpatterns = [
         name='review_reset_review'),
     url(r'^article/(?P<article_id>\d+)/review/(?P<review_id>\d+)/rate/$', views.rate_reviewer,
         name='review_rate_reviewer'),
+    url(r'article/(?P<article_id>\d+)/review/(?P<review_id>\d+)/reminder/(?P<reminder_type>request|accepted)/',
+        views.send_review_reminder,
+        name='review_send_reminder'),
 
     url(r'^article/(?P<article_id>\d+)/revisions/request/$', views.request_revisions,
         name='review_request_revisions'),

@@ -110,7 +110,7 @@
                                                         {{ review.date_declined|date:"Y-m-d" }}
                                                     {% else %}Awaiting acknowledgement{% endif %}
                                                     </td>
-                                                    <td>{{ review.date_due|date:"Y-m-d" }}</td>
+                                                    <td>{{ review.date_due|date:"Y-m-d" }} <a href="{% if not review.date_accepted and not review.date_declined %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}"><i class="fa fa-envelope-o"></i>&nbsp; <i class="fa fa-clock-o"></i></a></td>
                                                     <td>{% if review.decision %}
                                                         {{ review.get_decision_display|capfirst }}{% else %}
                                                         --{% endif %}</td>

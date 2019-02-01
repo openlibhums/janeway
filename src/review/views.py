@@ -19,9 +19,11 @@ from django.conf import settings
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
-from security.decorators import editor_user_required, reviewer_user_required, reviewer_user_for_assignment_required, \
-    article_edit_user_required, file_user_required, article_decision_not_made, article_author_required, \
-    editor_is_not_author, senior_editor_user_required, section_editor_draft_decisions
+from security.decorators import editor_user_required, reviewer_user_required, \
+    reviewer_user_for_assignment_required,  article_edit_user_required, \
+    file_user_required, article_decision_not_made, article_author_required, \
+    editor_is_not_author, senior_editor_user_required, \
+    section_editor_draft_decisions, article_stage_review_required
 from submission import models as submission_models
 from utils import models as util_models, ithenticate
 
@@ -319,6 +321,92 @@ def in_review(request, article_id):
         'article': article,
         'review_rounds': review_rounds,
         'revisions_requests': revisions_requests,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+@article_stage_review_required
+def send_review_reminder(request, article_id, review_id, reminder_type):
+    """
+    Allows an editor to resent a review invite or manually send a reminder.
+    :param request: HttpRequest object
+    :param article_id: PK of an Article object
+    :param review_id: PK of a ReviewAssignment object
+    :param type: string, either request or accepted
+    :return: HttpResponse or HttpRedirect
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+
+    review_assignment = get_object_or_404(
+        models.ReviewAssignment,
+        pk=review_id,
+        article=article,
+    )
+
+    # If this review has not been accepted, you cannot send an accepted
+    # reminder, add a message and redirect.
+    if not review_assignment.date_accepted and reminder_type == 'accepted':
+        messages.add_message(
+            request,
+            messages.INFO,
+            'You cannot send this reminder type. Review not accepted.'
+        )
+        return redirect(
+            reverse(
+                'review_in_review',
+                kwargs={'article_id': article.pk}
+            )
+        )
+
+    email_content = logic.get_reminder_content(
+        reminder_type,
+        article,
+        review_assignment,
+        request
+    )
+
+    form_initials = {
+        'body': email_content,
+        'subject': 'Review Request Reminder'
+    }
+    form = forms.ReviewReminderForm(
+        initial=form_initials
+    )
+
+    if request.POST:
+        form = forms.ReviewReminderForm(
+            request.POST
+        )
+        if form.is_valid():
+            logic.send_review_reminder(
+                request,
+                form,
+                review_assignment,
+                reminder_type
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Email sent'
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk}
+                )
+            )
+
+    template = 'review/send_review_reminder.html'
+    context = {
+        'article': article,
+        'assignment': review_assignment,
+        'form': form,
     }
 
     return render(request, template, context)

@@ -1,0 +1,37 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Review Reminders{% endblock title %}
+{% block title-section %}Review Reminders{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>Review Reminders</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            {% if not assignment.decision %}
+            <div class="title-area">
+                <h2>Send Request Reminder</h2>
+            </div>
+            <div class="content">
+                <p>As this review has not been accepted, you can send a reminder to the reviewer asking them to undertake the review.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button name="request_reminder" class="success button">
+                        Send Request Reminder
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
+{% endblock %}

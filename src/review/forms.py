@@ -161,3 +161,8 @@ class ElementForm(forms.ModelForm):
     class Meta:
         model = models.ReviewFormElement
         exclude = ('',)
+
+
+class ReviewReminderForm(forms.Form):
+    subject = forms.CharField(max_length=255, required=True)
+    body = forms.CharField(widget=forms.Textarea, required=True)

@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.conf import settings
 from docx import Document
 
-from utils import render_template, setting_handler
+from utils import render_template, setting_handler, notify_helpers
 from core import models as core_models, files
 from review import models
 from events import logic as event_logic
@@ -53,7 +53,7 @@ def get_assignment_content(request, article, editor, assignment):
     return render_template.get_message_content(request, email_context, 'editor_assignment')
 
 
-def get_reviewer_notification(request, article, editor, review_assignment):
+def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
     review_url = "{0}{1}".format(request.journal.site_url(), reverse('do_review',
                                                                    kwargs={'assignment_id': review_assignment.id}))
 
@@ -69,7 +69,24 @@ def get_reviewer_notification(request, article, editor, review_assignment):
         'review_url': review_url
     }
 
-    return render_template.get_message_content(request, email_context, 'review_assignment')
+    if reminder and reminder == 'request':
+        return render_template.get_message_content(
+            request,
+            email_context,
+            'default_review_reminder'
+        )
+    elif reminder and reminder == 'accepted':
+        return render_template.get_message_content(
+            request,
+            email_context,
+            'accepted_review_reminder'
+        )
+    else:
+        return render_template.get_message_content(
+            request,
+            email_context,
+            'review_assignment'
+        )
 
 
 def get_withdrawl_notification(request, review_assignment):
@@ -338,3 +355,49 @@ def handle_review_file_switch(review, switch):
         review.display_review_file = False
 
     review.save()
+
+
+def get_reminder_content(reminder_type, article, review_assignment, request):
+    """
+    Fetches the right email for a reminder type
+    """
+
+    if reminder_type == 'request':
+        return get_reviewer_notification(
+            request,
+            article,
+            request.user,
+            review_assignment,
+            reminder=reminder_type,
+        )
+    elif reminder_type == 'accepted':
+        return get_reviewer_notification(
+            request,
+            article,
+            request.user,
+            review_assignment,
+            reminder=reminder_type,
+        )
+
+
+def send_review_reminder(request, form, review_assignment, reminder_type):
+    """
+    Sends a reminder email to a reviewer
+    """
+    desc = '{sender} sent review reminder of type {type} to {to}'.format(
+        sender=request.user.full_name(),
+        type=reminder_type,
+        to=review_assignment.reviewer.full_name()
+    )
+    log_dict = {'level': 'Info',
+                'action_text': desc,
+                'types': 'Review Reminder',
+                'target': review_assignment.article}
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        form.cleaned_data['subject'],
+        review_assignment.reviewer.email,
+        form.cleaned_data['body'],
+        log_dict=log_dict
+    )
