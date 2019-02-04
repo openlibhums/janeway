@@ -56,6 +56,7 @@
             <table class="table scroll">
                 <tr>
                     <th>Label</th>
+                    <th>Uploaded</th>
                     <th>Filename</th>
                     <th>Download</th>
                     <th>Replace</th>
@@ -63,6 +64,7 @@
                 {% for file in copyedit.copyeditor_files.all %}
                     <tr>
                         <td>{{ file.label }}</td>
+                        <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                         <td>{{ file.original_filename }}</td>
                         <td><a href="?file_id={{ file.id }}"><i class="fa fa-download">&nbsp;</i></a></td>
                         <td><a href="{% url 'author_update_file' copyedit.article.id author_review.id file.id %}"><i

@@ -46,6 +46,7 @@
             <th>Label</th>
             <th>Filename</th>
             <th>Type</th>
+            <th>Uploaded</th>
             <th>Size</th>
             <th>Download</th>
             <th>History</th>
@@ -55,6 +56,7 @@
             <td>{{ file.label }}</td>
             <td>{{ file.original_filename }}</td>
             <td>Manuscript</td>
+            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
             <td>{% file_size file article %}</td>
             <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
             <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'view_revision' article.pk revision_request.pk %}"><i class="fa fa-history">&nbsp;</i></a></td
@@ -65,6 +67,7 @@
             <td>{{ file.label }}</td>
             <td>{{ file.original_filename }}</td>
             <td>Data/Figure</td>
+            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
             <td>{% file_size file article %}</td>
             <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
             <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'view_revision' article.pk revision_request.pk %}"><i class="fa fa-history">&nbsp;</i></a></td
