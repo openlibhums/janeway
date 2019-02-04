@@ -47,6 +47,7 @@
                             <th>Label</th>
                             <th>Filename</th>
                             <th>Type</th>
+                            <th>Uploaded</th>
                             <th>Size</th>
                             <th>Download</th>
                             <th>Replace</th>
@@ -57,6 +58,7 @@
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td>{% file_size file article %}</td>
                                 <td><a href="?file_id={{ file.id }}"><i class="fa fa-download">&nbsp;</i></a></td>
                                 <td><a href="{% url 'revisions_replace_file' article.pk revision_request.pk file.pk %}"><i
@@ -73,6 +75,7 @@
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Data/Figure</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td>{% file_size file article %}</td>
                                 <td><a href="?file_id={{ file.id }}"><i class="fa fa-download">&nbsp;</i></a></td>
                                 <td><a href="{% url 'revisions_replace_file' article.pk revision_request.pk file.pk %}"><i
