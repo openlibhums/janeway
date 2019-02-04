@@ -8,6 +8,7 @@
 
     <h3>Authors</h3>
     <div class="row">
+
         {% for author in author_list %}
             <div class="col-md-3 row-eq-height">
                 <div class="card" style="width: 20rem;">
@@ -18,16 +19,21 @@
                         <p>
                             <small>{{ author.affiliation }}</small>
                         </p>
+                        
                         {% if author.enable_public_profile %}
                             <p>
-                                <small><a href="{% url 'core_public_profile' author.uuid %}">View Profile</a>
+                                <small>
+                                    <a href="{% url 'core_public_profile' author.uuid %}">View Profile</a>
                                 </small>
-                            </p>{% endif %}
+                            </p>
+                        {% endif %}
+                        
                         {% include "elements/journal/editorial_social_content.html" with user=author %}
                     </div>
                 </div>
             </div>
         {% endfor %}
+        
     </div>
 
 {% endblock body %}
