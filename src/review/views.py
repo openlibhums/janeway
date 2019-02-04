@@ -347,6 +347,7 @@ def send_review_reminder(request, article_id, review_id, reminder_type):
         models.ReviewAssignment,
         pk=review_id,
         article=article,
+        is_complete=False,
     )
 
     # If this review has not been accepted, you cannot send an accepted

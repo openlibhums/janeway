@@ -3140,6 +3140,29 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "author wrongly blocked from accessing preprint article")
 
+    def test_article_stage_review_required_with_review_article(self):
+        func = Mock()
+        decorated_func = decorators.article_stage_review_required(func)
+        kwargs = {'article_id': self.article_under_review.pk}
+
+        request = self.prepare_request_with_user(self.editor, None)
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "article_stage_review_required wrongly blocks article in review"
+        )
+
+    def test_article_stage_review_required_with_bad_article(self):
+        func = Mock()
+        decorated_func = decorators.article_stage_review_required(func)
+        kwargs = {'article_id': self.article_author_copyediting.pk}
+
+        request = self.prepare_request_with_user(self.editor, None)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
     def test_isnt_preprint_editor(self):
         func = Mock()
         decorated_func = decorators.is_preprint_editor(func)
