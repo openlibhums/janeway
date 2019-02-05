@@ -10,12 +10,15 @@
     <div class="row" data-equalizer data-equalize-on="medium">
        
         {% for author in author_list %}
+
             <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
                 <div class="{% if journal_settings.general.enable_editorial_images %}editorial-team{% endif %} callout" data-equalizer-watch>
                    
                     {% if journal_settings.general.enable_editorial_images %}
+
                         <img class="thumbnail editorial-image" src="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
                              alt="Photo of Uranus.">
+
                     {% endif %}
                    
                     <strong>{{ author.full_name }}</strong><br/>
@@ -24,11 +27,13 @@
                     </i>
                     <br/>
                     
-                    {% if user.enable_public_profile %}
+                    {% if author.enable_public_profile %}
+
                         <p>
                             <small><a href="{% url 'core_public_profile' author.uuid %}">View
                                 Profile</a></small>
                         </p>
+                        
                     {% endif %}
 
                     {% include "elements/journal/editorial_social_content.html" with user=author %}
