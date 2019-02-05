@@ -40,7 +40,7 @@ admin_list = [
     (models.PresetPublicationCheckItem,),
     (models.PrePublicationChecklistItem,),
     (models.FixedPubCheckItems,),
-    (models.ArticleOrdering,),
+    (models.ArticleOrdering, ArticleOrderingAdmin),
     (models.SectionOrdering,),
     (models.BannedIPs, BannedIPAdmin),
     (models.Notifications,),
