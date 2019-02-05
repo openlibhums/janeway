@@ -21,6 +21,7 @@
                     <h2>Edit Assignment</h2>
                 </div>
                 <div class="content">
+                {% if not typeset.accepted and not typeset.status.slug == 'declined' %}
                     <p>You can edit the details of the typesetting task below. Note, if the assignment has been accepted
                         you cannot edit it, if it has been rejected you may reset it.</p>
                     <p>You can select which files are available to the Typesetter.</p>
@@ -73,6 +74,14 @@
                     <textarea cols="40" id="id_typeset_task" name="typeset_task" rows="10"
                               data-origin="textarea">{{ typeset.typeset_task }}</textarea>
                     <button class="button success" type="submit" name="update"><i class="fa fa-check">&nbsp;</i>Update Task</button>
+                    {% elif typeset.status.slug == 'declined' %}
+                    <p>This typesetting task has been declined. If this was done in error you can
+                        reset it here.</p>
+                        <button class="button" name="reset"><i class="fa fa-recycle"></i> Reset</button>
+
+                    {% else %}
+                    <p>This typesetting task has been accepted so cannot be edited.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

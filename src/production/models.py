@@ -66,3 +66,13 @@ class TypesetTask(models.Model):
                 self.completed.strftime("%Y-%m-%d %H:%M"))}
         elif self.completed and self.editor_reviewed:
             return {'slug': 'closed', 'friendly': 'Task closed'}
+
+    @property
+    def get_status_code(self):
+        return self.status().get('slug')
+
+    def reset_task_dates(self):
+        self.accepted = None
+        self.completed = None
+        self.editor_reviewed = False
+        self.save()
