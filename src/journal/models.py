@@ -551,6 +551,18 @@ class Issue(models.Model):
                 issue = latest_issue.issue + 1
                 return (latest_issue.volume, issue)
 
+    def remove_article(self, article):
+        """Removes an article from an issue and deletes its ordering."""
+        self.articles.remove(article)
+        try:
+            ordering = ArticleOrdering.objects.get(
+                issue=self,
+                article=article,
+            )
+            ordering.delete()
+        except ArticleOrdering.DoesNotExist:
+            pass
+
     def __str__(self):
         return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
 
