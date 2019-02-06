@@ -65,7 +65,7 @@ def list_scss(journal):
 
 def get_best_galley(article, galleys):
     """
-    Attempts to get the best alley possible for an article
+    Attempts to get the best galley possible for an article
     :param article: Article object
     :param galleys: list of Galley objects
     :return: Galley object
