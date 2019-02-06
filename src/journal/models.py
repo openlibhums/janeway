@@ -686,27 +686,45 @@ def setup_default_form(sender, instance, created, **kwargs):
             default_review_form.elements.add(main_element)
 
 
-def article_remove_from_issue(sender, **kwargs):
+def issue_articles_change(sender, **kwargs):
     """
     When an article is removed from an issue this signal will delete any
     orderings for that article in the issue.
     """
-    issue = kwargs.get('instance')
+    supported_actions = ['post_remove', 'post_add']
+    issue_or_article = kwargs.get('instance')
     action = kwargs.get('action')
+    update_side = kwargs.get('reverse')
 
-    if issue and action == 'post_remove':
-        article_ids = kwargs.get('pk_set')
-        for article_id in article_ids:
-            article = submission_models.Article.objects.get(pk=article_id)
-            try:
-                ordering = ArticleOrdering.objects.get(
+    if issue_or_article and action in supported_actions:
+
+        object_pks = kwargs.get('pk_set', [])
+        for object_pk in object_pks:
+
+            if update_side:
+                article = issue_or_article
+                issue = Issue.objects.get(pk=object_pk)
+            else:
+                article = submission_models.Article.objects.get(pk=object_pk)
+                issue = issue_or_article
+
+            if action == 'post_remove':
+                try:
+                    ordering = ArticleOrdering.objects.get(
+                        issue=issue,
+                        article=article,
+                    )
+                    ordering.delete()
+                except ArticleOrdering.DoesNotExist:
+                    pass
+
+            elif action == 'post_add':
+                ArticleOrdering.objects.get_or_create(
                     issue=issue,
                     article=article,
+                    section=article.section,
+                    order=issue.next_order(),
                 )
-                ordering.delete()
-            except ArticleOrdering.DoesNotExist:
-                pass
 
 
-
-m2m_changed.connect(article_remove_from_issue, sender=Issue.articles.through)
+m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)

@@ -972,11 +972,6 @@ def issue_add_article(request, issue_id):
             messages.add_message(request, messages.WARNING, 'Articles without a section cannot be added to an issue.')
             return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
         else:
-
-            models.ArticleOrdering.objects.create(article=article,
-                                                  issue=issue,
-                                                  order=issue.next_order(),
-                                                  section=article.section)
             issue.articles.add(article)
         return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
