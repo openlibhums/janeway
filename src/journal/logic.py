@@ -19,6 +19,7 @@ from django.core.validators import validate_email, ValidationError
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
+from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
 from utils.notify_plugins import notify_email
@@ -274,23 +275,25 @@ def handle_article_controls(request, sections):
         show = int(request.POST.get('show', 10))
         sort = request.POST.get('sort', '-date_published')
         filters = [int(filter) for filter in filters]
-
-        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort), True
+        keywords = submission_models.Keyword.objects.filter(word__in=request.POST.get('keywords').split(','))
+        return page, show, filters, sort, keywords, set_article_session_variables(request, page, filters, show, sort, keywords), True
     else:
         page = request.GET.get('page', 1)
         filters = request.session.get('article_filters', [section.pk for section in sections])
         show = request.session.get('article_show', 10)
         sort = request.session.get('article_sort', '-date_published')
         active_filters = request.session.get('active_filters', False)
+        keywords = submission_models.Keyword.objects.all()
 
-        return page, show, filters, sort, None, active_filters
+        return page, show, filters, sort, None, active_filters, keywords
 
 
-def set_article_session_variables(request, page, filters, show, sort):
+def set_article_session_variables(request, page, filters, show, sort, keywords):
     request.session['article_filters'] = filters
     request.session['article_show'] = show
     request.session['article_sort'] = sort
     request.session['active_filters'] = True
+    request.session['active_keywords'] = keywords
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
@@ -300,6 +303,7 @@ def unset_article_session_variables(request):
     del request.session['article_show']
     del request.session['article_sort']
     del request.session['active_filters']
+    del request.session['artive_keywords']
 
     request.session.modified = True
 

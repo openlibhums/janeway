@@ -75,6 +75,18 @@
                                                                              {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
                                 </label>
                             {% endfor %}
+                            
+                            {% if keywords %}
+
+
+                                <div class="large-12 columns">
+                                    <label for="id_keywords">Keywords</label>
+                                    <input type="text" id="id_keywords" name="keywords" value="
+                                            {% for keyword in keywords %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}"/>
+                                </div>
+                               
+
+                            {% endif %}
                             <button type="submit" class="button">{% trans "Filter" %}</button>
                             {% if active_filters %}<button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>{% endif %}
                         </div>
@@ -84,5 +96,18 @@
         </div>
 
     </section>
+
+    {% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+{% endblock %}
 
 {% endblock body %}
