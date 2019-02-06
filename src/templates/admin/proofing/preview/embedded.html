@@ -47,7 +47,11 @@
     // PDFJS.cMapUrl = '../../external/bcmaps/';
     // PDFJS.cMapPacked = true;
 
+    {% if proofing_task %}
     var DEFAULT_URL = '{% url 'proofing_download' proofing_task.pk galley.file.pk %}';
+    {% else %}
+    var DEFAULT_URL = '{% url 'article_file_download' 'id' article.pk galley.file.pk %}';
+    {% endif %}
 
     var container = document.getElementById('viewerContainer');
 
