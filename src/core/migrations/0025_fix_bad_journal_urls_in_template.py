@@ -7,8 +7,8 @@ REGEX = re.compile("({{\ ?journal.site_url\ ?}})?{% url '(\w+)' ([\w\ \.]*)%}")
 OUTPUT_FMT = "{%% journal_url '%s' %s%%}"
 
 def replace_matches( match):
-    view_name = match.group(1)
-    args = match.group(2)
+    view_name = match.group(2)
+    args = match.group(3)
     return OUTPUT_FMT % (view_name, args)
 
 def replace_bad_urls(apps, schema_editor):
