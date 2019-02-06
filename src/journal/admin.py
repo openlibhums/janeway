@@ -16,8 +16,14 @@ class IssueAdmin(admin.ModelAdmin):
 
 
 class JournalAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'domain', 'is_remote', 'hide_from_press')
-    list_filter = ('is_remote', 'hide_from_press')
+    list_display = ('name',
+            'code',
+            'domain',
+            'is_remote',
+            'is_conference',
+            'hide_from_press',
+    )
+    list_filter = ('is_remote', 'is_conference', 'hide_from_press')
 
 
 class BannedIPAdmin(admin.ModelAdmin):

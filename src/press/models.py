@@ -101,8 +101,10 @@ class Press(AbstractSiteModel):
             return None
 
     @staticmethod
-    def journals():
+    def journals(**filters):
         from journal import models as journal_models
+        if filters:
+            return journal_models.Journal.objects.filter(**filters)
         return journal_models.Journal.objects.all()
 
     @staticmethod
@@ -263,6 +265,14 @@ class Press(AbstractSiteModel):
             return PressSetting.objects.get(press=self, name=name).value
         except PressSetting.DoesNotExist:
             return ''
+
+    @property
+    def publishes_conferences(self):
+        return self.journals(is_conference=True).count() > 0
+
+    @property
+    def publishes_journals(self):
+        return self.journals(is_conference=False).count() > 0
 
     @cache(600)
     def preprint_editors(self):

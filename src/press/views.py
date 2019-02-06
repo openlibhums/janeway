@@ -58,12 +58,31 @@ def journals(request):
     """
     template = "press/press_journals.html"
 
-    journal_objects = journal_models.Journal.objects.filter(hide_from_press=False).order_by('sequence')
+    journal_objects = journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_conference=False,
+    ).order_by('sequence')
 
     context = {'journals': journal_objects}
 
     return render(request, template, context)
 
+def conferences(request):
+    """
+    Displays a filterable list of conferences that are not marked as hidden
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    template = "press/press_journals.html"
+
+    journal_objects = journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_conference=True,
+    ).order_by('sequence')
+
+    context = {'journals': journal_objects}
+
+    return render(request, template, context)
 
 @staff_member_required
 def manager_index(request):

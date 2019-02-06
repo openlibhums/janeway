@@ -78,6 +78,7 @@ class Journal(AbstractSiteModel):
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(default=False)
+    is_conference = models.BooleanField(default=False)
     remote_submit_url = models.URLField(blank=True, null=True)
     remote_view_url = models.URLField(blank=True, null=True)
     view_pdf_button = models.BooleanField(
