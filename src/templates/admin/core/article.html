@@ -39,7 +39,7 @@
                     <tr>
                         <td>{{ review.date_requested }}</td>
                         <td>{{ review.date_due }}</td>
-                        <td>{{ review.date_completed }}</td>
+                        <td>{{ review.date_complete }}</td>
                         <td>{% if review.for_author_consumption %}<a href="{% url 'review_author_view' article.pk %}">View Reviews</a>{% else %}Access has not been granted.{% endif %}</td>
                     </tr>
                 {% endfor %}
