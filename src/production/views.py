@@ -340,7 +340,7 @@ def edit_typesetter_assignment(request, typeset_id):
             )
         elif 'update' in request.POST:
             logic.update_typesetter_task(typeset, request)
-        elif 'reset' in request.POST and typeset.get_status_code == 'declined':
+        elif 'reset' in request.POST and typeset.status == 'declined':
             typeset.reset_task_dates()
         else:
             messages.add_message(

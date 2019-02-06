@@ -56,12 +56,12 @@
                                                 &nbsp;</i>{% else %}
                                             <i style="color: red;" class="fa fa-times-circle info">&nbsp;</i>{% endif %}
                                         </td>
-                                        <td>{{ task.status.friendly|safe }}</td>
+                                        <td>{{ task.friendly_status|safe }} {% if task.status == 'completed' %}({{ task.completed }}){% endif %}</td>
                                         <td>
                                             <div class="button-group">
                                                 <a href="{% url 'edit_typesetter_assignment' task.pk %}"
                                                    class="button">Manage</a>
-                                                {% if task.status.slug == 'completed' %}
+                                                {% if task.status == 'completed' %}
                                                     <a class="dropdown button arrow-only"
                                                        data-toggle="review-dropdown-{{ task.pk }}"><span
                                                             class="show-for-sr">Show menu</span></a>
@@ -82,7 +82,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    {% if task.status.slug == 'completed' or task.status.slug == 'closed' %}
+                                    {% if task.status == 'completed' or task.status == 'closed' %}
                                         <tr>
                                             <th colspan="5">Notes from Typesetter</th>
                                         </tr>
