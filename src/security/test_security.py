@@ -3163,6 +3163,16 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
+    def test_article_stage_review_required_with_no_article(self):
+        func = Mock()
+        decorated_func = decorators.article_stage_review_required(func)
+        kwargs = {}
+
+        request = self.prepare_request_with_user(self.editor, None)
+
+        with self.assertRaises(Http404):
+            decorated_func(request, **kwargs)
+
     def test_isnt_preprint_editor(self):
         func = Mock()
         decorated_func = decorators.is_preprint_editor(func)
