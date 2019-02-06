@@ -96,10 +96,13 @@ def get_galley_content(article, galleys):
     Gets the best galley and returns its content
     :param article: Article object
     :param galleys: list of Galley objects
-    :return: Inline content of the galley, HTML
+    :return: Inline content of the galley, HTML, or a blank string
     """
     galley = get_best_galley(article, galleys)
-    return galley.file_content()
+    if galley:
+        return galley.file_content()
+    else:
+        return ''
 
 
 def get_doi_data(article):
