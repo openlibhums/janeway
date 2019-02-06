@@ -17,9 +17,14 @@ from events import logic as event_logic
 from core import models as core_models
 from cron import models as cron_task
 from production import logic, models, forms
-from security.decorators import editor_user_required, production_user_or_editor_required, \
-    article_production_user_required, article_stage_production_required, has_journal, \
-    typesetter_or_editor_required, typesetter_user_required
+from security.decorators import (editor_user_required,
+                                 production_user_or_editor_required,
+                                 article_production_user_required,
+                                 article_stage_production_required,
+                                 has_journal,
+                                 typesetter_or_editor_required,
+                                 typesetter_user_required,
+                                 typesetting_user_or_production_user_or_editor_required)
 from submission import models as submission_models
 from utils import setting_handler
 
@@ -194,6 +199,40 @@ def production_article(request, article_id):
         'typeset_tasks': production_assignment.typesettask_set.all().order_by('-id'),
         'galleys': galleys,
         'complete_message': logic.get_complete_template(request, article, production_assignment)
+    }
+
+    return render(request, template, context)
+
+
+@typesetting_user_or_production_user_or_editor_required
+def preview_galley(request, article_id, galley_id):
+    """
+    Displays a preview of a galley object
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param galley_id: Galley object PK
+    :return: HttpResponse
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id
+    )
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=article
+    )
+
+    if galley.type == 'xml' or galley.type == 'html':
+        template = 'proofing/preview/rendered.html'
+    elif galley.type == 'epub':
+        template = 'proofing/preview/epub.html'
+    else:
+        template = 'proofing/preview/embedded.html'
+
+    context = {
+        'galley': galley,
+        'article': article
     }
 
     return render(request, template, context)

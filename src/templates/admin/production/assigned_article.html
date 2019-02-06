@@ -186,6 +186,7 @@
                         <th>Edit</th>
                         <th>Download</th>
                         <th>History</th>
+                        <th>Preview</th>
                         <th>Create PDF</th>
                         <th>Create EPUB</th>
                     </tr>
@@ -207,6 +208,11 @@
                                 <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                                         class="fa fa-history">
                                     &nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'production_preview_galley' article.pk galley.pk %}" target="_blank">
+                                    <i class="fa fa-eye">&nbsp;</i>
+                                </a>
                             </td>
                             <td>
                                 {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
