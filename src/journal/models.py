@@ -12,7 +12,8 @@ import os
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
+
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -551,18 +552,6 @@ class Issue(models.Model):
                 issue = latest_issue.issue + 1
                 return (latest_issue.volume, issue)
 
-    def remove_article(self, article):
-        """Removes an article from an issue and deletes its ordering."""
-        self.articles.remove(article)
-        try:
-            ordering = ArticleOrdering.objects.get(
-                issue=self,
-                article=article,
-            )
-            ordering.delete()
-        except ArticleOrdering.DoesNotExist:
-            pass
-
     def __str__(self):
         return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
 
@@ -695,3 +684,29 @@ def setup_default_form(sender, instance, created, **kwargs):
             )
 
             default_review_form.elements.add(main_element)
+
+
+def article_remove_from_issue(sender, **kwargs):
+    """
+    When an article is removed from an issue this signal will delete any
+    orderings for that article in the issue.
+    """
+    issue = kwargs.get('instance')
+    action = kwargs.get('action')
+
+    if issue and action == 'post_remove':
+        article_ids = kwargs.get('pk_set')
+        for article_id in article_ids:
+            article = submission_models.Article.objects.get(pk=article_id)
+            try:
+                ordering = ArticleOrdering.objects.get(
+                    issue=issue,
+                    article=article,
+                )
+                ordering.delete()
+            except ArticleOrdering.DoesNotExist:
+                pass
+
+
+
+m2m_changed.connect(article_remove_from_issue, sender=Issue.articles.through)
