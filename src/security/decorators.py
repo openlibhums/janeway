@@ -962,15 +962,14 @@ def article_stage_review_required(func):
     :return: PermissionDenied or func
     """
 
-    def review_required_wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
+    def review_required_wrapper(request, article_id=None, *args, **kwargs):
         if not article_id:
             logging.debug('404 thrown as no article_id in kwargs')
             raise Http404
 
         article = get_object_or_404(
             models.Article,
-            pk=kwargs['article_id']
+            pk=article_id
         )
 
         if not article.stage in models.REVIEW_STAGES:
