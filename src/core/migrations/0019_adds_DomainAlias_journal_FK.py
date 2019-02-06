@@ -34,6 +34,7 @@ def sitesectomy(*args, **kwargs):
             pass
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('journal', '0017_file_fields_for_the_last_time'),
