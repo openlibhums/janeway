@@ -163,6 +163,7 @@
             <th>Label</th>
             <th>Filename</th>
             <th>Type</th>
+            <th>Uploaded</th>
             <th>Download</th>
         </tr>
         {% for file in article.manuscript_files.all %}
@@ -170,6 +171,7 @@
                 <td>{{ file.label }}</td>
                 <td>{{ file.original_filename }}</td>
                 <td>Manuscript</td>
+                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                         class="fa fa-download">&nbsp;</i></a>
                 </td>
@@ -180,6 +182,7 @@
                 <td>{{ file.label }}</td>
                 <td>{{ file.original_filename }}</td>
                 <td>Data/Figure</td>
+                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                         class="fa fa-download">&nbsp;</i></a>
                 </td>
