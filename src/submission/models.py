@@ -17,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
@@ -1000,6 +1001,12 @@ class Article(models.Model):
         proof_models.TypesetterProofingTask.objects.filter(proofing_task__round__assignment__article=self).update(
             cancelled=True
         )
+
+    def production_assignment_or_none(self):
+        try:
+            return self.productionassignment
+        except ObjectDoesNotExist:
+            return None
 
 
 class FrozenAuthor(models.Model):
