@@ -25,13 +25,17 @@
         </div>
     </div>
     <div class="card-divider">
-        {% if article.productionassignment.production_manager %}
-        {% include "elements/avatar.html" with user=article.productionassignment.production_manager role="PM" %}
-        {% endif %}
+
         {% include "elements/avatar.html" with user=article.correspondence_author role="Author" %}
 
-        {% for task in article.productionassignment.typeset_tasks %}
-            {% include "elements/avatar.html" with user=task.typesetter role="TS" %}
-        {% endfor %}
+        {% if article.production_assignment_or_none and article.productionassignment.production_manager %}
+            {% include "elements/avatar.html" with user=article.productionassignment.production_manager role="PM" %}
+        {% endif %}
+
+        {% if article.production_assignment_or_none %}
+            {% for task in article.productionassignment.typeset_tasks %}
+                {% include "elements/avatar.html" with user=task.typesetter role="TS" %}
+            {% endfor %}
+        {% endif %}
     </div>
 </div>
