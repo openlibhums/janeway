@@ -5,10 +5,19 @@ from django.shortcuts import redirect
 from django.http import Http404
 from django.conf import settings
 from django.urls.resolvers import NoReverseMatch
+from django.contrib import messages
 
 from core import models
 from submission import models as submission_models
 from utils.shared import clear_cache
+
+ELEMENT_STAGES = {
+    'review': submission_models.REVIEW_STAGES,
+    'copyediting': submission_models.COPYEDITING_STAGES,
+    'production': [submission_models.STAGE_TYPESETTING],
+    'proofing': [submission_models.STAGE_PROOFING],
+    'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION]
+}
 
 
 def workflow_element_complete(**kwargs):
@@ -147,3 +156,35 @@ def articles_in_workflow_stages(request):
 
 def element_names(elements):
     return [element.element_name for element in elements]
+
+
+def remove_element(request, journal_workflow, element):
+    """
+    Checks if there are any articles in the current stage and
+    blocks its removal if there are.
+    :param request:
+    :param journal_workflow:
+    :param element:
+    :return:
+    """
+    stages = ELEMENT_STAGES.get(element.element_name, None)
+
+    articles = submission_models.Article.objects.filter(
+        stage__in=stages,
+        journal=request.journal,
+    )
+
+    if articles:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Element cannot be removed as there are {0}'
+            ' articles in this stage.'.format(articles.count())
+        )
+    else:
+        journal_workflow.elements.remove(element)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Element removed from workflow.'
+        )

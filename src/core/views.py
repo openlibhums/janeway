@@ -1698,34 +1698,51 @@ def journal_workflow(request):
     :param request: django request object
     :return: template contextualised
     """
-    workflow, created = models.Workflow.objects.get_or_create(journal=request.journal)
+    journal_workflow, created = models.Workflow.objects.get_or_create(
+        journal=request.journal
+    )
 
     if created:
-        from core import workflow as workflow_utils
-        workflow_utils.create_default_workflow(request.journal)
+        workflow.create_default_workflow(request.journal)
 
-    available_elements = logic.get_available_elements(workflow)
+    available_elements = logic.get_available_elements(journal_workflow)
 
     if request.POST:
         if 'element_name' in request.POST:
             element_name = request.POST.get('element_name')
-            element = logic.handle_element_post(workflow, element_name, request)
+            element = logic.handle_element_post(journal_workflow, element_name, request)
             if element:
-                workflow.elements.add(element)
-                messages.add_message(request, messages.SUCCESS, 'Element added.')
+                journal_workflow.elements.add(element)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Element added.'
+                )
             else:
-                messages.add_message(request, messages.WARNING, 'Element not found.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Element not found.'
+                )
 
         if 'delete' in request.POST:
             delete_id = request.POST.get('delete')
-            delete_element = get_object_or_404(models.WorkflowElement, journal=request.journal, pk=delete_id)
-            workflow.elements.remove(delete_element)
-            messages.add_message(request, messages.SUCCESS, 'Removed element.')
+            delete_element = get_object_or_404(
+                models.WorkflowElement,
+                journal=request.journal,
+                pk=delete_id
+            )
+            workflow.remove_element(
+                request,
+                journal_workflow,
+                delete_element
+            )
+
         return redirect(reverse('core_journal_workflow'))
 
     template = 'core/workflow.html'
     context = {
-        'workflow': workflow,
+        'workflow': journal_workflow,
         'available_elements': available_elements,
     }
 
