@@ -383,8 +383,8 @@ class QuickUserForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    user_name = forms.CharField(max_length=255)
-    user_pass = forms.CharField(max_length=255, widget=forms.PasswordInput)
+    user_name = forms.CharField(max_length=255, label="Email")
+    user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
 
     def __init__(self, *args, **kwargs):
         bad_logins = kwargs.pop('bad_logins', 0)
@@ -403,9 +403,11 @@ class LoginForm(forms.Form):
     def captcha_field(self):
         if settings.CAPTCHA_TYPE == 'simple_math':
             self.question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-            return MathCaptchaField(label=_('Answer this question: '))
+            return MathCaptchaField(label=_('Anti-spam captcha'))
         elif settings.CAPTCHA_TYPE == 'recaptcha':
-            return ReCaptchaField(widget=ReCaptchaWidget)
+            field = ReCaptchaField(widget=ReCaptchaWidget())
+            field.label = "Anti-spam captcha"
+            return field
         else:
             logging.warning(
                     "Unknown CAPTCHA_TYPE in settings: %s"

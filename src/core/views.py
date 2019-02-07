@@ -54,7 +54,6 @@ def user_login(request):
         bad_logins = logic.check_for_bad_login_attempts(request)
 
     if bad_logins >= 5:
-        import pdb;pdb.set_trace()
         messages.info(
                 request,
                 'You have been banned from logging in due to failed attempts.'
