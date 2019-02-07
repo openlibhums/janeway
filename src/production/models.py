@@ -66,6 +66,8 @@ class TypesetTask(models.Model):
             return "completed"
         elif self.completed and self.editor_reviewed:
             return "closed"
+        else:
+            return "unknown"
 
     FRIENDLY_STATUSES = {
             "assigned": "Awaiting response",
@@ -73,6 +75,7 @@ class TypesetTask(models.Model):
             "declined": "Task declined",
             "completed": "Task completed",
             "closed": "Task closed",
+            "unknown": "Task status unknown",
         }
 
     @property

@@ -346,7 +346,9 @@ def edit_typesetter_assignment(request, typeset_id):
             messages.add_message(
                 request,
                 messages.WARNING,
-                'An invalid operation has been attempted for this task.'
+                '[{status}] An invalid operation has '
+                'been attempted for this task.'.format(
+                    status=typeset.friendly_status)
             )
 
         return redirect(
