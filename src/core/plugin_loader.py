@@ -4,14 +4,15 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+import os
+from importlib import import_module
+
 from django.conf import settings
-from django.db.utils import ProgrammingError
+from django.db.utils import OperationalError, ProgrammingError
 
 from utils import models
-
-import os
-from django.db.utils import OperationalError
-from importlib import import_module
+from core.workflow import ELEMENT_STAGES
+from submission.models import STAGE_CHOICES
 
 
 def get_dirs(directory):
@@ -24,8 +25,8 @@ def get_dirs(directory):
 
 
 def load(directory="plugins", prefix="plugins", permissive=False):
-    # Get all of the folders in the plugins folder, check if they are installed and then
-    # load up their hooks.
+    # Get all of the folders in the plugins folder, check if they are
+    # installed and then load up their hooks.
     dirs = get_dirs(directory)
 
     hooks = []
@@ -36,16 +37,24 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             plugins.append(plugin)
             module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
 
+            # Load settings module
+            plugin_settings = import_module(module_name)
+
             # Load hooks
-            hooks.append(load_hooks(module_name))
+            hooks.append(load_hooks(plugin_settings))
 
             # Check for workflow
-            workflow_check = check_plugin_workflow(module_name)
+            workflow_check = check_plugin_workflow(plugin_settings)
             if workflow_check:
                 settings.WORKFLOW_PLUGINS[workflow_check] = module_name
+                STAGE_CHOICES.append(
+                    (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
+                )
+                ELEMENT_STAGES[
+                    plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
 
             # Call event registry
-            register_for_events(module_name)
+            register_for_events(plugin_settings)
 
     # Register plugin hooks
     if settings.PLUGIN_HOOKS:
@@ -82,13 +91,11 @@ def get_plugin(module_name, permissive):
         return False
 
 
-def load_hooks(module_name):
-    plugin_settings = import_module(module_name)
+def load_hooks(plugin_settings):
     return plugin_settings.hook_registry()
 
 
-def check_plugin_workflow(module_name):
-    plugin_settings = import_module(module_name)
+def check_plugin_workflow(plugin_settings):
     try:
         if plugin_settings.IS_WORKFLOW_PLUGIN:
             return plugin_settings.PLUGIN_NAME
@@ -96,9 +103,7 @@ def check_plugin_workflow(module_name):
         return False
 
 
-def register_for_events(module_name):
-    plugin_settings = import_module(module_name)
-
+def register_for_events(plugin_settings):
     try:
         plugin_settings.register_for_events()
     except AttributeError:
