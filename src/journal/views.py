@@ -111,6 +111,7 @@ def articles(request):
     if redirect:
         return redirect
 
+    print(keywords)
     pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
         journal=request.journal)]
     pinned_article_pks = [article.pk for article in pinned_articles]
@@ -128,7 +129,7 @@ def articles(request):
         articles = paginator.page(1)
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
-
+    
     template = 'journal/articles.html'
     context = {
         'pinned_articles': pinned_articles,

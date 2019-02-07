@@ -275,16 +275,22 @@ def handle_article_controls(request, sections):
         show = int(request.POST.get('show', 10))
         sort = request.POST.get('sort', '-date_published')
         filters = [int(filter) for filter in filters]
-        keywords = submission_models.Keyword.objects.filter(word__in=request.POST.get('keywords').split(','))
-        return page, show, filters, sort, keywords, set_article_session_variables(request, page, filters, show, sort, keywords), True
+        keywords = list(submission_models.Keyword.objects.filter(
+                            word__in=request.POST.get('keywords')
+                            .split(',')
+                            ).values_list('word',flat=True))
+        print(keywords)
+        print("just before return in handle article controsl")
+        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort, keywords), True, keywords
     else:
         page = request.GET.get('page', 1)
         filters = request.session.get('article_filters', [section.pk for section in sections])
         show = request.session.get('article_show', 10)
         sort = request.session.get('article_sort', '-date_published')
         active_filters = request.session.get('active_filters', False)
-        keywords = submission_models.Keyword.objects.all()
-
+        keywords = request.session.get('active_keywords')
+        if keywords is None:
+            keywords=list(submission_models.Keyword.objects.all().values_list('word',flat=True))
         return page, show, filters, sort, None, active_filters, keywords
 
 
@@ -303,7 +309,7 @@ def unset_article_session_variables(request):
     del request.session['article_show']
     del request.session['article_sort']
     del request.session['active_filters']
-    del request.session['artive_keywords']
+    del request.session['active_keywords']
 
     request.session.modified = True
 
