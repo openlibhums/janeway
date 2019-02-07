@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -53,7 +54,12 @@ def user_login(request):
         bad_logins = logic.check_for_bad_login_attempts(request)
 
     if bad_logins >= 5:
-        messages.add_message(request, messages.ERROR, 'You have been banned from logging in due to failed attempts.')
+        import pdb;pdb.set_trace()
+        messages.info(
+                request,
+                'You have been banned from logging in due to failed attempts.'
+        )
+        logging.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
 
     form = forms.LoginForm(bad_logins=bad_logins)
