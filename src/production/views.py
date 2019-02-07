@@ -351,19 +351,51 @@ def edit_typesetter_assignment(request, typeset_id):
     :param typeset_id: Typesetting Assignment PK
     :return: HttpRedirect if POST otherwise HttpResponse
     """
-    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
+    typeset = get_object_or_404(
+        models.TypesetTask,
+        pk=typeset_id,
+        assignment__article__journal=request.journal
+    )
     article = typeset.assignment.article
 
     if request.POST:
         if 'delete' in request.POST:
-            messages.add_message(request, messages.SUCCESS, 'Typeset task {0} has been deleted'.format(typeset.pk))
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Typeset task {0} has been deleted'.format(typeset.pk)
+            )
             kwargs = {'typeset': typeset, 'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_TASK_DELETED, **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_TYPESET_TASK_DELETED,
+                **kwargs
+            )
             typeset.delete()
+        elif 'update' in request.POST and typeset.accepted:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This assignment has been accepted so cannot be edited.'
+            )
         elif 'update' in request.POST:
             logic.update_typesetter_task(typeset, request)
+        elif 'reset' in request.POST and typeset.status == 'declined':
+            typeset.reset_task_dates()
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                '[{status}] An invalid operation has '
+                'been attempted for this task.'.format(
+                    status=typeset.friendly_status)
+            )
 
-        return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'production_article',
+                kwargs={'article_id': article.pk}
+            )
+        )
 
     template = 'production/edit_typesetter_assignment.html'
     context = {

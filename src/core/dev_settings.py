@@ -10,4 +10,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 URL_CONFIG = 'path'  # path or domain
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-MIDDLEWARE_CLASSES = ('utils.middleware.TimeMonitoring',)
+MIDDLEWARE_CLASSES = (
+    'utils.middleware.TimeMonitoring',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
+)
+INSTALLED_APPS = ['debug_toolbar']
+
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+}
