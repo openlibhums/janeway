@@ -194,12 +194,15 @@
                                     <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-file-text-o">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
+                                {% elif galley.file.mime_type in galley.figure_mime_types and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true"
+                                             class="has-tip top"
+                                             data-disable-hover="false"
+                                             tabindex="2"
+                                             title="{% has_missing_supplements galley %}">Missing Images</span>
+                                    </p>
+                                {% else %}
                                     Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
-                                             data-disable-hover="false" tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
                                 {% endif %}
                             </td>
                             <td>
@@ -207,12 +210,15 @@
                                     <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-book">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
+                                {% elif galley.file.mime_type in galley.figure_mime_types and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true"
+                                             class="has-tip top"
+                                             data-disable-hover="false"
+                                             tabindex="2"
+                                             title="{% has_missing_supplements galley %}">Missing Images</span>
+                                    </p>
+                                {% else %}
                                     Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
-                                             data-disable-hover="false" tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
                                 {% endif %}
                             </td>
                         </tr>
