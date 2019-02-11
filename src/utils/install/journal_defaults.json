@@ -131,7 +131,7 @@
             "type": "char"
         },
         "value": {
-            "default": "janeway@voyager.com"
+            "default": "eschol-no-reply@escholarship.org"
         }
     },
     {
