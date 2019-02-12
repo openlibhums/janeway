@@ -17,12 +17,14 @@ class FileTypeValidator(object):
     }
 
     def __init__(self, extensions=None, mimetypes=None):
-        self.extensions = extensions or []
-        self.mimetypes = mimetypes or []
+        self.extensions = extensions
+        self.mimetypes = mimetypes
 
     def __call__(self, file_):
-        self.validate_extension(file_.name)
-        self.validate_mimetype(file_.name)
+        if self.extensions:
+            self.validate_extension(file_.name)
+        if self.mimetypes:
+            self.validate_mimetype(file_.name)
 
     def validate_extension(self, file_name):
         _, extension = os.path.splitext(file_name)
