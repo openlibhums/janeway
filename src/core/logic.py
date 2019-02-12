@@ -339,7 +339,12 @@ def handle_article_large_image_file(uploaded_file, article, request):
         article.large_image_file = new_file
         article.save()
     else:
-        new_file = files.overwrite_file(uploaded_file, article, article.large_image_file)
+        new_file = files.overwrite_file(
+                uploaded_file,
+                article.large_image_file,
+                'article',
+                article.pk
+        )
         article.large_image_file = new_file
         article.save()
 
@@ -353,7 +358,12 @@ def handle_article_thumb_image_file(uploaded_file, article, request):
         article.thumbnail_image_file = new_file
         article.save()
     else:
-        new_file = files.overwrite_file(uploaded_file, article, article.thumbnail_image_file)
+        new_file = files.overwrite_file(
+                uploaded_file,
+                article.large_image_file,
+                'article',
+                article.pk
+        )
         article.thumbnail_image_file = new_file
         article.save()
 
