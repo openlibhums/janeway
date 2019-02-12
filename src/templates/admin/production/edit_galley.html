@@ -115,10 +115,10 @@
         </div>
         <div class="content">
             <p>
-                You can upload image files associated with the XML. We will display those we have detected but you can
-                upload
-                your own.
-                The uploaded filename should match the src or href of the file in your XML.
+                You can upload image files associated with the XML/HTML galley.
+                We will display those we have detected but you can
+                upload your own. The uploaded filename should match the src or href of the file
+                in your XML/HTML and should be relative eg. <code>src="fig1.jpg"</code>.
             </p>
 
             <table class="scroll small">
@@ -167,7 +167,7 @@
 
             </table>
             <div class="row expanded">
-                {% if galley.file.mime_type == 'application/xml' %}
+                {% if galley.file.mime_type == 'application/xml' or galley.file.mime_type == 'text/html' %}
                     {% for element in galley.has_missing_image_files %}
                         {% if element not in image_names %}
                             <div class="large-6 columns">

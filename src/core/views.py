@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -53,7 +54,11 @@ def user_login(request):
         bad_logins = logic.check_for_bad_login_attempts(request)
 
     if bad_logins >= 5:
-        messages.add_message(request, messages.ERROR, 'You have been banned from logging in due to failed attempts.')
+        messages.info(
+                request,
+                'You have been banned from logging in due to failed attempts.'
+        )
+        logging.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
 
     form = forms.LoginForm(bad_logins=bad_logins)
@@ -1310,23 +1315,45 @@ def add_member_to_group(request, group_id, user_id=None):
     :param user_id: Account object PK, optional
     :return:
     """
-    group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
-    member_pks = [member.user.pk for member in group.editorialgroupmember_set.all()]
-    user_list = models.Account.objects.exclude(pk__in=member_pks)
+    group = get_object_or_404(
+        models.EditorialGroup,
+        pk=group_id,
+        journal=request.journal
+    )
+    journal_users = request.journal.journal_users(objects=True)
+    members = [member.user for member in group.editorialgroupmember_set.all()]
+
+    # Drop users thagit t are in both lists.
+    user_list = list(set(journal_users) ^ set(members))
 
     if 'delete' in request.POST:
         delete_id = request.POST.get('delete')
-        membership = get_object_or_404(models.EditorialGroupMember, pk=delete_id)
+        membership = get_object_or_404(
+            models.EditorialGroupMember,
+            pk=delete_id
+        )
         membership.delete()
-        return redirect(reverse('core_editorial_member_to_group', kwargs={'group_id': group.pk}))
+        return redirect(
+            reverse(
+                'core_editorial_member_to_group',
+                kwargs={'group_id': group.pk}
+            )
+        )
 
     if user_id:
         user_to_add = get_object_or_404(models.Account, pk=user_id)
-        if user_id not in member_pks:
-            models.EditorialGroupMember.objects.create(group=group,
-                                                       user=user_to_add,
-                                                       sequence=group.next_member_sequence())
-        return redirect(reverse('core_editorial_member_to_group', kwargs={'group_id': group.pk}))
+        if user_to_add not in members:
+            models.EditorialGroupMember.objects.create(
+                group=group,
+                user=user_to_add,
+                sequence=group.next_member_sequence()
+            )
+        return redirect(
+            reverse(
+                'core_editorial_member_to_group',
+                kwargs={'group_id': group.pk}
+            )
+        )
 
     template = 'core/manager/editorial/add_member.html'
     context = {

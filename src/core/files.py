@@ -59,6 +59,8 @@ PDF_MIMETYPES = {
     'application/x-pdf',
 }
 
+MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
+
 
 def mkdirs(path):
     """

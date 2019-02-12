@@ -1,0 +1,12 @@
+{% block js %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{% endblock %}
+{% if form.errors %}
+{% for form_element in form.fields.values %}
+    {% for error, message in form_element.error_messages.items %}
+        <div class="static-alert static-alert-danger">
+            <strong>{{ form_element.label}}</strong>: {{error}} - {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+{% endif %}

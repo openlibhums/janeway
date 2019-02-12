@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
+import logging
 import uuid
 
 from django import forms
@@ -17,6 +17,7 @@ from django.conf import settings
 from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from simplemathcaptcha.fields import MathCaptchaField
 
 from core import models, validators
 from journal import models as journal_models
@@ -26,6 +27,8 @@ from submission import models as submission_models
 # This will set is_checkbox attribute to True for checkboxes.
 # Usage:  {% if field.field.is_checkbox %}
 setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))
+
+logger = logging.getLogger(__name__)
 
 
 class EditKey(forms.Form):
@@ -48,6 +51,7 @@ class EditKey(forms.Form):
             self.fields['value'].widget.attrs['size'] = '100%'
 
         self.fields['value'].initial = value
+        self.fields['value'].required = False
 
     value = forms.CharField(label='')
 
@@ -381,14 +385,19 @@ class QuickUserForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    user_name = forms.CharField(max_length=255)
-    user_pass = forms.CharField(max_length=255, widget=forms.PasswordInput)
+    user_name = forms.CharField(max_length=255, label="Email")
+    user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
 
     def __init__(self, *args, **kwargs):
-        bad_logins = kwargs.pop('bad_logins', None)
+        bad_logins = kwargs.pop('bad_logins', 0)
         super(LoginForm, self).__init__(*args, **kwargs)
-        if bad_logins >= 3 and (settings.CAPTCHA_TYPE == 'simple_math' or settings.CAPTCHA_TYPE == 'recaptcha'):
-            self.fields['captcha'] = ReCaptchaField(widget=ReCaptchaWidget())
+        if bad_logins:
+            logger.warning(
+                "[FAILED_LOGIN:%s][FAILURES: %s]"
+                "" % (self.fields["user_name"], bad_logins),
+            )
+        if bad_logins >= 3:
+            self.fields['captcha'] = self.captcha_field
         else:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
 
@@ -402,3 +411,23 @@ class FileUploadForm(forms.Form):
                 mimetypes=mimetypes,
         )
         self.fields["file"].validators.append(validator)
+
+    @property
+    def captcha_field(self):
+        if settings.CAPTCHA_TYPE == 'simple_math':
+            self.question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
+            return MathCaptchaField(label=_('Anti-spam captcha'))
+        elif settings.CAPTCHA_TYPE == 'recaptcha':
+            field = ReCaptchaField(widget=ReCaptchaWidget())
+            field.label = "Anti-spam captcha"
+            return field
+        else:
+            logging.warning(
+                    "Unknown CAPTCHA_TYPE in settings: %s"
+            "" % settings.CAPTCHA_TYPE
+            )
+            return self.no_cacptcha_field
+
+    @property
+    def no_captcha_field(self):
+        return forms.CharField(widget=forms.HiddenInput(), required=False)

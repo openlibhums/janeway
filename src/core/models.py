@@ -804,6 +804,10 @@ class Galley(models.Model):
                               'galley_id': self.pk})
         return self.article.journal.site_url(path=url)
 
+    @staticmethod
+    def mimetypes_with_figures():
+        return files.MIMETYPES_WITH_FIGURES
+
 
 class SupplementaryFile(models.Model):
     file = models.ForeignKey(File)
