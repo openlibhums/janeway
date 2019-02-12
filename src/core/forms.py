@@ -30,6 +30,7 @@ setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.Checkbo
 
 logger = logging.getLogger(__name__)
 
+
 class EditKey(forms.Form):
     def __init__(self, *args, **kwargs):
         key_type = kwargs.pop('key_type', None)
@@ -50,6 +51,7 @@ class EditKey(forms.Form):
             self.fields['value'].widget.attrs['size'] = '100%'
 
         self.fields['value'].initial = value
+        self.fields['value'].required = False
 
     value = forms.CharField(label='')
 
