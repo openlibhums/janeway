@@ -331,7 +331,7 @@ def serve_any_file(request, file_to_serve, public=False, *path_parts):
     #TODO: should rename to serve_file and the latter to serve_article_file
     #Or removed
     file_path = os.path.join(
-            settings.BASE_DIR, 
+            settings.BASE_DIR,
             'files',
             *(str(part) for part in path_parts),
             str(file_to_serve.uuid_filename),

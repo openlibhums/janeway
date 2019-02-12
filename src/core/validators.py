@@ -34,7 +34,7 @@ class FileTypeValidator(object):
                 validator=self,
             )
 
-            raise ValidationError(message, code="invalid")
+            raise ValidationError(message, code="invalid_extension")
 
     def validate_mimetype(self, file_name):
         mimetype, _ = mimetypes.guess_type(file_name)
@@ -44,4 +44,4 @@ class FileTypeValidator(object):
                 validator=self,
             )
 
-            raise ValidationError(message, code="invalid")
+            raise ValidationError(message, code="invalidi_mimetype")

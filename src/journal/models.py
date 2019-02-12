@@ -568,7 +568,7 @@ class IssueGalley(models.Model):
     FILES_PATH = 'issues'
 
     file = models.ForeignKey('core.File')
-    #An Issue can only have one galley at this time (PDF)
+    # An Issue can only have one galley at this time (PDF)
     issue = models.OneToOneField('journal.Issue', related_name='galley')
 
     @transaction.atomic

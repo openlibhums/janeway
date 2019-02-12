@@ -560,12 +560,13 @@ def file_history(request, article_id, file_id):
 
     return render(request, template, context)
 
+
 @editor_user_required
 def issue_file_history(request, issue_id):
     """ Returns the file history of a given Issue Galley file
 
     """
-    #TODO: Combine with `file_history` above, disabled until GH #865
+    # TODO: Combine with `file_history` above, disabled until GH #865
     raise Http404
     issue_galley = get_object_or_404(models.IssueGalley, issue__pk=issue_id)
     file_object = issue_galley.file
@@ -577,6 +578,7 @@ def issue_file_history(request, issue_id):
     }
 
     return render(request, template, context)
+
 
 @login_required
 @file_edit_user_required
@@ -917,6 +919,7 @@ def manage_issues(request, issue_id=None, event=None):
 
     return render(request, template, context)
 
+
 @editor_user_required
 def issue_galley(request, issue_id, delete=False):
     issue = get_object_or_404(models.Issue, pk=issue_id)
@@ -946,8 +949,14 @@ def issue_galley(request, issue_id, delete=False):
                 )
 
             messages.info(request, "Issue Galley Uploaded")
+        elif form.errors:
+            messages.error(
+                    request,
+                    "\n".join(field.errors.as_text() for field in form)
+         )
 
     return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
+
 
 @editor_user_required
 def sort_issue_sections(request, issue_id):
