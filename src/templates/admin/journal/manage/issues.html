@@ -60,6 +60,7 @@
 {% if issue %}
     {% include "elements/issue/table_of_contents.html" with issue=issue %}
     {% include "elements/issue/guest_editors.html" with issue=issue %}
+    {% include "elements/issue/galleys.html" with issue=issue galleys=galleys %}
 {% endif %}
 {% include "elements/issue/issue_modal.html" %}
 {% include "elements/issue/delete_modal.html" %}

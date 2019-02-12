@@ -11,14 +11,18 @@ import uuid
 import os
 
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save, m2m_changed
 
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from core import models as core_models, workflow
+from core import (
+        files,
+        models as core_models,
+        workflow,
+)
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from press import models as press_models
@@ -559,6 +563,27 @@ class Issue(models.Model):
     class Meta:
         ordering = ("order", "-date")
 
+
+class IssueGalley(models.Model):
+    FILES_PATH = 'issues'
+
+    file = models.ForeignKey('core.File')
+    #An Issue can only have one galley at this time (PDF)
+    issue = models.OneToOneField('journal.Issue', related_name='galley')
+
+    @transaction.atomic
+    def replace_file(self, other):
+        new_file = files.overwrite_file(other, self.file, *self.path_parts)
+        self.file = new_file
+        self.save()
+
+    def serve(self, request):
+        public = True
+        return files.serve_any_file(request, self.file, public, *self.path_parts)
+
+    @property
+    def path_parts(self):
+        return self.FILES_PATH, self.issue.pk
 
 class SectionOrdering(models.Model):
     section = models.ForeignKey('submission.Section')
