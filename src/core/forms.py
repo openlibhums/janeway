@@ -18,7 +18,7 @@ from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
-from core import models
+from core import models, validators
 from journal import models as journal_models
 from utils import setting_handler
 from submission import models as submission_models
@@ -391,3 +391,14 @@ class LoginForm(forms.Form):
             self.fields['captcha'] = ReCaptchaField(widget=ReCaptchaWidget())
         else:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+class FileUploadForm(forms.Form):
+    file = forms.FileField()
+
+    def __init__(self, *args, extensions=None, mimetypes=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        validator = validators.FileTypeValidator(
+                extensions=extensions,
+                mimetypes=mimetypes,
+        )
+        self.fields["file"].validators.append(validator)
