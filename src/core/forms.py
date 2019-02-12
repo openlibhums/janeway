@@ -401,17 +401,6 @@ class LoginForm(forms.Form):
         else:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-class FileUploadForm(forms.Form):
-    file = forms.FileField()
-
-    def __init__(self, *args, extensions=None, mimetypes=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        validator = validators.FileTypeValidator(
-                extensions=extensions,
-                mimetypes=mimetypes,
-        )
-        self.fields["file"].validators.append(validator)
-
     @property
     def captcha_field(self):
         if settings.CAPTCHA_TYPE == 'simple_math':
@@ -431,3 +420,15 @@ class FileUploadForm(forms.Form):
     @property
     def no_captcha_field(self):
         return forms.CharField(widget=forms.HiddenInput(), required=False)
+
+
+class FileUploadForm(forms.Form):
+    file = forms.FileField()
+
+    def __init__(self, *args, extensions=None, mimetypes=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        validator = validators.FileTypeValidator(
+                extensions=extensions,
+                mimetypes=mimetypes,
+        )
+        self.fields["file"].validators.append(validator)
