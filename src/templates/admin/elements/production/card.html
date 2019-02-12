@@ -18,7 +18,7 @@
                     self</a>{% endif %}
             {% elif type == 'assigned' %}
                 <a class="button tiny alert" href="{% url 'production_unassign_article' article.pk %}">Unassign</a>
-                {% if user_is_editor %}
+                {% if user_is_editor or prod_manager %}
                     <a class="button tiny success" href="{% url 'production_article' article.pk %}">Go to production
                         page</a>{% endif %}
             {% endif %}
