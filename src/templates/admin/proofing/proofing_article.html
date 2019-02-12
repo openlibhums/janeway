@@ -194,7 +194,7 @@
                                     <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-file-text-o">&nbsp;</i>
                                     </a>
-                                {% elif galley.file.mime_type in galley.figure_mime_types and galley.has_missing_image_files %}
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
                                     <p><span data-tooltip aria-haspopup="true"
                                              class="has-tip top"
                                              data-disable-hover="false"
@@ -210,7 +210,7 @@
                                     <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-book">&nbsp;</i>
                                     </a>
-                                {% elif galley.file.mime_type in galley.figure_mime_types and galley.has_missing_image_files %}
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
                                     <p><span data-tooltip aria-haspopup="true"
                                              class="has-tip top"
                                              data-disable-hover="false"

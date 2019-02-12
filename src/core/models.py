@@ -129,11 +129,6 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
                    (u'VG', u'Virgin Islands, British'), (u'VI', u'Virgin Islands, U.S.'), (u'WF', u'Wallis and Futuna'),
                    (u'EH', u'Western Sahara'), (u'YE', u'Yemen'), (u'ZM', u'Zambia'), (u'ZW', u'Zimbabwe')]
 
-FIGURE_MIME_TYPES = [
-    'application/xml',
-    'text/html',
-]
-
 
 class Country(models.Model):
     code = models.TextField(max_length=5)
@@ -810,8 +805,8 @@ class Galley(models.Model):
         return self.article.journal.site_url(path=url)
 
     @staticmethod
-    def figure_mime_types():
-        return FIGURE_MIME_TYPES
+    def mimetypes_with_figures():
+        return files.MIMETYPES_WITH_FIGURES
 
 
 class SupplementaryFile(models.Model):

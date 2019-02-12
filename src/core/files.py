@@ -54,6 +54,8 @@ HTML_MIMETYPES = (
     'application/xhtml+xml'
 )
 
+MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
+
 
 def mkdirs(path):
     """
