@@ -78,7 +78,7 @@ def production_assign_article(request, user_id, article_id):
     user = core_models.Account.objects.get(id=user_id)
 
     if user.is_production(request):
-        url = request.journal.site_url() + reverse('production_article', kwargs={'article_id': article.id})
+        url = request.journal.site_url(path=reverse('production_article', kwargs={'article_id': article.id}))
         html = logic.get_production_assign_content(user, request, article, url)
 
         prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
