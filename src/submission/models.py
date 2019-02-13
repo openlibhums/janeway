@@ -909,6 +909,14 @@ class Article(models.Model):
         elif self.stage == STAGE_READY_FOR_PUBLICATION:
             return reverse('publish_article', kwargs=kwargs)
 
+    @property
+    def custom_fields(self):
+        """ Returns all the FieldAnswers configured for rendering"""
+        return self.fieldanswer_set.filter(
+            field__display=True,
+            answer__isnull=False,
+        )
+
     def get_meta_image_path(self):
         if self.meta_image and self.meta_image.url:
             return self.meta_image.url
@@ -1182,6 +1190,10 @@ class Field(models.Model):
                                help_text='Separate choices with the bar | character.')
     required = models.BooleanField(default=True)
     order = models.IntegerField()
+    display = models.BooleanField(
+        default=False,
+        help_text='Whether or not display this field in the article page'
+    )
     help_text = models.TextField()
 
     class Meta:

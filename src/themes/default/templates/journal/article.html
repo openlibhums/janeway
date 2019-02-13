@@ -215,6 +215,10 @@
                         </li>
                     {% endif %}
                 </ul>
+                {% for field in article.custom_fields %}
+                <h4>{% trans field.field.name %}</h4>
+                <p>{{ field.answer }}</p>
+                {% endfor %}
                 {% if article.is_published %}
                     {% if not request.journal.disable_metrics_display %}
                     <h4>{% trans "Metrics" %}</h4>
