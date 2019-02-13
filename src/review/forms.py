@@ -13,6 +13,7 @@ from review import models
 from review.logic import render_choices
 from core import models as core_models
 from utils import setting_handler
+from utils.forms import FakeModelForm
 
 
 class DraftDecisionForm(forms.ModelForm):
@@ -58,6 +59,13 @@ class ReviewerDecisionForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
         fields = ('decision', 'comments_for_editor')
+
+
+class FakeReviewerDecisionForm(FakeModelForm, ReviewerDecisionForm):
+
+    def __init__(self, *args, **kwargs):
+        kwargs["disable_fields"] = True
+        super().__init__(*args, **kwargs)
 
 
 class ReplacementFileDetails(forms.ModelForm):

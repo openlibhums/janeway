@@ -908,6 +908,10 @@ def notify_reviewer(request, article_id, review_id):
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     email_content = logic.get_reviewer_notification(request, article, request.user, review)
+    review_form = forms.FakeReviewerDecisionForm(instance=review)
+
+    if 'review_file' in request.GET:
+        return logic.serve_review_file(review)
 
     if request.POST:
         email_content = request.POST.get('content_email')
@@ -934,6 +938,8 @@ def notify_reviewer(request, article_id, review_id):
         'article': article,
         'review': review,
         'email_content': email_content,
+        'review_form': review_form,
+        'assignment': review,
     }
 
     return render(request, template, context)
