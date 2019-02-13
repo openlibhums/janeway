@@ -342,7 +342,7 @@ def handle_article_large_image_file(uploaded_file, article, request):
         new_file = files.overwrite_file(
                 uploaded_file,
                 article.large_image_file,
-                'article',
+                'articles',
                 article.pk
         )
         article.large_image_file = new_file
@@ -361,7 +361,7 @@ def handle_article_thumb_image_file(uploaded_file, article, request):
         new_file = files.overwrite_file(
                 uploaded_file,
                 article.large_image_file,
-                'article',
+                'articles',
                 article.pk
         )
         article.thumbnail_image_file = new_file
