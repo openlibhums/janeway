@@ -230,7 +230,7 @@ STAGE_CHOICES = [
     (STAGE_UNASSIGNED, 'Unassigned'),
     (STAGE_ASSIGNED, 'Assigned to Editor'),
     (STAGE_UNDER_REVIEW, 'Peer Review'),
-    (STAGE_UNDER_REVISION, 'Under Revision'),
+    (STAGE_UNDER_REVISION, 'Revision'),
     (STAGE_REJECTED, 'Rejected'),
     (STAGE_ACCEPTED, 'Accepted'),
     (STAGE_EDITOR_COPYEDITING, 'Editor Copyediting'),
