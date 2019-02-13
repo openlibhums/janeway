@@ -91,40 +91,44 @@ def add_copyeditor_assignment(request, article_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyeditors = logic.get_copyeditors(article)
-    file_list = None
-    form = forms.CopyeditAssignmentForm()
+    copyeditor_pks = [c.user.pk for c in copyeditors]
+    files = article.manuscript_files.all() | article.data_figure_files.all()
+
+    form = forms.CopyeditAssignmentForm(
+        copyeditor_pks=copyeditor_pks,
+        files=files,
+    )
 
     if request.POST:
-        form = forms.CopyeditAssignmentForm(request.POST)
-        user = logic.get_user_from_post(request)
-        file_list = [int(file_id) for file_id in request.POST.getlist('files')]
+        form = forms.CopyeditAssignmentForm(
+            request.POST,
+            copyeditor_pks=copyeditor_pks,
+            files=files
+        )
 
-        if not user:
-            form.add_error(None, 'You must select a user.')
-        if not file_list:
-            form.add_error(None, 'You must select at least one file.')
-        else:
-            if form.is_valid():
-                copyedit = form.save(commit=False)
-                copyedit.article = article
-                copyedit.editor = request.user
-                copyedit.copyeditor = user
-                copyedit.save()
+        if form.is_valid():
+            copyedit = form.save(
+                editor=request.user,
+                article=article,
+                commit=False
+            )
+            copyedit.save()
 
-                file_list = [core_models.File.objects.get(pk=file_id) for file_id in request.POST.getlist('files')]
-
-                for file in file_list:
-                    copyedit.files_for_copyediting.add(file)
-
-                return redirect(reverse('notify_copyeditor_assignment',
-                                        kwargs={'article_id': article.pk, 'copyedit_id': copyedit.pk}))
+            return redirect(
+                reverse(
+                    'notify_copyeditor_assignment',
+                    kwargs={
+                        'article_id': article.pk,
+                        'copyedit_id': copyedit.pk
+                    }
+                )
+            )
 
     template = 'copyediting/add_copyeditor_assignment.html'
     context = {
         'article': article,
         'copyeditors': copyeditors,
         'form': form,
-        'files': file_list,
     }
 
     return render(request, template, context)
