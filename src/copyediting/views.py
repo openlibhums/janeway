@@ -185,10 +185,21 @@ def edit_assignment(request, article_id, copyedit_id):
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
     if copyedit.decision:
-        messages.add_message(request, messages.WARNING, 'This task is underway so cannot be edited.')
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'This task is underway so cannot be edited.'
+        )
+        return redirect(
+            reverse(
+                'article_copyediting',
+                kwargs={'article_id': article.pk}
+            )
+        )
 
-    form = forms.CopyeditAssignmentForm(instance=copyedit)
+    form = forms.CopyeditAssignmentForm(
+        instance=copyedit
+    )
 
     if request.POST:
         form = forms.CopyeditAssignmentForm(request.POST, instance=copyedit)
@@ -197,9 +208,21 @@ def edit_assignment(request, article_id, copyedit_id):
             form.save()
             kwargs = {'copyedit_assignment': copyedit, 'request': request,
                       'skip': True if 'skip' in request.POST else False}
-            event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_UPDATED, **kwargs)
-            messages.add_message(request, messages.SUCCESS, 'Copyedit assignment updated.')
-            return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_COPYEDIT_UPDATED,
+                **kwargs
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Copyedit assignment updated.'
+            )
+            return redirect(
+                reverse(
+                    'article_copyediting',
+                    kwargs={'article_id': article.pk}
+                )
+            )
 
     template = 'copyediting/edit_assignment.html'
     context = {
