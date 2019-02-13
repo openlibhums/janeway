@@ -245,7 +245,12 @@ def set_article_image(request, article):
             article.save()
             messages.add_message(request, messages.SUCCESS, 'New file loaded')
         else:
-            new_file = files.overwrite_file(uploaded_file, article, article.large_image_file)
+            new_file = files.overwrite_file(
+                    uploaded_file,
+                    article.large_image_file,
+                    'article',
+                    article.pk
+            )
             article.large_image_file = new_file
             article.save()
             messages.add_message(request, messages.SUCCESS, 'File overwritten.')

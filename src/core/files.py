@@ -54,6 +54,11 @@ HTML_MIMETYPES = (
     'application/xhtml+xml'
 )
 
+PDF_MIMETYPES = {
+    'application/pdf',
+    'application/x-pdf',
+}
+
 MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
 
 
@@ -322,6 +327,21 @@ def render_xml(file_to_render, article, galley=None):
 
         return transform(etree.XML(xml_string))
 
+def serve_any_file(request, file_to_serve, public=False, *path_parts):
+    #TODO: should rename to serve_file and the latter to serve_article_file
+    #Or removed
+    file_path = os.path.join(
+            settings.BASE_DIR,
+            'files',
+            *(str(part) for part in path_parts),
+            str(file_to_serve.uuid_filename),
+    )
+    try:
+        return serve_file_to_browser(file_path, file_to_serve, public=public)
+    except IOError:
+        messages.add_message(request, messages.ERROR, 'File not found. {0}'.format(file_path))
+        raise Http404
+
 
 def serve_file(request, file_to_serve, article, public=False):
     """Serve a file to the user using a StreamingHttpResponse.
@@ -333,13 +353,7 @@ def serve_file(request, file_to_serve, article, public=False):
     :return: a StreamingHttpResponse object with the requested file or an HttpResponseRedirect if there is an IO or
     permission error
     """
-    file_path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(file_to_serve.uuid_filename))
-
-    try:
-        return serve_file_to_browser(file_path, file_to_serve, public=public)
-    except IOError:
-        messages.add_message(request, messages.ERROR, 'File not found. {0}'.format(file_path))
-        raise Http404
+    return serve_any_file(request, file_to_serve, public, 'articles', article.id)
 
 
 @cache_control(max_age=600)
@@ -479,14 +493,18 @@ def create_file_history_object(file_to_replace):
     file_to_replace.history.add(new_file)
 
 
-def overwrite_file(uploaded_file, article, file_to_replace):
+def overwrite_file(uploaded_file, file_to_replace, *path_parts):
 
     create_file_history_object(file_to_replace)
     original_filename = str(uploaded_file.name)
 
     # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id))
+    folder_structure = os.path.join(
+            settings.BASE_DIR,
+            'files',
+            *(str(part) for part in path_parts)
+    )
 
     save_file_to_disk(uploaded_file, filename, folder_structure)
 
@@ -583,6 +601,30 @@ def save_file_to_journal(request, file_to_handle, label, description, xslt=False
         description=description,
         owner=request.user,
         is_galley=False,
+        privacy="public" if public else "owner"
+    )
+
+    return new_file
+
+def save_file(request, file_to_handle, label=None, public=False, *path_parts):
+    original_filename = str(file_to_handle.name)
+    filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
+    folder_structure = os.path.join(
+            settings.BASE_DIR,
+            'files',
+            *(str(part) for part in path_parts),
+    )
+
+    save_file_to_disk(file_to_handle, filename, folder_structure)
+    file_mime = guess_mime(filename)
+
+    from core import models
+    new_file = models.File.objects.create(
+        mime_type=file_mime,
+        original_filename=original_filename,
+        uuid_filename=filename,
+        label=label,
+        owner=request.user,
         privacy="public" if public else "owner"
     )
 

@@ -14,7 +14,7 @@ MIDDLEWARE_CLASSES = (
     'utils.middleware.TimeMonitoring',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
-INSTALLED_APPS = ['debug_toolbar']
+INSTALLED_APPS = ['debug_toolbar', 'django_nose']
 
 
 def show_toolbar(request):
@@ -24,3 +24,4 @@ def show_toolbar(request):
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

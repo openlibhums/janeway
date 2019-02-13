@@ -19,7 +19,7 @@ from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
 
-from core import models
+from core import models, validators
 from journal import models as journal_models
 from utils import setting_handler
 from submission import models as submission_models
@@ -399,7 +399,7 @@ class LoginForm(forms.Form):
         if bad_logins >= 3:
             self.fields['captcha'] = self.captcha_field
         else:
-            self.fields['captcha'] = self.no_captcha_field
+            self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     @property
     def captcha_field(self):
@@ -420,3 +420,15 @@ class LoginForm(forms.Form):
     @property
     def no_captcha_field(self):
         return forms.CharField(widget=forms.HiddenInput(), required=False)
+
+
+class FileUploadForm(forms.Form):
+    file = forms.FileField()
+
+    def __init__(self, *args, extensions=None, mimetypes=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        validator = validators.FileTypeValidator(
+                extensions=extensions,
+                mimetypes=mimetypes,
+        )
+        self.fields["file"].validators.append(validator)
