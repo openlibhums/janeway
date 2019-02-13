@@ -28,13 +28,17 @@ class CopyeditAssignmentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        copyeditor_pks = kwargs.pop('copyeditor_pks')
-        files = kwargs.pop('files')
+        copyeditor_pks = kwargs.pop('copyeditor_pks', None)
+        files = kwargs.pop('files', None)
         super(CopyeditAssignmentForm, self).__init__(*args, **kwargs)
-        self.fields['copyeditor'].queryset = Account.objects.filter(
-            pk__in=copyeditor_pks
-        )
-        self.fields['files_for_copyediting'].queryset = files
+
+        if copyeditor_pks:
+            self.fields['copyeditor'].queryset = Account.objects.filter(
+                pk__in=copyeditor_pks
+            )
+
+        if files:
+            self.fields['files_for_copyediting'].queryset = files
 
     def save(self, editor=None, article=None, commit=True):
         copyedit = super(CopyeditAssignmentForm, self).save(commit=False)
