@@ -467,8 +467,8 @@ def replace_article_file(request, identifier_type, identifier, file_id):
             files.overwrite_file(
                     uploaded_file,
                     file_to_replace,
-                    'article',
-                    article.pk,
+                    'articles',
+                    article_to_replace.pk,
             )
 
         return redirect(request.GET.get('return', 'core_dashboard'))
