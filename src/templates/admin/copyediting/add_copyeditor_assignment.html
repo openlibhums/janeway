@@ -34,7 +34,7 @@
                     <tbody>
                     {% for copyeditor_role in copyeditors %}
                         <tr>
-                            <td><input type="radio" name="copyeditor" value="{{ copyeditor_role.user.id }}"></td>
+                            <td><input type="radio" name="copyeditor" value="{{ copyeditor_role.user.id }}" {% if copyeditor_role.user == form.cleaned_data.copyeditor %}checked="checked"{% endif %}></td>
                             <td>{{ copyeditor_role.user.full_name }}</td>
                             <td>{{ copyeditor_role.user.email }}</td>
                             <td>{{ copyeditor_role.user.active_copyedits|length }}</td>
@@ -66,8 +66,8 @@
                     </tr>
                     {% for file in article.manuscript_files.all %}
                         <tr>
-                            <td><input type="checkbox" name="files" value="{{ file.id }}"
-                                       {% if file.id in files %}checked="checked"{% endif %}></td>
+                            <td><input type="checkbox" name="files_for_copyediting" value="{{ file.id }}"
+                                       {% if file in form.cleaned_data.files_for_copyediting %}checked="checked"{% endif %}></td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Manuscript</td>
@@ -78,7 +78,7 @@
                     {% for file in article.data_figure_files.all %}
                         <tr>
                             <td><input type="checkbox" name="files" value="{{ file.id }}"
-                                       {% if file.id in files %}checked="checked"{% endif %}></td>
+                                       {% if file in form.cleaned_data.files_for_copyediting %}checked="checked"{% endif %}></td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>
