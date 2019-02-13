@@ -91,7 +91,7 @@ def add_copyeditor_assignment(request, article_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     copyeditors = logic.get_copyeditors(article)
-    copyeditor_pks = [c.user.pk for c in copyeditors]
+    copyeditor_pks = [copyeditor.user.pk for copyeditor in copyeditors]
     files = article.manuscript_files.all() | article.data_figure_files.all()
 
     form = forms.CopyeditAssignmentForm(
