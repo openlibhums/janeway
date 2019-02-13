@@ -228,8 +228,8 @@ PREPRINT_STAGES = {
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, 'Unsubmitted'),
     (STAGE_UNASSIGNED, 'Unassigned'),
-    (STAGE_ASSIGNED, 'Assigned'),
-    (STAGE_UNDER_REVIEW, 'Under Review'),
+    (STAGE_ASSIGNED, 'Assigned to Editor'),
+    (STAGE_UNDER_REVIEW, 'Peer Review'),
     (STAGE_UNDER_REVISION, 'Under Revision'),
     (STAGE_REJECTED, 'Rejected'),
     (STAGE_ACCEPTED, 'Accepted'),
