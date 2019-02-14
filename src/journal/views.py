@@ -201,7 +201,6 @@ def collections(request):
     :param request: request object
     :return: a rendered template of the collections
     """
-
     collections = models.Issue.objects.filter(journal=request.journal, issue_type='Collection')
 
     template = 'journal/collections.html'
@@ -1635,7 +1634,7 @@ def download_issue(request, issue_id):
     issue_object = get_object_or_404(models.Issue,
                                      pk=issue_id,
                                      journal=request.journal,
-                                     issue_type='Issue')
+    )
     articles = issue_object.articles.all().order_by('section',
                                                     'page_numbers').prefetch_related('authors',
                                                                                      'frozenauthor_set',
