@@ -1388,7 +1388,6 @@ def author_list(request):
         'author_list': author_list,
         'show': show,
         'active_filters': active_filters,
-
     }
     return render(request, template, context)
 
