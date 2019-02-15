@@ -119,7 +119,7 @@ def articles(request):
                                                                section__pk__in=filters).prefetch_related(
         'frozenauthor_set').order_by(sort).exclude(
         pk__in=pinned_article_pks)
-
+    print(len(article_objects))
     paginator = Paginator(article_objects, show)
 
     try:
@@ -1360,10 +1360,44 @@ def author_list(request):
     :return: HttpResponse object
     """
     author_list = request.journal.users_with_role('author')
+    
+    if request.POST:
+        page = request.GET.get('page', 1)
+        show = int(request.POST.get('show', 3))
+        request.session['authors_show'] = show
+        redirect = redirect("{0}?page={1}".format(reverse('authors'), page))
+
+    else:
+        page = request.GET.get('page', 1)
+        show = request.session.get('authors_show', 3)
+        redirect = None
+
+    if redirect:
+        return redirect
+
+    paginator = Paginator(author_list, show)
+
+    try:
+        author_list = paginator.page(page)
+    except PageNotAnInteger:
+        author_list = paginator.page(1)
+    except EmptyPage:
+        author_list = paginator.page(paginator.num_pages)
+
     template = 'journal/authors.html'
+    # context = {
+    #     'pinned_articles': pinned_articles,
+    #     'articles': articles,
+    #     'sections': sections,
+    #     'filters': filters,
+    #     'sort': sort,
+    #     'show': show,
+    #     'active_filters': active_filters,
+    # }
 
     context = {
         'author_list': author_list,
+        'show': show,
     }
     return render(request, template, context)
 
