@@ -40,7 +40,8 @@
             <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
                 <div class="section">
                     <h3>{% trans 'Downloads' %}</h3>
-                    <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %}</a></p>
+                    {% if issue.galley %}<p><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %} (PDF)</a></p>{% endif %}
+                    <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %} (ZIP)</a></p>
                     <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
                         {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
                     <ul>

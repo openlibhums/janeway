@@ -28,7 +28,7 @@ from django.core.management import call_command
 from cms import models as cms_models
 from core import files, models as core_models, plugin_loader
 from journal import logic, models, issue_forms, forms
-from journal.logic import list_galleys
+from journal.logic import get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms
 from security.decorators import article_stage_accepted_or_later_required, \
@@ -257,7 +257,7 @@ def article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = list_galleys(article_object, galleys)
+        content = get_galley_content(article_object, galleys)
     else:
         article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
                                   "that is not yet published.</strong></p>" + article_object.abstract
@@ -301,7 +301,7 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = list_galleys(article_object, galleys)
+        content = get_galley_content(article_object, galleys)
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
@@ -464,7 +464,12 @@ def replace_article_file(request, identifier_type, identifier, file_id):
 
         if 'replacement' in request.POST:
             uploaded_file = request.FILES.get('replacement-file')
-            files.overwrite_file(uploaded_file, article_to_replace, file_to_replace)
+            files.overwrite_file(
+                    uploaded_file,
+                    file_to_replace,
+                    'articles',
+                    article_to_replace.pk,
+            )
 
         return redirect(request.GET.get('return', 'core_dashboard'))
 
@@ -556,6 +561,25 @@ def file_history(request, article_id, file_id):
     return render(request, template, context)
 
 
+@editor_user_required
+def issue_file_history(request, issue_id):
+    """ Returns the file history of a given Issue Galley file
+
+    """
+    # TODO: Combine with `file_history` above, disabled until GH #865
+    raise Http404
+    issue_galley = get_object_or_404(models.IssueGalley, issue__pk=issue_id)
+    file_object = issue_galley.file
+
+    template = "journal/file_history.html"
+    context = {
+        'article': None,
+        'file': file_object,
+    }
+
+    return render(request, template, context)
+
+
 @login_required
 @file_edit_user_required
 def file_delete(request, article_id, file_id):
@@ -628,10 +652,15 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     :param file_name: a File object name
     :return: a streaming file reponse
     """
-    figure_article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    figure_article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier
+    )
+    article_galleys = figure_article.galley_set.all()
 
     if figure_article:
-        galley = figure_article.get_render_galley
+        galley = logic.get_best_galley(figure_article, article_galleys)
         figure = get_object_or_404(galley.images, original_filename=file_name)
 
         return files.serve_file(request, figure, figure_article)
@@ -833,11 +862,12 @@ def manage_issues(request, issue_id=None, event=None):
     """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
-    issue, modal, form = None, None, issue_forms.NewIssue()
+    issue, modal, form, galley_form = None, None, issue_forms.NewIssue(), None
 
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
         form = issue_forms.NewIssue(instance=issue)
+        galley_form = issue_forms.IssueGalleyForm()
         if event == 'edit':
             modal = 'issue'
         if event == 'delete':
@@ -884,9 +914,48 @@ def manage_issues(request, issue_id=None, event=None):
         'issue': issue,
         'form': form,
         'modal': modal,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def issue_galley(request, issue_id, delete=False):
+    issue = get_object_or_404(models.Issue, pk=issue_id)
+
+    if request.method == 'POST':
+        form = issue_forms.IssueGalleyForm(request.POST, request.FILES)
+        if 'delete' in request.POST:
+            issue_galley = get_object_or_404(models.IssueGalley, issue=issue)
+            issue_galley.delete()
+            messages.info(request, "Issue Galley Deleted")
+        elif form.is_valid():
+            uploaded_file = request.FILES["file"]
+            try:
+                issue_galley = models.IssueGalley.objects.get(issue=issue)
+                issue_galley.replace_file(uploaded_file)
+            except models.IssueGalley.DoesNotExist:
+                file_obj = files.save_file(
+                        request,
+                        uploaded_file,
+                        label=issue.issue_title,
+                        public=False
+                        *(models.IssueGalley.FILES_PATH, issue.pk)
+                )
+                models.IssueGalley.objects.create(
+                    file=file_obj,
+                    issue=issue,
+                )
+
+            messages.info(request, "Issue Galley Uploaded")
+        elif form.errors:
+            messages.error(
+                    request,
+                    "\n".join(field.errors.as_text() for field in form)
+         )
+
+    return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
 
 @editor_user_required
@@ -967,11 +1036,6 @@ def issue_add_article(request, issue_id):
             messages.add_message(request, messages.WARNING, 'Articles without a section cannot be added to an issue.')
             return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
         else:
-
-            models.ArticleOrdering.objects.create(article=article,
-                                                  issue=issue,
-                                                  order=issue.next_order(),
-                                                  section=article.section)
             issue.articles.add(article)
         return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
@@ -1586,3 +1650,14 @@ def download_issue(request, issue_id):
 
     zip_file, file_name = files.zip_files(galley_files, article_specific=True)
     return files.serve_temp_file(zip_file, file_name)
+
+
+def download_issue_galley(request, issue_id, galley_id):
+    issue_galley = get_object_or_404(
+            models.IssueGalley,
+            pk=galley_id,
+            issue__pk=issue_id,
+    )
+
+
+    return issue_galley.serve(request)

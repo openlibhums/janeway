@@ -1,3 +1,7 @@
+{% load roles %}
+
+{% user_has_role request 'editor' as user_is_editor %}
+
 <div class="reveal large" id="summarymodal" data-reveal data-animation-in="slide-in-up"
      data-animation-out="slide-out-down">
     <div class="card">
@@ -9,21 +13,23 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             {% include "elements/metadata.html"  %}
-            {% if article.ithenticate_id %}
-            <div class="title-area">
-                <h2>Similarty Check</h2>
-            </div>
-            <div class="content">
-                <p><a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i class="fa fa-book">&nbsp;</i>View Report {% if article.ithenticate_score %} (Score: {{ article.ithenticate_score }}%){% endif %}</a></p>
-            </div>
+            {% if user_is_editor %}
+                {% if article.ithenticate_id %}
+                <div class="title-area">
+                    <h2>Similarty Check</h2>
+                </div>
+                <div class="content">
+                    <p><a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i class="fa fa-book">&nbsp;</i>View Report {% if article.ithenticate_score %} (Score: {{ article.ithenticate_score }}%){% endif %}</a></p>
+                </div>
+                {% endif %}
+                <div class="title-area">
+                    <h2>Notes</h2>
+                </div>
+                <textarea id='{{ article.pk }}_new_note' class="form-control" rows="5" placeholder="Write a note..."></textarea>
+                <button type="submit" onclick="submit_note({{ article.pk }})" class="button success">Save Note</button>
+                <hr />
+                {% include "elements/notes/notes.html" %}
             {% endif %}
-            <div class="title-area">
-                <h2>Notes</h2>
-            </div>
-            <textarea id='{{ article.pk }}_new_note' class="form-control" rows="5" placeholder="Write a note..."></textarea>
-            <button type="submit" onclick="submit_note({{ article.pk }})" class="button success">Save Note</button>
-            <hr />
-            {% include "elements/notes/notes.html" %}
         </div>
     </div>
 </div>

@@ -17,9 +17,14 @@ from events import logic as event_logic
 from core import models as core_models
 from cron import models as cron_task
 from production import logic, models, forms
-from security.decorators import editor_user_required, production_user_or_editor_required, \
-    article_production_user_required, article_stage_production_required, has_journal, \
-    typesetter_or_editor_required, typesetter_user_required
+from security.decorators import (editor_user_required,
+                                 production_user_or_editor_required,
+                                 article_production_user_required,
+                                 article_stage_production_required,
+                                 has_journal,
+                                 typesetter_or_editor_required,
+                                 typesetter_user_required,
+                                 typesetting_user_or_production_user_or_editor_required)
 from submission import models as submission_models
 from utils import setting_handler
 
@@ -73,7 +78,7 @@ def production_assign_article(request, user_id, article_id):
     user = core_models.Account.objects.get(id=user_id)
 
     if user.is_production(request):
-        url = request.journal.site_url() + reverse('production_article', kwargs={'article_id': article.id})
+        url = request.journal.site_url(path=reverse('production_article', kwargs={'article_id': article.id}))
         html = logic.get_production_assign_content(user, request, article, url)
 
         prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
@@ -199,6 +204,40 @@ def production_article(request, article_id):
     return render(request, template, context)
 
 
+@typesetting_user_or_production_user_or_editor_required
+def preview_galley(request, article_id, galley_id):
+    """
+    Displays a preview of a galley object
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param galley_id: Galley object PK
+    :return: HttpResponse
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id
+    )
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=article
+    )
+
+    if galley.type == 'xml' or galley.type == 'html':
+        template = 'proofing/preview/rendered.html'
+    elif galley.type == 'epub':
+        template = 'proofing/preview/epub.html'
+    else:
+        template = 'proofing/preview/embedded.html'
+
+    context = {
+        'galley': galley,
+        'article': article
+    }
+
+    return render(request, template, context)
+
+
 @article_stage_production_required
 @production_user_or_editor_required
 def assign_typesetter(request, article_id, production_assignment_id):
@@ -312,19 +351,51 @@ def edit_typesetter_assignment(request, typeset_id):
     :param typeset_id: Typesetting Assignment PK
     :return: HttpRedirect if POST otherwise HttpResponse
     """
-    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id, assignment__article__journal=request.journal)
+    typeset = get_object_or_404(
+        models.TypesetTask,
+        pk=typeset_id,
+        assignment__article__journal=request.journal
+    )
     article = typeset.assignment.article
 
     if request.POST:
         if 'delete' in request.POST:
-            messages.add_message(request, messages.SUCCESS, 'Typeset task {0} has been deleted'.format(typeset.pk))
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Typeset task {0} has been deleted'.format(typeset.pk)
+            )
             kwargs = {'typeset': typeset, 'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_TASK_DELETED, **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_TYPESET_TASK_DELETED,
+                **kwargs
+            )
             typeset.delete()
+        elif 'update' in request.POST and typeset.accepted:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This assignment has been accepted so cannot be edited.'
+            )
         elif 'update' in request.POST:
             logic.update_typesetter_task(typeset, request)
+        elif 'reset' in request.POST and typeset.status == 'declined':
+            typeset.reset_task_dates()
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                '[{status}] An invalid operation has '
+                'been attempted for this task.'.format(
+                    status=typeset.friendly_status)
+            )
 
-        return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'production_article',
+                kwargs={'article_id': article.pk}
+            )
+        )
 
     template = 'production/edit_typesetter_assignment.html'
     context = {

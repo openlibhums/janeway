@@ -54,15 +54,36 @@ class TypesetTask(models.Model):
         else:
             return False
 
+    @property
     def status(self):
         if self.assigned and not self.accepted and not self.completed:
-            return {'slug': 'assigned', 'friendly': 'Awaiting response'}
+            return "assigned"
         elif self.assigned and self.accepted and not self.completed:
-            return {'slug': 'accepted', 'friendly': 'Task accepted, underway'}
+            return "accepted"
         elif self.assigned and not self.accepted and self.completed:
-            return {'slug': 'declined', 'friendly': 'Task declined'}
+            return "declined"
         elif self.completed and not self.editor_reviewed:
-            return {'slug': 'completed', 'friendly': 'Completed on {0}<br/>Awaiting manager review'.format(
-                self.completed.strftime("%Y-%m-%d %H:%M"))}
+            return "completed"
         elif self.completed and self.editor_reviewed:
-            return {'slug': 'closed', 'friendly': 'Task closed'}
+            return "closed"
+        else:
+            return "unknown"
+
+    FRIENDLY_STATUSES = {
+            "assigned": "Awaiting response",
+            "accepted": "Task accepted",
+            "declined": "Task declined",
+            "completed": "Task completed",
+            "closed": "Task closed",
+            "unknown": "Task status unknown",
+        }
+
+    @property
+    def friendly_status(self):
+        return self.FRIENDLY_STATUSES.get(self.status)
+
+    def reset_task_dates(self):
+        self.accepted = None
+        self.completed = None
+        self.editor_reviewed = False
+        self.save()

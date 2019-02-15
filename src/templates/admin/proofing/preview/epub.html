@@ -65,8 +65,11 @@
 
         <script>
             "use strict";
-
-            window.book = ePub("{% url 'proofing_epub_download' proofing_task.pk galley.file.pk %}", {restore: true, reload: true });
+            {% if proofing_task %}
+                window.book = ePub("{% url 'proofing_epub_download' proofing_task.pk galley.file.pk %}", {restore: true, reload: true });
+            {% else %}
+                window.book = ePub("{% url 'article_file_download' 'id' article.pk galley.file.pk %}", {restore: true, reload: true });
+            {% endif %}
         </script>
 </head>
 <body>

@@ -56,12 +56,12 @@
                                                 &nbsp;</i>{% else %}
                                             <i style="color: red;" class="fa fa-times-circle info">&nbsp;</i>{% endif %}
                                         </td>
-                                        <td>{{ task.status.friendly|safe }}</td>
+                                        <td>{{ task.friendly_status|safe }} {% if task.status == 'completed' %}({{ task.completed }}){% endif %}</td>
                                         <td>
                                             <div class="button-group">
                                                 <a href="{% url 'edit_typesetter_assignment' task.pk %}"
-                                                   class="button">Edit</a>
-                                                {% if task.status.slug == 'completed' %}
+                                                   class="button">Manage</a>
+                                                {% if task.status == 'completed' %}
                                                     <a class="dropdown button arrow-only"
                                                        data-toggle="review-dropdown-{{ task.pk }}"><span
                                                             class="show-for-sr">Show menu</span></a>
@@ -82,7 +82,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    {% if task.status.slug == 'completed' or task.status.slug == 'closed' %}
+                                    {% if task.status == 'completed' or task.status == 'closed' %}
                                         <tr>
                                             <th colspan="5">Notes from Typesetter</th>
                                         </tr>
@@ -110,6 +110,7 @@
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Uploaded</th>
                         <th>Download</th>
                         <th>Make galley</th>
                     </tr>
@@ -121,6 +122,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Manuscript</td>
+                            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -136,6 +138,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Data/Figure</td>
+                            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -154,6 +157,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Copyedit</td>
+                            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -178,9 +182,11 @@
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Uploaded</th>
                         <th>Edit</th>
                         <th>Download</th>
                         <th>History</th>
+                        <th>Preview</th>
                         <th>Create PDF</th>
                         <th>Create EPUB</th>
                     </tr>
@@ -192,6 +198,7 @@
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley</td>
+                            <td>{{ galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
@@ -203,17 +210,25 @@
                                     &nbsp;</i></a>{% endif %}
                             </td>
                             <td>
+                                <a href="{% url 'production_preview_galley' article.pk galley.pk %}" target="_blank">
+                                    <i class="fa fa-eye">&nbsp;</i>
+                                </a>
+                            </td>
+                            <td>
                                 {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
                                     <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-file-text-o">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
-                                    Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
+
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true"
+                                             class="has-tip top"
                                              data-disable-hover="false"
                                              tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                                             title="{% has_missing_supplements galley %}">Missing Images</span>
+                                    </p>
+                                {% else %}
+                                    Function for XML only.
                                 {% endif %}
                             </td>
                             <td>
@@ -221,13 +236,13 @@
                                     <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-book">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
-                                    Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
                                     <p><span data-tooltip aria-haspopup="true" class="has-tip top"
                                              data-disable-hover="false"
                                              tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                                             title="{% has_missing_supplements galley %}">Missing Images</span></p>
+                                {% else %}
+                                    Function for XML only.
                                 {% endif %}
                             </td>
                         </tr>
@@ -253,6 +268,7 @@
                     <tr style="text-align: left">
                         <th>Label</th>
                         <th width="25%">Filename</th>
+                        <th>Uploaded</th>
                         <th>Download</th>
                         <th>History</th>
                         <th>DOI</th>
@@ -264,6 +280,7 @@
                         <tr>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+                            <td>{{ galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}

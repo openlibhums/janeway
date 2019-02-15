@@ -9,6 +9,7 @@ from django.core import mail
 from django.contrib.contenttypes.models import ContentType
 
 from utils import merge_settings, transactional_emails
+from utils.forms import FakeModelForm
 from utils.testing import helpers
 from journal import models as journal_models
 from review import models as review_models
@@ -126,3 +127,18 @@ class TestMergeSettings(TestCase):
         result = merge_settings(base, overrides)
 
         self.assertDictEqual(expected, result)
+
+class TestForms(TestCase):
+
+    def test_fake_model_form(self):
+
+        class FakeTestForm(FakeModelForm):
+            class Meta:
+                model = journal_models.Journal
+                exclude = tuple()
+
+        form = FakeTestForm()
+
+        with self.assertRaises(NotImplementedError):
+            form.save()
+

@@ -50,12 +50,12 @@
             <ul class="menu vertical medium-horizontal">
                 {% if request.user.is_authenticated %}
                     <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'kanban' %}">Kanban</a></li>
                     <li class="divider"></li>
                     {% if not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'submission_start' %}">Submit</a></li>{% endif %}
                     {% user_has_role request 'editor' as user_is_editor %}
                     {% if user_is_editor or request.user.is_staff%}
                         <li class="divider"></li>
+                        <li><a href="{% url 'kanban' %}">Kanban</a></li>
                         <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
                         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' and article %}
                             <li><a href="{% url 'manage_archive_article' article.pk %}">Edit Article</a></li>
