@@ -1,14 +1,20 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
+{% load i18n %}
 
 {% block title %}Authors{% endblock title %}
 {% block page_title %}Authors{% endblock page_title %}
 
 {% block body %}
-
-    <h3>Authors</h3>
+    
     <div class="row">
-       
+        <div class="col m12">
+            <h3>Authors</h3>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col m8">
         {% for author in author_list %}
 
             <div class="col s12 m3">
@@ -44,7 +50,79 @@
             </div>
                        
         {% endfor %}
+            <!-- pagination within cards block -->
+            <ul class="pagination">
+               
+                {% if author_list.has_previous %}
 
+                    <li class="waves-effect">
+                        <a href="?page={{ author_list.previous_page_number }}">&laquo;</a>
+                    </li>
+                    &nbsp;
+
+                {% endif %}
+
+                {{ author_list.page.page_range }}
+
+                {% for page in author_list.paginator.page_range %}
+
+                    <li class="waves-effect {% if author_list.number == page %}active{% endif %}">
+                        <a href="?page={{ page }}">{{ page }}</a>&nbsp;
+                    </li>
+
+                {% endfor %}
+
+                {% if author_list.has_next %}
+
+                    <li class="waves-effect">
+                        <a href="?page={{ author_list.next_page_number }}">&raquo;</a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+        </div>
+        <!-- filter on m4 to the right  -->
+        <div class="col m4">
+            <div class="card-panel">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-field">
+                        <select name="show" class="form-control">
+                            <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
+                            <option value="20"{% if show == 20 %} selected="selected"{% endif %}>20</option>
+                        </select>
+                        <label>{% trans "Show" %}</label>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Filter" %}</label><br/>
+
+                        {% for section in sections %}
+
+                            <input id="section-{{ section.id }}"
+                                   value="{{ section.id }}"
+                                   type="checkbox"
+                                   name="filter[]"
+                                   {% if section.id in filters %}checked="checked"{% endif %}>
+                            <label for="section-{{ section.id }}">{{ section.name }}</label>
+                            <br/>
+
+                        {% endfor %}
+
+                        <br/>
+                        <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                       
+                        {% if active_filters %}
+
+                            <button type="submit" class="btn btn-primary" name="clear">
+                                {% trans "Clear Filters" %}
+                            </button>
+
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
 {% endblock body %}
