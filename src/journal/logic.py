@@ -287,7 +287,7 @@ def handle_author_controls(request):
 
     if request.POST:
         page = request.GET.get('page', 1)
-        show = int(request.POST.get('show', 3))
+        show = int(request.POST.get('show', 8))
         active_filters = True
         redir = redirect("{0}?page={1}".format(reverse('authors'), page))
         
@@ -297,7 +297,7 @@ def handle_author_controls(request):
 
     else:
         page = request.GET.get('page', 1)
-        show = request.session.get('authors_show', 3)
+        show = request.session.get('authors_show', 8)
         active_filters = request.session.get('active_filters', False)
         redir = None
 
