@@ -1360,17 +1360,18 @@ def author_list(request):
     :return: HttpResponse object
     """
 
-    #clear author show var. and get redir to first page.
+    #check to see if filters have been cleared
     if request.POST and 'clear' in request.POST:
-        return logic.unset_author_session_variables(request)
+       return logic.unset_authors_session_variables(request)
 
-    #otherwise get list of authors and handle basic filters to render on template
-    author_list = request.journal.users_with_role('author')        
-
-    page, show, redirect = logic.handle_author_controls(request)
+    #return necessary objects for filtering
+    page, show, active_filters, redirect = logic.handle_author_controls(request)
 
     if redirect:
         return redirect
+
+    #get list of authors
+    author_list = request.journal.users_with_role('author')        
 
     paginator = Paginator(author_list, show)
 
@@ -1386,6 +1387,8 @@ def author_list(request):
     context = {
         'author_list': author_list,
         'show': show,
+        'active_filters': active_filters,
+
     }
     return render(request, template, context)
 

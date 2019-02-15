@@ -282,24 +282,30 @@ def send_contact_message(new_contact, request):
         request,
         replyto=[new_contact.sender],
     )
+
 def handle_author_controls(request):
 
     if request.POST:
         page = request.GET.get('page', 1)
         show = int(request.POST.get('show', 3))
+        active_filters = True
+        redir = redirect("{0}?page={1}".format(reverse('authors'), page))
+        
         #set session var for authors_show
         request.session['authors_show'] = show
-        redirect = redirect("{0}?page={1}".format(reverse('authors'), page))
+        request.session['active_filters'] = active_filters
 
     else:
         page = request.GET.get('page', 1)
         show = request.session.get('authors_show', 3)
-        redirect = None
+        active_filters = request.session.get('active_filters', False)
+        redir = None
 
-    return page, show, redirect
+    return page, show, active_filters, redir
 
-def unset_author_session_variables(request):
+def unset_authors_session_variables(request):
     del request.session['authors_show']
+    del request.session['active_filters']
     
     request.session.modified = True
     
