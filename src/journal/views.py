@@ -1359,18 +1359,15 @@ def author_list(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    author_list = request.journal.users_with_role('author')
-    
-    if request.POST:
-        page = request.GET.get('page', 1)
-        show = int(request.POST.get('show', 3))
-        request.session['authors_show'] = show
-        redirect = redirect("{0}?page={1}".format(reverse('authors'), page))
 
-    else:
-        page = request.GET.get('page', 1)
-        show = request.session.get('authors_show', 3)
-        redirect = None
+    #clear author show var. and get redir to first page.
+    if request.POST and 'clear' in request.POST:
+        return logic.unset_author_session_variables(request)
+
+    #otherwise get list of authors and handle basic filters to render on template
+    author_list = request.journal.users_with_role('author')        
+
+    page, show, redirect = logic.handle_author_controls(request)
 
     if redirect:
         return redirect
@@ -1385,15 +1382,6 @@ def author_list(request):
         author_list = paginator.page(paginator.num_pages)
 
     template = 'journal/authors.html'
-    # context = {
-    #     'pinned_articles': pinned_articles,
-    #     'articles': articles,
-    #     'sections': sections,
-    #     'filters': filters,
-    #     'sort': sort,
-    #     'show': show,
-    #     'active_filters': active_filters,
-    # }
 
     context = {
         'author_list': author_list,
