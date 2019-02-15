@@ -7,10 +7,10 @@
 
 {% block body %}
 <!-- author content via cards -->
-    <section id="content">
-    <h3>Authors</h3>
-    <div class="row" data-equalizer data-equalize-on="medium">
-       <div class="large-10 columns border-right">
+<section id="content">
+    <div class="row">
+        <h3>Authors</h3>
+       <div class="large-9 columns border-right">
         {% for author in author_list %}
 
             <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
@@ -45,54 +45,72 @@
             
         {% endfor %}
         </div>
-    </div>
+        <!-- filter -->
+        <aside class="large-3 columns" data-sticky-container>
+            <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="section">
+                        <label>{% trans "Show" %}
+                            <select name="show">
+                                <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
+                                <option value="20"{% if show == 20 %} selected="selected"{% endif %}>20</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="section">
+                        <label>{% trans "Filter" %}</label>
 
-<!-- pagination -->
-    <div class="pagination-block">
-        <ul class="pagination">
-            {% if author_list.has_previous %}
-                <li class="arrow"><a href="?page={{ author_list.previous_page_number }}">&laquo;</a>
-                </li>{% endif %}
-            {{ author_list.page.page_range }}
-            {% for page in author_list.paginator.page_range %}
-                <li class="{% if author_list.number == page %}current{% endif %}"><a
-                        href="?page={{ page }}">{{ page }}</a></li>
-            {% endfor %}
-            {% if author_list.has_next %}
-                <li class="arrow"><a href="?page={{ author_list.next_page_number }}">&raquo;</a>
-                </li>{% endif %}
-        </ul>
-    </div>
+                        {% for section in sections %}
 
-<!-- filter -->
-    <aside class="large-3 columns" data-sticky-container>
-                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="section">
-                            <label>{% trans "Show" %}
-                                <select name="show">
-                                    <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
-                                    <option value="20"{% if show == 20 %} selected="selected"{% endif %}>20</option>
-                                    <option value="50"{% if show == 50 %} selected="selected"{% endif %}>50</option>
-                                    <option value="100"{% if show == 100 %} selected="selected"{% endif %}>100</option>
-                                </select>
+                            <label for="section-{{ section.id }}">
+                                <input id="section-{{ section.id }}"
+                                     value="{{ section.id }}" type="checkbox"
+                                     name="filter[]"
+                                     {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
                             </label>
-                        </div>
-                        <div class="section">
-                            <label>{% trans "Filter" %}</label>
-                            {% for section in sections %}
-                                <label for="section-{{ section.id }}"><input id="section-{{ section.id }}"
-                                                                             value="{{ section.id }}" type="checkbox"
-                                                                             name="filter[]"
-                                                                             {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
-                                </label>
-                            {% endfor %}
-                            <button type="submit" class="button">{% trans "Filter" %}</button>
-                            {% if active_filters %}<button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>{% endif %}
-                        </div>
-                    </form>
-                </div>
-            </aside>
-        </section>
+
+                        {% endfor %}
+
+                        <button type="submit" class="button">{% trans "Filter" %}</button>
+
+                        {% if active_filters %}
+                            <button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>
+                        {% endif %}
+
+                    </div>
+                </form>
+            </div>
+        </aside>
+        <!-- pagination -->
+        <div class="pagination-block">
+            <ul class="pagination">
+
+                {% if author_list.has_previous %}
+                    <li class="arrow">
+                        <a href="?page={{ author_list.previous_page_number }}">&laquo;</a>
+                    </li>
+                {% endif %}
+                
+                {{ author_list.page.page_range }}
+               
+               {% for page in author_list.paginator.page_range %}
+
+                    <li class="{% if author_list.number == page %}current{% endif %}">
+                        <a href="?page={{ page }}">{{ page }}</a>
+                    </li>
+
+                {% endfor %}
+                
+                {% if author_list.has_next %}
+                    <li class="arrow">
+                        <a href="?page={{ author_list.next_page_number }}">&raquo;</a>
+                    </li>
+                {% endif %}
+                
+            </ul>
+        </div>
+    </div>
+
+</section>
 {% endblock body %}
