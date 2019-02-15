@@ -119,7 +119,7 @@ def articles(request):
                                                                section__pk__in=filters).prefetch_related(
         'frozenauthor_set').order_by(sort).exclude(
         pk__in=pinned_article_pks)
-    print(len(article_objects))
+
     paginator = Paginator(article_objects, show)
 
     try:
