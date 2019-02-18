@@ -17,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
@@ -227,9 +228,9 @@ PREPRINT_STAGES = {
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, 'Unsubmitted'),
     (STAGE_UNASSIGNED, 'Unassigned'),
-    (STAGE_ASSIGNED, 'Assigned'),
-    (STAGE_UNDER_REVIEW, 'Under Review'),
-    (STAGE_UNDER_REVISION, 'Under Revision'),
+    (STAGE_ASSIGNED, 'Assigned to Editor'),
+    (STAGE_UNDER_REVIEW, 'Peer Review'),
+    (STAGE_UNDER_REVISION, 'Revision'),
     (STAGE_REJECTED, 'Rejected'),
     (STAGE_ACCEPTED, 'Accepted'),
     (STAGE_EDITOR_COPYEDITING, 'Editor Copyediting'),
@@ -908,6 +909,14 @@ class Article(models.Model):
         elif self.stage == STAGE_READY_FOR_PUBLICATION:
             return reverse('publish_article', kwargs=kwargs)
 
+    @property
+    def custom_fields(self):
+        """ Returns all the FieldAnswers configured for rendering"""
+        return self.fieldanswer_set.filter(
+            field__display=True,
+            answer__isnull=False,
+        )
+
     def get_meta_image_path(self):
         if self.meta_image and self.meta_image.url:
             return self.meta_image.url
@@ -1000,6 +1009,12 @@ class Article(models.Model):
         proof_models.TypesetterProofingTask.objects.filter(proofing_task__round__assignment__article=self).update(
             cancelled=True
         )
+
+    def production_assignment_or_none(self):
+        try:
+            return self.productionassignment
+        except ObjectDoesNotExist:
+            return None
 
 
 class FrozenAuthor(models.Model):
@@ -1175,6 +1190,10 @@ class Field(models.Model):
                                help_text='Separate choices with the bar | character.')
     required = models.BooleanField(default=True)
     order = models.IntegerField()
+    display = models.BooleanField(
+        default=False,
+        help_text='Whether or not display this field in the article page'
+    )
     help_text = models.TextField()
 
     class Meta:

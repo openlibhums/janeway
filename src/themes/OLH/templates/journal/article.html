@@ -300,6 +300,15 @@
                             </ul>
                         </div>
 
+                        {% for field in article.custom_fields %}
+                        <div class="section hide-for-small-only">
+                            <h3>{% trans field.field.name %}</h3>
+                            <ul>
+                                <li>{{ field.answer }}</li>
+                            </ul>
+                        </div>
+                        {% endfor %}
+
                         <div class="section hide-for-small-only">
                             <h3>{% trans "File Checksums (MD5)" %}</h3>
                             <ul>

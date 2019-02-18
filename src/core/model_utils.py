@@ -14,7 +14,6 @@ from utils import logic
 
 class AbstractSiteModel(models.Model):
     """Adds site-like functionality to any model"""
-    DOMAIN_CACHE = {}
     SCHEMES = {
         True: "https",
         False: "http",
@@ -33,16 +32,13 @@ class AbstractSiteModel(models.Model):
     @classmethod
     def get_by_request(cls, request):
         domain = request.get_host()
-        obj = cls.DOMAIN_CACHE.get(domain)
-        if obj is None:
-            # Lookup by domain with/without port
-            try:
-                obj = cls.objects.get(domain=domain)
-            except cls.DoesNotExist:
-                # Lookup without port
-                domain, _port = split_domain_port(domain)
-                obj = cls.objects.get(domain=domain)
-            cls.DOMAIN_CACHE[domain] = obj
+        # Lookup by domain with/without port
+        try:
+            obj = cls.objects.get(domain=domain)
+        except cls.DoesNotExist:
+            # Lookup without port
+            domain, _port = split_domain_port(domain)
+            obj = cls.objects.get(domain=domain)
         return obj
 
     def site_url(self, path=None):

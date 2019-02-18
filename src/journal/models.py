@@ -11,13 +11,18 @@ import uuid
 import os
 
 from django.conf import settings
-from django.db import models
-from django.db.models.signals import post_save
+from django.db import models, transaction
+from django.db.models.signals import post_save, m2m_changed
+
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from core import models as core_models, workflow
+from core import (
+        files,
+        models as core_models,
+        workflow,
+)
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from press import models as press_models
@@ -77,6 +82,7 @@ class Journal(AbstractSiteModel):
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(default=False)
+    is_conference = models.BooleanField(default=False)
     remote_submit_url = models.URLField(blank=True, null=True)
     remote_view_url = models.URLField(blank=True, null=True)
     view_pdf_button = models.BooleanField(
@@ -558,6 +564,27 @@ class Issue(models.Model):
         ordering = ("order", "-date")
 
 
+class IssueGalley(models.Model):
+    FILES_PATH = 'issues'
+
+    file = models.ForeignKey('core.File')
+    # An Issue can only have one galley at this time (PDF)
+    issue = models.OneToOneField('journal.Issue', related_name='galley')
+
+    @transaction.atomic
+    def replace_file(self, other):
+        new_file = files.overwrite_file(other, self.file, *self.path_parts)
+        self.file = new_file
+        self.save()
+
+    def serve(self, request):
+        public = True
+        return files.serve_any_file(request, self.file, public, *self.path_parts)
+
+    @property
+    def path_parts(self):
+        return self.FILES_PATH, self.issue.pk
+
 class SectionOrdering(models.Model):
     section = models.ForeignKey('submission.Section')
     issue = models.ForeignKey(Issue)
@@ -683,3 +710,47 @@ def setup_default_form(sender, instance, created, **kwargs):
             )
 
             default_review_form.elements.add(main_element)
+
+
+def issue_articles_change(sender, **kwargs):
+    """
+    When an article is removed from an issue this signal will delete any
+    orderings for that article in the issue.
+    """
+    supported_actions = ['post_remove', 'post_add']
+    issue_or_article = kwargs.get('instance')
+    action = kwargs.get('action')
+    update_side = kwargs.get('reverse')
+
+    if issue_or_article and action in supported_actions:
+
+        object_pks = kwargs.get('pk_set', [])
+        for object_pk in object_pks:
+
+            if update_side:
+                article = issue_or_article
+                issue = Issue.objects.get(pk=object_pk)
+            else:
+                article = submission_models.Article.objects.get(pk=object_pk)
+                issue = issue_or_article
+
+            if action == 'post_remove':
+                try:
+                    ordering = ArticleOrdering.objects.get(
+                        issue=issue,
+                        article=article,
+                    )
+                    ordering.delete()
+                except ArticleOrdering.DoesNotExist:
+                    pass
+
+            elif action == 'post_add':
+                ArticleOrdering.objects.get_or_create(
+                    issue=issue,
+                    article=article,
+                    section=article.section,
+                    order=issue.next_order(),
+                )
+
+
+m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)

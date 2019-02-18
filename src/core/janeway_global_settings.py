@@ -122,6 +122,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': ([
             os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'templates', 'common'),
             os.path.join(BASE_DIR, 'templates', 'admin'),
         ]
             + plugin_installed_apps.load_plugin_templates(BASE_DIR)

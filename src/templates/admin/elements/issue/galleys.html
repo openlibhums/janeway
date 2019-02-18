@@ -1,0 +1,48 @@
+{% load roles %}
+{% user_has_role request 'editor' as user_is_editor %}
+<div class="large-6 columns">
+    <div class="box">
+            <div class="title-area">
+                <h2>Galleys</h2>
+            </div>
+            <div class="content">
+                <table class="small scroll">
+                    <tr style="text-align: left">
+                        <th>Label</th>
+                        <th width="25%">Filename</th>
+                        <th>Type</th>
+                        <th>Download</th>
+                        <th>Replace</th>
+                        <th>Delete</th>
+                    </tr>
+                    {% if issue.galley %}
+                        <tr>
+                            <td>{{ issue.galley.file.label }}</td>
+                            <td>{{ issue.galley.file.original_filename|truncatechars:40 }}</td>
+                            <td>Galley</td>
+                            <td><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp;</i></a>
+                            </td>
+                            <td><a data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i></a></td>
+                            <td>
+                            <form id="delete-galley" method="POST" enctype="multipart/form-data" action="{% url 'issue_galley' issue.pk%}">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete" value="true" />
+                                <a onclick="document.getElementById('delete-galley').submit()" >
+                                    <i class="fa fa-trash">&nbsp;</i>
+                                </button>
+                            </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9">No galleys have been uploaded.</td>
+                        </tr>
+                    {% endif %}
+                </table>
+                {% if not issue.galley %}
+                 <a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i>Upload a new galley</a>
+                {% endif %}
+            </div>
+    </div>
+    {% include "elements/issue/new_galley.html" with form=galley_form %}
+</div>

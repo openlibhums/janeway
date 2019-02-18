@@ -36,10 +36,12 @@
         <li><a href="{% url 'publication_schedule' %}"><i class="fa fa-calendar">&nbsp;</i>
             Publication Schedule</a></li>
         {% endif %}
-        {% if request.user.is_staff %}
+        {% if request.user.is_staff or editor %}
             <li class="subtitle"><a href="#">Staff</a></li>
             <li><a href="{% url 'core_manager_index' %}"><i class="fa fa-lock">&nbsp;</i>
             Manager</a></li>
+        {% endif %}
+        {% if request.user.is_staff %}
             <li><a href="{% url 'core_plugin_list' %}"><i class="fa fa-plug">&nbsp;</i>
             Plugins</a></li>
             <li><a href="{% url 'core_journal_workflow' %}"><i class="fa fa-code-fork">&nbsp;</i>

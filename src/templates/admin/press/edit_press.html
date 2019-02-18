@@ -20,7 +20,7 @@
                     {% include "elements/forms/errors.html" with form=form %}
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {{ form|foundation }}
+                        {{ form }}
                         <button type="submit" name="save_press" class="success button">Save</button>
                     </form>
                 </div>
@@ -29,4 +29,8 @@
         </div>
     </div>
     </section>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/jqte.html" %}
 {% endblock %}

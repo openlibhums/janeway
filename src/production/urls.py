@@ -12,6 +12,11 @@ urlpatterns = [
 
     # Production Manager
     url(r'^(?P<article_id>\d+)/$', views.production_article, name='production_article'),
+    url(
+        r'^(?P<article_id>\d+)/preview/(?P<galley_id>\d+)/$',
+        views.preview_galley,
+        name='production_preview_galley'
+        ),
     url(r'^assign/(?P<article_id>\d+)/user/(?P<user_id>\d+)$', views.production_assign_article,
         name='production_assign_article'),
     url(r'^unassign/(?P<article_id>\d+)/$', views.production_unassign_article, name='production_unassign_article'),

@@ -108,6 +108,7 @@
                         <th>Label</th>
                         <th>Filename</th>
                         <th>Type</th>
+                        <th>Uploaded</th>
                         <th>Download</th>
                         <th>Replace</th>
                         <th>File History</th>
@@ -120,6 +121,7 @@
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'article_file_download' 'id' preprint.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
@@ -140,6 +142,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>
+                            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'article_file_download' 'id' preprint.pk file.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a></td>
                             <td>n/a</td>
@@ -158,6 +161,7 @@
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Uploaded</th>
                         <th>Edit</th>
                         <th>Download</th>
                         <th>History</th>
@@ -167,6 +171,7 @@
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley</td>
+                            <td>{{ galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
                             <td>
                                 <a href="{% url 'pm_edit_galley' preprint.pk galley.pk %}?return={{ request.path|urlencode }}"
                                    class="fa fa-edit"></a></td>
@@ -204,6 +209,7 @@
                             <th>Date</th>
                             <th>Filename</th>
                             <th>Label</th>
+                            <th>Uploaded</th>
                             <th>Download</th>
                             <th>Delete</th>
                         </tr>
@@ -215,6 +221,7 @@
                                 <td>{{ version.date_time }}</td>
                                 <td>{{ version.galley.file.original_filename|truncatechars:40 }}</td>
                                 <td>{{ version.galley.label }}</td>
+                                <td>{{ version.galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'article_download_galley' preprint.id version.galley.id %}"><i class="fa fa-download"></i></a></td>
                                 <td><form method="POST">{% csrf_token %}<button type="submit" value="{{ version.pk }}" name="delete" class="control-button"><i class="fa fa-trash"></i></button></form></td>
                             </tr>

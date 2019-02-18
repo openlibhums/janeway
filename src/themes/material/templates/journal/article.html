@@ -348,6 +348,13 @@
                         <p><i class="fa fa-check-circle-o" style="color: green"></i> {% trans "This article has been peer
                             reviewed." %}</p>{% else %}<p>{% trans "This article has not been peer reviewed." %}</p>{% endif %}
 
+                    {% for field in article.custom_fields %}
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+                    <h5>{% trans field.field.name %}</h5>
+                      <p>{{ field.answer }}</p>
+                    {% endfor %}
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>

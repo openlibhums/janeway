@@ -931,6 +931,7 @@ def is_preprint_editor(func):
 
     return wrapper
 
+
 def deny_access(request, *args, **kwargs):
     """ Wrapper for raising a PermissionDenied exception
 
@@ -952,3 +953,28 @@ def deny_access(request, *args, **kwargs):
     )
 
     raise PermissionDenied(*args, **kwargs)
+
+
+def article_stage_review_required(func):
+    """
+    Checks that the article is in one of the review stages
+    :param func: func
+    :return: PermissionDenied or func
+    """
+
+    def review_required_wrapper(request, article_id=None, *args, **kwargs):
+        if not article_id:
+            logging.debug('404 thrown as no article_id in kwargs')
+            raise Http404
+
+        article = get_object_or_404(
+            models.Article,
+            pk=article_id
+        )
+
+        if not article.stage in models.REVIEW_STAGES:
+            deny_access(request)
+        else:
+            return func(request, *args, **kwargs)
+
+    return review_required_wrapper

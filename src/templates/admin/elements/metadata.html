@@ -1,8 +1,13 @@
 {% load settings %}
+{% load roles %}
 
-{% if not view_type == "author" %}
+{% user_has_role request 'editor' as user_is_editor %}
+{% user_has_role request 'production' as user_is_production %}
+
+{% if user_is_editor or user_is_production %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
-            class="fa fa-edit">&nbsp;</i>Edit</a>{% endif %}
+            class="fa fa-edit">&nbsp;</i>Edit</a>
+{% endif %}
 <h4>{{ article.title|safe }}</h4>
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
 <table class="scroll small">
@@ -163,6 +168,7 @@
             <th>Label</th>
             <th>Filename</th>
             <th>Type</th>
+            <th>Uploaded</th>
             <th>Download</th>
         </tr>
         {% for file in article.manuscript_files.all %}
@@ -170,6 +176,7 @@
                 <td>{{ file.label }}</td>
                 <td>{{ file.original_filename }}</td>
                 <td>Manuscript</td>
+                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                         class="fa fa-download">&nbsp;</i></a>
                 </td>
@@ -180,6 +187,7 @@
                 <td>{{ file.label }}</td>
                 <td>{{ file.original_filename }}</td>
                 <td>Data/Figure</td>
+                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                         class="fa fa-download">&nbsp;</i></a>
                 </td>
