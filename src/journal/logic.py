@@ -320,6 +320,8 @@ def set_article_session_variables(request, page, filters, show, sort, keywords):
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
+def unset_search_session_variables(request):
+    pass
 
 def unset_article_session_variables(request):
     del request.session['article_filters']

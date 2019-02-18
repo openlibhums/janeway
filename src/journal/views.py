@@ -111,7 +111,6 @@ def articles(request):
     if redirect:
         return redirect
 
-    print(keywords)
     pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
         journal=request.journal)]
     pinned_article_pks = [article.pk for article in pinned_articles]
@@ -1395,19 +1394,26 @@ def search(request):
     articles = []
     search_term = None
 
+    if request.POST and 'clear' in request.POST:
+        return logic.unset_search_session_variables(request)
+
     if request.POST:
         search_term = request.POST.get('search')
+        keyword = request.POST.get('keyword')
         request.session['article_search'] = search_term
+        request.session['keyword'] = keyword
         return redirect(reverse('search'))
 
     if request.session.get('article_search'):
+        
         search_term = request.session.get('article_search')
-
         article_search = submission_models.Article.objects.filter(
             (Q(title__icontains=search_term) |
+             Q(keywords__word__icontains=search_term) |
              Q(subtitle__icontains=search_term)) &
             Q(journal=request.journal)
         )
+
         article_search = [article for article in article_search]
 
         author_search = search_term.split(' ')
@@ -1416,9 +1422,18 @@ def search(request):
              Q(last_name__in=author_search)) &
             Q(article__journal=request.journal)
         )
-
         articles_from_author = [author.article for author in from_author]
-        articles = set(article_search + articles_from_author)
+
+        keyword = request.session.get('keyword')
+
+        if keyword:
+            keyword_search = submission_models.Article.objects.filter(keywords=keyword)
+            keyword_search = [article for article in keyword_search]
+            print(keyword_search)
+        else:
+            keyword_search=[]
+        
+        articles = set(article_search + articles_from_author + keyword_search)
 
     template = 'journal/search.html'
     context = {
