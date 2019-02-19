@@ -325,16 +325,21 @@ def unset_article_session_variables(request):
 
 def handle_search_controls(request):
     if request.POST:
+        
         #being set by get-- still need to grab these in case of post for filtering option.
-        search_post = request.POST.get('article_search')
-        kw_post = request.POST.get('keyword')
-        search_term = search_post if search_post else request.GET.get('article_search')
-        keyword = kw_post if kw_post else request.GET.get('keyword', False)
+        search_term = request.POST.get('article_search', False)
+        keyword = request.POST.get('keyword', False)
+
+        if not keyword and not search_term:    
+            search_term = request.GET.get('article_search', False)
+            keyword = request.GET.get('keyword', False)
 
         sort = request.POST.get('sort', '-date_published')
         if sort:
             search_filters=True
+            
         return search_term, keyword, sort, search_filters, set_search_session_variables(request, search_term, keyword, sort, search_filters)
+
     else:
         search_term = request.GET.get('article_search', False)
         keyword = request.GET.get('keyword', False)
