@@ -344,35 +344,40 @@ def handle_search_controls(request):
         page = request.GET.get('page', 1)
         #article show should be a settings variable tbh.
         # show = request.session.get('article_show', 10)
-        search_term = request.session.get('article_search', False)
+        search_term = request.GET.get('article_search', False)
+        keyword = request.GET.get('keyword', False)
         sort = request.session.get('article_sort', '-date_published')
         search_filters = request.session.get('search_filters', False)
-        keyword = request.session.get('keyword', False)
+        
         return page, search_term, keyword, sort, search_filters, None
 
     
 
 def set_search_session_variables(request, search_term, keyword, page, sort):
-    request.session['article_search'] = search_term
-    request.session['keyword'] = keyword
+    if search_term:
+        redir_str = '{0}?article_search={1}&page={2}'.format(reverse('search'), search_term, page)
+    elif keyword:
+        redir_str = '{0}?keyword={0}&page={2}'.format(reverse('search'), keyword, page)
+
     request.session['article_sort'] = sort
-    #if post it's always true.
     request.session['search_filters'] = True
 
-    return redirect("{0}?page={1}".format(reverse('search'), page))
+    return redirect(redir_str)
 
 def unset_search_session_variables(request):
-    del request.session['article_sort']
-    del request.session['search_filters']
-    del request.session['article_search']
-    del request.session['keyword']
-
-    request.session.modified = True
-    
     page = request.GET.get('page', 1)
 
-    return redirect("{0}?page={1}".format(reverse('search'), page))
+    if request.GET.get('article_search', False):
+        redir_str = '{0}?article_search={1}&page={2}'.format(reverse('search'), search_term, page)
+    elif request.GET.get('keyword', False):
+        redir_str = '{0}?keyword={0}&page={2}'.format(reverse('search'), keyword, page)
+    
+    del request.session['article_sort']
+    del request.session['search_filters']
 
+    request.session.modified = True
+
+    return redirect(redir_str)
 
 def fire_submission_notifications(**kwargs):
     request = kwargs.get('request')
