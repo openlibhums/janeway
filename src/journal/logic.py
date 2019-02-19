@@ -292,30 +292,22 @@ def handle_article_controls(request, sections):
         show = int(request.POST.get('show', 10))
         sort = request.POST.get('sort', '-date_published')
         filters = [int(filter) for filter in filters]
-        keywords = list(submission_models.Keyword.objects.filter(
-                            word__in=request.POST.get('keywords')
-                            .split(',')
-                            ).values_list('word',flat=True))
-
-        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort, keywords), True, keywords
+       
+        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort), True
     else:
         page = request.GET.get('page', 1)
         filters = request.session.get('article_filters', [section.pk for section in sections])
         show = request.session.get('article_show', 10)
         sort = request.session.get('article_sort', '-date_published')
         active_filters = request.session.get('active_filters', False)
-        keywords = request.session.get('active_keywords')
-        if keywords is None:
-            keywords=list(submission_models.Keyword.objects.all().values_list('word',flat=True))
-        return page, show, filters, sort, None, active_filters, keywords
 
+        return page, show, filters, sort, None, active_filters
 
-def set_article_session_variables(request, page, filters, show, sort, keywords):
+def set_article_session_variables(request, page, filters, show, sort):
     request.session['article_filters'] = filters
     request.session['article_show'] = show
     request.session['article_sort'] = sort
     request.session['active_filters'] = True
-    request.session['active_keywords'] = keywords
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
@@ -324,7 +316,6 @@ def unset_article_session_variables(request):
     del request.session['article_show']
     del request.session['article_sort']
     del request.session['active_filters']
-    del request.session['active_keywords']
 
     request.session.modified = True
 
@@ -334,7 +325,6 @@ def unset_article_session_variables(request):
 
 def handle_search_controls(request):
     if request.POST:
-        
         #being set by get-- still need to grab these in case of post for filtering option.
         search_post = request.POST.get('article_search')
         kw_post = request.POST.get('keyword')
@@ -353,8 +343,6 @@ def handle_search_controls(request):
                 
         return search_term, keyword, sort, search_filters, None
 
-    
-
 def set_search_session_variables(request, search_term, keyword, sort, search_filters):
     if search_term:
         redir_str = '{0}?article_search={1}'.format(reverse('search'), search_term)
@@ -367,11 +355,6 @@ def set_search_session_variables(request, search_term, keyword, sort, search_fil
     return redirect(redir_str)
 
 def unset_search_session_variables(request):
-    # if search_term:
-    #     redir_str = '{0}?article_search={1}'.format(reverse('search'), search_term)
-    # elif keyword:
-    #     redir_str = '{0}?keyword={1}'.format(reverse('search'), keyword)
-
     del request.session['search_sort']
     del request.session['search_filters']
 

@@ -106,7 +106,7 @@ def articles(request):
 
     sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
                                                                                    is_filterable=True)
-    page, show, filters, sort, redirect, active_filters, keywords = logic.handle_article_controls(request, sections)
+    page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
 
     if redirect:
         return redirect
@@ -137,7 +137,6 @@ def articles(request):
         'filters': filters,
         'sort': sort,
         'show': show,
-        'keywords': keywords,
         'active_filters': active_filters,
     }
     return render(request, template, context)
