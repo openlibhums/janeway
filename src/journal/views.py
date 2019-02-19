@@ -1414,14 +1414,14 @@ def search(request):
 
         article_search = [article for article in article_search]
 
-        author_search = search_term.split(' ')
         from_author = submission_models.FrozenAuthor.objects.filter(
-            (Q(first_name__in=author_search) |
-             Q(last_name__in=author_search)),
+            (Q(first_name__icontains=search_term) |
+             Q(last_name__icontains=search_term)),
             article__journal=request.journal, 
             article__stage=submission_models.STAGE_PUBLISHED, 
             article__date_published__lte=timezone.now()
         )
+
         articles_from_author = [author.article for author in from_author]
 
         
