@@ -1395,6 +1395,7 @@ def search(request):
     search_term = None
     keyword = None
 
+    #clear filters if applied.
     if request.POST and 'clear' in request.POST:
         return logic.unset_search_session_variables(request)
 
@@ -1403,13 +1404,15 @@ def search(request):
     if redir:
         return redir
 
+    #atm search term trumps keyword in if/elif
     if search_term:
-        
         article_search = submission_models.Article.objects.filter(
             (Q(title__icontains=search_term) |
              Q(keywords__word__icontains=search_term) |
-             Q(subtitle__icontains=search_term)) &
-            Q(journal=request.journal)
+             Q(subtitle__icontains=search_term)), 
+            journal=request.journal, 
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now()
         )
 
         article_search = [article for article in article_search]
@@ -1417,8 +1420,10 @@ def search(request):
         author_search = search_term.split(' ')
         from_author = submission_models.FrozenAuthor.objects.filter(
             (Q(first_name__in=author_search) |
-             Q(last_name__in=author_search)) &
-            Q(article__journal=request.journal)
+             Q(last_name__in=author_search)),
+            article__journal=request.journal, 
+            article__stage=submission_models.STAGE_PUBLISHED, 
+            article__date_published__lte=timezone.now()
         )
         articles_from_author = [author.article for author in from_author]
 
@@ -1426,11 +1431,27 @@ def search(request):
         
         articles = set(article_search + articles_from_author)
 
+    #just single keyword atm. but keyword is included in article_search.
     elif keyword:
-        keyword_search = submission_models.Article.objects.filter(keywords__word=keyword)
+        keyword_search = submission_models.Article.objects.filter(
+            keywords__word=keyword, 
+            journal=request.journal, 
+            stage=submission_models.STAGE_PUBLISHED, 
+            date_published__lte=timezone.now()
+        )
         articles = [article for article in keyword_search]
-        
-    all_keywords = submission_models.Keyword.objects.all()
+    
+    #all keywords of published articles.
+    published_articles = submission_models.Article.objects.filter(
+        journal=request.journal,
+        stage=submission_models.STAGE_PUBLISHED
+        )
+
+    all_keywords = submission_models.Keyword.objects.filter(
+        pk__in=
+            published_articles.values_list('keywords__pk',flat=True)        
+    )
+
     template = 'journal/search.html'
 
     context = {
