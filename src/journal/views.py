@@ -1394,12 +1394,10 @@ def search(request):
     articles = []
     search_term = None
     keyword = None
-
-    #clear filters if applied.
     if request.POST and 'clear' in request.POST:
         return logic.unset_search_session_variables(request)
 
-    page, search_term, keyword, sort, search_filters, redir = logic.handle_search_controls(request)
+    search_term, keyword, sort, search_filters, redir = logic.handle_search_controls(request)
 
     if redir:
         return redir
@@ -1413,7 +1411,7 @@ def search(request):
             journal=request.journal, 
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now()
-        )
+        ).order_by(sort)
 
         article_search = [article for article in article_search]
 
@@ -1438,7 +1436,7 @@ def search(request):
             journal=request.journal, 
             stage=submission_models.STAGE_PUBLISHED, 
             date_published__lte=timezone.now()
-        )
+        ).order_by(sort)
         articles = [article for article in keyword_search]
     
     #all keywords of published articles.
@@ -1446,7 +1444,7 @@ def search(request):
         journal=request.journal,
         stage=submission_models.STAGE_PUBLISHED
         )
-
+    #based on published articles, return potential keywords
     all_keywords = submission_models.Keyword.objects.filter(
         pk__in=
             published_articles.values_list('keywords__pk',flat=True)        
@@ -1459,7 +1457,8 @@ def search(request):
         'search_term': search_term,
         'keyword': keyword,
         'all_keywords': all_keywords,
-        'search_filters': search_filters,
+        'sort':sort,
+        'search_filters':search_filters,
     }
 
     return render(request, template, context)

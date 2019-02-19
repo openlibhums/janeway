@@ -334,50 +334,48 @@ def unset_article_session_variables(request):
 
 def handle_search_controls(request):
     if request.POST:
-        page = request.GET.get('page', 1)
-        search_term = request.POST.get('article_search')
-        keyword = request.POST.get('keyword')
+        
+        #being set by get-- still need to grab these in case of post for filtering option.
+        search_post = request.POST.get('article_search')
+        kw_post = request.POST.get('keyword')
+        search_term = search_post if search_post else request.GET.get('article_search')
+        keyword = kw_post if kw_post else request.GET.get('keyword', False)
+
         sort = request.POST.get('sort', '-date_published')
-        search_filters = True
-        return page, search_term, keyword, sort, search_filters, set_search_session_variables(request, search_term, keyword, page, sort)
+        if sort:
+            search_filters=True
+        return search_term, keyword, sort, search_filters, set_search_session_variables(request, search_term, keyword, sort, search_filters)
     else:
-        page = request.GET.get('page', 1)
-        #article show should be a settings variable tbh.
-        # show = request.session.get('article_show', 10)
         search_term = request.GET.get('article_search', False)
         keyword = request.GET.get('keyword', False)
-        sort = request.session.get('article_sort', '-date_published')
+        sort = request.session.get('search_sort','-date_published')
         search_filters = request.session.get('search_filters', False)
-        
-        return page, search_term, keyword, sort, search_filters, None
+                
+        return search_term, keyword, sort, search_filters, None
 
     
 
-def set_search_session_variables(request, search_term, keyword, page, sort):
+def set_search_session_variables(request, search_term, keyword, sort, search_filters):
     if search_term:
-        redir_str = '{0}?article_search={1}&page={2}'.format(reverse('search'), search_term, page)
+        redir_str = '{0}?article_search={1}'.format(reverse('search'), search_term)
     elif keyword:
-        redir_str = '{0}?keyword={0}&page={2}'.format(reverse('search'), keyword, page)
+        redir_str = '{0}?keyword={1}'.format(reverse('search'), keyword)
 
-    request.session['article_sort'] = sort
-    request.session['search_filters'] = True
+    request.session['search_sort'] = sort
+    request.session['search_filters'] = search_filters
 
     return redirect(redir_str)
 
 def unset_search_session_variables(request):
-    page = request.GET.get('page', 1)
+    # if search_term:
+    #     redir_str = '{0}?article_search={1}'.format(reverse('search'), search_term)
+    # elif keyword:
+    #     redir_str = '{0}?keyword={1}'.format(reverse('search'), keyword)
 
-    if request.GET.get('article_search', False):
-        redir_str = '{0}?article_search={1}&page={2}'.format(reverse('search'), search_term, page)
-    elif request.GET.get('keyword', False):
-        redir_str = '{0}?keyword={0}&page={2}'.format(reverse('search'), keyword, page)
-    
-    del request.session['article_sort']
+    del request.session['search_sort']
     del request.session['search_filters']
 
-    request.session.modified = True
-
-    return redirect(redir_str)
+    return redirect('{0}'.format(reverse('search')))
 
 def fire_submission_notifications(**kwargs):
     request = kwargs.get('request')
