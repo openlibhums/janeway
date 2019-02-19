@@ -296,8 +296,7 @@ def handle_article_controls(request, sections):
                             word__in=request.POST.get('keywords')
                             .split(',')
                             ).values_list('word',flat=True))
-        print(keywords)
-        print("just before return in handle article controsl")
+
         return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort, keywords), True, keywords
     else:
         page = request.GET.get('page', 1)
@@ -320,9 +319,6 @@ def set_article_session_variables(request, page, filters, show, sort, keywords):
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
-def unset_search_session_variables(request):
-    pass
-
 def unset_article_session_variables(request):
     del request.session['article_filters']
     del request.session['article_show']
@@ -335,6 +331,47 @@ def unset_article_session_variables(request):
     page = request.GET.get('page', 1)
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
+
+def handle_search_controls(request):
+    if request.POST:
+        page = request.GET.get('page', 1)
+        search_term = request.POST.get('article_search')
+        keyword = request.POST.get('keyword')
+        sort = request.POST.get('sort', '-date_published')
+        search_filters = True
+        return page, search_term, keyword, sort, search_filters, set_search_session_variables(request, search_term, keyword, page, sort)
+    else:
+        page = request.GET.get('page', 1)
+        #article show should be a settings variable tbh.
+        # show = request.session.get('article_show', 10)
+        search_term = request.session.get('article_search', False)
+        sort = request.session.get('article_sort', '-date_published')
+        search_filters = request.session.get('search_filters', False)
+        keyword = request.session.get('keyword', False)
+        return page, search_term, keyword, sort, search_filters, None
+
+    
+
+def set_search_session_variables(request, search_term, keyword, page, sort):
+    request.session['article_search'] = search_term
+    request.session['keyword'] = keyword
+    request.session['article_sort'] = sort
+    #if post it's always true.
+    request.session['search_filters'] = True
+
+    return redirect("{0}?page={1}".format(reverse('search'), page))
+
+def unset_search_session_variables(request):
+    del request.session['article_sort']
+    del request.session['search_filters']
+    del request.session['article_search']
+    del request.session['keyword']
+
+    request.session.modified = True
+    
+    page = request.GET.get('page', 1)
+
+    return redirect("{0}?page={1}".format(reverse('search'), page))
 
 
 def fire_submission_notifications(**kwargs):

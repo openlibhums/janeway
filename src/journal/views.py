@@ -1393,18 +1393,18 @@ def search(request):
     """
     articles = []
     search_term = None
+    keyword = None
 
     if request.POST and 'clear' in request.POST:
         return logic.unset_search_session_variables(request)
 
-    if request.POST:
-        search_term = request.POST.get('search')
-        request.session['article_search'] = search_term
-        return redirect(reverse('search'))
+    page, search_term, keyword, sort, search_filters, redir = logic.handle_search_controls(request)
 
-    if request.session.get('article_search'):
+    if redir:
+        return redir
+
+    if search_term:
         
-        search_term = request.session.get('article_search')
         article_search = submission_models.Article.objects.filter(
             (Q(title__icontains=search_term) |
              Q(keywords__word__icontains=search_term) |
@@ -1420,18 +1420,28 @@ def search(request):
              Q(last_name__in=author_search)) &
             Q(article__journal=request.journal)
         )
-        articles_from_author = [author.article for author in from_author]        
+        articles_from_author = [author.article for author in from_author]
+
+        
         
         articles = set(article_search + articles_from_author)
 
+    elif keyword:
+        keyword_search = submission_models.Article.objects.filter(keywords__word=keyword)
+        articles = [article for article in keyword_search]
+        
+    all_keywords = submission_models.Keyword.objects.all()
     template = 'journal/search.html'
+
     context = {
         'articles': articles,
-        'search_term': search_term
+        'search_term': search_term,
+        'keyword': keyword,
+        'all_keywords': all_keywords,
+        'search_filters': search_filters,
     }
 
     return render(request, template, context)
-
 
 def submissions(request):
     """
