@@ -206,9 +206,9 @@ class AdminUserForm(forms.ModelForm):
                 code='password_mismatch',
             )
 
-        if password_2 and not len(password_2) >= 12:
+        if password_2 and not len(password_2) >= 6:
             raise forms.ValidationError(
-                'Your password is too short, it should be 12 characters or greater in length.',
+                'Your password is too short, it should be 6 characters or greater in length.',
                 code='password_to_short',
             )
 

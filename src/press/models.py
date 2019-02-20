@@ -73,7 +73,7 @@ class Press(AbstractSiteModel):
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
-    password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
+    password_length = models.PositiveIntegerField(default=6, validators=[MinValueValidator(6)])
 
     enable_preprints = models.BooleanField(default=False)
     preprints_about = models.TextField(blank=True, null=True)
