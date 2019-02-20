@@ -17,7 +17,7 @@ class CopyeditAssignmentForm(forms.ModelForm):
             'editor_note',
             'due',
             'files_for_copyediting',
-            'copyeditor'
+            'copyeditor',
         )
 
         attrs = {'required': True}
@@ -34,7 +34,7 @@ class CopyeditAssignmentForm(forms.ModelForm):
 
         if copyeditor_pks:
             self.fields['copyeditor'].queryset = Account.objects.filter(
-                pk__in=copyeditor_pks
+                pk__in=copyeditor_pks,
             )
 
         if files:
@@ -55,7 +55,7 @@ class CopyeditAssignmentForm(forms.ModelForm):
 
             # If saving, an instance exists so we can now add the files.
             copyedit.files_for_copyediting.add(
-                self.cleaned_data.get('files_for_copyediting')
+                self.cleaned_data.get('files_for_copyediting'),
             )
 
         return copyedit
