@@ -15,7 +15,7 @@
             {% if request.journal.header_image %}
                 <a href="{% url 'website_index' %}"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
             {% else %}
-            <a href="{% url website_index %}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
+            <a href="{% url 'website_index' %}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
             {% endif %}
         {% else %}
             <a href="/">{% svg request.press_cover %}</a>
