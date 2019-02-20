@@ -103,14 +103,14 @@ def add_copyeditor_assignment(request, article_id):
         form = forms.CopyeditAssignmentForm(
             request.POST,
             copyeditor_pks=copyeditor_pks,
-            files=files
+            files=files,
         )
 
         if form.is_valid():
             copyedit = form.save(
                 editor=request.user,
                 article=article,
-                commit=False
+                commit=False,
             )
             copyedit.save()
 
@@ -119,7 +119,7 @@ def add_copyeditor_assignment(request, article_id):
                     'notify_copyeditor_assignment',
                     kwargs={
                         'article_id': article.pk,
-                        'copyedit_id': copyedit.pk
+                        'copyedit_id': copyedit.pk,
                     }
                 )
             )
@@ -193,12 +193,12 @@ def edit_assignment(request, article_id, copyedit_id):
         return redirect(
             reverse(
                 'article_copyediting',
-                kwargs={'article_id': article.pk}
+                kwargs={'article_id': article.pk},
             )
         )
 
     form = forms.CopyeditAssignmentForm(
-        instance=copyedit
+        instance=copyedit,
     )
 
     if request.POST:
@@ -215,12 +215,12 @@ def edit_assignment(request, article_id, copyedit_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Copyedit assignment updated.'
+                'Copyedit assignment updated.',
             )
             return redirect(
                 reverse(
                     'article_copyediting',
-                    kwargs={'article_id': article.pk}
+                    kwargs={'article_id': article.pk},
                 )
             )
 
