@@ -292,7 +292,7 @@ def handle_article_controls(request, sections):
         show = int(request.POST.get('show', 10))
         sort = request.POST.get('sort', '-date_published')
         filters = [int(filter) for filter in filters]
-       
+
         return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort), True
     else:
         page = request.GET.get('page', 1)
@@ -303,6 +303,7 @@ def handle_article_controls(request, sections):
 
         return page, show, filters, sort, None, active_filters
 
+
 def set_article_session_variables(request, page, filters, show, sort):
     request.session['article_filters'] = filters
     request.session['article_show'] = show
@@ -310,6 +311,7 @@ def set_article_session_variables(request, page, filters, show, sort):
     request.session['active_filters'] = True
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
+
 
 def unset_article_session_variables(request):
     del request.session['article_filters']
@@ -323,10 +325,11 @@ def unset_article_session_variables(request):
 
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
+
 def handle_search_controls(request):
     if request.POST:
         
-        #being set by get-- still need to grab these in case of post for filtering option.
+        # being set by get-- still need to grab these in case of post for filtering option.
         search_term = request.POST.get('article_search', False)
         keyword = request.POST.get('keyword', False)
 

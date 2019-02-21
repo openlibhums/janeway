@@ -128,7 +128,7 @@ def articles(request):
         articles = paginator.page(1)
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
-    
+
     template = 'journal/articles.html'
     context = {
         'pinned_articles': pinned_articles,
@@ -1401,7 +1401,7 @@ def search(request):
     if redir:
         return redir
 
-    #atm search term trumps keyword in if/elif
+    # atm search term trumps keyword in if/elif
     if search_term:
         article_search = submission_models.Article.objects.filter(
             (Q(title__icontains=search_term) |
@@ -1423,12 +1423,9 @@ def search(request):
         )
 
         articles_from_author = [author.article for author in from_author]
-
-        
-        
         articles = set(article_search + articles_from_author)
 
-    #just single keyword atm. but keyword is included in article_search.
+    # just single keyword atm. but keyword is included in article_search.
     elif keyword:
         keyword_search = submission_models.Article.objects.filter(
             keywords__word=keyword, 
@@ -1437,13 +1434,13 @@ def search(request):
             date_published__lte=timezone.now()
         ).order_by(sort)
         articles = [article for article in keyword_search]
-    
-    #all keywords of published articles.
+
+    # all keywords of published articles.
     published_articles = submission_models.Article.objects.filter(
         journal=request.journal,
         stage=submission_models.STAGE_PUBLISHED
         )
-    #based on published articles, return potential keywords
+    # based on published articles, return potential keywords
     all_keywords = submission_models.Keyword.objects.filter(
         pk__in=
             published_articles.values_list('keywords__pk',flat=True)        
@@ -1461,6 +1458,7 @@ def search(request):
     }
 
     return render(request, template, context)
+
 
 def submissions(request):
     """
