@@ -162,10 +162,7 @@
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
                             </td>
-                            <td>{% if can_view_file_flag %}<a
-                                    href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
-                                    class="fa fa-share-square-o">&nbsp;</i></a>{% endif %}
-                            </td>
+                            <td>{% hook 'conversion_buttons' %}</td>
                         </tr>
                     {% endfor %}
                 </table>
