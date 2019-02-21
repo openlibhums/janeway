@@ -69,7 +69,7 @@
 <script>
     {% if messages %}
         {% for message in messages %}
-            Materialize.toast('{{ message }}', 4000);
+            Materialize.toast('{{ message|linebreaksbr }}', 4000);
         {% endfor %}
     {% endif %}
 </script>

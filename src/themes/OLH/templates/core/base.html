@@ -212,16 +212,16 @@
     }
     {% for message in messages %}
         {% ifequal message.tags "warning" %}
-            toastr.warning("{{ message }}");
+            toastr.warning("{{ message|linebreaksbr }}");
         {% endifequal%}
         {% ifequal message.tags "info" %}
-            toastr.info("{{ message }}");
+            toastr.info("{{ message|linebreaksbr }}");
         {% endifequal%}
         {% ifequal message.tags "danger" %}
-            toastr.error("{{ message }}");
+            toastr.error("{{ message|linebreaksbr }}");
         {% endifequal%}
         {% ifequal message.tags "success" %}
-            toastr.success("{{ message }}")
+            toastr.success("{{ message|linebreaksbr }}")
         {% endifequal%}
     {% endfor %}
 
