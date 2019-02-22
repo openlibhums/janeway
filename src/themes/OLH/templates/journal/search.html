@@ -10,12 +10,21 @@
 
 {% block body %}
 
+    
+
     <section id="content">
+
         <div class="row">
+            {%if search_term%}
+                <h5>Searching for: <i>{{search_term}}</i></h5>
+            {%elif keyword%}
+                <h5>Keyword: <i>{{keyword}}</i></h5>
+            {%endif%}
             <div class="large-8 columns border-right">
                 <h3>{% trans "Articles" %}</h3>
+
                 {% for article in articles %}
-                {% include "elements/journal/box_article.html" with article=article %}
+                    {% include "elements/journal/box_article.html" with article=article %}
                 {% endfor %}
 
             </div>
@@ -24,10 +33,38 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="section">
+                             <label>{% trans "Search" %}
+                                <input type="text" name="article_search" value=""/>
+                            </label>
+                        </div>
+                        <div class="section">
+                            <label>{% trans "Keywords" %}</label>
+
+                                {% for keyword in all_keywords %}
+                                    <button onclick="form.submit();" name="keyword" value="{{keyword.word}}">
+                                         {{ keyword.word }}
+                                    </button>
+                                    {% if not forloop.last %},{% endif %}
+                                {% endfor %}
 
                         </div>
                         <div class="section">
+                            <label>{% trans "Sort" %}
+                                <select name="sort">
+                                    <option value="-date_published" {% if sort == "date_published" %} selected="selected" {% endif %}>
+                                        {% trans "Date" %}
+                                    </option>
+                                    <option value="title" {% if sort == "title" %} selected="selected" {% endif %}>
+                                        {% trans "Title" %}
+                                    </option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="section">
                             <button type="submit" class="button">{% trans "Filter" %}</button>
+                             {% if search_filters %}
+                                <button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>
+                            {% endif %}
                         </div>
                     </form>
                 </div>
