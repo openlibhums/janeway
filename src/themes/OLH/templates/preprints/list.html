@@ -65,7 +65,9 @@
                             <h5>{% trans "Searching by" %}:</h5>
                             <ul>
                                 <li>{% trans "Title" %}</li>
+                              {% comment "CDL-AM: Strip for pilot" %}
                                 <li>{% trans "Keywords" %}</li>
+                              {% endcomment %}
                                 <li>{% trans "Author Name" %}</li>
                                 <li>{% trans "Author Affiliation" %}</li>
                             </ul>
