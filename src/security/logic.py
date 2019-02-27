@@ -75,16 +75,13 @@ def can_view_file(request, user, file_object):
     except proofing_models.ProofingAssignment.DoesNotExist:
         pass
 
-    try:
-        if file_object.article_id:
-            if proofing_models.TypesetterProofingTask.objects.filter(
-                    proofing_task__round__assignment__article__pk=file_object.article_id,
-                    typesetter=request.user,
-                    completed__isnull=True
-            ).exists():
-                return True
-    except proofing_models.TypesetterProofingTask.DoesNotExist:
-        pass
+    if file_object.article_id:
+        if proofing_models.TypesetterProofingTask.objects.filter(
+                proofing_task__round__assignment__article__pk=file_object.article_id,
+                typesetter=request.user,
+                completed__isnull=True
+        ).exists():
+            return True
 
     try:
         production_assigned = production_models.ProductionAssignment.objects.get(article=file_object.article)
