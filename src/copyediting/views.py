@@ -110,9 +110,7 @@ def add_copyeditor_assignment(request, article_id):
             copyedit = form.save(
                 editor=request.user,
                 article=article,
-                commit=False,
             )
-            copyedit.save()
 
             return redirect(
                 reverse(

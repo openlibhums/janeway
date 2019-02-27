@@ -55,7 +55,7 @@ class CopyeditAssignmentForm(forms.ModelForm):
 
             # If saving, an instance exists so we can now add the files.
             copyedit.files_for_copyediting.add(
-                self.cleaned_data.get('files_for_copyediting'),
+                *self.cleaned_data.get('files_for_copyediting'),
             )
 
         return copyedit
