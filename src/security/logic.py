@@ -77,12 +77,12 @@ def can_view_file(request, user, file_object):
 
     try:
         if file_object.article_id:
-            proofing_models.TypesetterProofingTask.objects.get(
-                proofing_task__round__assignment__article__pk=file_object.article_id,
-                typesetter=request.user,
-                completed__isnull=True
-            )
-            return True
+            if proofing_models.TypesetterProofingTask.objects.filter(
+                    proofing_task__round__assignment__article__pk=file_object.article_id,
+                    typesetter=request.user,
+                    completed__isnull=True
+            ).exists():
+                return True
     except proofing_models.TypesetterProofingTask.DoesNotExist:
         pass
 
