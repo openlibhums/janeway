@@ -19,7 +19,7 @@ urlpatterns = [
         ),
     url(r'^(?P<article_id>\d+)/preview/(?P<galley_id>\d+)/(?P<file_name>.*)$',
         views.preview_figure,
-        name='preview_figure'
+        name='production_preview_figure'
         ),
     url(r'^assign/(?P<article_id>\d+)/user/(?P<user_id>\d+)$', views.production_assign_article,
         name='production_assign_article'),
