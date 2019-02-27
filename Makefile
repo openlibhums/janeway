@@ -5,7 +5,7 @@ endif
 unexport NO_DEPS
 DB_HOST=janeway-mysql
 DB_PORT=3306
-DB_NAME=janeway
+DB_NAME ?= janeway
 DB_USER=janeway-web
 DB_PASSWORD=janeway-web
 CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
@@ -15,7 +15,6 @@ ifeq ($(DB_VENDOR), postgres)
 	unexport NO_DEPS
 	DB_HOST=janeway-postgres
 	DB_PORT=5432
-	DB_NAME=janeway
 	DB_USER=janeway-web
 	DB_PASSWORD=janeway-web
 	DB_VOLUME=db/postgres-data

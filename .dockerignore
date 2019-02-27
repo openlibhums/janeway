@@ -1,2 +1,8 @@
 db/
 *.tar.gz
+files/articles/*
+files/journals/*
+files/issues/*
+files/press/*
+files/temp/*
+
