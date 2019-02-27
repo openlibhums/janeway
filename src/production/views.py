@@ -27,6 +27,7 @@ from security.decorators import (editor_user_required,
                                  typesetting_user_or_production_user_or_editor_required)
 from submission import models as submission_models
 from utils import setting_handler
+from journal.views import article_figure
 
 
 @production_user_or_editor_required
@@ -236,6 +237,15 @@ def preview_galley(request, article_id, galley_id):
     }
 
     return render(request, template, context)
+
+
+@typesetting_user_or_production_user_or_editor_required
+def preview_figure(request, article_id, galley_id, file_name):
+    galley = get_object_or_404(core_models.Galley,
+                               pk=galley_id,
+                               article__pk=article_id,
+                               article__journal=request.journal)
+    return article_figure(request, galley.article.pk, galley_id, file_name)
 
 
 @article_stage_production_required
