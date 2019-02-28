@@ -975,6 +975,6 @@ def article_stage_review_required(func):
         if not article.stage in models.REVIEW_STAGES:
             deny_access(request)
         else:
-            return func(request, *args, **kwargs)
+            return func(request, article_id, *args, **kwargs)
 
     return review_required_wrapper
