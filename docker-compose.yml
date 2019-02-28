@@ -50,6 +50,7 @@ services:
       - DB_NAME
       - PYTHONDONTWRITEBYTECODE=yes
       - JANEWAY_SETTINGS_MODULE=core.dev_settings
+      - NOSE_INCLUDE_EXE=1
     depends_on:
       - "start_dependencies"
 
