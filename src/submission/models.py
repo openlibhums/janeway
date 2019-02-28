@@ -1068,7 +1068,7 @@ class FrozenAuthor(models.Model):
     @property
     def is_correspondence_author(self):
         # early return if no email address available
-        if (not self.author.email
+        if (not self.author
                 or settings.DUMMY_EMAIL_DOMAIN in self.author.email):
             return False
 
@@ -1083,6 +1083,7 @@ class FrozenAuthor(models.Model):
                 return order == 0
         else:
             return True
+
 
 class Section(TranslatableModel):
     journal = models.ForeignKey('journal.Journal')
