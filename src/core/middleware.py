@@ -49,7 +49,8 @@ def get_site_resources(request):
             try: # try alias
                 alias = core_models.DomainAlias.get_by_request(request)
                 if alias.redirect:
-                    redirect_obj = redirect(alias.build_redirect_url(request))
+                    logging.debug("Matched a redirect: %s" % alias.redirect_url)
+                    redirect_obj = redirect(alias.redirect_url)
                 else:
                     journal = alias.journal
                     press = journal.press if journal else alias.press

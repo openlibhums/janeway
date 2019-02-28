@@ -968,11 +968,9 @@ class DomainAlias(AbstractSiteModel):
     def site_object(self):
         return self.journal or self.press
 
-    def build_redirect_url(self, request):
-        return urlunparse(
-                request.scheme, self.site_object.domain, request.path,
-                None, None
-        )
+    @property
+    def redirect_url(self):
+           return self.site_object.site_url
 
     def save(self, *args, **kwargs):
         if not bool(self.journal) ^ bool(self.press):
