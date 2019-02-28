@@ -970,7 +970,7 @@ class DomainAlias(AbstractSiteModel):
 
     @property
     def redirect_url(self):
-           return self.site_object.site_url
+           return self.site_object.site_url()
 
     def save(self, *args, **kwargs):
         if not bool(self.journal) ^ bool(self.press):
