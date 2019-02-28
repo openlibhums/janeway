@@ -45,5 +45,5 @@ class AbstractSiteModel(models.Model):
         return logic.build_url(
             netloc=self.domain,
             scheme=self.SCHEMES[self.is_secure],
-            path=path,
+            path=path or "",
         )
