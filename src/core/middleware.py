@@ -108,6 +108,7 @@ class SiteSettingsMiddleware(object):
             request.journal = None
             request.site_type = press
             request.model_content_type = ContentType.objects.get_for_model(press)
+            request.press_base_url = press.site_url()
         else:
             raise Http404()
 
