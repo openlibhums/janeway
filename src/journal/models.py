@@ -694,7 +694,7 @@ def setup_default_workflow(sender, instance, created, **kwargs):
 def setup_submission_configuration(sender, instance, created, **kwargs):
     if created:
         submission_models.SubmissionConfiguration.objects.get_or_create(
-            journal=instance
+            journal=instance,
         )
 
 
@@ -705,7 +705,7 @@ def setup_default_form(sender, instance, created, **kwargs):
 
         if not review_models.ReviewForm.objects.filter(
                 slug='default-form',
-                journal=instance
+                journal=instance,
         ).exists():
 
             default_review_form = review_models.ReviewForm.objects.create(
