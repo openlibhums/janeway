@@ -11,6 +11,8 @@ import logging
 from datetime import timedelta
 from urllib.parse import urlunparse
 
+import pytz
+
 from bs4 import BeautifulSoup
 from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
@@ -129,6 +131,7 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
                    (u'VG', u'Virgin Islands, British'), (u'VI', u'Virgin Islands, U.S.'), (u'WF', u'Wallis and Futuna'),
                    (u'EH', u'Western Sahara'), (u'YE', u'Yemen'), (u'ZM', u'Zambia'), (u'ZW', u'Zimbabwe')]
 
+TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
 class Country(models.Model):
     code = models.TextField(max_length=5)
@@ -198,6 +201,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     signature = models.TextField(null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(Country, null=True, blank=True, verbose_name=_('Country'))
+    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
