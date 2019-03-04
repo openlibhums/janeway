@@ -628,13 +628,12 @@ class Article(models.Model):
 
     @property
     def pdf_url(self):
-        from utils import setting_handler
         pdfs = self.pdfs
         path = reverse('article_download_galley', kwargs={
             'article_id': self.pk,
             'galley_id': pdfs[0].pk
         })
-        return journal.site_url(path=path)
+        return self.journal.site_url(path=path)
 
     def get_remote_url(self, request):
         parsed_uri = urlparse('http' + ('', 's')[request.is_secure()] + '://' + request.META['HTTP_HOST'])
