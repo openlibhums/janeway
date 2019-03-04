@@ -37,7 +37,7 @@ def register_crossref_doi(identifier):
 
     if not use_crossref:
         logging.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
-        return
+        return 'Crossref Disabled', 'Disabled'
 
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', identifier.article.journal).processed_value
 
