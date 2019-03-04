@@ -189,13 +189,46 @@ def edit_proofing_assignment(request, article_id, proofing_task_id):
     if request.POST:
 
         if 'delete' in request.POST:
-            kwargs = {'article': article, 'proofing_task': proofing_task, 'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_CANCEL_PROOFING_TASK, task_object=article, **kwargs)
+            kwargs = {'article': article,
+                      'proofing_task': proofing_task,
+                      'request': request}
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_CANCEL_PROOFING_TASK,
+                task_object=article,
+                **kwargs,
+            )
             proofing_task.delete()
-            messages.add_message(request, messages.SUCCESS, 'Proofing task deleted.')
-            return redirect(reverse('proofing_article', kwargs={'article_id': article.id}))
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Proofing task deleted.',
+            )
 
-        form = forms.AssignProofreader(request.POST, instance=proofing_task)
+            return redirect(
+                reverse(
+                    'proofing_article',
+                    kwargs={'article_id': article.id},
+                )
+            )
+
+        if 'reset' in request.POST:
+            proofing_task.reset()
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Proofing task reset.',
+            )
+            return redirect(
+                reverse(
+                    'proofing_article',
+                    kwargs={'article_id': article.id},
+                )
+            )
+
+        form = forms.AssignProofreader(
+            request.POST,
+            instance=proofing_task,
+        )
         galleys = logic.get_galleys_from_post(request)
 
         if not galleys:
@@ -210,8 +243,16 @@ def edit_proofing_assignment(request, article_id, proofing_task_id):
                     proofing_task.galleys_for_proofing.remove(galley)
             proofing_task.galleys_for_proofing.add(*galleys)
 
-            kwargs = {'article': article, 'proofing_task': proofing_task, 'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_EDIT_PROOFING_TASK, task_object=article, **kwargs)
+            kwargs = {
+                'article': article,
+                'proofing_task': proofing_task,
+                'request': request
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_EDIT_PROOFING_TASK,
+                task_object=article,
+                **kwargs,
+            )
 
             return redirect(reverse('proofing_article', kwargs={'article_id': article.id}))
 

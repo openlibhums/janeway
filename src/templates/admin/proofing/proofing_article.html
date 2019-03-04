@@ -76,7 +76,7 @@
                                                     {% else %}<hr /><p>Acknowledged {{ task.acknowledged|date:"Y-m-d H:i" }}{% endif %}</p>
                                                 {% elif not task.complete %}
                                                     <a href="{% url 'edit_proofing_assignment' article.pk task.pk %}"
-                                                       class="button expanded"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+                                                       class="button expanded"><i class="fa fa-edit">&nbsp;</i>Manage</a>
                                                 {% else %}
                                                     Awaiting<br/>proofreader
                                                 {% endif %}
