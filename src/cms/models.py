@@ -53,3 +53,8 @@ class NavigationItem(models.Model):
             return self.link
         else:
             return build_url_for_request(path=self.link)
+
+    @property
+    def url(self):
+        #alias for backwards compatibility with templates
+        return self.build_url_for_request
