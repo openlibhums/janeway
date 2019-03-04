@@ -124,7 +124,7 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ['general', 'crosscheck']
+    setting_groups = ['general']
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
