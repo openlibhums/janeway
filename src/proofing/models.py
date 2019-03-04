@@ -131,6 +131,12 @@ class ProofingTask(models.Model):
 
         return comment_text
 
+    def reset(self):
+        self.completed = None
+        self.cancelled = False
+        self.accepted = None
+        self.save()
+
 
 class TypesetterProofingTask(models.Model):
     proofing_task = models.ForeignKey(ProofingTask)
