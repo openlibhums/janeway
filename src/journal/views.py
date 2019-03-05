@@ -1746,6 +1746,7 @@ def document_management(request, article_id):
     return_url = request.GET.get('return', '/dashboard/')
 
     if request.POST and request.FILES:
+        return_url = request.POST.get("return_url")
 
         if 'manu' in request.POST:
             from core import files as core_files
@@ -1767,7 +1768,8 @@ def document_management(request, article_id):
             prod_logic.save_galley(document_article, request, file, True, 'File for Proofing', is_other=False)
             messages.add_message(request, messages.SUCCESS, 'Proofing file uploaded.')
 
-        return redirect(reverse('document_management', kwargs={'article_id': document_article.pk}))
+        return redirect('{0}?return={1}'.format(reverse('document_management', kwargs={'article_id':document_article.pk}),
+                                        return_url))
 
     template = 'admin/journal/document_management.html'
     context = {
