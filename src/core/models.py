@@ -133,6 +133,7 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
 
 TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
+
 class Country(models.Model):
     code = models.TextField(max_length=5)
     name = models.TextField(max_length=255)

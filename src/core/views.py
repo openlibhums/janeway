@@ -1771,6 +1771,7 @@ def order_workflow_elements(request):
 
     return HttpResponse('Thanks')
 
+
 @ensure_csrf_cookie
 @require_POST
 def set_session_timezone(request):
