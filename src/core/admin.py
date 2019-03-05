@@ -31,9 +31,10 @@ class AccountAdmin(UserAdmin):
     search_fields = ('username', 'email', 'first_name', 'middle_name', 'last_name', 'orcid', 'institution', 'biography')
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
-            'middle_name', 'orcid', 'institution', 'department', 'twitter', 'linkedin', 'facebook', 'github',
-            'biography',
-            'signature', 'profile_image', 'interest')}),
+            'middle_name', 'orcid', 'institution', 'department', 'twitter',
+            'linkedin', 'facebook', 'github', 'biography',
+            'signature', 'profile_image', 'interest', "preferred_timezone",
+        )}),
     )
 
 
