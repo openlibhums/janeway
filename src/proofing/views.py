@@ -213,6 +213,11 @@ def edit_proofing_assignment(request, article_id, proofing_task_id):
 
         if 'reset' in request.POST:
             proofing_task.reset()
+            logic.add_reset_log_entry(
+                request,
+                proofing_task,
+                article,
+            )
             messages.add_message(
                 request,
                 messages.INFO,
