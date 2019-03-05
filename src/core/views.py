@@ -23,6 +23,9 @@ from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.conf import settings as django_settings
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+import pytz
 
 from core import models, forms, logic, workflow
 from security.decorators import editor_user_required, article_author_required
@@ -1767,3 +1770,24 @@ def order_workflow_elements(request):
             element.save()
 
     return HttpResponse('Thanks')
+
+@ensure_csrf_cookie
+@require_POST
+def set_session_timezone(request):
+    chosen_timezone = request.POST.get("chosen_timezone")
+    response_data = {}
+    if chosen_timezone in pytz.all_timezones_set:
+        request.session["janeway_timezone"] = chosen_timezone
+        status = 200
+        response_data['message'] = 'OK'
+        logging.debug("Timezone set to %s for this session" % chosen_timezone)
+    else:
+        status = 404
+        response_data['message'] = 'Timezone not found: %s' % chosen_timezone
+    response_data = {}
+
+    return HttpResponse(
+            content=json.dumps(response_data),
+            content_type='application/json',
+            status=200,
+    )
