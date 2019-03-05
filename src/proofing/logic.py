@@ -255,8 +255,9 @@ def add_reset_log_entry(request, proofing_task, article):
     :return: None
     """
 
-    description = '{user} reset proofing task for article {title}'.format(
+    description = '{user} reset proofing task {id} for article {title}'.format(
         user=request.user,
+        id=proofing_task.pk,
         title=article.title,
     )
 
