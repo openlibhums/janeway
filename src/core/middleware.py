@@ -205,6 +205,7 @@ class GlobalRequestMiddleware(object):
     def process_request(request):
         _threadlocal.request = request
 
+
 class TimezoneMiddleware(object):
     def process_request(self, request):
         if request.user.is_authenticated and request.user.preferred_timezone:
