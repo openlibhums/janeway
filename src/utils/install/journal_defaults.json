@@ -349,6 +349,21 @@
             "name": "email"
         },
         "setting": {
+            "description": "Email sent to editors when they are unassigned from an article",
+            "is_translatable": true,
+            "name": "unassigned_editor",
+            "pretty_name": "Unassigned Editor",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.editor.full_name }},</p><p>We are writing to let you know that you have been unassigned from the article \"{{ article.title }}\" in {{ article.journal.name }}.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
             "description": "Email sent to reviewers when a review request is withdrawn.",
             "is_translatable": true,
             "name": "review_withdrawl",

@@ -31,6 +31,30 @@ def send_reviewer_withdrawl_notice(**kwargs):
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
+
+def send_editor_unassigned_notice(request, message, assignment, skip=False):
+    description = "{a.editor} unassigned from {a.article} by {r.user}".format(
+            a=assignment,
+            r=request,
+    )
+
+    if not skip:
+
+        log_dict = {
+                'level': 'Info', 'action_text': description,
+                'types': 'Editor Unassigned',
+                'target': assignment.article
+        }
+
+        notify_helpers.send_email_with_body_from_user(
+                request,
+                'subject_review_withdrawl',
+                assignment.editor.email,
+                message,
+                log_dict=log_dict,
+        )
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
 def send_editor_assigned_acknowledgements_mandatory(**kwargs):
     """
     This function is called via the event handling framework and it notifies that an editor has been assigned.

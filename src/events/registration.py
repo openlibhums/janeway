@@ -17,6 +17,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
                                       transactional_emails.send_submission_acknowledgement)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE,
                                       transactional_emails.send_editor_assigned_acknowledgements)
+event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNASSIGNED,
+        transactional_emails.send_editor_unassigned_notice)
 
 # Review
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE,

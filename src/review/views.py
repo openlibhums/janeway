@@ -191,16 +191,45 @@ def unassign_editor(request, article_id, editor_id):
     """Unassigns an editor from an article"""
     article = get_object_or_404(submission_models.Article, pk=article_id)
     editor = get_object_or_404(core_models.Account, pk=editor_id)
-    assignment = get_object_or_404(models.EditorAssignment, article=article, editor=editor)
+    assignment = get_object_or_404(
+        models.EditorAssignment, article=article, editor=editor
+    )
+    email_content = logic.get_unassignment_notification(request, assignment)
 
-    assignment.delete()
+    if request.method == "POST":
+        email_content = request.POST.get('content_email')
+        kwargs = {'message': email_content,
+                  'assignment': assignment,
+                  'request': request,
+                  'skip': request.POST.get('skip', False)
+        }
 
-    util_models.LogEntry.add_entry(types='EditorialAction',
-                                   description='{0} unassigned from article {1}'.format(editor.full_name(), article.id),
-                                   level='Info',
-                                   request=request, target=article)
+        event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_UNASSIGNED, **kwargs)
 
-    return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
+        assignment.delete()
+
+        util_models.LogEntry.add_entry(
+            types='EditorialAction',
+            description='Editor {0} unassigned from article {1}'
+                ''.format(editor.full_name(), article.id),
+            level='Info',
+            request=request,
+            target=article,
+        )
+
+        return redirect(reverse(
+            'review_unassigned_article', kwargs={'article_id': article_id}
+        ))
+
+    template = 'review/unassign_editor.html'
+    context = {
+        'article': article,
+        'assignment': assignment,
+        'email_content': email_content,
+    }
+
+    return render(request, template, context)
 
 
 @senior_editor_user_required

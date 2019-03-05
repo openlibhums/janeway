@@ -22,6 +22,9 @@ class Events:
     # kwargs: request, editor_assignment, user_message_content (will be blank), acknowledgement (false)
     # raised when an editor is assigned to an article
     ON_ARTICLE_ASSIGNED = 'on_article_assigned'
+    # kwargs: request, editor_assignment, user_message_content, skip (boolean)
+    # raised when an editor is unassigned from an article
+    ON_ARTICLE_UNASSIGNED = 'on_article_unassigned'
     # kwargs: editor_assignment, request, user_message_content, acknowledgement (true), skip (boolean)
     # raised when an editor decides to notify the editor of the assignment (or skip the acknowledgement)
     ON_ARTICLE_ASSIGNED_ACKNOWLEDGE = 'on_article_assigned_acknowledge'
