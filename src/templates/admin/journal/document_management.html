@@ -89,6 +89,7 @@
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="upload" value="upload">
+                <input type="hidden" name="return_url" value="{{return_url}}" />
                 <h4>New Manuscript File</h4>
                 <div class="clearfix">
                     <div>
