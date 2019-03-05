@@ -184,6 +184,8 @@ urlpatterns = [
     url(r'^sitemap/$', journal_views.sitemap, name='journal_sitemap'),
 
     url(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
+
+    url(r'^set-timezone/$', core_views.set_session_timezone, name='set_timezone'),
 ]
 
 # Journal homepage block loading

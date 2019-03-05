@@ -6,6 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import logging
 from uuid import uuid4
 import threading
+
+import pytz
+
 from django.core.exceptions import ObjectDoesNotExist, \
     MultipleObjectsReturned, ImproperlyConfigured
 from django.http import Http404
@@ -14,6 +17,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from django.conf import settings
 from django.urls import set_script_prefix
+from django.utils import timezone
 
 from press import models as press_models
 from utils import models as util_models, setting_handler
@@ -200,3 +204,21 @@ class GlobalRequestMiddleware(object):
     @staticmethod
     def process_request(request):
         _threadlocal.request = request
+
+class TimezoneMiddleware(object):
+    def process_request(self, request):
+        if request.user.is_authenticated and request.user.preferred_timezone:
+            tzname = request.user.preferred_timezone
+        elif request.session.get("janeway_timezone"):
+            tzname = request.session["janeway_timezone"]
+        else:
+            tzname = None
+
+        try:
+            request.timezone = tzname
+            if tzname is not None:
+                timezone.activate(pytz.timezone(tzname))
+                logging.debug("Activated timezone %s" % tzname)
+        except Exception as e:
+            logging.warning("Failed to activate timezone %s: %s" % (tzname, e))
+
