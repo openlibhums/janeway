@@ -114,6 +114,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
 <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
 <script src="{% static "default/js/bootstrap.js" %}"></script>
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script src="{% static "common/js/timezone-setter.js" %}"></script>
+{% if  not request.timezone %}<script>setTimezone();</script>{% endif %}
 <script type="text/javascript">
     $('input[id=lefile]').change(function () {
         $('#id_profile_image').val($(this).val());
