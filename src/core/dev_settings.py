@@ -8,7 +8,6 @@ DEFAULT_HOST = 'https://www.example.org'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 URL_CONFIG = 'path'  # path or domain
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE_CLASSES = (
     'utils.middleware.TimeMonitoring',
