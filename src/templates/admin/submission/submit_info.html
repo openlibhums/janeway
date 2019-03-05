@@ -53,12 +53,14 @@
                             {{ form.section|foundation }}
                         </div>
 
+                      {% comment "CDL-AM: Strip for pilot" %}
                         {% if request.journal.submissionconfiguration.license %}
                             <div class="large-{{ request.journal.submissionconfiguration.lang_section_license_width }} columns error">
                                 {{ form.license|foundation }}
                                 <p class="help-text"><a href="#" data-open="license">View license information</a></p>
                             </div>
                         {% endif %}
+                      {% endcomment %}
 
 
                         {% if request.journal.submissionconfiguration.keywords %}
