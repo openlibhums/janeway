@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from core import models as core_models, files
 from events import logic as event_logic
-from utils import render_template
+from utils import render_template, models as utils_models
 from proofing import models
 
 
@@ -244,3 +244,27 @@ def handle_annotated_galley_upload(request, proofing_task, article):
         return None
     else:
         return 'uploadbox'
+
+
+def add_reset_log_entry(request, proofing_task, article):
+    """
+    Adds a LogEntry when a proofing task is reset.
+    :param request: HttpRequest object
+    :param proofing_task: ProofingTask object
+    :param article: Article object
+    :return: None
+    """
+
+    description = '{user} reset proofing task for article {title}'.format(
+        user=request.user,
+        title=article.title,
+    )
+
+    utils_models.LogEntry.add_entry(
+        types='Proofing Task Reset',
+        description=description,
+        level='Info',
+        actor=request.user,
+        request=request,
+        target=article,
+    )
