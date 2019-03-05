@@ -101,6 +101,16 @@ def get_withdrawl_notification(request, review_assignment):
     return render_template.get_message_content(request, email_context, 'review_withdrawl')
 
 
+def get_unassignment_notification(request, assignment):
+    email_context = {
+        'article': assignment.article,
+        'assignment': assignment,
+        'editor': request.user,
+    }
+
+    return render_template.get_message_content(request, email_context, 'unassign_editor')
+
+
 def get_decision_content(request, article, decision, author_review_url):
 
     email_context = {
