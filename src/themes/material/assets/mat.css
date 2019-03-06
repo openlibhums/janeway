@@ -127,3 +127,12 @@ a:hover .article-title {
 .issue-link:hover {
     text-decoration: underline;
 }
+
+.feature-article-image {
+    width: 100%;
+    object-fit: cover;
+}
+
+.feature-article-card {
+    min-height: 360px;
+}
