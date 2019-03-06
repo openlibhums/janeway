@@ -10429,3 +10429,8 @@ a.profilelink:link {
 #reflist p {
     word-wrap: break-word;
 }
+
+.feature-article-image {
+    object-fit: cover;
+    height: 175px;
+}
