@@ -1746,7 +1746,6 @@ def document_management(request, article_id):
     return_url = request.GET.get('return', '/dashboard/')
 
     if request.POST and request.FILES:
-        return_url = request.POST.get("return_url")
 
         if 'manu' in request.POST:
             from core import files as core_files
