@@ -31,7 +31,6 @@ def send_reviewer_withdrawl_notice(**kwargs):
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
-
 def send_editor_unassigned_notice(request, message, assignment, skip=False):
     description = "{a.editor} unassigned from {a.article} by {r.user}".format(
             a=assignment,
@@ -54,6 +53,7 @@ def send_editor_unassigned_notice(request, message, assignment, skip=False):
                 log_dict=log_dict,
         )
     notify_helpers.send_slack(request, description, ['slack_editors'])
+
 
 def send_editor_assigned_acknowledgements_mandatory(**kwargs):
     """
