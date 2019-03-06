@@ -2987,6 +2987,28 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "proofreader_for_article_required, wrongly prohibits proofreader from content")
 
+    def test_proofreader_for_article_required_with_author_proofreader(self):
+        func = Mock()
+        decorated_func = decorators.proofreader_for_article_required(func)
+
+        author_proofing_task = proofing_models.ProofingTask(
+                round=self.proofing_assignment.current_proofing_round(),
+                proofreader=self.author,
+                notified=True,
+                due=timezone.now(),
+                accepted=timezone.now(),
+                task='author_task')
+        author_proofing_task.save()
+
+        kwargs = {'proofing_task_id': author_proofing_task.pk}
+
+        request = self.prepare_request_with_user(self.author, self.journal_one)
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called,
+                        "proofreader_for_article_required, wrongly prohibits "
+                        "author proofreader from content")
+
     def test_proofreader_for_article_required_with_bad_proofreader(self):
         func = Mock()
         decorated_func = decorators.proofreader_for_article_required(func)
