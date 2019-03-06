@@ -795,29 +795,41 @@ def proofreader_for_article_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
+        if 'article_id' in kwargs:
+            article = get_object_or_404(
+                    models.Article,
+                    pk=kwargs['article_id'],
+                    journal=request.journal
+            )
+        else:
+            article = None
+
         if not base_check(request):
             return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
 
-        if request.user.is_editor(request) or request.user.is_staff:
+        elif request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
-        if not request.user.is_proofreader(request):
-            deny_access(request)
-
-        if kwargs.get('article_id', None):
-            article = get_object_or_404(models.Article, pk=kwargs['article_id'], journal=request.journal)
-            if request.user == article.proofingassignment.proofing_manager:
-                return func(request, *args, **kwargs)
-
-        try:
-            proofing_models.ProofingTask.objects.get(pk=kwargs['proofing_task_id'],
-                                                     proofreader=request.user,
-                                                     cancelled=False,
-                                                     completed__isnull=True,
-                                                     round__assignment__article__journal=request.journal)
+        #proofing manager
+        elif (
+              article
+              and request.user == article.proofingassignment.proofing_manager
+        ):
             return func(request, *args, **kwargs)
-        except proofing_models.ProofingTask.DoesNotExist:
+
+        #User is Assigned as proofreader, regardless of role
+        elif proofing_models.ProofingTask.objects.filter(
+                pk=kwargs['proofing_task_id'],
+                proofreader=request.user,
+                cancelled=False,
+                completed__isnull=True,
+                round__assignment__article__journal=request.journal
+        ).exists():
+            return func(request, *args, **kwargs)
+
+        else:
             deny_access(request)
+
 
     return wrapper
 
