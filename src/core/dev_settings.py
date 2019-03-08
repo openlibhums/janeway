@@ -5,7 +5,7 @@ SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
 
 # This is the default redirect if no other sites are found.
 DEFAULT_HOST = 'https://www.example.org'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 URL_CONFIG = 'path'  # path or domain
 
