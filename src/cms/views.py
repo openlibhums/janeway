@@ -148,6 +148,12 @@ def nav(request, nav_id=None):
         request.journal.save()
         return redirect(reverse('cms_nav'))
 
+    elif "delete_nav" in request.POST:
+        nav_to_delete = get_object_or_404(
+                models.NavigationItem,
+                pk=request.POST["delete_nav"])
+        nav_to_delete.delete()
+
     if request.POST:
         if nav_to_edit:
             form = forms.NavForm(request.POST, request=request, instance=nav_to_edit)
@@ -164,6 +170,7 @@ def nav(request, nav_id=None):
 
     template = 'cms/nav.html'
     context = {
+        'nav_item_to_edit': nav_to_edit,
         'form': form,
         'top_nav_items': top_nav_items,
     }
