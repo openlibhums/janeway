@@ -10,7 +10,7 @@ from identifiers.models import NON_DOI_IDENTIFIER_TYPES, DOI_REGEX_PATTERN
 
 NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
 
-# Various url patterns in this module are have duplicated names
+# Various url patterns in this module have duplicated names
 # This is so we can handle DOI patterns using a more restrictive
 # Regex pattern an example is this is 'article_view'
 
