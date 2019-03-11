@@ -21,6 +21,12 @@ identifier_choices = (
     ('pubid', 'Publisher ID'),
 )
 
+IDENTIFIER_TYPES = [
+    'uri',
+    'pubid',
+    'id',
+]
+
 
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)

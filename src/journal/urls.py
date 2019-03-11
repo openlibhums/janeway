@@ -7,15 +7,26 @@ from django.conf.urls import url
 
 from journal import views
 
+from identifiers.models import IDENTIFIER_TYPES
+
+idents = "|".join(IDENTIFIER_TYPES)
+
 urlpatterns = [
-    # Probably needs some multi-journal logic here
+    # Figures and download patterns
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/print/$'
+        ''.format("|".join(IDENTIFIER_TYPES)),
+        views.print_article,
+        name='article_print_article'),
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/print/$',
+        views.print_article,
+        name='article_print_article'),
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figure/(?P<file_name>.*)/$',
         views.article_figure,
-        name='article_figure'),
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/file/(?P<file_id>\d+)/replace$',
+        name='article_galley_figure'),
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/file/(?P<file_id>\d+)/replace$',
         views.replace_article_file,
         name='article_file_replace'),
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/file/(?P<file_id>\d+|None)/$',
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/file/(?P<file_id>\d+|None)/$',
         views.serve_article_file,
         name='article_file_download'),
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/download/',
@@ -24,15 +35,23 @@ urlpatterns = [
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/view/',
         views.view_galley,
         name='article_view_galley'),
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+?/.+?)/table/(?P<table_name>.+)$',
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/table/(?P<table_name>.+)$'
+        ''.format("|".join(IDENTIFIER_TYPES)),
         views.download_table,
-        name='article_figure'),
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+?/.+?)/(?P<file_name>.+)$',
+        name='article_table'),
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/table/(?P<table_name>.+)$',
+        views.download_table,
+        name='article_table'),
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/(?P<file_name>.+)$'
+        ''.format("|".join(IDENTIFIER_TYPES)),
         views.identifier_figure,
         name='article_figure'),
-
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/(?P<file_name>.+)$',
+        views.identifier_figure,
+        name='article_figure'),
     url(r'^articles/$', views.articles, name='journal_articles'),
 
+    # Issues/Collections
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
     url(r'^issue/(?P<issue_id>\d+)/info/$', views.issue, name='journal_issue'),
@@ -47,11 +66,22 @@ urlpatterns = [
     url(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
 
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/edit/$', views.edit_article, name='article_edit'),
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/print/$', views.print_article,
-        name='article_print_article'),
-    url(r'^article/(?P<identifier_type>.+?)/(?P<identifier>.+)/$', views.article, name='article_view'),
+    # Article patterns
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/edit/$'
+        ''.format("|".join(IDENTIFIER_TYPES)),
+        views.edit_article,
+        name='article_edit'),
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/$'
+        ''.format("|".join(IDENTIFIER_TYPES)),
+        views.article,
+        name='article_view'
+        ),
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/$',
+        views.article,
+        name='article_view'
+        ),
 
+    # File management
     url(r'^(?P<article_id>\d+)/files/management/$', views.document_management,
         name='document_management'),
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/info/$', views.submit_files_info,
@@ -66,7 +96,6 @@ urlpatterns = [
     url(r'^(?P<article_id>\d+)/file/(?P<file_id>\d+)/makegalley/$', views.article_file_make_galley,
         name='article_file_make_galley'),
     url(r'^note/(?P<article_id>\d+)/new/$', views.new_note, name='article_new_note'),
-
 
     # Publication
     url(r'^publish/$',
@@ -134,7 +163,6 @@ urlpatterns = [
     # Submissions
     url(r'^submissions/$',
         views.submissions, name='journal_submissions'),
-
 
     # Edit file with Texture
     url(r'^texture/(?P<file_id>\d+)/edit/$',

@@ -656,6 +656,10 @@ def identifier_figure(request, identifier_type, identifier, file_name):
         identifier_type,
         identifier
     )
+
+    if not figure_article:
+        raise Http404
+
     article_galleys = figure_article.galley_set.all()
 
     if figure_article:
