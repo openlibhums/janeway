@@ -18,7 +18,9 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ form|foundation }}
-                <button type="submit" name="submit" class="success button">Update</button>
+                <button type="submit" name="submit" class="success button">
+                    {% if nav_item_to_edit  %}Update{% else %}Create{% endif %}
+                </button>
             </form>
         </div>
     </div>
