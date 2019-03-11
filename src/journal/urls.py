@@ -6,18 +6,22 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.conf.urls import url
 
 from journal import views
+from identifiers.models import NON_DOI_IDENTIFIER_TYPES, DOI_REGEX_PATTERN
 
-from identifiers.models import IDENTIFIER_TYPES
+NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
 
-idents = "|".join(IDENTIFIER_TYPES)
+# Various url patterns in this module are have duplicated names
+# This is so we can handle DOI patterns using a more restrictive
+# Regex pattern an example is this is 'article_view'
 
 urlpatterns = [
     # Figures and download patterns
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/print/$'
-        ''.format("|".join(IDENTIFIER_TYPES)),
+        ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.print_article,
         name='article_print_article'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/print/$',
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/print/$'
+        ''.format(DOI_REGEX_PATTERN),
         views.print_article,
         name='article_print_article'),
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figure/(?P<file_name>.*)/$',
@@ -36,17 +40,19 @@ urlpatterns = [
         views.view_galley,
         name='article_view_galley'),
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/table/(?P<table_name>.+)$'
-        ''.format("|".join(IDENTIFIER_TYPES)),
+        ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,
         name='article_table'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/table/(?P<table_name>.+)$',
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/table/(?P<table_name>.+)$'
+        ''.format(DOI_REGEX_PATTERN),
         views.download_table,
         name='article_table'),
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/(?P<file_name>.+)$'
-        ''.format("|".join(IDENTIFIER_TYPES)),
+        ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.identifier_figure,
         name='article_figure'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/(?P<file_name>.+)$',
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/(?P<file_name>.+)$'
+        ''.format(DOI_REGEX_PATTERN),
         views.identifier_figure,
         name='article_figure'),
     url(r'^articles/$', views.articles, name='journal_articles'),
@@ -68,15 +74,16 @@ urlpatterns = [
 
     # Article patterns
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/edit/$'
-        ''.format("|".join(IDENTIFIER_TYPES)),
+        ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.edit_article,
         name='article_edit'),
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/$'
-        ''.format("|".join(IDENTIFIER_TYPES)),
+        ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.article,
         name='article_view'
         ),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>10.\d{4,9}/[-._;()/:A-Za-z0-9]+)/$',
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
+        ''.format(DOI_REGEX_PATTERN),
         views.article,
         name='article_view'
         ),

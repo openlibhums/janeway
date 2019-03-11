@@ -21,11 +21,16 @@ identifier_choices = (
     ('pubid', 'Publisher ID'),
 )
 
-IDENTIFIER_TYPES = [
+IDENTIFIER_TYPES = {
     'uri',
     'pubid',
     'id',
-]
+    'doi'
+}
+
+NON_DOI_IDENTIFIER_TYPES = IDENTIFIER_TYPES - {"doi"}
+
+DOI_REGEX_PATTERN = '10.\d{4,9}/[-._;()/:A-Za-z0-9]+'
 
 
 class Identifier(models.Model):
