@@ -662,13 +662,14 @@ def identifier_figure(request, identifier_type, identifier, file_name):
 
     article_galleys = figure_article.galley_set.all()
 
-    if figure_article:
-        galley = logic.get_best_galley(figure_article, article_galleys)
-        figure = get_object_or_404(galley.images, original_filename=file_name)
+    galley = logic.get_best_galley(figure_article, article_galleys)
 
-        return files.serve_file(request, figure, figure_article)
-    else:
+    if not galley:
         raise Http404
+
+    figure = get_object_or_404(galley.images, original_filename=file_name)
+
+    return files.serve_file(request, figure, figure_article)
 
 
 def article_figure(request, article_id, galley_id, file_name):
