@@ -1086,7 +1086,7 @@
         "setting": {
             "description": "If checked, editorial groups will have their own pages.",
             "is_translatable": false,
-            "name": "mulit_page_editorial",
+            "name": "multi_page_editorial",
             "pretty_name": "Enable Multi Page Editorial Team Display (is overwritten by Enable Team Display)",
             "type": "boolean"
         },

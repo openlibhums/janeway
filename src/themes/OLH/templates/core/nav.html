@@ -26,7 +26,7 @@
         {% if request.journal.nav_collections %}
         <li><a href="{% url 'journal_collections' %}">{% with collections=journal_settings.general.collection_name_plural %}{% if collections %}{{collections}}{% else %}{% trans 'Collections'%}{% endif %}{% endwith %}</a></li>{% endif %}
         {% if journal_settings.general.enable_editorial_display %}
-            {% if journal_settings.general.mulit_page_editorial %}
+            {% if journal_settings.general.multi_page_editorial %}
             <li class=".is-dropdown-submenu-parent">
                 <a href="#" data-options="is_hover:true; hover_timeout:5000">Editorial Team</a>
                 <ul class="menu vertical medium-horizontal">
