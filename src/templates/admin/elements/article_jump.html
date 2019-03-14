@@ -6,6 +6,9 @@
 <button class="tiny secondary button float-right dropdown" data-toggle="articledropdown">Article Jump</button>
 <div class="dropdown-pane bottom small" id="articledropdown" data-dropdown>
     <ul>
+        <li>
+            <a href="{% url 'review_unassigned_article' article.pk %}">Editor Assignment</a>
+        </li>
         {% for stage in article.workflow_stages %}
             <li>
                 <a href="{% url stage.element.jump_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
