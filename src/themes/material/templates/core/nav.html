@@ -156,16 +156,13 @@
                 <li><a href="{% url 'core_editorial_team' %}">{% trans "Manage Editorial Team" %}</a></li>
             {% endif %}
             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' and article %}
-                <li><a class="dropdown-item" href="{% url 'manage_archive_article' article.pk %}">{% trans "Edit
-                    Article" %}</a></li>
+                <li><a class="dropdown-item" href="{% url 'manage_archive_article' article.pk %}">{% trans "Edit Article" %}</a></li>
             {% endif %}
             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_issue' and issue %}
-                <li><a class="dropdown-item" href="{% url 'manage_issues_id' issue.pk %}">Edit
-                    Issue</a></li>
+                <li><a class="dropdown-item" href="{% url 'manage_issues_id' issue.pk %}">{% trans "Edit Issue" %}</a></li>
             {% endif %}
             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'core_news_item' and news_item %}
-                <li><a class="dropdown-item" href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans "Edit
-                    News Item" %}</a></li>
+                <li><a class="dropdown-item" href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans "Edit News Item" %}</a></li>
             {% endif %}
         {% endif %}
         {% if request.user.is_staff %}
