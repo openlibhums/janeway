@@ -320,6 +320,9 @@ class Press(AbstractSiteModel):
     def code(self):
         return 'press'
 
+    class Meta:
+        verbose_name_plural = 'presses'
+
 
 class PressSetting(models.Model):
     press = models.ForeignKey(Press)
