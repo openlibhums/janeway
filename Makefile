@@ -11,6 +11,11 @@ DB_PASSWORD=janeway-web
 CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
 DB_VOLUME=db/mysql-data
 
+ifeq ($(DB_VENDOR), mariadb)
+	DB_HOST=janeway-mariadb
+	DB_VOLUME=db/mariadb-data
+endif
+
 ifeq ($(DB_VENDOR), postgres)
 	unexport NO_DEPS
 	DB_HOST=janeway-postgres
