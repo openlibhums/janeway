@@ -16,8 +16,7 @@
                     <h6>{% for subject in article.subject_set.all %}{{ subject.name }}{% if not forloop.last %},
                     {% endif %}{% endfor %}</h6>
                     <p>
-                        <small>{% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial
-                            over-sight." %}
+                        <small>{% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight." %}
                         </small>
                     </p>
                 </div>

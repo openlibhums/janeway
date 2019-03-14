@@ -18,8 +18,9 @@
                         </p>
                     {% else %}
                         <span class="card-title">{% trans "Error" %}</span>
-                        <p>{% trans "There was no inactive account with this activation code found. It is possible that your
-                            account is already active, you can check by attempting to " %}<a href="{% url 'core_login' %}">{% trans "login" %}</a>.
+                        <p>
+                            {% trans "There was no inactive account with this activation code found. It is possible that your account is already active, you can check by attempting to " %}
+                            <a href="{% url 'core_login' %}">{% trans "login" %}</a>.
                         </p>
                     {% endif %}
                 </div>
