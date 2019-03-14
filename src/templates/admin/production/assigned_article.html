@@ -324,9 +324,10 @@
             </div>
             <div class="content">
                 <small>
+                    Recommended steps for completing the Production stage:
                     <ol>
                         <li>
-                            Assign a Typesetter {% if production_assignment.typeset_tasks %}
+                            Assign a Typesetter (optional){% if production_assignment.typeset_tasks %}
                             <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
                         </li>
                         {% for task in production_assignment.typeset_tasks %}
@@ -335,7 +336,7 @@
                                 <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
                             </li>
                         {% endfor %}
-                        <li>Have at lease one Galley {% if article.has_galley %}
+                        <li>Have at lease one Galley file uploaded (required) {% if article.has_galley %}
                             <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i>{% endif %}
                         </li>
                     </ol>
