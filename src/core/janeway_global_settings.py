@@ -182,7 +182,7 @@ if os.environ.get("DB_VENDOR") == "postgres":
             'PORT': os.environ["DB_PORT"],
         }
     }
-elif os.environ.get("DB_VENDOR") == "mysql":
+elif os.environ.get("DB_VENDOR") in {"mysql", "mariadb"}:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -191,7 +191,10 @@ elif os.environ.get("DB_VENDOR") == "mysql":
             'PASSWORD': os.environ["DB_PASSWORD"],
             'HOST': os.environ["DB_HOST"],
             'PORT': os.environ["DB_PORT"],
-            'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
+            'OPTIONS': {
+                'init_command': 'SET default_storage_engine=INNODB',
+                'charset': 'utf8mb4',
+            },
         }
     }
 else:

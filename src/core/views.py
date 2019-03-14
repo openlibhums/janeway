@@ -1390,7 +1390,8 @@ def plugin_list(request):
                                 'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
                                 'name': getattr(plugin_settings, 'PLUGIN_NAME')
                                 })
-        except ImportError:
+        except ImportError as e:
+            logging.error("Importing plugin %s failed: %s" % (plugin, e))
             pass
 
     template = 'core/manager/plugins.html'

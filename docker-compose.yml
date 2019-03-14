@@ -25,6 +25,18 @@ services:
       - "MYSQL_USER=${DB_USER}"
       - "MYSQL_DATABASE=${DB_NAME}"
 
+  janeway-mariadb:
+    image: mariadb/server:10.2.22
+    volumes:
+      - ./db/mariadb-data:/var/lib/mysql
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_USER=${DB_USER}"
+      - "MYSQL_DATABASE=${DB_NAME}"
+
   start_dependencies:
     image: dadarek/wait-for-dependencies
     depends_on:
