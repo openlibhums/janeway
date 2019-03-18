@@ -23,6 +23,7 @@
                         <tr>
                             <th width="5%">ID</th>
                             <th width="30%">Title</th>
+                            <th>Date Submitted</th>
                             <th width="15%">Authors</th>
                             <th width="10%">Section</th>
                             <th width="10%">DOI</th>
@@ -37,6 +38,7 @@
                                 <td>
                                     <a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a>
                                 </td>
+                                <td>{{ article.date_submitted }}</td>
                                 <td>{{ article.author_list }}</td>
                                 <td>{{ article.section.name }}</td>
                                 <td>{{ article.get_doi }}</td>
