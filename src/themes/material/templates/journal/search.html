@@ -52,10 +52,7 @@
                             <label>{% trans "Keywords" %}
 
                                 {% for keyword in all_keywords %}
-                                    <button onclick="form.submit();" name="keyword" value="{{keyword.word}}">
-                                         {{ keyword.word }}
-                                    </button>
-                                    {% if not forloop.last %},{% endif %}
+                                    <a href="{% url 'search' %}?keyword={{keyword.word}}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
 
                             </label>
