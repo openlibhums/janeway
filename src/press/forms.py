@@ -8,7 +8,7 @@ from django import forms
 
 from press import models
 from core.widgets import JanewayFileInput
-from core import files
+from core import files, logic
 from core.middleware import GlobalRequestMiddleware
 
 
@@ -28,6 +28,11 @@ class PressForm(forms.ModelForm):
             'password_length', 'password_reset_text', 'registration_text',
             'tracking_code',
         )
+        widgets = {
+            'theme': forms.Select(
+                choices=logic.get_theme_list()
+            )
+        }
 
     def save(self, commit=True):
         press = super(PressForm, self).save(commit=False)
