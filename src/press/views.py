@@ -167,6 +167,28 @@ def serve_press_cover(request):
 
 
 @staff_member_required
+def serve_press_file(request, file_id):
+    """
+    If a user is staff this view will serve a press file.
+    :param request: HttpRequest
+    :param file_id: core.File object pk
+    :return: HttpStreamingResponse or Http404
+    """
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    # If the file has an article_id the press should not serve it.
+    # TODO: when untangling Files/Galleys this should be reviewed
+    if file.article_id:
+        raise Http404
+
+    path_parts = ['press']
+
+    response = files.serve_any_file(request, file, False, *path_parts)
+
+    return response
+
+
+@staff_member_required
 def journal_order(request):
     """
     Takes a list of posted ids and sorts journals.
