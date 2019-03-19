@@ -53,8 +53,18 @@ def press_text(type):
 
 class Press(AbstractSiteModel):
     name = models.CharField(max_length=600)
-    thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='press_thumbnail_image')
-    footer_description = models.TextField(null=True, blank=True)
+    thumbnail_image = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='press_thumbnail_image',
+        verbose_name='Press Logo',
+    )
+    footer_description = models.TextField(
+        null=True,
+        blank=True,
+        help_text='Additional HTML for the press footer.',
+    )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
     theme = models.CharField(max_length=255, default='default', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
@@ -73,9 +83,16 @@ class Press(AbstractSiteModel):
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
-    password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
+    password_length = models.PositiveIntegerField(
+        default=12,
+        validators=[MinValueValidator(9)],
+        help_text='The minimum length of an account password.',
+    )
 
-    enable_preprints = models.BooleanField(default=False)
+    enable_preprints = models.BooleanField(
+        default=False,
+        help_text='Enables the preprints system for this press.',
+    )
     preprints_about = models.TextField(blank=True, null=True)
     preprint_start = models.TextField(blank=True, null=True)
     preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
