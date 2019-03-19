@@ -14,11 +14,11 @@
 <div class="large-12 columns">
 <div class="box">
     <div class="content">
-        <p>Thanks for suggesting reviewers, please add the suggested reviewer's name, institution and email address below..</p>
+        <p>Thanks for suggesting reviewers, please add the suggested reviewer's name, institution and email address below.</p>
         <form method="POST">
             {% csrf_token %}
             {{ form.suggested_reviewers }}
-            <button type="submit" class="button success">Suggest Reviewers</button>
+            <button type="submit" class="button success">Suggest Reviewers</button> <a class="button warning" href="{% url 'website_index' %}">Don't Suggest Reviewers</a>
         </form>
     </div>
 </div>
