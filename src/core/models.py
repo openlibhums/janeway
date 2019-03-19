@@ -656,15 +656,9 @@ class File(models.Model):
         url_kwargs = {'file_id': self.pk}
 
         if request.journal and self.article_id:
-            return reverse(
-                'download_journal_file',
-                kwargs=url_kwargs,
-            )
+            raise NotImplementedError
         elif request.journal:
-            return reverse(
-                'download_journal_file',
-                kwargs=url_kwargs,
-            )
+            raise NotImplementedError
         else:
             return reverse(
                 'serve_press_file',
