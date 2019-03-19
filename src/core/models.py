@@ -38,7 +38,6 @@ fs = JanewayFileSystemStorage()
 logger = logging.getLogger(__name__)
 
 
-
 def profile_images_upload_path(instance, filename):
     try:
         filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
@@ -694,7 +693,6 @@ class File(models.Model):
             file_elements = os.path.splitext(self.original_filename)
             extension = file_elements[-1]
 
-            author_surname = ''
             if article.frozen_authors():
                 author_surname = "-{0}".format(
                     article.frozen_authors()[0].last_name,
@@ -703,6 +701,13 @@ class File(models.Model):
                 author_surname = "-{0}".format(
                     article.correspondence_author.last_name,
                 )
+            else:
+                logger.warning(
+                    'Article {pk} has no author records'.format(
+                        pk=article.pk
+                    )
+                )
+                author_surname = ''
 
             file_name = '{code}-{pk}{surname}{extension}'.format(
                 code=article.journal.code,
