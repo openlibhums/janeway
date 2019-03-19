@@ -21,27 +21,28 @@ class PressForm(forms.ModelForm):
 
     class Meta:
         model = models.Press
-        exclude = (
-            'domain', 'preprints_about', 'preprint_start', 'preprint_pdf_only',
-            'preprint_submission', 'preprint_publication', 'preprint_editors',
-            'random_homepage_preprints', 'homepage_preprints', 'carousel_type',
-            'carousel_items', 'homepage_news_items', 'carousel',
-            'carousel_news_items', 'thumbnail_image',
+        fields = (
+            'name', 'main_contact', 'theme', 'footer_description',
+            'default_carousel_image', 'favicon', 'enable_preprints',
+            'is_secure', 'password_number', 'password_upper',
+            'password_length', 'password_reset_text', 'registration_text',
+            'tracking_code',
         )
-        widgets = {
-            'featured_journals': forms.CheckboxSelectMultiple,
-        }
 
     def save(self, commit=True):
         press = super(PressForm, self).save(commit=False)
         request = GlobalRequestMiddleware.get_current_request()
 
-        if press.thumbnail_image:
-            press.thumbnail_image.delete()
+        file = self.cleaned_data.get('press_logo', None)
 
-        file = self.cleaned_data['press_logo']
-        file = files.save_file_to_press(request, file, 'Press Logo', '')
-        press.thumbnail_image = file
+        if file:
+            file = files.save_file_to_press(request, file, 'Press Logo', '')
+
+            # Delete the old file from the disk
+            if press.thumbnail_image:
+                press.thumbnail_image.delete()
+
+            press.thumbnail_image = file
 
         if commit:
             press.save()
