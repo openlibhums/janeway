@@ -650,6 +650,27 @@ class File(models.Model):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
 
+    def url(self):
+        from core.middleware import GlobalRequestMiddleware
+        request = GlobalRequestMiddleware.get_current_request()
+        url_kwargs = {'file_id': self.pk}
+
+        if request.journal and self.article_id:
+            return reverse(
+                'download_journal_file',
+                kwargs=url_kwargs,
+            )
+        elif request.journal:
+            return reverse(
+                'download_journal_file',
+                kwargs=url_kwargs,
+            )
+        else:
+            return reverse(
+                'serve_press_file',
+                kwargs=url_kwargs,
+            )
+
     def get_file(self, article):
         return files.get_file(self, article)
 

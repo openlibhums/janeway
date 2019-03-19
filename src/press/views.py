@@ -10,7 +10,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from core import files, models as core_models, plugin_loader
 from journal import models as journal_models, views as journal_views, forms as journal_forms
@@ -129,7 +129,10 @@ def edit_press(request):
     """
 
     press = request.press
-    form = forms.PressForm(instance=press)
+    form = forms.PressForm(
+        instance=press,
+        initial={'press_logo': press.thumbnail_image}
+    )
 
     if request.POST:
         form = forms.PressForm(request.POST, request.FILES, instance=press)
@@ -142,7 +145,7 @@ def edit_press(request):
 
             messages.add_message(request, messages.INFO, 'Press updated.')
 
-            return redirect(reverse('core_manager_index'))
+            return redirect(reverse('press_edit_press'))
 
     template = 'press/edit_press.html'
     context = {

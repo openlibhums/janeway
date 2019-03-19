@@ -90,6 +90,9 @@ INSTALLED_APPS = [
     'materialize',
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
+
+    # Forms
+    'django.forms',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
@@ -154,6 +157,8 @@ TEMPLATES = [
         },
     },
 ]
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 SETTINGS_EXPORT = [
     'ORCID_API_URL',
