@@ -585,6 +585,7 @@ class IssueGalley(models.Model):
     def path_parts(self):
         return self.FILES_PATH, self.issue.pk
 
+
 class SectionOrdering(models.Model):
     section = models.ForeignKey('submission.Section')
     issue = models.ForeignKey(Issue)
