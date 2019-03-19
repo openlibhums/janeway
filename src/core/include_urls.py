@@ -60,6 +60,10 @@ urlpatterns = [
     url(r'^dashboard/article/(?P<article_id>\d+)/$', core_views.dashboard_article, name='core_dashboard_article'),
 
     url(r'^press/cover/$', press_views.serve_press_cover, name='press_cover_download'),
+    url(r'^press/file/(?P<file_id>\d+)/$',
+        press_views.serve_press_file,
+        name='serve_press_file',
+        ),
 
     # Notes
     url(r'^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$', core_views.delete_note,
