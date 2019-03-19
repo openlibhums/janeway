@@ -693,12 +693,23 @@ class File(models.Model):
         if article:
             file_elements = os.path.splitext(self.original_filename)
             extension = file_elements[-1]
-            author_surname = article.correspondence_author.last_name if article.correspondence_author else \
-                article.frozen_authors()[0].last_name
-            file_name = '{code}-{pk}-{surname}{extension}'.format(code=article.journal.code,
-                                                                  pk=article.pk,
-                                                                  surname=author_surname,
-                                                                  extension=extension)
+
+            author_surname = ''
+            if article.frozen_authors():
+                author_surname = "-{0}".format(
+                    article.frozen_authors()[0].last_name,
+                )
+            elif article.correspondence_author:
+                author_surname = "-{0}".format(
+                    article.correspondence_author.last_name,
+                )
+
+            file_name = '{code}-{pk}{surname}{extension}'.format(
+                code=article.journal.code,
+                pk=article.pk,
+                surname=author_surname,
+                extension=extension
+            )
             return file_name.lower()
         else:
             return self.original_filename
