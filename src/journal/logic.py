@@ -9,6 +9,7 @@ import requests
 from dateutil import parser as dateparser
 from bs4 import BeautifulSoup
 import csv
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.conf import settings
@@ -24,7 +25,6 @@ from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
 from utils.notify_plugins import notify_email
 from events import logic as event_logic
-from urllib.parse import urlencode
 
 
 def install_cover(journal, request):
@@ -328,13 +328,16 @@ def unset_article_session_variables(request):
 
 
 def handle_search_controls(request):
-    # handles post and get for search requests
+    """Takes in request and handles post and get and handles for search
+    :param request: Request object
+    :return: strings: search_term, keyword, sort, and redirect() or None.
+    """
     if request.POST:
         search_term = request.POST.get('article_search', False)
         keyword = request.POST.get('keyword', False)
         sort = request.POST.get('sort', 'title')
 
-        return search_term, keyword, sort, set_search_GET_variables(request, search_term, keyword, sort)
+        return search_term, keyword, sort, set_search_GET_variables(search_term, keyword, sort)
 
     else:
         search_term = request.GET.get('article_search', False)
@@ -344,7 +347,13 @@ def handle_search_controls(request):
         return search_term, keyword, sort, None
 
 
-def set_search_GET_variables(request, search_term=False, keyword=False, sort='title'):
+def set_search_GET_variables(search_term=False, keyword=False, sort='title'):
+    """Sets the incoming POST variables to be GET based on input from handle_search_controls
+    :param search_term: string or false
+    :param keyword: string or false
+    :param sort: incoming string or 'title'
+    :return: redirect() based on what information was given in variables
+    """
     if search_term:
         get_params = urlencode({'article_search' : search_term, 'sort' : sort})
         redir_str = '{0}?{1}'.format(reverse('search'), get_params)
@@ -352,14 +361,9 @@ def set_search_GET_variables(request, search_term=False, keyword=False, sort='ti
         get_params = urlencode({'keyword' : keyword, 'sort' : sort})
         redir_str = '{0}?{1}'.format(reverse('search'), get_params)
     else:
-        return redirect(reverse('search'))
+        redir_str = reverse('search')
 
     return redirect(redir_str)
-
-
-def unset_search_GET_variables(request):
-
-    return redirect(reverse('search'))
 
 
 def fire_submission_notifications(**kwargs):

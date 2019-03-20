@@ -1394,7 +1394,7 @@ def search(request):
     search_term = None
     keyword = None
     if request.POST and 'clear' in request.POST:
-        return logic.unset_search_GET_variables(request)
+        return redirect(reverse('search'))
 
     search_term, keyword, sort, redir = logic.handle_search_controls(request)
 
@@ -1403,29 +1403,30 @@ def search(request):
 
     if search_term:
         # split search term in case someone searching for full author name.
-        # checks titles, keywords and subtitles first, then if search term appears in author name
+        # checks titles, keywords and subtitles first, 
+        # if search term appears in author name
         # then if searching for exact author name in fn ln
         author_search = search_term.split(" ")
         articles = submission_models.Article.objects.filter(
-                                (
-                                    Q(title__icontains=search_term) |
-                                    Q(keywords__word__icontains=search_term) |
-                                    Q(subtitle__icontains=search_term)
-                                ) 
-                                |
-                                (
-                                    Q(frozenauthor__first_name__icontains=search_term) |
-                                    Q(frozenauthor__last_name__icontains=search_term)
-                                )
-                                |
-                                (
-                                    Q(frozenauthor__first_name__in=author_search) |
-                                    Q(frozenauthor__last_name__in=author_search)
-                                ), 
-                                journal=request.journal, 
-                                stage=submission_models.STAGE_PUBLISHED,
-                                date_published__lte=timezone.now()
-                            ).distinct().order_by(sort)
+                    (
+                        Q(title__icontains=search_term) |
+                        Q(keywords__word__icontains=search_term) |
+                        Q(subtitle__icontains=search_term)
+                    ) 
+                    |
+                    (
+                        Q(frozenauthor__first_name__icontains=search_term) |
+                        Q(frozenauthor__last_name__icontains=search_term)
+                    )
+                    |
+                    (
+                        Q(frozenauthor__first_name__in=author_search) |
+                        Q(frozenauthor__last_name__in=author_search)
+                    ), 
+                    journal=request.journal, 
+                    stage=submission_models.STAGE_PUBLISHED,
+                    date_published__lte=timezone.now()
+                ).distinct().order_by(sort)
 
     # just single keyword atm. but keyword is included in article_search.
     elif keyword:
@@ -1444,7 +1445,8 @@ def search(request):
             journal=request.journal,
             stage=submission_models.STAGE_PUBLISHED
         ).annotate(keywords_count=Count('keywords')
-                ).order_by('-keywords_count')[:20].values_list('keywords__pk',flat=True)
+                ).order_by('-keywords_count')[:20]
+                 .values_list('keywords__pk',flat=True)
     )
 
     template = 'journal/search.html'
