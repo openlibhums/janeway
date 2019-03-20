@@ -1440,16 +1440,17 @@ def search(request):
         ).order_by(sort)
         articles = [article for article in keyword_search]
 
-    # all keywords of published articles.
+    # all published articles.
     published_articles = submission_models.Article.objects.filter(
         journal=request.journal,
         stage=submission_models.STAGE_PUBLISHED
         )
-    # based on published articles, return potential keywords
-    all_keywords = submission_models.Keyword.objects.filter(
+    # return top 20 used keywords based on published articles.
+    from django.db.models import Count
+    popular_keywords = submission_models.Keyword.objects.filter(
         pk__in=
-            published_articles.values_list('keywords__pk',flat=True)        
-    )
+            published_articles.annotate(keywords_count=Count('keywords')).order_by('-keywords_count')[:20].values_list('keywords__pk',flat=True)
+            )
 
     template = 'journal/search.html'
 
@@ -1457,8 +1458,8 @@ def search(request):
         'articles': articles,
         'search_term': search_term,
         'keyword': keyword,
-        'all_keywords': all_keywords,
-        'sort':sort
+        'sort':sort,
+        'all_keywords': popular_keywords
     }
 
     return render(request, template, context)
