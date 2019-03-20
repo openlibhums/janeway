@@ -24,6 +24,7 @@ from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
 from utils.notify_plugins import notify_email
 from events import logic as event_logic
+from urllib.parse import urlencode
 
 
 def install_cover(journal, request):
@@ -327,6 +328,7 @@ def unset_article_session_variables(request):
 
 
 def handle_search_controls(request):
+    # handles post and get for search requests
     if request.POST:
         search_term = request.POST.get('article_search', False)
         keyword = request.POST.get('keyword', False)
@@ -341,20 +343,25 @@ def handle_search_controls(request):
                 
         return search_term, keyword, sort, None
 
+
 def set_search_GET_variables(request, search_term=False, keyword=False, sort='title'):
     if search_term:
-        redir_str = '{0}?article_search={1}&sort={2}'.format(reverse('search'), search_term, sort)
+        get_params = urlencode({'article_search' : search_term, 'sort' : sort})
+        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
     elif keyword:
-        redir_str = '{0}?keyword={1}&sort={2}'.format(reverse('search'), keyword, sort)
+        get_params = urlencode({'keyword' : keyword, 'sort' : sort})
+        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
     else:
         return redirect(reverse('search'))
 
     return redirect(redir_str)
 
+
 def unset_search_GET_variables(request):
 
     return redirect(reverse('search'))
-    
+
+
 def fire_submission_notifications(**kwargs):
     request = kwargs.get('request')
 
