@@ -358,7 +358,7 @@ def set_search_GET_variables(request, search_term=False, keyword=False, sort='ti
 
 def unset_search_GET_variables(request):
 
-    return redirect('{0}'.format(reverse('search')))
+    return redirect(reverse('search'))
     
 def fire_submission_notifications(**kwargs):
     request = kwargs.get('request')
