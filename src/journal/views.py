@@ -1395,7 +1395,6 @@ def search(request):
     keyword = None
     if request.POST and 'clear' in request.POST:
         return logic.unset_search_GET_variables(request)
-        # return logic.unset_search_session_variables(request)
 
     search_term, keyword, sort, redir = logic.handle_search_controls(request)
 
@@ -1403,29 +1402,30 @@ def search(request):
         return redir
 
     if search_term:
-        # return two lists of pks based on search term.
-        article_search = submission_models.Article.objects.filter(
-            (Q(title__icontains=search_term) |
-             Q(keywords__word__icontains=search_term) |
-             Q(subtitle__icontains=search_term)), 
-            journal=request.journal, 
-            stage=submission_models.STAGE_PUBLISHED,
-            date_published__lte=timezone.now()
-        )
-        article_search_unsorted = [article.pk for article in article_search]
-
-        from_author = submission_models.FrozenAuthor.objects.filter(
-            (Q(first_name__icontains=search_term) |
-             Q(last_name__icontains=search_term)),
-            article__journal=request.journal, 
-            article__stage=submission_models.STAGE_PUBLISHED, 
-            article__date_published__lte=timezone.now()
-        )
-        articles_from_author_unsorted = [author.article.pk for author in from_author]
-        # merge the two lists into a set which will clear out duplicates
-        article_list_unsorted = set(article_search_unsorted + articles_from_author_unsorted)
-        # do a search on the set of pks and apply the order_by while turning back into a list of article objects.
-        articles = list(submission_models.Article.objects.filter(pk__in=article_list_unsorted).order_by(sort))
+        # split search term in case someone searching for full author name.
+        # checks titles, keywords and subtitles first, then if search term appears in author name
+        # then if searching for exact author name in fn ln
+        author_search = search_term.split(" ")
+        articles = submission_models.Article.objects.filter(
+                                (
+                                    Q(title__icontains=search_term) |
+                                    Q(keywords__word__icontains=search_term) |
+                                    Q(subtitle__icontains=search_term)
+                                ) 
+                                |
+                                (
+                                    Q(frozenauthor__first_name__icontains=search_term) |
+                                    Q(frozenauthor__last_name__icontains=search_term)
+                                )
+                                |
+                                (
+                                    Q(frozenauthor__first_name__in=author_search) |
+                                    Q(frozenauthor__last_name__in=author_search)
+                                ), 
+                                journal=request.journal, 
+                                stage=submission_models.STAGE_PUBLISHED,
+                                date_published__lte=timezone.now()
+                            ).distinct().order_by(sort)
 
     # just single keyword atm. but keyword is included in article_search.
     elif keyword:
