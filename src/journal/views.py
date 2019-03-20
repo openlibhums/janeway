@@ -1401,9 +1401,6 @@ def search(request):
 
     if redir:
         return redir
-    #if no order, set order to title (alphabetical). this happens when receiveing a GET request for keyword.
-    if request.GET and not sort:
-        sort='title'
 
     if search_term:
         # return two lists of pks based on search term.

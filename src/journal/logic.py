@@ -347,13 +347,11 @@ def handle_search_controls(request):
                 
         return search_term, keyword, sort, None
 
-def set_search_GET_variables(request, search_term=False, keyword=False, sort=False):
+def set_search_GET_variables(request, search_term=False, keyword=False, sort='title'):
     if search_term:
-        redir_str = '{0}?article_search={1}'.format(reverse('search'), search_term)
+        redir_str = '{0}?article_search={1}&sort={2}'.format(reverse('search'), keyword, sort)
     elif keyword:
-        redir_str = '{0}?keyword={1}'.format(reverse('search'), keyword)
-    if sort and redir_str:
-        redir_str += '&sort={0}'.format(sort)
+        redir_str = '{0}?keyword={1}&sort={2}'.format(reverse('search'), keyword, sort)
     else:
         return redirect(reverse('search'))
     return redirect(redir_str)
