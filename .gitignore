@@ -90,7 +90,6 @@ src/media/profile_images/*
 src/urls\.txt
 
 src/files/styling/
-src/files/bepress/
 src/static/OLH
 src/utils/management/commands/import_news\.py
 src/core/settings/
