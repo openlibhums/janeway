@@ -239,9 +239,17 @@ class Journal(AbstractSiteModel):
 
     def journal_users(self, objects=True):
         if objects:
-            users = [role.user for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
+            users = [role.user for role in
+                     core_models.AccountRole.objects.filter(
+                         journal=self,
+                         user__is_active=True,
+                     ).select_related('user')]
         else:
-            users = [role.user.pk for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
+            users = [role.user.pk for role in
+                     core_models.AccountRole.objects.filter(
+                         journal=self,
+                         user__is_active=True,
+                     ).select_related('user')]
 
         return set(users)
 
