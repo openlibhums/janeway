@@ -1429,13 +1429,12 @@ def search(request):
 
     # just single keyword atm. but keyword is included in article_search.
     elif keyword:
-        keyword_search = submission_models.Article.objects.filter(
+        articles = submission_models.Article.objects.filter(
             keywords__word=keyword, 
             journal=request.journal, 
             stage=submission_models.STAGE_PUBLISHED, 
             date_published__lte=timezone.now()
         ).order_by(sort)
-        articles = [article for article in keyword_search]
 
     # return top 20 used keywords based on published articles.
     from django.db.models import Count
