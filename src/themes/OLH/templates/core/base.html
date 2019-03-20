@@ -65,7 +65,7 @@
             <div class="top-bar-left hide-for-medium-only" id="search-menu">
                 <ul class="menu global-search">
                     <li>
-                        <form method="POST" action="{{ request.journal_base_url }}{% url 'search' %}">
+                        <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="input-group">
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>

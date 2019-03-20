@@ -15,11 +15,11 @@
     <section id="content">
 
         <div class="row">
-            {%if search_term%}
-                <h5>Searching for: <i>{{search_term}}</i></h5>
-            {%elif keyword%}
-                <h5>Keyword: <i>{{keyword}}</i></h5>
-            {%endif%}
+            {% if search_term %}
+                <h5>Searching for: <i>{{ search_term }}</i></h5>
+            {% elif keyword %}
+                <h5>Keyword: <i>{{ keyword }}</i></h5>
+            {% endif %}
             <div class="large-8 columns border-right">
                 <h3>{% trans "Articles" %}</h3>
 
@@ -41,7 +41,7 @@
                             <label>{% trans "Keywords" %}</label>
 
                                 {% for keyword in all_keywords %}
-                                    <a href="{% url 'search' %}?keyword={{keyword.word}}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
+                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
 
                         </div>
@@ -59,7 +59,7 @@
                         </div>
                         <div class="section">
                             <button type="submit" class="button">{% trans "Filter" %}</button>
-                             {% if search_filters %}
+                             {% if sort %}
                                 <button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>
                             {% endif %}
                         </div>
