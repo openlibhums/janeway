@@ -330,30 +330,25 @@ def handle_search_controls(request):
     if request.POST:
         search_term = request.POST.get('article_search', False)
         keyword = request.POST.get('keyword', False)
-        sort = request.POST.get('sort', False)
-        if not search_term and not keyword:
-            # condition can be met if arriving at search page via GET link, then requesting a filter/sorting
-            # or if article_search field is blank and filter is requested.
-            search_term = request.GET.get('article_search', False)
-            keyword = request.GET.get('keyword', False)
+        sort = request.POST.get('sort', 'title')
 
         return search_term, keyword, sort, set_search_GET_variables(request, search_term, keyword, sort)
 
     else:
         search_term = request.GET.get('article_search', False)
         keyword = request.GET.get('keyword', False)
-        sort = request.GET.get('sort', False)
-        
+        sort = request.GET.get('sort', 'title')
                 
         return search_term, keyword, sort, None
 
 def set_search_GET_variables(request, search_term=False, keyword=False, sort='title'):
     if search_term:
-        redir_str = '{0}?article_search={1}&sort={2}'.format(reverse('search'), keyword, sort)
+        redir_str = '{0}?article_search={1}&sort={2}'.format(reverse('search'), search_term, sort)
     elif keyword:
         redir_str = '{0}?keyword={1}&sort={2}'.format(reverse('search'), keyword, sort)
     else:
         return redirect(reverse('search'))
+
     return redirect(redir_str)
 
 def unset_search_GET_variables(request):
