@@ -5,11 +5,11 @@
 
 {% block body %}
    
-    {%if search_term%}
-        <h5>Searching for: <i>{{search_term}}</i></h5>
-    {%elif keyword%}
-        <h5>Keyword: <i>{{keyword}}</i></h5>
-    {%endif%}
+    {% if search_term %}
+        <h5>Searching for: <i>{{ search_term }}</i></h5>
+    {% elif keyword %}
+        <h5>Keyword: <i>{{ keyword }}</i></h5>
+    {% endif %}
    
     <div class="row">
         <div class="col m8">
@@ -52,7 +52,7 @@
                             <label>{% trans "Keywords" %}
 
                                 {% for keyword in all_keywords %}
-                                    <a href="{% url 'search' %}?keyword={{keyword.word}}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
+                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
 
                             </label>
@@ -60,7 +60,7 @@
                         <div class="input-field">
 
                             <button name="submit" class="btn">{% trans "Search" %}</button>
-                            {% if search_filters %}
+                            {% if sort %}
                                 <button type="submit" class="btn btn-primary" name="clear">
                                     {% trans "Clear Filters" %}
                                 </button>
