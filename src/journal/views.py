@@ -1443,8 +1443,8 @@ def search(request):
             submission_models.Article.objects.filter(
             journal=request.journal,
             stage=submission_models.STAGE_PUBLISHED
-        ).annotate(
-            keywords_count=Count('keywords')).order_by('-keywords_count')[:20].values_list('keywords__pk',flat=True)
+        ).annotate(keywords_count=Count('keywords')
+                ).order_by('-keywords_count')[:20].values_list('keywords__pk',flat=True)
     )
 
     template = 'journal/search.html'
