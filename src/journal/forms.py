@@ -16,6 +16,12 @@ from django_summernote.widgets import SummernoteWidget
 from core import models as core_models
 from journal import models as journal_models
 
+SEARCH_SORT_OPTIONS = [
+        ('titles', 'Titles A-Z'),
+        ('-titles', 'Titles Z-A'),
+        ('-date_published', 'Newest'),
+        ('date_published', 'Oldest'),
+      ]
 
 class JournalForm(forms.ModelForm):
 
@@ -82,3 +88,9 @@ class ResendEmailForm(forms.Form):
         self.fields['to'].initial = '{to}; '.format(to=log_entry.to)
         self.fields['subject'].initial = log_entry.subject
         self.fields['body'].initial = mark_safe(log_entry.description)
+
+
+class SearchForm(forms.Form):
+    search_term = forms.CharField(min_length=3, max_length=100, required=True, help_text='Seperate email addresses with ;')
+    sort = forms.ChoiceField(label='sort', widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+
