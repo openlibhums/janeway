@@ -1402,11 +1402,8 @@ def search(request):
         return redir
 
     if search_term:
-        # split search term in case someone searching for full author name.
         # checks titles, keywords and subtitles first, 
-        # if search term appears in author name
-        # then if searching for exact author name in fn ln
-        author_search = r"|".join(search_term.split(" "))
+        # then matches exact Author FN or LN
         articles = submission_models.Article.objects.filter(
                     (
                         Q(title__icontains=search_term) |
@@ -1415,14 +1412,9 @@ def search(request):
                     ) 
                     |
                     (
-                        Q(frozenauthor__first_name__icontains=search_term) |
-                        Q(frozenauthor__last_name__icontains=search_term)
-                    )
-                    |
-                    (
-                        Q(frozenauthor__first_name__iregex=author_search) |
-                        Q(frozenauthor__last_name__iregex=author_search)
-                    ), 
+                        Q(frozenauthor__first_name=search_term) |
+                        Q(frozenauthor__last_name=search_term)
+                    ),
                     journal=request.journal, 
                     stage=submission_models.STAGE_PUBLISHED,
                     date_published__lte=timezone.now()
