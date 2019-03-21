@@ -1242,8 +1242,9 @@ def review_decision(request, article_id, decision):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    author_review_url = "{0}{1}".format(request.journal.site_url(),
-                                        reverse('review_author_view', kwargs={'article_id': article.id}))
+    author_review_url = request.journal.site_url(
+            reverse('review_author_view', kwargs={'article_id': article.id})
+    )
     email_content = logic.get_decision_content(request, article, decision, author_review_url)
 
     if article.date_accepted or article.date_declined:
