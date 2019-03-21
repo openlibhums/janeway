@@ -1406,7 +1406,7 @@ def search(request):
         # checks titles, keywords and subtitles first, 
         # if search term appears in author name
         # then if searching for exact author name in fn ln
-        author_search = search_term.split(" ")
+        author_search = r"|".join(search_term.split(" "))
         articles = submission_models.Article.objects.filter(
                     (
                         Q(title__icontains=search_term) |
@@ -1420,8 +1420,8 @@ def search(request):
                     )
                     |
                     (
-                        Q(frozenauthor__first_name__in=author_search) |
-                        Q(frozenauthor__last_name__in=author_search)
+                        Q(frozenauthor__first_name__iregex=author_search) |
+                        Q(frozenauthor__last_name__iregex=author_search)
                     ), 
                     journal=request.journal, 
                     stage=submission_models.STAGE_PUBLISHED,
