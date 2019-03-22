@@ -20,6 +20,7 @@ from django.core.validators import validate_email, ValidationError
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
+from journal.forms import SearchForm
 from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
@@ -332,19 +333,41 @@ def handle_search_controls(request):
     :param request: Request object
     :return: strings: search_term, keyword, sort, and redirect() or None.
     """
-    if request.POST:
-        search_term = request.POST.get('article_search', False)
-        keyword = request.POST.get('keyword', False)
-        sort = request.POST.get('sort', 'title')
+    keyword = False
+    search_term = False
+    sort = 'title'
 
-        return search_term, keyword, sort, set_search_GET_variables(search_term, keyword, sort)
+    if request.POST:
+
+        # already know form is valid to get here
+        form = SearchForm(request.POST)
+        # if it's not valid then don't bother doing the rest and send the form with errors back now
+        if form.is_valid():
+            search_term = form.cleaned_data['article_search']
+            sort = form.cleaned_data['sort']
+            
+            # if is_keyword then keyword variable is in the article_search field. as this page was arrived to via GET
+            # search_term is returned as false and so a keyword is gon get 'im
+            if search_term:
+                form = SearchForm({'article_search':search_term, 'sort':sort})
+
+            # otherwise search term is this and keyword is false. create the form accordingly.
+            else:
+                keyword = request.GET.get('keyword', False)
+                form = SearchForm({'article_search':'', 'sort':sort})
+
+        return search_term, keyword, sort, form, set_search_GET_variables(search_term, keyword, sort)
 
     else:
-        search_term = request.GET.get('article_search', False)
+        search_term = request.GET.get('article_search', '')
         keyword = request.GET.get('keyword', False)
         sort = request.GET.get('sort', 'title')
+        if keyword:
+            form = SearchForm({'article_search':'', 'sort': sort})
+        else:
+            form = SearchForm({'article_search':search_term, 'sort': sort})
                 
-        return search_term, keyword, sort, None
+        return search_term, keyword, sort, form, None
 
 
 def set_search_GET_variables(search_term=False, keyword=False, sort='title'):

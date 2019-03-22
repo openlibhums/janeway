@@ -1393,13 +1393,15 @@ def search(request):
     articles = []
     search_term = None
     keyword = None
-    if request.POST and 'clear' in request.POST:
-        return redirect(reverse('search'))
-
-    search_term, keyword, sort, redir = logic.handle_search_controls(request)
-
+    redir = False
+    sort = 'title'
+    form = forms.SearchForm()
+          
+    search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
+    
     if redir:
-        return redir
+        return redir   
+
 
     if search_term:
         # checks titles, keywords and subtitles first, 
@@ -1442,11 +1444,11 @@ def search(request):
     )
 
     template = 'journal/search.html'
-
     context = {
         'articles': articles,
-        'search_term': search_term,
+        'article_search': search_term,
         'keyword': keyword,
+        'form':form,
         'sort':sort,
         'all_keywords': popular_keywords
     }
