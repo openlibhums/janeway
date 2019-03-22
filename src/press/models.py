@@ -140,7 +140,7 @@ class Press(AbstractSiteModel):
 
         _path = journal.code
         request = logic.get_current_request()
-        if request:
+        if settings.DEBUG:
             port = request.get_port()
         else:
             port = None

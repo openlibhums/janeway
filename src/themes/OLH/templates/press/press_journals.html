@@ -24,7 +24,7 @@
                                             {% if current_journal.is_remote %}
                                             <a href="{{ current_journal.remote_view_url }}">
                                             {% else %}
-                                            <a href="{{ current_journal.full_url }}">
+                                            <a href="{{ current_journal.site_url }}">
                                             {% endif %}
                                                 <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}"
                                                      alt="{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}Unnamed Journal{% endif %}">
