@@ -15,7 +15,7 @@
                     {% if current_journal.is_remote %}
                         <a href="{{ current_journal.remote_view_url }}">
                     {% else %}
-                        <a href="{{current_journal.site_url}}">
+                        <a href="{{ current_journal.site_url }}">
                     {% endif %}
                     <h7 class="card-title">{{ current_journal.name }}</h7>
                     </a>
