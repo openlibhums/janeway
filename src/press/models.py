@@ -142,10 +142,9 @@ class Press(AbstractSiteModel):
         request = logic.get_current_request()
         if settings.DEBUG:
             port = request.get_port()
+            _path += path
         else:
             port = None
-        if path is not None:
-            _path += path
 
         return logic.build_url(
             netloc=self.domain,
