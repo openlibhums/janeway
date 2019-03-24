@@ -1395,13 +1395,11 @@ def search(request):
     keyword = None
     redir = False
     sort = 'title'
-    form = forms.SearchForm()
           
     search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
-    
+
     if redir:
         return redir   
-
 
     if search_term:
         # checks titles, keywords and subtitles first, 
@@ -1448,8 +1446,8 @@ def search(request):
         'articles': articles,
         'article_search': search_term,
         'keyword': keyword,
-        'form':form,
-        'sort':sort,
+        'form': form,
+        'sort': sort,
         'all_keywords': popular_keywords
     }
 

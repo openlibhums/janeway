@@ -328,36 +328,32 @@ def unset_article_session_variables(request):
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
 
-def handle_search_controls(request):
+def handle_search_controls(request, search_term=None, keyword=None, redir=False, sort='title'):
     """Takes in request and handles post and get and handles for search
-    :param request: Request object
+    :param request: required Request object
+    :param search_term: None or incoming st
+    :param keyword: None or incoming keyword
+    :param redir: False or will be processed in set_search_GET_vars
+    :param sort: 'title' or incoming sort
     :return: strings: search_term, keyword, sort, and redirect() or None.
     """
-    keyword = False
-    search_term = False
-    sort = 'title'
-
     if request.POST:
 
-        # already know form is valid to get here
         form = SearchForm(request.POST)
-        # if it's not valid then don't bother doing the rest and send the form with errors back now
         if form.is_valid():
             search_term = form.cleaned_data['article_search']
             sort = form.cleaned_data['sort']
             
-            # if is_keyword then keyword variable is in the article_search field. as this page was arrived to via GET
-            # search_term is returned as false and so a keyword is gon get 'im
             if search_term:
                 form = SearchForm({'article_search':search_term, 'sort':sort})
-
-            # otherwise search term is this and keyword is false. create the form accordingly.
             else:
+                # must get keyword from the GET request. there is no way to POST a keyword in current implementation.
                 keyword = request.GET.get('keyword', False)
                 form = SearchForm({'article_search':'', 'sort':sort})
-
-        return search_term, keyword, sort, form, set_search_GET_variables(search_term, keyword, sort)
-
+            return search_term, keyword, sort, form, set_search_GET_variables(search_term, keyword, sort)
+        # if form not valid no redir to send form w/errors
+        else:
+            return search_term, keyword, sort, form, redir
     else:
         search_term = request.GET.get('article_search', '')
         keyword = request.GET.get('keyword', False)
