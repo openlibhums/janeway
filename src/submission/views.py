@@ -357,7 +357,12 @@ def submit_review(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
 
     if article.current_step < 4 and not request.user.is_staff:
-        return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
+        return redirect(
+            reverse(
+                'submit_info',
+                kwargs={'article_id': article_id},
+            )
+        )
 
     if request.POST and 'next_step' in request.POST:
         article.date_submitted = timezone.now()
@@ -366,21 +371,29 @@ def submit_review(request, article_id):
         article.snapshot_authors(article)
         article.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Article {0} submitted'.format(article.title),
+        )
 
         kwargs = {'article': article,
                   'request': request}
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
-                                       task_object=article,
-                                       **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_SUBMITTED,
+            task_object=article,
+            **kwargs
+        )
 
-        event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                                       **{'handshake_url': 'submit_review',
-                                          'request': request,
-                                          'article': article,
-                                          'switch_stage': False})
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            **{'handshake_url': 'submit_review',
+               'request': request,
+               'article': article,
+               'switch_stage': False}
+        )
 
-        return redirect(reverse('core_dashboard_article', kwargs={'article_id': article.pk}))
+        return redirect(reverse('core_dashboard'))
 
     template = "admin/submission//submit_review.html"
     context = {
