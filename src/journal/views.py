@@ -1399,10 +1399,10 @@ def search(request):
     search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
 
     if redir:
-        return redir   
+        return redir
 
     if search_term:
-        # checks titles, keywords and subtitles first, 
+        # checks titles, keywords and subtitles first,
         # then matches exact Author FN or LN
         author_search = search_term.split(" ")
         articles = submission_models.Article.objects.filter(
@@ -1429,9 +1429,9 @@ def search(request):
     # just single keyword atm. but keyword is included in article_search.
     elif keyword:
         articles = submission_models.Article.objects.filter(
-            keywords__word=keyword, 
-            journal=request.journal, 
-            stage=submission_models.STAGE_PUBLISHED, 
+            keywords__word=keyword,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now()
         ).order_by(sort)
 
