@@ -408,7 +408,13 @@ class Issue(models.Model):
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
 
     # guest editors
-    guest_editors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='guest_editors')
+    editors = models.ManyToManyField(
+        'core.Account',
+        blank=True,
+        null=True,
+        related_name='guest_editors',
+        through='IssueEditor',
+    )
 
     class Meta:
         ordering = ('year', 'volume', 'issue', 'title')
@@ -592,6 +598,18 @@ class IssueGalley(models.Model):
     @property
     def path_parts(self):
         return self.FILES_PATH, self.issue.pk
+
+
+class IssueEditor(models.Model):
+    account = models.ForeignKey('core.Account')
+    issue = models.ForeignKey(Issue)
+    role = models.CharField(max_length=255, default='Guest Editor')
+
+    def __str__(self):
+        return "{user} {role}".format(
+            user=self.account.full_name(),
+            role=self.role,
+        )
 
 
 class SectionOrdering(models.Model):

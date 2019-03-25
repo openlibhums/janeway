@@ -413,3 +413,14 @@ def parse_html_table_to_csv(table, table_name):
         wr.writerows([[td.text for td in row.find_all("td")] for row in table.select("tr + tr")])
 
     return filepath
+
+
+def potential_issue_editors(journal, current_editors):
+    users = [role.user for role in
+             core_models.AccountRole.objects.filter(
+                 journal=journal,
+                 user__is_active=True,
+             ).select_related('user').exclude(
+                 user__in=current_editors,
+             )]
+    return set(users)
