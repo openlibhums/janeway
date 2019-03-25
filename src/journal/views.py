@@ -1431,15 +1431,13 @@ def search(request):
 
     # return top 20 used keywords based on published articles.
     from django.db.models import Count
+
     popular_keywords = submission_models.Keyword.objects.filter(
-        pk__in=
-            submission_models.Article.objects.filter(
-            journal=request.journal,
-            stage=submission_models.STAGE_PUBLISHED
-        ).annotate(keywords_count=Count('keywords')
-                ).order_by('-keywords_count')[:20]
-                 .values_list('keywords__pk',flat=True)
-    )
+            article__journal=request.journal,
+            article__stage=submission_models.STAGE_PUBLISHED,
+            article__date_published__lte=timezone.now(),
+        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:20]
+
 
     template = 'journal/search.html'
     context = {
