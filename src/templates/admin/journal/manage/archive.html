@@ -61,7 +61,7 @@
                     <tbody>
                     {% for article in rejected_articles %}
                         <tr>
-                            <td>{{ article.title|safe }}</td>
+                            <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
                             <td>{{ article.date_declined }}</td>
                             <td>{{ article.identifier }}</td>
                         </tr>
