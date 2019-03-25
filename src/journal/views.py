@@ -1400,11 +1400,11 @@ def search(request):
 
     if redir:
         return redir
-
+    from itertools import chain
     if search_term:
         # checks titles, keywords and subtitles first,
-        # then matches exact Author FN or LN
-        author_search = search_term.split(" ")
+        # then matches author based on below regex split search term.
+        author_search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
         articles = submission_models.Article.objects.filter(
                     (
                         Q(title__icontains=search_term) |
@@ -1413,13 +1413,8 @@ def search(request):
                     ) 
                     |
                     (
-                        Q(frozenauthor__first_name__iexact=search_term) |
-                        Q(frozenauthor__last_name__iexact=search_term)
-                    )
-                    |
-                    (
-                        Q(frozenauthor__first_name__in=author_search) |
-                        Q(frozenauthor__last_name__in=author_search)
+                        Q(frozenauthor__first_name__iregex=author_search_regex) |
+                        Q(frozenauthor__last_name__iregex=author_search_regex)
                     ),
                     journal=request.journal, 
                     stage=submission_models.STAGE_PUBLISHED,
