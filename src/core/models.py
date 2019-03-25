@@ -187,7 +187,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                   verbose_name=_('Salutation'))
     biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    institution = models.CharField(max_length=1000, verbose_name=_('Institution'))
+    institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
     department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Handle")
