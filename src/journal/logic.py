@@ -367,11 +367,11 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
 
 
 def set_search_GET_variables(search_term=False, keyword=False, sort='title'):
-    """Sets the incoming POST variables to be GET based on input from handle_search_controls
+    """Sets the incoming variables to be GET params and returns redirect
     :param search_term: string or false
     :param keyword: string or false
     :param sort: incoming string or 'title'
-    :return: redirect() based on what information was given in variables
+    :return: redirect()
     """
     if search_term:
         get_params = urlencode({'article_search' : search_term, 'sort' : sort})
