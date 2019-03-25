@@ -6,7 +6,7 @@
 {% load hooks %}
 
 {% block title %}Article Archive {{ article.pk }}{% endblock title %}
-{% block title-section %}Article Archive {{ article.pk }}{% endblock %}
+{% block title-section %}{% if article.stage == 'Rejected' %}Rejected Article {% else %}Article Archive{% endif %} {{ article.pk }}{% endblock %}
 {% block title-sub %}{{ article.title|safe }}{% endblock %}
 
 {% block breadcrumbs %}
