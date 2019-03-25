@@ -174,21 +174,37 @@ def issue(request, issue_id, show_sidebar=True):
     :param show_sidebar: whether or not to show the sidebar of issues
     :return: a rendered template of this issue
     """
-    issue_object = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal, issue_type='Issue',
-                                     date__lte=timezone.now())
-    articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors', 'frozenauthor_set',
-                                                                                     'manuscript_files').select_related(
-        'section')
+    issue_object = get_object_or_404(
+        models.Issue.objects.prefetch_related('editors'),
+        pk=issue_id,
+        journal=request.journal,
+        issue_type='Issue',
+        date__lte=timezone.now(),
+    )
+    articles = issue_object.articles.all().order_by(
+        'section',
+        'page_numbers').prefetch_related(
+        'authors', 'frozenauthor_set',
+        'manuscript_files').select_related(
+        'section',
+    )
 
-    issue_objects = models.Issue.objects.filter(journal=request.journal, issue_type='Issue')
+    issue_objects = models.Issue.objects.filter(
+        journal=request.journal,
+        issue_type='Issue',
+    )
+
+    editors = models.IssueEditor.objects.filter(
+        issue=issue_object,
+    )
 
     template = 'journal/issue.html'
     context = {
         'issue': issue_object,
         'issues': issue_objects,
         'structure': issue_object.structure(),
-        'show_sidebar': show_sidebar
+        'editors': editors,
+        'show_sidebar': show_sidebar,
     }
 
     return render(request, template, context)
@@ -1060,37 +1076,99 @@ def add_guest_editor(request, issue_id):
     :param issue_id: PK of an Issue object
     :return: a contextualised django template
     """
-    issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    users = request.journal.journal_users()
-    guest_editors = issue.guest_editors.all()
+    issue = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+
+    current_editors = issue.editors.all()
+    users = logic.potential_issue_editors(request.journal, current_editors)
 
     if request.POST:
         if 'user' in request.POST:
             user_id = request.POST.get('user')
+            role = request.POST.get('role')
+
             user = get_object_or_404(core_models.Account, pk=user_id)
 
-            if user in guest_editors:
-                messages.add_message(request, messages.WARNING, 'User is already a guest editor.')
+            if user in current_editors:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'User is already a guest editor.',
+                )
             elif user not in users:
-                messages.add_message(request, messages.WARNING, 'This user is not a member of this journal.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'This user is not a member of this journal.',
+                )
             else:
-                issue.guest_editors.add(user)
-        elif 'user_remove' in request.POST:
-            user_id = request.POST.get('user_remove')
-            user = get_object_or_404(core_models.Account, pk=user_id)
-            issue.guest_editors.remove(user)
+                models.IssueEditor.objects.create(
+                    issue=issue,
+                    account=user,
+                    role=role,
+                )
 
-        return redirect(reverse('manage_add_guest_editor', kwargs={'issue_id': issue.pk}))
+            return redirect(
+                reverse(
+                    'manage_add_guest_editor',
+                    kwargs={'issue_id': issue.pk}
+                )
+            )
 
     template = 'journal/manage/add_guest_editor.html'
     context = {
         'issue': issue,
+        'issue': issue,
         'users': users,
-        'guest_editors': guest_editors,
+        'editors': models.IssueEditor.objects.filter(issue=issue),
     }
 
     return render(request, template, context)
 
+
+@require_POST
+def remove_issue_editor(request, issue_id):
+    issue = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+
+    if 'user_remove' in request.POST:
+        issue_editor_id = request.POST.get('user_remove', 0)
+
+        if issue_editor_id:
+            try:
+                models.IssueEditor.objects.get(
+                    pk=issue_editor_id,
+                ).delete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Editor removed from Issue.',
+                )
+            except models.IssueEditor.DoesNotExist:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Issue Editor not found.',
+                )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No Issue Editor ID supplied.',
+            )
+
+    return redirect(
+        reverse(
+            'manage_add_guest_editor',
+            kwargs={'issue_id': issue.pk},
+        )
+    )
 
 @csrf_exempt
 @editor_user_required
