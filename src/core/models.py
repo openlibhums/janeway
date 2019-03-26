@@ -1121,7 +1121,7 @@ class LoginAttempt(models.Model):
 
 
 @receiver(post_save, sender=Account)
-def setup_default_workflow(sender, instance, created, **kwargs):
+def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()

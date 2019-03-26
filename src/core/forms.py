@@ -13,8 +13,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
 from django.conf import settings
+from django.contrib.auth.forms import UserCreationForm
 
-from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
@@ -432,3 +432,12 @@ class FileUploadForm(forms.Form):
                 mimetypes=mimetypes,
         )
         self.fields["file"].validators.append(validator)
+
+
+class UserCreationFormExtended(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserCreationFormExtended, self).__init__(*args, **kwargs)
+        self.fields['email'] = forms.EmailField(
+            label=_("E-mail"),
+            max_length=75,
+        )
