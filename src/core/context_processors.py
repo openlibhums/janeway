@@ -73,6 +73,6 @@ def navigation(request):
     """
     top_nav_items = cms_models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                              object_id=request.site_type.pk,
-                                                             top_level_nav__isnull=True)
+                                                             top_level_nav__isnull=True).order_by('sequence')
 
     return {'navigation_items': top_nav_items}
