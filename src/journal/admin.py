@@ -12,7 +12,7 @@ class IssueAdmin(admin.ModelAdmin):
     list_display = ('volume', 'issue', 'issue_title', 'journal', 'issue_type')
     list_filter = ('journal', 'issue_type')
     search_fields = ('issue_title',)
-    filter_horizontal = ('articles', 'editors')
+    filter_horizontal = ('articles',)
 
 
 class JournalAdmin(admin.ModelAdmin):
