@@ -832,17 +832,17 @@ def upload_review_file(request, assignment_id):
 
     if access_code:
         assignment = models.ReviewAssignment.objects.get(
-            Q(pk=assignment_id) &
-            Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
-            Q(access_code=access_code)
+            Q(pk=assignment_id)
+            & Q(is_complete=False)
+            & Q(article__stage=submission_models.STAGE_UNDER_REVIEW)
+            & Q(access_code=access_code)
         )
     else:
         assignment = models.ReviewAssignment.objects.get(
-            Q(pk=assignment_id) &
-            Q(is_complete=False) &
-            Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
-            Q(reviewer=request.user)
+            Q(pk=assignment_id)
+            & Q(is_complete=False)
+            & Q(article__stage=submission_models.STAGE_UNDER_REVIEW)
+            & Q(reviewer=request.user)
         )
 
     if 'review_file' in request.POST:
