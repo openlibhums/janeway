@@ -848,6 +848,8 @@ def upload_review_file(request, assignment_id):
     if 'review_file' in request.POST:
         uploaded_file = request.FILES.get('review_file', None)
 
+        old_file = assignment.review_file
+
         if uploaded_file:
             new_file = files.save_file_to_article(
                 uploaded_file,
@@ -862,6 +864,11 @@ def upload_review_file(request, assignment_id):
                 messages.SUCCESS,
                 'File uploaded successfully.',
             )
+
+            if old_file:
+                old_file.unlink_file(request.journal)
+                old_file.delete()
+
         else:
             messages.add_message(
                 request,
@@ -876,7 +883,6 @@ def upload_review_file(request, assignment_id):
             access_code,
         )
     )
-
 
 
 @reviewer_user_for_assignment_required
