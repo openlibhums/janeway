@@ -416,11 +416,10 @@ def parse_html_table_to_csv(table, table_name):
 
 
 def potential_issue_editors(journal, current_editors):
-    users = [role.user for role in
-             core_models.AccountRole.objects.filter(
-                 journal=journal,
-                 user__is_active=True,
-             ).select_related('user').exclude(
-                 user__in=current_editors,
-             )]
-    return set(users)
+    return {role.user for role in
+            core_models.AccountRole.objects.filter(
+                journal=journal,
+                user__is_active=True,
+            ).select_related('user').exclude(
+                user__in=current_editors,
+            )}
