@@ -56,6 +56,11 @@ class ReviewAssignmentForm(forms.ModelForm):
 
 
 class ReviewerDecisionForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['decision'].required = True
+
     class Meta:
         model = models.ReviewAssignment
         fields = ('decision', 'comments_for_editor')
