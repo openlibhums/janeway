@@ -48,7 +48,7 @@
                 <h2>Guest Editors</h2>
             </div>
             <div class="content">
-                <form method="POST">
+                <form method="POST" action="{% url 'manage_remove_issue_editor' issue.pk %}">
                     {% csrf_token %}
                     <table class="small scroll">
                         <thead>
@@ -75,7 +75,6 @@
                                     <button type="submit"
                                             name="user_remove"
                                             value="{{ editor.pk }}"
-                                            formaction="{% url 'manage_remove_issue_editor' issue.pk %}"
                                             class="tiny button warning">
                                         <i class="fa fa-chain-broken">&nbsp;</i>Remove
                                     </button>
