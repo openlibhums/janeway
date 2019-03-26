@@ -608,6 +608,8 @@ def settings_index(request):
         'settings': [{group.name: models.Setting.objects.filter(group=group).order_by('name')} for group in
                      models.SettingGroup.objects.all().order_by('name')],
     }
+    order = ['general', 'Identifiers', 'Preprints', 'email', 'email_subject', 'crosscheck']
+    context['settings'] = sorted(context['settings'], key=lambda x: order.index(next(iter(x.keys()))))
 
     return render(request, template, context)
 

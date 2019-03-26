@@ -91,7 +91,9 @@
                 <div class="content">
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
+                        {% comment "CDL-AM: Strip for pilot" %}
                         <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
+                        {% endcomment %}
                     </div>
                 </div>
 

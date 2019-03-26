@@ -131,7 +131,7 @@
             "type": "char"
         },
         "value": {
-            "default": "janeway@voyager.com"
+            "default": "eschol-no-reply@escholarship.org"
         }
     },
     {
@@ -1314,51 +1314,6 @@
             "name": "is_secure",
             "pretty_name": "Journal Uses HTTPS",
             "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        }
-    },
-    {
-        "group": {
-            "name": "crosscheck"
-        },
-        "setting": {
-            "description": "Used to submit files for review",
-            "is_translatable": false,
-            "name": "username",
-            "pretty_name": "Username for crosscheck/ithenticate",
-            "type": "char"
-        },
-        "value": {
-            "default": ""
-        }
-    },
-    {
-        "group": {
-            "name": "crosscheck"
-        },
-        "setting": {
-            "description": "If enabled, links to crosscheck reports will be displayed",
-            "is_translatable": false,
-            "name": "enable",
-            "pretty_name": "Enable Crosscheck",
-            "type": "boolean"
-        },
-        "value": {
-            "default": ""
-        }
-    },
-    {
-        "group": {
-            "name": "crosscheck"
-        },
-        "setting": {
-            "description": "Used to submit files for review",
-            "is_translatable": false,
-            "name": "password",
-            "pretty_name": "Password for crosscheck/ithenticate",
-            "type": "char"
         },
         "value": {
             "default": ""
