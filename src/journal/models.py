@@ -238,20 +238,17 @@ class Journal(AbstractSiteModel):
                 core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
 
     def journal_users(self, objects=True):
-        if objects:
-            users = [role.user for role in
-                     core_models.AccountRole.objects.filter(
-                         journal=self,
-                         user__is_active=True,
-                     ).select_related('user')]
-        else:
-            users = [role.user.pk for role in
-                     core_models.AccountRole.objects.filter(
-                         journal=self,
-                         user__is_active=True,
-                     ).select_related('user')]
+        account_roles = core_models.AccountRole.objects.filter(
+            journal=self,
+            user__is_active=True,
+        ).select_related('user')
 
-        return set(users)
+        if objects:
+            users = {role.user for role in account_roles}
+        else:
+            users = {role.user.pk for role in account_roles}
+
+        return users
 
     @cache(300)
     def editorial_groups(self):

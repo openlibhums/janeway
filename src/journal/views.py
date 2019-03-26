@@ -1170,6 +1170,7 @@ def remove_issue_editor(request, issue_id):
         )
     )
 
+
 @csrf_exempt
 @editor_user_required
 def issue_order(request):
