@@ -1121,7 +1121,6 @@ def add_guest_editor(request, issue_id):
     template = 'journal/manage/add_guest_editor.html'
     context = {
         'issue': issue,
-        'issue': issue,
         'users': users,
         'editors': models.IssueEditor.objects.filter(issue=issue),
     }
@@ -1129,6 +1128,7 @@ def add_guest_editor(request, issue_id):
     return render(request, template, context)
 
 
+@editor_user_required
 @require_POST
 def remove_issue_editor(request, issue_id):
     issue = get_object_or_404(
