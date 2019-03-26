@@ -9,7 +9,7 @@ from django.contrib.auth.admin import UserAdmin
 from hvad.admin import TranslatableAdmin
 from django.utils.safestring import mark_safe
 
-from core import models
+from core import models, forms
 
 
 class AccountRoleAdmin(admin.ModelAdmin):
@@ -35,6 +35,15 @@ class AccountAdmin(UserAdmin):
             'linkedin', 'facebook', 'github', 'biography',
             'signature', 'profile_image', 'interest', "preferred_timezone",
         )}),
+    )
+
+    add_form = forms.UserCreationFormExtended
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'first_name', 'last_name',
+                       'password1', 'password2',)
+        }),
     )
 
 
