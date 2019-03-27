@@ -1405,10 +1405,11 @@ def search(request):
         # checks titles, keywords and subtitles first,
         # then matches author based on below regex split search term.
         author_search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
+        search_term_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
         articles = submission_models.Article.objects.filter(
                     (
                         Q(title__icontains=search_term) |
-                        Q(keywords__word__icontains=search_term) |
+                        Q(keywords__word__iregex=search_term_regex) |
                         Q(subtitle__icontains=search_term)
                     ) 
                     |
