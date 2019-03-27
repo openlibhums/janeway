@@ -32,21 +32,23 @@
                     <span class="card-title">
                         {% trans "Searching" %}
                     </span>
-                    <p>{% trans "Enter a search term to display results." %}</p>
                     <form method="POST">
                         {% csrf_token %}
+                        {% if not keyword %}
+                            <label for="{{ form.article_search.id_for_label }}">Search titles, subtitles, keywords, and authors</label>
+                        {% endif %}
                         <div class="input-field">
-                            <input type="text" name="article_search" id="search" value=""/>
-                            <label for="search">{% trans "Search" %}</label>
+                        {% if not keyword %}
+                                {{ form.article_search.errors }}                                
+                                {{ form.article_search }}
+                            {% else %}
+                                You are currently browsing by keyword. <p><a href="{% url 'search' %}">Search for an article.</a></p>
+                        {% endif %}
                         </div>
-                        <div class="input-field">
-                                <select name="sort" class="form-control">
-                                    <option value="-date_published"{% if sort == "date_published" %}
-                                            selected="selected"{% endif %}>{% trans "Date" %}</option>
-                                    <option value="title"{% if sort == "title" %}
-                                            selected="selected"{% endif %}>{% trans "Title" %}</option>
-                                </select>
-                            <label>{% trans "Sort" %}</label>
+                        <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
+                        <div class="input-field">                                
+                                {{ form.sort.errors }}
+                                {{ form.sort }}
                         </div>
                         <div class="form-group">
                             <label>{% trans "Keywords" %}
@@ -58,14 +60,7 @@
                             </label>
                         </div>
                         <div class="input-field">
-
                             <button name="submit" class="btn">{% trans "Search" %}</button>
-                            {% if sort %}
-                                <button type="submit" class="btn btn-primary" name="clear">
-                                    {% trans "Clear Filters" %}
-                                </button>
-                            {% endif %}
-
                         </div>
                     </form>
                 </div>
