@@ -23,7 +23,7 @@
                 {% endif %}
                 <div class="card-block">
                     <p class="card-text">{{ fa.article.author_list }}</p>
-                    <p class="card-text"><strong><a href="{% if article.is_remote %}https://doi.org/{{ fa.article.identifier.identifier }}{% else %}{% url 'article_view' fa.article.identifier.id_type fa.article.identifier.identifier %}{% endif %}">{{ fa.article.title|safe|truncatechars:200 }}</a></strong></p>
+                    <p class="card-text"><strong><a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}">{{ fa.article.title|safe|truncatechars:200 }}</a></strong></p>
                 </div>
             </div>
         </div>

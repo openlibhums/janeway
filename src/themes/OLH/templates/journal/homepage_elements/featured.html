@@ -9,7 +9,7 @@
         {% for fa in featured_articles %}
             <div class="large-4 columns" >
                 <div class="box" data-equalizer-watch>
-                    <a href="{% if article.is_remote %}https://doi.org/{{ fa.article.identifier.identifier }}{% else %}{% url 'article_view' fa.article.identifier.id_type fa.article.identifier.identifier %}{% endif %}"
+                    <a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}"
                        class="box-link"></a>
 
                     {% if fa.article.large_image_file %}

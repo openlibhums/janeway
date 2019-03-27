@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <div class="box article">
-    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}"
+    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}"
        class="box-link"></a>
        <div class="clearfix">
         {% if not journal.disable_article_images %}
