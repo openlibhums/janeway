@@ -20,10 +20,7 @@ urlpatterns = [
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.print_article,
         name='article_print_article'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/print/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.print_article,
-        name='article_print_article'),
+
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figure/(?P<file_name>.*)/$',
         views.article_figure,
         name='article_galley_figure'),
@@ -43,18 +40,12 @@ urlpatterns = [
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,
         name='article_table'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/table/(?P<table_name>.+)$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.download_table,
-        name='article_table'),
+
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/(?P<file_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.identifier_figure,
         name='article_figure'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/(?P<file_name>.+)$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.identifier_figure,
-        name='article_figure'),
+
     url(r'^articles/$', views.articles, name='journal_articles'),
 
     # Issues/Collections
@@ -82,11 +73,7 @@ urlpatterns = [
         views.article,
         name='article_view'
         ),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.article,
-        name='article_view'
-        ),
+
 
     # File management
     url(r'^(?P<article_id>\d+)/files/management/$', views.document_management,
@@ -181,5 +168,27 @@ urlpatterns = [
     url(r'^download/article/(?P<article_id>\d+)/supp_file/(?P<supp_file_id>\d+)/',
         views.download_supp_file,
         name='article_download_supp_file'),
+
+    # Backup DOI patterns, redirect to pubid/id url of article
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/print/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.print_article,
+        name='article_print_article'),
+
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/table/(?P<table_name>.+)$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.download_table,
+        name='article_table'),
+
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.article,
+        name='article_view'),
+
+    url(
+        r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/(?P<file_name>.+)$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.identifier_figure,
+        name='article_figure'),
 
 ]
