@@ -20,10 +20,10 @@ class IdentifierForm(forms.ModelForm):
         id_type = self.cleaned_data.get('id_type')
         identifier = self.cleaned_data.get('identifier')
 
-        if id_type in ['pubid', 'uri']:
-            pattern = models.PUB_ID_RE
-        elif id_type == 'doi':
+        if id_type == 'doi':
             pattern = models.DOI_RE
+        else:
+            pattern = models.PUB_ID_RE
 
         if not pattern.match(identifier):
             self.add_error(
