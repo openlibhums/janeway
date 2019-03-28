@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
@@ -1395,7 +1395,7 @@ def search(request):
     keyword = None
     redir = False
     sort = 'title'
-          
+
     search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
 
     if redir:
@@ -1404,20 +1404,19 @@ def search(request):
     if search_term:
         # checks titles, keywords and subtitles first,
         # then matches author based on below regex split search term.
-        author_search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
-        search_term_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
+        search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
         articles = submission_models.Article.objects.filter(
                     (
                         Q(title__icontains=search_term) |
-                        Q(keywords__word__iregex=search_term_regex) |
+                        Q(keywords__word__iregex=search_regex) |
                         Q(subtitle__icontains=search_term)
-                    ) 
+                    )
                     |
                     (
-                        Q(frozenauthor__first_name__iregex=author_search_regex) |
-                        Q(frozenauthor__last_name__iregex=author_search_regex)
+                        Q(frozenauthor__first_name__iregex=search_regex) |
+                        Q(frozenauthor__last_name__iregex=search_regex)
                     ),
-                    journal=request.journal, 
+                    journal=request.journal,
                     stage=submission_models.STAGE_PUBLISHED,
                     date_published__lte=timezone.now()
                 ).distinct().order_by(sort)
@@ -1431,14 +1430,12 @@ def search(request):
             date_published__lte=timezone.now()
         ).order_by(sort)
 
-    # return top 20 used keywords based on published articles.
-    from django.db.models import Count
-
+    keyword_limit = 20
     popular_keywords = submission_models.Keyword.objects.filter(
             article__journal=request.journal,
             article__stage=submission_models.STAGE_PUBLISHED,
             article__date_published__lte=timezone.now(),
-        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:20]
+        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
 
 
     template = 'journal/search.html'

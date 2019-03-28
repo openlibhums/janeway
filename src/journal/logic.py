@@ -343,7 +343,7 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
         if form.is_valid():
             search_term = form.cleaned_data['article_search']
             sort = form.cleaned_data['sort']
-            
+
             if search_term:
                 form = SearchForm({'article_search':search_term, 'sort':sort})
             else:
@@ -362,7 +362,7 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
             form = SearchForm({'article_search':'', 'sort': sort})
         else:
             form = SearchForm({'article_search':search_term, 'sort': sort})
-                
+
         return search_term, keyword, sort, form, None
 
 
