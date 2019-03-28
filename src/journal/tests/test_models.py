@@ -55,7 +55,7 @@ class TestJournalSite(TestCase):
             "/otherjournalwithpath/banana", SERVER_NAME="sitetest.org")
         result = self.journal.site_url()
 
-        expected = "http://{}:80/{}".format(
+        expected = "http://{}/{}".format(
                 self.press.domain,
                 self.journal.code,
         )
