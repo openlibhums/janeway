@@ -158,7 +158,29 @@ def production_article(request, article_id):
     :return: HttpResponse object
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    production_assignment = models.ProductionAssignment.objects.get(article=article)
+
+    try:
+        production_assignment = models.ProductionAssignment.objects.get(
+            article=article
+        )
+    except models.ProductionAssignment.DoesNotExist:
+        # It is assumed that if a user enters this URL by hand and passes
+        # the decorator that they are fine being assigned as the PM
+        production_assignment = models.ProductionAssignment.objects.create(
+            article=article,
+            editor=request.user,
+            production_manager=request.user,
+            assigned=timezone.now(),
+            notified=True,
+        )
+
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You have been assigned as the '
+            'Production Manager for this article.'
+        )
+
     galleys = logic.get_all_galleys(production_assignment.article)
 
     if request.POST:
