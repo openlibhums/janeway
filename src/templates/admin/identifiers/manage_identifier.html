@@ -1,0 +1,32 @@
+{% extends "admin/core/base.html" %}}
+{% load foundation %}
+
+{% block title %}
+    {% if identifier %}Edit Identifier - {{ identifier.pk }}{% else %}Add New Identifier{% endif %}
+{% endblock title %}
+
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>Edit</li>
+<li>{{ article.title }}</li>
+<li><a href="{% url 'article_identifiers' article.pk %}">Identifiers</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns box">
+    <div class="pull-right">
+
+    </div>
+    <div class="title-area">
+        <h2>{% if identifier %}Edit Identifier - {{ identifier.pk }}{% else %}Add New Identifier{% endif %}</h2>
+        <a class="button" href="{% url 'article_identifiers' article.pk %}"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        {% include "elements/forms/errors.html" %}
+        {{ form|foundation }}
+        <button class="success button"><i class="fa fa-save"></i> Save</button>
+    </form>
+</div>
+{% endblock body %}

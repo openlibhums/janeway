@@ -175,12 +175,6 @@ urlpatterns = [
 
     url(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
     url(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
-    url(r'^edit/article/(?P<article_id>\d+)/ident/$', submission_views.edit_identifiers, name='edit_identifiers'),
-    url(r'^edit/article/(?P<article_id>\d+)/ident/(?P<identifier_id>\d+)/$', submission_views.edit_identifiers,
-        name='edit_identifiers_with_ident'),
-    url(r'^edit/article/(?P<article_id>\d+)/ident/(?P<identifier_id>\d+)/(?P<event>[-\w.]+)/$',
-        submission_views.edit_identifiers,
-        name='edit_identifiers_with_event'),
 
     # Public Profiles
     url(r'profile/(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/$', core_views.public_profile, name='core_public_profile'),

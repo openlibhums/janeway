@@ -16,7 +16,7 @@ NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
 
 urlpatterns = [
     # Figures and download patterns
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/print/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/print/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.print_article,
         name='article_print_article'),
@@ -36,12 +36,12 @@ urlpatterns = [
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/view/',
         views.view_galley,
         name='article_view_galley'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/table/(?P<table_name>.+)$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/table/(?P<table_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,
         name='article_table'),
 
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/(?P<file_name>.+)$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/(?P<file_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.identifier_figure,
         name='article_figure'),
@@ -64,11 +64,11 @@ urlpatterns = [
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
 
     # Article patterns
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/edit/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/edit/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.edit_article,
         name='article_edit'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.article,
         name='article_view'
