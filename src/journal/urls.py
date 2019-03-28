@@ -175,20 +175,8 @@ urlpatterns = [
         views.print_article,
         name='article_print_article'),
 
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/table/(?P<table_name>.+)$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.download_table,
-        name='article_table'),
-
     url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
         ''.format(DOI_REGEX_PATTERN),
-        views.article,
-        name='article_view'),
-
-    url(
-        r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/(?P<file_name>.+)$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.identifier_figure,
-        name='article_figure'),
-
+        views.doi_redirect,
+        name='doi_redirect'),
 ]
