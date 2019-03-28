@@ -83,7 +83,12 @@ urlpatterns = [
     url(r'^requests/(?P<assignment_id>\d+)/decline/suggest/$', views.suggest_reviewers, name='suggest_reviewers'),
     url(r'^requests/(?P<assignment_id>\d+)/thanks/$', views.thanks_review, name='thanks_review'),
     url(r'^requests/(?P<assignment_id>\d+)/annotation/$', views.hypothesis_review, name='hypothesis_review'),
-    url(r'^requests/(?P<assignment_id>\d+)/$', views.do_review, name='do_review'),
+    url(r'^requests/(?P<assignment_id>\d+)/$',
+        views.do_review,
+        name='do_review'),
+    url(r'^requests/(?P<assignment_id>\d+)/upload_file/$',
+        views.upload_review_file,
+        name='upload_review_file'),
 
 
     url(r'^author/(?P<article_id>\d+)/$', views.author_view_reviews, name='review_author_view'),

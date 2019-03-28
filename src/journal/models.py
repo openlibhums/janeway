@@ -240,12 +240,17 @@ class Journal(AbstractSiteModel):
                 core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
 
     def journal_users(self, objects=True):
-        if objects:
-            users = [role.user for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
-        else:
-            users = [role.user.pk for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
+        account_roles = core_models.AccountRole.objects.filter(
+            journal=self,
+            user__is_active=True,
+        ).select_related('user')
 
-        return set(users)
+        if objects:
+            users = {role.user for role in account_roles}
+        else:
+            users = {role.user.pk for role in account_roles}
+
+        return users
 
     @cache(300)
     def editorial_groups(self):
@@ -402,7 +407,13 @@ class Issue(models.Model):
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
 
     # guest editors
-    guest_editors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='guest_editors')
+    editors = models.ManyToManyField(
+        'core.Account',
+        blank=True,
+        null=True,
+        related_name='guest_editors',
+        through='IssueEditor',
+    )
 
     class Meta:
         ordering = ('year', 'volume', 'issue', 'title')
@@ -586,6 +597,18 @@ class IssueGalley(models.Model):
     @property
     def path_parts(self):
         return self.FILES_PATH, self.issue.pk
+
+
+class IssueEditor(models.Model):
+    account = models.ForeignKey('core.Account')
+    issue = models.ForeignKey(Issue)
+    role = models.CharField(max_length=255, default='Guest Editor')
+
+    def __str__(self):
+        return "{user} {role}".format(
+            user=self.account.full_name(),
+            role=self.role,
+        )
 
 
 class SectionOrdering(models.Model):

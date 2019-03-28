@@ -15,41 +15,41 @@
 
 
 {% block body %}
-    <form method="POST">
-        {% csrf_token %}
-        <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Issue</h2>
-                    <a class="button" href="{% url 'manage_issues_id' issue.pk %}">Back</a>
-                </div>
-                <div class="content">
-                    <table class="scroll">
-                        <tr>
-                            <th>Title</th>
-                            <th>Volume</th>
-                            <th>Number</th>
-                            <th>Date</th>
-                            <th>No. Articles</th>
-                        </tr>
-                        <tr>
-                            <td>{{ issue.issue_title }}</td>
-                            <td>{{ issue.volume }}</td>
-                            <td>{{ issue.issue }}</td>
-                            <td>{{ issue.date|date:"Y-m-d" }}</td>
-                            <td>{{ issue.manage_issue_list|length }}</td>
-                        </tr>
-                    </table>
-                </div>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Issue</h2>
+                <a class="button" href="{% url 'manage_issues_id' issue.pk %}">Back</a>
+            </div>
+            <div class="content">
+                <table class="scroll">
+                    <tr>
+                        <th>Title</th>
+                        <th>Volume</th>
+                        <th>Number</th>
+                        <th>Date</th>
+                        <th>No. Articles</th>
+                    </tr>
+                    <tr>
+                        <td>{{ issue.issue_title }}</td>
+                        <td>{{ issue.volume }}</td>
+                        <td>{{ issue.issue }}</td>
+                        <td>{{ issue.date|date:"Y-m-d" }}</td>
+                        <td>{{ issue.manage_issue_list|length }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
+    </div>
 
-        <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Guest Editors</h2>
-                </div>
-                <div class="content">
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Guest Editors</h2>
+            </div>
+            <div class="content">
+                <form method="POST" action="{% url 'manage_remove_issue_editor' issue.pk %}">
+                    {% csrf_token %}
                     <table class="small scroll">
                         <thead>
                         <tr>
@@ -57,67 +57,78 @@
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
+                            <th>Role</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody id="sortable">
-                        {% for user in guest_editors %}
-                            <tr id="articles-{{ dict.article.pk }}">
-                                <td>{{ user.id }}</td>
-                                <td>{{ user.first_name }}</td>
-                                <td>{{ user.last_name }}</td>
-                                <td>{{ user.email }}</td>
+                        {% for editor in editors %}
+                            <tr>
+                                <td>{{ editor.account.id }}</td>
+                                <td>{{ editor.account.first_name }}</td>
+                                <td>{{ editor.account.last_name }}</td>
+                                <td>{{ editor.account.email }}</td>
                                 <td>
-                                    <button type="submit" name="user_remove" value="{{ user.pk }}"><i class="fa fa-chain-broken">
-                                        &nbsp;</i>Remove
+                                    {{ editor.role }}
+                                </td>
+                                <td>
+                                    <button type="submit"
+                                            name="user_remove"
+                                            value="{{ editor.pk }}"
+                                            class="tiny button warning">
+                                        <i class="fa fa-chain-broken">&nbsp;</i>Remove
                                     </button>
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                </div>
+                </form>
             </div>
         </div>
+    </div>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal Users</h2>
+            </div>
+            <div class="content">
+                <table class="small scroll" id="users">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
+                    {% for user in users %}
+                        <tr id="articles-{{ dict.article.pk }}">
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input name="role" value="Guest Editor">
 
-        <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Journal Users</h2>
-                </div>
-                <div class="content">
-                    <table class="small scroll">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody id="sortable">
-                        {% for user in users %}
-                            {% if user not in guest_editors %}
-                                <tr id="articles-{{ dict.article.pk }}">
-                                <td>{{ user.id }}</td>
-                                <td>{{ user.first_name }}</td>
-                                <td>{{ user.last_name }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>
-                                    <button type="submit" name="user" value="{{ user.pk }}"><i class="fa fa-plus">
-                                        &nbsp;</i>Add
+                                    <button type="submit" name="user"
+                                            value="{{ user.pk }}"
+                                            class="tiny button">
+                                        <i class="fa fa-plus">&nbsp;</i>Add
                                     </button>
-                                </td>
-                            {% endif %}
+                                </form>
+                            </td>
                         </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </form>
+    </div>
 {% endblock body %}
 
 {% block js %}

@@ -137,8 +137,7 @@
             <div id="article">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h5>
-                <hr/>
+                    <h3>{{ article.title|safe }}</h3>
                 {% endif %}
                 {% if article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
@@ -173,6 +172,17 @@
 
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
+                {% if journal.disable_article_images %}
+                    <h4>{% trans "Authors" %}</h4>
+                    <ul>
+                    {% for author in article.frozen_authors.all %}
+                        <li>
+                            {{ author.full_name }}
+                        </li>
+                    {% endfor %}
+                     </ul>
+                {% endif %}
+
                 {% if article.is_published %}
                     <h4>{% trans "Download" %}</h4>
                     <ul>
