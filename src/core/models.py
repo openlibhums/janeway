@@ -33,6 +33,7 @@ from core.model_utils import AbstractSiteModel
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
+from utils import setting_handler
 
 fs = JanewayFileSystemStorage()
 logger = logging.getLogger(__name__)
@@ -545,17 +546,30 @@ class Setting(models.Model):
     def __repr__(self):
         return u'%s' % self.name
 
+    @property
+    def default_setting_value(self):
+        return SettingValue.objects.language("en").get(setting=self, journal=None)
+
 
 class SettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', null=True, blank=True)
     setting = models.ForeignKey(Setting)
 
     translations = TranslatedFields(
         value=models.TextField(null=True, blank=True)
     )
 
+    class Meta:
+        unique_together = (
+                ("journal", "setting"),
+        )
+
     def __repr__(self):
-        return "[{0}]: {1}, {2}".format(self.journal.code, self.setting.name, self.value)
+        if self.journal:
+            code = self.journal.code
+        else:
+            code = "default"
+        return "[{0}]: {1}, {2}".format(code, self.setting.name, self.value)
 
     def __str__(self):
         return "[{0}]: {1}".format(self.journal, self.setting.name)
@@ -583,6 +597,32 @@ class SettingValue(TranslatableModel):
             return json.loads(self.value)
         else:
             return self.value
+
+    @property
+    def render_value(self):
+        """ Converts string values of settings to values for rendering
+
+        :return: a value
+        """
+        if self.setting.types == 'boolean' and not self.value:
+            return "off"
+        elif self.setting.types == 'boolean':
+            return "on"
+        elif self.setting.types == 'file':
+            if self.journal:
+                return journal.site_url(reverse("journal_file", value))
+            else:
+                return self.press.site_url(reverse("serve_press_file", value))
+        else:
+            return self.value
+
+    @property
+    def press(self):
+        if self.journal:
+            return self.journal.press
+        else:
+            from press.models import Press
+            return Press.objects.all()[0]
 
 
 class File(models.Model):
