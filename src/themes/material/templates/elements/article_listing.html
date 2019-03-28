@@ -28,10 +28,20 @@
                     {% if not forloop.counter == article.frozen_authors.all|length|add:-1 %},
                     {% endif %}{% endif %}{% endfor %}
             </p>
-            <p><span class="date"><i
-                    class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                    class="fa fa-book"></i> <a class="issue-link" href="{% url 'journal_issue' article.issue.pk %}">{% trans "Volume" %} {{ article.issue.volume }},
-                {% trans "Issue" %} {{ article.issue.issue }}</a>
+            <p>
+                <span class="date">
+                    <i class="fa fa-calendar"></i> 
+                    {{ article.date_published|date:"Y-m-d" }}
+                </span> 
+
+                {% if article.issue %}    
+                    <i class="fa fa-book"></i> 
+                    <a class="issue-link" href="{% url 'journal_issue' article.issue.pk %}">
+                        {% trans "Volume" %} {{ article.issue.volume }},
+                        {% trans "Issue" %} {{ article.issue.issue }}
+                    </a>
+                {% endif %}
+                
             </p>
         </div>
     </div>

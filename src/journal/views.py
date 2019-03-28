@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
@@ -1476,36 +1476,60 @@ def search(request):
     """
     articles = []
     search_term = None
+    keyword = None
+    redir = False
+    sort = 'title'
 
-    if request.POST:
-        search_term = request.POST.get('search')
-        request.session['article_search'] = search_term
-        return redirect(reverse('search'))
+    search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
 
-    if request.session.get('article_search'):
-        search_term = request.session.get('article_search')
+    if redir:
+        return redir
+    from itertools import chain
+    if search_term:
+        # checks titles, keywords and subtitles first,
+        # then matches author based on below regex split search term.
+        search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
+        articles = submission_models.Article.objects.filter(
+                    (
+                        Q(title__icontains=search_term) |
+                        Q(keywords__word__iregex=search_regex) |
+                        Q(subtitle__icontains=search_term)
+                    )
+                    |
+                    (
+                        Q(frozenauthor__first_name__iregex=search_regex) |
+                        Q(frozenauthor__last_name__iregex=search_regex)
+                    ),
+                    journal=request.journal,
+                    stage=submission_models.STAGE_PUBLISHED,
+                    date_published__lte=timezone.now()
+                ).distinct().order_by(sort)
 
-        article_search = submission_models.Article.objects.filter(
-            (Q(title__icontains=search_term) |
-             Q(subtitle__icontains=search_term)) &
-            Q(journal=request.journal)
-        )
-        article_search = [article for article in article_search]
+    # just single keyword atm. but keyword is included in article_search.
+    elif keyword:
+        articles = submission_models.Article.objects.filter(
+            keywords__word=keyword,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now()
+        ).order_by(sort)
 
-        author_search = search_term.split(' ')
-        from_author = submission_models.FrozenAuthor.objects.filter(
-            (Q(first_name__in=author_search) |
-             Q(last_name__in=author_search)) &
-            Q(article__journal=request.journal)
-        )
+    keyword_limit = 20
+    popular_keywords = submission_models.Keyword.objects.filter(
+            article__journal=request.journal,
+            article__stage=submission_models.STAGE_PUBLISHED,
+            article__date_published__lte=timezone.now(),
+        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
 
-        articles_from_author = [author.article for author in from_author]
-        articles = set(article_search + articles_from_author)
 
     template = 'journal/search.html'
     context = {
         'articles': articles,
-        'search_term': search_term
+        'article_search': search_term,
+        'keyword': keyword,
+        'form': form,
+        'sort': sort,
+        'all_keywords': popular_keywords
     }
 
     return render(request, template, context)
