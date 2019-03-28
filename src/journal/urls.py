@@ -172,8 +172,8 @@ urlpatterns = [
     # Backup DOI patterns, redirect to pubid/id url of article
     url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/print/$'
         ''.format(DOI_REGEX_PATTERN),
-        views.print_article,
-        name='article_print_article'),
+        views.doi_redirect,
+        name='print_doi_redirect'),
 
     url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
         ''.format(DOI_REGEX_PATTERN),
