@@ -610,7 +610,7 @@ class SettingValue(TranslatableModel):
             return "on"
         elif self.setting.types == 'file':
             if self.journal:
-                return journal.site_url(reverse("journal_file", value))
+                return self.journal.site_url(reverse("journal_file", value))
             else:
                 return self.press.site_url(reverse("serve_press_file", value))
         else:
