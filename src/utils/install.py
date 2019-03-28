@@ -15,10 +15,11 @@ from utils import setting_handler
 from submission import models as submission_models
 
 
-def update_settings(journal_object, management_command=False, overwrite_with_defaults=False):
+def update_settings(journal_object=None, management_command=False, overwrite_with_defaults=False):
     """ Updates or creates the settings for a journal from journal_defaults.json.
 
-    :param journal_object: the journal object to update
+    :param journal_object: the journal object to update or None to set the
+        default setting value
     :param management_command: whether or not to print output to the console
     :return: None
     """
@@ -63,10 +64,11 @@ def update_settings(journal_object, management_command=False, overwrite_with_def
                 print('Parsed setting {0}'.format(item['setting'].get('name')))
 
 
-def update_emails(journal_object, management_command=False):
+def update_emails(journal_object=None, management_command=False):
     """
     Updates email settings with new versions.
-    :param journal_object: Journal object
+    :param journal_object: Journal object or None to set the default setting
+        value
     :param management_command: Boolean
     :return: Nothing
     """
