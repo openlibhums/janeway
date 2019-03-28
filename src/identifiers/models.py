@@ -32,8 +32,8 @@ NON_DOI_IDENTIFIER_TYPES = IDENTIFIER_TYPES - {"doi"}
 
 DOI_REGEX_PATTERN = '10.\d{4,9}/[-._;()/:A-Za-z0-9]+'
 PUB_ID_REGEX_PATTERN = '[\w-]+'
-PUB_ID_RE = re.compile(PUB_ID_REGEX_PATTERN)
-DOI_RE = re.compile("^{}$".format(PUB_ID_REGEX_PATTERN))
+PUB_ID_RE = re.compile("^{}$".format(PUB_ID_REGEX_PATTERN))
+DOI_RE = re.compile(DOI_REGEX_PATTERN)
 
 
 class Identifier(models.Model):
