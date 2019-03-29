@@ -6,7 +6,7 @@
             </h4>
         </div>
         <div class="card-section">
-            <a href="{% url 'edit_identifiers' article.pk %}?return={{ request.path|urlencode }}" class="float-right"><i
+            <a href="{% url 'edit_identifiers' article.pk %}" target="_blank" class="float-right"><i
                     class="fa fa-edit">&nbsp;</i>Edit</a>
             <p>This card shows information related to your assigned DOI and how it resolves itself.{% if article.is_import %} Be warned that if this article was imported before the review stage it may not have a DOI automatically assigned and minted.{% endif %}</p>
             <div class="line-item">

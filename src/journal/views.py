@@ -7,6 +7,7 @@ import json
 import os
 from shutil import copyfile
 from uuid import uuid4
+import logging
 
 from django.conf import settings
 from django.contrib import messages
@@ -38,6 +39,8 @@ from security.decorators import article_stage_accepted_or_later_required, \
 from submission import models as submission_models
 from utils import models as utils_models, shared
 from events import logic as event_logic
+
+logger = logging.getLogger(__name__)
 
 
 @has_journal
@@ -1766,5 +1769,25 @@ def download_issue_galley(request, issue_id, galley_id):
             issue__pk=issue_id,
     )
 
-
     return issue_galley.serve(request)
+
+
+def doi_redirect(request, identifier_type, identifier):
+    """
+    Fetches an article object from a DOI and redirects to the local url.
+    :param request: HttpRequest
+    :param identifier_type: String, Identifier type
+    :param identifier: DOI string
+    :return: HttpRedirect or Http404
+    """
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        logger.debug("No article found with this DOI.")
+        raise Http404()
+
+    return redirect(article_object.local_url)

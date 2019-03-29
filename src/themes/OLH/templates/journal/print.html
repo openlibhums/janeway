@@ -32,8 +32,7 @@
         <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>
     {% endif %}
 
-    <meta name="DC.Identifier.URI" content="{{ request.scheme }}://
-            {{ request.get_host }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="DC.Identifier.URI" content="{{ article.url }}"/>
 
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
 
@@ -76,8 +75,7 @@
     {% if article.identifier.id_type == "doi" %}
         <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>
     {% endif %}
-    <meta name="citation_abstract_html_url" content="{{ request.scheme }}://
-            {{ request.get_host }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="citation_abstract_html_url" content="{{ article.url }}"/>
 
 
     <meta name="citation_language" content="{{ article.language }}"/>
