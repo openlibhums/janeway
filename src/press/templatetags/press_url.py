@@ -25,7 +25,6 @@ def svg(filename, partial=False):
     mimetype = mimetypes.guess_type(path, strict=True)
 
     if not mimetype or mimetype[0] != 'image/svg+xml':
-        print(1)
         return mark_safe('<img src="{url}" class="top-bar-image">'.format(url=reverse('press_cover_download')))
 
     if isinstance(path, (list, tuple)):
