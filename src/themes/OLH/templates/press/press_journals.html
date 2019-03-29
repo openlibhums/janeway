@@ -43,6 +43,12 @@
                                             </h2>
                                             <span class="hide">{{ current_journal.name|lower }}</span>
                                             {{ current_journal|setting:'journal_description'|safe }}
+                                            {% with keywords=current_journal.keywords.all %}{% if keywords %}
+                                            <h6>{% trans 'Disciplines' %}</h6>
+                                            {% for keyword in keywords %}
+                                                <a class="kbd" href="?filter={{ keyword.word }}"><span>{{ keyword.word }}</span></a>
+                                            {% endfor %}
+                                            {% endif %}{% endwith %}
                                             </div>
                                             <div class="expanded button-group">
                                                 {% if current_journal.is_remote %}
@@ -99,7 +105,7 @@
         $('#filter').keyup(function () {
             var filter = $("#filter").val();
             if (filter) {
-                var $found = journals.find('> .box > .row > .large-12 > .content > .row > .title-div > .journal-description-box > span:contains("' + filter.toLowerCase() + '")').closest('.journal-div').show();
+                var $found = journals.find('> .box > .row > .large-12 > .content > .row > .title-div > .journal-description-box span:contains("' + filter.toLowerCase() + '")').closest('.journal-div').show();
                 journals.not($found).hide()
             } else {
                 journals.show();
