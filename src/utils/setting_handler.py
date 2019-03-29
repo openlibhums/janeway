@@ -69,7 +69,7 @@ def get_requestless_setting(setting_group, setting, journal):
 
 
 def _get_setting(
-        setting_group, setting, journal, lang, create, fallback, default=None):
+        setting_group, setting, journal, lang, create, fallback, default=True):
     if fallback:
         _fallback = settings.LANGUAGE_CODE
     else:
