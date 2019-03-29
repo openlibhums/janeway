@@ -22,6 +22,7 @@ from simplemathcaptcha.fields import MathCaptchaField
 from core import models, validators
 from journal import models as journal_models
 from utils import setting_handler
+from utils.forms import KeywordModelForm
 from submission import models as submission_models
 
 # This will set is_checkbox attribute to True for checkboxes.
@@ -306,7 +307,7 @@ class GeneratedSettingForm(forms.Form):
             setting_handler.save_setting('general', setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(forms.ModelForm):
+class JournalAttributeForm(KeywordModelForm):
 
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
@@ -323,8 +324,7 @@ class JournalAttributeForm(forms.ModelForm):
         )
 
 
-class PressJournalAttrForm(forms.ModelForm):
-
+class PressJournalAttrForm(KeywordModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 

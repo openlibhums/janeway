@@ -75,6 +75,7 @@ class Journal(AbstractSiteModel):
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
+    keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(default=False)
