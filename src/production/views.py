@@ -108,6 +108,65 @@ def production_unassign_article(request, article_id):
     return redirect(reverse('production_list'))
 
 
+@editor_user_required
+def non_workflow_assign_article(request, article_id):
+    """
+    Allows users to assign themselves as production manager outside the
+    standard workflow process.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse or HttpRedirect
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+
+    if article.production_assignment_or_none():
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'This article already has a production assignment.',
+        )
+
+        return redirect(
+            reverse(
+                'production_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    if request.POST and 'assign' in request.POST:
+        models.ProductionAssignment.objects.create(
+            article=article,
+            editor=request.user,
+            production_manager=request.user,
+            assigned=timezone.now(),
+            notified=True,
+        )
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Production Assignment created.',
+        )
+
+        return redirect(
+            reverse(
+                'production_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    template = 'production/non_workflow_assign.html'
+    context = {
+        'article': article,
+    }
+
+    return render(request, template, context)
+
+
 @require_POST
 @article_production_user_required
 @article_stage_production_required
@@ -157,29 +216,23 @@ def production_article(request, article_id):
     :param article_id: Article object PK
     :return: HttpResponse object
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     try:
         production_assignment = models.ProductionAssignment.objects.get(
             article=article
         )
     except models.ProductionAssignment.DoesNotExist:
-        # It is assumed that if a user enters this URL by hand and passes
-        # the decorator that they are fine being assigned as the PM
-        production_assignment = models.ProductionAssignment.objects.create(
-            article=article,
-            editor=request.user,
-            production_manager=request.user,
-            assigned=timezone.now(),
-            notified=True,
-        )
-
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'You have been assigned as the '
-            'Production Manager for this article.'
-        )
+        return redirect(
+           reverse(
+               'production_non_workflow_assign',
+               kwargs={'article_id': article.pk},
+           )
+       )
 
     galleys = logic.get_all_galleys(production_assignment.article)
 

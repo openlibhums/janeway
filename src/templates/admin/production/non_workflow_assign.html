@@ -1,0 +1,51 @@
+{% extends "admin/core/base.html" %}
+{% load files %}
+{% load securitytags %}
+{% load hooks %}
+{% load static from staticfiles %}
+
+{% block title %}Article - {{ article.pk }}{% endblock title %}
+{% block admin-header %}Article - {{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/production_manager_base.html" %}
+    <li>No Production Assignment Found</li>
+{% endblock breadcrumbs %}
+
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>No Production Assignment Found
+                for {{ article.title|safe }}</h2>
+        </div>
+        <div class="content">
+            <p>
+                {% if article.date_published and article.is_import %}
+                    This article has already been published so is likely to
+                    have been loaded in and has not completed the standard
+                    workflow.
+                {% elif article.stage != 'Typesetting' %}
+                    This article has not yet reached the production stage.
+                {% elif article.stage == 'Typesetting' %}
+                    This article is in the Production stage. Head back to the
+                    <a href="{% url 'production_list' %}">Production Index</a>
+                    to assign Production Manager.
+                {% else %}
+                    There is no obvious reason why this article does not have a
+                    production assignment. It is possible that the Production
+                    Assignment was deleted.
+                {% endif %}
+            </p>
+            <form method="POST">
+                {% csrf_token %}
+                <p>You can assign yourself as the Production Manager in
+                order to access the controls in the Production stage.</p>
+                <button name="assign" class="button">Assign Self</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock body %}
