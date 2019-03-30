@@ -16,7 +16,7 @@ def press_url(request):
 
 
 @register.simple_tag
-def svg(filename, partial=False):
+def svg(filename):
     path = filename
 
     if not path:
@@ -30,7 +30,7 @@ def svg(filename, partial=False):
     if isinstance(path, (list, tuple)):
         path = path[0]
 
-    if partial:
+    if not path.startswith(settings.BASE_DIR):
         path = os.path.join(settings.BASE_DIR, path)
 
     try:
