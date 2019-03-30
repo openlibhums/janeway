@@ -75,7 +75,10 @@ def production_assign_article(request, user_id, article_id):
     :param article_id: Article object PK
     :return: HttpRedirect
     """
-    article = submission_models.Article.objects.get(id=article_id)
+    article = submission_models.Article.objects.get(
+        id=article_id,
+        journal=request.journal,
+    )
     user = core_models.Account.objects.get(id=user_id)
 
     if user.is_production(request):
@@ -101,7 +104,10 @@ def production_unassign_article(request, article_id):
     :param article_id: Article object PK
     :return: HttpRedirect
     """
-    article = submission_models.Article.objects.get(id=article_id)
+    article = submission_models.Article.objects.get(
+        id=article_id,
+        journal=request.journal,
+    )
 
     models.ProductionAssignment.objects.filter(article=article).delete()
 
@@ -113,12 +119,17 @@ def production_unassign_article(request, article_id):
 @article_stage_production_required
 def production_done(request, article_id):
     """
-    Allows a Production Manager to mark Production as complete, fires an event that emails the Editor.
+    Allows a Production Manager to mark Production as complete, fires an event
+    that emails the Editor.
     :param request: HttpRequest object
     :param article_id: Artcle object PK
     :return: HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     assignment = models.ProductionAssignment.objects.get(article=article)
     assignment.closed = timezone.now()
@@ -216,12 +227,13 @@ def preview_galley(request, article_id, galley_id):
     """
     article = get_object_or_404(
         submission_models.Article,
-        pk=article_id
+        pk=article_id,
+        journal=request.journal,
     )
     galley = get_object_or_404(
         core_models.Galley,
         pk=galley_id,
-        article=article
+        article=article,
     )
 
     if galley.type == 'xml' or galley.type == 'html':
@@ -261,7 +273,11 @@ def assign_typesetter(request, article_id, production_assignment_id):
     production_assignment = get_object_or_404(models.ProductionAssignment,
                                               pk=production_assignment_id,
                                               closed__isnull=True)
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyedit_files = logic.get_copyedit_files(article)
     typesetters = logic.get_typesetters(article)
     typesetter_form = forms.AssignTypesetter(
@@ -550,15 +566,20 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     return_url = request.GET.get('return', None)
 
     if typeset_id:
-        typeset_task = get_object_or_404(models.TypesetTask,
-                                         pk=typeset_id,
-                                         accepted__isnull=False,
-                                         completed__isnull=True)
+        typeset_task = get_object_or_404(
+            models.TypesetTask,
+            pk=typeset_id,
+            assignment__article__journal=request.journal,
+            accepted__isnull=False,
+            completed__isnull=True)
         article = typeset_task.assignment.article
     else:
         typeset_task = None
-        article = get_object_or_404(submission_models.Article.allarticles,
-                                    pk=article_id)
+        article = get_object_or_404(
+            submission_models.Article.allarticles,
+            pk=article_id,
+            journal=request.journal
+        )
     galley = get_object_or_404(core_models.Galley,
                                pk=galley_id,
                                article=article)
@@ -631,7 +652,11 @@ def review_typeset_task(request, article_id, typeset_id):
     :return: contextualised django template
     """
     typeset_task = get_object_or_404(models.TypesetTask, pk=typeset_id)
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     typeset_task.editor_reviewed = True
     typeset_task.save()
@@ -648,7 +673,11 @@ def delete_galley(request, typeset_id, galley_id):
     :param galley_id: Galley object PK
     :return:
     """
-    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article__journal=request.journal,
+    )
     galley.file.unlink_file()
     galley.delete()
 
