@@ -58,6 +58,7 @@ install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite3
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.
+	docker pull birkbeckctp/janeway-base:latest
 	docker-compose build --no-cache janeway-web
 shell:		## Runs the janeway-web service and starts an interactive bash process instead of the webserver
 	docker-compose run --entrypoint=/bin/bash --rm janeway-web
