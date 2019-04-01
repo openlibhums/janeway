@@ -75,6 +75,7 @@ class Journal(AbstractSiteModel):
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
+    keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(default=False)
@@ -191,7 +192,7 @@ class Journal(AbstractSiteModel):
         press = press_models.Press.objects.all()[0]
         return press
 
-    def site_url(self, path="/"):
+    def site_url(self, path=""):
         if settings.URL_CONFIG == "path":
             return self._site_path_url(path)
 
@@ -202,9 +203,11 @@ class Journal(AbstractSiteModel):
                 path=path,
         )
 
-    def _site_path_url(self, path="/"):
+    def _site_path_url(self, path=None):
         request = logic.get_current_request()
         if request and request.journal == self:
+            if not path:
+                path = "/{}".format(self.code)
             return request.build_absolute_uri(path)
         else:
             return self.press.journal_path_url(self, path)
