@@ -4,9 +4,10 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+import json
+import logging
 import os
 import uuid
-import json
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -17,6 +18,9 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from utils.function_cache import cache
 from utils import logic
+
+
+logger = logging.getLogger(__name__)
 
 
 fs = JanewayFileSystemStorage()
@@ -130,6 +134,7 @@ class Press(AbstractSiteModel):
 
     @staticmethod
     def press_url(request):
+        logger.warning("Using press.press_url is deprecated")
         return 'http{0}://{1}{2}{3}'.format('s' if request.is_secure() else '',
                                             Press.get_press(request).domain,
                                             ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',

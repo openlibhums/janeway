@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load recaptcha2 %}
+{% load orcid %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
 
@@ -32,7 +33,7 @@
                         <a class="waves-effect waves-light btn wide-button" href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
                         <a class="waves-effect waves-light btn wide-button" href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
                         {% if settings.ENABLE_ORCID %}
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={{ request.journal.site_url }}/login/orcid/"
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
                            class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
                     </div>
