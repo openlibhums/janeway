@@ -495,8 +495,12 @@ class Issue(models.Model):
 
     @property
     def issue_articles(self):
-        # this property should be used to display article ToCs since it enforces visibility of Published items
-        articles = self.articles.filter(stage=submission_models.STAGE_PUBLISHED)
+        # this property should be used to display article ToCs since
+        # it enforces visibility of Published items
+        articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
         ordered_list = list()
         for article in articles:
@@ -508,10 +512,18 @@ class Issue(models.Model):
         structure = collections.OrderedDict()
 
         sections = self.all_sections
-        articles = self.articles.all()
+        articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
         for section in sections:
-            article_with_order = ArticleOrdering.objects.filter(issue=self, section=section)
+            article_with_order = ArticleOrdering.objects.filter(
+                issue=self,
+                section=section,
+                article__stage=submission_models.STAGE_PUBLISHED,
+                article__date_published__lte=timezone.now(),
+            )
 
             article_list = list()
             for order in article_with_order:
