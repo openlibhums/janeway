@@ -13,7 +13,7 @@ django-markdown-deux==1.0.5
 django-settings-export==1.2.1
 -e git+https://github.com/BirkbeckCTP/django-simple-math-captcha@1.11_fix#egg=django-simple-math-captcha
 django-recaptcha2==1.0.3
-django-summernote==0.8.8.1
+django-summernote==0.8.11.1
 djangorestframework==3.6.3
 -e git+https://github.com/BirkbeckCTP/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/BirkbeckCTP/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
