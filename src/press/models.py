@@ -144,8 +144,9 @@ class Press(AbstractSiteModel):
         """ Returns a Journal's path mode url relative to its press """
 
         _path = journal.code
-        if settings.DEBUG:
-            port = logic.get_current_request().get_port()
+        request = logic.get_current_request()
+        if settings.DEBUG and request:
+            port = request.get_port()
         else:
             port = None
         if path is not None:

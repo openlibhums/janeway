@@ -137,6 +137,6 @@ def build_url(netloc, port=None, scheme=None, path="", query=None, fragment=""):
 def get_current_request():
     try:
         return GlobalRequestMiddleware.get_current_request()
-    except KeyError:
+    except (KeyError, AttributeError):
         return None
 

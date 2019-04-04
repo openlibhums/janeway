@@ -8,16 +8,31 @@ class Command(BaseCommand):
 
     help = "Resets frozen author records with fresh data."
 
+    def add_arguments(self, parser):
+        """Adds arguments to Django's management command-line parser.
+
+        :param parser: the parser to which the required arguments will be added
+        :return: None
+        """
+        parser.add_argument("--hard",
+                action='store_true',
+                default=False,
+                help="Also deletes manually added frozen records"
+        )
+
     def handle(self, *args, **options):
-        """ Resets all frozen author records with live profile records.
+        """ Resets frozen author records with live profile records.
 
         :param args: None
         :param options: None.
         :return: None
         """
+        filters = {}
+        if options["hard"] is True:
+            filters["author__isnull"] = True
 
         articles = submission_models.Article.objects.all()
-        submission_models.FrozenAuthor.objects.all().delete()
+        submission_models.FrozenAuthor.objects.filter(**filters).delete()
 
         for article in articles:
             for author in article.authors.all():

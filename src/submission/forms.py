@@ -233,6 +233,15 @@ class FileDetails(forms.ModelForm):
 
 
 class EditFrozenAuthor(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.pop("instance", None)
+        if instance:
+            del self.fields["is_corporate"]
+            if instance.is_corporate:
+                del self.fields["first_name"]
+                del self.fields["middle_name"]
+                del self.fields["last_name"]
 
     class Meta:
         model = models.FrozenAuthor
@@ -243,6 +252,7 @@ class EditFrozenAuthor(forms.ModelForm):
             'institution',
             'department',
             'country',
+            'is_corporate',
         )
 
 
