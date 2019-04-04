@@ -2,6 +2,8 @@
 {% load hooks %}
 {% load i18n %}
 
+{% hook 'filter_search' %}
+
 {% block page_title %}{% trans "Search" %}{% endblock %}
 
 {% block title %}{% trans "Search" %}{% endblock %}

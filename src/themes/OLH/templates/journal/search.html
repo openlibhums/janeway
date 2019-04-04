@@ -1,7 +1,9 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load hooks %}
 
+{% hook 'filter_search' %}
 
 {% block title %}{% trans "Search" %}{% endblock %}
 
