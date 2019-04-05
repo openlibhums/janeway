@@ -510,8 +510,6 @@ def sort_issues(request, issue_list):
 
     ordered_issues = issue_list.order_by(order)
 
-    pks = [issue.pk for issue in ordered_issues]
-
     for order, issue in enumerate(ordered_issues):
         issue.order = order
         issue.save()
