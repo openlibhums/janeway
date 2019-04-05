@@ -363,7 +363,7 @@ class ReviewTests(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
-        call_command('sync_settings_to_journals')
+        call_command('load_default_settings')
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')

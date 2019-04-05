@@ -27,11 +27,33 @@ def create_setting(setting_group, setting_name, type, pretty_name, description, 
     return new_setting
 
 
-def get_setting(setting_group, setting_name, journal, create=False, fallback=False):
+def get_setting(
+        setting_group, setting_name,
+        journal=None,
+        create=False,
+        fallback=False,
+        default=True
+):
+    """ Returns a matching SettingValue for the language in context
+
+    It no journal is passed it returns the default setting directly. If
+    fallback or default are True, it will attempt to returnthe base language
+    and/or the default value respectively (in that order)
+    :setting_group: (str) The group__name of the Setting
+    :setting_name: (str) The name of the Setting
+    :journal: (Journal object) The journal for which this setting is relevant.
+        If None, returns the default value
+    :create: If True, a journal override will be created if one is not present
+    :fallback: If True, it will attempt to return the value for the base
+        language when no value is available for the current language
+    :default: If True, returns the default SettingValue when no journal specific
+        value is present
+    """
     setting = core_models.Setting.objects.get(name=setting_name)
     lang = get_language() if setting.is_translatable else 'en'
 
-    return _get_setting(setting_group, setting, journal, lang, create, fallback)
+    return _get_setting(
+            setting_group, setting, journal, lang, create, fallback, default)
 
 
 def get_requestless_setting(setting_group, setting, journal):
@@ -46,32 +68,44 @@ def get_requestless_setting(setting_group, setting, journal):
     return setting
 
 
-def _get_setting(setting_group, setting, journal, lang, create, fallback):
+def _get_setting(
+        setting_group,
+        setting,
+        journal,
+        lang,
+        create,
+        fallback,
+        default=True,
+):
+    if fallback:
+        _fallback = settings.LANGUAGE_CODE
+    else:
+        _fallback = None # deactivates fallback
+
     try:
-        setting = core_models.SettingValue.objects.language(lang).get(
-            setting__group__name=setting_group,
-            setting=setting,
-            journal=journal
-        )
-        return setting
-    except core_models.SettingValue.DoesNotExist:
-        if lang == settings.LANGUAGE_CODE:
-            if create:
-                return save_setting(setting_group, setting.name, journal, ' ')
-            else:
-                raise IndexError('Setting does not exist and will not be created.')
-        else:
-            # Switch get the setting and start a translation
-            setting = core_models.SettingValue.objects.language(settings.LANGUAGE_CODE).get(
+        return core_models.SettingValue.objects \
+            .language(lang) \
+            .fallbacks(_fallback) \
+            .get(
                 setting__group__name=setting_group,
                 setting=setting,
-                journal=journal
-            )
-
-            if not fallback:
-                setting.translate(lang)
-            return setting
-
+                journal=journal,
+        )
+    except core_models.SettingValue.DoesNotExist:
+        if journal is not None:
+            if create:
+                return save_setting(setting_group, setting.name, journal, ' ')
+            elif default:
+                # return press wide setting
+                journal = None
+                return _get_setting(
+                        setting_group, setting, journal,
+                        lang, create, fallback,
+                )
+            else:
+                return None
+        else:
+            raise
 
 def save_setting(setting_group, setting_name, journal, value):
     setting = core_models.Setting.objects.get(name=setting_name)

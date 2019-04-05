@@ -610,6 +610,15 @@ def settings_index(request):
 
     return render(request, template, context)
 
+@staff_member_required
+def default_settings_index(request):
+    """ Proxy view for edit_setting allowing to edit defaults
+
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+
+    return settings_index(request)
 
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
@@ -620,16 +629,25 @@ def edit_setting(request, setting_group, setting_name):
     :param setting_name: string, Setting.name
     :return: HttpResponse object
     """
-    setting_value = setting_handler.get_setting(setting_group, setting_name, request.journal, create=True)
+    setting = models.Setting.objects.get(
+            name=setting_name, group__name=setting_group)
+    setting_value = setting_handler.get_setting(
+            setting_group,
+            setting_name,
+            request.journal,
+            default=False
+        )
 
-    if setting_value.setting.types == 'rich-text':
+    if setting_value and setting_value.setting.types == 'rich-text':
         setting_value.value = linebreaksbr(setting_value.value)
 
-    edit_form = forms.EditKey(key_type=setting_value.setting.types, value=setting_value.value)
+    edit_form = forms.EditKey(
+            key_type=setting.types,
+            value=setting_value.value if setting_value else None
+    )
 
-    if request.POST and 'delete' in request.POST:
-        setting_value.value = ''
-        setting_value.save()
+    if request.POST and 'delete' in request.POST and setting_value:
+        setting_value.delete()
 
         return redirect(reverse('core_settings_index'))
 
@@ -638,6 +656,8 @@ def edit_setting(request, setting_group, setting_name):
         if request.FILES:
             value = logic.handle_file(request, setting_value, request.FILES['value'])
 
+        setting_value = setting_handler.get_setting(
+            setting_group, setting_name, request.journal, create=True)
         setting_value.value = value
         setting_value.save()
 
@@ -647,13 +667,25 @@ def edit_setting(request, setting_group, setting_name):
 
     template = 'core/manager/settings/edit_setting.html'
     context = {
-        'setting': setting_value.setting,
-        'group': setting_value.setting.group,
+        'setting': setting,
+        'setting_value': setting_value,
+        'group': setting.group,
         'edit_form': edit_form,
-        'value': setting_value.value
+        'value': setting_value.value if setting_value else None
     }
-
     return render(request, template, context)
+
+
+@staff_member_required
+def edit_default_setting(request, setting_group, setting_name):
+    """ Proxy view for edit_setting allowing editing the default value
+
+    :param request: HttpRequest object
+    :param setting_group: string, SettingGroup.name
+    :param setting_name: string, Setting.name
+    :return: HttpResponse object
+    """
+    return edit_setting(request, setting_group, setting_name)
 
 
 @editor_user_required

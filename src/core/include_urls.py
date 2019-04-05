@@ -74,9 +74,13 @@ urlpatterns = [
 
     # Settings Management
     url(r'^manager/settings/$', core_views.settings_index, name='core_settings_index'),
+    url(r'^manager/default_settings/$', core_views.default_settings_index, name='core_default_settings_index'),
     url(r'^manager/settings/group/(?P<setting_group>[-\w.]+)/setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_setting'),
+    url(r'^manager/settings/group/(?P<setting_group>[-\w.]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
+        core_views.edit_setting,
+        name='core_edit_default_setting'),
     url(r'^manager/settings/(?P<group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
     url(r'^manager/settings/(?P<plugin>[-\w.]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
         core_views.edit_plugin_settings_groups, name='core_edit_plugin_settings_groups'),

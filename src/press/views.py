@@ -101,7 +101,6 @@ def manager_index(request):
             new_journal = form.save(request=request)
             new_journal.sequence = request.press.next_journal_order()
             new_journal.save()
-            call_command('sync_settings_to_journals', new_journal.code)
             call_command('install_plugins')
             new_journal.setup_directory()
             return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),

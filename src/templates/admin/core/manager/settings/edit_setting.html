@@ -9,8 +9,13 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    {% if request.journal %}
     <li><a href="{% url 'core_settings_index' %}">Settings</a></li>
     <li><a href="{% url 'core_edit_setting' setting.group.name setting.name %}">Edit {{ setting.pretty_name }}</a></li>
+    {% else %}
+    <li><a href="{% url 'core_default_settings_index' %}">Settings</a></li>
+    <li><a href="{% url 'core_edit_default_setting' setting.group.name setting.name %}">Edit {{ setting.pretty_name }}</a></li>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -20,9 +25,24 @@
                 <div class="box">
                     <div class="title-area">
                         <h2>Edit {{ setting.pretty_name }} ({{ setting.name }})</h2>
-                        <a href="{% url 'core_settings_index' %}" class="button warning small float-right">< Back</a>
                     </div>
                     <div class="content">
+                            {% if setting_value == None or setting_value != setting.default_setting_value %}
+                            <div class="card">
+                              <div class="card-divider">
+                                <h5><i class="fa fa-info-circle"></i> The default value for this setting is:</h5>
+                              </div>
+                              <div class="card-section">
+                                {{ setting.default_setting_value.render_value|safe }}".
+                              </div>
+                              <div class="card-divider">
+                                <h5>You can edit the override for this journal by filling this form:</h5>
+                              </div>
+                            </div>
+                            {% else %}
+                            <h5><i class="fa fa-info-circle"></i>You are editing the default value for this setting. Journals with a specific journal override will not use this value.</h5>
+                            {% endif %}
+                        </h5>
                         {% if setting.description %}<p>{{ setting.description }}</p>{% endif %}
 
                         <form action="" method="POST" enctype="multipart/form-data">
@@ -41,13 +61,16 @@
 
                             {% buttons %}
                                 <button type="submit" class="button success" style="margin-right:5px">
-                                    {% bootstrap_icon "ok" %} Submit
+                                    {% bootstrap_icon "ok" %} {% if setting_value == None %} Create Override {% else %} Submit {% endif %}
                                 </button>
+                                {% if setting_value != setting.default_setting_value and setting_value != None%}
                                 <button type="submit" class="button alert float-right"
                                         onclick="return confirm_function()"
                                         name="delete" value="delete">
-                                    {% bootstrap_icon "remove" %} Delete
+                                    {% bootstrap_icon "remove" %}
+                                    Remove setting override
                                 </button>
+                                {% endif %}
                             {% endbuttons %}
 
                         </form>
