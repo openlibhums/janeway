@@ -117,6 +117,12 @@ class Journal(AbstractSiteModel):
     except BaseException:
         press_name = ''
 
+    # Issue Display
+    display_issue_volume = models.BooleanField(default=True)
+    display_issue_number = models.BooleanField(default=True)
+    display_issue_year = models.BooleanField(default=True)
+    display_issue_title = models.BooleanField(default=True)
+
     def __str__(self):
         return u'{0}: {1}'.format(self.code, self.domain)
 
@@ -417,14 +423,27 @@ class Issue(models.Model):
     )
 
     class Meta:
-        ordering = ('year', 'volume', 'issue', 'title')
+        ordering = ('order', 'year', 'volume', 'issue', 'title')
 
     @property
     def display_title(self):
-        if self.issue_title:
+        if self.issue_type == 'Collection':
             return self.issue_title
-        else:
-            return u'Volume {0}, Issue {1} ({2})'.format(self.volume, self.issue, self.date.year)
+
+        journal = self.journal
+
+        volume = "Volume {}".format(
+            self.volume) if journal.display_issue_volume else ""
+        issue = "Issue {}".format(
+            self.issue) if journal.display_issue_number else ""
+        year = "{}".format(
+            self.date.year) if journal.display_issue_year else ""
+        title = "{}".format(
+            self.issue_title) if journal.display_issue_title else ""
+
+        title_list = [volume, issue, year, title]
+
+        return mark_safe(" &bull; ".join((filter(None, title_list))))
 
     @property
     def manage_issue_list(self):

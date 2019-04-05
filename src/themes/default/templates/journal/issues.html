@@ -18,7 +18,7 @@
                   alt="{{ issue.title }}"
                   class="img-fluid">
                 <div class="info-bar">
-                  <p>{% trans "Volume" %} {{ issue.volume }} {% trans "Issue" %} {{ issue.issue }} &bull; {{ issue.date.year }} &bull; {{ issue.articles.all.count }} {% trans "items" %}<br/>{{ issue.issue_title }}&nbsp;</p>
+                  <p>{{ issue.display_title }} &bull; {{ issue.articles.all.count }} {% trans "items" %}</p>
                 </div>
               </div>
             </a>

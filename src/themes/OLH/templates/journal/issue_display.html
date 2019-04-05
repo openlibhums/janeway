@@ -47,7 +47,7 @@
                     <ul>
                         {% for issue in issues %}
                             {% if issue.issue_type == 'Issue' %}
-                                <li><a href="{% url 'journal_issue' issue.id %}">{{ issue }} </a></li>
+                                <li><a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }} </a></li>
                             {% else %}
                                 <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
                             {% endif %}

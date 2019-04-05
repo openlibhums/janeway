@@ -1,0 +1,40 @@
+{% extends "admin/core/base.html" %}}
+{% load foundation %}
+
+{% block title %}Issue Management{% endblock title %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/issue_management.html" %}
+    <li>Issue Title Display Settings</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Issue Title Display Settings</h2>
+            <a href="{% url 'manage_issues' %}" class="button">
+                <i class="fa fa-arrow-left">&nbsp;</i>
+                Back
+            </a>
+        </div>
+        <div class="content">
+            <form method="POST">
+                {% csrf_token %}
+                <p>
+                    These settings let you determine which parts of the issue
+                    metadata to display. If you want to completely customise
+                    what is displayed you disable all except Display issue title
+                    and then put your custom format in the issue title field for
+                    each issue.
+                </p>
+                {{ issue_display_form|foundation }}
+                <button class="success button">
+                    <i class="fa fa-save">&nbsp;</i>
+                    Save Settings
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+

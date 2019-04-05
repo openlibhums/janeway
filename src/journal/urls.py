@@ -102,6 +102,8 @@ urlpatterns = [
     # Issues
     url(r'^manage/issues/$',
         views.manage_issues, name='manage_issues'),
+    url(r'^manage/issues/display/$',
+        views.manage_issue_display, name='manage_issue_display'),
     url(r'^manage/issues/order/$',
         views.issue_order, name='issue_order'),
     url(r'^manage/issues/(?P<issue_id>\d+)/$',

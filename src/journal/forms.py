@@ -23,6 +23,7 @@ SEARCH_SORT_OPTIONS = [
         ('date_published', 'Oldest'),
       ]
 
+
 class JournalForm(forms.ModelForm):
 
     class Meta:
@@ -92,3 +93,14 @@ class ResendEmailForm(forms.Form):
 class SearchForm(forms.Form):
     article_search = forms.CharField(label='search term', min_length=3, max_length=100, required=False)
     sort = forms.ChoiceField(label='sort by', widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+
+
+class IssueDisplayForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'display_issue_volume',
+            'display_issue_number',
+            'display_issue_year',
+            'display_issue_title',
+        )
