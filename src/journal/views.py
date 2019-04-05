@@ -155,7 +155,7 @@ def issues(request):
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
         issue_type='Issue',
-        date__lte=timezone.now()
+        date__lte=timezone.now(),
     )
     template = 'journal/issues.html'
     context = {
@@ -969,7 +969,7 @@ def manage_issue_display(request):
             issue_display_form.save()
             return redirect(
                 reverse(
-                    'manage_issue_display'
+                    'manage_issue_display',
                 )
             )
 
