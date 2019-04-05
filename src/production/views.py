@@ -37,21 +37,40 @@ def production_list(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    assigned_table = models.ProductionAssignment.objects.all()
-    my_table = models.ProductionAssignment.objects.values_list('article_id', flat=True).filter(
-        production_manager=request.user, article__journal=request.journal)
+    assigned_table = models.ProductionAssignment.objects.filter(
+        article__journal=request.journal
+    )
+    my_table = models.ProductionAssignment.objects.values_list(
+        'article_id',
+        flat=True
+    ).filter(
+        production_manager=request.user,
+        article__journal=request.journal
+    )
 
     assigned = [assignment.article.pk for assignment in assigned_table]
     unassigned_articles = submission_models.Article.objects.filter(
-        stage=submission_models.STAGE_TYPESETTING, journal=request.journal).exclude(
-        id__in=assigned)
+        stage=submission_models.STAGE_TYPESETTING,
+        journal=request.journal
+    ).exclude(
+        id__in=assigned
+    )
     assigned_articles = submission_models.Article.objects.filter(
-        stage=submission_models.STAGE_TYPESETTING, journal=request.journal).exclude(
-        id__in=unassigned_articles)
+        stage=submission_models.STAGE_TYPESETTING,
+        journal=request.journal
+    ).exclude(
+        id__in=unassigned_articles
+    )
 
-    my_articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_TYPESETTING, id__in=my_table)
+    my_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING,
+        id__in=my_table
+    )
 
-    prod_managers = core_models.AccountRole.objects.filter(role__slug='production', journal=request.journal)
+    prod_managers = core_models.AccountRole.objects.filter(
+        role__slug='production',
+        journal=request.journal
+    )
 
     template = 'production/index.html'
     context = {
@@ -75,19 +94,41 @@ def production_assign_article(request, user_id, article_id):
     :param article_id: Article object PK
     :return: HttpRedirect
     """
-    article = submission_models.Article.objects.get(id=article_id)
+    article = submission_models.Article.objects.get(
+        id=article_id,
+        journal=request.journal,
+    )
     user = core_models.Account.objects.get(id=user_id)
 
     if user.is_production(request):
-        url = request.journal.site_url(path=reverse('production_article', kwargs={'article_id': article.id}))
+        url = request.journal.site_url(
+            path=reverse(
+                'production_article',
+                kwargs={'article_id': article.id},
+            )
+        )
         html = logic.get_production_assign_content(user, request, article, url)
 
-        prod = models.ProductionAssignment(article=article, production_manager=user, editor=request.user)
+        prod = models.ProductionAssignment(
+            article=article,
+            production_manager=user,
+            editor=request.user,
+        )
         prod.save()
 
-        cron_task.CronTask.add_email_task(user.email, 'Production assignment', html, request, article)
+        cron_task.CronTask.add_email_task(
+            user.email,
+            'Production assignment',
+            html,
+            request,
+            article,
+        )
     else:
-        messages.add_message(request, messages.WARNING, 'User is not a production manager.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'User is not a production manager.',
+        )
 
     return redirect(reverse('production_list'))
 
@@ -101,7 +142,10 @@ def production_unassign_article(request, article_id):
     :param article_id: Article object PK
     :return: HttpRedirect
     """
-    article = submission_models.Article.objects.get(id=article_id)
+    article = submission_models.Article.objects.get(
+        id=article_id,
+        journal=request.journal,
+    )
 
     models.ProductionAssignment.objects.filter(article=article).delete()
 
@@ -172,12 +216,17 @@ def non_workflow_assign_article(request, article_id):
 @article_stage_production_required
 def production_done(request, article_id):
     """
-    Allows a Production Manager to mark Production as complete, fires an event that emails the Editor.
+    Allows a Production Manager to mark Production as complete, fires an event
+    that emails the Editor.
     :param request: HttpRequest object
     :param article_id: Artcle object PK
     :return: HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     assignment = models.ProductionAssignment.objects.get(article=article)
     assignment.closed = timezone.now()
@@ -240,26 +289,57 @@ def production_article(request, article_id):
 
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                logic.save_galley(article, request, uploaded_file, True, "XML", False)
+                logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                    "XML",
+                    False,
+                )
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
-                logic.save_galley(article, request, uploaded_file, True, "PDF", False)
+                logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                    "PDF",
+                    False,
+                )
 
         if 'other' in request.POST:
             for uploaded_file in request.FILES.getlist('other-file'):
-                logic.save_galley(article, request, uploaded_file, True, "Other", True)
+                logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                    "Other",
+                    True,
+                )
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
-                logic.save_prod_file(article, request, uploaded_file, 'Production Ready File')
+                logic.save_prod_file(
+                    article,
+                    request,
+                    uploaded_file,
+                    'Production Ready File',
+                )
 
         if 'supp' in request.POST:
             label = request.POST.get('label', 'Supplementary File')
             for uploaded_file in request.FILES.getlist('supp-file'):
                 logic.save_supp_file(article, request, uploaded_file, label)
 
-        return redirect(reverse('production_article', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'production_article',
+                kwargs={'article_id': article.pk}
+            )
+        )
 
     manuscripts = article.manuscript_files.filter(is_galley=False)
     data_files = article.data_figure_files.filter(is_galley=False)
@@ -291,12 +371,13 @@ def preview_galley(request, article_id, galley_id):
     """
     article = get_object_or_404(
         submission_models.Article,
-        pk=article_id
+        pk=article_id,
+        journal=request.journal,
     )
     galley = get_object_or_404(
         core_models.Galley,
         pk=galley_id,
-        article=article
+        article=article,
     )
 
     if galley.type == 'xml' or galley.type == 'html':
@@ -333,10 +414,17 @@ def assign_typesetter(request, article_id, production_assignment_id):
     :param production_assignment_id: ProductionAssignment object PK
     :return: HttpRedirect if POST otherwise HttpResponse
     """
-    production_assignment = get_object_or_404(models.ProductionAssignment,
-                                              pk=production_assignment_id,
-                                              closed__isnull=True)
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    production_assignment = get_object_or_404(
+        models.ProductionAssignment,
+        pk=production_assignment_id,
+        article__journal=request.journal,
+        closed__isnull=True,
+    )
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyedit_files = logic.get_copyedit_files(article)
     typesetters = logic.get_typesetters(article)
     typesetter_form = forms.AssignTypesetter(
@@ -399,8 +487,11 @@ def notify_typesetter(request, typeset_id):
     :param typeset_id: TypesetTask object PK
     :return: HttpRedirect if POST otherwise HttpResponse
     """
-    typeset = get_object_or_404(models.TypesetTask, pk=typeset_id,
-                                assignment__article__journal=request.journal)
+    typeset = get_object_or_404(
+        models.TypesetTask,
+        pk=typeset_id,
+        assignment__article__journal=request.journal,
+    )
     user_message_content = logic.get_typesetter_notification(typeset, request)
 
     if request.POST:
@@ -439,7 +530,7 @@ def edit_typesetter_assignment(request, typeset_id):
     typeset = get_object_or_404(
         models.TypesetTask,
         pk=typeset_id,
-        assignment__article__journal=request.journal
+        assignment__article__journal=request.journal,
     )
     article = typeset.assignment.article
 
@@ -501,10 +592,12 @@ def typesetter_requests(request, typeset_id=None, decision=None):
     :return: HttpResponse
     """
     if typeset_id and decision:
-        typeset_task = get_object_or_404(models.TypesetTask,
-                                         pk=typeset_id,
-                                         typesetter=request.user,
-                                         assignment__article__journal=request.journal)
+        typeset_task = get_object_or_404(
+            models.TypesetTask,
+            pk=typeset_id,
+            typesetter=request.user,
+            assignment__article__journal=request.journal,
+        )
 
         if decision == 'accept':
             typeset_task.accepted = timezone.now()
@@ -551,10 +644,13 @@ def do_typeset_task(request, typeset_id):
     :param typeset_id: TypesetTask object PK
     :return: HttpResponse or HttpRedirect
     """
-    typeset_task = get_object_or_404(models.TypesetTask,
-                                     pk=typeset_id,
-                                     accepted__isnull=False,
-                                     completed__isnull=True)
+    typeset_task = get_object_or_404(
+        models.TypesetTask,
+        pk=typeset_id,
+        accepted__isnull=False,
+        completed__isnull=True,
+        assignment__article__journal=request.journal,
+    )
 
     article = typeset_task.assignment.article
     galleys = core_models.Galley.objects.filter(article=article)
@@ -625,15 +721,21 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     return_url = request.GET.get('return', None)
 
     if typeset_id:
-        typeset_task = get_object_or_404(models.TypesetTask,
-                                         pk=typeset_id,
-                                         accepted__isnull=False,
-                                         completed__isnull=True)
+        typeset_task = get_object_or_404(
+            models.TypesetTask,
+            pk=typeset_id,
+            assignment__article__journal=request.journal,
+            accepted__isnull=False,
+            completed__isnull=True,
+        )
         article = typeset_task.assignment.article
     else:
         typeset_task = None
-        article = get_object_or_404(submission_models.Article.allarticles,
-                                    pk=article_id)
+        article = get_object_or_404(
+            submission_models.Article.allarticles,
+            pk=article_id,
+            journal=request.journal
+        )
     galley = get_object_or_404(core_models.Galley,
                                pk=galley_id,
                                article=article)
@@ -706,7 +808,11 @@ def review_typeset_task(request, article_id, typeset_id):
     :return: contextualised django template
     """
     typeset_task = get_object_or_404(models.TypesetTask, pk=typeset_id)
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     typeset_task.editor_reviewed = True
     typeset_task.save()
@@ -723,7 +829,11 @@ def delete_galley(request, typeset_id, galley_id):
     :param galley_id: Galley object PK
     :return:
     """
-    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article__journal=request.journal,
+    )
     galley.file.unlink_file()
     galley.delete()
 
@@ -739,8 +849,15 @@ def supp_file_doi(request, article_id, supp_file_id):
     :param supp_file_id: SupplementaryFile PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
-    supplementary_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    supplementary_file = get_object_or_404(
+        core_models.SupplementaryFile,
+        pk=supp_file_id,
+    )
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
 
     if not article.get_doi():
