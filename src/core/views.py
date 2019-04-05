@@ -129,11 +129,10 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
-    domain = request.journal.site_url if request.journal else request.press_base_url
 
     if orcid_code and django_settings.ENABLE_ORCID:
-        auth = orcid.retrieve_tokens(orcid_code, domain=domain)
-        orcid_id = auth.get('orcid', None)
+        orcid_id = orcid.retrieve_tokens(
+            orcid_code, request.site_type)
 
         if orcid_id:
             try:

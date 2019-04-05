@@ -327,9 +327,10 @@ def render_xml(file_to_render, article, galley=None):
 
         return transform(etree.XML(xml_string))
 
+
 def serve_any_file(request, file_to_serve, public=False, *path_parts):
-    #TODO: should rename to serve_file and the latter to serve_article_file
-    #Or removed
+    # TODO: should rename to serve_file and the latter to serve_article_file
+    # Or removed
     file_path = os.path.join(
             settings.BASE_DIR,
             'files',
@@ -605,6 +606,7 @@ def save_file_to_journal(request, file_to_handle, label, description, xslt=False
     )
 
     return new_file
+
 
 def save_file(request, file_to_handle, label=None, public=False, *path_parts):
     original_filename = str(file_to_handle.name)

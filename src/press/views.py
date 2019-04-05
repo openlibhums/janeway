@@ -10,7 +10,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from core import files, models as core_models, plugin_loader
 from journal import models as journal_models, views as journal_views, forms as journal_forms
@@ -128,7 +128,10 @@ def edit_press(request):
     """
 
     press = request.press
-    form = forms.PressForm(instance=press)
+    form = forms.PressForm(
+        instance=press,
+        initial={'press_logo': press.thumbnail_image}
+    )
 
     if request.POST:
         form = forms.PressForm(request.POST, request.FILES, instance=press)
@@ -141,7 +144,7 @@ def edit_press(request):
 
             messages.add_message(request, messages.INFO, 'Press updated.')
 
-            return redirect(reverse('core_manager_index'))
+            return redirect(reverse('press_edit_press'))
 
     template = 'press/edit_press.html'
     context = {
@@ -161,6 +164,28 @@ def serve_press_cover(request):
     p = press_models.Press.get_press(request)
 
     response = files.serve_press_cover(request, p.thumbnail_image)
+
+    return response
+
+
+@staff_member_required
+def serve_press_file(request, file_id):
+    """
+    If a user is staff this view will serve a press file.
+    :param request: HttpRequest
+    :param file_id: core.File object pk
+    :return: HttpStreamingResponse or Http404
+    """
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    # If the file has an article_id the press should not serve it.
+    # TODO: when untangling Files/Galleys this should be reviewed
+    if file.article_id:
+        raise Http404
+
+    path_parts = ['press']
+
+    response = files.serve_any_file(request, file, False, *path_parts)
 
     return response
 

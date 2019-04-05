@@ -75,6 +75,7 @@ class Journal(AbstractSiteModel):
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
+    keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(default=False)
@@ -202,9 +203,11 @@ class Journal(AbstractSiteModel):
                 path=path,
         )
 
-    def _site_path_url(self, path=""):
+    def _site_path_url(self, path=None):
         request = logic.get_current_request()
         if request and request.journal == self:
+            if not path:
+                path = "/{}".format(self.code)
             return request.build_absolute_uri(path)
         else:
             return self.press.journal_path_url(self, path)
@@ -238,12 +241,17 @@ class Journal(AbstractSiteModel):
                 core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
 
     def journal_users(self, objects=True):
-        if objects:
-            users = [role.user for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
-        else:
-            users = [role.user.pk for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
+        account_roles = core_models.AccountRole.objects.filter(
+            journal=self,
+            user__is_active=True,
+        ).select_related('user')
 
-        return set(users)
+        if objects:
+            users = {role.user for role in account_roles}
+        else:
+            users = {role.user.pk for role in account_roles}
+
+        return users
 
     @cache(300)
     def editorial_groups(self):
@@ -400,7 +408,13 @@ class Issue(models.Model):
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
 
     # guest editors
-    guest_editors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='guest_editors')
+    editors = models.ManyToManyField(
+        'core.Account',
+        blank=True,
+        null=True,
+        related_name='guest_editors',
+        through='IssueEditor',
+    )
 
     class Meta:
         ordering = ('year', 'volume', 'issue', 'title')
@@ -481,8 +495,12 @@ class Issue(models.Model):
 
     @property
     def issue_articles(self):
-        # this property should be used to display article ToCs since it enforces visibility of Published items
-        articles = self.articles.filter(stage=submission_models.STAGE_PUBLISHED)
+        # this property should be used to display article ToCs since
+        # it enforces visibility of Published items
+        articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
         ordered_list = list()
         for article in articles:
@@ -494,10 +512,18 @@ class Issue(models.Model):
         structure = collections.OrderedDict()
 
         sections = self.all_sections
-        articles = self.articles.all()
+        articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
         for section in sections:
-            article_with_order = ArticleOrdering.objects.filter(issue=self, section=section)
+            article_with_order = ArticleOrdering.objects.filter(
+                issue=self,
+                section=section,
+                article__stage=submission_models.STAGE_PUBLISHED,
+                article__date_published__lte=timezone.now(),
+            )
 
             article_list = list()
             for order in article_with_order:
@@ -584,6 +610,19 @@ class IssueGalley(models.Model):
     @property
     def path_parts(self):
         return self.FILES_PATH, self.issue.pk
+
+
+class IssueEditor(models.Model):
+    account = models.ForeignKey('core.Account')
+    issue = models.ForeignKey(Issue)
+    role = models.CharField(max_length=255, default='Guest Editor')
+
+    def __str__(self):
+        return "{user} {role}".format(
+            user=self.account.full_name(),
+            role=self.role,
+        )
+
 
 class SectionOrdering(models.Model):
     section = models.ForeignKey('submission.Section')

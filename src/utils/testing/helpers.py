@@ -4,13 +4,17 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from contextlib import ContextDecorator
+from django.utils.six import StringIO
 import sys
 
 from django.core.management import call_command
 from django.utils import translation
 from django.utils.six import StringIO
 
-from core import models as core_models
+from core import (
+        middleware,
+        models as core_models,
+)
 from journal import models as journal_models
 from press import models as press_models
 
@@ -138,3 +142,16 @@ class activate_translation(ContextDecorator):
 
     def __exit__(self, *exc):
         translation.deactivate()
+
+
+class request_context(ContextDecorator):
+
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def __enter__(self):
+        middleware._threadlocal.request = self.request
+
+    def __exit__(self, *exc):
+        middleware._threadlocal.request = None

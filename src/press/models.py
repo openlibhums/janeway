@@ -4,9 +4,10 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+import json
+import logging
 import os
 import uuid
-import json
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -17,6 +18,9 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from utils.function_cache import cache
 from utils import logic
+
+
+logger = logging.getLogger(__name__)
 
 
 fs = JanewayFileSystemStorage()
@@ -53,8 +57,18 @@ def press_text(type):
 
 class Press(AbstractSiteModel):
     name = models.CharField(max_length=600)
-    thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='press_thumbnail_image')
-    footer_description = models.TextField(null=True, blank=True)
+    thumbnail_image = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='press_thumbnail_image',
+        verbose_name='Press Logo',
+    )
+    footer_description = models.TextField(
+        null=True,
+        blank=True,
+        help_text='Additional HTML for the press footer.',
+    )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
     theme = models.CharField(max_length=255, default='default', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
@@ -73,9 +87,16 @@ class Press(AbstractSiteModel):
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
-    password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
+    password_length = models.PositiveIntegerField(
+        default=12,
+        validators=[MinValueValidator(9)],
+        help_text='The minimum length of an account password.',
+    )
 
-    enable_preprints = models.BooleanField(default=False)
+    enable_preprints = models.BooleanField(
+        default=False,
+        help_text='Enables the preprints system for this press.',
+    )
     preprints_about = models.TextField(blank=True, null=True)
     preprint_start = models.TextField(blank=True, null=True)
     preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
@@ -113,6 +134,7 @@ class Press(AbstractSiteModel):
 
     @staticmethod
     def press_url(request):
+        logger.warning("Using press.press_url is deprecated")
         return 'http{0}://{1}{2}{3}'.format('s' if request.is_secure() else '',
                                             Press.get_press(request).domain,
                                             ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',
@@ -122,9 +144,8 @@ class Press(AbstractSiteModel):
         """ Returns a Journal's path mode url relative to its press """
 
         _path = journal.code
-        request = logic.get_current_request()
-        if request:
-            port = request.get_port()
+        if settings.DEBUG:
+            port = logic.get_current_request().get_port()
         else:
             port = None
         if path is not None:
@@ -302,6 +323,9 @@ class Press(AbstractSiteModel):
     @property
     def code(self):
         return 'press'
+
+    class Meta:
+        verbose_name_plural = 'presses'
 
 
 class PressSetting(models.Model):

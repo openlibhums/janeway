@@ -65,11 +65,11 @@
             <div class="top-bar-left hide-for-medium-only" id="search-menu">
                 <ul class="menu global-search">
                     <li>
-                        <form method="POST" action="/search/">
+                        <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="input-group">
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="search">
+                                <input class="input-group-field" type="search" name="article_search">
 
                             </div><input type="submit" style="visibility: hidden;" />
                         </form>
@@ -149,7 +149,7 @@
             {% elif 'svg' in request.press_cover %}
                 <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
             {% else %}
-                <a href="{% url 'website_index' %}">{% svg "static/common/img/sample/janeway.svg" %}</a>
+                <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
             {% endif %}
         </div>
         <div class="large-5 columns" data-equalizer-watch>

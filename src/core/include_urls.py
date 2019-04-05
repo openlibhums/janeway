@@ -60,6 +60,10 @@ urlpatterns = [
     url(r'^dashboard/article/(?P<article_id>\d+)/$', core_views.dashboard_article, name='core_dashboard_article'),
 
     url(r'^press/cover/$', press_views.serve_press_cover, name='press_cover_download'),
+    url(r'^press/file/(?P<file_id>\d+)/$',
+        press_views.serve_press_file,
+        name='serve_press_file',
+        ),
 
     # Notes
     url(r'^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$', core_views.delete_note,
@@ -175,12 +179,6 @@ urlpatterns = [
 
     url(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
     url(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
-    url(r'^edit/article/(?P<article_id>\d+)/ident/$', submission_views.edit_identifiers, name='edit_identifiers'),
-    url(r'^edit/article/(?P<article_id>\d+)/ident/(?P<identifier_id>\d+)/$', submission_views.edit_identifiers,
-        name='edit_identifiers_with_ident'),
-    url(r'^edit/article/(?P<article_id>\d+)/ident/(?P<identifier_id>\d+)/(?P<event>[-\w.]+)/$',
-        submission_views.edit_identifiers,
-        name='edit_identifiers_with_event'),
 
     # Public Profiles
     url(r'profile/(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/$', core_views.public_profile, name='core_public_profile'),

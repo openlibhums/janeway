@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
+from django.views.decorators.http import require_POST
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
@@ -743,9 +744,14 @@ def do_review(request, assignment_id):
             Q(reviewer=request.user)
         )
 
-    fields_required = True
+    # If the submission has a review_file, reviewer does not need
+    # to complete the generated part of the form.
+    fields_required = False if assignment.review_file else True
     review_round = assignment.article.current_review_round_object()
-    form = forms.GeneratedForm(review_assignment=assignment)
+    form = forms.GeneratedForm(
+        review_assignment=assignment,
+        fields_required=fields_required,
+    )
     decision_form = forms.ReviewerDecisionForm(instance=assignment)
 
     if 'review_file' in request.GET:
@@ -753,20 +759,32 @@ def do_review(request, assignment_id):
 
     if request.POST:
         if 'decline' in request.POST:
-            return redirect(logic.generate_access_code_url('decline_review', assignment, access_code))
+            return redirect(
+                logic.generate_access_code_url(
+                    'decline_review',
+                    assignment,
+                    access_code,
+                )
+            )
 
         if 'accept' in request.POST:
-            return redirect(logic.generate_access_code_url('accept_review', assignment, access_code))
+            return redirect(
+                logic.generate_access_code_url(
+                    'accept_review',
+                    assignment,
+                    access_code,
+                )
+            )
 
-        if request.FILES:
-            fields_required = False
-            uploaded_file = request.FILES.get('review_file')
-            new_file = files.save_file_to_article(uploaded_file, assignment.article, assignment.reviewer)
-            assignment.review_file = new_file
-            assignment.save()
-
-        form = forms.GeneratedForm(request.POST, review_assignment=assignment, fields_required=fields_required)
-        decision_form = forms.ReviewerDecisionForm(request.POST, instance=assignment)
+        form = forms.GeneratedForm(
+            request.POST,
+            review_assignment=assignment,
+            fields_required=fields_required,
+        )
+        decision_form = forms.ReviewerDecisionForm(
+            request.POST,
+            instance=assignment,
+        )
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
@@ -781,11 +799,19 @@ def do_review(request, assignment_id):
 
             kwargs = {'review_assignment': assignment,
                       'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_REVIEW_COMPLETE,
-                                           task_object=assignment.article,
-                                           **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVIEW_COMPLETE,
+                task_object=assignment.article,
+                **kwargs
+            )
 
-            return redirect(logic.generate_access_code_url('thanks_review', assignment, access_code))
+            return redirect(
+                logic.generate_access_code_url(
+                    'thanks_review',
+                    assignment,
+                    access_code,
+                )
+            )
 
     template = 'review/review_form.html'
     context = {
@@ -797,6 +823,66 @@ def do_review(request, assignment_id):
     }
 
     return render(request, template, context)
+
+
+@require_POST
+@reviewer_user_for_assignment_required
+def upload_review_file(request, assignment_id):
+    access_code = logic.get_access_code(request)
+
+    if access_code:
+        assignment = models.ReviewAssignment.objects.get(
+            Q(pk=assignment_id)
+            & Q(is_complete=False)
+            & Q(article__stage=submission_models.STAGE_UNDER_REVIEW)
+            & Q(access_code=access_code)
+        )
+    else:
+        assignment = models.ReviewAssignment.objects.get(
+            Q(pk=assignment_id)
+            & Q(is_complete=False)
+            & Q(article__stage=submission_models.STAGE_UNDER_REVIEW)
+            & Q(reviewer=request.user)
+        )
+
+    if 'review_file' in request.POST:
+        uploaded_file = request.FILES.get('review_file', None)
+
+        old_file = assignment.review_file
+
+        if uploaded_file:
+            new_file = files.save_file_to_article(
+                uploaded_file,
+                assignment.article,
+                assignment.reviewer,
+            )
+            assignment.review_file = new_file
+            assignment.save()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'File uploaded successfully.',
+            )
+
+            if old_file:
+                old_file.unlink_file(request.journal)
+                old_file.delete()
+
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Please select a file to upload.',
+            )
+
+    return redirect(
+        logic.generate_access_code_url(
+            'do_review',
+            assignment,
+            access_code,
+        )
+    )
 
 
 @reviewer_user_for_assignment_required
@@ -1242,8 +1328,9 @@ def review_decision(request, article_id, decision):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    author_review_url = "{0}{1}".format(request.journal.site_url(),
-                                        reverse('review_author_view', kwargs={'article_id': article.id}))
+    author_review_url = request.journal.site_url(
+            reverse('review_author_view', kwargs={'article_id': article.id})
+    )
     email_content = logic.get_decision_content(request, article, decision, author_review_url)
 
     if article.date_accepted or article.date_declined:

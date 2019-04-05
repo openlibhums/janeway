@@ -357,7 +357,12 @@ def submit_review(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
 
     if article.current_step < 4 and not request.user.is_staff:
-        return redirect(reverse('submit_info', kwargs={'article_id': article_id}))
+        return redirect(
+            reverse(
+                'submit_info',
+                kwargs={'article_id': article_id},
+            )
+        )
 
     if request.POST and 'next_step' in request.POST:
         article.date_submitted = timezone.now()
@@ -366,21 +371,29 @@ def submit_review(request, article_id):
         article.snapshot_authors(article)
         article.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Article {0} submitted'.format(article.title),
+        )
 
         kwargs = {'article': article,
                   'request': request}
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
-                                       task_object=article,
-                                       **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_SUBMITTED,
+            task_object=article,
+            **kwargs
+        )
 
-        event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                                       **{'handshake_url': 'submit_review',
-                                          'request': request,
-                                          'article': article,
-                                          'switch_stage': False})
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            **{'handshake_url': 'submit_review',
+               'request': request,
+               'article': article,
+               'switch_stage': False}
+        )
 
-        return redirect(reverse('core_dashboard_article', kwargs={'article_id': article.pk}))
+        return redirect(reverse('core_dashboard'))
 
     template = "admin/submission//submit_review.html"
     context = {
@@ -467,68 +480,6 @@ def order_authors(request, article_id):
             author.save()
 
     return HttpResponse('Thanks')
-
-
-@production_user_or_editor_required
-def edit_identifiers(request, article_id, identifier_id=None, event=None):
-    """
-    View allows production and editor staff to update identifiers.
-    :param request: request object
-    :param article_id: PK of an Article
-    :param identifier_id: PK of an Identifier
-    :param event: String: delete
-    :return: a contextualised django template
-    """
-    article = get_object_or_404(models.Article, pk=article_id)
-    identifiers = identifier_models.Identifier.objects.filter(article=article)
-    identifier, identifier_form, modal = None, forms.IdentifierForm(), None
-    return_param = request.GET.get('return')
-    reverse_url = '{0}?return={1}'.format(reverse('edit_identifiers', kwargs={'article_id': article.pk}), return_param)
-
-    if identifier_id:
-        identifier = get_object_or_404(identifier_models.Identifier, article=article, pk=identifier_id)
-        identifier_form = forms.IdentifierForm(instance=identifier)
-        modal = 'identifier'
-
-        if event == 'delete':
-            identifier.delete()
-            messages.add_message(request, messages.WARNING, 'Identifier deleted.')
-            return redirect(reverse_url)
-
-    if request.POST:
-        if 'issue_doi' in request.POST:
-            # assuming there is only one DOI
-            for identifier in identifiers:
-                status, error = identifier.register()
-                messages.add_message(
-                    request,
-                    messages.INFO if not error else messages.ERROR,
-                    status
-                )
-        else:
-            if identifier:
-                identifier_form = forms.IdentifierForm(request.POST, instance=identifier)
-            else:
-                identifier_form = forms.IdentifierForm(request.POST)
-
-            if identifier_form.is_valid():
-                ident = identifier_form.save(commit=False)
-                ident.article = article
-                ident.save()
-
-                return redirect(reverse_url)
-
-    template = 'submission/edit/identifiers.html'
-    context = {
-        'article': article,
-        'identifiers': identifiers,
-        'identifier_form': identifier_form,
-        'identifier': identifier,
-        'modal': modal,
-        'return': return_param,
-    }
-
-    return render(request, template, context)
 
 
 @editor_user_required

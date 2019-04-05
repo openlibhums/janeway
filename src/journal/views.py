@@ -7,6 +7,7 @@ import json
 import os
 from shutil import copyfile
 from uuid import uuid4
+import logging
 
 from django.conf import settings
 from django.contrib import messages
@@ -16,7 +17,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
@@ -38,6 +39,8 @@ from security.decorators import article_stage_accepted_or_later_required, \
 from submission import models as submission_models
 from utils import models as utils_models, shared
 from events import logic as event_logic
+
+logger = logging.getLogger(__name__)
 
 
 @has_journal
@@ -174,21 +177,37 @@ def issue(request, issue_id, show_sidebar=True):
     :param show_sidebar: whether or not to show the sidebar of issues
     :return: a rendered template of this issue
     """
-    issue_object = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal, issue_type='Issue',
-                                     date__lte=timezone.now())
-    articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors', 'frozenauthor_set',
-                                                                                     'manuscript_files').select_related(
-        'section')
+    issue_object = get_object_or_404(
+        models.Issue.objects.prefetch_related('editors'),
+        pk=issue_id,
+        journal=request.journal,
+        issue_type='Issue',
+        date__lte=timezone.now(),
+    )
+    articles = issue_object.articles.all().order_by(
+        'section',
+        'page_numbers').prefetch_related(
+        'authors', 'frozenauthor_set',
+        'manuscript_files').select_related(
+        'section',
+    )
 
-    issue_objects = models.Issue.objects.filter(journal=request.journal, issue_type='Issue')
+    issue_objects = models.Issue.objects.filter(
+        journal=request.journal,
+        issue_type='Issue',
+    )
+
+    editors = models.IssueEditor.objects.filter(
+        issue=issue_object,
+    )
 
     template = 'journal/issue.html'
     context = {
         'issue': issue_object,
         'issues': issue_objects,
         'structure': issue_object.structure(),
-        'show_sidebar': show_sidebar
+        'editors': editors,
+        'show_sidebar': show_sidebar,
     }
 
     return render(request, template, context)
@@ -1060,36 +1079,99 @@ def add_guest_editor(request, issue_id):
     :param issue_id: PK of an Issue object
     :return: a contextualised django template
     """
-    issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    users = request.journal.journal_users()
-    guest_editors = issue.guest_editors.all()
+    issue = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+
+    current_editors = issue.editors.all()
+    users = logic.potential_issue_editors(request.journal, current_editors)
 
     if request.POST:
         if 'user' in request.POST:
             user_id = request.POST.get('user')
+            role = request.POST.get('role')
+
             user = get_object_or_404(core_models.Account, pk=user_id)
 
-            if user in guest_editors:
-                messages.add_message(request, messages.WARNING, 'User is already a guest editor.')
+            if user in current_editors:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'User is already a guest editor.',
+                )
             elif user not in users:
-                messages.add_message(request, messages.WARNING, 'This user is not a member of this journal.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'This user is not a member of this journal.',
+                )
             else:
-                issue.guest_editors.add(user)
-        elif 'user_remove' in request.POST:
-            user_id = request.POST.get('user_remove')
-            user = get_object_or_404(core_models.Account, pk=user_id)
-            issue.guest_editors.remove(user)
+                models.IssueEditor.objects.create(
+                    issue=issue,
+                    account=user,
+                    role=role,
+                )
 
-        return redirect(reverse('manage_add_guest_editor', kwargs={'issue_id': issue.pk}))
+            return redirect(
+                reverse(
+                    'manage_add_guest_editor',
+                    kwargs={'issue_id': issue.pk}
+                )
+            )
 
     template = 'journal/manage/add_guest_editor.html'
     context = {
         'issue': issue,
         'users': users,
-        'guest_editors': guest_editors,
+        'editors': models.IssueEditor.objects.filter(issue=issue),
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+@require_POST
+def remove_issue_editor(request, issue_id):
+    issue = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+
+    if 'user_remove' in request.POST:
+        issue_editor_id = request.POST.get('user_remove', 0)
+
+        if issue_editor_id:
+            try:
+                models.IssueEditor.objects.get(
+                    pk=issue_editor_id,
+                ).delete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Editor removed from Issue.',
+                )
+            except models.IssueEditor.DoesNotExist:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Issue Editor not found.',
+                )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No Issue Editor ID supplied.',
+            )
+
+    return redirect(
+        reverse(
+            'manage_add_guest_editor',
+            kwargs={'issue_id': issue.pk},
+        )
+    )
 
 
 @csrf_exempt
@@ -1397,36 +1479,60 @@ def search(request):
     """
     articles = []
     search_term = None
+    keyword = None
+    redir = False
+    sort = 'title'
 
-    if request.POST:
-        search_term = request.POST.get('search')
-        request.session['article_search'] = search_term
-        return redirect(reverse('search'))
+    search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
 
-    if request.session.get('article_search'):
-        search_term = request.session.get('article_search')
+    if redir:
+        return redir
+    from itertools import chain
+    if search_term:
+        # checks titles, keywords and subtitles first,
+        # then matches author based on below regex split search term.
+        search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
+        articles = submission_models.Article.objects.filter(
+                    (
+                        Q(title__icontains=search_term) |
+                        Q(keywords__word__iregex=search_regex) |
+                        Q(subtitle__icontains=search_term)
+                    )
+                    |
+                    (
+                        Q(frozenauthor__first_name__iregex=search_regex) |
+                        Q(frozenauthor__last_name__iregex=search_regex)
+                    ),
+                    journal=request.journal,
+                    stage=submission_models.STAGE_PUBLISHED,
+                    date_published__lte=timezone.now()
+                ).distinct().order_by(sort)
 
-        article_search = submission_models.Article.objects.filter(
-            (Q(title__icontains=search_term) |
-             Q(subtitle__icontains=search_term)) &
-            Q(journal=request.journal)
-        )
-        article_search = [article for article in article_search]
+    # just single keyword atm. but keyword is included in article_search.
+    elif keyword:
+        articles = submission_models.Article.objects.filter(
+            keywords__word=keyword,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now()
+        ).order_by(sort)
 
-        author_search = search_term.split(' ')
-        from_author = submission_models.FrozenAuthor.objects.filter(
-            (Q(first_name__in=author_search) |
-             Q(last_name__in=author_search)) &
-            Q(article__journal=request.journal)
-        )
+    keyword_limit = 20
+    popular_keywords = submission_models.Keyword.objects.filter(
+            article__journal=request.journal,
+            article__stage=submission_models.STAGE_PUBLISHED,
+            article__date_published__lte=timezone.now(),
+        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
 
-        articles_from_author = [author.article for author in from_author]
-        articles = set(article_search + articles_from_author)
 
     template = 'journal/search.html'
     context = {
         'articles': articles,
-        'search_term': search_term
+        'article_search': search_term,
+        'keyword': keyword,
+        'form': form,
+        'sort': sort,
+        'all_keywords': popular_keywords
     }
 
     return render(request, template, context)
@@ -1663,5 +1769,25 @@ def download_issue_galley(request, issue_id, galley_id):
             issue__pk=issue_id,
     )
 
-
     return issue_galley.serve(request)
+
+
+def doi_redirect(request, identifier_type, identifier):
+    """
+    Fetches an article object from a DOI and redirects to the local url.
+    :param request: HttpRequest
+    :param identifier_type: String, Identifier type
+    :param identifier: DOI string
+    :return: HttpRedirect or Http404
+    """
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        logger.debug("No article found with this DOI.")
+        raise Http404()
+
+    return redirect(article_object.local_url)

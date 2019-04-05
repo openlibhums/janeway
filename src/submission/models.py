@@ -619,10 +619,24 @@ class Article(models.Model):
 
     @property
     def local_url(self):
-        identifier = self.identifier
+        from identifiers import models as identifier_models
+        try:
+            identifier = identifier_models.Identifier.objects.get(
+                id_type='pubid',
+                article=self,
+            )
+        except identifier_models.Identifier.DoesNotExist:
+            identifier = identifier_models.Identifier(
+                id_type="id",
+                identifier=self.pk,
+                article=self
+            )
 
-        url = reverse('article_view',
-                      kwargs={'identifier_type': identifier.id_type, 'identifier': identifier.identifier})
+        url = reverse(
+            'article_view',
+            kwargs={'identifier_type': identifier.id_type,
+                    'identifier': identifier.identifier}
+        )
 
         return url
 

@@ -1,9 +1,19 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load hooks %}
+
+{% hook 'filter_search' %}
 
 {% block title %}{% trans "Search" %}{% endblock %}
 
 {% block body %}
+   
+    {% if search_term %}
+        <h5>Searching for: <i>{{ search_term }}</i></h5>
+    {% elif keyword %}
+        <h5>Keyword: <i>{{ keyword }}</i></h5>
+    {% endif %}
+   
     <div class="row">
         <div class="col m8">
             <div class="card">
@@ -25,14 +35,36 @@
                     <span class="card-title">
                         {% trans "Searching" %}
                     </span>
-                    <p>{% trans "Enter a search term to display results." %}</p>
                     <form method="POST">
                         {% csrf_token %}
+                        {% if not keyword %}
+                            <label for="{{ form.article_search.id_for_label }}">Search titles, subtitles, keywords, and authors</label>
+                        {% endif %}
                         <div class="input-field">
-                            <input type="text" name="search" id="search" {% if search_term %}value="{{ search_term }}"{% endif %}>
-                            <label for="search">{% trans "Search" %}</label>
+                        {% if not keyword %}
+                                {{ form.article_search.errors }}                                
+                                {{ form.article_search }}
+                            {% else %}
+                                You are currently browsing by keyword. <p><a href="{% url 'search' %}">Search for an article.</a></p>
+                        {% endif %}
                         </div>
-                        <button name="submit" class="btn">{% trans "Search" %}</button>
+                        <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
+                        <div class="input-field">                                
+                                {{ form.sort.errors }}
+                                {{ form.sort }}
+                        </div>
+                        <div class="form-group">
+                            <label>{% trans "Keywords" %}
+
+                                {% for keyword in all_keywords %}
+                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+
+                            </label>
+                        </div>
+                        <div class="input-field">
+                            <button name="submit" class="btn">{% trans "Search" %}</button>
+                        </div>
                     </form>
                 </div>
             </div>

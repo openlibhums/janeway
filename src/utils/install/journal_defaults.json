@@ -351,12 +351,27 @@
         "setting": {
             "description": "Email sent to editors when they are unassigned from an article",
             "is_translatable": true,
-            "name": "unassigned_editor",
-            "pretty_name": "Unassigned Editor",
+            "name": "unassign_editor",
+            "pretty_name": "Unassign Editor",
             "type": "rich-text"
         },
         "value": {
             "default": "<p>Dear {{ assignment.editor.full_name }},</p><p>We are writing to let you know that you have been unassigned from the article \"{{ article.title }}\" in {{ article.journal.name }}.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Unassign Editor Email",
+            "is_translatable": true,
+            "name": "subject_unassign_editor",
+            "pretty_name": "Subject Unassign Editor",
+            "type": "text"
+        },
+        "value": {
+            "default": "Unassigned as Editor"
         }
     },
     {
@@ -1086,7 +1101,7 @@
         "setting": {
             "description": "If checked, editorial groups will have their own pages.",
             "is_translatable": false,
-            "name": "mulit_page_editorial",
+            "name": "multi_page_editorial",
             "pretty_name": "Enable Multi Page Editorial Team Display (is overwritten by Enable Team Display)",
             "type": "boolean"
         },

@@ -16,14 +16,11 @@ NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
 
 urlpatterns = [
     # Figures and download patterns
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/print/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/print/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.print_article,
         name='article_print_article'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/print/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.print_article,
-        name='article_print_article'),
+
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figure/(?P<file_name>.*)/$',
         views.article_figure,
         name='article_galley_figure'),
@@ -39,22 +36,16 @@ urlpatterns = [
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/view/',
         views.view_galley,
         name='article_view_galley'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/table/(?P<table_name>.+)$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/table/(?P<table_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,
         name='article_table'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/table/(?P<table_name>.+)$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.download_table,
-        name='article_table'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/(?P<file_name>.+)$'
+
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/(?P<file_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.identifier_figure,
         name='article_figure'),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/(?P<file_name>.+)$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.identifier_figure,
-        name='article_figure'),
+
     url(r'^articles/$', views.articles, name='journal_articles'),
 
     # Issues/Collections
@@ -73,20 +64,16 @@ urlpatterns = [
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
 
     # Article patterns
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>.+)/edit/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/edit/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.edit_article,
         name='article_edit'),
-    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>\d+)/$'
+    url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.article,
         name='article_view'
         ),
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.article,
-        name='article_view'
-        ),
+
 
     # File management
     url(r'^(?P<article_id>\d+)/files/management/$', views.document_management,
@@ -125,8 +112,10 @@ urlpatterns = [
         views.issue_galley, name='issue_galley'),
     url(r'^manage/issues/(?P<issue_id>\d+)/order/$',
         views.issue_article_order, name='issue_article_order'),
-    url(r'^manage/issues/(?P<issue_id>\d+)/guest/$',
+    url(r'^manage/issues/(?P<issue_id>\d+)/editors/$',
         views.add_guest_editor, name='manage_add_guest_editor'),
+    url(r'^manage/issues/(?P<issue_id>\d+)/editors/remove/$',
+        views.remove_issue_editor, name='manage_remove_issue_editor'),
     url(r'^manage/issues/(?P<issue_id>\d+)/(?P<event>[-\w.]+)/$',
         views.manage_issues, name='manage_issues_event'),
     url(r'^manage/issues/(?P<issue_id>\d+)/sort/sections/$',
@@ -180,4 +169,14 @@ urlpatterns = [
         views.download_supp_file,
         name='article_download_supp_file'),
 
+    # Backup DOI patterns, redirect to pubid/id url of article
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/print/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.doi_redirect,
+        name='print_doi_redirect'),
+
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.doi_redirect,
+        name='doi_redirect'),
 ]

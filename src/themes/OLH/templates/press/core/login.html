@@ -1,5 +1,6 @@
 {% extends "press/core/base.html" %}
 {% load i18n %}
+{% load orcid %}
 
 {% block page_title %}{% trans "Login" %}{% endblock page_title %}
 
@@ -22,7 +23,7 @@
                 <div class="callout">
                     <div class="row column log-in-form">
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
-                        <a href="https://orcid.org/oauth/authorize?client_id=APP-TBR6V8HS3HQPJG3J&response_type=code&scope=/authenticate&redirect_uri={{ request.journal.site_url }}/login/orcid/" class="success button expanded">{% trans "Login with ORCiD" %}</a>
+                        <a href="https://orcid.org/oauth/authorize?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}" class="success button expanded">{% trans "Login with ORCiD" %}</a>
                         <label>{% trans "Email" %}
                             <input name="user_name" type="text" placeholder="somebody@example.com">
                         </label>

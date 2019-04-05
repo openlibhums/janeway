@@ -20,7 +20,36 @@
                     {% include "elements/forms/errors.html" with form=form %}
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {{ form }}
+                        <div class="title-area">
+                            <h2>Basic Information</h2>
+                        </div>
+                        {{ form.name|foundation }}
+                        {{ form.main_contact|foundation }}
+
+                        <div class="title-area">
+                            <h2>Look</h2>
+                        </div>
+                        {{ form.theme|foundation }}
+                        {{ form.footer_description|foundation }}
+                        {{ form.press_logo|foundation }}
+                        {{ form.default_carousel_image|foundation }}
+                        {{ form.favicon|foundation }}
+
+                        <div class="title-area">
+                            <h2>Preprints</h2>
+                        </div>
+                        {{ form.enable_preprints|foundation }}
+
+                        <div class="title-area">
+                            <h2>Security</h2>
+                        </div>
+                        {{ form.is_secure|foundation }}
+                        {{ form.password_number|foundation }}
+                        {{ form.password_upper|foundation }}
+                        {{ form.password_length|foundation }}
+                        {{ form.password_reset_text|foundation }}
+                        {{ form.registration_text|foundation }}
+                        {{ form.tracking_code|foundation }}
                         <button type="submit" name="save_press" class="success button">Save</button>
                     </form>
                 </div>

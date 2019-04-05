@@ -27,13 +27,7 @@
     <meta name="DC.Identifier.pageNumber" content="{{ article.page_number }}"/>
     {% if article.identifier.id_type == "doi" %}
         <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>{% endif %}
-    <meta name="DC.Identifier.URI" content="
-
-
-
-
-
-            {{ request.journal.site_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="DC.Identifier.URI" content="{{ article.url }}"/>
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
     <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
@@ -55,13 +49,7 @@
     <meta name="citation_volume" content="{{ article.issue.volume }}"/>
     <meta name="citation_issue" content="{{ article.issue.issue }}"/>{% if article.identifier.id_type == "doi" %}
     <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
-    <meta name="citation_abstract_html_url" content="
-
-
-
-
-
-            {{ request.journal.site_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
+    <meta name="citation_abstract_html_url" content="{{ article.url }}"/>
     <meta name="citation_language" content="{{ article.language }}"/>
 
     {% if article.keywords %}
@@ -137,8 +125,7 @@
             <div id="article">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h5>
-                <hr/>
+                    <h3>{{ article.title|safe }}</h3>
                 {% endif %}
                 {% if article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
@@ -173,6 +160,17 @@
 
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
+                {% if journal.disable_article_images %}
+                    <h4>{% trans "Authors" %}</h4>
+                    <ul>
+                    {% for author in article.frozen_authors.all %}
+                        <li>
+                            {{ author.full_name }}
+                        </li>
+                    {% endfor %}
+                     </ul>
+                {% endif %}
+
                 {% if article.is_published %}
                     <h4>{% trans "Download" %}</h4>
                     <ul>

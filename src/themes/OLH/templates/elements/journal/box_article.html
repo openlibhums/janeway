@@ -2,11 +2,11 @@
 {% load i18n %}
 
 <div class="box article">
-    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}{% endif %}"
+    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}"
        class="box-link"></a>
        <div class="clearfix">
         {% if not journal.disable_article_images %}
-         <div class="large-2 columns hide-for-small-only hide">
+         <div class="large-2 columns hide-for-small-only">
             {% if article.thumbnail_image_file %}
             <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
                  alt="{{ article.title|striptags|escape }}" class="article-thumbnail">

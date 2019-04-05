@@ -12,16 +12,17 @@ class IssueAdmin(admin.ModelAdmin):
     list_display = ('volume', 'issue', 'issue_title', 'journal', 'issue_type')
     list_filter = ('journal', 'issue_type')
     search_fields = ('issue_title',)
-    filter_horizontal = ('articles', 'guest_editors')
+    filter_horizontal = ('articles',)
 
 
 class JournalAdmin(admin.ModelAdmin):
-    list_display = ('name',
-            'code',
-            'domain',
-            'is_remote',
-            'is_conference',
-            'hide_from_press',
+    list_display = (
+        'name',
+        'code',
+        'domain',
+        'is_remote',
+        'is_conference',
+        'hide_from_press',
     )
     list_filter = ('is_remote', 'is_conference', 'hide_from_press')
 

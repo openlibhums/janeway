@@ -9,6 +9,7 @@ import requests
 from dateutil import parser as dateparser
 from bs4 import BeautifulSoup
 import csv
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.conf import settings
@@ -19,6 +20,8 @@ from django.core.validators import validate_email, ValidationError
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
+from journal.forms import SearchForm
+from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
 from utils.notify_plugins import notify_email
@@ -325,6 +328,63 @@ def unset_article_session_variables(request):
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
 
+def handle_search_controls(request, search_term=None, keyword=None, redir=False, sort='title'):
+    """Takes in request and handles post and get and handles for search
+    :param request: required Request object
+    :param search_term: None or incoming st
+    :param keyword: None or incoming keyword
+    :param redir: False or will be processed in set_search_GET_vars
+    :param sort: 'title' or incoming sort
+    :return: strings: search_term, keyword, sort, and redirect() or None.
+    """
+    if request.POST:
+
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            search_term = form.cleaned_data['article_search']
+            sort = form.cleaned_data['sort']
+
+            if search_term:
+                form = SearchForm({'article_search':search_term, 'sort':sort})
+            else:
+                # must get keyword from the GET request. there is no way to POST a keyword in current implementation.
+                keyword = request.GET.get('keyword', False)
+                form = SearchForm({'article_search':'', 'sort':sort})
+            return search_term, keyword, sort, form, set_search_GET_variables(search_term, keyword, sort)
+        # if form not valid no redir to send form w/errors
+        else:
+            return search_term, keyword, sort, form, redir
+    else:
+        search_term = request.GET.get('article_search', '')
+        keyword = request.GET.get('keyword', False)
+        sort = request.GET.get('sort', 'title')
+        if keyword:
+            form = SearchForm({'article_search':'', 'sort': sort})
+        else:
+            form = SearchForm({'article_search':search_term, 'sort': sort})
+
+        return search_term, keyword, sort, form, None
+
+
+def set_search_GET_variables(search_term=False, keyword=False, sort='title'):
+    """Sets the incoming variables to be GET params and returns redirect
+    :param search_term: string or false
+    :param keyword: string or false
+    :param sort: incoming string or 'title'
+    :return: redirect()
+    """
+    if search_term:
+        get_params = urlencode({'article_search' : search_term, 'sort' : sort})
+        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
+    elif keyword:
+        get_params = urlencode({'keyword' : keyword, 'sort' : sort})
+        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
+    else:
+        redir_str = reverse('search')
+
+    return redirect(redir_str)
+
+
 def fire_submission_notifications(**kwargs):
     request = kwargs.get('request')
 
@@ -413,3 +473,13 @@ def parse_html_table_to_csv(table, table_name):
         wr.writerows([[td.text for td in row.find_all("td")] for row in table.select("tr + tr")])
 
     return filepath
+
+
+def potential_issue_editors(journal, current_editors):
+    return {role.user for role in
+            core_models.AccountRole.objects.filter(
+                journal=journal,
+                user__is_active=True,
+            ).select_related('user').exclude(
+                user__in=current_editors,
+            )}

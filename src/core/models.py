@@ -39,7 +39,6 @@ fs = JanewayFileSystemStorage()
 logger = logging.getLogger(__name__)
 
 
-
 def profile_images_upload_path(instance, filename):
     try:
         filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
@@ -696,6 +695,21 @@ class File(models.Model):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
 
+    def url(self):
+        from core.middleware import GlobalRequestMiddleware
+        request = GlobalRequestMiddleware.get_current_request()
+        url_kwargs = {'file_id': self.pk}
+
+        if request.journal and self.article_id:
+            raise NotImplementedError
+        elif request.journal:
+            raise NotImplementedError
+        else:
+            return reverse(
+                'serve_press_file',
+                kwargs=url_kwargs,
+            )
+
     def get_file(self, article):
         return files.get_file(self, article)
 
@@ -738,12 +752,29 @@ class File(models.Model):
         if article:
             file_elements = os.path.splitext(self.original_filename)
             extension = file_elements[-1]
-            author_surname = article.correspondence_author.last_name if article.correspondence_author else \
-                article.frozen_authors()[0].last_name
-            file_name = '{code}-{pk}-{surname}{extension}'.format(code=article.journal.code,
-                                                                  pk=article.pk,
-                                                                  surname=author_surname,
-                                                                  extension=extension)
+
+            if article.frozen_authors():
+                author_surname = "-{0}".format(
+                    article.frozen_authors()[0].last_name,
+                )
+            elif article.correspondence_author:
+                author_surname = "-{0}".format(
+                    article.correspondence_author.last_name,
+                )
+            else:
+                logger.warning(
+                    'Article {pk} has no author records'.format(
+                        pk=article.pk
+                    )
+                )
+                author_surname = ''
+
+            file_name = '{code}-{pk}{surname}{extension}'.format(
+                code=article.journal.code,
+                pk=article.pk,
+                surname=author_surname,
+                extension=extension
+            )
             return file_name.lower()
         else:
             return self.original_filename
@@ -1135,7 +1166,7 @@ class LoginAttempt(models.Model):
 
 
 @receiver(post_save, sender=Account)
-def setup_default_workflow(sender, instance, created, **kwargs):
+def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()

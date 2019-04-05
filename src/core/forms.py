@@ -13,8 +13,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
 from django.conf import settings
+from django.contrib.auth.forms import UserCreationForm
 
-from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
@@ -22,6 +22,7 @@ from simplemathcaptcha.fields import MathCaptchaField
 from core import models, validators
 from journal import models as journal_models
 from utils import setting_handler
+from utils.forms import KeywordModelForm
 from submission import models as submission_models
 
 # This will set is_checkbox attribute to True for checkboxes.
@@ -306,7 +307,7 @@ class GeneratedSettingForm(forms.Form):
             setting_handler.save_setting('general', setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(forms.ModelForm):
+class JournalAttributeForm(KeywordModelForm):
 
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
@@ -323,8 +324,7 @@ class JournalAttributeForm(forms.ModelForm):
         )
 
 
-class PressJournalAttrForm(forms.ModelForm):
-
+class PressJournalAttrForm(KeywordModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 
@@ -432,3 +432,12 @@ class FileUploadForm(forms.Form):
                 mimetypes=mimetypes,
         )
         self.fields["file"].validators.append(validator)
+
+
+class UserCreationFormExtended(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserCreationFormExtended, self).__init__(*args, **kwargs)
+        self.fields['email'] = forms.EmailField(
+            label=_("E-mail"),
+            max_length=75,
+        )

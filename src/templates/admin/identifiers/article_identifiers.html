@@ -18,8 +18,7 @@
     </div>
     <div class="title-area">
         <h2>Edit Identifiers</h2>
-        <a href="#" data-open="identifier" class="button">Add Identifier</a>
-        <a class="button" href="{{ return }}"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>
+        <a href="{% url 'add_new_identifier' article.pk %}" class="button">Add Identifier</a>
     </div>
     <table class="small scroll">
         <tr>
@@ -37,18 +36,12 @@
                 <td>{{ ident.get_id_type_display }}</td>
                 <td>{{ ident.identifier }}</td>
                 <td>{% if ident.enabled %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
-                <td><a href="{% url 'edit_identifiers_with_ident' article.pk ident.pk %}?return={{ return }}"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
-                <td><a href="{% url 'edit_identifiers_with_event' article.pk ident.pk 'delete' %}?return={{ return }}"><i class="fa fa-trash">&nbsp;</i>Delete</a></td>
-                <td>{% if ident.get_id_type_display == 'DOI' %}<button type="submit" class="success button" name="issue_doi">Issue DOI</button>{% endif %}</td>
+                <td><a href="{% url 'edit_identifier' article.pk ident.pk %}" class="small button"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                <td><button class="small button warning" name="delete" formaction="{% url 'delete_identifier' article.pk ident.pk %}"><i class="fa fa-trash">&nbsp;</i>Delete</button></td>
+                <td>{% if ident.get_id_type_display == 'DOI' %}<button type="submit" class="small success button" formaction="{% url 'issue_doi' article.pk ident.pk %}">Issue DOI</button>{% endif %}</td>
             </form>
         </tr>
         {% endfor %}
     </table>
 </div>
-{% include "elements/edit_identifier.html" with form=identifier_form %}
 {% endblock body %}
-{% block js %}
-    {% if modal %}
-    {% include "admin/elements/open_modal.html" with target=modal %}
-    {% endif %}
-{% endblock js %}
