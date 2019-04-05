@@ -25,7 +25,7 @@
                     </div>
                     <div class="card-stacked">
                         <div class="card-content">
-                            <p>{% trans "Volume" %} {{ issue.volume }} {% trans "Issue" %} {{ issue.issue }} <br /> {{ issue.date.year }} <br /> {{ issue.articles.all.count }} {% trans "items" %}<br/>{{ issue.issue_title }}&nbsp;</p>
+                            <p>{{ issue.display_title }} <br /> {{ issue.articles.all.count }} {% trans "items" %}</p>
                         </div>
                         <div class="card-action">
                             <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>

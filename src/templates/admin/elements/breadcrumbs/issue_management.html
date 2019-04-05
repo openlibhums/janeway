@@ -1,2 +1,2 @@
 <li><a href="{% url 'manage_issues' %}">Issue Management</a></li>
-<li>{% if issue %}<a href="{% url 'manage_issues_id' issue.id %}">{% if issue.issue_title %}{{ issue.issue_title }}{% else %}{{ issue }}{% endif %}</a>{% endif %}</li>
+{% if issue %}<li><a href="{% url 'manage_issues_id' issue.id %}">{{ issue.display_title }}</a></li>{% endif %}

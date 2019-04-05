@@ -39,8 +39,7 @@
                     {% if article.issue %}
                     <i class="fa fa-book"></i> 
                     <a href="{% url 'journal_issue' article.issue.pk %}">
-                        {% trans "Volume" %} {{ article.issue.volume }},
-                        {% trans "Issue" %} {{ article.issue.issue }}
+                        {{ article.issue.display_title }}
                     </a>
                     {% endif %}
                     

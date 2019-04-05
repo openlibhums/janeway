@@ -22,8 +22,7 @@
            {% include "elements/journal/authors_block.html" %}
             <p><span class="date"><i
                     class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                    class="fa fa-book"></i> {% trans "Volume" %} {{ article.issue.volume }},
-                {% trans "Issue" %} {{ article.issue.issue }}</p>
+                    class="fa fa-book"></i> {% if article.issue.issue_type == 'Issue' %}{{ article.issue.display_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
         </div>
     </div>
 </div>

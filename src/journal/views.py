@@ -943,6 +943,38 @@ def manage_issues(request, issue_id=None, event=None):
     return render(request, template, context)
 
 
+@has_journal
+@editor_user_required
+def manage_issue_display(request):
+    """
+    Allows an Editor to change the way issue titles are displayed.
+    :param request: HttpRequest
+    :return: HttpResponse or HttpRedirect
+    """
+    issue_display_form = forms.IssueDisplayForm(instance=request.journal)
+
+    if request.POST:
+        issue_display_form = forms.IssueDisplayForm(
+            request.POST,
+            instance=request.journal,
+        )
+
+        if issue_display_form.is_valid():
+            issue_display_form.save()
+            return redirect(
+                reverse(
+                    'manage_issue_display'
+                )
+            )
+
+    template = 'journal/manage/issue_display.html'
+    context = {
+        'issue_display_form': issue_display_form,
+    }
+
+    return render(request, template, context)
+
+
 @editor_user_required
 def issue_galley(request, issue_id, delete=False):
     issue = get_object_or_404(models.Issue, pk=issue_id)

@@ -18,7 +18,18 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Issue Management</h2>
-                    {% if not issue %}<a href="#" data-open="issue" class="button small success"><i class="fa fa-plus">&nbsp;</i>Create Issue</a>{% else %}<a class="button" href="{% url 'journal_issue' issue.pk %}">View Issue</a>{% endif %}
+                    {% if not issue %}
+                        <a href="#" data-open="issue" class="button">
+                            <i class="fa fa-plus">&nbsp;</i>Create Issue
+                        </a>
+                        <a href="{% url 'manage_issue_display' %}" class="button">
+                            <i class="fa fa-edit">&nbsp;</i>Edit Display Settings
+                        </a>
+                    {% else %}
+                        <a class="button" href="{% url 'journal_issue' issue.pk %}">
+                            View Issue
+                        </a>
+                    {% endif %}
                 </div>
                 <div class="content">
                     <table class="scroll">
