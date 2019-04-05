@@ -633,7 +633,11 @@ def edit_setting(request, setting_group, setting_name):
     setting = models.Setting.objects.get(
             name=setting_name, group__name=setting_group)
     setting_value = setting_handler.get_setting(
-            setting_group, setting_name, request.journal, default=False)
+            setting_group,
+            setting_name,
+            request.journal,
+            default=False
+        )
 
     if setting_value and setting_value.setting.types == 'rich-text':
         setting_value.value = linebreaksbr(setting_value.value)

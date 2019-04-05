@@ -548,7 +548,10 @@ class Setting(models.Model):
 
     @property
     def default_setting_value(self):
-        return SettingValue.objects.language("en").get(setting=self, journal=None)
+        return SettingValue.objects.language("en").get(
+            setting=self,
+            journal=None,
+    )
 
 
 class SettingValue(TranslatableModel):
@@ -610,9 +613,11 @@ class SettingValue(TranslatableModel):
             return "on"
         elif self.setting.types == 'file':
             if self.journal:
-                return self.journal.site_url(reverse("journal_file", value))
+                return self.journal.site_url(
+                        reverse("journal_file",self.value))
             else:
-                return self.press.site_url(reverse("serve_press_file", value))
+                return self.press.site_url(
+                        reverse("serve_press_file", self.value))
         else:
             return self.value
 
