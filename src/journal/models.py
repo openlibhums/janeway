@@ -13,7 +13,7 @@ import os
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models.signals import post_save, m2m_changed
-
+from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -102,10 +102,10 @@ class Journal(AbstractSiteModel):
     nav_review = models.BooleanField(default=True)
     nav_sub = models.BooleanField(default=True)
 
-    # Boolean to determine if this journal has XSLT file
+    # Boolean to determine if this journal has an XSLT file
     has_xslt = models.BooleanField(default=False)
 
-    # Boolean to determine if this journal should be hdden from the press
+    # Boolean to determine if this journal should be hidden from the press
     hide_from_press = models.BooleanField(default=False)
 
     # Display sequence on the Journals page
@@ -403,7 +403,7 @@ class Issue(models.Model):
     issue = models.IntegerField(default=1)
     issue_title = models.CharField(blank=True, max_length=300)
     date = models.DateTimeField(default=timezone.now)
-    order = models.IntegerField(default=1)
+    order = models.IntegerField(default=0)
     issue_type = models.CharField(max_length=200, blank=False, null=False, default='Issue', choices=ISSUE_TYPES)
     issue_description = models.TextField(blank=True, null=True)
 
