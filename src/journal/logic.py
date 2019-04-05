@@ -483,3 +483,35 @@ def potential_issue_editors(journal, current_editors):
             ).select_related('user').exclude(
                 user__in=current_editors,
             )}
+
+
+def sort_issues(request, issue_list):
+    """
+    Sorts issues by date either asc or dsc
+    :param request: HttpRequest
+    :param issue_list: Issue queryset for sorting
+    :return: None
+    """
+    sort_type = request.POST.get('sort', None)
+
+    if not sort_type:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No sort type provided.',
+        )
+
+        return
+
+    if sort_type == 'date_sort_desc':
+        order = '-date'
+    else:
+        order = 'date'
+
+    ordered_issues = issue_list.order_by(order)
+
+    pks = [issue.pk for issue in ordered_issues]
+
+    for issue in issue_list:
+        issue.order = pks.index(issue.pk)
+        issue.save()

@@ -152,9 +152,11 @@ def issues(request):
     :param request: the request associated with this call
     :return: a rendered template of all issues
     """
-    issue_objects = models.Issue.objects.filter(journal=request.journal,
-                                                issue_type='Issue',
-                                                date__lte=timezone.now()).order_by("-order")
+    issue_objects = models.Issue.objects.filter(
+        journal=request.journal,
+        issue_type='Issue',
+        date__lte=timezone.now()
+    )
     template = 'journal/issues.html'
     context = {
         'issues': issue_objects,
@@ -911,6 +913,10 @@ def manage_issues(request, issue_id=None, event=None):
 
         if 'delete_issue' in request.POST:
             issue.delete()
+            return redirect(reverse('manage_issues'))
+
+        if 'sort' in request.POST:
+            logic.sort_issues(request, issue_list)
             return redirect(reverse('manage_issues'))
 
         if issue:

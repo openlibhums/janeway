@@ -32,6 +32,15 @@
                     {% endif %}
                 </div>
                 <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="sort" value="date_sort_desc" class="button">
+                            <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
+                        </button>
+                        <button name="sort" value="date_sort_asc" class="button">
+                            <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
+                        </button>
+                    </form>
                     <table class="scroll">
                         <thead>
                         <tr>
