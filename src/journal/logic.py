@@ -512,6 +512,6 @@ def sort_issues(request, issue_list):
 
     pks = [issue.pk for issue in ordered_issues]
 
-    for issue in issue_list:
-        issue.order = pks.index(issue.pk)
+    for order, issue in enumerate(ordered_issues):
+        issue.order = order
         issue.save()
