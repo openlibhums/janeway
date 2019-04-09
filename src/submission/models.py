@@ -1136,7 +1136,7 @@ class Section(TranslatableModel):
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.name
+        return self.safe_translation_getter('name', str(self.pk))
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)

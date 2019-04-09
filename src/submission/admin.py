@@ -26,6 +26,7 @@ class ArticleAdmin(admin.ModelAdmin):
                     'owner', 'is_import', 'ithenticate_score')
     search_fields = ('pk', 'title', 'subtitle')
     list_filter = ('stage', 'is_import', 'journal')
+    raw_id_fields = ('section',)
 
     def get_queryset(self, request):
         return self.model.allarticles.get_queryset()
