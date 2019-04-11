@@ -58,12 +58,21 @@ def list_scss(journal):
     :param journal: the journal in question
     :return: a list of SCSS files
     """
-    try:
-        scss_path = join(settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
-        makedirs(scss_path, exist_ok=True)
-        return [join(scss_path, f) for f in listdir(scss_path) if isfile(join(scss_path, f))]
-    except FileNotFoundError:
-        return []
+    file_paths = []
+    scss_default_override = join(
+            settings.BASE_DIR, 'files', 'styling', 'journals', 'default')
+    scss_path = join(settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
+    for path in [scss_default_override, scss_path]:
+        try:
+            makedirs(scss_path, exist_ok=True)
+            file_paths += [
+                    join(path, f)
+                    for f in listdir(path) if isfile(join(path, f))
+            ]
+        except FileNotFoundError:
+            pass
+
+    return file_paths
 
 
 def get_best_galley(article, galleys):
