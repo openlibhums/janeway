@@ -82,7 +82,8 @@ class ArticleInfo(KeywordModelForm):
             self.fields['license'].queryset = models.Licence.objects.filter(journal=article.journal,
                                                                             available_for_submission=True)
             self.fields['section'].required = True
-            self.fields['license'].required = True
+            # CDL-AM: Strip for pilot
+            # self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()
 
             if submission_summary:

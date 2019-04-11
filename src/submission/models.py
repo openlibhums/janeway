@@ -1269,7 +1269,7 @@ class SubmissionConfiguration(models.Model):
     abstract = models.BooleanField(default=True)
     language = models.BooleanField(default=True)
     license = models.BooleanField(default=True)
-    keywords = models.BooleanField(default=True)
+    keywords = models.BooleanField(default=False)
     section = models.BooleanField(default=True)
 
     figures_data = models.BooleanField(default=True, verbose_name=_('Figures and Data Files'))
