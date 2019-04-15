@@ -143,7 +143,7 @@ def user_login_orcid(request):
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
                 else:
-                    return redirect(reverse('core_dashboard'))
+                    return redirect(reverse('core_dashboard') if request.journal else '/')
             except models.Account.DoesNotExist:
                 # Set Token and Redirect
                 models.OrcidToken.objects.filter(orcid=orcid_id).delete()
