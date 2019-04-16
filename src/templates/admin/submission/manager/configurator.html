@@ -21,6 +21,7 @@
                     can be configured when the fields are not being used.</p>
                 <form method="POST">
                     {% csrf_token %}
+                    {% include "elements/forms/errors.html" %}
                     {{ form|foundationinline }}
                     <button class="success button">Save Configuration</button>
                 </form>
