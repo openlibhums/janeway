@@ -291,8 +291,46 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields['default_section'].queryset = models.Section.objects.filter(journal=self.instance.journal)
-        self.fields['default_license'].queryset = models.Licence.objects.filter(journal=self.instance.journal)
+        self.fields[
+            'default_section'].queryset = models.Section.objects.filter(
+            journal=self.instance.journal,
+        )
+        self.fields[
+            'default_license'].queryset = models.Licence.objects.filter(
+            journal=self.instance.journal,
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        license = cleaned_data.get('license', False)
+        section = cleaned_data.get('section', False)
+        language = cleaned_data.get('language', False)
+
+        default_license = cleaned_data.get('default_license', None)
+        default_section = cleaned_data.get('default_section', None)
+        default_language = cleaned_data.get('default_language', None)
+
+        if not license and not default_license:
+            self.add_error(
+                'default_license',
+                'If license is unset you must select a default license.',
+            )
+
+        if not section and not default_section:
+            self.add_error(
+                'default_section',
+                'If section is unset you must select a default section.',
+            )
+
+        if not language and not default_language:
+            self.add_error(
+                'default_language',
+                'If language is unset you must select a default language.'
+            )
+
+
+
 
     class Meta:
         model = models.SubmissionConfiguration

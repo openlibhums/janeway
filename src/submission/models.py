@@ -1272,14 +1272,31 @@ class SubmissionConfiguration(models.Model):
     keywords = models.BooleanField(default=True)
     section = models.BooleanField(default=True)
 
-    figures_data = models.BooleanField(default=True, verbose_name=_('Figures and Data Files'))
+    figures_data = models.BooleanField(
+        default=True,
+        verbose_name=_('Figures and Data Files'),
+    )
 
-    default_license = models.ForeignKey(Licence, null=True,
-                                        help_text=_('The default license applied when no option is presented'))
-    default_language = models.CharField(max_length=200, null=True, choices=LANGUAGE_CHOICES,
-                                        help_text=_('The default language of articles when lang is hidden'))
-    default_section = models.ForeignKey(Section, null=True,
-                                        help_text=_('The default section of articles when no option is presented'))
+    default_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_('The default license applied when no option is presented'),
+    )
+    default_language = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        choices=LANGUAGE_CHOICES,
+        help_text=_('The default language of articles when lang is hidden'),
+    )
+    default_section = models.ForeignKey(
+        Section,
+        null=True,
+        blank=True,
+        help_text=_('The default section of '
+                    'articles when no option is presented'),
+    )
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)
