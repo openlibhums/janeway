@@ -8,8 +8,9 @@ import os
 import codecs
 
 from django.conf import settings
-from django.utils.translation import get_language
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
+from django.utils.translation import get_language
 
 from utils import models
 from core import models as core_models
@@ -31,8 +32,8 @@ def get_setting(
         setting_group, setting_name,
         journal=None,
         create=False,
-        fallback=False,
-        default=True
+        fallback=True,
+        default=True,
 ):
     """ Returns a matching SettingValue for the language in context
 
@@ -73,8 +74,8 @@ def _get_setting(
         setting,
         journal,
         lang,
-        create,
-        fallback,
+        create=False,
+        fallback=True,
         default=True,
 ):
     if fallback:
@@ -91,11 +92,14 @@ def _get_setting(
                 setting=setting,
                 journal=journal,
         )
-    except core_models.SettingValue.DoesNotExist:
+    except ObjectDoesNotExist:
         if journal is not None:
             if create:
-                return save_setting(setting_group, setting.name, journal, ' ')
-            elif default:
+                logger.warning(
+                    "Passing 'create' to get_setting has been deprecated in "
+                    "in favour of returning the default value"
+                )
+            if default or create:
                 # return press wide setting
                 journal = None
                 return _get_setting(
