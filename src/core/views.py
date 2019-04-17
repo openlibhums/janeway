@@ -145,6 +145,7 @@ def user_login_orcid(request):
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
                 else:
+                    messages.info(request, 'Login successful.')
                     return redirect(reverse('core_dashboard') if request.journal else '/')
             except models.Account.DoesNotExist:
                 # Set Token and Redirect
@@ -285,13 +286,14 @@ def register(request):
                 new_user.add_account_role('author', request.journal)
             logic.send_confirmation_link(request, new_user)
 
-            messages.add_message(request, messages.SUCCESS, 'Your account has been created, please follow the'
+            messages.add_message(request, messages.SUCCESS, 'Your account has been created, please follow the '
                                                             'instructions in the email that has been sent to you.')
             return redirect(reverse('core_login'))
 
     template = 'core/accounts/register.html'
     context = {
         'form': form,
+        'orcid_id': token_obj.orcid if token_obj else None,
     }
 
     return render(request, template, context)
