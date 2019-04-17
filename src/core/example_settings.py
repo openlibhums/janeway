@@ -16,7 +16,7 @@ RECAPTCHA_PUBLIC_KEY = ''
 
 # ORCID Settings
 ENABLE_ORCID = True
-ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
+ORCID_API_URL = 'http://pub.orcid.org/v2.1'
 ORCID_URL = 'https://orcid.org/oauth/authorize'
 ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
 ORCID_CLIENT_SECRET = ''

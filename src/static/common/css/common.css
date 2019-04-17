@@ -125,3 +125,16 @@
 .static-alert-dark .static-alert-link {
   color: #040505;
 }
+
+/* ORCID */
+.connect-orcid-link {
+
+}
+
+.connect-orcid-link:hover {
+       color: #A6CE39;
+}
+
+.orcid-id-logo {
+       margin: 0 .5em 0 0;
+}

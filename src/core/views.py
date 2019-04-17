@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+from datetime import timedelta
 from importlib import import_module
 import json
 import logging
@@ -131,10 +132,11 @@ def user_login_orcid(request):
     orcid_code = request.GET.get('code', None)
 
     if orcid_code and django_settings.ENABLE_ORCID:
-        orcid_id = orcid.retrieve_tokens(
+        access_token = orcid.retrieve_tokens(
             orcid_code, request.site_type)
 
-        if orcid_id:
+        if access_token:
+            orcid_id = access_token.get("orcid")
             try:
                 user = models.Account.objects.get(orcid=orcid_id)
                 user.backend = 'django.contrib.auth.backends.ModelBackend'
@@ -143,11 +145,13 @@ def user_login_orcid(request):
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
                 else:
-                    return redirect(reverse('core_dashboard'))
+                    return redirect(reverse('core_dashboard') if request.journal else '/')
             except models.Account.DoesNotExist:
                 # Set Token and Redirect
                 models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-                new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+                expiry = timezone.now() + timedelta(seconds=access_token.get("expires_in"))
+                new_token = models.OrcidToken.objects.create(
+                    orcid=orcid_id, token=access_token.get("access_token"), expiry=expiry)
                 return redirect(reverse('core_orcid_registration', kwargs={'token': new_token.token}))
         else:
             messages.add_message(
@@ -251,11 +255,14 @@ def register(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    token, token_obj = request.GET.get('token', None), None
+    token, token_obj, orcid_form_fields = request.GET.get('token', None), None, None
     if token:
         token_obj = get_object_or_404(models.OrcidToken, token=token)
+        orcid_form_fields = orcid.form_fields(token_obj.orcid, token_obj.token)
 
-    form = forms.RegistrationForm()
+    form = forms.RegistrationForm(
+        initial=orcid_form_fields
+    )
 
     if request.POST:
         form = forms.RegistrationForm(request.POST)
@@ -271,7 +278,6 @@ def register(request):
                 new_user = form.save(commit=False)
                 new_user.orcid = token_obj.orcid
                 new_user.save()
-                token_obj.delete()
             else:
                 new_user = form.save()
 
