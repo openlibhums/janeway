@@ -19,7 +19,7 @@
                         {% if settings.ENABLE_ORCID %}
                         <h2 class="text-center">{% trans "Log in with your account" %}</h2>
                         <p class="text-center">
-                          <a class="connect-orcid-link" href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"><img class="orcid-id-logo" src="{% static "common/img/icons/orcid_16x16.png" %}" width='16' height='16' alt="ORCID iD icon"/>{% trans "Register or Connect your ORCID iD" %}</a><br/>
+                          <a class="connect-orcid-link" href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/read-limited&redirect_uri={% orcid_redirect_uri %}"><img class="orcid-id-logo" src="{% static "common/img/icons/orcid_16x16.png" %}" width='16' height='16' alt="ORCID iD icon"/>{% trans "Register or Connect your ORCID iD" %}</a><br/>
                           <a class="help-text" href="#" data-toggle="modal" data-target="#modal-orcid-info">More information about ORCID.</a>
                         </p>
                         {% endif %}
