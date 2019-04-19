@@ -68,7 +68,7 @@
                     <div class="row column log-in-form">
 
                         {% include "elements/forms/errors.html" with form=form %}
-                        {% include "elements/accounts/user_form.html" with form=form %}
+                        {% include "elements/accounts/user_form.html" with form=form orcid_id=user_to_edit.orcid %}
                         <p><button type="submit" name="edit_profile" class="success button float-right">{% trans "Update" %}</button></p>
                     </div>
                 </div>

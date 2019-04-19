@@ -43,7 +43,13 @@
         {{ form.facebook|foundation }}
     </div>
     <div class="large-4 columns">
-        {{ form.orcid|foundation }}
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <label>ORCID iD</label>
+                {% include "elements/accounts/orcid_link.html" with orcid_id=orcid_id %}
+                <br/><br/>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">
