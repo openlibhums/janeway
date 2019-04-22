@@ -1,0 +1,9 @@
+{% load i18n %}
+{% load orcid %}
+{% load static %}
+
+{% if orcid_id %}
+    <a class="connect-orcid-link" target="_blank" href="https://orcid.org/{{ orcid_id }}"><img class="orcid-id-logo" src="{% static "common/img/icons/orcid_16x16.png" %}" width='16' height='16' alt="ORCID iD icon"/>https://orcid.org/{{ orcid_id }}</a>
+{% else %}
+    <a class="connect-orcid-link" href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"><img class="orcid-id-logo" src="{% static "common/img/icons/orcid_16x16.png" %}" width='16' height='16' alt="ORCID iD icon"/>{% trans "Register or Connect your ORCID iD" %}</a>
+{% endif %}
