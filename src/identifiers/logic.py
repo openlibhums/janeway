@@ -135,8 +135,12 @@ def send_crossref_deposit(server, identifier):
     if len(pdfs) > 0:
         template_context['pdf_url'] = article.pdf_url
 
+    if article.license:
+        template_context["license"] = article.license.url
+
     template = 'identifiers/crossref.xml'
     crossref_template = render_to_string(template, template_context)
+    logging.debug(crossref_template)
 
     util_models.LogEntry.add_entry('Submission', "Sending request to {1}: {0}".format(crossref_template, server),
                                    'Info',
