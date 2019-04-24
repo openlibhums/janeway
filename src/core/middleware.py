@@ -87,7 +87,6 @@ class SiteSettingsMiddleware(object):
         """
 
         journal, press, redirect_obj = get_site_resources(request)
-        logging.warning(journal)
         if redirect_obj is not None:
             return redirect_obj
 
