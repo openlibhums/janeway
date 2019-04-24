@@ -44,7 +44,7 @@
                             <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
                         <td>{% if can_edit_file_flag %}
-                            <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.GET.return|urlencode }}"><i
+                            <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-trash">
                                 &nbsp;</i></a>{% endif %}</td>
                         <td>{% file_type article file %}</td>
