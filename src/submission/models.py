@@ -246,7 +246,7 @@ STAGE_CHOICES = [
 
 
 class ArticleStageLog(models.Model):
-    article = models.ForeignKey('Article')
+    article = models.ForeignKey('Article', on_delete=models.CASCADE)
     stage_from = models.CharField(max_length=200, blank=False, null=False)
     stage_to = models.CharField(max_length=200, blank=False, null=False)
     date_time = models.DateTimeField(default=timezone.now)
@@ -264,7 +264,11 @@ class ArticleStageLog(models.Model):
 class PublisherNote(models.Model):
     text = models.TextField(max_length=4000, blank=False, null=False)
     sequence = models.PositiveIntegerField(default=999)
-    creator = models.ForeignKey('core.Account', default=None)
+    creator = models.ForeignKey(
+        'core.Account',
+        default=None,
+        on_delete=models.CASCADE,
+    )
     date_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -299,9 +303,18 @@ class PreprintManager(models.Manager):
 
 
 class Article(models.Model):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     # Metadata
-    owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     title = models.CharField(max_length=300, help_text=_('Your article title'))
     subtitle = models.CharField(max_length=300, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
@@ -395,7 +408,12 @@ class Article(models.Model):
 
     is_preprint = models.BooleanField(default=False)
     preprint_decision_notification = models.BooleanField(default=False)
-    preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
+    preprint_journal_article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     allarticles = AllArticleManager()
     objects = ArticleManager()
@@ -776,7 +794,7 @@ class Article(models.Model):
             return True
         elif user in self.section_editors():
             return True
-        elif not user.is_anonymous() and user.is_editor(request=None, journal=self.journal):
+        elif not user.is_anonymous and user.is_editor(request=None, journal=self.journal):
             return True
         else:
             if self.owner != user:
@@ -1031,8 +1049,18 @@ class Article(models.Model):
 
 
 class FrozenAuthor(models.Model):
-    article = models.ForeignKey('submission.Article', blank=True, null=True)
-    author = models.ForeignKey('core.Account', blank=True, null=True)
+    article = models.ForeignKey(
+        'submission.Article',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    author = models.ForeignKey(
+        'core.Account',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     first_name = models.CharField(max_length=300, null=True, blank=True)
     middle_name = models.CharField(max_length=300, null=True, blank=True)
@@ -1040,7 +1068,12 @@ class FrozenAuthor(models.Model):
 
     institution = models.CharField(max_length=1000)
     department = models.CharField(max_length=300, null=True, blank=True)
-    country = models.ForeignKey('core.Country', null=True, blank=True)
+    country = models.ForeignKey(
+        'core.Country',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     order = models.PositiveIntegerField(default=1)
 
@@ -1116,7 +1149,7 @@ class FrozenAuthor(models.Model):
 
 
 class Section(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', on_delete=models.CASCADE)
     number_of_reviewers = models.IntegerField(default=2)
 
     editors = models.ManyToManyField('core.Account')
@@ -1158,8 +1191,18 @@ class Section(TranslatableModel):
 
 
 class Licence(models.Model):
-    journal = models.ForeignKey('journal.Journal', null=True, blank=True, on_delete=models.SET_NULL)
-    press = models.ForeignKey('press.Press', null=True, blank=True, on_delete=models.SET_NULL)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     name = models.CharField(max_length=300)
     short_name = models.CharField(max_length=15)
@@ -1183,8 +1226,8 @@ class Licence(models.Model):
 
 
 class Note(models.Model):
-    article = models.ForeignKey(Article)
-    creator = models.ForeignKey('core.Account')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    creator = models.ForeignKey('core.Account', on_delete=models.CASCADE)
     text = models.TextField()
     date_time = models.DateTimeField(auto_now_add=True)
 
@@ -1212,8 +1255,18 @@ def width_choices():
 
 
 class Field(models.Model):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    press = models.ForeignKey('press.Press', blank=True, null=True)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    press = models.ForeignKey(
+        'press.Press',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
     width = models.CharField(max_length=50, choices=width_choices(), default='full')
@@ -1242,14 +1295,19 @@ class Field(models.Model):
 
 
 class FieldAnswer(models.Model):
-    field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
-    article = models.ForeignKey(Article)
+    field = models.ForeignKey(
+        Field,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
     answer = models.TextField()
 
 
 class ArticleAuthorOrder(models.Model):
-    article = models.ForeignKey(Article)
-    author = models.ForeignKey('core.Account')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    author = models.ForeignKey('core.Account', on_delete=models.CASCADE)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -1257,7 +1315,10 @@ class ArticleAuthorOrder(models.Model):
 
 
 class SubmissionConfiguration(models.Model):
-    journal = models.OneToOneField('journal.Journal')
+    journal = models.OneToOneField(
+        'journal.Journal',
+        on_delete=models.CASCADE,
+    )
 
     publication_fees = models.BooleanField(default=True)
     submission_check = models.BooleanField(default=True)
@@ -1274,12 +1335,20 @@ class SubmissionConfiguration(models.Model):
 
     figures_data = models.BooleanField(default=True, verbose_name=_('Figures and Data Files'))
 
-    default_license = models.ForeignKey(Licence, null=True,
-                                        help_text=_('The default license applied when no option is presented'))
+    default_license = models.ForeignKey(
+        Licence,
+        null=True,
+        help_text=_('The default license applied when no option is presented'),
+        on_delete=models.SET_NULL,
+    )
     default_language = models.CharField(max_length=200, null=True, choices=LANGUAGE_CHOICES,
                                         help_text=_('The default language of articles when lang is hidden'))
-    default_section = models.ForeignKey(Section, null=True,
-                                        help_text=_('The default section of articles when no option is presented'))
+    default_section = models.ForeignKey(
+        Section, null=True,
+        help_text=_(
+            'The default section of articles when no option is presented'
+        ),
+        on_delete=models.SET_NULL, )
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)

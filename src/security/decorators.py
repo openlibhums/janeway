@@ -27,7 +27,7 @@ def base_check(request):
     if request is None or request.user is None:
         return False
 
-    if request.user.is_anonymous() or not request.user.is_active:
+    if request.user.is_anonymous or not request.user.is_active:
         return False
 
     return True
@@ -326,7 +326,7 @@ def reviewer_user_for_assignment_required(func):
             except review_models.ReviewAssignment.DoesNotExist:
                 deny_access(request)
 
-        if request.user.is_anonymous() or not request.user.is_active:
+        if request.user.is_anonymous or not request.user.is_active:
             deny_access(request)
 
         if not request.user.is_reviewer(request):
@@ -454,7 +454,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
         if article_object is not None and article_object.is_accepted():
             return func(request, *args, **kwargs)
-        elif request.user.is_anonymous():
+        elif request.user.is_anonymous:
             deny_access(request)
         elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
             return func(request, *args, **kwargs)

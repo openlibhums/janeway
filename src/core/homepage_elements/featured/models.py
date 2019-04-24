@@ -3,11 +3,15 @@ from django.utils import timezone
 
 
 class FeaturedArticle(models.Model):
-    article = models.ForeignKey('submission.Article')
-    journal = models.ForeignKey('journal.Journal')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    journal = models.ForeignKey('journal.Journal', on_delete=models.CASCADE)
     sequence = models.PositiveIntegerField(default=999)
     added = models.DateTimeField(default=timezone.now)
-    added_by = models.ForeignKey('core.Account')
+    added_by = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         ordering = ('sequence', 'added')

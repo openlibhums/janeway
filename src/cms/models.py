@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils.logic import build_url_for_request
 
+
 class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
@@ -37,9 +38,23 @@ class NavigationItem(models.Model):
     link = models.CharField(max_length=100)
     is_external = models.BooleanField(default=False)
     sequence = models.IntegerField(default=99)
-    page = models.ForeignKey(Page, blank=True, null=True)
-    has_sub_nav = models.BooleanField(default=False, verbose_name="Has Sub Navigation")
-    top_level_nav = models.ForeignKey("self", blank=True, null=True, verbose_name="Top Level Nav Item")
+    page = models.ForeignKey(
+        Page,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    has_sub_nav = models.BooleanField(
+        default=False,
+        verbose_name="Has Sub Navigation"
+    )
+    top_level_nav = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        verbose_name="Top Level Nav Item",
+        on_delete=models.SET_NULL,
+    )
 
     def __str__(self):
         return self.link_name

@@ -15,8 +15,8 @@ assignment_choices = (
 
 
 class EditorAssignment(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    editor = models.ForeignKey('core.Account', on_delete=models.CASCADE)
     editor_type = models.CharField(max_length=20, choices=assignment_choices)
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
@@ -50,7 +50,7 @@ def review_visibilty():
 
 
 class ReviewRound(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
     round_number = models.IntegerField()
     review_files = models.ManyToManyField('core.File')
     date_started = models.DateTimeField(auto_now_add=True)
@@ -68,23 +68,51 @@ class ReviewRound(models.Model):
 
 class ReviewAssignment(models.Model):
     # FKs
-    article = models.ForeignKey('submission.Article')
-    reviewer = models.ForeignKey('core.Account', related_name='reviewer', help_text='User to undertake the review',
-                                 null=True, on_delete=models.SET_NULL)
-    editor = models.ForeignKey('core.Account', related_name='editor', help_text='Editor requesting the review',
-                               null=True, on_delete=models.SET_NULL)
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(
+        'core.Account',
+        related_name='reviewer',
+        help_text='User to undertake the review',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    editor = models.ForeignKey(
+        'core.Account',
+        related_name='editor',
+        help_text='Editor requesting the review',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     # Info
-    review_round = models.ForeignKey(ReviewRound, blank=True, null=True)
-    decision = models.CharField(max_length=20, blank=True, null=True, choices=review_decision())
-    competing_interests = models.TextField(blank=True, null=True,
-                                           help_text="If any of the authors or editors "
-                                                     "have any competing interests please add them here. "
-                                                     "EG. 'This study was paid for by corp xyz.'.")
-    review_type = models.CharField(max_length=20, choices=review_type(), default='traditional',
-                                   help_text='Currently only traditional, form based, review is available.')
+    review_round = models.ForeignKey(
+        ReviewRound,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    decision = models.CharField(max_length=20, blank=True, null=True,
+                                choices=review_decision())
+    competing_interests = models.TextField(
+        blank=True,
+        null=True,
+        help_text="If any of the authors or editors "
+                  "have any competing interests please add them here. "
+                  "EG. 'This study was paid for by corp xyz.'.",
+    )
+    review_type = models.CharField(
+        max_length=20,
+        choices=review_type(),
+        default='traditional',
+        help_text='Currently only traditional, '
+                  'form based, review is available.',
+    )
     visibility = models.CharField(max_length=20, choices=review_visibilty(), default='double-blind')
-    form = models.ForeignKey('ReviewForm')
+    form = models.ForeignKey(
+        'ReviewForm',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     access_code = models.CharField(max_length=100, blank=True, null=True)
 
     # Dates
@@ -103,7 +131,12 @@ class ReviewAssignment(models.Model):
                                            help_text="If you have any comments for the Editor you can add them here, \
                                            these will not be shared with the Author.",
                                            verbose_name="Comments for the Editor")
-    review_file = models.ForeignKey('core.File', blank=True, null=True)
+    review_file = models.ForeignKey(
+        'core.File',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     display_review_file = models.BooleanField(default=False)
 
     def review_form_answers(self):
@@ -158,7 +191,7 @@ class ReviewAssignment(models.Model):
 
 
 class ReviewForm(models.Model):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', on_delete=models.CASCADE)
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
@@ -215,8 +248,12 @@ class ReviewFormElement(models.Model):
 
 
 class ReviewAssignmentAnswer(models.Model):
-    assignment = models.ForeignKey(ReviewAssignment)
-    element = models.ForeignKey(ReviewFormElement)
+    assignment = models.ForeignKey(ReviewAssignment, on_delete=models.CASCADE)
+    element = models.ForeignKey(
+        ReviewFormElement,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     answer = models.TextField()
     edited_answer = models.TextField(null=True, blank=True)
     author_can_see = models.BooleanField(default=True)
@@ -226,16 +263,25 @@ class ReviewAssignmentAnswer(models.Model):
 
 
 class ReviewFormAnswer(models.Model):
-    review_assignment = models.ForeignKey(ReviewAssignment)
-    form_element = models.ForeignKey(ReviewFormElement)
+    review_assignment = models.ForeignKey(
+        ReviewAssignment,
+        on_delete=models.CASCADE,
+    )
+    form_element = models.ForeignKey(
+        ReviewFormElement,
+        on_delete=models.CASCADE,
+    )
     answer = models.TextField()
 
 
 class ReviewerRating(models.Model):
-    assignment = models.OneToOneField(ReviewAssignment)
+    assignment = models.OneToOneField(
+        ReviewAssignment,
+        on_delete=models.CASCADE,
+    )
     rating = models.IntegerField(validators=[MinValueValidator(1),
                                              MaxValueValidator(10)])
-    rater = models.ForeignKey('core.Account')
+    rater = models.ForeignKey('core.Account', on_delete=models.CASCADE)
 
     def __str__(self):
         return "Reviewer: {0}, Article: {1}, Rating: {2}".format(
@@ -246,7 +292,7 @@ class ReviewerRating(models.Model):
 class RevisionAction(models.Model):
     text = models.TextField()
     logged = models.DateTimeField(default=None, null=True, blank=True)
-    user = models.ForeignKey('core.Account')
+    user = models.ForeignKey('core.Account', on_delete=models.CASCADE)
 
     def __str__(self):
         return "Revision Action by {0}: {1}".format(self.user.full_name(), self.text)
@@ -260,8 +306,8 @@ def revision_type():
 
 
 class RevisionRequest(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    editor = models.ForeignKey('core.Account', on_delete=models.CASCADE)
     editor_note = models.TextField()  # Note from Editor to Author
     author_note = models.TextField(blank=True, null=True, verbose_name="Covering Letter")  # Note from Author to Editor
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
@@ -276,8 +322,8 @@ class RevisionRequest(models.Model):
 
 
 class EditorOverride(models.Model):
-    article = models.ForeignKey('submission.Article')
-    editor = models.ForeignKey('core.Account')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    editor = models.ForeignKey('core.Account', on_delete=models.CASCADE)
     overwritten = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -285,8 +331,12 @@ class EditorOverride(models.Model):
 
 
 class DecisionDraft(models.Model):
-    article = models.ForeignKey('submission.Article')
-    section_editor = models.ForeignKey('core.Account', related_name='draft_section_editor')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    section_editor = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+        related_name='draft_section_editor',
+    )
     decision = models.CharField(max_length=100, choices=review_decision())
     message_to_editor = models.TextField(null=True, blank=True)
     email_message = models.TextField(null=True, blank=True)

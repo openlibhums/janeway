@@ -15,7 +15,7 @@ def is_author(context):
 @register.simple_tag(takes_context=True)
 def is_editor(context):
     request = context['request']
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     return request.user.is_editor(request)
 

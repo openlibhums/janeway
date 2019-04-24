@@ -15,7 +15,7 @@ def access_choices():
 
 
 class ArticleAccess(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
     type = models.CharField(max_length=20, choices=access_choices())
     identifier = models.CharField(max_length=200)
     accessed = models.DateTimeField(default=timezone.now)
@@ -26,7 +26,10 @@ class ArticleAccess(models.Model):
 
 
 class HistoricArticleAccess(models.Model):
-    article = models.OneToOneField('submission.Article')
+    article = models.OneToOneField(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     views = models.PositiveIntegerField(default=0)
     downloads = models.PositiveIntegerField(default=0)
 
@@ -72,7 +75,7 @@ def alt_metric_choices():
 
 
 class AltMetric(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
     source = models.CharField(max_length=30, choices=alt_metric_choices())
     pid = models.CharField(max_length=200)
     timestamp = models.DateTimeField()

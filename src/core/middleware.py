@@ -9,8 +9,7 @@ import threading
 
 import pytz
 
-from django.core.exceptions import ObjectDoesNotExist, \
-    MultipleObjectsReturned, ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
@@ -18,9 +17,10 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.urls import set_script_prefix
 from django.utils import timezone
+from django.utils.deprecation import MiddlewareMixin
 
 from press import models as press_models
-from utils import models as util_models, setting_handler
+from utils import setting_handler
 from core import models as core_models
 from journal import models as journal_models
 
@@ -69,7 +69,7 @@ def get_site_resources(request):
     return journal, press, redirect_obj
 
 
-class SiteSettingsMiddleware(object):
+class SiteSettingsMiddleware(MiddlewareMixin):
     @staticmethod
     def process_request(request):
         """ This middleware class sets a series of variables for templates
@@ -116,7 +116,8 @@ class SiteSettingsMiddleware(object):
         else:
             raise Http404()
 
-        # We check if the journal and press are set to be secure and redirect if the current request is not secure.
+        # We check if the journal and press are set to be secure
+        # and redirect if the current request is not secure.
         if not request.is_secure():
             if (
                     request.journal
@@ -128,7 +129,7 @@ class SiteSettingsMiddleware(object):
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
 
 
-class MaintenanceModeMiddleware(object):
+class MaintenanceModeMiddleware(MiddlewareMixin):
     @staticmethod
     def process_request(request):
         if request.journal is not None:
@@ -147,7 +148,7 @@ class MaintenanceModeMiddleware(object):
                 raise PermissionDenied(request, maintenance_mode_message)
 
 
-class CounterCookieMiddleware(object):
+class CounterCookieMiddleware(MiddlewareMixin):
 
     @staticmethod
     def process_response(request, response):
@@ -162,7 +163,7 @@ class CounterCookieMiddleware(object):
         return response
 
 
-class PressMiddleware(object):
+class PressMiddleware(MiddlewareMixin):
 
     @staticmethod
     def process_request(request):
@@ -196,7 +197,7 @@ class PressMiddleware(object):
 _threadlocal = threading.local()
 
 
-class GlobalRequestMiddleware(object):
+class GlobalRequestMiddleware(MiddlewareMixin):
     @classmethod
     def get_current_request(cls):
         return _threadlocal.request
@@ -206,7 +207,8 @@ class GlobalRequestMiddleware(object):
         _threadlocal.request = request
 
 
-class TimezoneMiddleware(object):
+class TimezoneMiddleware(MiddlewareMixin):
+
     def process_request(self, request):
         if request.user.is_authenticated and request.user.preferred_timezone:
             tzname = request.user.preferred_timezone

@@ -14,14 +14,14 @@ from django.core.exceptions import SuspiciousFileOperation
 from django.template import Origin, TemplateDoesNotExist
 from django.template.loaders.base import Loader as BaseLoader
 from django.utils._os import safe_join
-from django.utils.deprecation import RemovedInDjango20Warning
+from django.utils.deprecation import MiddlewareMixin
 
 from utils import setting_handler, function_cache
 
 _local = threading.local()
 
 
-class ThemeEngineMiddleware(object):
+class ThemeEngineMiddleware(MiddlewareMixin):
     """ Handles theming through middleware
     """
 
@@ -103,11 +103,6 @@ class Loader(BaseLoader):
             )
 
     def load_template_source(self, template_name, template_dirs=None):
-        warnings.warn(
-            'The load_template_sources() method is deprecated. Use '
-            'get_template() or get_contents() instead.',
-            RemovedInDjango20Warning,
-        )
         for origin in self.get_template_sources(template_name, template_dirs):
             try:
                 return self.get_contents(origin), origin.name

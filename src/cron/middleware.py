@@ -4,11 +4,13 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from cron import models
 from django.conf import settings
+from django.utils.deprecation import MiddlewareMixin
+
+from cron import models
 
 
-class CronMiddleware(object):
+class CronMiddleware(MiddlewareMixin):
 
     @staticmethod
     def process_request(request):

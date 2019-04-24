@@ -47,7 +47,7 @@ def user_login(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))

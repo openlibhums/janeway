@@ -67,8 +67,8 @@ class Identifier(models.Model):
 
 
 class BrokenDOI(models.Model):
-    article = models.ForeignKey('submission.Article')
-    identifier = models.ForeignKey(Identifier)
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    identifier = models.ForeignKey(Identifier, on_delete=models.CASCADE)
     checked = models.DateTimeField()
     resolves_to = models.URLField()
     expected_to_resolve_to = models.URLField()

@@ -87,7 +87,7 @@ class LogEntry(models.Model):
                   message_id=None, subject=None):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
-            if actor.is_anonymous():
+            if actor.is_anonymous:
                 actor = None
 
         kwargs = {
@@ -152,7 +152,7 @@ setting_types = (
 
 class PluginSetting(models.Model):
     name = models.CharField(max_length=100)
-    plugin = models.ForeignKey(Plugin)
+    plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE)
     types = models.CharField(max_length=20, choices=setting_types, default='text')
     pretty_name = models.CharField(max_length=100, default='')
     description = models.TextField(null=True, blank=True)
@@ -169,8 +169,16 @@ class PluginSetting(models.Model):
 
 
 class PluginSettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    setting = models.ForeignKey(PluginSetting)
+    journal = models.ForeignKey(
+        'journal.Journal',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    setting = models.ForeignKey(
+        PluginSetting,
+        on_delete=models.CASCADE,
+    )
 
     translations = TranslatedFields(
         value=models.TextField(null=True, blank=True)

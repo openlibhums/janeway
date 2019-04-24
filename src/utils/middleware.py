@@ -8,10 +8,12 @@ import resource
 import threading
 import time
 
+from django.utils.deprecation import MiddlewareMixin
+
 _local = threading.local()
 
 
-class ThemeEngineMiddleware(object):
+class ThemeEngineMiddleware(MiddlewareMixin):
     """ Handles theming through middleware
     """
 
@@ -24,9 +26,10 @@ class ThemeEngineMiddleware(object):
         return response
 
 
-class TimeMonitoring(object):
+class TimeMonitoring(MiddlewareMixin):
     """Monitors the resource usage of a request/response cycle """
-    def __init__(self):
+    def __init__(self, get_response):
+        self.get_response = get_response
         self.usage_start = None
 
     def process_request(self, _request):

@@ -7,14 +7,22 @@ from django.utils import timezone
 
 
 class ProductionAssignment(models.Model):
-    article = models.OneToOneField('submission.Article')
+    article = models.OneToOneField(
+        'submission.Article',
+        on_delete=models.CASCADE,
+    )
     production_manager = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     editor = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL, related_name='prod_editor')
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     closed = models.DateField(blank=True, null=True)
 
-    accepted_by_manager = models.ForeignKey('TypesetTask', null=True, blank=True)
+    accepted_by_manager = models.ForeignKey(
+        'TypesetTask',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     class Meta:
         unique_together = ('article', 'production_manager')
@@ -33,8 +41,15 @@ class ProductionAssignment(models.Model):
 
 
 class TypesetTask(models.Model):
-    assignment = models.ForeignKey(ProductionAssignment)
-    typesetter = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
+    assignment = models.ForeignKey(
+        ProductionAssignment,
+        on_delete=models.CASCADE
+    )
+    typesetter = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     accepted = models.DateTimeField(blank=True, null=True)

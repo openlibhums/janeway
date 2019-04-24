@@ -9,7 +9,7 @@ from django.utils import timezone
 
 
 class Preprint(models.Model):
-    article = models.ForeignKey('submission.Article')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
     doi = models.CharField(max_length=100)
     curent_version = models.IntegerField(default=1)
 
@@ -19,8 +19,8 @@ class Preprint(models.Model):
 
 
 class PreprintVersion(models.Model):
-    preprint = models.ForeignKey('submission.Article')
-    galley = models.ForeignKey('core.Galley')
+    preprint = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    galley = models.ForeignKey('core.Galley', on_delete=models.CASCADE)
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
 
@@ -29,9 +29,14 @@ class PreprintVersion(models.Model):
 
 
 class Comment(models.Model):
-    author = models.ForeignKey('core.Account')
-    article = models.ForeignKey('submission.Article')
-    reply_to = models.ForeignKey('self', blank=True, null=True)
+    author = models.ForeignKey('core.Account', on_delete=models.CASCADE)
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    reply_to = models.ForeignKey(
+        'self',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     date_time = models.DateTimeField(default=timezone.now)
 
     body = models.TextField(verbose_name='Write your comment:')
@@ -68,9 +73,9 @@ def version_choices():
 
 
 class VersionQueue(models.Model):
-    article = models.ForeignKey('submission.Article')
-    galley = models.ForeignKey('core.Galley')
-    file = models.ForeignKey('core.File')
+    article = models.ForeignKey('submission.Article', on_delete=models.CASCADE)
+    galley = models.ForeignKey('core.Galley', on_delete=models.CASCADE)
+    file = models.ForeignKey('core.File', on_delete=models.CASCADE)
     update_type = models.CharField(max_length=10, choices=version_choices())
 
     date_submitted = models.DateTimeField(default=timezone.now)

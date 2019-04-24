@@ -9,7 +9,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 URL_CONFIG = 'path'  # path or domain
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'utils.middleware.TimeMonitoring',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
