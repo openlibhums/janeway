@@ -473,3 +473,7 @@ if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     logging.disable(logging.CRITICAL)
     MIGRATION_MODULES = SkipMigrations()
 
+
+HVAD = {
+    'AUTOLOAD_TRANSLATIONS': True,
+}

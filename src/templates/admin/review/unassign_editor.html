@@ -35,7 +35,7 @@
                     &nbsp;&nbsp;
                     <button type="submit" class="button alert" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
                     </button>
-                    <a href="{% url 'review_unassign_editor' article.pk assignment.editor.pk %}" class="button warning" type="submit">Cancel</a>
+                    <a href="{% url 'review_unassigned_article' article.pk %}" class="button warning" type="submit">Cancel</a>
                             </div>
                         </div>
                     </form>
