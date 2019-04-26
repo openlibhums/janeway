@@ -15,6 +15,7 @@
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
     {% if request.journal %}
+        <link href="{% static "OLH/css/default_override.css" %}" rel="stylesheet">
         <link href="{% static "OLH/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
     {% endif %}
     <script src="https://use.typekit.net/lff8ikn.js"></script>

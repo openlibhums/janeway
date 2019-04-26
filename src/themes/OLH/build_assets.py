@@ -123,13 +123,8 @@ def process_images():
     copy_files(image_path, static_images)
 
 
-def process_journals():
+def process_journals(override_css_dir, paths):
     journals = journal_models.Journal.objects.all()
-
-    paths = [
-        os.path.join(settings.BASE_DIR, 'themes/OLH/assets/foundation-sites/scss/'),
-        os.path.join(settings.BASE_DIR, 'themes/OLH/assets/motion-ui/src/')
-    ]
 
     for journal in journals:
         # look for SCSS folder and files
@@ -140,14 +135,10 @@ def process_journals():
         else:
             print('Journal with ID {0} [{1}]: processing overrides'.format(journal.id, journal.name))
 
-            override_css_dir = os.path.join(settings.BASE_DIR, 'static', 'OLH', 'css')
             override_css_file = os.path.join(override_css_dir, 'journal{0}_override.css'.format(str(journal.id)))
 
             # we will only process one single SCSS override file for a journal
             compiled_css_from_file = sass.compile(filename=scss_files[0], include_paths=paths)
-
-            # test if the journal CSS directory exists and create it if not
-            os.makedirs(override_css_dir, exist_ok=True)
 
             # open the journal CSS override file and write into it
             write_file = open(override_css_file, 'w')
@@ -163,6 +154,22 @@ def process_journals():
             copy_file(journal_header_image, dest_path)
 
 
+def process_default_override(override_css_dir, include_paths):
+    scss_default_override = os.path.join(
+            settings.BASE_DIR, 'files', 'styling',
+            'journals', 'default', 'override.scss'
+    )
+    override_css_file = os.path.join(override_css_dir, 'default_override.css')
+
+    if os.path.isfile(scss_default_override):
+        compiled = sass.compile(
+                filename=scss_default_override,
+                include_paths=include_paths,
+        )
+        with open(override_css_file, "w") as f:
+            f.write(compiled)
+
+
 def create_paths():
     base_path = os.path.join(settings.BASE_DIR, 'static', 'OLH')
     folders = ['css', 'js', 'fonts', 'img']
@@ -170,13 +177,24 @@ def create_paths():
     for folder in folders:
         os.makedirs(os.path.join(base_path, folder), exist_ok=True)
 
+    # test if the journal CSS directory exists and create it if not
+    override_css_dir = os.path.join(settings.BASE_DIR, 'static', 'OLH', 'css')
+    os.makedirs(override_css_dir, exist_ok=True)
+
+    return override_css_dir
+
 
 def build():
-    create_paths()
+    override_css_dir = create_paths()
     print("Processing SCSS")
     process_scss()
     print("Processing JS")
     process_js()
     print("Processing journal overrides")
-    process_journals()
+    include_paths = [
+        os.path.join(settings.BASE_DIR, 'themes/OLH/assets/foundation-sites/scss/'),
+        os.path.join(settings.BASE_DIR, 'themes/OLH/assets/motion-ui/src/')
+    ]
+    process_default_override(override_css_dir, include_paths)
+    process_journals(override_css_dir, include_paths)
     call_command('collectstatic', '--noinput')
