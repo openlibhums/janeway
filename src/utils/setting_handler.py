@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import os
 import codecs
+import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -95,7 +96,7 @@ def _get_setting(
     except ObjectDoesNotExist:
         if journal is not None:
             if create:
-                logger.warning(
+                logging.warning(
                     "Passing 'create' to get_setting has been deprecated in "
                     "in favour of returning the default value"
                 )
