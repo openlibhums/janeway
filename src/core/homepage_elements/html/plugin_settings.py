@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
+from utils import models, setting_handler
 
 PLUGIN_NAME = 'HTML'
 DESCRIPTION = 'This is a homepage element that renders an HTML block'
@@ -18,6 +18,25 @@ def install():
     import core.models as core_models
     import journal.models as journal_models
     import press.models as press_models
+
+    plugin, c = models.Plugin.objects.get_or_create(
+        name=PLUGIN_NAME,
+        version=VERSION,
+        enabled=True,
+        display_name='HTML',
+        press_wide=True,
+    )
+
+    models.PluginSetting.objects.get_or_create(
+        name='html_block_content',
+        plugin=plugin,
+        defaults={
+            'pretty_name': 'HTML Block Content',
+            'types': 'rich-text',
+            'description': DESCRIPTION,
+            'is_translatable': True,
+        }
+    )
 
     # check whether this homepage element has
     # already been installed for all journals
@@ -49,25 +68,6 @@ def install():
             available_to_press=True)
 
         element.save()
-
-    plugin, c = models.Plugin.objects.get_or_create(
-        name=PLUGIN_NAME,
-        version=VERSION,
-        enabled=True,
-        display_name='HTML',
-        press_wide=True,
-    )
-
-    models.PluginSetting.objects.get_or_create(
-        name='html_block_content',
-        plugin=plugin,
-        defaults={
-            'pretty_name': 'HTML Block Content',
-            'types': 'rich-text',
-            'description': DESCRIPTION,
-            'is_translatable': True,
-        }
-    )
 
 
 def hook_registry():
