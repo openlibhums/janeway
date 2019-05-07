@@ -52,7 +52,7 @@ def get_setting(
         value is present
     """
     setting = core_models.Setting.objects.get(name=setting_name)
-    lang = get_language() if setting.is_translatable else 'en'
+    lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
     try:
         return _get_setting(
             setting_group, setting, journal, lang, create, fallback, default)
@@ -128,7 +128,7 @@ def _get_setting(
 
 def save_setting(setting_group, setting_name, journal, value):
     setting = core_models.Setting.objects.get(name=setting_name)
-    lang = get_language() if setting.is_translatable else 'en'
+    lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
 
     setting_value, created = core_models.SettingValue.objects.language(lang).get_or_create(
         setting__group=setting.group,
@@ -151,7 +151,8 @@ def save_setting(setting_group, setting_name, journal, value):
 
 def save_plugin_setting(plugin, setting_name, value, journal):
     setting = models.PluginSetting.objects.get(name=setting_name)
-    lang = get_language() if setting.is_translatable else 'en'
+    lang = get_language() or settings.LANGUAGE_CODE
+    lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
 
     setting_value, created = models.PluginSettingValue.objects.language(lang).get_or_create(
         setting__plugin=plugin,
@@ -173,20 +174,29 @@ def save_plugin_setting(plugin, setting_name, value, journal):
 
 
 def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', fallback='', types='Text'):
+    lang = get_language() or settings.LANGUAGE_CODE
     try:
-        if not create:
+        try:
             setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
-        else:
-            setting, created = models.PluginSetting.objects.get_or_create(name=setting_name,
-                                                                          plugin=plugin,
-                                                                          types=types,
-                                                                          defaults={'pretty_name': pretty,
-                                                                                    'types': types})
+        except models.PluginSetting.DoesNotExist:
+            #Some Plugins rely on this function to install themselves
+            logging.warning(
+                "PluginSetting %s for plugin %s was not present, "
+                "was the plugin installed correctly?"
+                "" % (setting_name, plugin)
+            )
+            if create:
+                setting, created = models.PluginSetting.objects.get_or_create(
+                    name=setting_name,
+                    plugin=plugin,
+                    types=types,
+                    defaults={'pretty_name': pretty, 'types': types}
+                )
 
             if created:
                 save_plugin_setting(plugin, setting_name, ' ', journal)
 
-        lang = get_language() if setting.is_translatable else 'en'
+        lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
 
         return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
     except Exception as e:
@@ -204,7 +214,6 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
                 )
             )
         raise e
-
 
 
 def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
