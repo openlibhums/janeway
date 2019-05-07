@@ -53,9 +53,23 @@ def get_setting(
     """
     setting = core_models.Setting.objects.get(name=setting_name)
     lang = get_language() if setting.is_translatable else 'en'
-
-    return _get_setting(
+    try:
+        return _get_setting(
             setting_group, setting, journal, lang, create, fallback, default)
+    except Exception as e:
+        logging.critical(
+                "Failed to load setting for context:\n"
+                "setting_name: {0},\n"
+                "journal: {1},\n"
+                "fallback: {2},\n"
+                "request language: {3},\n"
+                "settings language: {4},\n"
+                "".format(
+                    setting_name, journal, fallback,
+                    lang, settings.LANGUAGE_CODE
+                )
+            )
+        raise e
 
 
 def get_requestless_setting(setting_group, setting, journal):
@@ -159,21 +173,38 @@ def save_plugin_setting(plugin, setting_name, value, journal):
 
 
 def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', fallback='', types='Text'):
-    if not create:
-        setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
-    else:
-        setting, created = models.PluginSetting.objects.get_or_create(name=setting_name,
-                                                                      plugin=plugin,
-                                                                      types=types,
-                                                                      defaults={'pretty_name': pretty,
-                                                                                'types': types})
+    try:
+        if not create:
+            setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
+        else:
+            setting, created = models.PluginSetting.objects.get_or_create(name=setting_name,
+                                                                          plugin=plugin,
+                                                                          types=types,
+                                                                          defaults={'pretty_name': pretty,
+                                                                                    'types': types})
 
-        if created:
-            save_plugin_setting(plugin, setting_name, ' ', journal)
+            if created:
+                save_plugin_setting(plugin, setting_name, ' ', journal)
 
-    lang = get_language() if setting.is_translatable else 'en'
+        lang = get_language() if setting.is_translatable else 'en'
 
-    return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
+        return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
+    except Exception as e:
+        logging.critical(
+                "Failed to load plugin setting for context:\n"
+                "plugin: {0},\n"
+                "setting_name: {1},\n"
+                "journal: {2},\n"
+                "fallback: {3},\n"
+                "request language: {4},\n"
+                "settings language: {5},\n"
+                "".format(
+                    plugin, setting_name, journal,
+                    fallback, lang, settings.LANGUAGE_CODE
+                )
+            )
+        raise e
+
 
 
 def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
