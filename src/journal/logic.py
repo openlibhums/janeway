@@ -3,12 +3,13 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from bs4 import BeautifulSoup
+import csv
+from dateutil import parser as dateparser
+import logging
 from os import listdir, makedirs
 from os.path import isfile, join
 import requests
-from dateutil import parser as dateparser
-from bs4 import BeautifulSoup
-import csv
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -58,19 +59,17 @@ def list_scss(journal):
     :param journal: the journal in question
     :return: a list of SCSS files
     """
-    file_paths = []
-    scss_default_override = join(
-            settings.BASE_DIR, 'files', 'styling', 'journals', 'default')
-    scss_path = join(settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
-    for path in [scss_default_override, scss_path]:
-        try:
-            makedirs(scss_path, exist_ok=True)
-            file_paths += [
-                    join(path, f)
-                    for f in listdir(path) if isfile(join(path, f))
-            ]
-        except FileNotFoundError:
-            pass
+    scss_path = join(
+            settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
+    try:
+        makedirs(scss_path, exist_ok=True)
+        file_paths = [
+                join(scss_path, f)
+                for f in listdir(scss_path) if isfile(join(scss_path, f))
+        ]
+    except FileNotFoundError:
+        logging.warning("Failed to load scss from %s" % scss_path)
+        file_paths = []
 
     return file_paths
 

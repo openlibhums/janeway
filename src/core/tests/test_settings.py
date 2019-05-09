@@ -253,4 +253,3 @@ class TestSettingHandler(TestCase):
 
         self.assertEqual(result, setting_value)
         self.assertEqual(xl_result, xl_setting_value)
-
