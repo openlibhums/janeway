@@ -208,3 +208,48 @@ class TestSettingHandler(TestCase):
         self.assertEqual(result, setting_value)
         self.assertEqual(xl_result, xl_setting_value)
 
+    def test_update_translated_setting_with_default_lang(self):
+        setting_name = "test_update_translated_setting_with_default_lang"
+        setting_value = "banana"
+        xl_setting_value = "plátano"
+        setting = setting_handler.create_setting(
+                "test_group", setting_name,
+                type="text",
+                pretty_name="Pretty Name",
+                description=None,
+                is_translatable=True,
+        )
+        #Save the setting on the default language
+        setting_handler.save_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+                value=setting_value,
+        )
+        #Save  a wrongly translated value
+        wrong_translation = xl_setting_value + "mal"
+        with helpers.activate_translation("es"):
+            setting_handler.save_setting(
+                    "test_group", setting_name,
+                    journal=self.journal_one,
+                    value=wrong_translation,
+            )
+            #save the correctly translated value
+            setting_handler.save_setting(
+                    "test_group", setting_name,
+                    journal=self.journal_one,
+                    value=xl_setting_value,
+            )
+
+        #Fetch the results
+        result = setting_handler.get_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+        ).value
+        with helpers.activate_translation("es"):
+            xl_result = setting_handler.get_setting(
+                    "test_group", setting_name,
+                    journal=self.journal_one,
+            ).value
+
+        self.assertEqual(result, setting_value)
+        self.assertEqual(xl_result, xl_setting_value)
