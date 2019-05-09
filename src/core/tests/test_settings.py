@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django.utils import translation
 
@@ -124,4 +125,86 @@ class TestSettingHandler(TestCase):
                 journal=self.journal_one,
         )
         self.assertEqual(result.value, setting_value)
+
+    def test_save_setting(self):
+        setting_name = "test_save_setting"
+        setting_value = "This is the setting"
+        setting = setting_handler.create_setting(
+                "test_group", setting_name,
+                type="text",
+                pretty_name="Pretty Name",
+                description=None,
+                is_translatable=True,
+        )
+        setting_handler.save_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+                value=setting_value,
+        )
+        result = setting_handler.get_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+        )
+        self.assertEqual(result.value, setting_value)
+
+    @helpers.activate_translation("es")
+    def test_save_translated_setting_without_default_lang(self):
+        setting_name = "test_save_translated_setting_without_default_lang"
+        setting_value = "plátano"
+        expected_result = ""
+        setting = setting_handler.create_setting(
+                "test_group", setting_name,
+                type="text",
+                pretty_name="Pretty Name",
+                description=None,
+                is_translatable=True,
+        )
+        setting_handler.save_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+                value=setting_value,
+        )
+        with helpers.activate_translation(settings.LANGUAGE_CODE):
+            result = setting_handler.get_setting(
+                    "test_group", setting_name,
+                    journal=self.journal_one,
+            )
+        self.assertEqual(result.value, expected_result)
+
+    def test_save_translated_setting_with_default_lang(self):
+        setting_name = "test_save_translated_setting_with_default_lang"
+        setting_value = "banana"
+        xl_setting_value = "plátano"
+        setting = setting_handler.create_setting(
+                "test_group", setting_name,
+                type="text",
+                pretty_name="Pretty Name",
+                description=None,
+                is_translatable=True,
+        )
+        #Save the setting on the default language
+        setting_handler.save_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+                value=setting_value,
+        )
+        #Save the translated value
+        with helpers.activate_translation("es"):
+            setting_handler.save_setting(
+                    "test_group", setting_name,
+                    journal=self.journal_one,
+                    value=xl_setting_value,
+            )
+        result = setting_handler.get_setting(
+                "test_group", setting_name,
+                journal=self.journal_one,
+        ).value
+        with helpers.activate_translation("es"):
+            xl_result = setting_handler.get_setting(
+                    "test_group", setting_name,
+                    journal=self.journal_one,
+            ).value
+
+        self.assertEqual(result, setting_value)
+        self.assertEqual(xl_result, xl_setting_value)
 
