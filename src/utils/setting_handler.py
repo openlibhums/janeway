@@ -130,11 +130,21 @@ def save_setting(setting_group, setting_name, journal, value):
     setting = core_models.Setting.objects.get(name=setting_name)
     lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
 
-    setting_value, created = core_models.SettingValue.objects.language(lang).get_or_create(
-        setting__group=setting.group,
-        setting=setting,
-        journal=journal
+    setting_value, created = core_models.SettingValue.objects \
+        .language(settings.LANGUAGE_CODE) \
+        .get_or_create(
+            setting__group=setting.group,
+            setting=setting,
+            journal=journal
     )
+
+    if created:
+        #Ensure that a value exists for settings.LANGUAGE_CODE
+        setting_value.value = ""
+        setting_value.save()
+
+    if lang != settings.LANGUAGE_CODE:
+        setting_value = setting_value.translate(lang)
 
     if setting.types == 'json':
         value = json.dumps(value)

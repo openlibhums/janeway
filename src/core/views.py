@@ -656,11 +656,8 @@ def edit_setting(request, setting_group, setting_name):
         if request.FILES:
             value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        setting_value = setting_handler.get_setting(
-            setting_group, setting_name, request.journal, create=True)
-        setting_value.value = value
-        setting_value.save()
-
+        setting_value = setting_handler.save_setting(
+            setting_group, setting_name, request.journal, value)
         cache.clear()
 
         return redirect(reverse('core_settings_index'))
