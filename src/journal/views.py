@@ -998,11 +998,11 @@ def issue_galley(request, issue_id, delete=False):
                 issue_galley.replace_file(uploaded_file)
             except models.IssueGalley.DoesNotExist:
                 file_obj = files.save_file(
-                        request,
-                        uploaded_file,
-                        label=issue.issue_title,
-                        public=False
-                        *(models.IssueGalley.FILES_PATH, issue.pk)
+                    request,
+                    uploaded_file,
+                    label=issue.issue_title,
+                    public=False,
+                    path_parts=(models.IssueGalley.FILES_PATH, issue.pk)
                 )
                 models.IssueGalley.objects.create(
                     file=file_obj,
