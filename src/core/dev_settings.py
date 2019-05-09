@@ -13,7 +13,12 @@ MIDDLEWARE_CLASSES = (
     'utils.middleware.TimeMonitoring',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
-INSTALLED_APPS = ['debug_toolbar', 'django_nose']
+INSTALLED_APPS = [
+    'debug_toolbar',
+    'django_nose',
+    'hijack',
+    'compat',
+]
 
 
 def show_toolbar(request):
@@ -24,3 +29,6 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+HIJACK_LOGOUT_REDIRECT_URL = '/manager/'

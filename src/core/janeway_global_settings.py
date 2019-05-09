@@ -168,6 +168,7 @@ SETTINGS_EXPORT = [
     'ORCID_URL',
     'ENABLE_ENHANCED_MAILGUN_FEATURES',
     'ENABLE_ORCID',
+    'DEBUG',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
