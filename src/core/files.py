@@ -608,7 +608,8 @@ def save_file_to_journal(request, file_to_handle, label, description, xslt=False
     return new_file
 
 
-def save_file(request, file_to_handle, label=None, public=False, *path_parts):
+def save_file(request, file_to_handle, label=None, public=False,
+              path_parts=()):
     original_filename = str(file_to_handle.name)
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(
