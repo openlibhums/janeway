@@ -143,8 +143,14 @@ def save_setting(setting_group, setting_name, journal, value):
         setting_value.value = ""
         setting_value.save()
 
-    if lang != settings.LANGUAGE_CODE:
-        setting_value = setting_value.translate(lang)
+    if (
+        setting_value.setting.is_translatable
+        and lang != settings.LANGUAGE_CODE
+    ):
+        try:
+            setting_value = setting_value.translations.get_language(lang)
+        except ObjectDoesNotExist:
+            setting_value = setting_value.translate(lang)
 
     if setting.types == 'json':
         value = json.dumps(value)
