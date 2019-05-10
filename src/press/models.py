@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 import json
-import logging
 import os
 import uuid
 
@@ -16,11 +15,12 @@ from django.db import models
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
-from utils.function_cache import cache
 from utils import logic
+from utils.function_cache import cache
+from utils.logger import get_logger
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 fs = JanewayFileSystemStorage()

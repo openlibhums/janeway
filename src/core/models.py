@@ -7,7 +7,6 @@ import os
 import uuid
 import statistics
 import json
-import logging
 from datetime import timedelta
 from urllib.parse import urlunparse
 
@@ -34,9 +33,10 @@ from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils import setting_handler
+from utils.logger import get_logger
 
 fs = JanewayFileSystemStorage()
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def profile_images_upload_path(instance, filename):

@@ -7,7 +7,6 @@ import json
 import os
 from shutil import copyfile
 from uuid import uuid4
-import logging
 
 from django.conf import settings
 from django.contrib import messages
@@ -38,9 +37,10 @@ from security.decorators import article_stage_accepted_or_later_required, \
     editor_user_required
 from submission import models as submission_models
 from utils import models as utils_models, shared
+from utils.logger import get_logger
 from events import logic as event_logic
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @has_journal
