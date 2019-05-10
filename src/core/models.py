@@ -323,7 +323,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
     def check_role(self, journal, role):
-        return AccountRole.objects.filter(user=self, journal=journal, role__slug=role).count() > 0 or self.is_staff
+        return AccountRole.objects.filter(
+            user=self,
+            journal=journal,
+            role__slug=role
+        ).exists() or self.is_staff
 
     def is_editor(self, request, journal=None):
         if not journal:
