@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import logging
 from uuid import uuid4
 import threading
 
@@ -21,8 +20,11 @@ from django.utils import timezone
 
 from press import models as press_models
 from utils import models as util_models, setting_handler
+from utils.logger import get_logger
 from core import models as core_models
 from journal import models as journal_models
+
+logger = get_logger(__name__)
 
 
 def get_site_resources(request):
@@ -53,14 +55,14 @@ def get_site_resources(request):
             try: # try alias
                 alias = core_models.DomainAlias.get_by_request(request)
                 if alias.redirect:
-                    logging.debug("Matched a redirect: %s" % alias.redirect_url)
+                    logger.debug("Matched a redirect: %s" % alias.redirect_url)
                     redirect_obj = redirect(alias.redirect_url)
                 else:
                     journal = alias.journal
                     press = journal.press if journal else alias.press
             except core_models.DomainAlias.DoesNotExist:
                 # Give up
-                logging.warning(
+                logger.warning(
                     "Couldn't match a resource for %s, redirecting to %s"
                     "" % (request.path, settings.DEFAULT_HOST)
                 )
@@ -95,6 +97,7 @@ class SiteSettingsMiddleware(object):
         request.press_cover = press.press_cover(request)
 
         if journal is not None:
+            logger.push_prefix(journal.code)
             request.journal = journal
             request.journal_cover = journal.override_cover(request)
             request.site_type = journal
@@ -103,11 +106,12 @@ class SiteSettingsMiddleware(object):
 
             if settings.URL_CONFIG == 'path':
                 prefix = "/" + journal.code
-                logging.debug("Setting script prefix to %s" % prefix)
+                logger.debug("Setting script prefix to %s" % prefix)
                 set_script_prefix(prefix)
                 request.path_info = request.path_info[len(prefix):]
 
         elif press is not None:
+            logger.push_prefix("press")
             request.journal = None
             request.site_type = press
             request.model_content_type = ContentType.objects.get_for_model(press)
@@ -218,7 +222,7 @@ class TimezoneMiddleware(object):
             request.timezone = tzname
             if tzname is not None:
                 timezone.activate(pytz.timezone(tzname))
-                logging.debug("Activated timezone %s" % tzname)
+                logger.debug("Activated timezone %s" % tzname)
         except Exception as e:
-            logging.warning("Failed to activate timezone %s: %s" % (tzname, e))
+            logger.warning("Failed to activate timezone %s: %s" % (tzname, e))
 
