@@ -1,0 +1,16 @@
+<script>
+    function submit_note(article_id) {
+        var text = $('#' + article_id + '_new_note').val();
+        data = {'note': text}
+        $.ajax({
+            "type": "POST",
+            "dataType": "json",
+            "url": "{% url 'article_new_note' article.pk %} ",
+            "data": data,
+            "success": function (data) {
+                $('#' + article_id + '_new_note').val("")
+                $('.note-holder').prepend(data.html);
+            },
+        });
+    }
+</script>
