@@ -7,7 +7,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from uuid import uuid4
 import requests
-import logging
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -18,6 +17,9 @@ from django.utils import timezone
 import sys
 from utils import models as util_models
 from utils.function_cache import cache
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CROSSREF_TEST_URL = 'https://api.crossref.org/deposits?test=true'
 CROSSREF_LIVE_URL = 'https://api.crossref.org/deposits'
@@ -36,7 +38,7 @@ def register_crossref_doi(identifier):
                                                identifier.article.journal).processed_value
 
     if not use_crossref:
-        logging.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
+        logger.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return 'Crossref Disabled', 'Disabled'
 
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', identifier.article.journal).processed_value
@@ -61,7 +63,7 @@ def register_crossref_component(article, xml, supp_file):
                                                article.journal).processed_value
 
     if not use_crossref:
-        logging.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
+        logger.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return
 
     test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
@@ -88,14 +90,14 @@ def register_crossref_component(article, xml, supp_file):
                                        "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                        'Debug',
                                        target=article)
-        logging.error("Error depositing: {}".format(response.status_code))
-        logging.error(response.text, file=sys.stderr)
+        logger.error("Error depositing: {}".format(response.status_code))
+        logger.error(response.text, file=sys.stderr)
     else:
         token = response.json()['message']['batch-id']
         status = response.json()['message']['status']
         util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                        target=article)
-        logging.info("Status of {} in {}: {}".format(token, '{0}.{1}'.format(article.get_doi(), supp_file.pk), status))
+        logger.info("Status of {} in {}: {}".format(token, '{0}.{1}'.format(article.get_doi(), supp_file.pk), status))
 
 
 def send_crossref_deposit(server, identifier):
@@ -140,7 +142,7 @@ def send_crossref_deposit(server, identifier):
 
     template = 'identifiers/crossref.xml'
     crossref_template = render_to_string(template, template_context)
-    logging.debug(crossref_template)
+    logger.debug(crossref_template)
 
     util_models.LogEntry.add_entry('Submission', "Sending request to {1}: {0}".format(crossref_template, server),
                                    'Info',
@@ -164,8 +166,8 @@ def send_crossref_deposit(server, identifier):
             code=response.status_code,
             text=response.text
         )
-        logging.error(status)
-        logging.error(response.text)
+        logger.error(status)
+        logger.error(response.text)
         error = True
     else:
         token = response.json()['message']['batch-id']
@@ -173,7 +175,7 @@ def send_crossref_deposit(server, identifier):
         util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                        target=identifier.article)
         status = "Status of {} in {}: {}".format(token, identifier.identifier, status)
-        logging.info(status)
+        logger.info(status)
 
     return status, error
 
@@ -313,11 +315,11 @@ def register_preprint_doi(request, crossref_enabled, identifier):
                                            "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                            'Debug',
                                            target=identifier.article)
-            logging.error("Error depositing: {}".format(response.status_code))
-            logging.error(response.text)
+            logger.error("Error depositing: {}".format(response.status_code))
+            logger.error(response.text)
         else:
             token = response.json()['message']['batch-id']
             status = response.json()['message']['status']
             util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
                                            target=identifier.article)
-            logging.info("Status of {} in {}: {}".format(token, identifier.identifier, status))
+            logger.info("Status of {} in {}: {}".format(token, identifier.identifier, status))
