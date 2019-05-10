@@ -1581,7 +1581,7 @@ def manage_notifications(request, notification_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def email_templates(request):
     """
     Displays a list of email templates
@@ -1598,7 +1598,7 @@ def email_templates(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def edit_email_template(request, template_code, subject=False):
     """
     Allows staff to edit email templates and subjects
