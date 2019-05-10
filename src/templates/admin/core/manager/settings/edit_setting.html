@@ -43,7 +43,7 @@
                             <h5><i class="fa fa-info-circle"></i>You are editing the default value for this setting. Journals with a specific journal override will not use this value.</h5>
                             {% endif %}
                         </h5>
-                        {% if setting.description %}<p>{{ setting.description }}</p>{% endif %}
+                        {% if setting.description %}<p>{{ setting.description|safe }}</p>{% endif %}
 
                         <form action="" method="POST" enctype="multipart/form-data">
 
