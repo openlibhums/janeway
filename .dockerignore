@@ -1,4 +1,5 @@
 db/
+logs/*
 *.tar.gz
 src/files/articles/*
 src/files/journals/*

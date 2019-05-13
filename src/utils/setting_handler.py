@@ -6,15 +6,17 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import os
 import codecs
-import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 from django.utils.translation import get_language
 
-from utils import models
 from core import models as core_models
+from utils import models
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def create_setting(setting_group, setting_name, type, pretty_name, description, is_translatable=True):
@@ -57,7 +59,7 @@ def get_setting(
         return _get_setting(
             setting_group, setting, journal, lang, create, fallback, default)
     except Exception as e:
-        logging.critical(
+        logger.critical(
                 "Failed to load setting for context:\n"
                 "setting_name: {0},\n"
                 "journal: {1},\n"
@@ -110,7 +112,7 @@ def _get_setting(
     except ObjectDoesNotExist:
         if journal is not None:
             if create:
-                logging.warning(
+                logger.warning(
                     "Passing 'create' to get_setting has been deprecated in "
                     "in favour of returning the default value"
                 )
@@ -196,7 +198,7 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
             setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
         except models.PluginSetting.DoesNotExist:
             #Some Plugins rely on this function to install themselves
-            logging.warning(
+            logger.warning(
                 "PluginSetting %s for plugin %s was not present, "
                 "was the plugin installed correctly?"
                 "" % (setting_name, plugin)
@@ -216,7 +218,7 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
 
         return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
     except Exception as e:
-        logging.critical(
+        logger.critical(
                 "Failed to load plugin setting for context:\n"
                 "plugin: {0},\n"
                 "setting_name: {1},\n"

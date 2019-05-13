@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
-import logging
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -37,8 +36,11 @@ from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
+from utils.logger import get_logger
 
 from django.db.models import Q
+
+logger = get_logger(__name__)
 
 
 def user_login(request):
@@ -61,7 +63,7 @@ def user_login(request):
                 request,
                 'You have been banned from logging in due to failed attempts.'
         )
-        logging.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
+        logger.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
 
     form = forms.LoginForm(bad_logins=bad_logins)
@@ -1419,7 +1421,7 @@ def plugin_list(request):
                                 'name': getattr(plugin_settings, 'PLUGIN_NAME')
                                 })
         except ImportError as e:
-            logging.error("Importing plugin %s failed: %s" % (plugin, e))
+            logger.error("Importing plugin %s failed: %s" % (plugin, e))
             pass
 
     template = 'core/manager/plugins.html'
@@ -1810,7 +1812,7 @@ def set_session_timezone(request):
         request.session["janeway_timezone"] = chosen_timezone
         status = 200
         response_data['message'] = 'OK'
-        logging.debug("Timezone set to %s for this session" % chosen_timezone)
+        logger.debug("Timezone set to %s for this session" % chosen_timezone)
     else:
         status = 404
         response_data['message'] = 'Timezone not found: %s' % chosen_timezone

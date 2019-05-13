@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
-import logging
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -13,8 +12,9 @@ import requests
 from requests.exceptions import HTTPError
 
 from utils import logic
+from utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def retrieve_tokens(authorization_code, site):

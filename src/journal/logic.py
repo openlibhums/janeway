@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from bs4 import BeautifulSoup
 import csv
 from dateutil import parser as dateparser
-import logging
 from os import listdir, makedirs
 from os.path import isfile, join
 import requests
@@ -25,8 +24,11 @@ from journal.forms import SearchForm
 from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
+from utils.logger import get_logger
 from utils.notify_plugins import notify_email
 from events import logic as event_logic
+
+logger = get_logger(__name__)
 
 
 def install_cover(journal, request):
@@ -68,7 +70,7 @@ def list_scss(journal):
                 for f in listdir(scss_path) if isfile(join(scss_path, f))
         ]
     except FileNotFoundError:
-        logging.warning("Failed to load scss from %s" % scss_path)
+        logger.warning("Failed to load scss from %s" % scss_path)
         file_paths = []
 
     return file_paths

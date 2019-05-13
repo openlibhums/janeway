@@ -50,6 +50,7 @@ services:
     volumes:
       - ./src:/vol/janeway/src
       - ./lib:/vol/janeway/lib
+      - ./logs:/vol/janeway/logs
       - ./db/janeway.sqlite3:/db/janeway.sqlite3
     ports:
       - "8000:8000"

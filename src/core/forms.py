@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import logging
 import uuid
 
 from django import forms
@@ -23,13 +22,14 @@ from core import models, validators
 from journal import models as journal_models
 from utils import setting_handler
 from utils.forms import KeywordModelForm
+from utils.logger import get_logger
 from submission import models as submission_models
 
 # This will set is_checkbox attribute to True for checkboxes.
 # Usage:  {% if field.field.is_checkbox %}
 setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class EditKey(forms.Form):
@@ -411,7 +411,7 @@ class LoginForm(forms.Form):
             field.label = "Anti-spam captcha"
             return field
         else:
-            logging.warning(
+            logger.warning(
                     "Unknown CAPTCHA_TYPE in settings: %s"
             "" % settings.CAPTCHA_TYPE
             )
