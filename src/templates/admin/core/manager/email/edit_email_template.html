@@ -23,41 +23,31 @@
                     </div>
                     <div class="content">
                         <div class="card">
-                            <div class="card-divider">
-                                <h5><i class="fa fa-info-circle"></i> The
-                                    default value for this setting is:</h5>
-                            </div>
-                            <div class="card-section">
-                                {{ setting.default_setting_value.render_value|safe }}
-                            </div>
-                            <div class="card-divider">
-                                <h5>You can edit the override for this journal
-                                    by filling this form:</h5>
-                            </div>
-                            <div class="card-section">
-                                {% if setting.description %}
-                                    <p><strong>Setting Description: </strong>{{ setting.description }}</p>{% endif %}
+                            {% include "elements/core/default_setting_card.html" %}
+                            {% if setting.description %}
+                                <p><strong>Setting
+                                    Description: </strong>{{ setting.description }}
+                                </p>{% endif %}
 
-                                <form action="" method="POST"
-                                      enctype="multipart/form-data">
+                            <form action="" method="POST"
+                                  enctype="multipart/form-data">
 
-                                    {% csrf_token %}
+                                {% csrf_token %}
 
-                                    {% if setting.types == 'date' %}Date
-                                        Format: dd/mm/yyyy<br/>{% endif %}
-                                    {% if setting.types == 'rich_text' %}
-                                        {{ edit_form.as_p }}
-                                    {% else %}
-                                        {{ edit_form|foundation }}
-                                    {% endif %}
+                                {% if setting.types == 'date' %}Date
+                                    Format: dd/mm/yyyy<br/>{% endif %}
+                                {% if setting.types == 'rich_text' %}
+                                    {{ edit_form.as_p }}
+                                {% else %}
+                                    {{ edit_form|foundation }}
+                                {% endif %}
 
-                                    <button type="submit"
-                                            class="button success"
-                                            style="margin-right:5px">
-                                        Submit
-                                    </button>
-                                </form>
-                            </div>
+                                <button type="submit"
+                                        class="button success"
+                                        style="margin-right:5px">
+                                    Submit
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
