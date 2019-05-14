@@ -185,9 +185,14 @@ def serve_press_file(request, file_id):
     if file.article_id:
         raise Http404
 
-    path_parts = ['press']
+    path_parts = ('press',)
 
-    response = files.serve_any_file(request, file, False, *path_parts)
+    response = files.serve_any_file(
+        request,
+        file,
+        False,
+        path_parts=path_parts,
+    )
 
     return response
 

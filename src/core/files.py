@@ -328,7 +328,7 @@ def render_xml(file_to_render, article, galley=None):
         return transform(etree.XML(xml_string))
 
 
-def serve_any_file(request, file_to_serve, public=False, *path_parts):
+def serve_any_file(request, file_to_serve, public=False, path_parts=()):
     # TODO: should rename to serve_file and the latter to serve_article_file
     # Or removed
     file_path = os.path.join(
@@ -494,7 +494,7 @@ def create_file_history_object(file_to_replace):
     file_to_replace.history.add(new_file)
 
 
-def overwrite_file(uploaded_file, file_to_replace, *path_parts):
+def overwrite_file(uploaded_file, file_to_replace, path_parts=()):
 
     create_file_history_object(file_to_replace)
     original_filename = str(uploaded_file.name)

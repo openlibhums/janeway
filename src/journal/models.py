@@ -620,17 +620,23 @@ class IssueGalley(models.Model):
 
     @transaction.atomic
     def replace_file(self, other):
-        new_file = files.overwrite_file(other, self.file, *self.path_parts)
+        new_file = files.overwrite_file(other, self.file, self.path_parts)
         self.file = new_file
         self.save()
 
     def serve(self, request):
         public = True
-        return files.serve_any_file(request, self.file, public, *self.path_parts)
+        return files.serve_any_file(
+            request,
+            self.file,
+            public,
+            path_parts=self.path_parts,
+        )
 
     @property
     def path_parts(self):
-        return self.FILES_PATH, self.issue.pk
+        path_parts = (self.FILES_PATH, self.issue.pk)
+        return path_parts
 
 
 class IssueEditor(models.Model):
