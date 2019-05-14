@@ -86,3 +86,16 @@
     </section>
 
 {% endblock body %}
+
+{% block js %}
+{{ block.super }}
+<script>
+    //.sticky not behaving correctly
+    //https://github.com/zurb/foundation-sites/issues/9892
+    Foundation.MediaQuery._init()
+    if (Foundation.MediaQuery.current == 'medium') {
+      $('.sticky').removeAttr('data-sticky');
+    }
+    $(document).foundation();
+</script>
+{% endblock js %}
