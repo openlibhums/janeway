@@ -1002,7 +1002,7 @@ def issue_galley(request, issue_id, delete=False):
                     uploaded_file,
                     label=issue.issue_title,
                     public=False,
-                    path_parts=(models.IssueGalley.FILES_PATH, issue.pk)
+                    path_parts=(models.IssueGalley.FILES_PATH, issue.pk),
                 )
                 models.IssueGalley.objects.create(
                     file=file_obj,
