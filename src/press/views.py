@@ -17,6 +17,7 @@ from journal import models as journal_models, views as journal_views, forms as j
 from press import models as press_models, forms
 from security.decorators import press_only
 from submission import models as submission_models
+from utils import install
 
 
 def index(request):
@@ -102,6 +103,7 @@ def manager_index(request):
             new_journal.sequence = request.press.next_journal_order()
             new_journal.save()
             call_command('install_plugins')
+            install.update_license(journal)
             new_journal.setup_directory()
             return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
                                                      new_journal.pk))
