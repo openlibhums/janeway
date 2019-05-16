@@ -19,24 +19,31 @@ class Events:
     # raised when an article is submitted
     ON_ARTICLE_SUBMITTED = 'on_article_submitted'
 
-    # kwargs: request, editor_assignment, user_message_content (will be blank), acknowledgement (false)
+    # kwargs: request, editor_assignment, user_message_content
+    # (will be blank), acknowledgement (false)
     # raised when an editor is assigned to an article
     ON_ARTICLE_ASSIGNED = 'on_article_assigned'
     # kwargs: request, editor_assignment, user_message_content, skip (boolean)
     # raised when an editor is unassigned from an article
     ON_ARTICLE_UNASSIGNED = 'on_article_unassigned'
-    # kwargs: editor_assignment, request, user_message_content, acknowledgement (true), skip (boolean)
-    # raised when an editor decides to notify the editor of the assignment (or skip the acknowledgement)
+    # kwargs: editor_assignment, request, user_message_content,
+    # acknowledgement (true), skip (boolean)
+    # raised when an editor decides to notify the editor of the
+    # assignment (or skip the acknowledgement)
     ON_ARTICLE_ASSIGNED_ACKNOWLEDGE = 'on_article_assigned_acknowledge'
 
-    # kwargs: review_assignment, request, user_message_content (will be blank), acknowledgement (false)
+    # kwargs: review_assignment, request, user_message_content
+    # (will be blank), acknowledgement (false)
     # raised when a review is requested
     ON_REVIEWER_REQUESTED = 'on_reviewer_requested'
-    # kwargs: review_assignment, request, user_message_content, acknowledgement (true), skip (boolean)
-    # raised when an editor decides to notify the reviewer of the request (or skip the acknowledgement)
+    # kwargs: review_assignment, request, user_message_content,
+    # acknowledgement (true), skip (boolean)
+    # raised when an editor decides to notify the reviewer of the request
+    # (or skip the acknowledgement)
     ON_REVIEWER_REQUESTED_ACKNOWLEDGE = 'on_reviewer_requested_acknowledge'
     # kwargs: review_assignment, request, user_message_content, skip (boolean)
-    # raised when an editor decides to notify the reviewer of a assignment withdrawl (or skip the notification)
+    # raised when an editor decides to notify the reviewer of a
+    # assignment withdrawl (or skip the notification)
     ON_REVIEW_WITHDRAWL = 'on_review_withdrawl'
 
     # kwargs: review_assignment, request, accepted (boolean)
@@ -140,7 +147,8 @@ class Events:
     ON_TYPESET_TASK_REOPENED = 'on_typeset_task_reopened'
 
     # kwargs: typeset_task, request, skip (boolean)
-    # raised when a production manager accepts a typeset task and completed the production stage
+    # raised when a production manager accepts a typeset task
+    # and completed the production stage
     ON_TYPESET_ACK = 'on_typeset_ack'
 
     # kwargs: request, article, skip (boolean)
@@ -191,7 +199,7 @@ class Events:
     # raised when proofing is complete
     ON_PROOFING_COMPLETE = 'on_proofing_complete'
 
-    #kwargs: request, article
+    # kwargs: request, article
     # raised when an article is marked as published
     ON_ARTICLE_PUBLISHED = 'on_article_published'
 
@@ -223,16 +231,19 @@ class Events:
     def raise_event(event_name, task_object=None, **kwargs):
         """
         Allows us to raise an event and call all subscribers
-        :param event_name: the name of the event. This should usually be a constant from the above list.
-        :param task_object: the associated article within a task that can be used for task teardown. This should always
+        :param event_name: the name of the event. This should usually be a
+        constant from the above list.
+        :param task_object: the associated article within a task that can be
+         used for task teardown. This should always
         be an article for database safety.
         :param kwargs: the arguments to pass to the event
         :return: None
         """
 
         # destroy/complete tasks that have registered for this event
-        if event_name != "destroy_tasks" and task_object is not None and isinstance(task_object,
-                                                                                    submission_models.Article):
+        if event_name != "destroy_tasks" and task_object is not None and isinstance(
+                task_object,
+                submission_models.Article):
             kwargs['event'] = event_name
             kwargs['task_obj'] = task_object
             Events.raise_event('destroy_tasks', **kwargs)
@@ -241,7 +252,8 @@ class Events:
         if event_name not in Events._hooks:
             return
         else:
-            event_return = [func(**kwargs) for func in Events._hooks[event_name]]
+            event_return = [func(**kwargs) for func in
+                            Events._hooks[event_name]]
 
             if event_return:
                 return event_return[0]

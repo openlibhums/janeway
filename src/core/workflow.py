@@ -10,6 +10,17 @@ from django.contrib import messages
 from core import models
 from submission import models as submission_models
 from utils.shared import clear_cache
+from utils.logger import get_logger
+
+from review import REVIEW_WORKFLOW_PERMISSIONS
+from copyediting import COPYEDITING_WORKFLOW_PERMISSIONS
+from production import PRODUCTION_WORKFLOW_PERMISSIONS
+from proofing import PROOFING_WORKFLOW_PERMISSIONS
+from journal import PREPUBLICTION_WORKFLOW_PERMISSIONS
+
+
+logger = get_logger(__name__)
+
 
 ELEMENT_STAGES = {
     'review': submission_models.REVIEW_STAGES,
@@ -23,7 +34,8 @@ ELEMENT_STAGES = {
 def workflow_element_complete(**kwargs):
     """
     Handler for workflow complete event
-    :param kwargs: A dict containing three keys handshake_url, request, article and optionally switch_stage
+    :param kwargs: A dict containing three keys handshake_url, request,
+    article and optionally switch_stage
     :return: HttpRedirect
     """
 
@@ -40,7 +52,8 @@ def workflow_element_complete(**kwargs):
 
 def workflow_next(handshake_url, request, article, switch_stage=False):
     """
-    Works out what the next workflow element should be so we can redirect the user there.
+    Works out what the next workflow element should be so we can redirect
+     the user there.
     :param handshake_url: Current workflow element's handshake url
     :param request: HttpRequest object
     :param article: Article object
@@ -53,31 +66,41 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     if handshake_url == 'submit_review':
         set_stage(article)
         clear_cache()
-        return redirect(reverse('core_dashboard'))
-
-    current_element = workflow.elements.get(handshake_url=handshake_url)
-
-    try:
-        try:
-            index = list(workflow_elements).index(current_element) + 1
-            next_element = workflow_elements[index]
-        except IndexError:
-            # An index error will occur here when the workflow is complete
-            return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
-
-        if switch_stage:
-            log_stage_change(article, next_element)
-            clear_cache()
-            article.stage = next_element.stage
-            article.save()
+    else:
+        current_element = workflow.elements.get(handshake_url=handshake_url)
 
         try:
-            return redirect(reverse(next_element.handshake_url, kwargs={'article_id': article.pk}))
-        except NoReverseMatch:
-            return redirect(reverse(next_element.handshake_url))
-    except BaseException as e:
-        print(e)
-        return redirect(reverse('core_dashboard'))
+            try:
+                index = list(workflow_elements).index(current_element) + 1
+                next_element = workflow_elements[index]
+            except IndexError:
+                # An index error will occur here when the workflow is complete
+                return redirect(
+                    reverse(
+                        'manage_archive_article',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+
+            if switch_stage:
+                log_stage_change(article, next_element)
+                clear_cache()
+                article.stage = next_element.stage
+                article.save()
+
+            try:
+                return redirect(
+                    reverse(
+                        next_element.handshake_url,
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            except NoReverseMatch:
+                return redirect(reverse(next_element.handshake_url))
+        except BaseException as e:
+            logger.debug(e)
+    
+    return redirect(reverse('core_dashboard'))
 
 
 def log_stage_change(article, next_element):
@@ -148,8 +171,7 @@ def articles_in_workflow_stages(request):
 
             workflow_list[element.element_name] = element_dict
         except (KeyError, AttributeError) as e:
-            if settings.DEBUG:
-                print(e)
+            logger.debug(e)
 
     return workflow_list
 
@@ -188,3 +210,30 @@ def remove_element(request, journal_workflow, element):
             messages.SUCCESS,
             'Element removed from workflow.'
         )
+
+
+def workflow_redirect_permissions_set(journal):
+    from pprint import pprint
+    workflow = journal.workflow()
+    workflow_permission_set = {
+        'review': REVIEW_WORKFLOW_PERMISSIONS,
+        'copyeding': COPYEDITING_WORKFLOW_PERMISSIONS,
+        'production': PRODUCTION_WORKFLOW_PERMISSIONS,
+        'proofing': PROOFING_WORKFLOW_PERMISSIONS,
+        'prepublication': PREPUBLICTION_WORKFLOW_PERMISSIONS
+    }
+
+    for plugin_name, module_path in settings.WORKFLOW_PLUGINS.items():
+        try:
+            settings_module = import_module(module_path)
+            try:
+                permissions = settings_module.WORKFLOW_PERMISSIONS
+                workflow_permission_set[plugin_name] = permissions
+            except AttributeError:
+                logger.debug('Workflow Element {element} '
+                    'has not defined permissions.'.format(element=plugin_name))
+        except ImportError as e:
+            logger.debug('Import error: {e}'.format(e=e))
+
+    return workflow_permission_set
+

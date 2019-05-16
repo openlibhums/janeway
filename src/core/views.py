@@ -1744,7 +1744,11 @@ def journal_workflow(request):
     if request.POST:
         if 'element_name' in request.POST:
             element_name = request.POST.get('element_name')
-            element = logic.handle_element_post(journal_workflow, element_name, request)
+            element = logic.handle_element_post(
+                journal_workflow, 
+                element_name, 
+                request,
+            )
             if element:
                 journal_workflow.elements.add(element)
                 messages.add_message(
@@ -1778,6 +1782,9 @@ def journal_workflow(request):
     context = {
         'workflow': journal_workflow,
         'available_elements': available_elements,
+        'element_permissions': workflow.workflow_redirect_permissions_set(
+            request.journal,
+        ),
     }
 
     return render(request, template, context)
