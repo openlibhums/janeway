@@ -185,6 +185,7 @@
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
     <script src="{% static "admin/js/csrf.js" %}"></script>
+    {% include "elements/notes/note_script.html" %}
     <script>
     function submit_check_item(task_type, id, item){
         if ($(item).is(":checked")) {

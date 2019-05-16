@@ -333,8 +333,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'root': {
-        'level': 'DEBUG' if DEBUG else 'WARNING',
-        'handlers': ['console'],
+        'level': 'DEBUG' if DEBUG else 'INFO',
+        'handlers': ['console', 'log_file'],
     },
     'formatters': {
         'default': {
@@ -359,12 +359,20 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'coloured',
             'stream': 'ext://sys.stdout',
-        }
+        },
+        'log_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024*1024*50,  # 50 MB
+            'backupCount': 1,
+            'filename': os.path.join(PROJECT_DIR , 'logs/janeway.log'),
+            'formatter': 'default'
+        },
     },
     'loggers': {
         'django.db.backends': {
             'level': 'WARNING',
-            'handlers': ['console'],
+            'handlers': ['console', 'log_file'],
             'propagate': False,
         },
     },

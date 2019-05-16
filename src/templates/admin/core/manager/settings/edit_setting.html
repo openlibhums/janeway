@@ -29,21 +29,13 @@
                     <div class="content">
                             {% if setting_value == None or setting_value != setting.default_setting_value %}
                             <div class="card">
-                              <div class="card-divider">
-                                <h5><i class="fa fa-info-circle"></i> The default value for this setting is:</h5>
-                              </div>
-                              <div class="card-section">
-                                {{ setting.default_setting_value.render_value|safe }}".
-                              </div>
-                              <div class="card-divider">
-                                <h5>You can edit the override for this journal by filling this form:</h5>
-                              </div>
+                                {% include "elements/core/default_setting_card.html" %}
                             </div>
                             {% else %}
                             <h5><i class="fa fa-info-circle"></i>You are editing the default value for this setting. Journals with a specific journal override will not use this value.</h5>
                             {% endif %}
                         </h5>
-                        {% if setting.description %}<p>{{ setting.description }}</p>{% endif %}
+                        {% if setting.description %}<p>{{ setting.description|safe }}</p>{% endif %}
 
                         <form action="" method="POST" enctype="multipart/form-data">
 

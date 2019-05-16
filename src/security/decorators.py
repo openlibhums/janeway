@@ -3,8 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import logging
-
 from django.contrib import messages
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -19,6 +17,9 @@ from copyediting import models as copyediting_models
 from proofing import models as proofing_models
 from security.logic import can_edit_file, can_view_file_history, can_view_file, is_data_figure_file
 from utils import setting_handler
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 # General role-based security decorators
@@ -958,7 +959,7 @@ def deny_access(request, *args, **kwargs):
         ident = request.user
         roles = []
 
-    logging.info(
+    logger.info(
         "[ACCESS_DENIED:{ident}:{request.path_info}]"
         "[ROLES:{roles}]"
         "".format(request=request, ident=ident, roles={r.role for r in roles}),
@@ -976,7 +977,7 @@ def article_stage_review_required(func):
 
     def review_required_wrapper(request, article_id=None, *args, **kwargs):
         if not article_id:
-            logging.debug('404 thrown as no article_id in kwargs')
+            logger.debug('404 thrown as no article_id in kwargs')
             raise Http404
 
         article = get_object_or_404(

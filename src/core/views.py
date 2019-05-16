@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
-import logging
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -37,8 +36,11 @@ from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
+from utils.logger import get_logger
 
 from django.db.models import Q
+
+logger = get_logger(__name__)
 
 
 def user_login(request):
@@ -61,7 +63,7 @@ def user_login(request):
                 request,
                 'You have been banned from logging in due to failed attempts.'
         )
-        logging.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
+        logger.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
 
     form = forms.LoginForm(bad_logins=bad_logins)
@@ -656,11 +658,8 @@ def edit_setting(request, setting_group, setting_name):
         if request.FILES:
             value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        setting_value = setting_handler.get_setting(
-            setting_group, setting_name, request.journal, create=True)
-        setting_value.value = value
-        setting_value.save()
-
+        setting_value = setting_handler.save_setting(
+            setting_group, setting_name, request.journal, value)
         cache.clear()
 
         return redirect(reverse('core_settings_index'))
@@ -1422,7 +1421,7 @@ def plugin_list(request):
                                 'name': getattr(plugin_settings, 'PLUGIN_NAME')
                                 })
         except ImportError as e:
-            logging.error("Importing plugin %s failed: %s" % (plugin, e))
+            logger.error("Importing plugin %s failed: %s" % (plugin, e))
             pass
 
     template = 'core/manager/plugins.html'
@@ -1584,7 +1583,7 @@ def manage_notifications(request, notification_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def email_templates(request):
     """
     Displays a list of email templates
@@ -1601,7 +1600,7 @@ def email_templates(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def edit_email_template(request, template_code, subject=False):
     """
     Allows staff to edit email templates and subjects
@@ -1813,7 +1812,7 @@ def set_session_timezone(request):
         request.session["janeway_timezone"] = chosen_timezone
         status = 200
         response_data['message'] = 'OK'
-        logging.debug("Timezone set to %s for this session" % chosen_timezone)
+        logger.debug("Timezone set to %s for this session" % chosen_timezone)
     else:
         status = 404
         response_data['message'] = 'Timezone not found: %s' % chosen_timezone

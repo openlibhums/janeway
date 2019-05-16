@@ -262,6 +262,7 @@
 
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
+    {% include "elements/notes/note_script.html" %}
     {% include "elements/jqte.html" %}
     {% include "elements/datepicker.html" with target="#id_due" %}
     <script src="{% static "admin/js/csrf.js" %}"></script>

@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from operator import itemgetter
 import collections
-import logging
 import uuid
 import os
 
@@ -27,8 +26,11 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
-from utils.function_cache import cache
 from utils import setting_handler, logic
+from utils.function_cache import cache
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # Issue types
 # Use "Issue" for regular issues (rolling or periodic)
@@ -62,7 +64,7 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(AbstractSiteModel):
-    code = models.CharField(max_length=10)
+    code = models.CharField(max_length=10, unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
@@ -219,7 +221,7 @@ class Journal(AbstractSiteModel):
             return self.press.journal_path_url(self, path)
 
     def full_url(self, request=None):
-        logging.warning("Using journal.full_url is deprecated")
+        logger.warning("Using journal.full_url is deprecated")
         return self.site_url()
 
     def full_reverse(self, request, url_name, kwargs):

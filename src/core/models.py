@@ -7,7 +7,6 @@ import os
 import uuid
 import statistics
 import json
-import logging
 from datetime import timedelta
 from urllib.parse import urlunparse
 
@@ -34,9 +33,10 @@ from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils import setting_handler
+from utils.logger import get_logger
 
 fs = JanewayFileSystemStorage()
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def profile_images_upload_path(instance, filename):
@@ -323,7 +323,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
     def check_role(self, journal, role):
-        return AccountRole.objects.filter(user=self, journal=journal, role__slug=role).count() > 0 or self.is_staff
+        return AccountRole.objects.filter(
+            user=self,
+            journal=journal,
+            role__slug=role
+        ).exists() or self.is_staff
 
     def is_editor(self, request, journal=None):
         if not journal:

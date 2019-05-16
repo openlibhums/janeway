@@ -1023,10 +1023,6 @@ def notify_reviewer(request, article_id, review_id):
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     email_content = logic.get_reviewer_notification(request, article, request.user, review)
-    review_form = forms.FakeReviewerDecisionForm(instance=review)
-
-    if 'review_file' in request.GET:
-        return logic.serve_review_file(review)
 
     if request.POST:
         email_content = request.POST.get('content_email')
@@ -1053,7 +1049,6 @@ def notify_reviewer(request, article_id, review_id):
         'article': article,
         'review': review,
         'email_content': email_content,
-        'review_form': review_form,
         'assignment': review,
     }
 
@@ -1592,9 +1587,11 @@ def do_revisions(request, article_id, revision_id):
                                          pk=revision_id,
                                          date_completed__isnull=True)
 
-    reviews = models.ReviewAssignment.objects.filter(article=revision_request.article,
-                                                     is_complete=True,
-                                                     for_author_consumption=True).exclude(decision='withdrawn')
+    reviews = models.ReviewAssignment.objects.filter(
+        article=revision_request.article,
+        is_complete=True,
+        for_author_consumption=True,
+    ).exclude(decision='withdrawn')
 
     form = forms.DoRevisions(instance=revision_request)
     revision_files = logic.group_files(revision_request.article, reviews)
@@ -1605,15 +1602,32 @@ def do_revisions(request, article_id, revision_id):
             file_id = request.POST.get('delete')
             file = get_object_or_404(core_models.File, pk=file_id)
             files.delete_file(revision_request.article, file)
-            logic.log_revision_event('File {0} ({1}) deleted.'.format(file.id, file.original_filename), request.user,
-                                     revision_request)
-            return redirect(reverse('do_revisions', kwargs={'article_id': article_id, 'revision_id': revision_id}))
+            logic.log_revision_event(
+                'File {0} ({1}) deleted.'.format(
+                    file.id,
+                    file.original_filename
+                ),
+                request.user,
+                revision_request,
+            )
+            return redirect(
+                reverse(
+                    'do_revisions',
+                    kwargs={
+                        'article_id': article_id,
+                        'revision_id': revision_id
+                    }
+                )
+            )
 
         else:
 
             form = forms.DoRevisions(request.POST, instance=revision_request)
             if not revision_request.article.has_manuscript_file():
-                form.add_error(None, 'Your article must have at least one manuscript file.')
+                form.add_error(
+                    None,
+                    'Your article must have at least one manuscript file.',
+                )
             if form.is_valid():
                 form.save()
 
@@ -1622,18 +1636,32 @@ def do_revisions(request, article_id, revision_id):
                     'request': request,
                 }
 
-                event_logic.Events.raise_event(event_logic.Events.ON_REVISIONS_COMPLETE, **kwargs)
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_REVISIONS_COMPLETE,
+                    **kwargs
+                )
+
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Revisions Complete.',
+                )
 
                 revision_request.date_completed = timezone.now()
                 revision_request.save()
-                return redirect(reverse('review_requests'))
+                return redirect(reverse('core_dashboard'))
 
     if request.GET.get('file_id', None):
         file_id = request.GET.get('file_id')
         file = get_object_or_404(core_models.File, pk=file_id)
         if file in revision_files:
-            logic.log_revision_event('Downloaded file {0} ({1}).'.format(file.label, file.original_filename),
-                                     request.user, revision_request)
+            logic.log_revision_event(
+                'Downloaded file {0} ({1}).'.format(
+                    file.label,
+                    file.original_filename),
+                request.user,
+                revision_request,
+            )
             return files.serve_file(request, file, revision_request.article)
 
     template = 'review/revision/do_revision.html'
@@ -2018,11 +2046,14 @@ def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
+    decision_form = forms.FakeReviewerDecisionForm()
+
 
     template = 'review/manager/preview_form.html'
     context = {
         'form': form,
         'generated_form': generated_form,
+        'decision_form': decision_form,
     }
 
     return render(request, template, context)

@@ -3,10 +3,12 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import logging
 import resource
 import threading
 import time
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 _local = threading.local()
 
@@ -35,7 +37,7 @@ class TimeMonitoring(object):
     def process_response(self, _request, response):
         if self.usage_start is not None:
             diff_usage = self._diff_usages(self.usage_start)
-            logging.info("Request took %0.3f (%0.3fu, %0.3fs)" % diff_usage)
+            logger.info("Request took %0.3f (%0.3fu, %0.3fs)" % diff_usage)
 
         return response
 

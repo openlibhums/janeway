@@ -36,41 +36,13 @@
                         <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                         <input type="file" name="attachment" multiple>
                     </div>
-                    <div>
-                      <div class="columns">
-                        <ul class="accordion" data-accordion data-allow-all-closed="true">
-                          <li class="accordion-item is-active" data-accordion-item>
-                            <a href="#" class="accordion-title">Review Form Preview</a>
-                            <div class="accordion-content" data-tab-content aria-hidden="true", display="none">
-                                <div class="card-divider">
-                                    <h4> Inline Form </h4>
-                                     {{ review_form }}
-                                </div>
-                                 {% if journal_settings.general.reviewer_form_download %}
-                                 <div class="card-divider">
-                                    <h4>Downloadable Form</h4>
-                                    <p>The Reviewer can also download a
-                                      <a class="" href="{% url 'review_notify_reviewer' assignment.article.pk assignment.pk %}{% if access_code %}?access_code={{ access_code }}&review_file=True{% else %}?review_file=True{% endif %}">
-                                          review File
-                                      </a>
-                                    </p>
-                                </div>
-                                {% endif %}
-
-                            </div>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-divider">
-                            <div class="button-group">
-                                <button type="submit" class="button success" name="send"><i
-                                        class="fa fa-envelope-o">&nbsp;</i>Send
-                                </button>
-                                <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
-                                </button>
-                            </div>
+                    <div class="card-divider">
+                        <div class="button-group">
+                            <button type="submit" class="button success" name="send"><i
+                                    class="fa fa-envelope-o">&nbsp;</i>Send
+                            </button>
+                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
+                            </button>
                         </div>
                     </div>
                 </form>
