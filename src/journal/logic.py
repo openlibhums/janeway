@@ -261,8 +261,7 @@ def set_article_image(request, article):
             new_file = files.overwrite_file(
                     uploaded_file,
                     article.large_image_file,
-                    'articles',
-                    article.pk
+                    ('articles', article.pk),
             )
             article.large_image_file = new_file
             article.save()
