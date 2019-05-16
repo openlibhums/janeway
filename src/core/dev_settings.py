@@ -11,9 +11,12 @@ URL_CONFIG = 'path'  # path or domain
 
 MIDDLEWARE_CLASSES = (
     'utils.middleware.TimeMonitoring',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
-INSTALLED_APPS = ['debug_toolbar', 'django_nose']
+INSTALLED_APPS = [
+    'django_nose',
+    'debug_toolbar',
+]
 
 
 def show_toolbar(request):
@@ -24,3 +27,44 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['console'],
+    },
+    'formatters': {
+        'default': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+            'P:%(process)d T:%(thread)d %(message)s',
+        },
+        'coloured': {
+            '()': 'colorlog.ColoredFormatter',
+            'format': '%(log_color)s%(levelname)s %(asctime)s %(module)s '
+            'P:%(process)d T:%(thread)d %(message)s',
+            'log_colors': {
+                'DEBUG':    'green',
+                'WARNING':  'yellow',
+                'ERROR':    'red',
+                'CRITICAL': 'red',
+            }
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'coloured',
+            'stream': 'ext://sys.stdout',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}
