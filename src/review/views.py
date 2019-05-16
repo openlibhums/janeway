@@ -1023,10 +1023,6 @@ def notify_reviewer(request, article_id, review_id):
     review = get_object_or_404(models.ReviewAssignment, pk=review_id)
 
     email_content = logic.get_reviewer_notification(request, article, request.user, review)
-    review_form = forms.FakeReviewerDecisionForm(instance=review)
-
-    if 'review_file' in request.GET:
-        return logic.serve_review_file(review)
 
     if request.POST:
         email_content = request.POST.get('content_email')
@@ -1053,7 +1049,6 @@ def notify_reviewer(request, article_id, review_id):
         'article': article,
         'review': review,
         'email_content': email_content,
-        'review_form': review_form,
         'assignment': review,
     }
 
@@ -2051,11 +2046,14 @@ def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
+    decision_form = forms.FakeReviewerDecisionForm()
+
 
     template = 'review/manager/preview_form.html'
     context = {
         'form': form,
         'generated_form': generated_form,
+        'decision_form': decision_form,
     }
 
     return render(request, template, context)
