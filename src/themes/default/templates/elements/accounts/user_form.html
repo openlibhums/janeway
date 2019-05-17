@@ -65,7 +65,10 @@
 <h5>Accounts</h5>
 <div class="row">
     <div class="col-md-4">
-        {% bootstrap_field form.orcid %}
+        <div class="form-group">
+            <label>ORCID iD</label><br/>
+            {% include "elements/accounts/orcid_link.html" with orcid_id=orcid_id %}
+        </div>
     </div>
 </div>
 
