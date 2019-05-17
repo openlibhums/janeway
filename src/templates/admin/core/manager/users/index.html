@@ -39,12 +39,13 @@
                         <thead>
                         <tr>
                             <th></th>
-                            <th width="15%">Username</th>
-                            <th width="15%">First Name</th>
+                            <th width="12%">Username</th>
+                            <th width="12%">First Name</th>
                             <th width="15%">Last Name</th>
                             <th width="20%">Email</th>
                             <th width="15%">History</th>
-                            <th width="15%">Edit</th>
+                            <th width="12%">Edit</th>
+                            {% if settings.DEBUG %}<th width="9%">Hijack</th>{% endif %}
                         </tr>
                         </thead>
                         {% for user in users %}
@@ -57,6 +58,11 @@
                                 <td><a class="tiny success button" href="{% url 'core_user_history' user.id %}">History</a></td>
                                 <td><a class="tiny success button"
                                        href="{% url 'core_user_edit' user.id %}">Edit</a></td>
+                                {% if settings.DEBUG %}
+                                    <td>
+                                        <button type="submit" class="tiny button" formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
+                                            Hijack User</button>
+                                    </td>{% endif %}
                             </tr>
                         {% endfor %}
                     </table>
