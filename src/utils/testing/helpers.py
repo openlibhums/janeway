@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from contextlib import ContextDecorator
-from django.utils.six import StringIO
 import sys
 
 from django.core.management import call_command
@@ -12,8 +11,9 @@ from django.utils import translation
 from django.utils.six import StringIO
 
 from core import (
-        middleware,
-        models as core_models,
+    middleware,
+    models as core_models,
+    files,
 )
 from journal import models as journal_models
 from press import models as press_models
@@ -107,9 +107,27 @@ def create_author(journal):
     return author
 
 
+def create_test_file(test_case, file):
+    label = 'Test File'
+    path_parts = ('articles', test_case.article_in_production.pk)
+
+    file = files.save_file(
+        test_case.request,
+        file,
+        label=label,
+        public=True,
+        path_parts=path_parts,
+    )
+
+    test_case.files.append(file)
+
+    return file, path_parts
+
+
 class Request(object):
     """
-    A fake request class for sending emails outside of the client-server request loop.
+    A fake request class for sending emails outside of the
+    client-server request loop.
     """
 
     def __init__(self):
