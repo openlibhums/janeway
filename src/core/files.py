@@ -354,7 +354,13 @@ def serve_file(request, file_to_serve, article, public=False):
     :return: a StreamingHttpResponse object with the requested file or an HttpResponseRedirect if there is an IO or
     permission error
     """
-    return serve_any_file(request, file_to_serve, public, 'articles', article.id)
+    path_parts = ('articles', article.pk)
+    return serve_any_file(
+        request,
+        file_to_serve,
+        public,
+        path_parts=path_parts
+    )
 
 
 @cache_control(max_age=600)

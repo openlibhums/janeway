@@ -66,12 +66,18 @@ def home(request):
 
     # call all registered plugin block hooks to get relevant contexts
     for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
-        hook_module = plugin_loader.import_module(hook.get('module'))
-        function = getattr(hook_module, hook.get('function'))
-        element_context = function(request, homepage_elements)
+        try:
+            hook_module = plugin_loader.import_module(hook.get('module'))
+            function = getattr(hook_module, hook.get('function'))
+            element_context = function(request, homepage_elements)
 
-        for k, v in element_context.items():
-            context[k] = v
+            for k, v in element_context.items():
+                context[k] = v
+        except utils_models.Plugin.DoesNotExist as e:
+            if settings.DEBUG:
+                logger.debug(e)
+            else:
+                pass
 
     return render(request, template, context)
 

@@ -1,11 +1,9 @@
 from django.conf import settings
-from django.test import TestCase, override_settings
-from django.utils import translation
+from django.test import TestCase
 
 from core.models import SettingGroup
 from utils.testing import helpers
 from utils import setting_handler
-
 
 
 class TestSettingHandler(TestCase):
