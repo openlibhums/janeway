@@ -530,6 +530,11 @@ class Issue(models.Model):
         return sorted(ordered_list, key=itemgetter('order'))
 
     def structure(self):
+        # This method is very inefficient and is not used in core anymore
+        # Kept for backwards compatibility with external themes
+        logger.warning(
+            "Using 'Issue.structure' will be deprecated as of Janeway 1.4"
+        )
         structure = collections.OrderedDict()
 
         sections = self.all_sections
