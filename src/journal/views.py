@@ -178,8 +178,10 @@ def current_issue(request, show_sidebar=True):
 
 @has_journal
 def issue(request, issue_id, show_sidebar=True):
-    """ Renders a specific issue in the journal.
+    """ Renders a specific issue/collection in the journal.
 
+    It also returns all the other issues/collections in the journal
+    for building a navigation menu
     :param request: the request associated with this call
     :param issue_id: the ID of the issue to render
     :param show_sidebar: whether or not to show the sidebar of issues
@@ -189,20 +191,21 @@ def issue(request, issue_id, show_sidebar=True):
         models.Issue.objects.prefetch_related('editors'),
         pk=issue_id,
         journal=request.journal,
-        issue_type='Issue',
         date__lte=timezone.now(),
     )
     articles = issue_object.articles.all().order_by(
         'section',
-        'page_numbers').prefetch_related(
+        'page_numbers',
+    ).prefetch_related(
         'authors', 'frozenauthor_set',
-        'manuscript_files').select_related(
+        'manuscript_files'
+    ).select_related(
         'section',
     )
 
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
-        issue_type='Issue',
+        issue_type=issue_object.issue_type,
     )
 
     editors = models.IssueEditor.objects.filter(
@@ -241,29 +244,14 @@ def collections(request):
 @has_journal
 def collection(request, collection_id, show_sidebar=True):
     """
-    Displays a single collection.
+    A proxy view for an issue of type `Collection`.
     :param request: request object
     :param collection_id: primary key of an Issue object
     :param show_sidebar: boolean
     :return: a rendered template
     """
 
-    collection = get_object_or_404(models.Issue, journal=request.journal, issue_type='Collection', pk=collection_id)
-    collections = models.Issue.objects.filter(journal=request.journal, issue_type='Collection')
-
-    articles = collection.articles.all().order_by(
-        'section', 'page_numbers').prefetch_related('authors', 'manuscript_files').select_related('section')
-
-    template = 'journal/issue.html'
-    context = {
-        'issue': collection,
-        'issues': collections,
-        'structure': collection.structure(),
-        'show_sidebar': show_sidebar,
-        'collection': True,
-    }
-
-    return render(request, template, context)
+    return issue(request, collection_id, show_sidebar)
 
 
 @article_exists
