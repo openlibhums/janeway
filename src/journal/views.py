@@ -226,7 +226,8 @@ def issue(request, issue_id, show_sidebar=True):
     context = {
         'issue': issue_object,
         'issues': issue_objects,
-        'structure': issue_object.structure(),
+        'structure': issue_object.structure,
+        'articles': articles,
         'editors': editors,
         'show_sidebar': show_sidebar,
     }
