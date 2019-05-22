@@ -26,6 +26,7 @@
                 {% include "elements/article_listing.html" with article=article %}
             {% endfor %}
         {% endfor %}
+        {% if articles %}
         <div class="pagination-block">
             <ul class="d-flex justify-content-center">
                 {% if articles.has_previous %}
@@ -40,6 +41,7 @@
                 {% endif %}
             </ul>
         </div>
+        {% endif %}
     </div>
 
     {% if show_sidebar %}
