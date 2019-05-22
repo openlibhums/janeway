@@ -11,6 +11,7 @@ import os
 
 from django.conf import settings
 from django.db import models, transaction
+from django.db.models import OuterRef, Subquery, Value
 from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
@@ -561,6 +562,38 @@ class Issue(models.Model):
             structure[section] = article_list
 
         return structure
+
+    def get_sorted_articles(self):
+        """ Returns issue articles sorted by section and article order
+
+        Many fields are prefetched and annotated to handle large issues more
+        eficiently. In particular, it annotates relevant SectionOrder and
+        ArticleOrdering rows as section_order and article_order respectively.
+        Returns a Queryset which should keep the memory footprint at a minimum
+        """
+
+        section_order_subquery = SectionOrdering.objects.filter(
+            section=OuterRef("section__pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        article_order_subquery = ArticleOrdering.objects.filter(
+            section=OuterRef("section__pk"),
+            article=OuterRef("pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        issue_articles = self.articles.all().prefetch_related(
+            'authors', 'frozenauthor_set',
+            'manuscript_files',
+        ).select_related(
+            'section',
+        ).annotate(
+            section_order=Subquery(section_order_subquery),
+            article_order=Subquery(article_order_subquery),
+        ).order_by("section_order", "article_order")
+
+        return issue_articles
 
     @property
     def article_pks(self):
