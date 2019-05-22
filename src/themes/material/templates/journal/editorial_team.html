@@ -15,9 +15,11 @@
             {% for member in group.members %}
                 <div class="col s12 m3">
                     <div class="card editorial-card">
-                        <div class="card-image">
-                            <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
-                        </div>
+                        {% if journal_settings.general.enable_editorial_images %}
+                            <div class="card-image">
+                                <img src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
+                            </div>
+                        {% endif %}
                         <div class="card-content" style="min-height: 190px;">
                             <span class="card-title small-card-title">{{ member.user.full_name }}</span>
                             <p>

@@ -18,8 +18,6 @@ INSTALLED_APPS = [
     'django_nose',
     'hijack',
     'compat',
-    'django_nose',
-    'debug_toolbar',
 ]
 
 
@@ -32,9 +30,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
-HIJACK_LOGOUT_REDIRECT_URL = '/manager/'
 
 LOGGING = {
     'version': 1,
