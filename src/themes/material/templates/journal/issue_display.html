@@ -27,6 +27,7 @@
                 {% include "elements/article_listing.html" with article=article %}
             {% endfor %}
         {% endfor %}
+        {% if articles %}
         <ul class="pagination">
             {% if articles.has_previous %}
                 <li class="waves-effect"><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
@@ -41,6 +42,7 @@
                 </li>
             {% endif %}
         </ul>
+        {% endif %}
     </div>
     {% if show_sidebar %}
         <div class="col m3 offset-m1">

@@ -38,6 +38,7 @@
             {% endfor %}
         {% endfor %}
         </div>
+        {% if articles %}
         <div class="pagination-block">
             <ul class="pagination">
                 {% if articles.has_previous %}
@@ -54,6 +55,7 @@
             </ul>
         </div>
     </div>
+    {% endif %}
     {% if show_sidebar %}
         <aside class="large-4 columns" data-sticky-container>
             <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
