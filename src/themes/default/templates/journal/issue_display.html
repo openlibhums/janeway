@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
+{% load pages %}
 
 <div class="row">
     <div class="col-md-{% if not show_sidebar %}12{% else %}8 border-right{% endif %}" id="issue_top">
@@ -18,12 +19,27 @@
         {% endif %}
         <br/>
 
-        {% for section, articles in structure.items %}
+        {% regroup articles by section as grouped_articles %}
+        {% for section, section_articles in grouped_articles %}
             <h3 class="em">{{ section.name }}</h3>
-            {% for article in articles %}
+            {% for article in section_articles %}
                 {% include "elements/article_listing.html" with article=article %}
             {% endfor %}
         {% endfor %}
+        <div class="pagination-block">
+            <ul class="d-flex justify-content-center">
+                {% if articles.has_previous %}
+                    <a href="?page={{ articles.previous_page_number }}" class="btn btn-primary">&laquo;</a>
+                    &nbsp;{% endif %}
+                {{ articles.page.page_range }}
+                {% for page in articles.paginator.page_range %}
+                    <a href="?page={{ page }}" class="btn btn-primary">{{ page }}</a>&nbsp;
+                {% endfor %}
+                {% if articles.has_next %}
+                    <a href="?page={{ articles.next_page_number }}" class="btn btn-primary">&raquo;</a>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 
     {% if show_sidebar %}
