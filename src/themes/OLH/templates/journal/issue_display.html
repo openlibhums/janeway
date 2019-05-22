@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
+{% load pages %}
 
 <div class="row">
     <div class="large-{% if not show_sidebar %}12{% else %}8 border-right{% endif %} columns" id="issue_top">
@@ -28,12 +29,30 @@
 
 
     <div class="large-{% if not show_sidebar %}12{% else %}8 border-right{% endif %} columns end">
-        {% for section, articles in structure.items %}
+        <div>
+        {% regroup articles by section as grouped_articles %}
+        {% for section, section_articles in grouped_articles %}
             <h4 class="em">{{ section.name }}</h4>
-            {% for article in articles %}
+            {% for article in section_articles %}
                 {% include "elements/journal/box_article.html" with article=article %}
             {% endfor %}
         {% endfor %}
+        </div>
+        <div class="pagination-block">
+            <ul class="pagination">
+                {% if articles.has_previous %}
+                    <li class="arrow"><a href="?page={{ articles.previous_page_number }}">&laquo;</a>
+                    </li>{% endif %}
+                {{ articles.page.page_range }}
+                {% for page in articles|slice_pages:3 %}
+                    <li class="{% if articles.number == page.number %}current{% endif %}"><a
+                            href="?page={{ page.number }}">{{ page.number }}</a></li>
+                {% endfor %}
+                {% if articles.has_next %}
+                    <li class="arrow"><a href="?page={{ articles.next_page_number }}">&raquo;</a>
+                    </li>{% endif %}
+            </ul>
+        </div>
     </div>
     {% if show_sidebar %}
         <aside class="large-4 columns" data-sticky-container>
