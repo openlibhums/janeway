@@ -193,7 +193,7 @@ def issue(request, issue_id, show_sidebar=True):
         journal=request.journal,
         date__lte=timezone.now(),
     )
-    articles = issue_object.articles.all().order_by(
+    issue_articles = issue_object.articles.all().order_by(
         'section',
         'page_numbers',
     ).prefetch_related(
@@ -202,6 +202,16 @@ def issue(request, issue_id, show_sidebar=True):
     ).select_related(
         'section',
     )
+
+    page = request.GET.get("page", 1)
+    paginator = Paginator(issue_articles, 50)
+
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
 
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
