@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
-from django.db.models import Q, Count
+from django.db.models import Q, Count, OuterRef, Subquery, Value
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
@@ -193,15 +193,26 @@ def issue(request, issue_id, show_sidebar=True):
         journal=request.journal,
         date__lte=timezone.now(),
     )
-    issue_articles = issue_object.articles.all().order_by(
-        'section',
-        'page_numbers',
-    ).prefetch_related(
+    section_order_subquery = models.SectionOrdering.objects.filter(
+        section=OuterRef("section__pk"),
+        issue=Value(issue_object.pk),
+    ).values_list("order")
+
+    article_order_subquery = models.ArticleOrdering.objects.filter(
+        section=OuterRef("section__pk"),
+        article=OuterRef("pk"),
+        issue=Value(issue_object.pk),
+    ).values_list("order")
+
+    issue_articles = issue_object.articles.all().prefetch_related(
         'authors', 'frozenauthor_set',
-        'manuscript_files'
+        'manuscript_files',
     ).select_related(
         'section',
-    )
+    ).annotate(
+        section_order=Subquery(section_order_subquery),
+        article_order=Subquery(article_order_subquery),
+    ).order_by("section_order", "article_order")
 
     page = request.GET.get("page", 1)
     paginator = Paginator(issue_articles, 50)

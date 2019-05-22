@@ -531,7 +531,7 @@ class Issue(models.Model):
 
     def structure(self):
         # This method is very inefficient and is not used in core anymore
-        # Kept for backwards compatibility with external themes
+        # Kept for backwards compatibility with 3rd party themes
         logger.warning(
             "Using 'Issue.structure' will be deprecated as of Janeway 1.4"
         )
