@@ -107,6 +107,8 @@ class Press(AbstractSiteModel):
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField('submission.Article')
 
+    order_journals_alphabetically = models.BooleanField(default=True)
+
     def __str__(self):
         return u'%s' % self.name
 
