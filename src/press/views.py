@@ -68,6 +68,7 @@ def journals(request):
 
     return render(request, template, context)
 
+
 def conferences(request):
     """
     Displays a filterable list of conferences that are not marked as hidden
@@ -84,6 +85,7 @@ def conferences(request):
     context = {'journals': journal_objects}
 
     return render(request, template, context)
+
 
 @staff_member_required
 def manager_index(request):
@@ -211,8 +213,11 @@ def journal_order(request):
 
     for journal in journals:
         sequence = ids.index(journal.pk)
-        journal.sequence = sequence
-        journal.save()
+        journal_models.Journal.objects.filter(
+            pk=journal.pk
+        ).update(
+            sequence=sequence
+        )
 
     return HttpResponse('Thanks')
 

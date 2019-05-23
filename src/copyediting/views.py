@@ -426,14 +426,32 @@ def editor_review(request, article_id, copyedit_id):
     :param copyedit_id: CopyeditAssignment PK
     :return: Contextualised Django template
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
 
     if request.POST:
         if 'accept_note' in request.POST:
             logic.accept_copyedit(copyedit, article, request)
-        elif 'review_note' in request.POST:
-            logic.request_author_review(copyedit, article, request)
+        elif 'author_review' in request.POST:
+            author_review = logic.setup_author_review(
+                copyedit,
+                article,
+                request,
+            )
+            return redirect(
+                reverse(
+                    'request_author_copyedit',
+                    kwargs={
+                        'article_id': article.pk,
+                        'copyedit_id': copyedit.pk,
+                        'author_review_id': author_review.pk,
+                    }
+                )
+            )
         elif 'reset_note' in request.POST:
             logic.reset_copyedit(copyedit, article, request)
 
@@ -447,8 +465,84 @@ def editor_review(request, article_id, copyedit_id):
         'article': article,
         'copyedit': copyedit,
         'accept_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_ack'),
-        'review_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_notify_author'),
         'reopen_message': logic.get_copyedit_message(request, article, copyedit, 'copyeditor_reopen_task'),
+    }
+
+    return render(request, template, context)
+
+
+@production_user_or_editor_required
+def request_author_copyedit(request, article_id, copyedit_id,
+                            author_review_id):
+    """
+    Allows an editor to request an Author undertake a review.
+    :param request:
+    :param article_id:
+    :param copyedit_id:
+    :param author_review_id:
+    :return:
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
+    author_review = get_object_or_404(
+        models.AuthorReview,
+        pk=author_review_id,
+        assignment=copyedit,
+    )
+
+    email_content = logic.get_copyedit_message(
+        request,
+        article,
+        copyedit,
+        'copyeditor_notify_author',
+        author_review=author_review,
+
+    )
+
+    email_subject = request.journal.get_setting(
+        'email_subject',
+        'subject_copyeditor_notify_author',
+    )
+
+    if request.POST:
+        logic.request_author_review(
+            request,
+            article,
+            copyedit,
+            author_review,
+        )
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Author review requested.',
+        )
+
+        return redirect(
+            reverse(
+                'editor_review',
+                kwargs={
+                    'article_id': article.pk,
+                    'copyedit_id': copyedit.pk,
+                }
+            )
+        )
+
+    template = 'copyediting/request_author_copyedit.html'
+    context = {
+        'article': article,
+        'copyedit': copyedit,
+        'author_review': author_review,
+        'email_content': email_content,
+        'email_subject': email_subject
     }
 
     return render(request, template, context)

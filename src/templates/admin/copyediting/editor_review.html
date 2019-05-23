@@ -130,7 +130,11 @@
                 {% if copyedit.actions_available %}
                     <ul class="menu vertical actions">
                         <li><a href="#" data-open="accept-modal"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Copyedit</a></li>
-                        <li><a href="#" data-open="review-modal"><i class="fa fa-pencil-square action-icon">&nbsp;</i>Request Author Review</a></li>
+                        <li><form method="POST">
+                    {% csrf_token %}
+                    <button name="author_review" type="submit" class="expanded"><i class="fa fa-envelope-o">&nbsp;</i>Request Author Review
+                    </button>
+                </form></li>
                         <li><a href="#" data-open="reset-modal"><i class="fa fa-inbox action-icon">&nbsp;</i>Reopen this Copyedit Task</a></li>
                     </ul>
                 {% else %}
@@ -189,29 +193,6 @@
                     {% csrf_token %}
                     <textarea name="accept_note">{{ accept_message|safe|linebreaksbr }}</textarea>
                     <button name="accept" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
-                    </button>
-                </form>
-            </div>
-        </div>
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-
-    <div class="reveal" id="review-modal" data-reveal data-animation-in="slide-in-up"
-         data-animation-out="slide-out-down">
-        <div class="card">
-            <div class="card-divider">
-                <h4><i class="fa fa-pencil-square">&nbsp;</i>Author Review Copyedit<</h4>
-            </div>
-            <div class="card-section">
-                <p>You can write a note to the author to let them know the copyedits are available for review.</p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <textarea name="review_note">{{ review_message|safe|linebreaksbr }}</textarea>
-                    <button name="review" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
-                    </button>
-                    <button name="skip" type="submit" class="button alert"><i class="fa fa-fast-forward">&nbsp;</i>Skip
                     </button>
                 </form>
             </div>
