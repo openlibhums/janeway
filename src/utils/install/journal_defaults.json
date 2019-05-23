@@ -731,7 +731,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>The copyeditor has completed their task, you can review the <a href=\"{{request.journal.site_url}}{{ url }}\">copyedits</a>.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br><br>The copyeditor has completed their task, you can review the <a href=\"{% journal_url 'author_copyedit' article.pk author_review.pk %}\">copyedits</a>.<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -761,7 +761,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.full_name }},</p><p></p><p>Thank you for your efforts in copyediting this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},</p><p>Thank you for your efforts in copyediting this article.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
