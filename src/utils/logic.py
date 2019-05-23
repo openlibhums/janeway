@@ -7,6 +7,7 @@ from django.conf import settings
 from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
 from utils import models, notify_helpers
+from utils.function_cache import cache
 
 
 def parse_mailgun_webhook(post):
@@ -140,3 +141,10 @@ def get_current_request():
     except (KeyError, AttributeError):
         return None
 
+@cache(seconds=None)
+def get_janeway_version():
+    """ Returns the installed version of janeway
+    :return: `string` version
+    """
+    v = models.Version.objects.filter(rollback=None).order_by("-pk")[0]
+    return v.number

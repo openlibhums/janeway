@@ -18,6 +18,7 @@ from press import models as press_models, forms
 from security.decorators import press_only
 from submission import models as submission_models
 from utils import install
+from utils.logic import get_janeway_version
 
 
 def index(request):
@@ -94,6 +95,7 @@ def manager_index(request):
     """
     form = journal_forms.JournalForm()
     modal = None
+    version = get_janeway_version()
 
     if request.POST:
         form = journal_forms.JournalForm(request.POST)
@@ -114,7 +116,9 @@ def manager_index(request):
         'form': form,
         'modal': modal,
         'published_articles': submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED).select_related('journal')[:50]
+            stage=submission_models.STAGE_PUBLISHED
+        ).select_related('journal')[:50],
+        'version': version,
     }
 
     return render(request, template, context)

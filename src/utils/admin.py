@@ -32,7 +32,7 @@ class LogAdmin(admin.ModelAdmin):
 
 
 class VersionAdmin(admin.ModelAdmin):
-    list_display = ('number', 'date')
+    list_display = ('number', 'date', 'rollback')
 
 
 admin_list = [
