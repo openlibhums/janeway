@@ -112,6 +112,7 @@ class LogEntry(models.Model):
 class Version(models.Model):
     number = models.CharField(max_length=5)
     date = models.DateTimeField(default=timezone.now)
+    rollback = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return 'Version {number}, upgraded {date}'.format(number=self.number, date=self.date)
