@@ -8,6 +8,7 @@ import json
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.http import HttpResponse
 from django.db.models import Q
@@ -308,7 +309,7 @@ def notify_proofreader(request, article_id, proofing_task_id):
     return render(request, template, context)
 
 
-@proofreader_or_typesetter_required
+@login_required
 def proofing_requests(request, proofing_task_id=None, typeset_task_id=None, decision=None):
     """
     Displays proofing request to proofreaders
