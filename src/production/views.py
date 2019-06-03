@@ -232,7 +232,8 @@ def production_done(request, article_id):
     assignment.closed = timezone.now()
 
     for task in assignment.typesettask_set.all():
-        task.completed = timezone.now()
+        if not task.completed:
+            task.completed = timezone.now()
         task.editor_reviewed = True
 
         task.save()

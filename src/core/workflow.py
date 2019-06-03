@@ -9,7 +9,11 @@ from django.contrib import messages
 
 from core import models
 from submission import models as submission_models
+from utils.logger import get_logger
 from utils.shared import clear_cache
+
+logger = get_logger(__name__)
+
 
 ELEMENT_STAGES = {
     'review': submission_models.REVIEW_STAGES,
@@ -72,12 +76,27 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             article.save()
 
         try:
-            return redirect(reverse(next_element.handshake_url, kwargs={'article_id': article.pk}))
+            response = redirect(reverse(
+                next_element.handshake_url,
+                kwargs={'article_id': article.pk}
+            ))
         except NoReverseMatch:
-            return redirect(reverse(next_element.handshake_url))
-    except BaseException as e:
-        print(e)
-        return redirect(reverse('core_dashboard'))
+            response = redirect(reverse(next_element.handshake_url))
+
+    except Exception as e:
+        logger.exception(e)
+        response = redirect(reverse('core_dashboard'))
+
+    if response.status_code == 302:
+        response = redirect(reverse('core_dashboard'))
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        '%s stage completed for article: %d' % (current_element, article.pk)
+    )
+
+    return response
 
 
 def log_stage_change(article, next_element):
