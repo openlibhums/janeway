@@ -19,8 +19,10 @@ ENABLE_ORCID = True
 ORCID_API_URL = 'http://pub.orcid.org/v2.1'
 ORCID_URL = 'https://orcid.org/oauth/authorize'
 ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
-ORCID_CLIENT_SECRET = ''
-ORCID_CLIENT_ID = ''
+SOCIAL_AUTH_ORCID_KEY = ''
+SOCIAL_AUTH_ORCID_SECRET = ''
+SOCIAL_AUTH_ORCID_SANDBOX_KEY = ''
+SOCIAL_AUTH_ORCID_SANDBOX_SECRET = ''
 
 # Default Langague
 LANGUAGE_CODE = 'en'

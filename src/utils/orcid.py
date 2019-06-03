@@ -3,6 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from social_django.middleware import SocialAuthExceptionMiddleware
+from django.contrib import messages
+
 import json
 import logging
 from urllib.parse import urlencode
@@ -16,6 +19,12 @@ from utils import logic
 
 logger = logging.getLogger(__name__)
 
+class SocialAuth(SocialAuthExceptionMiddleware):
+    def get_message(request, exception):
+      messages.add_message(request, messages.SUCCESS, 'Logged in through ORCID? No, not really')
+
+def loggedin_message(strategy, details, backend, user=None, *args, **kwargs):
+    SocialAuth.get_message(strategy.request, None)
 
 def retrieve_tokens(authorization_code, site):
     """ Retrieves the access token from ORCID service for the given code

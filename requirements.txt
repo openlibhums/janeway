@@ -41,6 +41,8 @@ python-docx==0.8.6
 raven==6.0.0 # TODO: Optional for sentry
 requests==2.20.0
 six==1.10.0
+social-auth-core==3.1.0
+social-auth-app-django==3.1.0
 sqlparse==0.2.3
 ua-parser==0.7.2
 user-agents==1.0.1

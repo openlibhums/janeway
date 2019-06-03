@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^preprints/', include('preprint.urls')),
     url(r'^repository/', include('preprint.urls')),
     url(r'^utils/', include('utils.urls')),
+    url(r'', include('social_django.urls', namespace=settings.SOCIAL_AUTH_URL_NAMESPACE)),
 
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
@@ -46,7 +47,7 @@ urlpatterns = [
     url(r'^conferences/$', press_views.conferences, name='press_conferences'),
     url(r'^kanban/$', core_views.kanban, name='kanban'),
     url(r'^login/$', core_views.user_login, name='core_login'),
-    url(r'^login/orcid/$', core_views.user_login_orcid, name='core_login_orcid'),
+    # url(r'^login/orcid/$', core_views.user_login_orcid, name='core_login_orcid'),
     url(r'^register/step/1/$', core_views.register, name='core_register'),
     url(r'^register/step/2/(?P<token>[\w-]+)/$', core_views.activate_account, name='core_confirm_account'),
     url(r'^register/step/orcid/(?P<token>[\w-]+)/$', core_views.orcid_registration, name='core_orcid_registration'),

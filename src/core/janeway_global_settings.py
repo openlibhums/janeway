@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'materialize',
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
+    'social_django',
 
     # Forms
     'django.forms',
@@ -117,6 +118,8 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    # is this needed?
+    # 'social_django.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -137,6 +140,8 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.journal',
                 'core.context_processors.journal_settings',
@@ -163,8 +168,10 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 SETTINGS_EXPORT = [
     'ORCID_API_URL',
     'ORCID_TOKEN_URL',
-    'ORCID_CLIENT_SECRET',
+    'SOCIAL_AUTH_ORCID_SANDBOX_KEY',
+    'SOCIAL_AUTH_ORCID_SANDBOX_SECRET',
     'ORCID_CLIENT_ID',
+    'ORCID_CLIENT_SECRET',
     'ORCID_URL',
     'ENABLE_ENHANCED_MAILGUN_FEATURES',
     'ENABLE_ORCID',
@@ -406,16 +413,44 @@ ENABLE_ENHANCED_MAILGUN_FEATURES = False  # Enables email tracking
 DATE_FORMT = "Y-m-d"
 DATETIME_FORMAT = "Y-m-d H:i"
 
-AUTH_USER_MODEL = 'core.Account'
-
 PLUGIN_HOOKS = {}
 
 NOTIFY_FUNCS = []
 
+AUTH_USER_MODEL = 'core.Account'
+
+# Settings for Python Social Auth, aka 'PSA' ('social_core' and 'social_django')
+SOCIAL_AUTH_USER_MODEL = 'core.Account'
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.orcid.ORCIDOAuth2Sandbox',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
+# If this is not set, PSA constructs a plausible username from the first portion of the
+# user email, plus some random characters if necessary.
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+# SOCIAL_AUTH_ORCID_SANDBOX_IGNORE_DEFAULT_SCOPE = True
+# SOCIAL_AUTH_ORCID_SANDBOX_SCOPE = ['email']
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'utils.orcid.loggedin_message',
+)
+
 ENABLE_ORCID = True
-ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
-ORCID_URL = 'https://orcid.org/oauth/authorize'
-ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
+ORCID_API_URL = 'https://api.sandbox.orcid.org/v2.1'
+# ToDo: Change from sandbox when this code is released
+ORCID_URL = 'https://sandbox.orcid.org/oauth/authorize'
+ORCID_TOKEN_URL = 'https://sandbox.orcid.org/oauth/token'
 ORCID_CLIENT_SECRET = ''
 ORCID_CLIENT_ID = ''
 
