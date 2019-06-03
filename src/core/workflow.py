@@ -93,7 +93,8 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     messages.add_message(
         request,
         messages.SUCCESS,
-        '%s stage completed for article: %d' % (current_element, article.pk)
+        '%s stage completed for article: %d'
+        '' % (current_element.stage, article.pk)
     )
 
     return response
