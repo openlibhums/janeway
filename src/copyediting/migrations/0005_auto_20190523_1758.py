@@ -36,7 +36,7 @@ def replace_author_review_setting(apps, schema_editor):
                 for value_to_replace in values_to_replace:
                     translation.value = value.replace(
                         value_to_replace,
-                        "{% journal_url 'author_copyedit' article.pk author_review.pk %}"
+                        "{% journal_url 'author_copyedit' article.pk author_review.pk %}",
                     )
                 translation.save()
 
