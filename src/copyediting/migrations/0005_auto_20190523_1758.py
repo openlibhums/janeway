@@ -18,6 +18,11 @@ def replace_author_review_setting(apps, schema_editor):
 
     journals = Journal.objects.all()
 
+    values_to_replace = [
+        '{{journal.site_url}}{{ url }}',
+        '{{request.journal.site_url}}{{ url }}'
+    ]
+
     for journal in journals:
         values = SettingValue.objects.filter(journal=journal, setting=setting)
 
@@ -28,10 +33,11 @@ def replace_author_review_setting(apps, schema_editor):
 
             for translation in translations:
                 value = translation.value
-                translation.value = value.replace(
-                    '{{journal.site_url}}{{ url }}',
-                    "{% journal_url 'author_copyedit' article.pk author_review.pk %}"
-                )
+                for value_to_replace in values_to_replace:
+                    translation.value = value.replace(
+                        value_to_replace,
+                        "{% journal_url 'author_copyedit' article.pk author_review.pk %}"
+                    )
                 translation.save()
 
 
