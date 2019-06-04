@@ -437,10 +437,10 @@ def editor_review(request, article_id, copyedit_id):
         if 'accept_note' in request.POST:
             logic.accept_copyedit(copyedit, article, request)
         elif 'author_review' in request.POST:
-            author_review = logic.setup_author_review(
-                copyedit,
-                article,
-                request,
+            author_review = models.AuthorReview.objects.create(
+                author=article.correspondence_author,
+                assignment=copyedit,
+                notified=True
             )
             return redirect(
                 reverse(
