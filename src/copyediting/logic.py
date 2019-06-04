@@ -110,23 +110,6 @@ def handle_file_post(request, copyedit):
         return errors
 
 
-def setup_author_review(copyedit, article, request):
-    """
-    Creates a AuthorReview object and fires an event to send the article author an email
-    :param copyedit: CopyeditAssignment object
-    :param article: Article object
-    :param request: HttpRequest object
-    :return: AuthorReview object
-    """
-    author_review = models.AuthorReview.objects.create(
-        author=article.correspondence_author,
-        assignment=copyedit,
-        notified=True
-    )
-
-    return author_review
-
-
 def request_author_review(request, article, copyedit, author_review):
     """
     :param request:
