@@ -542,7 +542,7 @@ def request_author_copyedit(request, article_id, copyedit_id,
         'copyedit': copyedit,
         'author_review': author_review,
         'email_content': email_content,
-        'email_subject': email_subject
+        'email_subject': email_subject,
     }
 
     return render(request, template, context)
