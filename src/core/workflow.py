@@ -72,7 +72,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
         if switch_stage:
             log_stage_change(article, next_element)
             clear_cache()
-            article.stage = next_element.stage
+            article.stage = next_element.stage,
             article.save()
 
         try:
@@ -94,7 +94,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
         request,
         messages.SUCCESS,
         '%s stage completed for article: %d'
-        '' % (current_element.stage, article.pk)
+        '' % (current_element.stage, article.pk),
     )
 
     return response
