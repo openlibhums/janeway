@@ -6,6 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import calendar
 from datetime import timedelta
 from user_agents import parse as parse_ua_string
+import geoip2.database
+from geoip2.errors import AddressNotFoundError
 
 from django.utils import timezone
 
@@ -211,17 +213,21 @@ def store_article_access(request, article, access_type, galley_type='view'):
     except TypeError:
         user_agent = None
 
+    ip = shared.get_ip_address(request)
+    country = get_iso_country_code(ip)
     counter_tracking_id = request.session.get('counter_tracking')
-    identifier = counter_tracking_id if counter_tracking_id else shared.get_ip_address(request)
+    identifier = counter_tracking_id if counter_tracking_id else ip
 
     if user_agent and not user_agent.is_bot:
 
         # check if the current IP has accessed this article recently.
         time_to_check = timezone.now() - timedelta(seconds=30)
-        check = models.ArticleAccess.objects.filter(identifier=identifier,
-                                                    accessed__gte=time_to_check,
-                                                    type=access_type,
-                                                    galley_type=galley_type).count()
+        check = models.ArticleAccess.objects.filter(
+            identifier=identifier,
+            accessed__gte=time_to_check,
+            type=access_type,
+            galley_type=galley_type,
+        ).count()
 
         if not check:
 
@@ -229,17 +235,20 @@ def store_article_access(request, article, access_type, galley_type='view'):
                 article=article,
                 type=access_type,
                 identifier=identifier,
-                galley_type=galley_type
+                galley_type=galley_type,
+                country=country,
             )
 
             return new_access
 
         else:
             # get the most recent access attempt and reset its accessed to now.
-            access = models.ArticleAccess.objects.filter(identifier=identifier,
-                                                         accessed__gte=time_to_check,
-                                                         type=access_type,
-                                                         galley_type=galley_type).order_by('-accessed')[0]
+            access = models.ArticleAccess.objects.filter(
+                identifier=identifier,
+                accessed__gte=time_to_check,
+                type=access_type,
+                galley_type=galley_type,
+            ).order_by('-accessed')[0]
 
             if access:
                 access.accessed = timezone.now()
@@ -265,3 +274,15 @@ def get_view_and_download_totals(articles):
         total_downs += article.metrics.downloads
 
     return total_views, total_downs
+
+
+def get_iso_country_code(ip):
+    reader = geoip2.database.Reader(
+        './geolocation/GeoLite2-Country.mmdb'
+    )
+
+    try:
+        response = reader.country(ip)
+        return response.country.iso_code
+    except AddressNotFoundError:
+        return 'OTHER'
