@@ -97,7 +97,7 @@ class SiteSettingsMiddleware(object):
         request.press_cover = press.press_cover(request)
 
         if journal is not None:
-            logger.push_prefix(journal.code)
+            logger.set_prefix(journal.code)
             request.journal = journal
             request.journal_cover = journal.override_cover(request)
             request.site_type = journal
@@ -111,7 +111,7 @@ class SiteSettingsMiddleware(object):
                 request.path_info = request.path_info[len(prefix):]
 
         elif press is not None:
-            logger.push_prefix("press")
+            logger.set_prefix("press")
             request.journal = None
             request.site_type = press
             request.model_content_type = ContentType.objects.get_for_model(press)
