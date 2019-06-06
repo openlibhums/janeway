@@ -4,6 +4,7 @@ Janeway logging utilities and main logger
 import logging
 import threading
 
+
 class LogPrefix(object):
     """ A logging prefix scoped for the current thread """
     _local = threading.local()
@@ -39,6 +40,10 @@ class LogPrefix(object):
     def update(self):
         self.rendered_prefix = ":".join(self._parts)
 
+    def set(self, *parts):
+        self._local.parts = list(parts)
+        self.update()
+
     def do_prefix(self, msg):
         if _prefix.rendered_prefix:
             return "[%s] %s" % (self.rendered_prefix, msg)
@@ -60,8 +65,10 @@ class PrefixedLoggerAdapter(logging.LoggerAdapter):
     def pop_prefix(self):
         _prefix.pop()
 
+    def set_prefix(self, *values):
+        _prefix.set(*values)
+
 
 def get_logger(logger_name, extra=None):
     logger = logging.getLogger(logger_name)
     return PrefixedLoggerAdapter(logger, extra or {})
-
