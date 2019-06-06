@@ -4,12 +4,14 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import calendar
+import os
 from datetime import timedelta
 from user_agents import parse as parse_ua_string
 import geoip2.database
 from geoip2.errors import AddressNotFoundError
 
 from django.utils import timezone
+from django.conf import settings
 
 from metrics import models
 from utils import shared
@@ -277,12 +279,16 @@ def get_view_and_download_totals(articles):
 
 
 def get_iso_country_code(ip):
-    reader = geoip2.database.Reader(
-        './geolocation/GeoLite2-Country.mmdb'
+    db_path = os.path.join(
+        settings.BASE_DIR,
+        'metrics',
+        'geolocation',
+        'GeoLite2-Country.mmdb',
     )
+    reader = geoip2.database.Reader(db_path)
 
     try:
         response = reader.country(ip)
-        return response.country.iso_code
+        return response.country.iso_code if response.country.iso_code else 'OTHER'
     except AddressNotFoundError:
         return 'OTHER'
