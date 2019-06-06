@@ -64,6 +64,8 @@ class Command(BaseCommand):
             print("[okay]")
             print("Installing role fixtures")
             roles_path = os.path.join(settings.BASE_DIR, ROLES_RELATIVE_PATH)
+            print('Installing default settings')
+            call_command('load_default_settings')
             call_command('loaddata', roles_path)
             journal.name = input('Journal #1 name: ')
             journal.description = input('Journal #1 description: ')
