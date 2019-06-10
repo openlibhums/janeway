@@ -7,7 +7,7 @@
             {% if not journal.disable_article_images %}
                 <div class="col-md-2">
                     <a href="
-                            {% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
+                            {% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}">
                         {% if article.thumbnail_image_file %}
                             <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
                                  alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
@@ -22,7 +22,7 @@
                 </div>
             {% endif %}
             <div class="col article-block">
-                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
+                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}">
                     <h4 class="card-title">{{ article.title|safe }}{% if article.is_remote %}&nbsp;
                         <i class="fa fa-external-link small-icon-text"></i>{% endif %}</h4>
                 </a>
