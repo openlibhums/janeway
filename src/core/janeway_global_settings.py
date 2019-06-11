@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sites',
 
     # Installed Apps
     'cms',
@@ -91,6 +92,11 @@ INSTALLED_APPS = [
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
 
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.orcid',
+
     # Forms
     'django.forms',
 ]
@@ -120,6 +126,12 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'core.urls'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
 
 TEMPLATES = [
     {
@@ -483,3 +495,4 @@ if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     logging.disable(logging.CRITICAL)
     MIGRATION_MODULES = SkipMigrations()
 
+SITE_ID = 1

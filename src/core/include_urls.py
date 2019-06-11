@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^preprints/', include('preprint.urls')),
     url(r'^repository/', include('preprint.urls')),
     url(r'^utils/', include('utils.urls')),
+    url(r'^social/', include('allauth.urls')),
 
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
