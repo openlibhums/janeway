@@ -217,7 +217,7 @@ def issue(request, issue_id, show_sidebar=True):
     context = {
         'issue': issue_object,
         'issues': issue_objects,
-        'structure': issue_object.structure, # for backwards compatibility
+        'structure': issue_object.structure,  # for backwards compatibility
         'articles': articles,
         'editors': editors,
         'show_sidebar': show_sidebar,

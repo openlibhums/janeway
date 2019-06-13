@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<aside class="large-4 columns" data-sticky-container>
+    <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
+        <div class="section">
+            <h3>{% trans 'Downloads' %}</h3>
+            {% if issue.galley %}<p><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %} (PDF)</a></p>{% endif %}
+            <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %} (ZIP)</a></p>
+            <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
+                {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
+            <ul>
+                {% for issue in issues %}
+                    {% if issue.issue_type == 'Issue' %}
+                        <li><a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }} </a></li>
+                    {% else %}
+                        <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</aside>

@@ -111,15 +111,6 @@
                             </div>
                     </span>
                 </div>
-        {% else %}
-            <div class="card-content">
-                    <span class="card-title">
-                        <small>{{ article.section.name }}</small>
-                        <br/>
-			            <h5>{{ article.title|safe }}<h5>
-                        <br/>
-                    </span>
-            </div>
         {% endif %}
 		<div>
 
@@ -130,9 +121,15 @@
         <div id="article" class="col m8 s12">
             <div class="card">
                 <div class="card-content">
+                    {% if journal.disable_article_images %}
+                        <span class="card-title">
+                                <small class="article_section">{{ article.section.name }}</small>
+                                <h1>{{ article.title|safe }}</h1>
 
+                            </span>
+                    {% endif %}
                     {% if article.abstract != '' %}
-                        <h5>{% trans "Abstract" %}</h5>
+                        <h2>{% trans "Abstract" %}</h2>
                         <p>{{ article.abstract | safe }}</p>
                     {% endif %}
 
@@ -141,7 +138,7 @@
                     </div>
 
                     {% if article.keywords.count > 0 %}
-                        <h5>{% trans "Keywords" %}</h5>
+                        <h2>{% trans "Keywords" %}</h2>
                         <p>{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
                         <div class="spacer">
@@ -149,7 +146,7 @@
                         </div>
                     {% endif %}
                     {% if article.is_published %}
-                        <h5>{% trans "How to Cite" %}</h5>
+                        <h2>{% trans "How to Cite" %}</h2>
                         {% include "elements/journal/how_to_cite.html" with article=article %}
 
                         <div class="spacer">
@@ -158,7 +155,7 @@
                     {% endif %}
 
                     {% if article.publisher_notes.all %}
-                        <h5>{% trans "Publisher Notes" %}</h5>
+                        <h2>{% trans "Publisher Notes" %}</h2>
                         <ul>
                             {% for note in article.publisher_notes.all %}
                                 <li>{{ note.text }}</li>
@@ -230,9 +227,9 @@
         <div class="col m4">
             <div class="card">
                 <div class="card-content">
-                    <h5>
+                    <h4>
                         {% trans "Authors" %}
-                    </h5>
+                    </h4>
 
                     {% for author in article.frozen_authors.all %}
                         <small>
@@ -253,9 +250,9 @@
                     </div>
                     {% with downloads=galleys|filter_html_downloads %}
                     {% if article.is_published and downloads %}
-                        <h5>
+                        <h4>
                             {% trans "Download" %}
-                        </h5>
+                        </h4>
 
                         <ul>
                             {% for galley in downloads %}
@@ -277,7 +274,7 @@
                     {% endwith %}
 
                     {% if article.supplementary_files.all %}
-                        <h5>{% trans "Supplementary Files" %}</h5>
+                        <h4>{% trans "Supplementary Files" %}</h4>
 
                         <ul>
                             {% for file in article.supplementary_files.all %}
@@ -291,16 +288,16 @@
                     {% endif %}
 
                     {% if journal_settings.general.submission_summary %}
-                        <h5>{% trans "Non Specialist Summary" %}</h5>
+                        <h4>{% trans "Non Specialist Summary" %}</h4>
                         <a href="#summarymodal" class="modal-trigger">View Summary</a>
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
                     {% endif %}
 
-                    <h5>
+                    <h4>
                         {% trans "Dates" %}
-                    </h5>
+                    </h4>
 
                     <table class="sidebar-table">
                         <tr>
@@ -323,9 +320,9 @@
                         <div class="divider"></div>
                     </div>
 
-                    <h5>
+                    <h4>
                         {% trans "Licence" %}
-                    </h5>
+                    </h4>
                     <p>{{ article.license.name }} {% if article.license.url %}
                         <a href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
 
@@ -333,9 +330,9 @@
                         <div class="divider"></div>
                     </div>
 
-                    <h5>
+                    <h4>
                         {% trans "Peer Review" %}
-                    </h5>
+                    </h4>
                     {% if article.peer_reviewed %}
                         <p>
                             <i class="fa fa-check-circle-o" style="color: green"></i>
@@ -351,16 +348,16 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
-                    <h5>{% trans field.field.name %}</h5>
+                    <h4>{% trans field.field.name %}</h4>
                       <p>{{ field.answer }}</p>
                     {% endfor %}
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
                     {% if article.is_published %}
-                        <h5>
+                        <h4>
                             {% trans "File Checksums" %} (MD5)
-                        </h5>
+                        </h4>
                         <ul>
                             {% for galley in galleys %}
                                 <li>
@@ -373,9 +370,9 @@
             </div>
             <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
                 <div class="card-content">
-                    <h5>
+                    <h4>
                         {% trans "Table of Contents" %}
-                    </h5>
+                    </h4>
                     <ul id="toc" class="section table-of-contents">
                     </ul>
                 </div>

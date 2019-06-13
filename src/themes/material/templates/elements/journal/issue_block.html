@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% regroup articles by section as grouped_articles %}
+{% for section, section_articles in grouped_articles %}
+    <h2 class="em">{{ section.name }}</h2>
+    {% for article in section_articles %}
+        {% include "elements/article_listing.html" with article=article %}
+    {% endfor %}
+{% endfor %}
