@@ -1,0 +1,23 @@
+<div id="issue_top">
+    {% if issue.large_image %}
+        <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
+            <ul class="orbit-container article-orbit">
+                <li class="is-active orbit-slide overlay">
+                    <img class="orbit-image"
+                         src="{{ issue.large_image.url }}"
+                         alt="{{ issue.display_title }}">
+                    <div class="row column">
+                        <figcaption class="orbit-caption">
+                            <h3>{{ issue.display_title }}</h3>
+                        </figcaption>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <br/>
+        <p>{{ issue.issue_description|safe }}</p>
+    {% else %}
+        <h3 class="em">{{ issue.display_title }}</h3>
+        <p>{{ issue.issue_description|safe }}</p>
+    {% endif %}
+</div>

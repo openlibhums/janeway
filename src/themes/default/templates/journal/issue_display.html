@@ -4,67 +4,17 @@
 
 <div class="row">
     <div class="col-md-{% if not show_sidebar %}12{% else %}8 border-right{% endif %}" id="issue_top">
-        {% if issue.large_image %}
-            <div class="card">
-                <img class="card-img img-fluid article-img" src="{{ issue.large_image.url }}" alt="Card image">
-                <div class="card-img-overlay white-text">
-                    <div class="card-text">
-                        <h4 class="card-title">{{ issue.display_title }}</h4>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <h2 class="em">{{ issue.display_title }}</h2>
-            <p>{{ issue.issue_description|safe }}</p>
-        {% endif %}
-        <br/>
 
-        {% regroup articles by section as grouped_articles %}
-        {% for section, section_articles in grouped_articles %}
-            <h3 class="em">{{ section.name }}</h3>
-            {% for article in section_articles %}
-                {% include "elements/article_listing.html" with article=article %}
-            {% endfor %}
-        {% endfor %}
-        {% if articles %}
-        <div class="pagination-block">
-            <ul class="d-flex justify-content-center">
-                {% if articles.has_previous %}
-                    <a href="?page={{ articles.previous_page_number }}" class="btn btn-primary">&laquo;</a>
-                    &nbsp;{% endif %}
-                {{ articles.page.page_range }}
-                {% for page in articles.paginator.page_range %}
-                    <a href="?page={{ page }}" class="btn btn-primary">{{ page }}</a>&nbsp;
-                {% endfor %}
-                {% if articles.has_next %}
-                    <a href="?page={{ articles.next_page_number }}" class="btn btn-primary">&raquo;</a>
-                {% endif %}
-            </ul>
-        </div>
-        {% endif %}
+        {% include "elements/journal/issue_top.html" %}
+        {% include "elements/journal/issue_block.html" %}
+        {% include "elements/journal/issue_paginator.html" %}
+
+
     </div>
 
     {% if show_sidebar %}
-        <aside class="col-md-4" data-sticky-container>
-            <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
-                <div class="section">
-                    <h3>{% trans 'Downloads' %}</h3>
-                    {% if issue.galley %}<p><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp</i>Download Issue (PDF)</a></p>{% endif %}
-                    <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>Download Issue (ZIP)</a></p>
-                    <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
-                        {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
-                    <ul>
-                        {% for issue in issues %}
-                        {% if issue.issue_type == 'Issue' %}
-                            <li><a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }} </a></li>
-                        {% else %}
-                            <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </aside>
+        {% include "elements/journal/issue_sidebar.html" %}
+
     {% endif %}
 
 </div>

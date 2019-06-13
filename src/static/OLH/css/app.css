@@ -1280,7 +1280,7 @@ hr {
   border-top: 0;
   border-bottom: 1px solid #ECECEC;
   border-left: 0;
-  margin: 1.38889rem auto;
+  margin: 5px auto 1.38889rem auto;
   clear: both; }
 
 ul,
@@ -4689,7 +4689,7 @@ div.caption span.label {
   color: #FFFFFF; }
 
 .box {
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   position: relative; }
   .box .button {
     background-color: #062657;
