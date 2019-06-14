@@ -9,7 +9,7 @@ def yield_homepage_element_context(request, homepage_elements):
         """
 
     if homepage_elements is not None and homepage_elements.filter(
-            name='Current Issue'
+            name='Current Issue',
     ).exists():
 
         issue_object = request.journal.current_issue
