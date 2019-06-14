@@ -13,11 +13,10 @@
 {% endblock %}
 
 {% block body %}
-    <div class="large-12 columns">
+    <div class="large-6 columns box end">
         <form method="POST">
             {% csrf_token %}
-            <small>NB. Updating this will change your journal.description attribute.</small>
-            <textarea name="description">{{ request.journal.description }}</textarea>
+            {{ form.as_p }}
             <button type="submit" class="success button">Save</button>
         </form>
     </div>
