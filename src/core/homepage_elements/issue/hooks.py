@@ -22,6 +22,7 @@ def yield_homepage_element_context(request, homepage_elements):
 
             context = {
                 'issue': issue_object,
+                'structure': issue_object.structure,
                 'issues': issue_objects,
                 'articles': issue_object.get_sorted_articles(),
                 'show_sidebar': False,
