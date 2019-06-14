@@ -20,7 +20,7 @@ from utils import models as utils_models
 from utils import shared as utils_shared
 
 
-def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user):
+def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, galley_name="XML"):
     """Download images from an XML or HTML document and rewrite the new galley to point to the correct source.
 
     :param base: a base URL for the remote journal install e.g. http://www.myjournal.org
@@ -32,7 +32,11 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user):
     """
 
     # create a BeautifulSoup instance of the page's HTML or XML
-    soup = BeautifulSoup(contents, 'lxml')
+    if galley_name == "HTML":
+        parser = "html"
+    else:
+        parser = "lxml"
+    soup = BeautifulSoup(contents, parser)
 
     # add element:attribute properties here for images that should be downloaded and have their paths rewritten
     # so 'img':'src' means look for elements called 'img' with an attribute 'src'
@@ -157,7 +161,7 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
     return filename, mime
 
 
-def save_file(base, contents, root, extension, article, user, handle_images=False):
+def save_file(base, contents, root, extension, article, user, handle_images=False, galley_name="XML"):
     """ Save 'contents' to disk as a file associated with 'article'
 
     :param base: a base URL for the remote journal install e.g. http://www.myjournal.org
@@ -184,7 +188,7 @@ def save_file(base, contents, root, extension, article, user, handle_images=Fals
     with open(os.path.join(path, filename), 'wb') as f:
         # process any images if instructed
         if handle_images:
-            contents = fetch_images_and_rewrite_xml_paths(base, root, contents, article, user)
+            contents = fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, galley_name)
 
         if isinstance(contents, str):
             contents = bytes(contents, 'utf8')
@@ -281,7 +285,11 @@ def fetch_page(url):
     """
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url)
-    return BeautifulSoup(resp, 'lxml-xml')
+    if "/html" in mime:
+        parser = "html"
+    else:
+        parser = "lxml-xml"
+    return BeautifulSoup(resp, parser)
 
 
 def extract_and_check_doi(soup_object):
@@ -532,7 +540,7 @@ def set_article_galleys(domain, galleys, article, url, user):
                 # assuming that this is HTML, which we save to disk rather than fetching
                 handle_images = True if galley_name == 'HTML' else False
                 filename = save_file(domain, galley, url, galley_name.lower(), article, user,
-                                     handle_images=handle_images)
+                                     handle_images=handle_images, galley_name=galley_name)
                 add_file('text/{0}'.format(galley_name.lower()), galley_name.lower(),
                          'Galley {0}'.format(galley_name), user, filename, article)
 
