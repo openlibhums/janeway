@@ -70,7 +70,6 @@ def install():
         element.save()
 
 
-
 def hook_registry():
     try:
         install()
