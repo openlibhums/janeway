@@ -14,13 +14,13 @@
 
                     {% if fa.article.large_image_file %}
                         <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
-                             alt="{{ article.title|urlencode }}" class="feature-article-image">
+                             alt="{{ article.title|striptags }}" class="feature-article-image">
                     {% elif fa.article.journal.default_large_image %}
                         <img src="{{ fa.article.journal.default_large_image.url }}"
-                             alt="{{ article.title|urlencode }}" class="feature-article-image">
+                             alt="{{ article.title|striptags }}" class="feature-article-image">
                     {% else  %}
                         <img src="{% static 'common/img/sample/article-small.jpg' %}"
-                             alt="{{ article.title|urlencode }}" class="feature-article-image">
+                             alt="{{ article.title|striptags }}" class="feature-article-image">
                     {% endif %}
 
                     <div class="content">

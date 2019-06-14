@@ -17,7 +17,7 @@
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
                                  src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
-                                 alt="{{ article.title | urlencode }}">
+                                 alt="{{ article.title | striptags }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>
