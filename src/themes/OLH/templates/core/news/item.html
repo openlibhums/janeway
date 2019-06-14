@@ -23,7 +23,7 @@
                                 {% else %}
                                     src="{{ request.press.default_carousel_image.url }}"
                                 {% endif %}
-                                 alt="{{ article.title | urlencode }}">
+                                 alt="{{ article.title | striptags }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>

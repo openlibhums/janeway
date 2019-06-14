@@ -74,15 +74,15 @@
                         {% if article.large_image_file.id %}
                             <img class="orbit-image"
                                  src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                                 alt="{{ article.title | urlencode }}">
+                                 alt="{{ article.title | striptags }}">
                         {% elif journal.default_large_image %}
                             <img class="orbit-image"
                                  src="{{ journal.default_large_image.url }}"
-                                 alt="{{ article.title | urlencode }}">
+                                 alt="{{ article.title | striptags }}">
                         {% else %}
                             <img class="orbit-image"
                                  src=""
-                                 alt="{{ article.title | urlencode }}">
+                                 alt="{{ article.title | striptags }}">
                         {% endif %}
                         <div class="row column">
                             <figcaption class="orbit-caption">

@@ -77,15 +77,15 @@
                 {% if article.large_image_file.id %}
                     <img class="card-img img-fluid article-img"
                          src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                         alt="{{ article.title | urlencode }}">
+                         alt="{{ article.title | striptags }}">
                 {% elif journal.default_large_image %}
                     <img class="card-img img-fluid article-img"
                          src="{{ journal.default_large_image.url }}"
-                         alt="{{ article.title | urlencode }}">
+                         alt="{{ article.title | striptags }}">
                 {% else %}
                     <img class="card-img"
                          src=""
-                         alt="{{ article.title | urlencode }}">
+                         alt="{{ article.title | striptags }}">
                 {% endif %}
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
