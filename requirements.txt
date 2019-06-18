@@ -46,4 +46,4 @@ ua-parser==0.7.2
 user-agents==1.0.1
 -e git+https://github.com/BirkbeckCTP/django-materialize.git@bcfbfd9150887328dddce965674c84b2b6e6b785#egg=django_materialize
 django-hijack
-django-allauth
+git+https://github.com/pennersr/django-allauth.git@fb974e9611fc52810b4d9151d48fdccaf16da849#egg=django-allauth

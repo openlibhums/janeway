@@ -14,6 +14,8 @@ import pytz
 
 from bs4 import BeautifulSoup
 from hvad.models import TranslatableModel, TranslatedFields
+from allauth.socialaccount import models as social_models
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -32,7 +34,6 @@ from core.model_utils import AbstractSiteModel
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
-from utils import setting_handler
 from utils.logger import get_logger
 
 fs = JanewayFileSystemStorage()
@@ -1174,3 +1175,11 @@ def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()
+
+
+@receiver(post_save, sender=social_models.SocialAccount)
+def social_auth_registration_active(sender, instance, created, **kwargs):
+
+    if created:
+        instance.user.is_active = True
+        instance.user.save()

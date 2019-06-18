@@ -496,3 +496,15 @@ if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     MIGRATION_MODULES = SkipMigrations()
 
 SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    'orcid': {
+        'BASE_DOMAIN': 'orcid.org',
+        'MEMBER_API': False,
+    }
+}
+
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_UNIQUE_EMAIL = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = "optional"
