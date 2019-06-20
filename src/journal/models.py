@@ -591,7 +591,11 @@ class Issue(models.Model):
         ).annotate(
             section_order=Subquery(section_order_subquery),
             article_order=Subquery(article_order_subquery),
-        ).order_by("section_order", "article_order")
+        ).order_by(
+            "section_order",
+            "section__sequence",
+            "article_order",
+        )
 
         return issue_articles
 
