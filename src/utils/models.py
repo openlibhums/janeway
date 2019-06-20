@@ -217,8 +217,14 @@ class ImportCacheEntry(models.Model):
     @staticmethod
     def nuke():
         for cache in ImportCacheEntry.objects.all():
-            os.remove(cache.on_disk)
             cache.delete()
+
+    def delete(self, *args, **kwargs):
+        try:
+            os.remove(self.on_disk)
+        except FileNotFoundError:
+            pass
+        super().delete(*args, **kwargs)
 
     @staticmethod
     def fetch(url, up_auth_file='', up_base_url='', ojs_auth_file=''):
