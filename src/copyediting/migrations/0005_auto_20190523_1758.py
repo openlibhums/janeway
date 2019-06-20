@@ -44,6 +44,7 @@ def replace_author_review_setting(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('core', '0002_auto_20170711_1203'),
         ('copyediting', '0004_auto_20180412_1544'),
     ]
 
