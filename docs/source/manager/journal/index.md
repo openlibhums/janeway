@@ -34,7 +34,7 @@ You can select the number of articls and the number of news items to display as 
 
 About
 ~~~~~
-This element displays a simple text block using the About this Journal text. This text can be edited using the _configure_ button or from the Journal Settings page detailed below.
+This element displays a text block using the About this Journal text. This text can be edited using the _configure_ button or from the Journal Settings page detailed below.
 
 Featured Articles
 ~~~~~~~~~~~~~~~~~

@@ -39,7 +39,7 @@ The Add Files options allows you to list which files will be listed for the revi
 Delete Round
 ------------------
 
-This is an end all button, it will remove the files and reviewers from the current round. You will be given a prompt that explains what will be deleted if you agree, **NB**. **there is no way to recover a review assignment once it is deleted so only use this option if you really want to remove it, better to simply add a new round which will close all open review assignments.**
+This is an end all button, it will remove the files and reviewers from the current round. You will be given a prompt that explains what will be deleted if you agree, **NB**. **there is no way to recover a review assignment once it is deleted so only use this option if you really want to remove it, better to add a new round which will close all open review assignments.**
 
 Add Reviewer
 ------------------
@@ -54,7 +54,7 @@ Once the reviewer is assigned they will be able to access the system and let you
 New Review Round
 ----------------
 
-This option simply adds a new review round, a clean slate of review! Any open review assignments on the current round are withdrawn and a new round is set up. This process is often done after round 1 is complete and the author has also completed some form of revisions.
+This option adds a new review round, a clean slate of review! Any open review assignments on the current round are withdrawn and a new round is set up. This process is often done after round 1 is complete and the author has also completed some form of revisions.
 
 You will still be able to see Round 1 via a tab at the top of the page.
 

@@ -54,7 +54,7 @@ Accepting the copyedit closes this task, if you wish to make further requests fr
 
 Requesting author review will ask the author to review the changes made and inform the editor if any corrections are required. The author can also upload a file if they have made corrections or used track changes.
 
-Reopen the task simply asks the copyeditor to make further changes to the manuscript file. This is most often used after a Author Review returns *corrections required*.
+Reopen the task asks the copyeditor to make further changes to the manuscript file. This is most often used after a Author Review returns *corrections required*.
 
 Finishing Up
 ------------
