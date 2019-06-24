@@ -1039,6 +1039,66 @@
             "name": "general"
         },
         "setting": {
+            "description": "Guidelines displayed to the editor on the review page.",
+            "is_translatable": true,
+            "name": "review_steps",
+            "pretty_name": "Review steps",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<ol><li>Add files to your review round.</li><li>Select reviewers for your review round.</li><li>Once reviews are complete decide if revisions are required, if they are: add a revision task.</li><li>After revisions are complete, you may want to add a new round of peer review, go to: 1.</li></ol>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guidelines displayed to the editor on the copyediting page.",
+            "is_translatable": true,
+            "name": "copyediting_steps",
+            "pretty_name": "Copyediting steps",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<ol><li>Start a copyedit assignment: <ul><li>Choose a copyeditor</li><li>Choose the files available for the copyeditor</li><li>Add instructions and due date</li></ul></li><li>Request the author to review the copyedit task</li><li>After the review, you can: <ul><li>Accept the copyedit</li><li>Reopen the copyedit task and move back to step 1.</li></ul></li></ol>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guidelines displayed to the production manager on the production stage.",
+            "is_translatable": true,
+            "name": "production_steps",
+            "pretty_name": "Production steps",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Recommended steps for completing the Production stage:<ol><li>Assign a Typesetter (optional){% if production_assignment.typeset_tasks %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% for task in production_assignment.typeset_tasks %}<li>Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% endfor %}<li>Have at lease one Galley file uploaded (required) {% if article.has_galley %} <i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i>{% endif %}</li></ol>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Guidelines displayed to the proofing manager on the proofing stage.",
+            "is_translatable": true,
+            "name": "proofing_steps",
+            "pretty_name": "Proofing steps",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<ol><li>Select˙proofreaders˙for˙this proofing˙round.</li><li>Once˙proofing˙is˙completed˙decide:<ul><li>Request changes (sends the article back to the typesetter)</li><li>Acknowledge the task</li></ul></li><li>(optional) If changes have been completed, you may want to start a new round of Proofing and move to 1.</li><li>Finally, click \"Complete proofing\"</li></ol>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "When enabled, non staff will not be able to access the site.",
             "is_translatable": false,
             "name": "maintenance_mode",
