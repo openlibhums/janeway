@@ -3,6 +3,7 @@
 {% load securitytags %}
 {% load hooks %}
 {% load static from staticfiles %}
+{% load render_string %}
 
 {% block title %}Article - {{ article.pk }}{% endblock title %}
 {% block admin-header %}Article - {{ article.pk }}{% endblock %}
@@ -324,28 +325,13 @@
             </div>
             <div class="content">
                 <small>
-                    {% if article.stage == 'Typesetting' %}
-                    Recommended steps for completing the Production stage:
-                    <ol>
-                        <li>
-                            Assign a Typesetter (optional){% if production_assignment.typeset_tasks %}
-                            <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
-                        </li>
-                        {% for task in production_assignment.typeset_tasks %}
-                            <li>
-                                Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}
-                                <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
-                            </li>
-                        {% endfor %}
-                        <li>Have at lease one Galley file uploaded (required) {% if article.has_galley %}
-                            <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i>{% endif %}
-                        </li>
-                    </ol>
-                    {% else %}
                     This article is in the {{ article.stage }} stage.
-                    {% endif %}
                 </small>
             </div>
+            <div class="title-area">
+                <h2>Steps</h2>
+            </div>
+            <div class="content">{% render_string journal_settings.general.production_steps %}</div>
         </div>
         <div class="box">
             <div class="title-area">
