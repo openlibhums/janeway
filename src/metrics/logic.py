@@ -291,4 +291,6 @@ def get_iso_country_code(ip):
         response = reader.country(ip)
         return response.country.iso_code if response.country.iso_code else 'OTHER'
     except AddressNotFoundError:
+        if ip == '127.0.0.1':
+            return "GB"
         return 'OTHER'
