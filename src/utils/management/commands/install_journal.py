@@ -45,7 +45,8 @@ class Command(BaseCommand):
 
             install.journal(name=journal_name, code=journal_code, base_url=base_url, delete=delete)
 
-            journal=journal_models.Journal.objects.get(code=journal_code)
-            install.update_license(journal, management_command=False)
+            if not delete:
+                journal = journal_models.Journal.objects.get(code=journal_code)
+                install.update_license(journal, management_command=False)
 
             call_command('show_configured_journals')
