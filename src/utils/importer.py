@@ -24,9 +24,9 @@ def clear_db(journal):
 
     all_articles.delete()
 
-    all_issues = journal_models.Issue.objects.all()
+    issues = journal_models.Issue.objects.filter(journal=journal)
 
-    all_issues.delete()
+    issues.delete()
 
     all_users = core_models.Account.objects.filter(is_admin=False)
 

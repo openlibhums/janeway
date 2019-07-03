@@ -3,7 +3,6 @@ import uuid
 import os
 import requests
 from bs4 import BeautifulSoup
-import html2text
 import json
 from dateutil import parser as dateparser
 
@@ -16,7 +15,9 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from utils import models as utils_models, setting_handler
 from core import models as core_models, files as core_files
 from review import models as review_models
+from utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 # note: URL to pass for import is http://journal.org/jms/index.php/up/oai/
 
@@ -27,7 +28,7 @@ def get_thumbnails(url):
     :param url: the base URL of the journal
     :return: the thumbnail for this article
     """
-    print("Extracting thumbnails.")
+    logger.info("Extracting thumbnails.")
 
     url_to_use = url + '/articles/?f=1&f=3&f=2&f=4&f=5&order=date_published&app=100000'
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url_to_use)
@@ -76,16 +77,21 @@ def import_article(journal, user, url, thumb_path=None):
 
     if len(license_object) > 0 and license_object[0] is not None:
         license_object = license_object[0]
-        print("Found a license for this article: {0}".format(license_object.short_name))
+        logger.info("Found a license for this article: {0}".format(
+            license_object.short_name))
     else:
         license_object = models.Licence.objects.get(name='All rights reserved', journal=journal)
-        print("Did not find a license for this article. Using: {0}".format(license_object.short_name))
+        logger.warning(
+            "Did not find a license for this article. Using: {0}".format(
+                license_object.short_name
+            )
+        )
 
     new_article.license = license_object
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
-    print("Peer reviewed: {0}".format(peer_reviewed))
+    logger.debug("Peer reviewed: {0}".format(peer_reviewed))
 
     new_article.peer_reviewed = peer_reviewed
 
@@ -98,12 +104,12 @@ def import_article(journal, user, url, thumb_path=None):
     html = None
 
     if xml:
-        print("Ripping XML")
+        logger.info("Ripping XML")
         xml = xml.get('href', None).strip()
     else:
         # looks like there isn't any XML
         # instead we'll pull out any div with an id of "xml-article" and add as an HTML galley
-        print("Ripping HTML")
+        logger.info("Ripping HTML")
         html = soup_object.find('div', attrs={'id': 'xml-article'})
 
         if html:
@@ -120,22 +126,23 @@ def import_article(journal, user, url, thumb_path=None):
 
     # fetch thumbnails
     if thumb_path is not None:
-        print("Attempting to assign thumbnail.")
+        logger.info("Attempting to assign thumbnail.")
 
         final_path_element = url.split('/')[-1]
         id_regex = re.compile(r'.*?(\d+)')
         matches = id_regex.match(final_path_element)
         article_id = matches.group(1)
 
-        print("Determined remote article ID as: {0}".format(article_id))
-        print("Thumbnail path: {thumb_path}, URL: {url}".format(thumb_path=thumb_path, url=url))
+        logger.info("Determined remote article ID as: {0}".format(article_id))
+        logger.info("Thumbnail path: {thumb_path}, URL: {url}".format(
+            thumb_path=thumb_path, url=url))
 
         try:
             filename, mime = shared.fetch_file(domain, thumb_path + "/" + article_id, "", 'graphic',
                                                new_article, user)
             shared.add_file(mime, 'graphic', 'Thumbnail', user, filename, new_article, thumbnail=True)
-        except BaseException:
-            print("Unable to import thumbnail. Recoverable error.")
+        except Exception as e:
+            logger.warning("Unable to import thumbnail: %s" % e)
 
     # lookup status
     stats = soup_object.findAll('div', {'class': 'stat-number'})
@@ -147,13 +154,16 @@ def import_article(journal, user, url, thumb_path=None):
         if stats:
             from metrics import models as metrics_models
             views = stats[0].contents[0]
-            downloads = stats[1].contents[0]
+            if len(stats) > 1:
+                downloads = stats[1].contents[0]
+            else:
+                downloads = 0
 
             metrics_models.HistoricArticleAccess.objects.create(article=new_article,
                                                                 views=views,
                                                                 downloads=downloads)
-    except BaseException:
-        pass
+    except (IndexError, AttributeError):
+        logger.info("No article metrics found")
 
 
 def import_oai(journal, user, soup, domain):
@@ -175,7 +185,7 @@ def import_oai(journal, user, soup, domain):
         # full and proper email metadata
         identifier.contents[0] = identifier.contents[0].replace('/jms', '')
         if identifier.contents[0].startswith('http'):
-            print('Parsing {0}'.format(identifier.contents[0]))
+            logger.info('Parsing {0}'.format(identifier.contents[0]))
 
             import_article(journal, user, identifier.contents[0], thumb_path)
 
@@ -191,7 +201,7 @@ def import_journal_metadata(journal, user, url):
 
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    print("Extracting journal-level metadata...")
+    logger.info("Extracting journal-level metadata...")
 
     resp, mime = utils_models.ImportCacheEntry.fetch(url=base_url)
 
@@ -200,17 +210,17 @@ def import_journal_metadata(journal, user, url):
     issn_result = soup.find(text=issn)
     issn_match = issn.match(str(issn_result).strip())
 
-    print('ISSN set to: {0}'.format(issn_match.group(1)))
+    logger.info('ISSN set to: {0}'.format(issn_match.group(1)))
     journal.issn = issn_match.group(1)
 
     try:
         publisher_result = soup.find(text=publisher)
         publisher_match = str(publisher_result.next_sibling.getText()).strip()
-        print('Publisher set to: {0}'.format(publisher_match))
+        logger.info('Publisher set to: {0}'.format(publisher_match))
         journal.publisher = publisher_match
         journal.save()
-    except BaseException:
-        print("Error setting publisher.")
+    except Exception as e:
+        logger.warning("Error setting publisher: %s" % e)
 
 
 def parse_backend_list(url, auth_file, auth_url, regex):
@@ -315,7 +325,7 @@ def import_issue_images(journal, user, url):
 
         if img_url_suffix:
             img_url = base_url + img_url_suffix.get('src')
-            print("Fetching {0}".format(img_url))
+            logger.info("Fetching {0}".format(img_url))
 
             resp, mime = utils_models.ImportCacheEntry.fetch(url=img_url)
 
@@ -335,9 +345,9 @@ def import_issue_images(journal, user, url):
 
             issue.order = int(sequence_pattern.match(img_url).group(1))
 
-            print("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
+            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
 
-            print("Extracting section orders within the issue...")
+            logger.info("Extracting section orders within the issue...")
 
             new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue.issue)
             resp, mime = utils_models.ImportCacheEntry.fetch(url=base_url + new_url)
@@ -352,7 +362,7 @@ def import_issue_images(journal, user, url):
             journal_models.SectionOrdering.objects.filter(issue=issue).delete()
 
             for section in sections_to_order:
-                print('[{0}] {1}'.format(section_order, section.getText()))
+                logger.info('[{0}] {1}'.format(section_order, section.getText()))
                 order_section, c = models.Section.objects.language('en').get_or_create(
                     name=section.getText().strip(),
                     journal=journal)
@@ -361,7 +371,7 @@ def import_issue_images(journal, user, url):
                                                               order=section_order).save()
                 section_order += 1
 
-            print("Extracting article orders within the issue...")
+            logger.info("Extracting article orders within the issue...")
 
             # delete existing order models for issue
             journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
@@ -408,17 +418,18 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
 
     if account is not None and len(account) > 0:
         account = account[0]
-        print("Found account for {0}".format(profile_dict['email']))
+        logger.info("Found account for {0}".format(profile_dict['email']))
     else:
-        print("Didn't find account for {0}. Creating.".format(profile_dict['email']))
+        logger.info("Didn't find account for {0}. Creating.".format(profile_dict['email']))
 
         if profile_dict['Country'] == '—':
             profile_dict['Country'] = None
         else:
             try:
                 profile_dict['Country'] = core_models.Country.objects.get(name=profile_dict['Country'])
-            except BaseException:
-                print("Country not found")
+            except Exception:
+                logger.warning(
+                    "Country not found: %s" % profile_dict["Country"])
                 profile_dict['Country'] = None
 
         if not profile_dict.get('Salutation') in dict(core_models.SALUTATION_CHOICES):
@@ -526,14 +537,14 @@ def ojs_plugin_import_review_articles(url, journal, auth_file, base_url):
 
     for article_dict in resp:
         create_article_with_review_content(article_dict, journal, auth_file, base_url)
-        print('Importing {article}.'.format(article=article_dict.get('title')))
+        logger.info('Importing {article}.'.format(article=article_dict.get('title')))
 
 
 def ojs_plugin_import_editing_articles(url, journal, auth_file, base_url):
     resp = get_ojs_plugin_response(url, auth_file, base_url)
 
     for article_dict in resp:
-        print('Importing {article}.'.format(article=article_dict.get('title')))
+        logger.info('Importing {article}.'.format(article=article_dict.get('title')))
         article = create_article_with_review_content(article_dict, journal, auth_file, base_url)
         complete_article_with_production_content(article, article_dict, journal, auth_file, base_url)
 
@@ -562,9 +573,10 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
             account = core_models.Account.objects.get(email=editor)
             account.add_account_role('section-editor', journal)
             review_models.EditorAssignment.objects.create(article=article, editor=account, editor_type='section-editor')
-            print('Editor added to article')
-        except BaseException:
-            print('Editor account was not found.')
+            logger.info('Editor added to article')
+        except Exception as e:
+            logger.error('Editor account was not found.')
+            logger.exception(e)
 
     # Add a new review round
     round = review_models.ReviewRound.objects.create(article=article, round_number=1)
@@ -627,9 +639,12 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
     if not form:
         try:
             form = review_models.ReviewForm.objects.filter(journal=journal)[0]
-        except BaseException:
+        except Exception:
             form = None
-            print('You must have at least one review form for the journal before importing.')
+            logger.error(
+                'You must have at least one review form for the journal before'
+                ' importing.'
+            )
             exit()
 
     for review in article_dict.get('reviews'):
@@ -738,7 +753,7 @@ def determine_production_stage(article_dict):
     typesetting = True if article_dict.get('layout') and article_dict['layout'].get('galleys') else False
     proofing = True if typesetting and article_dict.get('proofing') else False
 
-    print(typesetting, proofing, publication)
+    logger.debug(typesetting, proofing, publication)
 
     if publication:
         stage = models.STAGE_READY_FOR_PUBLICATION
@@ -773,7 +788,11 @@ def import_copyeditors(article, article_dict, auth_file, base_url):
             initial_copyeditor = core_models.Account.objects.get(email=initial.get('email'))
             initial_decision = True if (initial.get('underway') or initial.get('complete')) else False
 
-            print('Adding copyeditor: {copyeditor}'.format(copyeditor=initial_copyeditor.full_name()))
+            logger.info(
+                'Adding copyeditor: {copyeditor}'.format(
+                    copyeditor=initial_copyeditor.full_name()
+                )
+            )
 
             assigned = attempt_to_make_timezone_aware(initial.get('notified'))
             underway = attempt_to_make_timezone_aware(initial.get('underway'))
@@ -795,7 +814,7 @@ def import_copyeditors(article, article_dict, auth_file, base_url):
                 copyedit_assignment.copyeditor_files.add(file)
 
             if initial and author.get('notified'):
-                print('Adding author review.')
+                logger.info('Adding author review.')
                 assigned = attempt_to_make_timezone_aware(author.get('notified'))
                 complete = attempt_to_make_timezone_aware(author.get('complete'))
 
@@ -813,7 +832,7 @@ def import_copyeditors(article, article_dict, auth_file, base_url):
                     author_review.files_updated.add(file)
 
             if final and initial_copyeditor and final.get('notified'):
-                print('Adding final copyedit assignment.')
+                logger.info('Adding final copyedit assignment.')
 
                 assigned = attempt_to_make_timezone_aware(initial.get('notified'))
                 underway = attempt_to_make_timezone_aware(initial.get('underway'))
@@ -844,7 +863,7 @@ def import_typesetters(article, article_dict, auth_file, base_url):
     if layout.get('email'):
         typesetter = core_models.Account.objects.get(email=layout.get('email'))
 
-        print('Adding typesetter {name}'.format(name=typesetter.full_name()))
+        logger.info('Adding typesetter {name}'.format(name=typesetter.full_name()))
 
         from production import models as production_models
 
@@ -883,7 +902,11 @@ def import_galleys(article, layout_dict, auth_file, base_url):
     if layout_dict.get('galleys'):
 
         for galley in layout_dict.get('galleys'):
-            print('Adding Galley with label {label}'.format(label=galley.get('label')))
+            logger.info(
+                'Adding Galley with label {label}'.format(
+                    label=galley.get('label')
+                )
+            )
             file = get_ojs_file(base_url, galley.get('file'), article, auth_file, galley.get('label'))
 
             new_galley = core_models.Galley.objects.create(
@@ -925,7 +948,7 @@ def complete_article_with_production_content(article, article_dict, journal, aut
     article.stage = determine_production_stage(article_dict)
     article.save()
 
-    print('Stage: {stage}'.format(stage=article.stage))
+    logger.debug('Stage: {stage}'.format(stage=article.stage))
 
     if article.stage == models.STAGE_READY_FOR_PUBLICATION:
         process_for_publication(article, article_dict, auth_file, base_url)
