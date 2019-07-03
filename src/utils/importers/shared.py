@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import urllib
 import re
+from pathlib import Path
 
 from django.conf import settings
 from django.urls import reverse
@@ -18,6 +19,9 @@ from identifiers import models as identifiers_models
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from utils import models as utils_models
 from utils import shared as utils_shared
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, galley_name="XML"):
@@ -62,8 +66,15 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
                 if not url.startswith('/') and not url.startswith('http'):
                     url_to_use = root.replace('/article/view', '/articles') + '/' + url
 
+                #guess extension from url
+                suffixes = Path(url_to_use).suffixes
+                if suffixes:
+                    extension = "".join(suffixes)
+                else:
+                    extension = ""
+
                 # download the image file
-                filename, mime = fetch_file(base, url_to_use, root, '', article, user, handle_images=False)
+                filename, mime = fetch_file(base, url_to_use, root, extension, article, user, handle_images=False)
 
                 # determine the MIME type and slice the first open bracket and everything after the comma off
                 mime = mime.split(',')[0][1:].replace("'", "")
@@ -135,7 +146,7 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
         extension = utils_shared.guess_extension(mime)
 
     # set the filename to a unique UUID4 identifier with the passed file extension
-    filename = '{0}.{1}'.format(uuid4(), extension)
+    filename = '{0}.{1}'.format(uuid4(), extension.lstrip("."))
 
     # set the path to save to be the sub-directory for the article
     path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id))
@@ -315,6 +326,13 @@ def extract_and_check_doi(soup_object):
         return doi, False
 
 
+def get_citation_info(soup_object):
+    citations = soup_object.find_all('div', attrs={"class": "citation-popup"})
+    if citations:
+        return citations[0].text
+    return None
+
+
 def get_author_info(soup_object):
     """ Extract authors, emails, and institutional affiliation from a BeautifulSoup object.
 
@@ -407,7 +425,7 @@ def create_new_article(date_published, date_submitted, journal, soup_object, use
     return article_dict, new_article
 
 
-def set_article_attributions(authors, emails, institutions, mismatch, article):
+def set_article_attributions(authors, emails, institutions, mismatch, article, citation=None):
     """ Set author, email, and institution information on an article
 
     :param authors: the authors of the article
@@ -415,6 +433,7 @@ def set_article_attributions(authors, emails, institutions, mismatch, article):
     :param institutions: the authors' institutions
     :param mismatch: whether or not there is a mismatch between the number of authors and institutions
     :param article: the article on which this attribution information should be set
+    :param citation: The citation string, helps distinguish conjuntions from middle names
     :return: None
     """
     fetch_emails = not mismatch
@@ -424,9 +443,7 @@ def set_article_attributions(authors, emails, institutions, mismatch, article):
 
         if ',' in author_name:
             split_author = author_name.split(', ', 1)
-            print(split_author)
             author_name = '{0} {1}'.format(split_author[1], split_author[0])
-            print(author_name)
 
         if fetch_emails:
             email = get_soup(emails[idx], 'content')
@@ -449,9 +466,12 @@ def set_article_attributions(authors, emails, institutions, mismatch, article):
             print("Found account for {0}".format(email))
         else:
             print("Didn't find account for {0}. Creating.".format(email))
+            parsed_name = parse_author_names(author_name, citation)
+            logger.debug("%s\t\t-> %s" % (author_name, parsed_name))
             account = core_models.Account.objects.create(email=email, username=uuid4(), institution=institution,
-                                                         first_name=' '.join(author_name.split(' ')[:-1]),
-                                                         last_name=author_name.split(' ')[-1])
+                                                         first_name=parsed_name["first_name"],
+                                                         last_name=parsed_name["last_name"],
+                                                         middle_name=parsed_name["middle_name"])
             account.save()
 
         if account:
@@ -516,6 +536,19 @@ def set_article_issue_and_volume(article, soup_object, date_published):
     if created:
         new_issue.save()
         print("Created a new issue ({0}:{1}, {2})".format(volume, issue, date_published))
+
+
+def set_article_keywords(article, soup_object):
+    keyword_string = (get_soup(
+        soup_object.find('meta', attrs={'name': 'citation_keywords'}),
+        'content',
+    ))
+    if keyword_string:
+        for word in keyword_string.split(";"):
+            if word:
+                keyword, created = submission_models.Keyword.objects \
+                    .get_or_create(word=word.lstrip())
+                article.keywords.add(keyword)
 
 
 def set_article_galleys(domain, galleys, article, url, user):
@@ -592,9 +625,11 @@ def get_and_set_metadata(journal, soup_object, user, date_published_iso, date_su
 
     article_dict, new_article = create_new_article(date_published, date_submitted, journal, soup_object, user)
 
-    set_article_attributions(authors, emails, institutions, mismatch, new_article)
+    citation = get_citation_info(soup_object)
+    set_article_attributions(authors, emails, institutions, mismatch, new_article, citation)
     set_article_section(new_article, soup_object)
     set_article_issue_and_volume(new_article, soup_object, date_published)
+    set_article_keywords(new_article, soup_object)
 
     return new_article
 
@@ -663,3 +698,40 @@ def fetch_email_from_href(a_soup):
         return email.group(1)
     else:
         return None
+
+
+def parse_author_names(author, citation=None):
+    """ Parses parts of the name from input string checking against citation
+
+    Can distinguish middle names from multi word last_names
+    :param author: A single string containing the author's full name
+    :param citation: The citation string where this author appears
+    :return: A dict of name type to name value
+    """
+    names = author.split(" ")
+    first = last = middle = None
+    if not citation:
+        first = " ".join(names[:-1])
+        last = names[-1]
+    elif len(names) == 1:
+        last = names[0]
+    elif len(names) == 2:
+        first, last = names
+    elif len(names) > 2:
+        first = names[0]
+        for i, name in enumerate(names[1:]):
+            # Check if any substring is in the citation
+            start_idx = names.index(name)
+            if len(names[start_idx:]) < 2:
+                last = name
+            else:
+                guess = " ".join(names[start_idx:])
+                if guess in citation:
+                    last = guess
+                    middle = " ".join(names[1:start_idx]) or None
+                    break
+    return {
+        "first_name": first,
+        "middle_name": middle,
+        "last_name": last,
+    }
