@@ -3,12 +3,13 @@
 
 {% load securitytags %}
 
-{% block title %}Proofing Requests{% endblock title %}
-{% block title-section %}Proofing Requests{% endblock %}
+{% block title %}Proofing Correction Requests{% endblock title %}
+{% block title-section %}Proofing Correction Requests{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/proofreader_base.html" %}
+    <li>Correction Requests</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -20,8 +21,8 @@
                         <h2>Awaiting Decision</h2>
                     </div>
                     <div class="content">
-                        {% for task in new_requests %}
-                            {% include "elements/proofing/proofreader_card.html" with type="assignment" %}
+                        {% for task in new_typesetting_requests %}
+                            {% include "elements/proofing/proofreader_correction_card.html" with type="assignment" %}
                         {% endfor %}
                     </div>
                 </div>
@@ -30,26 +31,24 @@
                         <h2>In Progress</h2>
                     </div>
                     <div class="content">
-                        {% for task in active_requests %}
-                            {% include "elements/proofing/proofreader_card.html" with type="assigned" %}
+                        {% for task in active_typesetting_requests %}
+                            {% include "elements/proofing/proofreader_correction_card.html" with type="assigned" %}
                         {% endfor %}
                     </div>
-
                 </div>
                 <div class="box">
                     <div class="title-area">
                         <h2>Completed</h2>
                     </div>
                     <div class="content">
-                        {% for task in completed_requests %}
-                            {% include "elements/proofing/proofreader_card.html" with type="complete" %}
+                        {% for task in completed_typesetting_requests %}
+                            {% include "elements/proofing/proofreader_correction_card.html" with type="complete" %}
                         {% endfor %}
                     </div>
-
-
                 </div>
             </div>
         </div>
     </div>
+
 
 {% endblock body %}

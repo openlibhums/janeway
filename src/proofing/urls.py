@@ -53,9 +53,9 @@ urlpatterns = [
         name='preview_figure'),
 
     # Corrections
-    url(r'^requests/corrections/(?P<typeset_task_id>\d+)/decision/(?P<decision>accept|decline)/$',
-        views.proofing_requests,
-        name='proofing_requests_decision_typesetting'),
+    url(r'^requests/corrections/$',
+        views.correction_requests,
+        name='proofing_correction_requests'),
     url(r'^requests/corrections/(?P<typeset_task_id>\d+)/$',
         views.typesetting_corrections,
         name='typesetting_corrections'),
