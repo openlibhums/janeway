@@ -113,40 +113,53 @@ def create_html_snippet(note, proofing_task, galley):
 
 
 def get_tasks(request):
-    new = models.ProofingTask.objects.filter(completed__isnull=True,
-                                             accepted__isnull=True,
-                                             cancelled=False,
-                                             proofreader=request.user,
-                                             round__assignment__article__journal=request.journal)
-    active = models.ProofingTask.objects.filter(completed__isnull=True,
-                                                accepted__isnull=False,
-                                                cancelled=False,
-                                                proofreader=request.user,
-                                                round__assignment__article__journal=request.journal)
-    completed = models.ProofingTask.objects.filter(completed__isnull=False,
-                                                   cancelled=False,
-                                                   proofreader=request.user,
-                                                   round__assignment__article__journal=request.journal)
+    new = models.ProofingTask.objects.filter(
+        completed__isnull=True,
+        accepted__isnull=True,
+        cancelled=False,
+        proofreader=request.user,
+        round__assignment__article__journal=request.journal,
+    )
+    active = models.ProofingTask.objects.filter(
+        completed__isnull=True,
+        accepted__isnull=False,
+        cancelled=False,
+        proofreader=request.user,
+        round__assignment__article__journal=request.journal,
+    )
+    completed = models.ProofingTask.objects.filter(
+        completed__isnull=False,
+        cancelled=False,
+        proofreader=request.user,
+        round__assignment__article__journal=request.journal,
+    )
 
+    return new, active, completed
+
+
+def get_typesetting_tasks(request):
     new_typesetting = models.TypesetterProofingTask.objects.filter(
         completed__isnull=True,
         accepted__isnull=True,
         cancelled=False,
         typesetter=request.user,
-        proofing_task__round__assignment__article__journal=request.journal)
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
     active_typesetting = models.TypesetterProofingTask.objects.filter(
         completed__isnull=True,
         accepted__isnull=False,
         cancelled=False,
         typesetter=request.user,
-        proofing_task__round__assignment__article__journal=request.journal)
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
     completed_typesetting = models.TypesetterProofingTask.objects.filter(
         completed__isnull=False,
         cancelled=False,
         typesetter=request.user,
-        proofing_task__round__assignment__article__journal=request.journal)
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
 
-    return new, active, completed, new_typesetting, active_typesetting, completed_typesetting
+    return new_typesetting, active_typesetting, completed_typesetting
 
 
 def handle_proof_decision(request, proofing_task_id, decision):
@@ -166,9 +179,12 @@ def handle_proof_decision(request, proofing_task_id, decision):
 
 
 def handle_typeset_decision(request, typeset_task_id, decision):
-    typeset_task = get_object_or_404(models.TypesetterProofingTask,
-                                     typesetter=request.user,
-                                     pk=typeset_task_id)
+    typeset_task = get_object_or_404(
+        models.TypesetterProofingTask,
+        typesetter=request.user,
+        pk=typeset_task_id,
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
     if decision == 'accept':
         typeset_task.accepted = timezone.now()
     elif decision == 'decline':

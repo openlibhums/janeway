@@ -1,26 +1,34 @@
 
 <div class="card">
     <div class="card-divider">
+        <h4>
         {% if task.assignment %}
-            <h4>{{ task.assignment.article.title|safe }}</h4>
+            {{ task.assignment.article.title|safe }}
         {% else %}
-            <h4>{{ task.proofing_task.assignment.article.title|safe }}</h4>
+            {{ task.proofing_task.assignment.article.title|safe }}
         {% endif %}
+        </h4>
     </div>
     <div class="card-section">
+        <p><small>Task ID: {{ task.pk }}<br />
+            Article ID: {{ task.proofing_task.round.assignment.article.pk }}</small></p>
+
         {% if type == "assignment" %}
-            <p>Awaiting your decision.</p>
+            <p>Status: Awaiting your decision.</p>
         {% elif type == "assigned" %}
-            <p>Correction in progress.</p>
+            <p>Status: Correction in progress.</p>
         {% else %}
-            <p>Correction complete.</p>
+            <p>Status: Correction complete.</p>
         {% endif %}
+
         <div class="button-group">
             {% if type == "assignment" %}
-                <a class="button tiny success"
-                   href="{% url 'proofing_requests_decision_typesetting' task.pk 'accept' %}">Accept Task</a>
-                <a class="button tiny "
-                   href="{% url 'proofing_requests_decision_typesetting' task.pk 'decline' %}">Decline Task</a>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="typeset_task_id" value="{{ task.pk }}">
+                    <button name="decision" value="accept" class="button tiny success">Accept</button>
+                    <button name="decision" value="decline" class="button tiny">Decline</button>
+                </form>
             {% elif type == 'assigned' %}
                <a class="button tiny success" href="{% url 'typesetting_corrections' task.pk %}">View Task</a>
             {% endif %}
