@@ -57,6 +57,11 @@
                     <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
                     <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
                 </publication_date>
+                {% if license %}
+                <ai:program name="AccessIndicators">
+                    <ai:license_ref>{{ license }}</ai:license_ref>
+                </ai:program>
+                {% endif %}
                 <doi_data>
                     <doi>{{ doi }}</doi>
                     <resource>{{ article_url }}</resource>
@@ -70,11 +75,6 @@
                         </item>
                     </collection>
                 </doi_data>
-                {% if license %}
-                <ai:program name="AccessIndicators">
-                    <ai:license_ref>{{ license }}</ai:license_ref>
-                </ai:program>
-                {% endif %}
             </journal_article>
      </journal>
     </body>
