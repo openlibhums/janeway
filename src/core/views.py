@@ -27,7 +27,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 import pytz
 
 from core import models, forms, logic, workflow
-from security.decorators import editor_user_required, article_author_required
+from security.decorators import editor_user_required, article_author_required, has_journal
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -409,6 +409,7 @@ def public_profile(request, uuid):
     return render(request, template, context)
 
 
+@has_journal
 @login_required
 def dashboard(request):
     """
@@ -517,6 +518,7 @@ def dashboard(request):
     return render(request, template, context)
 
 
+@has_journal
 @editor_user_required
 def active_submissions(request):
     template = 'core/active_submissions.html'
@@ -532,6 +534,7 @@ def active_submissions(request):
     return render(request, template, context)
 
 
+@has_journal
 @editor_user_required
 def active_submission_filter(request):
     articles = logic.build_submission_list(request)
@@ -546,6 +549,7 @@ def active_submission_filter(request):
     return HttpResponse(json.dumps({'status': 200, 'html': html}))
 
 
+@has_journal
 @article_author_required
 def dashboard_article(request, article_id):
     """
@@ -1461,6 +1465,7 @@ def editorial_ordering(request, type_to_order, group_id=None):
     return HttpResponse('Thanks')
 
 
+@has_journal
 @editor_user_required
 def kanban(request):
     """
@@ -1725,6 +1730,7 @@ def pinned_articles(request):
     return render(request, template, context)
 
 
+@has_journal
 @staff_member_required
 def journal_workflow(request):
     """
