@@ -6,8 +6,10 @@ def stages_in_between(from_stage, to_stage, article):
     :param article: Article object
     :return: list of stages in reverse order
     """
-    # TODO: Get all of the stages the given article has been to inbetween
-    # the two given stages and return a list in reverse order.
+    stages = [log.element.stage for log in article.workflow_stages().reverse()]
+    stage_index = stages.index(to_stage)
+
+    return stages[:stage_index+1]
 
 
 def move_to_stage(from_stage, to_stage, article):
@@ -15,3 +17,5 @@ def move_to_stage(from_stage, to_stage, article):
 
     # TODO: Loop through the stages and call a function to reverse process
     # the stage.
+
+    return stages_to_process

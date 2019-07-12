@@ -1122,6 +1122,9 @@ class WorkflowLog(models.Model):
     class Meta:
         ordering = ('timestamp',)
 
+    def __str__(self):
+        return '{0} {1}'.format(self.element.element_name, self.timestamp)
+
 
 class HomepageElement(models.Model):
     # the URL to configure this homepage element, or null/blank if no configuration is needed
