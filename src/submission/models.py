@@ -305,7 +305,14 @@ class Article(models.Model):
     title = models.CharField(max_length=300, help_text=_('Your article title'))
     subtitle = models.CharField(max_length=300, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
-    abstract = models.TextField(blank=True, null=True)
+    abstract = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_('Please avoid pasting content from word processors as they can add '
+                    'unwanted styling to the abstract. You can retype the abstract '
+                    'here or copy and paste it into notepad/a plain text editor before '
+                    'pasting here.')
+    )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
     keywords = models.ManyToManyField(Keyword, blank=True, null=True)
