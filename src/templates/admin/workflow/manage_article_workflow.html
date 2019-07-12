@@ -1,0 +1,46 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load truncate %}
+
+{% block title %}Article Workflow Manager{% endblock %}
+{% block title-section %}Article Workflow Manager{% endblock %}
+{% block title-sub %}Move articles back along workflow stages{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="">#{{ article.pk }} {{ article.title|safe|truncatesmart }}</a></li>
+    <li>Article Workflow Manager</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <h4>Article Current Stage: {{ article.get_stage_display }}</h4>
+                <p>This article has been through the following stages:</p>
+                <table>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                    {% for stage in article.workflow_stages %}
+                        <tr>
+                            <td>{{ stage.element.element_name|capfirst }}</td>
+                            <td>{{ stage.timestamp }}</td>
+                            <td>
+                                {% if stage.element.stage == article.stage %}
+                                Current Stage
+                                {% else %}
+                                <button class="tiny button">Move to Stage</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
