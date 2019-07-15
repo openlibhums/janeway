@@ -5,7 +5,7 @@
 
 {% block title %}Article Workflow Manager{% endblock %}
 {% block title-section %}Article Workflow Manager{% endblock %}
-{% block title-sub %}Move articles back along workflow stages{% endblock %}
+{% block title-sub %}{{ article.title|safe   }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -18,8 +18,9 @@
     <div class="box">
         <div class="row expanded">
             <div class="large-6 columns">
-                <h4>Article Current Stage: {{ article.get_stage_display }}</h4>
-                <p>This article has been through the following stages:</p>
+                <p>This tool should be used with extreme caution. Once and article is moved
+                back along the workflow it has to be manually moved forward again.</p>
+                <p>Article Current Stage: <strong>{{ article.get_stage_display }}</strong>. This article has been through the following stages:</p>
                 <form method="POST">
                     {% csrf_token %}
                     <table>
@@ -33,7 +34,7 @@
                                 <td>{{ stage.element.element_name|capfirst }}</td>
                                 <td>{{ stage.timestamp }}</td>
                                 <td>
-                                    {% if stage.element.stage == article.stage %}
+                                    {% if stage.element.stage == article.stage or stage.element.stage == 'Unassigned' and article.stage == 'Under Review' %}
                                     Current Stage
                                     {% else %}
                                     <button class="tiny button" name="stage_to" value="{{ stage.element.stage }}">Move to Stage</button>

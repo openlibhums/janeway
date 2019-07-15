@@ -1,5 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.urls import reverse
 
 from security.decorators import editor_user_required, has_journal
 from submission import models as submission_models
@@ -29,12 +30,21 @@ def manage_article_workflow(request, article_id):
             stage_to,
             article,
         )
+
+        stages_string = ', '.join(stages_to_process)
+
         messages.add_message(
             request,
             messages.INFO,
-            stages_to_process,
+            'Processing: {}'.format(stages_string),
         )
 
+        return redirect(
+            reverse(
+                'manage_article_workflow',
+                kwargs={'article_id': article.pk}
+            )
+        )
 
     template = 'workflow/manage_article_workflow.html'
     context = {
