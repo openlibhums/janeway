@@ -2,8 +2,8 @@ from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.utils import translation
 
-from utils import install
-
+from journal import models as journal_models
+import utils.install as install
 
 class Command(BaseCommand):
     """ A management command to install a new journal."""
@@ -44,5 +44,9 @@ class Command(BaseCommand):
             print('Creating new journal {0} ({1}) with domain {2}.'.format(journal_name, journal_code, base_url))
 
             install.journal(name=journal_name, code=journal_code, base_url=base_url, delete=delete)
+
+            if not delete:
+                journal = journal_models.Journal.objects.get(code=journal_code)
+                install.update_license(journal, management_command=False)
 
             call_command('show_configured_journals')

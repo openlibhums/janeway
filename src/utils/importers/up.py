@@ -347,7 +347,6 @@ def import_issue_images(journal, user, url):
 
             logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
 
-
             logger.info("Extracting section orders within the issue...")
 
             new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue.issue)
@@ -377,6 +376,7 @@ def import_issue_images(journal, user, url):
             journal_models.SectionOrdering.objects.filter(issue=issue).delete()
 
             for section_order, section in enumerate(sections_to_order):
+
                 logger.info('[{0}] {1}'.format(section_order, section.getText()))
                 order_section, c = models.Section.objects.language('en').get_or_create(
                     name=section.getText().strip(),
