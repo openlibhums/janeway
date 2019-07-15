@@ -101,7 +101,7 @@ def resize_and_crop(img_path, size, crop_type='middle'):
             final_thumb = Image.new(mode='RGBA', size=size, color=(255, 255, 255, 0))
             final_thumb.paste(img, offset_tuple)  # paste the thumbnail into the full sized image
 
-            final_thumb.save(img_path)
+            final_thumb.save(img_path, "png")
             return
         elif crop_type == 'bottom':
             box = (img.size[0] - size[0], 0, img.size[0], img.size[1])
@@ -112,7 +112,7 @@ def resize_and_crop(img_path, size, crop_type='middle'):
     else:
         img = img.resize((size[0], size[1]), Image.ANTIALIAS)
 
-    img.save(img_path)
+    img.save(img_path, "png")
 
 
 def settings_for_context(request):
