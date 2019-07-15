@@ -355,13 +355,28 @@ def import_issue_images(journal, user, url):
             soup_issue = BeautifulSoup(resp, 'lxml')
 
             sections_to_order = soup_issue.find_all(name='h2', attrs={'class': 'main-color-text'})
+            # Find issue title
+            try:
+                issue_title = soup_issue.find("div", {"class": "multi-inline"}).find("h1").string
+                issue.issue_title = issue_title.strip(" -\n")
+            except AttributeError as e:
+                logger.debug("Couldn't find an issue title: %s" % e)
 
-            section_order = 0
+            #Find issue description
+            try:
+                desc_parts = soup_issue.find("div", {"class": "article-type-list-block"}).findAll("p", {"class": "p1"})
+                issue.issue_description = "\n".join(str(p) for p in desc_parts)
+            except AttributeError as e:
+                logger.debug("Couldn't extract an issue description %s" % e)
+
+
+            sections_to_order = soup_issue.find_all(name='h2', attrs={'class': 'main-color-text'})
 
             # delete existing order models for sections for this issue
             journal_models.SectionOrdering.objects.filter(issue=issue).delete()
 
-            for section in sections_to_order:
+            for section_order, section in enumerate(sections_to_order):
+
                 logger.info('[{0}] {1}'.format(section_order, section.getText()))
                 order_section, c = models.Section.objects.language('en').get_or_create(
                     name=section.getText().strip(),
@@ -369,7 +384,6 @@ def import_issue_images(journal, user, url):
                 journal_models.SectionOrdering.objects.create(issue=issue,
                                                               section=order_section,
                                                               order=section_order).save()
-                section_order += 1
 
             logger.info("Extracting article orders within the issue...")
 
@@ -401,7 +415,6 @@ def import_issue_images(journal, user, url):
                     article_order += 1
 
                 processed.append(article)
-
             issue.save()
 
 
