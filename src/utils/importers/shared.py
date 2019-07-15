@@ -80,7 +80,7 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
                 mime = mime.split(',')[0][1:].replace("'", "")
 
                 # store this image in the database affiliated with the new article
-                new_file = add_file(mime, '', 'Galley image', user, filename, article, False)
+                new_file = add_file(mime, extension, 'Galley image', user, filename, article, False)
                 absolute_new_filename = reverse('article_file_download',
                                                 kwargs={'identifier_type': 'id', 'identifier': article.id,
                                                         'file_id': new_file.id})

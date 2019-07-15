@@ -22,6 +22,11 @@ class Command(BaseCommand):
                             dest='delete',
                             default=False,
                             help='Delete all articles and non-superusers in the database before import')
+        parser.add_argument("-i", "--import-type",
+                            choices=["article", "issue"],
+                            default="article",
+                            help="The type of structure to be imported",
+        )
 
     def handle(self, *args, **options):
         """Imports a Ubiquity Press article into Janeway.
@@ -30,4 +35,10 @@ class Command(BaseCommand):
         :param options: Dictionary containing 'url', 'journal_id', 'user_id', and a boolean '--delete' flag
         :return: None
         """
-        importer.import_up_article(**options)
+        if options["import_type"] == "article":
+            importer.import_up_article(**options)
+        elif options["import_type"] == "issue":
+            importer.import_issue_images(**options)
+        else:
+            self.sys.stderr("Unknown import type: %s" % options["import_type"])
+
