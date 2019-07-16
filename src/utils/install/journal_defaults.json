@@ -446,7 +446,7 @@
             "type": "boolean"
         },
         "value": {
-            "default": "False"
+            "default": ""
         }
     },
     {
@@ -461,7 +461,7 @@
             "type": "boolean"
         },
         "value": {
-            "default": "False"
+            "default": ""
         }
     },
     {
@@ -476,7 +476,7 @@
             "type": "boolean"
         },
         "value": {
-            "default": "True"
+            "default": "on"
         }
     },
     {
@@ -491,7 +491,7 @@
             "type": "boolean"
         },
         "value": {
-            "default": "False"
+            "default": ""
         }
     },
     {
@@ -2535,6 +2535,20 @@
             "is_translatable": true,
             "description": "Introductory text displayed at the head of the Submission page.",
             "name": "submission_intro_text"
+        },
+        "group": {
+            "name": "general"
+        }
+    }
+    ,
+    {
+        "value": {"default": ""},
+        "setting": {
+            "type": "boolean",
+            "pretty_name": "Abstracts Are Required",
+            "is_translatable": false,
+            "description": "If enabled all submissions will require an abstract.",
+            "name": "abstract_required"
         },
         "group": {
             "name": "general"

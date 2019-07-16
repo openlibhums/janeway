@@ -158,6 +158,13 @@ def get_settings_to_edit(group, journal):
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
              },
+            {'name': 'abstract_required',
+             'object': setting_handler.get_setting(
+                 'general',
+                 'abstract_required',
+                 journal,
+             )
+             },
             {'name': 'submission_intro_text',
              'object': setting_handler.get_setting(
                  'general',

@@ -626,6 +626,7 @@ def default_settings_index(request):
 
     return settings_index(request)
 
+
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
     """
