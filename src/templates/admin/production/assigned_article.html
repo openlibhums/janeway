@@ -53,9 +53,12 @@
                                         <td>{{ task.typesetter.full_name }}</td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{% if task.notified %}
-                                            <i style="color: green;" class="fa fa-check-circle info">
-                                                &nbsp;</i>{% else %}
-                                            <i style="color: red;" class="fa fa-times-circle info">&nbsp;</i>{% endif %}
+                                            <i style="color: green;" class="fa fa-check-circle info"></i>
+                                            {% elif task.status == 'assigned' %}
+                                            <a href="{% url 'notify_typesetter_event' task.pk 'false' %}">Send Notification</a>
+                                            {% else %}
+                                            Not sent
+                                            {% endif %}
                                         </td>
                                         <td>{{ task.friendly_status|safe }} {% if task.status == 'completed' %}({{ task.completed }}){% endif %}</td>
                                         <td>

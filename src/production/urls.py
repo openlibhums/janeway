@@ -48,6 +48,8 @@ urlpatterns = [
         views.assign_typesetter, name='assign_typesetter'),
     url(r'^typeset/(?P<typeset_id>\d+)/notify/$',
         views.notify_typesetter, name='notify_typesetter'),
+    url(r'^typeset/(?P<typeset_id>\d+)/notify/event/(?P<event>true|false)$',
+        views.notify_typesetter, name='notify_typesetter_event'),
     url(r'^typeset/(?P<typeset_id>\d+)/delete/$',
         views.edit_typesetter_assignment, name='edit_typesetter_assignment'),
 

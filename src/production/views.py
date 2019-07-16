@@ -481,11 +481,12 @@ def assign_typesetter(request, article_id, production_assignment_id):
 
 @article_stage_production_required
 @production_user_or_editor_required
-def notify_typesetter(request, typeset_id):
+def notify_typesetter(request, typeset_id, event=True):
     """
     Optionally allows the PM to send the Typesetter an email, it can be skpped.
     :param request: HttpRequest object
     :param typeset_id: TypesetTask object PK
+    :param event: string either 'true' or 'false'
     :return: HttpRedirect if POST otherwise HttpResponse
     """
     typeset = get_object_or_404(
@@ -493,6 +494,21 @@ def notify_typesetter(request, typeset_id):
         pk=typeset_id,
         assignment__article__journal=request.journal,
     )
+
+    if typeset.notified:
+        messages.add_message(
+            request,
+            messages.INFO,
+            'A notification has already been sent for this task.',
+        )
+
+        return redirect(
+            reverse(
+                'production_article',
+                kwargs={'article_id': typeset.assignment.article.pk},
+            )
+        )
+
     user_message_content = logic.get_typesetter_notification(typeset, request)
 
     if request.POST:
@@ -503,10 +519,15 @@ def notify_typesetter(request, typeset_id):
             'request': request,
             'skip': True if 'skip' in request.POST else False
         }
-        typeset.notified = True
-        typeset.save()
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_TYPESET_TASK_ASSIGNED, **kwargs)
+
+        if 'skip' not in request.POST:
+            typeset.notified = True
+            typeset.save()
+
+        if event or event == 'true':
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_TYPESET_TASK_ASSIGNED, **kwargs)
+
         return redirect(reverse('production_article', kwargs={
             'article_id': typeset.assignment.article.pk}))
 
