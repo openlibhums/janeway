@@ -60,13 +60,17 @@ class ArticleInfo(KeywordModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary', 'language', 'section', 'license',
-                  'primary_issue', 'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
+        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
+                  'language', 'section', 'license', 'primary_issue',
+                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
             'abstract': forms.Textarea(
-                attrs={'placeholder': _('Enter your article\'s abstract here')}),
+                attrs={
+                    'placeholder': _('Enter your article\'s abstract here')
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -78,12 +82,24 @@ class ArticleInfo(KeywordModelForm):
         if 'instance' in kwargs:
             article = kwargs['instance']
             self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
-                journal=article.journal, public_submissions=True)
-            self.fields['license'].queryset = models.Licence.objects.filter(journal=article.journal,
-                                                                            available_for_submission=True)
+                journal=article.journal,
+                public_submissions=True,
+            )
+            self.fields['license'].queryset = models.Licence.objects.filter(
+                journal=article.journal,
+                available_for_submission=True,
+            )
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()
+
+            abstracts_required = article.journal.get_setting(
+                'general',
+                'abstract_required',
+            )
+
+            if abstracts_required:
+                self.fields['abstract'].required = True
 
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
