@@ -11,7 +11,7 @@
 {% block body %}
     <article>
         <div class="box">
-            <form method="POST">
+            <form method="POST"{% if journal_settings.general.abstract_required %} novalidate{% endif %}>
                 {% csrf_token %}
 
                 {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
