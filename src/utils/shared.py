@@ -8,7 +8,8 @@ import mimetypes
 
 from django.core.cache import cache
 
-# NB: this module should not import any others in the application. It is a space for communal functions to avoid
+# NB: this module should not import any others in the application.
+# It is a space for communal functions to avoid
 # circular imports and to thereby maintain Python 3.4 compatibility
 
 

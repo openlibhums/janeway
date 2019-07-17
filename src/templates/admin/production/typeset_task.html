@@ -198,7 +198,17 @@
     </div>
 
     <div class="large-3 columns">
+
         <div class="box">
+            <div class="title-area">
+                <h2>Notes</h2>
+            </div>
+            <div class="content">
+                <p><strong>Task:</strong> {{ typeset_task.typeset_task|safe }}</p>
+
+                <p><strong>Due:</strong> {{ typeset_task.due|date:"Y-m-d" }}</p>
+
+            </div>
             <div class="title-area">
                 <h2>Actions</h2>
             </div>
@@ -221,6 +231,7 @@
                     </form>
                 {% endif %}
             </div>
+
         </div>
     </div>
 

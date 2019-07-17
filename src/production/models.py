@@ -2,6 +2,9 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+from datetime import date
+
 from django.db import models
 from django.utils import timezone
 
@@ -38,6 +41,7 @@ class TypesetTask(models.Model):
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     accepted = models.DateTimeField(blank=True, null=True)
+    due = models.DateField(null=True)
 
     typeset_task = models.TextField(blank=True, null=True, verbose_name="Typesetting Task")
     files_for_typesetting = models.ManyToManyField('core.File', related_name='files_for_typesetting')
@@ -68,6 +72,13 @@ class TypesetTask(models.Model):
             return "closed"
         else:
             return "unknown"
+
+    @property
+    def is_overdue(self):
+        if self.due and self.due < date.today():
+            return True
+
+        return False
 
     FRIENDLY_STATUSES = {
             "assigned": "Awaiting response",
