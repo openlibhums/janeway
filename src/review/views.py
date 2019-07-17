@@ -692,7 +692,7 @@ def review_requests(request):
         Q(article__stage=submission_models.STAGE_UNDER_REVIEW) &
         Q(date_accepted__isnull=True),
         article__journal=request.journal
-    )
+    ).select_related('article')
 
     active_requests = models.ReviewAssignment.objects.filter(
         Q(is_complete=False) &
@@ -700,13 +700,13 @@ def review_requests(request):
         Q(article__stage=submission_models.STAGE_UNDER_REVIEW),
         Q(date_accepted__isnull=False),
         article__journal=request.journal
-    )
+    ).select_related('article')
 
     completed_requests = models.ReviewAssignment.objects.filter(
         Q(is_complete=True) &
         Q(reviewer=request.user),
         article__journal=request.journal
-    )
+    ).select_related('article')
 
     template = 'review/review_requests.html'
     context = {

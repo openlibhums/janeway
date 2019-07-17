@@ -11,6 +11,7 @@
         {% endif %}
         <div class="button-group">
             {% if type == "new" %}
+                <button class="button" data-open="request-{{ request.pk }}">View Detail</button>
                 <a class="button" href="{% url 'accept_review' request.pk %}">Accept Task</a>
                 <a class="button secondary" href="{% url 'decline_review' request.pk %}">Decline Task</a>
             {% elif type == 'active' %}
