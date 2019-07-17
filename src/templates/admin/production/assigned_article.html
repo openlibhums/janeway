@@ -45,6 +45,7 @@
                                         <th>Typesetter</th>
                                         <th>Assigned</th>
                                         <th>Notified</th>
+                                        <th>Due</th>
                                         <th>Status</th>
                                         <th></th>
 
@@ -60,6 +61,7 @@
                                             Not sent
                                             {% endif %}
                                         </td>
+                                        <td>{{ task.due|date:"Y-m-d" }} {% if task.is_overdue %}(Overdue){% endif %}</td>
                                         <td>{{ task.friendly_status|safe }} {% if task.status == 'completed' %}({{ task.completed }}){% endif %}</td>
                                         <td>
                                             <div class="button-group">

@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django import forms
 
 from production import models, logic
+from utils.forms import HTMLDateInput
 
 
 class TypesetterNote(forms.ModelForm):
@@ -29,8 +30,13 @@ class AssignTypesetter(forms.ModelForm):
         fields = (
             'typesetter',
             'files_for_typesetting',
+            'due',
             'typeset_task',
         )
+
+        widgets = {
+            'due': HTMLDateInput(),
+        }
 
     def clean(self):
         cleaned_data = super().clean()

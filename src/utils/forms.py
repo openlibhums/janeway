@@ -1,7 +1,8 @@
-from django.forms import CharField, ModelForm
+from django.forms import CharField, ModelForm, DateInput
 from django.utils.translation import gettext_lazy as _
 
 from submission import models as submission_models
+
 
 class FakeModelForm(ModelForm):
     """ A form that can't be saved
@@ -55,3 +56,7 @@ class KeywordModelForm(ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class HTMLDateInput(DateInput):
+    input_type = 'date'
