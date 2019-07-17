@@ -14,11 +14,11 @@
             <ul>
                 {% if request.article.section_editors %}
                     {% for editor in request.article.section_editors %}
-                        <li>{{ editor }}</li>
+                        <li>{{ editor }} <a href="mailto:{{ editor.email }}?subject={{ request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
                     {% endfor %}
                 {% elif request.article.editors %}
                     {% for editor in request.article.editors %}
-                        <li>{{ editor }}</li>
+                        <li>{{ editor }} <a href="mailto:{{ editor.email }}?subject={{ request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
                     {% endfor %}
                 {% else %}
                     <li>This article has no editors.</li>
