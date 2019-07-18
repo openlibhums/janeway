@@ -90,7 +90,7 @@
             </div>
             <div class="large-9 columns">
                 <h2>Set a Publication Date</h2>
-                <p>Select a date for the Article to be published, default is today which means it will be available immediatley.</p>
+                <p>Select a date for the Article to be published. Selecting today's date will make it available immediately. A date for publication must be set for the piece to publish.</p>
                 <div class="button-group">
                     <input onclick="submit_check_item('fixed', 'set_pub_date', this)" type="checkbox" id="set_pub_date" {% if article.fixedpubcheckitems.set_pub_date %}checked="checked"{% endif %}><label class="toggle" for="set_pub_date">{% if article.fixedpubcheckitems.set_pub_date %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
                     <a href="#" data-open="pubdate" class="button small success pub-button">Set Publication Date</a>
