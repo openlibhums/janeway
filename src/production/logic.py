@@ -249,7 +249,9 @@ def handle_delete_request(request, galley, typeset_task=None, article=None, page
                 messages.add_message(request, messages.INFO, 'File deleted')
 
                 # Check if this is a data file, and if it is remove it, dont delete it.
-                if file_to_delete in galley.article.data_figure_files.all():
+                if galley.type == 'other':
+                    file_to_delete.delete()
+                elif file_to_delete in galley.article.data_figure_files.all():
                     galley.images.remove(file_to_delete)
                 else:
                     file_to_delete.delete()
