@@ -81,12 +81,6 @@ event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_TYPESET_CHA
                                       transactional_emails.send_proofing_typeset_request)
 event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_TYPESET_DECISION,
                                       transactional_emails.send_proofing_typeset_decision)
-event_logic.Events.register_for_event(event_logic.Events.ON_CORRECTIONS_COMPLETE,
-                                      transactional_emails.send_corrections_complete)
-event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_ACK,
-                                      transactional_emails.send_proofing_ack)
-event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_COMPLETE,
-                                      transactional_emails.send_proofing_complete)
 
 
 # Proofing
@@ -102,6 +96,14 @@ event_logic.Events.register_for_event(event_logic.Events.ON_PROOFREADER_TASK_DEC
                                       transactional_emails.send_proofreader_decision)
 event_logic.Events.register_for_event(event_logic.Events.ON_COMPLETE_PROOFING_TASK,
                                       transactional_emails.send_proofreader_complete_notification)
+event_logic.Events.register_for_event(event_logic.Events.ON_CORRECTIONS_COMPLETE,
+                                      transactional_emails.send_corrections_complete)
+event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_ACK,
+                                      transactional_emails.send_proofing_ack)
+event_logic.Events.register_for_event(event_logic.Events.ON_PROOFING_COMPLETE,
+                                      transactional_emails.send_proofing_complete)
+event_logic.Events.register_for_event(event_logic.Events.ON_CORRECTIONS_CANCELLED,
+                                      transactional_emails.send_cancel_corrections)
 
 # Publication
 event_logic.Events.register_for_event(event_logic.Events.ON_AUTHOR_PUBLICATION,
