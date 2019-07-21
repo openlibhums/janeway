@@ -202,14 +202,39 @@ def delete_proofing_round(request, article_id, round_id):
         round=round,
     )
 
+    correction_tasks = models.TypesetterProofingTask.objects.filter(
+        proofing_task__in=proofing_tasks,
+    )
+
     if request.POST:
-        logic.notify_proofreaders(request, proofing_tasks)
-        round.delete()
+        round.delete_round_relations(
+            request,
+            article,
+            proofing_tasks,
+            correction_tasks,
+        )
+        logic.delete_round(article, round)
         messages.add_message(
             request,
             messages.INFO,
             'Proofing Round Deleted',
         )
+        return redirect(
+            reverse(
+                'proofing_article',
+                kwargs={'article_id': article.pk}
+            )
+        )
+
+    template = 'proofing/delete_proofing_round.html'
+    context = {
+        'article': article,
+        'round': round,
+        'proofing_tasks': proofing_tasks,
+        'correction_tasks': correction_tasks,
+    }
+
+    return render(request, template, context)
 
 
 @proofing_manager_for_article_required

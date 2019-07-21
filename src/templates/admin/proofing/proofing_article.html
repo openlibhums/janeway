@@ -33,6 +33,9 @@
                         <div class="title-area">
                             <h2>Proofreading Tasks</h2>
                             {% if forloop.first %}
+                                <a href="{% url 'delete_proofing_round' article.pk round.pk %}" class="button">
+                                    Delete Round
+                                </a>
                                 <a href="#" data-open="add_round" class="button">
                                     Add New Round
                                 </a>

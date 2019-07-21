@@ -2,8 +2,11 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.db import models
 from django.utils import timezone
+
+from events import logic as event_logic
 
 
 class ProofingAssignment(models.Model):
@@ -74,6 +77,36 @@ class ProofingRound(models.Model):
                 typeset_tasks.append(t_task)
 
         return typeset_tasks
+
+    def delete_round_relations(self, request, article, tasks, corrections):
+
+        for task in tasks:
+            if not task.completed:
+                kwargs = {
+                    'article': article,
+                    'proofing_task': task,
+                    'request': request,
+                }
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_CANCEL_PROOFING_TASK,
+                    task_object=article,
+                    **kwargs,
+                )
+                task.delete()
+
+        for correction in corrections:
+            if not correction.completed and not correction.cancelled:
+                kwargs = {
+                    'article': article,
+                    'correction': correction,
+                    'request': request,
+                }
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_CORRECTIONS_CANCELLED,
+                    task_object=article,
+                    **kwargs,
+                )
+                correction.delete()
 
 
 class ProofingTask(models.Model):

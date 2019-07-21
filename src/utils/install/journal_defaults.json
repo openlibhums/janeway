@@ -2539,8 +2539,7 @@
         "group": {
             "name": "general"
         }
-    }
-    ,
+    },
     {
         "value": {"default": ""},
         "setting": {
@@ -2552,6 +2551,34 @@
         },
         "group": {
             "name": "general"
+        }
+    },
+    {
+        "value": {"default": "Correction Task Cancelled"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Correction Task Cancelled",
+            "is_translatable": true,
+            "description": "Subject for Email when Editor cancels or deletes a correction task.",
+            "name": "subject_notify_correction_cancelled"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when an Editor cancels or deletes a correction task.",
+            "is_translatable": false,
+            "name": "notify_correction_cancelled",
+            "pretty_name": "Correction Task Cancelled",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ correction.typesetter.full_name }},</p><p>The correction task you were assigned for {{ article.title }} has been cancelled.</p><p>Regards,</p> {{ request.user.signature|safe }}"
         }
     }
 ]

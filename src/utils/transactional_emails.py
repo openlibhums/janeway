@@ -1049,3 +1049,30 @@ def preprint_comment(**kwargs):
 
     notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
                                                   email_text, log_dict=log_dict)
+
+
+def send_cancel_corrections(**kwargs):
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    correction = kwargs.get('correction')
+
+    description = '{user} has cancelled correction task {task}'.format(
+        user=request.user,
+        task=correction,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Correction Cancelled',
+        'target': article,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_correction_cancelled',
+        'subject_notify_correction_cancelled',
+        correction.typesetter.email,
+        context=kwargs,
+        log_dict=log_dict,
+    )

@@ -269,3 +269,17 @@ def add_reset_log_entry(request, proofing_task, article):
         request=request,
         target=article,
     )
+
+
+def delete_round(article, round):
+    """
+    Deletes a round and checks if a new one needs to be generated.
+    :param article: an Article object
+    :param round: a ProofingRound object
+    :return: None
+    """
+    round.delete()
+
+    if not article.proofingassignment.proofinground_set.all():
+        article.proofingassignment.add_new_proofing_round()
+

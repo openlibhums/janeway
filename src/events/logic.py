@@ -179,6 +179,10 @@ class Events:
     # raised when a typesetter accepts a proofing change request
     ON_PROOFING_TYPESET_DECISION = 'on_proofing_typeset_decision'
 
+    # kwargs: request, correction_task, article
+    # raised when a proofing manager cancels/deletes a correction task
+    ON_CORRECTIONS_CANCELLED = 'on_corrections_cancelled'
+
     # kwargs: request, proofing_task, article
     # raised when a typesetter completes corrections
     ON_CORRECTIONS_COMPLETE = 'on_corrections_complete'
