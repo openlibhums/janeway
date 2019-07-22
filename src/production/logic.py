@@ -56,15 +56,10 @@ def save_supp_file(article, request, uploaded_file, label):
     article.supplementary_files.add(supp_file)
 
 
-def save_galley(article, request, uploaded_file, is_galley, label, is_other, save_to_disk=True):
+def save_galley(article, request, uploaded_file, is_galley, label, save_to_disk=True):
     new_file = files.save_file_to_article(uploaded_file, article, request.user, save=save_to_disk)
     new_file.is_galley = is_galley
     new_file.label = label
-
-    if is_other:
-        article.data_figure_files.add(new_file)
-    else:
-        article.manuscript_files.add(new_file)
 
     new_file.save()
     article.save()
@@ -248,10 +243,9 @@ def handle_delete_request(request, galley, typeset_task=None, article=None, page
             if file_to_delete.pk in galley.article.all_galley_file_pks():
                 messages.add_message(request, messages.INFO, 'File deleted')
 
-                # Check if this is a data file, and if it is remove it, dont delete it.
-                if galley.type == 'other':
-                    file_to_delete.delete()
-                elif file_to_delete in galley.article.data_figure_files.all():
+                # Check if this is a data file, and if it is remove it,
+                # dont delete it.
+                if file_to_delete in galley.article.data_figure_files.all():
                     galley.images.remove(file_to_delete)
                 else:
                     file_to_delete.delete()

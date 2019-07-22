@@ -296,7 +296,6 @@ def production_article(request, article_id):
                     uploaded_file,
                     True,
                     "XML",
-                    False,
                 )
 
         if 'pdf' in request.POST:
@@ -307,7 +306,6 @@ def production_article(request, article_id):
                     uploaded_file,
                     True,
                     "PDF",
-                    False,
                 )
 
         if 'other' in request.POST:
@@ -318,7 +316,6 @@ def production_article(request, article_id):
                     uploaded_file,
                     True,
                     "Other",
-                    True,
                 )
 
         if 'prod' in request.POST:
@@ -696,15 +693,15 @@ def do_typeset_task(request, typeset_id):
         new_galley = None
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                new_galley = logic.save_galley(article, request, uploaded_file, True, "XML", False)
+                new_galley = logic.save_galley(article, request, uploaded_file, True, "XML")
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
-                new_galley = logic.save_galley(article, request, uploaded_file, True, "PDF", False)
+                new_galley = logic.save_galley(article, request, uploaded_file, True, "PDF")
 
         if 'other' in request.POST:
             for uploaded_file in request.FILES.getlist('other-file'):
-                new_galley = logic.save_galley(article, request, uploaded_file, True, "Other", True)
+                new_galley = logic.save_galley(article, request, uploaded_file, True, "Other")
 
         if new_galley:
             typeset_task.galleys_loaded.add(new_galley.file)
