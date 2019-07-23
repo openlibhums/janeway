@@ -16,25 +16,18 @@
    
     <div class="row">
         <div class="col m8">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">
-                        {% trans "Articles" %}
-                    </span>
-                    {% for article in articles %}
-                        {% include "elements/article_listing.html" with article=article %}
-                        {% empty %}
-                        <p>{% trans "No articles to display." %}</p>
-                    {% endfor %}
-                </div>
-            </div>
+            <h2>{% trans "Articles" %}</h2>
+            {% for article in articles %}
+                {% include "elements/article_listing.html" with article=article %}
+                {% empty %}
+                <p>{% trans "No articles to display." %}</p>
+            {% endfor %}
+
         </div>
         <div class="col m4">
+            <h2>{% trans "Searching" %}</h2>
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">
-                        {% trans "Searching" %}
-                    </span>
                     <form method="POST">
                         {% csrf_token %}
                         {% if not keyword %}

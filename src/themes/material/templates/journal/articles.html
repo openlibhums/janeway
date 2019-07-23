@@ -41,6 +41,35 @@
         </div>
         <div class="col m4">
             <div class="card-panel">
+                <form method="POST" action="{% url 'search' %}">
+                    {% csrf_token %}
+                    {% if not keyword %}
+                        <label for="{{ search_form.article_search.id_for_label }}">Search
+                            titles, subtitles, keywords, and authors</label>
+                    {% endif %}
+                    <div class="input-field">
+                        {% if not keyword %}
+                            {{ search_form.article_search.errors }}
+                            {{ search_form.article_search }}
+                        {% else %}
+                            You are currently browsing by keyword.
+                            <p><a href="{% url 'search' %}">Search for an
+                                article.</a></p>
+                        {% endif %}
+                    </div>
+                    <label for="{{ search_form.sort.id_for_label }}">Sort articles
+                        by</label>
+                    <div class="input-field">
+                        {{ search_form.sort.errors }}
+                        {{ search_form.sort }}
+                    </div>
+                    <div class="input-field">
+                        <button name="submit"
+                                class="btn">{% trans "Search" %}</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-panel">
                 <form method="POST">
                     {% csrf_token %}
                     <div class="input-field">
