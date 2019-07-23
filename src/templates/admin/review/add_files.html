@@ -69,6 +69,14 @@
                         </tbody>
                     </table>
 
+                    {% if journal_settings.general.default_review_visibility == 'double-blind' or journal_settings.general.default_review_visibility == 'blind' %}
+                    {{ journal_settings.general.review_file_help|safe }}
+
+                    <input type="checkbox" id="anon" required>
+                    <label for="anon">Review files have been anonymised or this paper is not being reviews blind or double-blind.</label>
+                    <br />
+                    {% endif %}
+
                     <button class="button success" type="submit">Select Files for Review</button>
                     <a href="{% url 'review_in_review' article.pk %}" class="button alert" type="submit">Cancel</a>
                 </form>

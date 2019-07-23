@@ -2580,5 +2580,18 @@
         "value": {
             "default": "<p>Dear {{ correction.typesetter.full_name }},</p><p>The correction task you were assigned for {{ article.title }} has been cancelled.</p><p>Regards,</p> {{ request.user.signature|safe }}"
         }
+    },
+    {
+        "value": {"default": "<p>If you are undertaking a blind or double-blind review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>"},
+        "setting": {
+            "type": "rich-text",
+            "pretty_name": "Review File Help",
+            "is_translatable": false,
+            "description": "Text displayed when a journal defaults to blind or double-blind review ensuring that files are anonymous.",
+            "name": "review_file_help"
+        },
+        "group": {
+            "name": "general"
+        }
     }
 ]
