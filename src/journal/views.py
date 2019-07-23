@@ -147,6 +147,7 @@ def articles(request):
         'sort': sort,
         'show': show,
         'active_filters': active_filters,
+        'search_form': forms.SearchForm(),
     }
     return render(request, template, context)
 
