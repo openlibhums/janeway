@@ -57,7 +57,7 @@
                                 {% for task in round.proofingtask_set.all %}
                                     <tr>
                                         <td>{{ task.id }}</td>
-                                        <td>{{ task.proofreader.full_name }}</td>
+                                        <td>{{ task.proofreader.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' task.proofreader.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{{ task.due|date:"Y-m-d" }}</td>
                                         <td>{{ task.status.friendly }}</td>
@@ -112,7 +112,7 @@
                                 {% for task in round.typeset_tasks %}
                                     <tr>
                                         <td>{{ task.pk }}</td>
-                                        <td>{{ task.typesetter.full_name }}</td>
+                                        <td>{{ task.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' task.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{{ task.due|date:"Y-m-d" }}</td>
                                         <td>

@@ -87,7 +87,7 @@
                                 {% for review in round.reviewassignment_set.all %}
                                     <div class="callout breakdown reviewer">
                                         <div class="title-area">
-                                            <h4>{{ review.reviewer.full_name }}</h4>
+                                            <h4>{{ review.reviewer.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
                                         </div>
                                         <div class="table-scroll">
                                             <table class="scroll">

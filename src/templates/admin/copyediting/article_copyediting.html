@@ -31,7 +31,7 @@
                                 <th></th>
                             </tr>
                             <tr>
-                                <td>{{ assignment.copyeditor.full_name }}</td>
+                                <td>{{ assignment.copyeditor.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' assignment.copyeditor.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                 <td>{{ assignment.assigned|date:"Y-m-d" }}</td>
                                 <td>{{ assignment.due|date:"Y-m-d" }}</td>
                                 <td>
