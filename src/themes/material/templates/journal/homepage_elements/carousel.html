@@ -3,14 +3,10 @@
 <div class="row">
         <div class="carousel carousel-slider center" data-indicators="true">
             {% for carousel_item in carousel_items %}
-                <div class="carousel-item white-text" href="#four!"
-                     style="background-size: cover; background-image: url({% include "elements/article_image.html" %});">
-                    <div class="carousel-text-wrapper">
-                        <a href="{{ carousel_item.url }}">
-                        <h2>{{ carousel_item.carousel_title|safe|truncatechars:200 }}</h2>
-                        <p class="">{{ carousel_item.carousel_subtitle }}</p></a>
-                    </div>
-                </div>
+                {% include "journal/homepage_elements/carousel_element.html" %}
             {% endfor %}
+            {% if carousel_items|length == 1 %}
+                {% include "journal/homepage_elements/carousel_element.html" with carousel_item=carousel_items.0 %}
+            {% endif %}
         </div>
 </div>
