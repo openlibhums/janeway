@@ -1639,6 +1639,47 @@ def resend_logged_email(request, article_id, log_id):
     return render(request, template, context)
 
 
+@has_journal
+@editor_user_required
+def send_user_email(request, user_id, article_id=None):
+    user = get_object_or_404(core_models.Account, pk=user_id)
+    form = forms.EmailForm(
+        initial={'body': '<br/ >{signature}'.format(
+            signature=request.user.signature)},
+    )
+    close = False
+    article = None
+
+    if article_id:
+        article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id
+        )
+
+    if request.POST and 'send' in request.POST:
+        form = forms.EmailForm(request.POST)
+
+        if form.is_valid():
+            logic.send_email(
+                user,
+                form,
+                request,
+                article,
+            )
+            close = True
+
+    template = 'journal/send_user_email.html'
+    context = {
+        'user': user,
+        'close': close,
+        'form': form,
+        'article': article,
+    }
+
+    return render(request, template, context)
+
+
+
 @editor_user_required
 def new_note(request, article_id):
     """

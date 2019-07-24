@@ -181,4 +181,8 @@ urlpatterns = [
         ''.format(DOI_REGEX_PATTERN),
         views.doi_redirect,
         name='doi_redirect'),
+
+    # Search
+    url(r'^email/user/(?P<user_id>\d+)/$',
+        views.send_user_email, name='send_user_email'),
 ]

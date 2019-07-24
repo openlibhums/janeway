@@ -54,7 +54,7 @@
                                 <td>{{ user.username }}</td>
                                 <td>{{ user.first_name }}</td>
                                 <td>{{ user.last_name }}</td>
-                                <td>{{ user.email }}</td>
+                                <td>{{ user.email }} <a onclick="return popitup('{% url 'send_user_email' user.pk %}')"><i class="fa fa-envelope">&nbsp;</i>    </a></td>
                                 <td><a class="tiny success button" href="{% url 'core_user_history' user.id %}">History</a></td>
                                 <td><a class="tiny success button"
                                        href="{% url 'core_user_edit' user.id %}">Edit</a></td>
@@ -76,4 +76,5 @@
 
 {% block js %}
     {% include "elements/datatables.html" with target="#users" %}
+    <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
 {% endblock js %}

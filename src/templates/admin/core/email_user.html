@@ -1,0 +1,33 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Resend Logged Email{% endblock %}
+{% block title-section %}Resend Logged Email ID #{{ log_entry.pk }}{% endblock %}
+{% block title-sub %}Log entry for article #{{ article.pk }}: {{ article.title|safe }}{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        {% if not close %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="large-12 columns">
+                {% include "elements/forms/errors.html" with form=form %}
+            </div>
+            {{ form|foundation }}
+            <div class="large-12 columns">
+                <button name="resend" class="success button">Resend Email</button>
+                <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+            </div>
+            <br/>
+        </form>
+        {% else %}
+        <p>This email has been resent.</p>
+        <a class="warning button" href="javascript:self.close()">Close this Window</a>
+
+        {% endif %}
+    </div>
+{% endblock %}
