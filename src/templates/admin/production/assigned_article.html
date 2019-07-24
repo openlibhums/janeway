@@ -51,7 +51,7 @@
 
                                     </tr>
                                     <tr>
-                                        <td>{{ task.typesetter.full_name }}</td>
+                                        <td>{{ task.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' task.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{% if task.notified %}
                                             <i style="color: green;" class="fa fa-check-circle info"></i>

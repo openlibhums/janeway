@@ -1,5 +1,6 @@
 {% load settings %}
 {% load roles %}
+{% load static from staticfiles %}
 
 {% user_has_role request 'editor' as user_is_editor %}
 {% user_has_role request 'production' as user_is_production %}
@@ -13,13 +14,13 @@
 <table class="scroll small">
     <tr>
         <th>Section</th>
-        <th>Owner</th>
+        <th>Correspondence Author</th>
         <th>Licence</th>
         <th>Language</th>
     </tr>
     <tr>
         <td>{{ article.section.name }}</td>
-        <td>{{ article.owner.full_name }}</td>
+        <td>{{ article.correspondence_author.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' article.correspondence_author.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
         <td>{{ article.license.short_name }}</td>
         <td>{{ article.get_language_display }}</td>
     </tr>
@@ -99,7 +100,7 @@
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
-                <td>{{ f_author.author.email }}</td>
+                <td>{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
@@ -195,3 +196,5 @@
         {% endfor %}
     </table>
 {% endif %}
+
+<script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
