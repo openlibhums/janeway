@@ -24,6 +24,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.contenttypes.models import ContentType
 import pytz
 
 from core import models, forms, logic, workflow
@@ -1043,14 +1044,26 @@ def user_history(request, user_id):
     """
 
     user = get_object_or_404(models.Account, pk=user_id)
+    content_type = ContentType.objects.get_for_model(user)
+    log_entries = util_models.LogEntry.objects.filter(
+        content_type=content_type,
+        object_id=user.pk,
+        is_email=True,
+    )
 
     template = 'core/manager/users/history.html'
     context = {
         'user': user,
-        'review_assignments': review_models.ReviewAssignment.objects.filter(reviewer=user,
-                                                                            article__journal=request.journal),
-        'copyedit_assignments': copyedit_models.CopyeditAssignment.objects.filter(copyeditor=user,
-                                                                                  article__journal=request.journal)
+        'review_assignments': review_models.ReviewAssignment.objects.filter(
+            reviewer=user,
+            article__journal=request.journal,
+        ),
+        'copyedit_assignments':
+            copyedit_models.CopyeditAssignment.objects.filter(
+                copyeditor=user,
+                article__journal=request.journal,
+            ),
+        'log_entries': log_entries,
     }
 
     return render(request, template, context)

@@ -458,6 +458,27 @@ def resend_email(article, log_entry, request, form):
     notify_helpers.send_email_with_body_from_user(request, subject, valid_email_addresses, message, log_dict=log_dict)
 
 
+def send_email(user, form, request, article):
+
+    subject = form.cleaned_data['subject']
+    message = form.cleaned_data['body']
+
+    log_dict = {
+        'level': 'Info',
+        'action_type': 'Contact User',
+        'types': 'Email',
+        'target': article if article else user
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        user.email,
+        message,
+        log_dict=log_dict,
+    )
+
+
 def get_table_from_html(table_name, content):
     """
     Uses BS4 to fetch an HTML table.

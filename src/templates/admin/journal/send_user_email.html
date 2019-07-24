@@ -1,0 +1,38 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Send User Email{% endblock %}
+{% block title-section %}Send User Email{% endblock %}
+{% block title-sub %}Emailing User #{{ user.pk }} {{ user.full_name }}{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        {% if not close %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="large-12 columns">
+                {% include "elements/forms/errors.html" with form=form %}
+            </div>
+            <div class="row expanded">
+                <div class="large-12 columns">
+                    <p><strong>To:</strong> {{ user.full_name }} ({{ user.email }}) </p>
+                </div>
+            </div>
+            {{ form|foundation }}
+            <div class="large-12 columns">
+                <button name="send" class="success button">Send Email</button>
+                <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+            </div>
+            <br/>
+        </form>
+        {% else %}
+        <p>This email has been send.</p>
+        <a class="warning button" href="javascript:self.close()">Close this Window</a>
+
+        {% endif %}
+    </div>
+{% endblock %}

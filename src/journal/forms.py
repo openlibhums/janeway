@@ -90,6 +90,11 @@ class ResendEmailForm(forms.Form):
         self.fields['body'].initial = mark_safe(log_entry.description)
 
 
+class EmailForm(forms.Form):
+    subject = forms.CharField(max_length=1000)
+    body = forms.CharField(widget=SummernoteWidget)
+
+
 class SearchForm(forms.Form):
     article_search = forms.CharField(label='search term', min_length=3, max_length=100, required=False)
     sort = forms.ChoiceField(label='sort by', widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
