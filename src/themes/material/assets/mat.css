@@ -24,6 +24,10 @@ a:hover .article-title {
     padding-bottom: 0px !important;
 }
 
+.no-bottom-margin {
+    margin-bottom: 0 !important;
+}
+
 .issue_image {
     height: 235px;
 }
