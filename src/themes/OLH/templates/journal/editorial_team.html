@@ -15,9 +15,9 @@
     <section id="content">
         <div class="row column">
             {% if group_id %}
-                <h3>{{ editorial_groups.0.name }}</h3>
+                <h1>{{ editorial_groups.0.name }}</h1>
             {% else %}
-                <h3>{% trans "Editorial Team" %}</h3>
+                <h1>{% trans "Editorial Team" %}</h1>
             {% endif %}
             {% for group in editorial_groups %}
                 {% if not group_id %}

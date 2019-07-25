@@ -3,6 +3,7 @@
 {% load static from staticfiles %}
 
 {% block title %}{% trans 'Submissions' %}{% endblock title %}
+{% block page_title %}{% trans 'Submissions' %}{% endblock page_title %}
 
 {% block css %}
     <style>
@@ -18,7 +19,6 @@
 {% block body %}
         <div class="row">
             <div class="col-md-8">
-                <h4>{% trans 'Submissions' %}</h4>
                 {{ journal_settings.general.submission_intro_text|safe }}
 
                 <div class="button-group">
@@ -28,45 +28,45 @@
                 </div>
                 <hr />
                 {% if journal_settings.general.journal_description %}
-                <h5>{% trans 'About' %} {{ request.journal.name }}</h5>
+                <h2>{% trans 'About' %} {{ request.journal.name }}</h2>
                 {{ journal_settings.general.journal_description|safe }}
                 <hr />
                 {% endif %}
                 {% if journal_settings.general.focus_and_scope %}
-                <h5>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h5>
+                <h2>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h2>
                 {{ journal_settings.general.focus_and_scope|safe }}
                 <hr />
                 {% endif %}
                 {% if journal_settings.general.peer_review_info %}
-                <h5>{% trans 'Peer Review' %}</h5>
+                <h2>{% trans 'Peer Review' %}</h2>
                 {{ journal_settings.general.peer_review_info|safe }}
                 <hr/>
                 {% endif %}
                 {% if journal_settings.general.submission_checklist %}
-                <h5>{% trans 'Submission Checklist' %}</h5>
+                <h2>{% trans 'Submission Checklist' %}</h2>
                 {{ journal_settings.general.submission_checklist|safe }}
                 <hr />
                 {% endif %}
                 {% if journal_settings.general.copyright_notice %}
-                <h5>{% trans 'Copyright Notice' %}</h5>
+                <h2>{% trans 'Copyright Notice' %}</h2>
                 {{ journal_settings.general.copyright_notice|safe }}
                 <hr />
                 {% endif %}
-                <h5>{% trans 'Licences' %}</h5>
+                <h2>{% trans 'Licences' %}</h2>
                 <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
                 {% include "elements/license_block.html" %}
                 <hr />
                 {% if journal_settings.general.publication_fees %}
-                <h5>{% trans 'Publication Fees' %}</h5>
+                <h2>{% trans 'Publication Fees' %}</h2>
                 {{ journal_settings.general.publication_fees|safe }}
                 <hr />
                 {% endif %}
                 {% if journal_settings.general.publication_cycle %}
-                <h5>{% trans 'Publication Cycle' %}</h5>
+                <h2>{% trans 'Publication Cycle' %}</h2>
                 {{ journal_settings.general.publication_cycle|safe }}
                 <hr/>
                 {% endif %}
-                <h5>{% trans 'Sections' %}</h5>
+                <h2>{% trans 'Sections' %}</h2>
                     <div class="row">
                         <div class="col-md-6 columns">
 

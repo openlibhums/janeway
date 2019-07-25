@@ -90,7 +90,7 @@
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
-                        <h4 class="card-title align-text-bottom">{{ article.title|safe }}</h4>
+                        <h1 class="card-title align-text-bottom">{{ article.title|safe }}</h1>
                         {% if article.is_published %}
                             <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
                             {% trans "Author" %}{% endif %}:</strong>
