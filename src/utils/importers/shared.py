@@ -730,6 +730,8 @@ def parse_author_names(author, citation=None):
                     last = guess
                     middle = " ".join(names[1:start_idx]) or None
                     break
+                else:
+                    middle = name
     return {
         "first_name": first,
         "middle_name": middle,
