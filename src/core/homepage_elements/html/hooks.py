@@ -8,6 +8,7 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def yield_homepage_element_context(request, homepage_elements):
     plugin = models.Plugin.objects.get(name='HTML')
     try:

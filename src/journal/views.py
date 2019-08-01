@@ -51,11 +51,15 @@ def home(request):
     :return: a rendered template of the journal homepage
     """
     issues_objects = models.Issue.objects.filter(journal=request.journal)
-    sections = submission_models.Section.objects.filter(journal=request.journal)
+    sections = submission_models.Section.objects.filter(
+        journal=request.journal,
+    )
 
-    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                                   object_id=request.journal.pk,
-                                                                   active=True).order_by('sequence')
+    homepage_elements = core_models.HomepageElement.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.journal.pk,
+        active=True).order_by('sequence')
+    homepage_element_names = [el.name for el in homepage_elements]
 
     template = 'journal/index.html'
     context = {
@@ -65,19 +69,21 @@ def home(request):
     }
 
     # call all registered plugin block hooks to get relevant contexts
-    for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
-        try:
-            hook_module = plugin_loader.import_module(hook.get('module'))
-            function = getattr(hook_module, hook.get('function'))
-            element_context = function(request, homepage_elements)
 
-            for k, v in element_context.items():
-                context[k] = v
-        except utils_models.Plugin.DoesNotExist as e:
-            if settings.DEBUG:
-                logger.debug(e)
-            else:
-                pass
+    for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
+        if hook.get('name') in homepage_element_names:
+            try:
+                hook_module = plugin_loader.import_module(hook.get('module'))
+                function = getattr(hook_module, hook.get('function'))
+                element_context = function(request, homepage_elements)
+
+                for k, v in element_context.items():
+                    context[k] = v
+            except utils_models.Plugin.DoesNotExist as e:
+                if settings.DEBUG:
+                    logger.debug(e)
+                else:
+                    pass
 
     return render(request, template, context)
 

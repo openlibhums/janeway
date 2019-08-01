@@ -74,7 +74,8 @@ def install():
 def hook_registry():
     try:
         return {'yield_homepage_element_context': {'module': 'core.homepage_elements.html.hooks',
-                                                   'function': 'yield_homepage_element_context'}
+                                                   'function': 'yield_homepage_element_context',
+                                                   'name': PLUGIN_NAME,}
                 }
     except OperationalError:
         # if we get here the database hasn't yet been created
