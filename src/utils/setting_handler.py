@@ -198,7 +198,7 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
         try:
             setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
         except models.PluginSetting.DoesNotExist:
-            #Some Plugins rely on this function to install themselves
+            # Some Plugins rely on this function to install themselves
             logger.warning(
                 "PluginSetting %s for plugin %s was not present, "
                 "was the plugin installed correctly?"
