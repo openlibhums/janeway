@@ -25,6 +25,7 @@ def install():
         enabled=True,
         display_name='HTML',
         press_wide=True,
+        homepage_element=True,
     )
 
     models.PluginSetting.objects.get_or_create(

@@ -25,6 +25,7 @@ def install():
         enabled=True,
         display_name='News',
         press_wide=True,
+        homepage_element=True,
     )
 
     for journal in journals:
