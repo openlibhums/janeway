@@ -125,6 +125,10 @@ class Plugin(models.Model):
     enabled = models.BooleanField(default=True)
     display_name = models.CharField(max_length=200, blank=True, null=True)
     press_wide = models.BooleanField(default=False)
+    homepage_element = models.BooleanField(
+        default=False,
+        help_text='Enable if the plugin is a homepage element.'
+    )
 
     def __str__(self):
         return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
