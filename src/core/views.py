@@ -1426,18 +1426,27 @@ def plugin_list(request):
     plugin_list = list()
 
     if request.journal:
-        plugins = util_models.Plugin.objects.filter(enabled=True)
+        plugins = util_models.Plugin.objects.filter(
+            enabled=True,
+            homepage_element=False,
+        )
     else:
-        plugins = util_models.Plugin.objects.filter(enabled=True, press_wide=True)
+        plugins = util_models.Plugin.objects.filter(
+            enabled=True,
+            press_wide=True,
+            homepage_element=False,
+        )
 
     for plugin in plugins:
         try:
             module_name = "{0}.{1}.plugin_settings".format("plugins", plugin.name)
             plugin_settings = import_module(module_name)
-            plugin_list.append({'model': plugin,
-                                'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
-                                'name': getattr(plugin_settings, 'PLUGIN_NAME')
-                                })
+            plugin_list.append(
+                {'model': plugin,
+                 'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
+                 'name': getattr(plugin_settings, 'PLUGIN_NAME')
+                 },
+            )
         except ImportError as e:
             logger.error("Importing plugin %s failed: %s" % (plugin, e))
             pass
