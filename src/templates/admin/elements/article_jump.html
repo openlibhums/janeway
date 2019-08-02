@@ -1,9 +1,10 @@
 {% load securitytags %}
 
 {% is_editor as editor %}
+{% is_section_editor as section_editor %}
 
-{% if editor %}
-<button class="tiny secondary button float-right dropdown" data-toggle="articledropdown">Article Jump</button>
+{% if editor or section_editor %}
+<button class="tiny secondary button float-right dropdown" data-toggle="articledropdown">Article Stages & Logs</button>
 <div class="dropdown-pane bottom small" id="articledropdown" data-dropdown>
     <ul>
         <li>

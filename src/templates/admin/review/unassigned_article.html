@@ -1,11 +1,14 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load roles %}
+
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
 {% block title-sub %}{{ article.title }}{% endblock %}
 
 {% block body %}
+    {% user_has_role request 'editor' as is_editor %}
     <div class="large-7 columns">
         <div class="box">
             <div class="title-area">
@@ -169,7 +172,9 @@
         </div>
 
     </div>
+
     <div class="large-5 columns">
+        {% if is_editor or request.user in section_editors and request.user not in editors %}
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
@@ -246,7 +251,7 @@
                 </table>
             </div>
         </div>
-
+        {% endif %}
         <div class="box">
             <div class="title-area">
                 <h2>Actions</h2>
@@ -275,8 +280,8 @@
                 {% endif %}
             </div>
         </div>
-
     </div>
+
 
 {% endblock body %}
 

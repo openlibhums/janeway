@@ -777,13 +777,17 @@ class Article(models.Model):
     def can_edit(self, user):
         # returns True if a user can edit an article
         # editing is always allowed when a user is staff
-        # otherwise, the user must own the article and it must not have already been published
+        # otherwise, the user must own the article and it
+        # must not have already been published
 
         if user.is_staff:
             return True
         elif user in self.section_editors():
             return True
-        elif not user.is_anonymous() and user.is_editor(request=None, journal=self.journal):
+        elif not user.is_anonymous() and user.is_editor(
+                request=None,
+                journal=self.journal,
+        ):
             return True
         else:
             if self.owner != user:

@@ -17,20 +17,23 @@ from events import logic as event_logic
 from core import models as core_models
 from cron import models as cron_task
 from production import logic, models, forms
-from security.decorators import (editor_user_required,
-                                 production_user_or_editor_required,
-                                 article_production_user_required,
-                                 article_stage_production_required,
-                                 has_journal,
-                                 typesetter_or_editor_required,
-                                 typesetter_user_required,
-                                 typesetting_user_or_production_user_or_editor_required)
+from security.decorators import (
+    editor_user_required,
+    production_user_or_editor_required,
+    article_production_user_required,
+    article_stage_production_required,
+    has_journal,
+    typesetter_or_editor_required,
+    typesetter_user_required,
+    typesetting_user_or_production_user_or_editor_required,
+    production_manager_roles
+)
 from submission import models as submission_models
 from utils import setting_handler
 from journal.views import article_figure
 
 
-@production_user_or_editor_required
+@production_manager_roles
 def production_list(request):
     """
     Diplays a list of new, assigned and the user's production assignments.

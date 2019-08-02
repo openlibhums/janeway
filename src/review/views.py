@@ -20,11 +20,13 @@ from django.views.decorators.http import require_POST
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
-from security.decorators import editor_user_required, reviewer_user_required, \
-    reviewer_user_for_assignment_required,  article_edit_user_required, \
-    file_user_required, article_decision_not_made, article_author_required, \
-    editor_is_not_author, senior_editor_user_required, \
+from security.decorators import (
+    editor_user_required, reviewer_user_required,
+    reviewer_user_for_assignment_required,
+    file_user_required, article_decision_not_made, article_author_required,
+    editor_is_not_author, senior_editor_user_required,
     section_editor_draft_decisions, article_stage_review_required
+)
 from submission import models as submission_models
 from utils import models as util_models, ithenticate
 
@@ -77,7 +79,7 @@ def unassigned(request):
     return render(request, template, context)
 
 
-@senior_editor_user_required
+@editor_user_required
 def unassigned_article(request, article_id):
     """
     Displays metadata of an individual article, can send details to Crosscheck for reporting.
@@ -98,18 +100,29 @@ def unassigned_article(request, article_id):
             article.ithenticate_id = id
             article.save()
         except AssertionError:
-            messages.add_message(request,
-                                 messages.ERROR,
-                                 'Error returned by iThenticate. Check login details and API status.')
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Error returned by iThenticate. '
+                'Check login details and API status.',
+            )
 
-        return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'review_unassigned_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
-    current_editors = [assignment.editor.pk for assignment in models.EditorAssignment.objects.filter(article=article)]
-    editors = core_models.AccountRole.objects.filter(role__slug='editor',
-                                                     journal=request.journal).exclude(user__id__in=current_editors)
-    section_editors = core_models.AccountRole.objects.filter(role__slug='section-editor',
-                                                             journal=request.journal
-                                                             ).exclude(user__id__in=current_editors)
+    current_editors = [assignment.editor.pk for assignment in
+                       models.EditorAssignment.objects.filter(article=article)]
+    editors = core_models.AccountRole.objects.filter(
+        role__slug='editor',
+        journal=request.journal).exclude(user__id__in=current_editors)
+    section_editors = core_models.AccountRole.objects.filter(
+        role__slug='section-editor',
+        journal=request.journal
+    ).exclude(user__id__in=current_editors)
 
     template = 'review/unassigned_article.html'
     context = {
@@ -121,7 +134,7 @@ def unassigned_article(request, article_id):
     return render(request, template, context)
 
 
-@senior_editor_user_required
+@editor_user_required
 def view_ithenticate_report(request, article_id):
     """Allows editor to view similarity report."""
     article = get_object_or_404(submission_models.Article, pk=article_id, ithenticate_id__isnull=False)
@@ -1110,7 +1123,7 @@ def view_review(request, article_id, review_id):
 
 
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def edit_review_answer(request, article_id, review_id, answer_id):
     """
     Allows an Editor to tweak an answer given for a peer review question.
@@ -1132,7 +1145,12 @@ def edit_review_answer(request, article_id, review_id, answer_id):
             answer.edited_answer = form.cleaned_data[answer.element.name]
             answer.save()
 
-            return redirect(reverse('review_view_review', kwargs={'article_id': article.pk, 'review_id': review.pk}))
+            return redirect(
+                reverse(
+                    'review_view_review',
+                    kwargs={'article_id': article.pk, 'review_id': review.pk},
+                )
+            )
 
     template = 'review/edit_review_answer.html'
     context = {
@@ -1375,7 +1393,7 @@ def review_decision(request, article_id, decision):
 
 
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def rate_reviewer(request, article_id, review_id):
     """
     Allows an Editor to rate a Reviewer
@@ -1440,7 +1458,7 @@ def author_view_reviews(request, article_id):
 
 @section_editor_draft_decisions
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def request_revisions(request, article_id):
     """
     View allows an Editor to request revisions to an article.
@@ -1477,7 +1495,7 @@ def request_revisions(request, article_id):
 
 @section_editor_draft_decisions
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def request_revisions_notification(request, article_id, revision_id):
     """
     View allows an Editor to notify an Author of a Revision request
@@ -1518,7 +1536,7 @@ def request_revisions_notification(request, article_id, revision_id):
 
 
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def edit_revision_request(request, article_id, revision_id):
     """
     View allows an Editor to edit an existing Revision
@@ -1807,7 +1825,7 @@ def review_warning(request, article_id):
     return render(request, template, context)
 
 
-@article_edit_user_required
+@editor_user_required
 @file_user_required
 def editor_article_file(request, article_id, file_id):
     """ Serves an article file.
@@ -1852,7 +1870,7 @@ def review_download_all_files(request, assignment_id):
 
 
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def draft_decision(request, article_id):
     """
     Allows a section editor to draft a decision for an editor.
@@ -1925,7 +1943,7 @@ def manage_draft(request, article_id, draft_id):
 
 
 @editor_is_not_author
-@article_edit_user_required
+@editor_user_required
 def edit_draft_decision(request, article_id, draft_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)

@@ -711,7 +711,7 @@ def article_figure(request, article_id, galley_id, file_name):
     return files.serve_file(request, figure, figure_article)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def publish(request):
     """
     Displays a list of articles in pre publication for the current journal
@@ -729,7 +729,7 @@ def publish(request):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def publish_article(request, article_id):
     """
     View allows user to set an article for publication
@@ -841,7 +841,7 @@ def publish_article(request, article_id):
 
 
 @require_POST
-@production_user_or_editor_required
+@editor_user_required
 def publish_article_check(request, article_id):
     """
     A POST only view that updates checklist items on the prepublication page.

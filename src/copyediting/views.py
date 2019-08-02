@@ -14,12 +14,16 @@ from django.utils import timezone
 from copyediting import models, logic, forms
 from core import models as core_models, files
 from events import logic as event_logic
-from security.decorators import production_user_or_editor_required, copyeditor_user_required, \
-    copyeditor_for_copyedit_required, article_author_required
+from security.decorators import (
+    production_user_or_editor_required, copyeditor_user_required,
+    copyeditor_for_copyedit_required, article_author_required,
+    editor_user_required, senior_editor_user_required
+)
+
 from submission import models as submission_models
 
 
-@production_user_or_editor_required
+@senior_editor_user_required
 def copyediting(request):
     """
     View shows the user a list of articles in Copyediting
@@ -38,7 +42,7 @@ def copyediting(request):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def article_copyediting(request, article_id):
     """
     View allows Editor to view and assign copyeditors and author reviews of articles.
@@ -81,7 +85,7 @@ def article_copyediting(request, article_id):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def add_copyeditor_assignment(request, article_id):
     """
     Allows a production or editor user to add a new copyeditingassignment.
@@ -132,7 +136,7 @@ def add_copyeditor_assignment(request, article_id):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def notify_copyeditor_assignment(request, article_id, copyedit_id):
     """
     Allows a production or editor user to send an email to a newly assigned copyeditor.
@@ -170,7 +174,7 @@ def notify_copyeditor_assignment(request, article_id, copyedit_id):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def edit_assignment(request, article_id, copyedit_id):
     """
     Allows a production or editor user to make changes to an existing CopyeditAssignment
@@ -417,7 +421,7 @@ def copyeditor_file(request, copyedit_id, file_id):
     return files.serve_file(request, file_object, article_object)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def editor_review(request, article_id, copyedit_id):
     """
     Allows Editor to review a copyedit.
@@ -471,7 +475,7 @@ def editor_review(request, article_id, copyedit_id):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def request_author_copyedit(request, article_id, copyedit_id,
                             author_review_id):
     """
