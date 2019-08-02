@@ -16,10 +16,11 @@
     {% user_has_role request 'editor' as user_is_editor %}
     {% is_production as production %}
     {% is_editor as editor %}
+    {% is_section_editor as section_editor %}
     <div class="row expanded column">
         <div class="kanban">
             <div class="inner">
-                {% if editor %}
+                {% if editor or section_editor %}
                     <div class="box">
                         <div class="title-area">
                             <h2>Awaiting Assignment</h2>

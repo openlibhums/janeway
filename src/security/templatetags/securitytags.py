@@ -21,6 +21,14 @@ def is_editor(context):
 
 
 @register.simple_tag(takes_context=True)
+def is_section_editor(context):
+    request = context['request']
+    if request.user.is_anonymous():
+        return False
+    return request.user.is_section_editor(request)
+
+
+@register.simple_tag(takes_context=True)
 def is_production(context):
     request = context['request']
     return request.user.is_production(request)

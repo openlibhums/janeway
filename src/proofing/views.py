@@ -14,9 +14,11 @@ from django.http import HttpResponse
 from django.db.models import Q
 
 from proofing import models as proofing_models
-from security.decorators import proofing_manager_or_editor_required, proofing_manager_for_article_required, \
-    proofreader_or_typesetter_required, proofreader_for_article_required, \
-    typesetter_for_corrections_required
+from security.decorators import (
+    proofing_manager_or_editor_required, proofing_manager_for_article_required,
+    proofreader_or_typesetter_required, proofreader_for_article_required,
+    typesetter_for_corrections_required, proofing_manager_roles,
+)
 from submission import models as submission_models
 from core import models as core_models, files
 from proofing import models, logic, forms
@@ -25,7 +27,7 @@ from journal import models as journal_models
 from journal.views import article_figure
 
 
-@proofing_manager_or_editor_required
+@proofing_manager_roles
 def proofing_list(request):
     """
     Displays lists of articles and proofing assignments
