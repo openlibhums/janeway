@@ -1,0 +1,19 @@
+[
+  {
+    "model": "journal.issuetype",
+    "pk": 1,
+    "fields": {
+      "code": "issue",
+      "pretty_name": "Issue"
+    }
+  },
+  {
+    "model": "journal.issuetype",
+    "pk": 2,
+    "fields": {
+      "journal": 1,
+      "code": "collection",
+      "pretty_name": "Collection"
+    }
+  }
+]

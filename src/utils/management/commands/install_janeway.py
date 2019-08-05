@@ -8,7 +8,7 @@ from django.utils import translation
 
 from press import models as press_models
 from journal import models as journal_models
-from utils.install import update_settings, update_license
+from utils.install import update_settings, update_license, update_issue_types
 from submission import models as submission_models
 
 ROLES_RELATIVE_PATH = 'utils/install/roles.json'
@@ -61,6 +61,9 @@ class Command(BaseCommand):
             print("[okay]")
             print("Installing license fixtures... ", end="")
             update_license(journal, management_command=False)
+            print("[okay]")
+            print("Installing issue types fixtures... ", end="")
+            update_issue_types(journal, management_command=False)
             print("[okay]")
             print("Installing role fixtures")
             roles_path = os.path.join(settings.BASE_DIR, ROLES_RELATIVE_PATH)
