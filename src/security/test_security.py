@@ -3269,6 +3269,34 @@ class TestSecurity(TestCase):
                 "proofing_manager_roles wrongly blocks a user.",
             )
 
+    def test_production_user_or_editor_required_section_editor(self):
+        func = Mock()
+        decorated_func = decorators.production_user_or_editor_required(func)
+        kwargs = {
+            'article_id': self.article_in_production.pk,
+        }
+
+        success_request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        decorated_func(success_request, **kwargs)
+        self.assertTrue(
+            func.called,
+            "production_user_or_editor_required wrongly blocks a SE.",
+        )
+
+        fail_request = self.prepare_request_with_user(
+            self.second_section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
     # General helper functions
 
     @staticmethod
@@ -3392,6 +3420,14 @@ class TestSecurity(TestCase):
                                                journal=self.journal_one)
         self.section_editor.is_active = True
         self.section_editor.save()
+
+        self.second_section_editor = self.create_user(
+            "second_section_editor@martineve.com",
+            ['section-editor'],
+            journal=self.journal_one,
+        )
+        self.second_section_editor.is_active = True
+        self.second_section_editor.save()
 
         self.second_reviewer = self.create_user("second_reviewer@martineve.com", ['reviewer'],
                                                 journal=self.journal_one)
@@ -3542,6 +3578,13 @@ class TestSecurity(TestCase):
                                                                         editor_type='section-editor',
                                                                         notified=True)
         self.section_editor_assignment.save()
+
+        self.production_section_editor_assignment = review_models.EditorAssignment(
+            article=self.article_in_production,
+            editor=self.section_editor,
+            editor_type='section-editor',
+            notified=True)
+        self.production_section_editor_assignment.save()
 
         self.article_editor_copyediting = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                     abstract="An abstract",
