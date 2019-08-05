@@ -3205,6 +3205,70 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
+    def test_production_manager_roles(self):
+        func = Mock()
+        decorated_func = decorators.production_manager_roles(func)
+        kwargs = {}
+
+        fail_request = self.prepare_request_with_user(
+            self.proofing_manager,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
+        users_with_permission = [
+            self.editor,
+            self.section_editor,
+            self.production,
+        ]
+
+        for user in users_with_permission:
+            success_request = self.prepare_request_with_user(
+                user,
+                self.journal_one,
+                self.press,
+            )
+            decorated_func(success_request, **kwargs)
+            self.assertTrue(
+                func.called,
+                "production_manager_roles wrongly blocks a user.",
+            )
+
+    def test_proofing_manager_roles(self):
+        func = Mock()
+        decorated_func = decorators.proofing_manager_roles(func)
+        kwargs = {}
+
+        fail_request = self.prepare_request_with_user(
+            self.production,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
+        users_with_permission = [
+            self.editor,
+            self.section_editor,
+            self.proofing_manager,
+        ]
+
+        for user in users_with_permission:
+            success_request = self.prepare_request_with_user(
+                user,
+                self.journal_one,
+                self.press,
+            )
+            decorated_func(success_request, **kwargs)
+            self.assertTrue(
+                func.called,
+                "proofing_manager_roles wrongly blocks a user.",
+            )
+
     # General helper functions
 
     @staticmethod
@@ -3608,7 +3672,8 @@ class TestSecurity(TestCase):
     @staticmethod
     def prepare_request_with_user(user, journal, press=None):
         """
-        Build a basic request dummy object with the journal set to journal and the user having editor permissions.
+        Build a basic request dummy object with the journal set to journal
+        and the user having editor permissions.
         :param user: the user to use
         :param journal: the journal to use
         :return: an object with user and journal properties
