@@ -133,6 +133,35 @@ def update_license(journal_object, management_command=False):
                 print('Parsed licence {0}'.format(item['fields'].get('short_name')))
 
 
+def update_issue_types(journal_object, management_command=False):
+    """ Updates or creates the default issue types for journal
+
+    :param journal_object: the journal object to update
+    :param management_command: whether or not to print output to the console
+    :return: None
+    """
+    with codecs.open(
+        os.path.join(settings.BASE_DIR, 'utils/install/issue_type.json'),
+        encoding='utf-8'
+    ) as json_data:
+        default_data = json.load(json_data)
+
+        for item in default_data:
+            default_dict = {
+                'pretty_name': item['fields'].get('pretty_name'),
+                'custom_plural': item['fields'].get('custom_plural'),
+            }
+            issue_type, created = models.IssueType.objects\
+            .get_or_create(
+                journal=journal_object,
+                short_name=item['fields']['code'],
+                defaults=default_dict
+            )
+
+            if management_command:
+                print('Parsed {0}'.format(issue_type))
+
+
 def journal(name, code, base_url, delete):
     """ Installs a journal into the system.
 
