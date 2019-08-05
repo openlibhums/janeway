@@ -15,6 +15,11 @@ class IssueAdmin(admin.ModelAdmin):
     filter_horizontal = ('articles',)
 
 
+class IssueTypeAdmin(admin.ModelAdmin):
+    list_filter = ('journal',)
+    search_fields = ('pretty_name', 'code')
+
+
 class JournalAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -43,6 +48,7 @@ class ArticleOrderingAdmin(admin.ModelAdmin):
 
 admin_list = [
     (models.Issue, IssueAdmin),
+    (models.IssueType, IssueTypeAdmin),
     (models.Journal, JournalAdmin),
     (models.PresetPublicationCheckItem,),
     (models.PrePublicationChecklistItem,),
