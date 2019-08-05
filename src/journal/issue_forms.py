@@ -9,6 +9,13 @@ from journal import models
 
 
 class NewIssue(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        journal = kwargs.pop("journal")
+        super().__init__(*args, **kwargs)
+        self.fields["issue_type"].queryset = models.IssueType.objects.filter(
+            journal=journal)
+
     class Meta:
         model = models.Issue
         fields = ('issue_title', 'volume', 'issue', 'date', 'issue_description', 'cover_image', 'large_image',

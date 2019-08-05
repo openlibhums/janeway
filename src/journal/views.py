@@ -753,7 +753,7 @@ def publish_article(request, article_id):
 
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues()
-    new_issue_form = issue_forms.NewIssue()
+    new_issue_form = issue_forms.NewIssue(journal=article.journal)
     modal = request.GET.get('m', None)
     pubdate_errors = []
 
@@ -896,11 +896,11 @@ def manage_issues(request, issue_id=None, event=None):
     """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
-    issue, modal, form, galley_form = None, None, issue_forms.NewIssue(), None
+    issue, modal, form, galley_form = None, None, issue_forms.NewIssue(journal=request.journal), None
 
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
-        form = issue_forms.NewIssue(instance=issue)
+        form = issue_forms.NewIssue(instance=issue, journal=issue.journal)
         galley_form = issue_forms.IssueGalleyForm()
         if event == 'edit':
             modal = 'issue'
@@ -929,9 +929,9 @@ def manage_issues(request, issue_id=None, event=None):
             return redirect(reverse('manage_issues'))
 
         if issue:
-            form = issue_forms.NewIssue(request.POST, request.FILES, instance=issue)
+            form = issue_forms.NewIssue(request.POST, request.FILES, instance=issue, journal=request.journal)
         else:
-            form = issue_forms.NewIssue(request.POST, request.FILES)
+            form = issue_forms.NewIssue(request.POST, request.FILES, journal=request.journal)
 
         if form.is_valid():
             save_issue = form.save(commit=False)

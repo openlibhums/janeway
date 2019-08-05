@@ -128,7 +128,7 @@ def get_doi_data(article):
 
 
 def handle_new_issue(request):
-    form = issue_forms.NewIssue(request.POST)
+    form = issue_forms.NewIssue(request.POST, journal=request.journal)
 
     if form.is_valid():
         new_issue = form.save(commit=False)
