@@ -3297,6 +3297,26 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(fail_request, **kwargs)
 
+    def test_section_editor_production_no_or_bad_article_id(self):
+        func = Mock()
+        decorated_func = decorators.production_user_or_editor_required(func)
+        no_kwargs = {}
+        bad_kwargs = {
+            'article_id': self.article_unassigned.pk,
+        }
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **no_kwargs)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **bad_kwargs)
+
     # General helper functions
 
     @staticmethod
