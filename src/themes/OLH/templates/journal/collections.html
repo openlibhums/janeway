@@ -3,16 +3,15 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block page_title %}{% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endblock %}
-
-{% block title %}{% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endblock %}
+{% block page_title %}{% trans issue_type.plural_name  %}{% endblock %}
+{% block title %}{% trans issue_type.plural_name  %}{% endblock %}
 
 {% block body %}
 
     <section id="content">
         <div class="row">
             <div class="large-12 columns">
-                <h1>{% trans 'Collections' %}</h1>
+                <h1>{% trans issue_type.plural_name %}</h1>
             </div>
             <div class="row" data-equalizer data-equalize-on="medium">
                 {% for collection in collections %}

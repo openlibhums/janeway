@@ -17,7 +17,7 @@
         {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
     <ul class="collection">
         {% for list_issue in issues %}
-            {% if list_issue.issue_type == 'Issue' %}
+            {% if list_issue.issue_type.code == 'issue' %}
                 <a class="collection-item {% if list_issue == issue %}active{% endif %}"
                    href="{% url 'journal_issue' list_issue.id %}">{{ list_issue.display_title }}</a>
             {% else %}
