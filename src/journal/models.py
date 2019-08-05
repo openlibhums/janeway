@@ -670,6 +670,9 @@ class IssueType(models.Model):
     def plural_name(self):
         return self.custom_plural_name or "%ss" % self.pretty_name
 
+    class Meta:
+        unique_together = ('journal', 'code')
+
 
 class IssueGalley(models.Model):
     FILES_PATH = 'issues'
