@@ -346,8 +346,8 @@ def production_user_or_editor_required(func):
             )
             if request.user in typeset_task.assignment.article.section_editors():
                 return func(request, *args, **kwargs)
-        else:
-            deny_access(request)
+
+        deny_access(request)
 
     return wrapper
 
