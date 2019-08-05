@@ -167,7 +167,7 @@ def issues(request):
     """
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
-        issue_type='Issue',
+        issue_type__code='issue',
         date__lte=timezone.now(),
     )
     template = 'journal/issues.html'
@@ -234,17 +234,24 @@ def issue(request, issue_id, show_sidebar=True):
 
 
 @has_journal
-def collections(request):
+def collections(request, issue_type_code="collection"):
     """
     Displays a list of collection Issues.
     :param request: request object
     :return: a rendered template of the collections
     """
-    collections = models.Issue.objects.filter(journal=request.journal, issue_type='Collection')
+    issue_type = get_object_or_404(
+        models.IssueType,
+        journal=request.journal,
+        code=issue_type_code,
+    )
+    collections = models.Issue.objects.filter(
+        journal=request.journal, issue_type=issue_type)
 
     template = 'journal/collections.html'
     context = {
         'collections': collections,
+        'issue_type': issue_type,
     }
 
     return render(request, template, context)

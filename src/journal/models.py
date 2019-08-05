@@ -660,15 +660,15 @@ class IssueType(models.Model):
     journal = models.ForeignKey(Journal)
     code = models.CharField(max_length=255)
 
-    pretty_name=models.CharField(max_length=255)
-    custom_plural=models.CharField(max_length=255, blank=True, null=True)
+    pretty_name = models.CharField(max_length=255)
+    custom_plural = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return "Issue Type: {self.code}".format(self=self)
 
     @property
     def plural_name(self):
-        return self.custom_plural_name or "%ss" % self.pretty_name
+        return self.custom_plural or "%ss" % self.pretty_name
 
     class Meta:
         unique_together = ('journal', 'code')
