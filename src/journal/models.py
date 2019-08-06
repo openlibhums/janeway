@@ -668,7 +668,7 @@ class IssueType(models.Model):
 
     @property
     def plural_name(self):
-        return self.custom_plural or "%ss" % self.pretty_name
+        return self.custom_plural or "{self.pretty_name}s".format(self)
 
     class Meta:
         unique_together = ('journal', 'code')
