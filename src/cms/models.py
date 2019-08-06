@@ -58,3 +58,35 @@ class NavigationItem(models.Model):
     def url(self):
         #alias for backwards compatibility with templates
         return self.build_url_for_request
+
+    @classmethod
+    def toggle_collection_nav(cls, issue_type):
+        """Toggles a nav item for the given issue_type
+        :param `journal.models.IssueType` issue_type: The issue type to toggle
+        """
+
+        defaults = {
+            "link_name": issue_type.pretty_name,
+            "link": "/collections/%s" % (issue_type.code),
+        }
+        content_type = ContentType.objects.get_for_model(issue_type)
+
+        nav, created = cls.objects.get_or_create(
+            content_type=content_type,
+            object_id=issue_type.pk,
+            defaults=defaults,
+        )
+        if not created:
+            nav.delete()
+
+    @classmethod
+    def get_content_nav_for_journal(cls, journal):
+        for issue_type in journal.issuetype_set.all():
+            try:
+                content_type = ContentType.objects.get_for_model(issue_type)
+                yield issue_type, cls.objects.get(
+                    content_type=content_type,
+                    object_id=issue_type.pk,
+                )
+            except cls.DoesNotExist:
+                yield issue_type, None

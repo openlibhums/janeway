@@ -11,6 +11,7 @@ from django.urls import reverse
 from security.decorators import editor_user_required
 from cms import models, forms
 from core import files
+from journal import models as journal_models
 
 
 @editor_user_required
@@ -24,6 +25,7 @@ def index(request):
     top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
+    collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
 
     if request.POST and 'delete' in request.POST:
         page_id = request.POST.get('delete')
@@ -52,6 +54,7 @@ def index(request):
         'journal': request.journal,
         'pages': pages,
         'top_nav_items': top_nav_items,
+        'collection_nav_items': collection_nav_items,
     }
 
     return render(request, template, context)
@@ -141,6 +144,7 @@ def nav(request, nav_id=None):
     top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
+    collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
 
     if request.POST.get('nav'):
         attr = request.POST.get('nav')
@@ -153,6 +157,13 @@ def nav(request, nav_id=None):
                 models.NavigationItem,
                 pk=request.POST["delete_nav"])
         nav_to_delete.delete()
+    elif "toggle_collection_nav" in request.POST:
+        issue_type = get_object_or_404(
+            journal_models.IssueType,
+            journal=request.journal,
+            pk=request.POST["toggle_collection_nav"],
+        )
+        models.NavigationItem.toggle_collection_nav(issue_type)
 
     if request.POST:
         if nav_to_edit:
@@ -173,6 +184,7 @@ def nav(request, nav_id=None):
         'nav_item_to_edit': nav_to_edit,
         'form': form,
         'top_nav_items': top_nav_items,
+        'collection_nav_items': collection_nav_items,
     }
 
     return render(request, template, context)
