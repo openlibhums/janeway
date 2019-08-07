@@ -62,7 +62,10 @@ def get_user_from_post(request, article=False, typesetter=False):
             return user
 
         # return None if we aren't checking for typesetting and the user isn't a proofreder
-        elif not typesetter and not user.is_proofreader(request):
+        elif not typesetter and not (
+            user.is_proofreader(request)
+            or user.is_editor(request)
+        ):
             return None
 
         # return None if we are checking for a typesetter and the user isn't a typesetter
