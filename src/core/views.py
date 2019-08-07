@@ -21,6 +21,7 @@ from django.http import HttpResponse
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -344,10 +345,21 @@ def edit_profile(request):
             email_address = request.POST.get('email_address')
             try:
                 validate_email(email_address)
-                logic.handle_email_change(request, email_address)
-                return redirect(reverse('website_index'))
+                try:
+                    logic.handle_email_change(request, email_address)
+                    return redirect(reverse('website_index'))
+                except IntegrityError:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        'An account with that email address already exists.',
+                    )
             except ValidationError:
-                messages.add_message(request, messages.WARNING, 'Email address is not valid.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Email address is not valid.',
+                )
 
         elif 'change_password' in request.POST:
             old_password = request.POST.get('current_password')
