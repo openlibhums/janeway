@@ -308,18 +308,29 @@ def orcid_registration(request, token):
 
 def activate_account(request, token):
     """
-    Activates a user account if an Account object with the matching token is found and is not already active.
+    Activates a user account if an Account object with the
+    matching token is found and is not already active.
     :param request: HttpRequest object
     :param token: string, Account.confirmation_token
     :return: HttpResponse object
     """
     try:
         account = models.Account.objects.get(confirmation_code=token, is_active=False)
+    except models.Account.DoesNotExist:
+        account = None
+
+    if account and request.POST:
         account.is_active = True
         account.confirmation_code = None
         account.save()
-    except models.Account.DoesNotExist:
-        account = None
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Account activated',
+        )
+
+        return redirect(reverse('core_login'))
 
     template = 'core/accounts/activate_account.html'
     context = {

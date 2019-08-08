@@ -20,8 +20,11 @@
 
             {% if account %}
             <h4>{% trans "Activate Account" %}</h4>
-            <p>{% trans "Your account is now active. You can now" %} <a href="{% url 'core_login' %}">{% trans "login" %}</a></p>
-            <p><small>{% trans "Please note, you will not be able to refresh this page." %}</small></p>
+            <form method="POST">
+                {% csrf_token %}
+                <p>{% trans "You can complete the activation process by clicking the button below." %}</p>
+                <button class="button" name="activate">Activate Account</button>
+            </form>
             {% else %}
             <h4>{% trans "Error" %}</h4>
             <p>

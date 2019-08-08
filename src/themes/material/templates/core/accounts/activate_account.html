@@ -11,11 +11,14 @@
             <div class="card">
                 <div class="card-content">
                     {% if account %}
-                        <span class="card-title">Account Active</span>
-                        <p>{% trans "Your account is now active. You can now" %} <a href="{% url 'core_login' %}">{% trans "login" %}</a></p>
-                        <p>
-                            <small>{% trans "Please note, you will not be able to refresh this page." %}</small>
-                        </p>
+                        <span class="card-title">Activate Account</span>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <p>{% trans "You can complete the activation process by clicking the button below." %}</p>
+                            <button class="btn btn-primary" name="activate">Activate
+                                Account
+                            </button>
+                        </form>
                     {% else %}
                         <span class="card-title">{% trans "Error" %}</span>
                         <p>
