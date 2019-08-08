@@ -11,7 +11,7 @@
         {% elif type == "assigned" %}
             <p>Production in progress.</p>
         {% endif %}
-        {% if request.user in article.editor_list or request.user in article.section_editors %}
+        {% if request.user in article.editor_list or request.user in article.section_editors or request.user.is_staff %}
         <div class="button-group">
             {% if type == "assignment" %}
                 <a class="button tiny" data-open="modal{{ article.pk }}">Assign production manager</a>

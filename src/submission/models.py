@@ -343,6 +343,11 @@ class Article(models.Model):
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')
     data_figure_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='data_figure_files')
     supplementary_files = models.ManyToManyField('core.SupplementaryFile', null=True, blank=True, related_name='supp')
+    source_files = models.ManyToManyField(
+        'core.File',
+        blank=True,
+        related_name='source_files',
+    )
 
     # Galley
     render_galley = models.ForeignKey('core.Galley', related_name='render_galley', blank=True, null=True,
