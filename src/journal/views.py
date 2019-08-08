@@ -492,15 +492,32 @@ def replace_article_file(request, identifier_type, identifier, file_id):
 
     if request.POST:
 
-        if 'replacement' in request.POST:
+        if 'replacement' in request.POST and request.FILES:
             uploaded_file = request.FILES.get('replacement-file')
             files.overwrite_file(
                     uploaded_file,
                     file_to_replace,
                     ('articles', article_to_replace.pk),
             )
+        elif not request.FILES and 'back' not in request.POST:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No file uploaded',
+            )
 
-        return redirect(request.GET.get('return', 'core_dashboard'))
+            url = '{url}?return={get}'.format(
+                url=reverse('article_file_replace',
+                            kwargs={'identifier_type': 'id',
+                                    'identifier': article_to_replace.pk,
+                                    'file_id': file_to_replace.pk}
+                            ),
+                get=request.GET.get('return', ''),
+            )
+
+            return redirect(url)
+
+        return redirect(request.GET.get('return', reverse('core_dashboard')))
 
     template = "journal/replace_file.html"
     context = {
