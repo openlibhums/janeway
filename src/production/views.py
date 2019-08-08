@@ -342,6 +342,12 @@ def production_article(request, article_id):
                     request,
                     uploaded_file,
                 )
+        if not request.FILES:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No files uploaded.'
+            )
 
         return redirect(
             reverse(
@@ -752,6 +758,13 @@ def do_typeset_task(request, typeset_id):
 
         if new_galley:
             typeset_task.galleys_loaded.add(new_galley.file)
+
+        if not request.FILES:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No files uploaded.'
+            )
 
         return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_task.pk}))
 
