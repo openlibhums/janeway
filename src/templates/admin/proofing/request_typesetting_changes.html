@@ -34,6 +34,14 @@
                     <div class="large-8 columns">
                         {{ form.task|foundation }}
                         {{ form.due|foundation }}
+                        {{ form.include_comments|foundation }}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <h4>Comments to be Included</h4>
+                                {{ proofing_task.review_comments|safe }}
+                                <br /><br />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
