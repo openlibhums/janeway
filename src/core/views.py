@@ -473,7 +473,7 @@ def dashboard(request):
         'assigned_articles_for_user_review_completed_count': review_models.ReviewAssignment.objects.filter(
             Q(is_complete=True) &
             Q(reviewer=request.user) &
-            Q(date_declined__isnull=False), article__journal=request.journal).count(),
+            Q(date_declined__isnull=True), article__journal=request.journal).count(),
 
         'copyeditor_requests': copyedit_models.CopyeditAssignment.objects.filter(
             Q(copyeditor=request.user) &
