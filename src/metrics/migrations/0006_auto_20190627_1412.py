@@ -14,15 +14,12 @@ def process_accesses(apps, schema_editor):
     accesses = ArticleAccess.objects.all()
 
     for access in accesses:
-        print(access.pk)
         check = re.match(
             r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$",
             access.identifier,
         )
 
         if check:
-            print('ip match')
-
             try:
                 code = get_iso_country_code(access.identifier)
                 country = Country.objects.get(code=code)
@@ -31,8 +28,6 @@ def process_accesses(apps, schema_editor):
 
             access.country = country
             access.save()
-
-            print(access.country)
 
 
 class Migration(migrations.Migration):
