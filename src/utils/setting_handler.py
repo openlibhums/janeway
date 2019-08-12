@@ -141,10 +141,10 @@ def save_setting(setting_group, setting_name, journal, value):
             journal=journal
     )
 
-    if created:
-        # Ensure that a value exists for settings.LANGUAGE_CODE
-        setting_value.value = ""
-        setting_value.save()
+        if created:
+            # Ensure that a value exists for settings.LANGUAGE_CODE
+            setting_value.value = ""
+            setting_value.save()
 
     if (
         setting_value.setting.is_translatable
