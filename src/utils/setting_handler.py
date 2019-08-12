@@ -197,6 +197,8 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
     try:
         try:
             setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
+            lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
+            return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
         except models.PluginSetting.DoesNotExist:
             # Some Plugins rely on this function to install themselves
             logger.warning(
@@ -212,12 +214,14 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
                     defaults={'pretty_name': pretty, 'types': types}
                 )
 
-            if created:
-                save_plugin_setting(plugin, setting_name, ' ', journal)
+                if created:
+                    save_plugin_setting(plugin, setting_name, ' ', journal)
+                lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
+                return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
+            else:
+                raise
 
-        lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
 
-        return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
     except Exception as e:
         logger.critical(
                 "Failed to load plugin setting for context:\n"
