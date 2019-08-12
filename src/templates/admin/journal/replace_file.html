@@ -28,7 +28,7 @@
                     {% csrf_token %}
                     <h4></h4>
                     <input name="replacement-file" type="file" class="filestyle" data-placeholder="No file"
-                           data-buttonName="btn-primary">
+                           data-buttonName="btn-primary" required>
                     <br/>
                     <button type="submit" class="button success" name="replacement"><i class="fa fa-upload">&nbsp;</i>Upload
                     </button>
@@ -54,7 +54,7 @@
         <div class="large-12 columns">
             <form method="POST">
                 {% csrf_token %}
-                <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-arrow-left">
+                <button class="button success pull-right" type="submit" name="back"><i class="fa fa-arrow-left">
                     &nbsp;</i>Back
                 </button>
             </form>

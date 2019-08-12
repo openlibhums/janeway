@@ -35,6 +35,22 @@
         </div>
     </div>
 
+    <div id="select_issuebox" class="box {% if article.fixedpubcheckitems.select_issue %}success{% else %}warning{% endif %} checklist">
+        <div class="row">
+            <div class="large-3 columns">
+                <i class="fa fa-folder-open-o pub-icon">&nbsp;</i>
+            </div>
+            <div class="large-9 columns">
+                <h2>Select an Issue</h2>
+                <p>Only select an issue if you are doing issue based publishing.</p>
+                <div class="button-group">
+                    <input onclick="submit_check_item('fixed', 'select_issue', this)" type="checkbox" id="select_issue" {% if article.fixedpubcheckitems.select_issue %}checked="checked"{% endif %}><label class="toggle" for="select_issue">{% if article.fixedpubcheckitems.select_issue %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    <a href="#" data-open="issue" class="button small success pub-button">Set Issue</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="verify_doibox" class="box {% if article.fixedpubcheckitems.verify_doi %}success{% else %}warning{% endif %} checklist">
         <div class="row">
             <div class="large-3 columns">
@@ -62,22 +78,6 @@
                 <div class="button-group">
                     <input onclick="submit_check_item('fixed', 'verify_doi', this)" type="checkbox" id="select_render_galley" {% if article.fixedpubcheckitems.select_render_galley %}checked="checked"{% endif %}><label class="toggle" for="select_render_galley">{% if article.fixedpubcheckitems.select_render_galley %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
                     <a href="#" data-open="galley" class="button small success pub-button">Select Galley</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="select_issuebox" class="box {% if article.fixedpubcheckitems.select_issue %}success{% else %}warning{% endif %} checklist">
-        <div class="row">
-            <div class="large-3 columns">
-                <i class="fa fa-folder-open-o pub-icon">&nbsp;</i>
-            </div>
-            <div class="large-9 columns">
-                <h2>Select an Issue</h2>
-                <p>Only select an issue if you are doing issue based publishing.</p>
-                <div class="button-group">
-                    <input onclick="submit_check_item('fixed', 'select_issue', this)" type="checkbox" id="select_issue" {% if article.fixedpubcheckitems.select_issue %}checked="checked"{% endif %}><label class="toggle" for="select_issue">{% if article.fixedpubcheckitems.select_issue %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
-                    <a href="#" data-open="issue" class="button small success pub-button">Set Issue</a>
                 </div>
             </div>
         </div>
@@ -125,7 +125,11 @@
                 <p>You can notify the Author(s) of publication so they can publicise their work. <i>NB. This requires that the publication date is already set.</i></p>
                 <div class="button-group">
                     <input onclick="submit_check_item('fixed', 'notify_the_author', this)" type="checkbox" id="notify_the_author" {% if article.fixedpubcheckitems.notify_the_author %}checked="checked"{% endif %}><label class="toggle" for="notify_the_author">{% if article.fixedpubcheckitems.notify_the_author %}<s>Mark as Complete</s>{% else %}Mark as Complete{% endif %}</label>
+                    {% if article.date_published %}
                     <a href="#" data-open="author" class="button small success pub-button">Notify Author</a>
+                    {% else %}
+                        <button class="button small disabled pub-button">Set a Publication Date to Enable</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
