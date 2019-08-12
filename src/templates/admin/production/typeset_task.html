@@ -126,12 +126,63 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="8">No galleys have been uploaded.</td>
+                        <td colspan="11">No galleys have been uploaded.</td>
                     </tr>
                 {% endfor %}
             </table>
             <div class="float-right"><a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">
                 &nbsp;</i>Upload a new galley</a>
+            </div>
+            <br/>
+        </div>
+    </div>
+
+       <div class="box">
+        <div class="title-area">
+            <h2>Source Files</h2>
+        </div>
+        <div class="content">
+
+            <br/>
+            <table class="scroll small">
+                <tr style="text-align: left">
+                    <th width="25%">Filename</th>
+                    <th>Type</th>
+                    <th>Uploaded</th>
+                    <th>Download</th>
+                    <th>Replace</th>
+                    <th>History</th>
+                </tr>
+                {% for file in article.source_files.all %}
+                    {% can_view_file file as can_view_file_flag %}
+                    {% can_edit_file file article as can_edit_file_flag %}
+                    {% can_view_file_history file article as can_view_file_history_flag %}
+                    <tr>
+                        <td>{{ file.original_filename|truncatechars:40 }}</td>
+                        <td>Source File</td>
+                        <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                        <td>{% if can_view_file_flag %}
+                            <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                    class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_edit_file_flag %}
+                            <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
+                        </td>
+                        <td>{% if can_view_file_history_flag %}
+                            <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-history">
+                                &nbsp;</i></a>{% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">No galleys have been uploaded.</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <div class="float-right"><a class="button success" data-open="sourceupload"><i class="fa fa-cloud-upload">
+                &nbsp;</i>Upload a new source file</a>
             </div>
             <br/>
         </div>
@@ -195,6 +246,8 @@
             </form>
         </div>
     </div>
+
+    {% include "elements/production/source_files_upload.html" %}
     </div>
 
     <div class="large-3 columns">

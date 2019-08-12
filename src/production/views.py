@@ -335,6 +335,20 @@ def production_article(request, article_id):
             for uploaded_file in request.FILES.getlist('supp-file'):
                 logic.save_supp_file(article, request, uploaded_file, label)
 
+        if 'source' in request.POST:
+            for uploaded_file in request.FILES.getlist('source-file'):
+                logic.save_source_file(
+                    article,
+                    request,
+                    uploaded_file,
+                )
+        if not request.FILES:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No files uploaded.'
+            )
+
         return redirect(
             reverse(
                 'production_article',
@@ -687,27 +701,70 @@ def do_typeset_task(request, typeset_id):
                 task.completed = timezone.now()
                 task.save()
 
-                kwargs = {'typeset_task': typeset_task, 'request': request}
-                event_logic.Events.raise_event(event_logic.Events.ON_TYPESET_COMPLETE, **kwargs)
+                kwargs = {
+                    'typeset_task': typeset_task,
+                    'request': request,
+                }
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_TYPESET_COMPLETE,
+                    **kwargs,
+                )
 
-                messages.add_message(request, messages.INFO, 'Typeset assignment complete.')
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    'Typeset assignment complete.',
+                )
                 return redirect(reverse('typesetter_requests'))
 
         new_galley = None
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                new_galley = logic.save_galley(article, request, uploaded_file, True, "XML")
+                new_galley = logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                    "XML",
+                )
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
-                new_galley = logic.save_galley(article, request, uploaded_file, True, "PDF")
+                new_galley = logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                    "PDF",
+                )
 
         if 'other' in request.POST:
             for uploaded_file in request.FILES.getlist('other-file'):
-                new_galley = logic.save_galley(article, request, uploaded_file, True, "Other")
+                new_galley = logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                    "Other",
+                )
+
+        if 'source' in request.POST:
+            for uploaded_file in request.FILES.getlist('source-file'):
+                logic.save_source_file(
+                    article,
+                    request,
+                    uploaded_file,
+                )
 
         if new_galley:
             typeset_task.galleys_loaded.add(new_galley.file)
+
+        if not request.FILES:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No files uploaded.'
+            )
 
         return redirect(reverse('do_typeset_task', kwargs={'typeset_id': typeset_task.pk}))
 

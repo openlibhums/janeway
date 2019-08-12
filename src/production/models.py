@@ -37,16 +37,35 @@ class ProductionAssignment(models.Model):
 
 class TypesetTask(models.Model):
     assignment = models.ForeignKey(ProductionAssignment)
-    typesetter = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
+    typesetter = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     accepted = models.DateTimeField(blank=True, null=True)
     due = models.DateField(null=True)
 
-    typeset_task = models.TextField(blank=True, null=True, verbose_name="Typesetting Task")
-    files_for_typesetting = models.ManyToManyField('core.File', related_name='files_for_typesetting')
-    galleys_loaded = models.ManyToManyField('core.File', related_name='galleys_loaded')
-    note_from_typesetter = models.TextField(blank=True, null=True, verbose_name='Note to Editor')
+    typeset_task = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Typesetting Task",
+    )
+    files_for_typesetting = models.ManyToManyField(
+        'core.File',
+        related_name='files_for_typesetting',
+    )
+    galleys_loaded = models.ManyToManyField(
+        'core.File',
+        blank=True,
+        related_name='galleys_loaded',
+    )
+    note_from_typesetter = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Note to Editor',
+    )
     completed = models.DateTimeField(blank=True, null=True)
 
     editor_reviewed = models.BooleanField(default=False)
