@@ -117,3 +117,4 @@ src/auth\.json
 
 src/test\.txt
 venv/**
+.DS_Store
