@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'transform',
     'utils',
     'install',
+    'workflow',
 
     # 3rd Party
     'django_summernote',
