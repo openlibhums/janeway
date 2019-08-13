@@ -55,12 +55,14 @@ def drop_workflow_log_entries(article, stages_to_process):
     :param stages_to_process: A List of stage names
     :return: None
     """
-    del stages_to_process[-1]
+    *stages_to_delete, new_current_stage = stages_to_process
     entries = core_models.WorkflowLog.objects.filter(
         article=article,
-        element__stage__in=stages_to_process,
+        element__stage__in=stages_to_delete,
     )
     entries.delete()
+
+    return stages_to_delete
 
 
 def stages_in_between(from_stage, to_stage, article):
@@ -110,7 +112,7 @@ def move_to_stage(from_stage, to_stage, article):
             # TODO: No stage found, likely a plugin, find it?
 
     article.save()
-    drop_workflow_log_entries(article, stages_to_process)
+    stages_to_delete = drop_workflow_log_entries(article, stages_to_process)
     clear_cache()
 
-    return stages_to_process
+    return stages_to_delete

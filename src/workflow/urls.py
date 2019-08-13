@@ -10,7 +10,6 @@ from workflow import views
 
 
 urlpatterns = [
-    # url(r'^$', views.copyediting, name='copyediting'),
     url(r'^article/(?P<article_id>\d+)/$',
         views.manage_article_workflow,
         name='manage_article_workflow'),
