@@ -16,6 +16,7 @@ from django.conf import settings
 from metrics import models
 from utils import shared
 from utils.function_cache import cache
+from core import models as core_models
 
 
 @cache(300)
@@ -216,7 +217,8 @@ def store_article_access(request, article, access_type, galley_type='view'):
         user_agent = None
 
     ip = shared.get_ip_address(request)
-    country = get_iso_country_code(ip)
+    iso_country_code = get_iso_country_code(ip)
+    country = iso_to_country_object(iso_country_code)
     counter_tracking_id = request.session.get('counter_tracking')
     identifier = counter_tracking_id if counter_tracking_id else ip
 
@@ -276,6 +278,13 @@ def get_view_and_download_totals(articles):
         total_downs += article.metrics.downloads
 
     return total_views, total_downs
+
+
+def iso_to_country_object(code):
+    try:
+        return core_models.Country.objects.get(code=code)
+    except core_models.Country.DoesNotExist:
+        return None
 
 
 def get_iso_country_code(ip):
