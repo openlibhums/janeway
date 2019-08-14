@@ -46,7 +46,7 @@ def hook_registry():
         install()
         return {
             'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.featured.hooks',
+                'module': 'core.homepage_elements.issue.hooks',
                 'function': 'yield_homepage_element_context',
                 'name': PLUGIN_NAME,
             }
