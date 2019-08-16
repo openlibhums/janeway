@@ -16,7 +16,7 @@ from django.db.models import Q
 from proofing import models as proofing_models
 from security.decorators import (
     proofing_manager_or_editor_required, proofing_manager_for_article_required,
-    proofreader_or_typesetter_required, proofreader_for_article_required,
+    typesetter_user_required, proofreader_for_article_required,
     typesetter_for_corrections_required, proofing_manager_roles,
 )
 from submission import models as submission_models
@@ -155,7 +155,7 @@ def proofing_article(request, article_id):
                 proofing_task.galleys_for_proofing.add(*galleys)
                 return redirect(
                     reverse(
-                        'notify_proofreader', 
+                        'notify_proofreader',
                         kwargs={
                             'article_id': article.pk,
                             'proofing_task_id': proofing_task.pk,
@@ -379,38 +379,63 @@ def notify_proofreader(request, article_id, proofing_task_id):
 
 
 @login_required
-def proofing_requests(request, proofing_task_id=None, typeset_task_id=None, decision=None):
+def proofing_requests(request, proofing_task_id=None, decision=None):
     """
     Displays proofing request to proofreaders
     :param request: HttpRequest object
     :param proofing_task_id: ProofingTask PK
-    :param typeset_task_id: TypesetTask PK
     :param decision: string,
     :return: HttpResponse or HttpRedirect
     """
-    if proofing_task_id or typeset_task_id:
+    if proofing_task_id:
 
         if proofing_task_id:
             logic.handle_proof_decision(request, proofing_task_id, decision)
 
-        if typeset_task_id:
-            logic.handle_typeset_decision(request, typeset_task_id, decision)
-
         return redirect(reverse('proofing_requests'))
 
-    new, active, completed, new_typesetting, active_typesetting, completed_typesetting = logic.get_tasks(request)
+    new, active, completed = logic.get_tasks(request)
 
     template = 'proofing/proofing_requests.html'
     context = {
         'new_requests': new,
         'active_requests': active,
         'completed_requests': completed,
-        'new_typesetting_requests': new_typesetting,
-        'active_typesetting_requests': active_typesetting,
-        'completed_typesetting_requests': completed_typesetting,
+
     }
 
     return render(request, template, context)
+
+
+@typesetter_user_required
+def correction_requests(request):
+
+    if request.POST:
+        typeset_task_id = request.POST.get('typeset_task_id', None)
+        decision = request.POST.get('decision', None)
+
+        if typeset_task_id and decision:
+            logic.handle_typeset_decision(request, typeset_task_id, decision)
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'Task ID or Decision missing.'
+            )
+
+        return redirect(reverse('proofing_correction_requests'))
+
+    new, active, completed = logic.get_typesetting_tasks(request)
+
+    template = 'proofing/correction_requests.html'
+    context = {
+        'new_typesetting_requests': new,
+        'active_typesetting_requests': active,
+        'completed_typesetting_requests': completed,
+    }
+
+    return render(request, template, context)
+
 
 
 @proofreader_for_article_required
@@ -610,7 +635,7 @@ def typesetting_corrections(request, typeset_task_id):
             event_logic.Events.raise_event(event_logic.Events.ON_CORRECTIONS_COMPLETE, task_object=article, **kwargs)
 
             messages.add_message(request, messages.INFO, 'Corrections task complete')
-            return redirect(reverse('proofing_requests'))
+            return redirect(reverse('proofing_correction_requests'))
 
     template = 'proofing/typesetting/typesetting_corrections.html'
     context = {

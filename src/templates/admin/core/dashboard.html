@@ -10,7 +10,7 @@
     <section>
         <div class="row expanded" data-equalizer data-equalize-on="medium">
             {% if is_editor %}
-                <div class="large-12 columns end" data-equalizer-watch>
+                <div class="large-8 columns" data-equalizer-watch>
                     <div class="box">
                         <div class="title-area">
                             <h2>Editor</h2>
@@ -176,6 +176,31 @@
                         <div class="summary">
                             <span class="stat success">{{ completed_proofing }}</span>
                             <span class="title">Completed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if typesetter and 'proofing' in workflow_elements %}
+            <div class="large-4 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Proofing Corrections</h2>
+                        <a href="{% url 'proofing_correction_requests' %}" class="button">View Requests</a>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat alert">{{ new_proofing_typesetting }}</span>
+                            <span class="title">Production Requests</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat">{{ active_proofing_typesetting }}</span>
+                            <span class="title">Accepted Requests</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat success">{{ completed_proofing_typesetting }}</span>
+                            <span class="title">Completed Requests</span>
                         </div>
                     </div>
                 </div>
