@@ -154,7 +154,7 @@ def update_issue_types(journal_object, management_command=False):
             issue_type, created = models.IssueType.objects\
             .get_or_create(
                 journal=journal_object,
-                short_name=item['fields']['code'],
+                code=item['fields']['code'],
                 defaults=default_dict
             )
 
