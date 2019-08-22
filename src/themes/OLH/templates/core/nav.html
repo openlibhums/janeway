@@ -23,8 +23,6 @@
         {% endfor %}
         {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">Articles</a></li>{% endif %}
         {% if request.journal.nav_issues %}<li><a href="{% url 'journal_issues' %}">Issues</a></li>{% endif %}
-        {% if request.journal.nav_collections %}
-        <li><a href="{% url 'journal_collections' %}">{% with collections=journal_settings.general.collection_name_plural %}{% if collections %}{{collections}}{% else %}{% trans 'Collections'%}{% endif %}{% endwith %}</a></li>{% endif %}
         {% if journal_settings.general.enable_editorial_display %}
             {% if journal_settings.general.multi_page_editorial %}
             <li class=".is-dropdown-submenu-parent">
