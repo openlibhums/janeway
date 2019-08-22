@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -69,21 +70,25 @@ class NavigationItem(models.Model):
             "link_name": issue_type.pretty_name,
             "link": "/collections/%s" % (issue_type.code),
         }
-        content_type = ContentType.objects.get_for_model(issue_type)
+        content_type = ContentType.objects.get_for_model(issue_type.journal)
 
         nav, created = cls.objects.get_or_create(
             content_type=content_type,
             object_id=issue_type.pk,
             defaults=defaults,
         )
+
         if not created:
             nav.delete()
 
     @classmethod
     def get_content_nav_for_journal(cls, journal):
-        for issue_type in journal.issuetype_set.all():
+        for issue_type in journal.issuetype_set.filter(
+            ~Q(code="issue") # Issues have their own navigation
+        ):
             try:
-                content_type = ContentType.objects.get_for_model(issue_type)
+                content_type = ContentType.objects.get_for_model(
+                    issue_type.journal)
                 yield issue_type, cls.objects.get(
                     content_type=content_type,
                     object_id=issue_type.pk,
