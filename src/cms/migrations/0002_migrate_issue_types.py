@@ -19,7 +19,7 @@ def migrate_collections_navigation(apps, schema_editor):
             content_type = ContentType.objects.get(
                 app_label="journal", model="Journal")
             defaults = {
-                "link_name": issue_type.pretty_name,
+                "link_name": issue_type.pretty_name + "s",
                 "link": "/collections/%s" % (issue_type.code),
             }
             nav, created = NavigationItem.objects.get_or_create(

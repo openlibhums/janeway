@@ -67,7 +67,7 @@ class NavigationItem(models.Model):
         """
 
         defaults = {
-            "link_name": issue_type.pretty_name,
+            "link_name": issue_type.plural_name,
             "link": "/collections/%s" % (issue_type.code),
         }
         content_type = ContentType.objects.get_for_model(issue_type.journal)

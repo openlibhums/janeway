@@ -27,7 +27,7 @@
         {% endfor %}
         {#Custom Issue types navigation#}
         {% for issue_type, nav in collection_nav_items %}
-        <li>{{ issue_type.pretty_name }}
+        <li>{{ issue_type.plural_name }}
             {% if nav %}
             <a class="tiny button" href="{% url 'cms_nav_edit' nav.pk %}"><i class="fa fa-edit"></i></a>
             {% endif %}
