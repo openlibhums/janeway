@@ -309,21 +309,23 @@ def extract_and_check_doi(soup_object):
     local journal.
 
     :param soup_object: a BeautifulSoup object of a page
-    :return: a tuple of the doi and whether it exists locally (a boolean)
+    :return: a tuple of the doi and the identified item or False
     """
     # see whether there's a DOI and, most importantly, whether it's a duplicate
     doi = get_soup(soup_object.find('meta', attrs={'name': 'citation_doi'}), 'content')
+    found = False
 
     if doi:
-        identifier = identifiers_models.Identifier.objects.filter(id_type='doi', identifier=doi)
+        try:
+            identifier = identifiers_models.Identifier.objects.get(
+                id_type='doi',
+                identifier=doi
+            )
+            found = identifier.article or False
+        except identifiers_models.Identifier.DoesNotExist:
+            pass
 
-        if identifier:
-            print('DOI {0} already imported. Skipping.'.format(doi))
-            return doi, True
-        else:
-            return doi, False
-    else:
-        return doi, False
+    return doi, found
 
 
 def get_citation_info(soup_object):

@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from dateutil import parser as dateparser
+from urllib.parse import urlparse
 
 from django.utils import timezone
 
@@ -22,13 +23,13 @@ logger = get_logger(__name__)
 # note: URL to pass for import is http://journal.org/jms/index.php/up/oai/
 
 
-def get_thumbnails(url):
-    """ Extract thumbnails from a Ubiquity Press site. This is run once per import to get the base thumbnail URL.
+def get_thumbnails_url(url):
+    """ Extract thumbnails URL from a Ubiquity Press site.
 
     :param url: the base URL of the journal
-    :return: the thumbnail for this article
+    :return: the thumbnail URL for this journal
     """
-    logger.info("Extracting thumbnails.")
+    logger.info("Extracting thumbnails URL.")
 
     url_to_use = url + '/articles/?f=1&f=3&f=2&f=4&f=5&order=date_published&app=100000'
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url_to_use)
@@ -45,11 +46,10 @@ def get_thumbnails(url):
     id_href_split = id_href.split('/')
     id_href = id_href_split[:-1]
     id_href = '/'.join(id_href)[1:]
-
     return id_href
 
 
-def import_article(journal, user, url, thumb_path=None):
+def import_article(journal, user, url, thumb_path=None, update=False):
     """ Import a Ubiquity Press article.
 
     :param journal: the journal to import to
@@ -63,12 +63,12 @@ def import_article(journal, user, url, thumb_path=None):
     already_exists, doi, domain, soup_object = shared.fetch_page_and_check_if_exists(url)
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    if already_exists:
-        # if here then this article has already been imported
+    if already_exists and update:
+        article = already_exists
+    elif already_exists:
         return
-
-    # fetch basic metadata
-    new_article = shared.get_and_set_metadata(journal, soup_object, user, False, True)
+    else:
+        article = shared.get_and_set_metadata(journal, soup_object, user, False, True)
 
     # try to do a license lookup
     pattern = re.compile(r'creativecommons')
@@ -87,13 +87,13 @@ def import_article(journal, user, url, thumb_path=None):
             )
         )
 
-    new_article.license = license_object
+    article.license = license_object
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
     logger.debug("Peer reviewed: {0}".format(peer_reviewed))
 
-    new_article.peer_reviewed = peer_reviewed
+    article.peer_reviewed = peer_reviewed
 
     # get PDF and XML galleys
     pdf = shared.get_pdf_url(soup_object)
@@ -121,10 +121,16 @@ def import_article(journal, user, url, thumb_path=None):
         'XML': xml,
         'HTML': html
     }
-
-    shared.set_article_galleys_and_identifiers(doi, domain, galleys, new_article, url, user)
-
+    if not already_exists:
+        # The code below is not safe for updates yet
+        shared.set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user)
     # fetch thumbnails
+    if thumb_path is None:
+        parsed_url = urlparse(url)
+        base_url = parsed_url._replace(path="").geturl()
+        thumb_path = get_thumbnails_url(base_url)
+        import pdb;pdb.set_trace()
+
     if thumb_path is not None:
         logger.info("Attempting to assign thumbnail.")
 
@@ -138,20 +144,26 @@ def import_article(journal, user, url, thumb_path=None):
             thumb_path=thumb_path, url=url))
 
         try:
-            filename, mime = shared.fetch_file(domain, thumb_path + "/" + article_id, "", 'graphic',
-                                               new_article, user)
-            shared.add_file(mime, 'graphic', 'Thumbnail', user, filename, new_article, thumbnail=True)
+            filename, mime = shared.fetch_file(
+                domain,
+                thumb_path + "/" + article_id, "",
+                'graphic',
+                article, user,
+            )
+            shared.add_file(
+                mime, 'graphic', 'Thumbnail', user, filename, article,
+                thumbnail=True,
+            )
         except Exception as e:
             logger.warning("Unable to import thumbnail: %s" % e)
 
-    # lookup status
+    article.save()
+
+    # lookup stats
     stats = soup_object.findAll('div', {'class': 'stat-number'})
 
-    # save the article to the database
-    new_article.save()
-
     try:
-        if stats:
+        if stats and not already_exists:
             from metrics import models as metrics_models
             views = stats[0].contents[0]
             if len(stats) > 1:
@@ -159,9 +171,8 @@ def import_article(journal, user, url, thumb_path=None):
             else:
                 downloads = 0
 
-            metrics_models.HistoricArticleAccess.objects.create(article=new_article,
-                                                                views=views,
-                                                                downloads=downloads)
+            metrics_models.HistoricArticleAccess.objects.create(
+                article=article, views=views, downloads=downloads)
     except (IndexError, AttributeError):
         logger.info("No article metrics found")
 
@@ -176,7 +187,7 @@ def import_oai(journal, user, soup, domain):
         :return: None
         """
 
-    thumb_path = get_thumbnails(domain)
+    thumb_path = get_thumbnails_url(domain)
 
     identifiers = soup.findAll('dc:identifier')
 
