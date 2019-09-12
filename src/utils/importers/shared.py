@@ -37,7 +37,7 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
 
     # create a BeautifulSoup instance of the page's HTML or XML
     if galley_name == "HTML":
-        parser = "html"
+        parser = "html.parser"
     else:
         parser = "lxml"
     soup = BeautifulSoup(contents, parser)
