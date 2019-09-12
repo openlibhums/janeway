@@ -129,7 +129,6 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         parsed_url = urlparse(url)
         base_url = parsed_url._replace(path="").geturl()
         thumb_path = get_thumbnails_url(base_url)
-        import pdb;pdb.set_trace()
 
     if thumb_path is not None:
         logger.info("Attempting to assign thumbnail.")
