@@ -22,6 +22,11 @@ class Command(BaseCommand):
                             dest='delete',
                             default=False,
                             help='Delete all articles and non-superusers in the database before import')
+        parser.add_argument('-u', '--update',
+                            action='store_true',
+                            dest='update',
+                            default=False,
+                            help='Updates metadata if the item already exists')
         parser.add_argument("-i", "--import-type",
                             choices=["article", "issue"],
                             default="article",

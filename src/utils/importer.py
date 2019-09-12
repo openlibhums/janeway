@@ -75,8 +75,9 @@ def import_up_article(**options):
 
     if options['delete']:
         clear_db(journal)
+    update = options.get("update", False)
 
-    up.import_article(journal, user, url)
+    up.import_article(journal, user, url, update=update)
 
 
 def import_issue_images(**options):
