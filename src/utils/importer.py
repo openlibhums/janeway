@@ -130,6 +130,7 @@ def parse_OAI(journal, options, user, resume=None):
         verb = '?verb=ListRecords&metadataPrefix=oai_dc'
 
     url = options['url'] + verb
+    update = options.get("update", False)
 
     journal_type = identify_journal_type_by_oai(url)
     parsed_uri = urlparse(url)
@@ -141,7 +142,7 @@ def parse_OAI(journal, options, user, resume=None):
 
     if journal_type == "UP":
         print("Detected journal type as UP. Processing.")
-        up.import_oai(journal, user, soup, domain)
+        up.import_oai(journal, user, soup, domain, update=update)
     elif journal_type == "OJS":
         print("Detected journal type as OJS. Processing.")
         ojs.import_oai(journal, user, soup)

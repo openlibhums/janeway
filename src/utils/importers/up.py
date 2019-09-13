@@ -178,7 +178,7 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         logger.info("No article metrics found")
 
 
-def import_oai(journal, user, soup, domain):
+def import_oai(journal, user, soup, domain, update=False):
     """ Initiate an OAI import on a Ubiquity Press journal.
 
         :param journal: the journal to import to
@@ -199,7 +199,10 @@ def import_oai(journal, user, soup, domain):
         if identifier.contents[0].startswith('http'):
             logger.info('Parsing {0}'.format(identifier.contents[0]))
 
-            import_article(journal, user, identifier.contents[0], thumb_path)
+            import_article(
+                journal, user, identifier.contents[0], thumb_path,
+                update=update,
+            )
 
     import_issue_images(journal, user, domain[:-1])
     import_journal_metadata(journal, user, domain[:-1])
