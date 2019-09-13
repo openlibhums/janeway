@@ -133,6 +133,8 @@ def import_article(journal, user, url, thumb_path=None, update=False):
     if thumb_path is not None:
         logger.info("Attempting to assign thumbnail.")
 
+        if url.endswith("/"):
+            url = url[:-1]
         final_path_element = url.split('/')[-1]
         id_regex = re.compile(r'.*?(\d+)')
         matches = id_regex.match(final_path_element)
