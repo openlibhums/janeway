@@ -33,4 +33,8 @@ class Migration(migrations.Migration):
             name='old_issue_type',
             field=models.CharField(blank=True, choices=[('Issue', 'Issue'), ('Collection', 'Collection')], default='Issue', max_length=200, null=True),
         ),
+        migrations.AlterUniqueTogether(
+            name='issuetype',
+            unique_together=set([('journal', 'code')]),
+        ),
     ]
