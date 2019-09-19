@@ -41,8 +41,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(load_default_issue_types, reverse_code=migrations.RunPython.noop),
-        migrations.AlterUniqueTogether(
-            name='issuetype',
-            unique_together=set([('journal', 'code')]),
-        ),
     ]
