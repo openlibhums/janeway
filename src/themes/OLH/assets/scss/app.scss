@@ -394,6 +394,10 @@ main section {
   }
 }
 
+#article {
+  word-wrap: break-word;
+}
+
 .dark-primary-bg {
   background: $primary-dark-color;
 
@@ -1153,7 +1157,6 @@ button.list-group-item-danger.active:focus {
 .feature-article-image {
   object-fit: cover;
 }
-
 
 .alignright {
   float: right;
