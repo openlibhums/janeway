@@ -1970,7 +1970,7 @@ def edit_draft_decision(request, article_id, draft_id):
     return render(request, template, context)
 
 
-@staff_member_required
+@senior_editor_user_required
 def review_forms(request):
     """
     Displays a list of review formd and allows new ones to be created.
