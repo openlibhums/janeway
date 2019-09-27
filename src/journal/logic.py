@@ -543,3 +543,19 @@ def sort_issues(request, issue_list):
     for order, issue in enumerate(ordered_issues):
         issue.order = order
         issue.save()
+
+
+def merge_issues(destination, to_merge):
+    """ Moves the articles from to_merge issues into the destination issue
+    :param destination: models.Issue
+    :param destination: list(models.Issue):
+    """
+    for issue in to_merge:
+        assert destination.journal == issue.journal, "Issues don't belong to "
+        "the same journal"
+        for article in list(issue.articles.all()):
+            destination.articles.add(article)
+            if article.primary_issue != issue:
+                article.primary_issue = destination
+            article.save()
+        issue.delete()
