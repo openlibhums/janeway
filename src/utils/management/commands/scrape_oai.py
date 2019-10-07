@@ -18,6 +18,11 @@ class Command(BaseCommand):
         parser.add_argument('url')
         parser.add_argument('journal_id')
         parser.add_argument('user_id')
+        parser.add_argument('-u', '--update',
+                            action='store_true',
+                            dest='update',
+                            default=False,
+                            help='Updates metadata if the item already exists')
         parser.add_argument('--delete',
                             action='store_true',
                             dest='delete',

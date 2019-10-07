@@ -129,11 +129,12 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         parsed_url = urlparse(url)
         base_url = parsed_url._replace(path="").geturl()
         thumb_path = get_thumbnails_url(base_url)
-        import pdb;pdb.set_trace()
 
     if thumb_path is not None:
         logger.info("Attempting to assign thumbnail.")
 
+        if url.endswith("/"):
+            url = url[:-1]
         final_path_element = url.split('/')[-1]
         id_regex = re.compile(r'.*?(\d+)')
         matches = id_regex.match(final_path_element)
@@ -177,7 +178,7 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         logger.info("No article metrics found")
 
 
-def import_oai(journal, user, soup, domain):
+def import_oai(journal, user, soup, domain, update=False):
     """ Initiate an OAI import on a Ubiquity Press journal.
 
         :param journal: the journal to import to
@@ -198,7 +199,10 @@ def import_oai(journal, user, soup, domain):
         if identifier.contents[0].startswith('http'):
             logger.info('Parsing {0}'.format(identifier.contents[0]))
 
-            import_article(journal, user, identifier.contents[0], thumb_path)
+            import_article(
+                journal, user, identifier.contents[0], thumb_path,
+                update=update,
+            )
 
     import_issue_images(journal, user, domain[:-1])
     import_journal_metadata(journal, user, domain[:-1])
