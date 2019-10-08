@@ -9,8 +9,60 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.template.loader import get_template
 
 from utils.logic import build_url_for_request
+
+
+class BaseBlock():
+    """ A Base class for implementing CMS blocks """
+    TEMPLATE = None
+    # A page is divided in 12 columns
+    ALLOWED_COLUMNS = [12]
+
+    def render(self, loader=None):
+        if loader is None:
+            template = get_template(self.TEMPLATE)
+        else:
+            template = loader.get_template(self.TEMPLATE)
+        return template.render(context=self.context)
+
+    @property
+    def context(self):
+        """ The context required to render this block"""
+        return {}
+
+    columns = models.PositiveIntegerField(blank=True, null=True, choices=ALLOWED_COLUMNS)
+    page = models.ForeignKey("cms.CMSPage",
+        on_delete=models.CASCADE, blank=True, null=True)
+
+
+class HTMLBlock(BaseBlock):
+    TEMPLATE = "cms/html_block.html"
+    ALLOWED_COLUMNS = [1, 3, 4, 6, 8, 12]
+
+    content = models.TextField()
+
+    @property
+    def context(self):
+        return {"content": self.content}
+
+
+class CMSPage(models.Model):
+    press = models.ForeignKey("press.Press",
+        on_delete=models.CASCADE, blank=True, null=True)
+    journal = models.ForeignKey("journal.Journal",
+        on_delete=models.CASCADE, blank=True, null=True)
+
+    @property
+    def site(self):
+        return self.journal or self.press
+
+    def save(self, *args, **kwargs):
+        if bool(self.press) ^ bool(self.journal):
+            raise ValueError("One and one only of journal/press can be set")
+        super().save(*args, **kwargs)
+
 
 class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
