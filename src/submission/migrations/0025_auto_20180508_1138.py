@@ -36,6 +36,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='article',
             name='competing_interests',
-            field=models.TextField(blank=True, help_text='If you have any competing or conflictof insterests in the publication of this article please state them here.', null=True),
+            field=models.TextField(blank=True, help_text='If you have any competing or conflict of interests in the publication of this article please state them here.', null=True),
         ),
     ]
