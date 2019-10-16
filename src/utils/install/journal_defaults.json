@@ -2593,5 +2593,20 @@
         "group": {
             "name": "general"
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "This label appears on the Submit Start page and this setting allows you to customise what appears there.",
+            "is_translatable": true,
+            "name": "copyright_submission_label",
+            "pretty_name": "Copyright Submission Label",
+            "type": "char"
+        },
+        "value": {
+            "default": "Author(s) agrees to copyright notice, which will apply to this submission if accepted"
+        }
     }
 ]

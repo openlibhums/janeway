@@ -211,6 +211,9 @@ def get_settings_to_edit(group, journal):
              },
             {'name': 'peer_review_info',
              'object': setting_handler.get_setting('general', 'peer_review_info', journal),
+             },
+            {'name': 'copyright_submission_label',
+             'object': setting_handler.get_setting('general', 'copyright_submission_label', journal)
              }
         ]
         setting_group = 'general'
