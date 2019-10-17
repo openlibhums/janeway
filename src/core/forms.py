@@ -299,6 +299,7 @@ class GeneratedSettingForm(forms.Form):
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=False)
 
+            self.fields[field['name']].label = object.setting.pretty_name
             self.fields[field['name']].initial = object.processed_value
             self.fields[field['name']].help_text = object.setting.description
 
