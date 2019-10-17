@@ -428,7 +428,7 @@
             "is_translatable": false,
             "name": "max_dois",
             "pretty_name": "Maximum preprint DOIs per month",
-            "type": "integer"
+            "type": "number"
         },
         "value": {
             "default": "100"
@@ -2592,6 +2592,36 @@
         },
         "group": {
             "name": "general"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If this setting is enabled, the number of proofreaders per round will be set to whatever the value of the Maximum Proofers Per Round setting is (default value is 2).",
+            "is_translatable": false,
+            "name": "limit_proofers",
+            "pretty_name": "Limit Proofreaders per Round",
+            "type": "boolean"
+        },
+        "value": {
+            "default": false
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The maximum number of proofreaders allowed per round. Limit Proofreaders per Round must be enabled to enforce this number.",
+            "is_translatable": false,
+            "name": "max_proofreaders",
+            "pretty_name": "Maximum Proofreders per Round",
+            "type": "number"
+        },
+        "value": {
+            "default": "2"
         }
     }
 ]

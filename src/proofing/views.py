@@ -122,9 +122,18 @@ def proofing_article(request, article_id):
     :param article_id: Article object PK
     :return: HttpRedirect if POST or HttpResponse
     """
-    article = get_object_or_404(submission_models.Article.objects.select_related('productionassignment'), pk=article_id,
-                                journal=request.journal)
-    proofreaders = logic.get_all_possible_proofers(journal=request.journal, article=article)
+    article = get_object_or_404(
+        submission_models.Article.objects.select_related(
+            'productionassignment'
+        ),
+        pk=article_id,
+        journal=request.journal,
+    )
+    current_round = article.proofingassignment.current_proofing_round()
+    proofreaders = logic.get_all_possible_proofers(
+        journal=request.journal,
+        article=article,
+    )
     form = forms.AssignProofreader()
     modal = None
 
@@ -133,10 +142,34 @@ def proofing_article(request, article_id):
         if 'new-round' in request.POST:
             logic.handle_closing_active_task(request, article)
             new_round = article.proofingassignment.add_new_proofing_round()
-            messages.add_message(request, messages.SUCCESS, 'New round {0} added.'.format(new_round.number))
-            return redirect(reverse('proofing_article', kwargs={'article_id': article.pk}))
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'New round {0} added.'.format(new_round.number),
+            )
+            return redirect(
+                reverse(
+                    'proofing_article',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
         if 'new-proofreader' in request.POST:
+            print(current_round.can_add_another_proofreader(request.journal))
+            if not current_round.can_add_another_proofreader(request.journal):
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'The number of proofreaders per round has been limited.'
+                    ' You cannot add another proofreader in this round.',
+                )
+                return redirect(
+                    reverse(
+                        'proofing_article',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+
             form = forms.AssignProofreader(request.POST)
             user = logic.get_user_from_post(request, article)
             galleys = logic.get_galleys_from_post(request)
@@ -150,7 +183,7 @@ def proofing_article(request, article_id):
             if form.is_valid():
                 proofing_task = form.save(commit=False)
                 proofing_task.proofreader = user
-                proofing_task.round = article.proofingassignment.current_proofing_round()
+                proofing_task.round = current_round
                 proofing_task.save()
                 proofing_task.galleys_for_proofing.add(*galleys)
                 return redirect(

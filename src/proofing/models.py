@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import timezone
 
 from events import logic as event_logic
+from utils import setting_handler
 
 
 class ProofingAssignment(models.Model):
@@ -107,6 +108,34 @@ class ProofingRound(models.Model):
                     **kwargs,
                 )
                 correction.delete()
+
+    def can_add_another_proofreader(self, journal):
+        """
+        Checks if this round can have another proofreader.
+        :param journal: Journal object
+        :return: Boolean, True or False
+        """
+        limited = setting_handler.get_setting(
+            'general',
+            'limit_proofers',
+            journal,
+        ).processed_value
+
+        if limited:
+            limit = setting_handler.get_setting(
+                'general',
+                'max_proofreaders',
+                journal,
+            ).processed_value
+
+            current_num_proofers = ProofingTask.objects.filter(
+                round=self,
+            ).count()
+
+            if current_num_proofers >= limit:
+                return False
+
+        return True
 
 
 class ProofingTask(models.Model):
