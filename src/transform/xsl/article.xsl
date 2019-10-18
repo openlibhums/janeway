@@ -1588,10 +1588,8 @@
               </xsl:if>
 
                 <xsl:if test="chapter-title">
-                    <em>
                         <xsl:text></xsl:text>
                         <xsl:value-of select="chapter-title"/>
-                    </em>
                     <xsl:text>. In: </xsl:text>
                 </xsl:if>
 
