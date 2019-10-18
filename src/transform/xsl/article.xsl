@@ -1606,7 +1606,7 @@
               </xsl:if>
 
                 <xsl:text> </xsl:text>
-              <xsl:element name="i"><xsl:value-of select="source"/></xsl:element>
+                 <xsl:element name="i"><em><xsl:value-of select="source"/></em></xsl:element>
                 <xsl:if test="edition">
                     <xsl:text>. </xsl:text>
                     <xsl:value-of select="edition"></xsl:value-of>
