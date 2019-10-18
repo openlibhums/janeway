@@ -1482,6 +1482,13 @@
             <xsl:apply-templates/>
         </div>
     </xsl:template>
+    <xsl:template match="ref-list/title">
+        <xsl:if test="node() != ''">
+            <xsl:element name="h3">
+                <xsl:apply-templates/>
+            </xsl:element>
+        </xsl:if>
+    </xsl:template>
 
     <!-- START Reference Handling -->
 
@@ -3466,7 +3473,6 @@
     <xsl:template match="fig/graphic"/>
     <xsl:template match="fig-group//object-id | fig-group//graphic | fig//label"/>
     <xsl:template match="ack/title"/>
-    <xsl:template match="ref-list/title"/>
     <xsl:template match="ref//year | ref//article-title | ref//fpage | ref//volume | ref//source | ref//pub-id | ref//lpage | ref//comment | ref//supplement | ref//person-group[@person-group-type='editor'] | ref//edition | ref//publisher-loc | ref//publisher-name | ref//ext-link"/>
     <xsl:template match="person-group[@person-group-type='author']"/>
     <xsl:template match="media/label"/>
