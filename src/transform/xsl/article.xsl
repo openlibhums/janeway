@@ -1645,8 +1645,9 @@
               <xsl:if test="issue">
                 <xsl:value-of select="issue"/>
               </xsl:if>
+              <xsl:if test="issue and fpage"><xsl:text>, </xsl:text></xsl:if>
               <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
-              <xsl:if test="fpage and lpage">-</xsl:if>
+              <xsl:if test="fpage and lpage">—</xsl:if>
               <xsl:if test="lpage"><xsl:value-of select="lpage"/></xsl:if>
               <xsl:if test="fpage or lpage">. </xsl:if>
             </xsl:if>
