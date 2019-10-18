@@ -1618,7 +1618,7 @@
 
 
               <xsl:if test="fpage"><xsl:value-of select="fpage"/></xsl:if>
-              <xsl:if test="fpage and lpage">-</xsl:if>
+              <xsl:if test="fpage and lpage">—</xsl:if>
               <xsl:if test="lpage"><xsl:value-of select="lpage"/></xsl:if>
               <xsl:if test="fpage or lpage">. </xsl:if>
               <xsl:if test="publisher-loc"><xsl:value-of select="publisher-loc"></xsl:value-of></xsl:if>
