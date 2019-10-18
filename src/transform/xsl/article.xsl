@@ -1545,9 +1545,14 @@
                   </xsl:if>
                   <xsl:if test="uri">
                       <xsl:value-of select="uri"></xsl:value-of>
-                      <xsl:text>.</xsl:text>
+                      <xsl:text>. </xsl:text>
+                  </xsl:if>
+                  <xsl:if test="date-in-citation">
+                      <xsl:value-of select="date-in-citation"></xsl:value-of>
+                      <xsl:text>. </xsl:text>
                   </xsl:if>
               </xsl:if>
+
 
               <xsl:if test="$pub-type = 'confproc'">
                   <xsl:if test="year">
