@@ -1553,7 +1553,6 @@
                   </xsl:if>
               </xsl:if>
 
-
               <xsl:if test="$pub-type = 'confproc'">
                   <xsl:if test="year">
                       <xsl:text> (</xsl:text>
@@ -1654,6 +1653,13 @@
               <xsl:if test="fpage or lpage">. </xsl:if>
             </xsl:if>
 
+            <!-- Handle DOI in reference -->
+            <xsl:if test="pub-id[@pub-id-type='doi']">
+              <xsl:text>DOI:&#160;</xsl:text>
+              <a href="http://dx.doi.org/{current()}" target="_blank">
+                <xsl:text>http://dx.doi.org/</xsl:text><xsl:value-of select="pub-id"/>
+              </a>
+            </xsl:if>
 
           </p>
         </xsl:for-each>
