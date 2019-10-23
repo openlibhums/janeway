@@ -2606,7 +2606,7 @@
             "type": "char"
         },
         "value": {
-            "default": "Author(s) agrees to copyright notice, which will apply to this submission if accepted"
+            "default": "Author(s) agree to the copyright notice, which will apply to this submission if accepted"
         }
     }
 ]
