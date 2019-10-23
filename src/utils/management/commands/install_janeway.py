@@ -9,9 +9,6 @@ from django.utils import translation
 from press import models as press_models
 from journal import models as journal_models
 from utils.install import update_settings, update_license, update_issue_types
-from utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 ROLES_RELATIVE_PATH = 'utils/install/roles.json'
 
@@ -40,7 +37,7 @@ class Command(BaseCommand):
         :return: None
         """
         call_command('migrate')
-        logger.info("Please answer the following questions.\n")
+        print("Please answer the following questions.\n")
         translation.activate('en')
         with transaction.atomic():
             test_one = press_models.Press.objects.all()
@@ -51,7 +48,7 @@ class Command(BaseCommand):
                 press.main_contact = input('Press main contact (email): ')
                 press.save()
 
-            logger.info("Thanks! We will now set up out first journal.\n")
+            print("Thanks! We will now set up out first journal.\n")
             journal = journal_models.Journal()
 
             while True:
@@ -62,7 +59,7 @@ class Command(BaseCommand):
                     journal.save()
                     break
                 else:
-                    logger.warning('Jouranl code must be 15 characters or less.')
+                    print('Journal code must be 15 characters or less.')
 
             if settings.URL_CONFIG == 'domain':
                 journal.domain = input('Journal #1 domain: ')
@@ -87,20 +84,20 @@ class Command(BaseCommand):
             journal.save()
             journal.setup_directory()
 
-            logger.info("Thanks, Journal #1 has been saved.\n")
+            print("Thanks, Journal #1 has been saved.\n")
 
             call_command('show_configured_journals')
             call_command('build_assets')
-            logger.info("Installing plugins.")
+            print("Installing plugins.")
             call_command('install_plugins')
-            logger.info("Installing Cron jobs")
+            print("Installing Cron jobs")
             try:
                 call_command('install_cron')
             except FileNotFoundError:
                 self.stderr.write("Error Installing cron")
-            logger.info('Create a super user.')
+            print('Create a super user.')
             call_command('createsuperuser')
-            logger.info('Open your browser to your new journal domain '
+            print('Open your browser to your new journal domain '
                 '{domain}/install/ to continue this setup process.'.format(
                     domain=journal.domain
                         if settings.URL_CONFIG == 'domain'
@@ -109,7 +106,7 @@ class Command(BaseCommand):
                 )
             )
             if options['dry_run'] is True:
-                logger.info("This was a --dry-run, rolling back...")
+                print("This was a --dry-run, rolling back...")
                 raise SystemExit()
         print(JANEWAY_ASCII)
 
