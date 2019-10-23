@@ -115,18 +115,14 @@ class ProofingRound(models.Model):
         :param journal: Journal object
         :return: Boolean, True or False
         """
-        limited = setting_handler.get_setting(
+
+        limit = setting_handler.get_setting(
             'general',
-            'limit_proofers',
+            'max_proofreaders',
             journal,
         ).processed_value
 
-        if limited:
-            limit = setting_handler.get_setting(
-                'general',
-                'max_proofreaders',
-                journal,
-            ).processed_value
+        if not limit == 0:
 
             current_num_proofers = ProofingTask.objects.filter(
                 round=self,
