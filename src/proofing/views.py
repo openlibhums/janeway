@@ -155,7 +155,7 @@ def proofing_article(request, article_id):
             )
 
         if 'new-proofreader' in request.POST:
-            print(current_round.can_add_another_proofreader(request.journal))
+
             if not current_round.can_add_another_proofreader(request.journal):
                 messages.add_message(
                     request,

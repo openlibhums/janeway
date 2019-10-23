@@ -5,6 +5,7 @@
 {% load foundation %}
 {% load roles %}
 {% load render_string %}
+{% load i18n %}
 
 {% block title %}Proofing - {{ article.pk }}{% endblock title %}
 {% block title-section %}Proofing{% endblock %}
@@ -255,6 +256,16 @@
             </div>
             <div class="content">
             {% render_string journal_settings.general.proofing_steps %}</div>
+
+            {% if not journal_settings.general.max_proofreaders.processed_value %}
+                <div class="title-area">
+                    <h2>Notes</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans "Each proofing round is limited to" %} {{ journal_settings.general.max_proofreaders }} {% trans "proofreaders" %}.</p>
+                </div>
+            {% endif %}
+
         </div>
         <div class="box">
             <div class="title-area">

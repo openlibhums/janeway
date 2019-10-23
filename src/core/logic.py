@@ -291,7 +291,6 @@ def get_settings_to_edit(group, journal):
 
     elif group == 'proofing':
         proofing_settings = [
-            'limit_proofers',
             'max_proofreaders'
         ]
         settings = process_setting_list(proofing_settings, 'general', journal)
