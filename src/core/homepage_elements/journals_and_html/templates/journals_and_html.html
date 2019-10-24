@@ -1,0 +1,28 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'home_settings_index' %}">{% if request.journal %}Journal{% else %}Press{% endif %} Home Settings</a></li>
+    <li>Featured Journals Block</li>
+{% endblock %}
+
+
+{% block body %}
+<div class="box">
+    <div class="title-area">
+        <h2>Featured Journals Settings</h2>
+        <a href="{% url 'home_settings_index' %}" class="button">
+            <i class="fa fa-arrow-left">&nbsp;</i>Back to Homepage Settings
+        </a>
+    </div>
+    <div class="content">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form|foundation }}
+            <button class="button success">Save</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

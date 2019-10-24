@@ -7,11 +7,11 @@ from django.shortcuts import redirect, render, reverse
 from django.contrib import messages
 
 from security.decorators import editor_user_required
-from core.homepage_elements.journals import forms
+from core.homepage_elements.journals_and_html import forms
 
 
 @editor_user_required
-def featured_journals(request):
+def journals_and_html(request):
     form = forms.FeaturedJournalsForm(instance=request.press)
 
     if request.POST:
