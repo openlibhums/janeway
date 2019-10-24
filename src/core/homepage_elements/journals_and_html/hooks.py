@@ -29,7 +29,6 @@ def get_random_journals():
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    print('Yield!')
     if homepage_elements is not None and homepage_elements.filter(
             name=plugin_settings.PLUGIN_NAME,
     ).exists():
@@ -42,7 +41,6 @@ def yield_homepage_element_context(request, homepage_elements):
         setting, c = press_models.PressSetting.objects.get_or_create(
             press=request.press,
             name='journals_and_html_content',
-            defaults={'value': None}
         )
         html_block_content = setting.value
 
