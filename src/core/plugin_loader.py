@@ -14,6 +14,9 @@ from core.workflow import ELEMENT_STAGES
 from submission.models import STAGE_CHOICES
 from utils import models
 from utils.logic import get_janeway_version
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_dirs(directory):
@@ -38,25 +41,28 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             plugins.append(plugin)
             module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
 
-            # Load settings module
-            plugin_settings = import_module(module_name)
-            validate_plugin_version(plugin_settings)
+            try:
+                # Load settings module
+                plugin_settings = import_module(module_name)
+                validate_plugin_version(plugin_settings)
 
-            # Load hooks
-            hooks.append(load_hooks(plugin_settings))
+                # Load hooks
+                hooks.append(load_hooks(plugin_settings))
 
-            # Check for workflow
-            workflow_check = check_plugin_workflow(plugin_settings)
-            if workflow_check:
-                settings.WORKFLOW_PLUGINS[workflow_check] = module_name
-                STAGE_CHOICES.append(
-                    (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
-                )
-                ELEMENT_STAGES[
-                    plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
+                # Check for workflow
+                workflow_check = check_plugin_workflow(plugin_settings)
+                if workflow_check:
+                    settings.WORKFLOW_PLUGINS[workflow_check] = module_name
+                    STAGE_CHOICES.append(
+                        (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
+                    )
+                    ELEMENT_STAGES[
+                        plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
 
-            # Call event registry
-            register_for_events(plugin_settings)
+                # Call event registry
+                register_for_events(plugin_settings)
+            except ModuleNotFoundError as e:
+                logger.error('Could not lod module, error: {e}'.format(e=e))
 
     # Register plugin hooks
     if settings.PLUGIN_HOOKS:
