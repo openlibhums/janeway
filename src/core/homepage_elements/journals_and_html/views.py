@@ -8,16 +8,27 @@ from django.contrib import messages
 
 from security.decorators import editor_user_required
 from core.homepage_elements.journals_and_html import forms
+from press import models as press_models
 
 
 @editor_user_required
 def journals_and_html(request):
-    form = forms.FeaturedJournalsForm(instance=request.press)
+    html_setting, c = press_models.PressSetting.objects.get_or_create(
+        press=request.press,
+        name='journals_and_html_content',
+    )
+    form = forms.FeaturedJournalsForm(
+        instance=request.press,
+        initial={'html_content': html_setting.value},
+    )
 
     if request.POST:
-        form = forms.FeaturedJournalsForm(request.POST, instance=request.press)
+        form = forms.FeaturedJournalsForm(
+            request.POST,
+            instance=request.press,
+        )
         if form.is_valid():
-            form.save()
+            form.save(html_setting=html_setting)
             messages.add_message(
                 request,
                 messages.SUCCESS,

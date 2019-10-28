@@ -18,6 +18,8 @@
         </a>
     </div>
     <div class="content">
+        <p>Enabling random featured journals overrides the checked featured journals list.
+            Featured journals and the HTML content are displayed side by side.</p>
         <form method="POST">
             {% csrf_token %}
             {{ form|foundation }}
