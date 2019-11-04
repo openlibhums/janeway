@@ -14,6 +14,7 @@ from utils.testing import helpers
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
+from utils.install import update_xsl_files
 
 
 class UtilsTests(TestCase):
@@ -24,6 +25,7 @@ class UtilsTests(TestCase):
         helpers.create_journals()
         helpers.create_roles(['reviewer', 'editor', 'author'])
 
+        update_xsl_files()
         cls.journal_one = journal_models.Journal.objects.get(code="TST", domain="testserver")
 
         cls.regular_user = helpers.create_regular_user()
@@ -134,6 +136,7 @@ class TestForms(TestCase):
 
         class FakeTestForm(FakeModelForm):
             class Meta:
+                update_xsl_files()
                 model = journal_models.Journal
                 exclude = tuple()
 
