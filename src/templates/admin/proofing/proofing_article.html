@@ -166,6 +166,7 @@
                         <th>Uploaded</th>
                         <th>Edit</th>
                         <th>Download</th>
+                        <th>Preview</th>
                         <th>Replace</th>
                         <th>History</th>
                         <th>Create PDF</th>
@@ -185,6 +186,10 @@
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
                             </td>
+                            <td>
+                                <a href="{% url 'production_preview_galley' article.pk galley.pk %}" target="_blank">
+                                    <i class="fa fa-eye">&nbsp;</i>
+                                </a>
                             <td>{% if can_edit_file_flag %}
                                 <a href="{% url 'article_file_replace' 'id' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                                         class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
