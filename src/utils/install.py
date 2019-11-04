@@ -133,6 +133,28 @@ def update_license(journal_object, management_command=False):
                 print('Parsed licence {0}'.format(item['fields'].get('short_name')))
 
 
+def update_xsl_files(journal_object=None, management_command=False):
+    with codecs.open(
+        os.path.join( settings.BASE_DIR, 'utils/install/xsl_files.json'),
+        encoding='utf-8',
+    ) as json_data:
+
+        default_data = json.load(json_data)
+
+        for item in default_data:
+            default_dict = {
+                'file': item["fields"]["file"],
+                'comments': item["fields"].get("commments"),
+            }
+            xsl, created = core_models.XSLFile.objects.get_or_create(
+                label=item["fields"]["label"],
+                defaults=default_dict,
+            )
+
+            if management_command:
+                print('Parsed XSL {0}'.format(item['fields'].get('label')))
+
+
 def update_issue_types(journal_object, management_command=False):
     """ Updates or creates the default issue types for journal
 
