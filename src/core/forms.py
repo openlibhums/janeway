@@ -441,3 +441,10 @@ class UserCreationFormExtended(UserCreationForm):
             label=_("E-mail"),
             max_length=75,
         )
+
+
+class XSLFileForm(forms.ModelForm):
+
+    class Meta:
+        model = models.XSLFile
+        exclude = ["date_uploaded"]

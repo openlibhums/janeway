@@ -462,6 +462,10 @@ WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
 
+# New XML galleys will be associated with this stylesheet by default when they
+# are first uploaded
+DEFAULT_XSL_FILE_LABEL = 'Janeway default v1'
+
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     from collections.abc import Mapping

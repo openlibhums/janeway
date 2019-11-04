@@ -64,6 +64,11 @@ def issue_large_image_path(instance, filename):
     return os.path.join(path, filename)
 
 
+def default_xsl():
+    return core_models.XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
+
+
 class Journal(AbstractSiteModel):
     code = models.CharField(max_length=15, unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
@@ -105,8 +110,12 @@ class Journal(AbstractSiteModel):
     nav_review = models.BooleanField(default=True)
     nav_sub = models.BooleanField(default=True)
 
-    # Boolean to determine if this journal has an XSLT file
+    # (DEPRECATED)Boolean to determine if this journal has an XSLT file
     has_xslt = models.BooleanField(default=False)
+    xsl = models.ForeignKey('core.XSLFile',
+        default=default_xsl,
+        on_delete=models.SET_DEFAULT,
+    )
 
     # Boolean to determine if this journal should be hidden from the press
     hide_from_press = models.BooleanField(default=False)

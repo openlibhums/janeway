@@ -24,7 +24,9 @@ from django.utils.text import slugify
 from django.views.decorators.cache import cache_control
 
 from utils import models as util_models
+from utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 TEMP_DIR = os.path.join(settings.BASE_DIR, 'files', 'temp')
 
@@ -288,12 +290,12 @@ def get_file(file_to_get, article):
             return content
 
 
-def render_xml(file_to_render, article, galley=None):
+def render_xml(file_to_render, article, xsl_file=None):
     """Renders JATS and TEI XML into HTML for inline article display.
 
     :param file_to_render: the file object to retrieve and render
     :param article: the associated article
-    :param galley: optional galley param, used to bastardise the graphics
+    :param xsl_file: optional instance of core.models.XSLFile
     :return: a transform of the file to HTML through the XSLT processor
     """
 
@@ -305,14 +307,17 @@ def render_xml(file_to_render, article, galley=None):
                                        level='Error', actor=None, target=article)
         return ""
 
-    if article.journal.has_xslt:
-        xsl_path = os.path.join(settings.BASE_DIR, 'files', 'journals', str(article.journal.id), 'journal.xslt')
+    if xsl_file:
+        xsl_path = xsl_file.file.path
+        logger.debug('Rendering engine using {}'.format(xsl_file))
     else:
-        xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "article.xsl")
+        xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
+        logger.debug('Rendering engine using {}'.format(xsl_path))
 
     if not os.path.isfile(xsl_path):
-        util_models.LogEntry.add_entry(types='Error', description='The required XSLT file {0} was not found'.format(xsl_path),
-                                       level='Error', actor=None, target=article)
+        logger.error(
+            'The required XSLT file {} was not found'.format(xsl_path)
+        )
         return ""
 
     with open(path, "rb") as xml_file_contents:
