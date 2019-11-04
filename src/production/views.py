@@ -821,6 +821,10 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         pk=galley_id,
         article=article,
     )
+    if galley.label == 'XML':
+        xsl_files = core_models.XSLFile.objects.all()
+    else:
+        xsl_files = None
 
     if request.POST:
 
@@ -905,6 +909,12 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                 request.FILES.get('galley'),
             )
 
+        if 'xsl_file' in request.POST:
+            xsl_file = get_object_or_404(core_models.XSLFile,
+                    pk=request.POST["xsl_file"])
+            galley.xsl_file = xsl_file
+            galley.save()
+
         if typeset_task:
             return redirect(
                 reverse(
@@ -934,7 +944,8 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         'image_names': logic.get_image_names(galley),
         'return_url': return_url,
         'data_files': article.data_figure_files.all(),
-        'galley_images': galley.images.all()
+        'galley_images': galley.images.all(),
+        'xsl_files': xsl_files,
     }
 
     return render(request, template, context)

@@ -331,6 +331,27 @@
                 {% endif %}
             </div>
         </div>
+    {% if xsl_files %}
+    <div class="title-area">
+        <h2>Galley XSLT</h2>
+    </div>
+    <div class="content">
+        <p>Select the XSL File used for rendering the HTML out of this galley</p>
+        <div class="row expanded">
+            <div class="large-6 columns end">
+                <form method="POST">
+                    {% csrf_token %}
+                    <select name="xsl_file">
+                    {% for xsl in xsl_files %}
+                        <option value={{ xsl.pk }}{% if xsl == galley.xsl_file %} selected{% endif %}>{{ xsl.label }}</option>
+                    {% endfor %}
+                    </select>
+                    <button type="submit" class="button small success">Update XSL</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     </div>
 
 {% endblock body %}
