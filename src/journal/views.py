@@ -1113,7 +1113,11 @@ def issue_add_article(request, issue_id):
     """
 
     issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    articles = submission_models.Article.objects.filter(journal=request.journal).exclude(pk__in=issue.article_pks)
+    articles = submission_models.Article.objects.filter(
+            journal=request.journal,
+    ).exclude(
+        Q(pk__in=issue.article_pks) | Q(stage=submission_models.STAGE_REJECTED)
+    )
 
     if request.POST.get('article'):
         article_id = request.POST.get('article')
