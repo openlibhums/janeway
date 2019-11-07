@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
 import uuid
+from zipfile import BadZipFile
 
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -794,7 +795,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     :param request: HttpRequest object
     :param galley_id: Galley object PK
     :param typeset_id: TypesetTask PK, optional
-    :param article_id: Article PK, optiona
+    :param article_id: Article PK, optional
     :return: HttpRedirect or HttpResponse
     """
     return_url = request.GET.get('return', None)
@@ -843,7 +844,6 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                     )
                 )
             else:
-                print(galley)
                 logic.handle_delete_request(
                     request,
                     galley,
@@ -946,6 +946,87 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         'data_files': article.data_figure_files.all(),
         'galley_images': galley.images.all(),
         'xsl_files': xsl_files,
+    }
+
+    return render(request, template, context)
+
+
+@typesetter_or_editor_required
+def upload_image_zip(request, galley_id, typeset_id=None, article_id=None):
+    return_url = request.GET.get('return', None)
+
+    if typeset_id:
+        typeset_task = get_object_or_404(
+            models.TypesetTask,
+            pk=typeset_id,
+            assignment__article__journal=request.journal,
+            accepted__isnull=False,
+            completed__isnull=True,
+        )
+        article = typeset_task.assignment.article
+    else:
+        typeset_task = None
+        article = get_object_or_404(
+            submission_models.Article.allarticles,
+            pk=article_id,
+            journal=request.journal
+        )
+
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=article,
+    )
+
+    if request.POST and 'zip_file' in request.POST:
+        file = request.FILES.get('file')
+        try:
+            errors = logic.process_zip_file(file, galley, request)
+        except BadZipFile:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'File must be a .zip file.'
+            )
+            errors = True
+
+        if not errors:
+            return logic.edit_galley_redirect(
+                typeset_task,
+                galley,
+                return_url,
+                article,
+            )
+        else:
+            if typeset_id:
+                return redirect(
+                    reverse(
+                        'typesetter_zip_uploader',
+                        kwargs={
+                            'typeset_id': typeset_id,
+                            'galley_id': galley_id,
+                        }
+                    )
+                )
+            else:
+                return redirect(
+                    reverse(
+                        'pm_zip_uploader',
+                        kwargs={
+                            'article_id': article_id,
+                            'galley_id': galley_id
+                        }
+                    )
+                )
+
+    template = 'production/upload_image_zip.html'
+    context = {
+        'typeset_task': typeset_task,
+        'galley': galley,
+        'article': galley.article,
+        'galley_images': galley.images.all(),
+        'image_names': logic.get_image_names(galley),
+        'return_url': return_url,
     }
 
     return render(request, template, context)
