@@ -1,7 +1,8 @@
 from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from core.homepage_elements.featured import models
+
+from core.homepage_elements.featured import models, forms
 from submission import models as submission_models
 
 from security.decorators import editor_user_required
@@ -14,6 +15,7 @@ def featured_articles(request):
     featured_article_pks = [f.article.pk for f in featured_arts.all()]
     articles = submission_models.Article.objects.filter(date_published__isnull=False,
                                                         journal=request.journal).exclude(pk__in=featured_article_pks)
+    form = forms.FeaturedForm()
 
     if 'article_id' in request.POST:
         article_id = request.POST.get('article_id')
@@ -39,6 +41,7 @@ def featured_articles(request):
     context = {
         'featured_articles': featured_arts,
         'articles': articles,
+        'form': form,
     }
 
     return render(request, template, context)
