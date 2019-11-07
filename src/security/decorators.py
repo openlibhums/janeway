@@ -87,6 +87,9 @@ def production_manager_roles(func):
     :return: either the function call or permission denied
     """
 
+        if not base_check(request):
+            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+
     def wrapper(request, *args, **kwargs):
         if request.user.is_editor(request) or request.user.is_section_editor(request) or request.user.is_production(request):
             return func(request, *args, **kwargs)
@@ -105,6 +108,10 @@ def proofing_manager_roles(func):
         """
 
     def wrapper(request, *args, **kwargs):
+
+        if not base_check(request):
+            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+
         if request.user.is_editor(request) or request.user.is_section_editor(
                 request) or request.user.is_proofing_manager(request):
             return func(request, *args, **kwargs)
