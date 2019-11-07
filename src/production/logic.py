@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from itertools import chain
+import zipfile
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
@@ -303,10 +304,9 @@ def edit_galley_redirect(typeset_task, galley, return_url, article):
         return redirect(redirect_url)
 
 
-def process_zip_file(file, galley, request):
-    import zipfile
+def process_zip_file(zip_file, galley, request):
 
-    with zipfile.ZipFile(file, 'r') as zf:
+    with zipfile.ZipFile(zip_file, 'r') as zf:
         for finfo in zf.infolist():
             zipped_file = zf.open(finfo)
 
