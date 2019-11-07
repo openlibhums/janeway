@@ -1,0 +1,23 @@
+{% extends "admin/core/base.html" %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Upload a Zip File</h2>
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>
+                Your zip file should have a series of images with the same names
+                as the images in your XML file.
+            </p>
+            <ul>
+                {% for image in galley.has_missing_image_files %}
+                <li>{{ image }}</li>
+                {% endfor %}
+            </ul>
+            <input name="file" type="file">
+            <button class="small success button" name="zip_file">Upload</button>
+        </form>
+    </div>
+{% endblock body %}

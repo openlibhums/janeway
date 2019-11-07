@@ -278,3 +278,58 @@ def get_production_assign_content(user, request, article, url):
         'article': article,
     }
     return render_template.get_message_content(request, context, 'production_assign_article')
+
+
+def edit_galley_redirect(typeset_task, galley, return_url, article):
+    if typeset_task:
+        return redirect(
+            reverse(
+                'edit_galley',
+                kwargs={'typeset_id': typeset_task.pk, 'galley_id': galley.pk},
+            )
+        )
+    else:
+        return_path = '?return={return_url}'.format(
+            return_url=return_url,
+        ) if return_url else ''
+        url = reverse(
+            'pm_edit_galley',
+            kwargs={'article_id': article.pk, 'galley_id': galley.pk},
+        )
+        redirect_url = '{url}{return_path}'.format(
+            url=url,
+            return_path=return_path,
+        )
+        return redirect(redirect_url)
+
+
+def process_zip_file(file, galley, request):
+    import zipfile
+
+    with zipfile.ZipFile(file, 'r') as zf:
+        for finfo in zf.infolist():
+            zipped_file = zf.open(finfo)
+
+            if zipped_file.name in galley.has_missing_image_files():
+                new_file = files.save_zipped_file_to_article(
+                    zipped_file,
+                    galley.article,
+                    request.user,
+                )
+                new_file.is_galley = False
+                new_file.label = "Galley Image"
+                new_file.original_filename = zipped_file.name
+                new_file.save()
+
+                galley.images.add(new_file)
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'File in zip not in XML {}'.format(
+                        zipped_file.name
+                    )
+                )
+                return True
+
+    return False
