@@ -304,7 +304,7 @@ def edit_galley_redirect(typeset_task, galley, return_url, article):
         return redirect(redirect_url)
 
 
-def process_zip_file(zip_file, galley, request):
+def handle_zipped_galley_images(zip_file, galley, request):
 
     with zipfile.ZipFile(zip_file, 'r') as zf:
         for finfo in zf.infolist():

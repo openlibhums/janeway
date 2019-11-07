@@ -981,7 +981,7 @@ def upload_image_zip(request, galley_id, typeset_id=None, article_id=None):
     if request.POST and 'zip_file' in request.POST:
         file = request.FILES.get('file')
         try:
-            errors = logic.process_zip_file(file, galley, request)
+            errors = logic.handle_zipped_galley_images(file, galley, request)
         except BadZipFile:
             messages.add_message(
                 request,
