@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django.core.files.base import ContentFile
 
 from production import models
 from core import files, models as core_models
@@ -304,32 +305,87 @@ def edit_galley_redirect(typeset_task, galley, return_url, article):
         return redirect(redirect_url)
 
 
+def zip_redirect(typeset_id, article_id, galley_id):
+    if typeset_id:
+        return redirect(
+            reverse(
+                'typesetter_zip_uploader',
+                kwargs={
+                    'typeset_id': typeset_id,
+                    'galley_id': galley_id,
+                }
+            )
+        )
+    else:
+        return redirect(
+            reverse(
+                'pm_zip_uploader',
+                kwargs={
+                    'article_id': article_id,
+                    'galley_id': galley_id
+                }
+            )
+        )
+
+
 def handle_zipped_galley_images(zip_file, galley, request):
 
     with zipfile.ZipFile(zip_file, 'r') as zf:
         for finfo in zf.infolist():
             zipped_file = zf.open(finfo)
+            content_file = ContentFile(zipped_file.read())
+            content_file.name = zipped_file.name
 
             if zipped_file.name in galley.has_missing_image_files():
-                new_file = files.save_zipped_file_to_article(
-                    zipped_file,
+                new_file = files.save_file_to_article(
+                    content_file,
                     galley.article,
                     request.user,
                 )
                 new_file.is_galley = False
                 new_file.label = "Galley Image"
-                new_file.original_filename = zipped_file.name
                 new_file.save()
 
                 galley.images.add(new_file)
+
+            elif zipped_file.name in galley.all_missing_images():
+                try:
+                    file = galley.images.get(
+                        original_filename=zipped_file.name,
+                    )
+
+                    updated_file = files.overwrite_file(
+                        content_file,
+                        file,
+                        ('articles', galley.article.pk)
+                    )
+                    updated_file.original_filename = zipped_file.name
+                    updated_file.save()
+
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'New version of {} saved.'.format(zipped_file.name)
+                    )
+                except core_models.File.DoesNotExist:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'A file was found in XML and Zip but no corresponding'
+                        'File object could be found. {}'.format(
+                            zipped_file.name,
+                        )
+                    )
+
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    ''
+                )
             else:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'File in zip not in XML {}'.format(
-                        zipped_file.name
-                    )
+                    'File {} not found in XML'.format(zipped_file.name)
                 )
-                return True
-
-    return False
+    return

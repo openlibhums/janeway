@@ -981,43 +981,20 @@ def upload_image_zip(request, galley_id, typeset_id=None, article_id=None):
     if request.POST and 'zip_file' in request.POST:
         file = request.FILES.get('file')
         try:
-            errors = logic.handle_zipped_galley_images(file, galley, request)
-        except BadZipFile:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                'File must be a .zip file.'
-            )
-            errors = True
-
-        if not errors:
+            logic.handle_zipped_galley_images(file, galley, request)
             return logic.edit_galley_redirect(
                 typeset_task,
                 galley,
                 return_url,
                 article,
             )
-        else:
-            if typeset_id:
-                return redirect(
-                    reverse(
-                        'typesetter_zip_uploader',
-                        kwargs={
-                            'typeset_id': typeset_id,
-                            'galley_id': galley_id,
-                        }
-                    )
-                )
-            else:
-                return redirect(
-                    reverse(
-                        'pm_zip_uploader',
-                        kwargs={
-                            'article_id': article_id,
-                            'galley_id': galley_id
-                        }
-                    )
-                )
+        except BadZipFile:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'File must be a .zip file.'
+            )
+            return logic.zip_redirect(typeset_id, article_id, galley_id)
 
     template = 'production/upload_image_zip.html'
     context = {
