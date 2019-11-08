@@ -185,46 +185,6 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
     return new_file
 
 
-def save_zipped_file_to_article(zipped_file, article, user):
-    filename = str(uuid4()) + str(os.path.splitext(zipped_file.name)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'articles',
-        str(article.id),
-    )
-
-    if not os.path.exists(folder_structure):
-        mkdirs(folder_structure)
-
-    save_file_to_disk(
-        zipped_file.read(),
-        filename,
-        folder_structure,
-        chunk=False,
-    )
-
-    file_mime = file_path_mime(
-        os.path.join(folder_structure, filename),
-    )
-
-    from core import models
-    new_file = models.File(
-        mime_type=file_mime,
-        original_filename=zipped_file.name,
-        uuid_filename=filename,
-        label="Galley Image",
-        description="Galley image uploaded from a Zip file",
-        owner=user,
-        is_galley=False,
-        article_id=article.pk
-    )
-
-    new_file.save()
-
-    return new_file
-
-
 def guess_mime(filename):
     """ Attempt to ascertain the MIME type of a file
 

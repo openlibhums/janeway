@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 
+{% load files %}
+
 {% block body %}
     <div class="box">
         <div class="title-area">
@@ -9,10 +11,10 @@
             {% csrf_token %}
             <p>
                 Your zip file should have a series of images with the same names
-                as the images in your XML file.
+                as the images in your XML file. If a duplicate is found it will be updated with the new image.
             </p>
             <ul>
-                {% for image in galley.has_missing_image_files %}
+                {% for image in galley.all_missing_images %}
                 <li>{{ image }}</li>
                 {% endfor %}
             </ul>
