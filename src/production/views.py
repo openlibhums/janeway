@@ -292,15 +292,17 @@ def production_article(request, article_id):
 
     if request.POST:
 
-        if 'xml' in request.POST:
-            for uploaded_file in request.FILES.getlist('xml-file'):
-                logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "XML",
-                )
+        try:
+            if 'xml' in request.POST:
+                for uploaded_file in request.FILES.getlist('xml-file'):
+                    logic.save_galley(
+                        article,
+                        request,
+                        uploaded_file,
+                        True,
+                    )
+        except TypeError as exc:
+            messages.add_message(request, messages.ERROR, str(exc))
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):

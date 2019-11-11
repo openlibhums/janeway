@@ -67,7 +67,7 @@ def save_source_file(article, request, uploaded_file):
     article.source_files.add(new_file)
 
 
-def save_galley(article, request, uploaded_file, is_galley, label, save_to_disk=True):
+def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True):
     new_file = files.save_file_to_article(uploaded_file, article, request.user, save=save_to_disk)
     new_file.is_galley = is_galley
     new_file.label = label
@@ -75,12 +75,14 @@ def save_galley(article, request, uploaded_file, is_galley, label, save_to_disk=
     new_file.save()
     article.save()
 
-    if new_file.mime_type == 'text/html':
+    if new_file.mime_type in files.HTML_MIMETYPES:
         type = 'html'
         label = 'HTML'
-    elif new_file.mime_type == 'application/xml':
+    elif new_file.mime_type == files.XML_MIMETYPES:
         type = 'xml'
         label = 'XML'
+    elif label is None:
+        raise TypeError("Invalid file %s" % (new_file.mime_type))
     else:
         type = label.lower()
 
