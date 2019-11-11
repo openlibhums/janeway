@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from itertools import chain
 import zipfile
 
+from bs4 import BeautifulSoup
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -78,6 +79,13 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
     if new_file.mime_type in files.HTML_MIMETYPES:
         type = 'html'
         label = 'HTML'
+        with open(new_file.self_article_path(), 'r+') as f:
+            html_contents = f.read()
+            f.seek(0)
+            cleaned_html = remove_css_from_html(html_contents)
+            f.write(cleaned_html)
+            f.truncate()
+
     elif new_file.mime_type == files.XML_MIMETYPES:
         type = 'xml'
         label = 'XML'
@@ -91,6 +99,30 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
     )
 
     return new_galley
+
+
+def remove_css_from_html(source_html):
+    """ Removes any embedded css from the given html
+    :param html: a str of containing html to be cleaned
+    :return: A str with the cleaned html
+    """
+    soup = BeautifulSoup(source_html, "html.parser")
+    # Remove external stylesheets
+    link_tags = soup("link", {"rel": "stylesheet"})
+    for link_tag in link_tags:
+        link_tag.decompose()
+
+    # Remove internal stylesheets
+    style_tags = soup("style")
+    for style_tag in style_tags:
+        style_tag.decompose()
+
+    # Remove internal stylesheets
+    for tag in soup():
+          del tag["style"]
+
+    return soup.prettify()
+
 
 
 def replace_galley_file(article, request, galley, uploaded_file):
