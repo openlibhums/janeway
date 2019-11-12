@@ -866,12 +866,7 @@ class Galley(models.Model):
                 if show_all:
                     missing_elements.append(url)
                 else:
-                    try:
-                        try:
-                            self.images.get(original_filename=url)
-                        except File.MultipleObjectsReturned:
-                            self.images.filter(original_filename=url).first()
-                    except File.DoesNotExist:
+                    if not self.images.filter(original_filename=url).first():
                         missing_elements.append(url)
 
         if not missing_elements:
@@ -879,7 +874,11 @@ class Galley(models.Model):
         else:
             return missing_elements
 
-    def all_missing_images(self):
+    def all_images(self):
+        """
+        Returns all images/figures in agalley file.
+        :return:
+        """
         return self.has_missing_image_files(show_all=True)
 
     def file_content(self, dont_render=False):
