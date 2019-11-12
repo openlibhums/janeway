@@ -348,7 +348,7 @@ def handle_zipped_galley_images(zip_file, galley, request):
 
                 galley.images.add(new_file)
 
-            elif zipped_file.name in galley.all_missing_images():
+            elif zipped_file.name in galley.all_images():
                 try:
                     file = galley.images.get(
                         original_filename=zipped_file.name,

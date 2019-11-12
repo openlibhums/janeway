@@ -14,7 +14,7 @@
                 as the images in your XML file. If a duplicate is found it will be updated with the new image.
             </p>
             <ul>
-                {% for image in galley.all_missing_images %}
+                {% for image in galley.all_images %}
                 <li>{{ image }}</li>
                 {% endfor %}
             </ul>
