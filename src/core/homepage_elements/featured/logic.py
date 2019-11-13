@@ -1,5 +1,7 @@
-from utils import setting_handler
+from django.db.models import Count
 
+from submission import models as sm
+from utils import setting_handler, function_cache
 from core.homepage_elements.featured import plugin_settings
 
 
@@ -33,3 +35,15 @@ def get_popular_article_settings(journal):
         most_downloaded_time = 'weekly'
 
     return most_downloaded, num_most_downloaded, most_downloaded_time
+
+
+@function_cache.cache(600)
+def get_most_popular_articles(journal, number, time):
+    articles = sm.Article.objects.annotate(
+        total=Count('articleaccess')
+    ).order_by('-total')[:2]
+
+    for article in articles:
+        print(article.title, article.total)
+
+    return articles
