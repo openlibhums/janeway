@@ -25,7 +25,7 @@
     <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
     <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
     {% if article.issue.issue %}<meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>{% endif %}
-    {% if article.issue.number %}<meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>{% endif %}
+    {% if article.issue.volume %}<meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>{% endif %}
     <meta name="DC.Source.URI" content="{% journal_url 'website_index' %}"/>
     <meta name="DC.Title" content="{{ article.title | striptags }}"/>
 
