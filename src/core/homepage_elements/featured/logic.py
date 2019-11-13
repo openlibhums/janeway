@@ -13,7 +13,7 @@ def get_popular_article_settings(journal):
             plugin,
             'most_downloaded',
             journal,
-        ).value
+        ).processed_value
     except IndexError:
         most_downloaded = False
 
@@ -22,7 +22,7 @@ def get_popular_article_settings(journal):
             plugin,
             'num_most_downloaded',
             journal,
-        ).value
+        ).processed_value
     except IndexError:
         num_most_downloaded = 0
     try:
@@ -30,7 +30,7 @@ def get_popular_article_settings(journal):
             plugin,
             'most_downloaded_time',
             journal,
-        ).value
+        ).processed_value
     except IndexError:
         most_downloaded_time = 'weekly'
 
@@ -41,7 +41,7 @@ def get_popular_article_settings(journal):
 def get_most_popular_articles(journal, number, time):
     articles = sm.Article.objects.annotate(
         total=Count('articleaccess')
-    ).order_by('-total')[:2]
+    ).order_by('-total')[:int(number)]
 
     for article in articles:
         print(article.title, article.total)

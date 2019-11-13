@@ -10,7 +10,7 @@ def yield_homepage_element_context(request, homepage_elements):
             request.journal
         )
 
-        if most_downloaded == 'on':
+        if most_downloaded:
             featured_articles = logic.get_most_popular_articles(
                 request.journal,
                 number,
