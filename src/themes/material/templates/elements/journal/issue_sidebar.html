@@ -13,8 +13,11 @@
         </li>
     </ul>
 
-    <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
-        {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
+    <h3>
+        {% if issue.issue_type.code == 'issue' %}{% trans "Issue Archive" %}
+        {% else %} {% trans issue.issue_type.plural_name %}
+        {% endif %}
+    </h3>
     <ul class="collection">
         {% for list_issue in issues %}
             {% if list_issue.issue_type.code == 'issue' %}
