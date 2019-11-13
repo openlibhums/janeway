@@ -1,6 +1,8 @@
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
+
 
 from submission import models as sm
+from metrics import models
 from utils import setting_handler, function_cache
 from core.homepage_elements.featured import plugin_settings
 
@@ -37,13 +39,19 @@ def get_popular_article_settings(journal):
     return most_downloaded, num_most_downloaded, most_downloaded_time
 
 
-@function_cache.cache(600)
 def get_most_popular_articles(journal, number, time):
-    articles = sm.Article.objects.annotate(
-        total=Count('articleaccess')
-    ).order_by('-total')[:int(number)]
 
-    for article in articles:
-        print(article.title, article.total)
+    accesses = models.ArticleAccess.objects.filter(
+        article=OuterRef('pk'),
+    ).order_by().values('article')
+
+    count_accesses = accesses.annotate(count=Count('*')).values('count')
+
+    articles = sm.Article.objects.filter(
+        journal=journal,
+        stage=sm.STAGE_PUBLISHED,
+    ).annotate(
+        access_count=Subquery(count_accesses)
+    ).order_by('-access_count')[:number]
 
     return articles
