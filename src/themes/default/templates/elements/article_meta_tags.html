@@ -54,7 +54,7 @@
                 {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
     {% endif %}
 
-    {% for pdf in pdfs %}
-        <meta name="citation_pdf_url" content="{% url 'article_file_download' identifier_type identifier pdf.id %}"/>
+    {% for pdf in article.pdfs %}
+        <meta name="citation_pdf_url" content="{% journal_url 'article_file_download' identifier_type identifier pdf.id %}"/>
     {% endfor %}
     {% include "elements/journal/social_meta.html" %}
