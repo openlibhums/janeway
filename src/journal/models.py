@@ -442,7 +442,7 @@ class Issue(models.Model):
 
     @property
     def display_title(self):
-        if self.issue_type == 'Collection':
+        if self.issue_type.code != 'issue':
             return self.issue_title
 
         journal = self.journal
