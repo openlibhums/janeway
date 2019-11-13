@@ -24,7 +24,7 @@
             <h2>Task Detail</h2>
         </div>
         <div class="content">
-            {{ typeset_task.task|safe }}
+            <p>{{ typeset_task.task|safe }}</p>
         </div>
         {% if typeset_task.files.all %}
             <div class="title-area">
@@ -98,6 +98,9 @@
                         <button type="submit" class="button success" data-open="uploadbox"><i
                                 class="fa fa-check">&nbsp;</i>Complete Corrections
                         </button>
+                        <button class="button primary" data-open="summarymodal">
+                          <i class="fa fa-server">&nbsp;</i>View Metadata
+                        </button>
                     </form>
                     </form>
                 </div>
@@ -109,6 +112,7 @@
         {% include "elements/proofing/typesetter_notes.html" with galley=galley %}
     {% endfor %}
 
+    {% include "admin/elements/summary_modal.html" %}
 {% endblock body %}
 
 {% block js %}
