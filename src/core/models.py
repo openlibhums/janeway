@@ -876,8 +876,8 @@ class Galley(models.Model):
 
     def all_images(self):
         """
-        Returns all images/figures in agalley file.
-        :return:
+        Returns all images/figures in a galley file.
+        :return: A list of image paths found in the galley
         """
         return self.has_missing_image_files(show_all=True)
 
