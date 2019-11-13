@@ -12,6 +12,16 @@ AUTHOR = 'Martin Paul Eve'
 VERSION = '1.0'
 
 
+def get_self():
+    try:
+        plugin = models.Plugin.objects.get(
+            name=PLUGIN_NAME,
+        )
+        return plugin
+    except models.Plugin.DoesNotExist:
+        return None
+
+
 def install():
     import core.models as core_models
     import journal.models as journal_models
@@ -92,8 +102,6 @@ def install():
             has_config=True)
 
         element.save()
-
-
 
 
 def hook_registry():
