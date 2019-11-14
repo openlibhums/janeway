@@ -23,6 +23,7 @@
                 <table class="small article_list scroll">
                     <thead>
                     <tr>
+                        <td>{{ ID }}</td>
                         <td>Title</td>
                         <td>Published</td>
                         <td>Identifier</td>
@@ -32,6 +33,7 @@
                     <tbody>
                     {% for article in published_articles %}
                         <tr>
+                            <td>{{ article.pk }}</td>
                             <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
                             <td>{{ article.date_published }}</td>
                             <td>{{ article.identifier }}</td>
@@ -52,6 +54,7 @@
                 <table class="small article_list scroll">
                     <thead>
                     <tr>
+                        <td>ID</td>
                         <td>Title</td>
                         <td>Declined</td>
                         <td>Identifier</td>
@@ -61,6 +64,7 @@
                     <tbody>
                     {% for article in rejected_articles %}
                         <tr>
+                            <td>{{ article.pk }}</td>
                             <td><a href="{% url 'manage_archive_article' article.pk %}">{{ article.title|safe }}</a></td>
                             <td>{{ article.date_declined }}</td>
                             <td>{{ article.identifier }}</td>

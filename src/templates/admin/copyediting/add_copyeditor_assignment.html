@@ -60,6 +60,7 @@
                 <table class="scroll small">
                     <tr>
                         <th></th>
+                        <th>ID</th>
                         <th>Label</th>
                         <th>Filename</th>
                         <th>Type</th>
@@ -71,6 +72,7 @@
                         <tr>
                             <td><input type="checkbox" name="files_for_copyediting" value="{{ file.id }}"
                                        {% if file in form.cleaned_data.files_for_copyediting %}checked="checked"{% endif %}></td>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Manuscript</td>
