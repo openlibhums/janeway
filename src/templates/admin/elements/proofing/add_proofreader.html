@@ -30,6 +30,7 @@
                 <table class="small scroll">
                     <tr style="text-align: left">
                         <th></th>
+                        <th>ID</th>
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
@@ -42,6 +43,7 @@
                         <tr>
                             <td><input type="checkbox" name="galleys_for_proofing" value="{{ galley.id }}"
                                        {% if galley in galleys %}checked="checked"{% endif %}></td>
+                            <td>{{ galley.pk }}</td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley</td>

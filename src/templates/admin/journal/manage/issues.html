@@ -44,6 +44,7 @@
                     <table class="scroll">
                         <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Title</th>
                             <th>Type</th>
                             <th>Volume</th>
@@ -56,6 +57,7 @@
                         <tbody {% if not issue %}class="sortable"{% endif %}>
                         {% for i in issues %}
                             <tr {% if not issue %}id="issues-{{ i.pk }}"{% endif %}>
+                                <td>{{ i.pk }}</td>
                                 <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
                                 <td>{{ i.issue_type }}</td>
                                 <td>{{ i.volume }}</td>
