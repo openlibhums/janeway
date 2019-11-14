@@ -20,6 +20,7 @@
                     <th>ID</th>
                     <th>Label</th>
                     <th>Uploaded</th>
+                    <th>Modified</th>
                     <th>Filename</th>
                     <th>Download</th>
                     <th>Replace</th>
@@ -35,6 +36,7 @@
                         <td>{{ file.pk }}</td>
                         <td>{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
                         <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                        <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                         <td>{{ file }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
