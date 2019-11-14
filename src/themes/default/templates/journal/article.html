@@ -16,19 +16,17 @@
     {% if not journal.disable_article_images %}
         <div class="col-md-12">
             <div class="card">
-                {% if article.large_image_file.id %}
                     <img class="card-img img-fluid article-img"
+                        {% if article.large_image_file.id %}
                          src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                         alt="{{ article.title | striptags }}">
-                {% elif journal.default_large_image %}
-                    <img class="card-img img-fluid article-img"
+                        {% elif article.issue.large_image %}
+                         src="{{ article.issue.large_image.url }}"
+                        {% elif journal.default_large_image %}
                          src="{{ journal.default_large_image.url }}"
-                         alt="{{ article.title | striptags }}">
-                {% else %}
-                    <img class="card-img"
+                        {% else %}
                          src=""
+                        {% endif %}
                          alt="{{ article.title | striptags }}">
-                {% endif %}
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>

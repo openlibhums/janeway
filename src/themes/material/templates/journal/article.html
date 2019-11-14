@@ -19,19 +19,17 @@
             <div class="card">
             {% if not journal.disable_article_images %}
                 <div class="card-image article-card waves-effect waves-block waves-light">
-                    {% if article.large_image_file.id %}
                         <img class="orbit-image"
+                            {% if article.large_image_file.id %}
                              src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                             alt="{{ article.title|striptags }}">
-                    {% elif journal.default_large_image %}
-                        <img class="orbit-image"
+                            {% elif article.issue.large_image %}
+                             src="{{ article.issue.large_image.url }}"
+                            {% elif journal.default_large_image %}
                              src="{{ journal.default_large_image.url }}"
-                             alt="{{ article.title|striptags }}">
-                    {% else %}
-                        <img class="orbit-image"
+                            {% else %}
                              src=""
+                            {% endif %}
                              alt="{{ article.title|striptags }}">
-                    {% endif %}
 
 
                     <span class="card-title">

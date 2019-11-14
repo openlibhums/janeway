@@ -20,19 +20,17 @@
             <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
-                        {% if article.large_image_file.id %}
                             <img class="orbit-image"
+                                {% if article.large_image_file.id %}
                                  src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                                 alt="{{ article.title | striptags }}">
-                        {% elif journal.default_large_image %}
-                            <img class="orbit-image"
+                                {% elif article.issue.large_image %}
+                                 src="{{ article.issue.large_image.url }}"
+                                {% elif journal.default_large_image %}
                                  src="{{ journal.default_large_image.url }}"
-                                 alt="{{ article.title | striptags }}">
-                        {% else %}
-                            <img class="orbit-image"
+                                {% else %}
                                  src=""
+                                {% endif %}
                                  alt="{{ article.title | striptags }}">
-                        {% endif %}
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
