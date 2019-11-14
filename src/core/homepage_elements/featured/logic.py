@@ -63,6 +63,6 @@ def get_most_popular_articles(journal, number, time):
         articleaccess__accessed__gte=start_date,
     ).annotate(
         access_count=Count("articleaccess")
-    ).order_by('-access_count')[:number]
+    ).order_by('-access_count', 'title')[:number]
 
     return articles
