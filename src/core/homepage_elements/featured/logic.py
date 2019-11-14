@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count
 from django.utils import timezone
 
 from submission import models as sm
@@ -56,22 +56,13 @@ def calc_start_date(time):
 
 def get_most_popular_articles(journal, number, time):
     start_date = calc_start_date(time)
-    print(start_date)
-
-    accesses = models.ArticleAccess.objects.filter(
-        article=OuterRef('pk'),
-        accessed__gte=start_date,
-    ).order_by().values('article')
-
-    count_accesses = accesses.annotate(count=Count('*')).values('count')
 
     articles = sm.Article.objects.filter(
         journal=journal,
         stage=sm.STAGE_PUBLISHED,
+        articleaccess__accessed__gte=start_date,
     ).annotate(
-        access_count=Subquery(count_accesses)
+        access_count=Count("articleaccess")
     ).order_by('-access_count')[:number]
-
-    print(articles.query)
 
     return articles
