@@ -4,41 +4,40 @@ from django.db.models import Count
 from django.utils import timezone
 
 from submission import models as sm
-from metrics import models
-from utils import setting_handler, function_cache
-from core.homepage_elements.featured import plugin_settings
+from utils import setting_handler
+from core.homepage_elements.popular import plugin_settings
 
 
 def get_popular_article_settings(journal):
     plugin = plugin_settings.get_self()
 
     try:
-        most_downloaded = setting_handler.get_plugin_setting(
+        most_popular = setting_handler.get_plugin_setting(
             plugin,
-            'most_downloaded',
+            'most_popular',
             journal,
         ).processed_value
     except IndexError:
-        most_downloaded = False
+        most_popular = False
 
     try:
-        num_most_downloaded = setting_handler.get_plugin_setting(
+        num_most_popular = setting_handler.get_plugin_setting(
             plugin,
-            'num_most_downloaded',
+            'num_most_popular',
             journal,
         ).processed_value
     except IndexError:
-        num_most_downloaded = 0
+        num_most_popular = 0
     try:
-        most_downloaded_time = setting_handler.get_plugin_setting(
+        most_popular_time = setting_handler.get_plugin_setting(
             plugin,
-            'most_downloaded_time',
+            'most_popular_time',
             journal,
         ).processed_value
     except IndexError:
-        most_downloaded_time = 'weekly'
+        most_popular_time = 'weekly'
 
-    return most_downloaded, num_most_downloaded, most_downloaded_time
+    return most_popular, num_most_popular, most_popular_time
 
 
 def calc_start_date(time):

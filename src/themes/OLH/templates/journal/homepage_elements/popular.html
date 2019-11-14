@@ -1,0 +1,40 @@
+{% load static from staticfiles %}
+{% load i18n %}
+
+<section>
+    <div class="row column text-center">
+        {% if most_downloaded %}
+        <h2 class="title">{% trans 'Most Popular Articles' %}</h2>
+        {% else %}
+        <h2 class="title">{% trans 'Featured Articles' %}</h2>
+        {% endif %}
+    </div>
+    <div class="row" data-equalizer data-equalize-on="medium">
+        {% for article in popular_articles %}
+            <div class="large-4 columns{% if forloop.last %} end{% endif %}" >
+                <div class="box" data-equalizer-watch>
+                    <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}"
+                       class="box-link"></a>
+
+                    {% if article.large_image_file %}
+                        <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                             alt="{{ article.title|striptags }}" class="feature-article-image">
+                    {% elif article.journal.default_large_image %}
+                        <img src="{{ article.journal.default_large_image.url }}"
+                             alt="{{ article.title|striptags }}" class="feature-article-image">
+                    {% else  %}
+                        <img src="{% static 'common/img/sample/article-small.jpg' %}"
+                             alt="{{ article.title|striptags }}" class="feature-article-image">
+                    {% endif %}
+
+                    <div class="content">
+                        <p>{{ article.author_list }}</p>
+                        <p><strong>{{ article.title|safe|truncatechars:200 }}</strong></p>
+                    </div>
+                </div>
+            </div>
+            {% if forloop.counter|divisibleby:3 %}</div>
+                <div class="row">{% endif %}
+        {% endfor %}
+        </div>
+</section>
