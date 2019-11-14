@@ -221,7 +221,6 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
             else:
                 raise
 
-
     except Exception as e:
         logger.critical(
                 "Failed to load plugin setting for context:\n"
