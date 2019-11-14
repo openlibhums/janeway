@@ -1,5 +1,7 @@
-from django.db.models import Count, OuterRef, Subquery
+from datetime import timedelta
 
+from django.db.models import Count, OuterRef, Subquery
+from django.utils import timezone
 
 from submission import models as sm
 from metrics import models
@@ -39,10 +41,26 @@ def get_popular_article_settings(journal):
     return most_downloaded, num_most_downloaded, most_downloaded_time
 
 
+def calc_start_date(time):
+    date_time = timezone.now()
+
+    if time == 'weekly':
+        delta = 7
+    elif time == 'monthly':
+        delta = 30
+    else:
+        delta = 365
+
+    return date_time - timedelta(days=delta)
+
+
 def get_most_popular_articles(journal, number, time):
+    start_date = calc_start_date(time)
+    print(start_date)
 
     accesses = models.ArticleAccess.objects.filter(
         article=OuterRef('pk'),
+        accessed__gte=start_date,
     ).order_by().values('article')
 
     count_accesses = accesses.annotate(count=Count('*')).values('count')
@@ -53,5 +71,7 @@ def get_most_popular_articles(journal, number, time):
     ).annotate(
         access_count=Subquery(count_accesses)
     ).order_by('-access_count')[:number]
+
+    print(articles.query)
 
     return articles
