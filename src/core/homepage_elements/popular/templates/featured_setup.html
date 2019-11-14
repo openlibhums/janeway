@@ -67,6 +67,25 @@
         </div>
         </div>
     </div>
+    <div class="box">
+        <div class="title-area">
+            <h2>Display Most Downloaded Articles</h2>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                <div class="large-6 columns">
+                    <p>You can override the display of this block with the most downloaded articles rather than
+                        featured.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+                        <button name="form" class="success button">Save</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
 {% endblock body %}
 
 {% block js %}
