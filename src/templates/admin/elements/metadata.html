@@ -100,7 +100,7 @@
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
-                <td>{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
+                <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
