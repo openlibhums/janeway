@@ -11,13 +11,17 @@
     </button>
     <ul class="vertical menu">
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
-        <li class="subtitle"><a href="#">Dashboard</a></li>
+        <li class="subtitle"><a href="#">Dashboards</a></li>
         <li><a href="{% url 'core_dashboard' %}"><i class="fa fa-tachometer">&nbsp;</i>
             Main</a></li>
         {% if editor %}
         <li><a href="{% url 'kanban' %}"><i class="fa fa-sticky-note">&nbsp;</i> Kanban</a>
         </li>
+        <li><a href="{% url 'core_active_submissions' %}"><i class="fa fa-list-ol" aria-hidden="true"></i> Search Submissions</a>
+        </li>
         <li class="subtitle"><a href="#">Workflow</a></li>
+        <li><a href="{% url 'review_unassigned' %}"><i class="fa fa-user">&nbsp;</i> Unassigned</a>
+        </li>
         <li><a href="{% url 'review_home' %}"><i class="fa fa-check">&nbsp;</i> Review</a>
         </li>
         <li><a href="{% url 'copyediting' %}"><i class="fa fa-pencil">&nbsp;</i> Editing</a>
