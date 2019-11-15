@@ -37,6 +37,9 @@ admin_list = [
     (models.AltMetric, AltMetricAdmin),
     (models.ArticleAccess, ArticleAccessAdmin),
     (models.HistoricArticleAccess, HistoricArticleAccessAdmin),
+    (models.ForwardLink,),
+    (models.ArticleLink,),
+    (models.BookLink,),
 ]
 
 [admin.site.register(*t) for t in admin_list]
