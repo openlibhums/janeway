@@ -30,7 +30,7 @@ def featured_journals(request):
                 )
             )
 
-    template = 'journals_and_html.html'
+    template = 'featured_journals.html'
     context = {
         'form': form,
     }
