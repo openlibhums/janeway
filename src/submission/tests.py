@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.test import TestCase
 
 from journal import models as journal_models
+from utils.install import update_xsl_files
 
 
 # Create your tests here.
@@ -22,6 +23,7 @@ class SubmissionTests(TestCase):
         Creates a dummy journal for testing
         :return: a journal
         """
+        update_xsl_files()
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.save()
 

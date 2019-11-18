@@ -7,6 +7,7 @@ from journal.tests.utils import make_test_journal
 from press.models import Press
 from utils.testing.helpers import request_context
 
+
 class TestJournalSite(TestCase):
 
     def setUp(self):

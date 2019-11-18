@@ -720,9 +720,6 @@ class File(models.Model):
     def get_file_path(self, article):
         return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
 
-    def render_xml(self, article, galley=None):
-        return files.render_xml(self, article, galley=galley)
-
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
@@ -828,6 +825,7 @@ class Galley(models.Model):
     file = models.ForeignKey(File)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
+    xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
 
     # Remote Galley
     is_remote = models.BooleanField(default=False)
@@ -841,7 +839,10 @@ class Galley(models.Model):
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
 
-    def has_missing_image_files(self):
+    def render(self):
+        return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
+
+    def has_missing_image_files(self, show_all=False):
         xml_file_contents = self.file.get_file(self.article)
 
         souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
@@ -862,26 +863,29 @@ class Galley(models.Model):
                 # attempt to pull a URL from the specified attribute
                 url = os.path.basename(val.get(attribute, None))
 
-                try:
-                    try:
-                        self.images.get(original_filename=url)
-                    except File.MultipleObjectsReturned:
-                        self.images.filter(original_filename=url).first()
-                except File.DoesNotExist:
+                if show_all:
                     missing_elements.append(url)
+                else:
+                    if not self.images.filter(original_filename=url).first():
+                        missing_elements.append(url)
 
         if not missing_elements:
             return []
         else:
             return missing_elements
 
+    def all_images(self):
+        """
+        Returns all images/figures in a galley file.
+        :return: A list of image paths found in the galley
+        """
+        return self.has_missing_image_files(show_all=True)
+
     def file_content(self, dont_render=False):
         if self.file.mime_type == "text/html" or dont_render:
-            # get raw HTML and render
             return self.file.get_file(self.article)
-        elif self.file.mime_type == "application/xml" or self.file.mime_type == 'text/xml':
-            # perform an XSLT render
-            return self.file.render_xml(self.article, galley=self)
+        elif self.file.mime_type in files.XML_MIMETYPES:
+            return self.render()
 
     def path(self):
         url = reverse('article_download_galley',
@@ -892,6 +896,28 @@ class Galley(models.Model):
     @staticmethod
     def mimetypes_with_figures():
         return files.MIMETYPES_WITH_FIGURES
+
+    def save(self, *args, **kwargs):
+        if not self.xsl_file:
+            self.xsl_file = self.article.journal.xsl
+        super().save(*args, **kwargs)
+
+
+class XSLFile(models.Model):
+    file = models.FileField(storage=JanewayFileSystemStorage('src/transform/xsl'))
+    date_uploaded = models.DateTimeField(default=timezone.now)
+    label = models.CharField(max_length=255,
+        help_text="A label to help recognise this stylesheet",
+        unique=True,
+    )
+    comments = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "%s(%s@%s)" % (
+            self.__class__.__name__, self.label, self.file.path)
 
 
 class SupplementaryFile(models.Model):

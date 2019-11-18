@@ -1,0 +1,41 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Popular Articles Manager{% endblock title %}
+{% block admin-header %}Popular Articles Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'home_settings_index' %}">Journal Home Settings</a></li>
+    <li>Popular Articles Manager</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Display Most Popular Articles</h2>
+        </div>
+        <div class="content">
+            <div class="row expanded">
+                <div class="large-6 columns">
+                    <p>You can override the display of this block with the most popular articles rather than
+                        featured.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+                        <button name="form" class="success button">Save</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#featured" %}
+{% endblock js %}
+
+

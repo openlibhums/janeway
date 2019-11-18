@@ -24,7 +24,7 @@ from copyediting import models as copyediting_models
 from proofing import models as proofing_models
 from preprint import models as preprint_models
 from press import models as press_models
-
+from utils.install import update_xsl_files
 
 class TestSecurity(TestCase):
     # Tests for editor role checks
@@ -3359,6 +3359,7 @@ class TestSecurity(TestCase):
         Creates a set of dummy journals for testing
         :return: a 2-tuple of two journals
         """
+        update_xsl_files()
         journal_one = journal_models.Journal(code="TST", domain="journal1.localhost")
         journal_one.save()
 

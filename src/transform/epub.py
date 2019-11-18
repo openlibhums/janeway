@@ -49,7 +49,7 @@ def manipulate_images(html):
 
 def get_html_content(galley):
     if galley.file.mime_type == 'application/xml':
-        return galley.file.render_xml(galley.article)
+        return galley.render()
     elif galley.file.mime_type == 'text/html':
         return galley.file.get_file(galley.article)
 

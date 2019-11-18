@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
 import uuid
+from zipfile import BadZipFile
 
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -291,15 +292,17 @@ def production_article(request, article_id):
 
     if request.POST:
 
-        if 'xml' in request.POST:
-            for uploaded_file in request.FILES.getlist('xml-file'):
-                logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "XML",
-                )
+        try:
+            if 'xml' in request.POST:
+                for uploaded_file in request.FILES.getlist('xml-file'):
+                    logic.save_galley(
+                        article,
+                        request,
+                        uploaded_file,
+                        True,
+                    )
+        except TypeError as exc:
+            messages.add_message(request, messages.ERROR, str(exc))
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
@@ -794,7 +797,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     :param request: HttpRequest object
     :param galley_id: Galley object PK
     :param typeset_id: TypesetTask PK, optional
-    :param article_id: Article PK, optiona
+    :param article_id: Article PK, optional
     :return: HttpRedirect or HttpResponse
     """
     return_url = request.GET.get('return', None)
@@ -821,6 +824,10 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         pk=galley_id,
         article=article,
     )
+    if galley.label == 'XML':
+        xsl_files = core_models.XSLFile.objects.all()
+    else:
+        xsl_files = None
 
     if request.POST:
 
@@ -839,7 +846,6 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                     )
                 )
             else:
-                print(galley)
                 logic.handle_delete_request(
                     request,
                     galley,
@@ -905,6 +911,12 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                 request.FILES.get('galley'),
             )
 
+        if 'xsl_file' in request.POST:
+            xsl_file = get_object_or_404(core_models.XSLFile,
+                    pk=request.POST["xsl_file"])
+            galley.xsl_file = xsl_file
+            galley.save()
+
         if typeset_task:
             return redirect(
                 reverse(
@@ -934,7 +946,66 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         'image_names': logic.get_image_names(galley),
         'return_url': return_url,
         'data_files': article.data_figure_files.all(),
-        'galley_images': galley.images.all()
+        'galley_images': galley.images.all(),
+        'xsl_files': xsl_files,
+    }
+
+    return render(request, template, context)
+
+
+@typesetter_or_editor_required
+def upload_image_zip(request, galley_id, typeset_id=None, article_id=None):
+    return_url = request.GET.get('return', None)
+
+    if typeset_id:
+        typeset_task = get_object_or_404(
+            models.TypesetTask,
+            pk=typeset_id,
+            assignment__article__journal=request.journal,
+            accepted__isnull=False,
+            completed__isnull=True,
+        )
+        article = typeset_task.assignment.article
+    else:
+        typeset_task = None
+        article = get_object_or_404(
+            submission_models.Article.allarticles,
+            pk=article_id,
+            journal=request.journal
+        )
+
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=article,
+    )
+
+    if request.POST and 'zip_file' in request.POST:
+        file = request.FILES.get('file')
+        try:
+            logic.handle_zipped_galley_images(file, galley, request)
+            return logic.edit_galley_redirect(
+                typeset_task,
+                galley,
+                return_url,
+                article,
+            )
+        except BadZipFile:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'File must be a .zip file.'
+            )
+            return logic.zip_redirect(typeset_id, article_id, galley_id)
+
+    template = 'production/upload_image_zip.html'
+    context = {
+        'typeset_task': typeset_task,
+        'galley': galley,
+        'article': galley.article,
+        'galley_images': galley.images.all(),
+        'image_names': logic.get_image_names(galley),
+        'return_url': return_url,
     }
 
     return render(request, template, context)
@@ -1018,7 +1089,7 @@ def supp_file_doi(request, article_id, supp_file_id):
                                                              article.journal).processed_value,
                    'parent_doi': article.get_doi()
                    }
-    xml_content = render_to_string('identifiers/crossref_component.xml', xml_context, request)
+    xml_content = render_to_string('admin/identifiers/crossref_component.xml', xml_context, request)
 
     if request.POST:
         from identifiers import logic

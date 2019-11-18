@@ -25,7 +25,8 @@
                     <thead>
                     <tr>
                         <th>Select</th>
-                        <th>Name</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
                         <th>Email Address</th>
                         <th>Active Copyedits</th>
                     </tr>
@@ -35,7 +36,8 @@
                     {% for copyeditor_role in copyeditors %}
                         <tr>
                             <td><input type="radio" name="copyeditor" value="{{ copyeditor_role.user.id }}" {% if copyeditor_role.user == form.cleaned_data.copyeditor %}checked="checked"{% endif %}></td>
-                            <td>{{ copyeditor_role.user.full_name }}</td>
+                            <td>{{ copyeditor_role.user.first_name }}{% if copyeditor_role.user.middle_name %} {{ copyeditor_role.user.middle_name }}{% endif %}</td>
+                            <td>{{ copyeditor_role.user.last_name }}</td>
                             <td>{{ copyeditor_role.user.email }}</td>
                             <td>{{ copyeditor_role.user.active_copyedits|length }}</td>
                         </tr>
@@ -58,16 +60,19 @@
                 <table class="scroll small">
                     <tr>
                         <th></th>
+                        <th>ID</th>
                         <th>Label</th>
                         <th>Filename</th>
                         <th>Type</th>
                         <th>Uploaded</th>
                         <th>Download</th>
                     </tr>
+
                     {% for file in article.manuscript_files.all %}
                         <tr>
                             <td><input type="checkbox" name="files_for_copyediting" value="{{ file.id }}"
                                        {% if file in form.cleaned_data.files_for_copyediting %}checked="checked"{% endif %}></td>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Manuscript</td>
@@ -109,7 +114,7 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#copyeditor" %}
+    {% include "elements/datatables.html" with target="#copyeditor" sort=2 order='asc' %}
     {% include "elements/datepicker.html" with target="#id_due" %}
     {% include "elements/jqte.html" %}
     <script src="{% static "admin/js/csrf.js" %}"></script>

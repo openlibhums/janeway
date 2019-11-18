@@ -299,6 +299,7 @@ class GeneratedSettingForm(forms.Form):
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=False)
 
+            self.fields[field['name']].label = object.setting.pretty_name
             self.fields[field['name']].initial = object.processed_value
             self.fields[field['name']].help_text = object.setting.description
 
@@ -441,3 +442,10 @@ class UserCreationFormExtended(UserCreationForm):
             label=_("E-mail"),
             max_length=75,
         )
+
+
+class XSLFileForm(forms.ModelForm):
+
+    class Meta:
+        model = models.XSLFile
+        exclude = ["date_uploaded"]
