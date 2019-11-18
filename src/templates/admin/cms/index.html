@@ -58,23 +58,50 @@
             <div class="title-area">
                 <h2>XSLT</h2>
             </div>
+            <p><i class="fa fa-warning"> Changing the Current XSL will only  affect future uploads </i></p>
+            <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+                {% for xsl in xsl_files %}
+                    <li class="accordion-item" data-accordion-item>
+                        <a href="#" class="accordion-title">
+                            {% if journal.xsl == xsl %}<i class="fa fa-check-circle" style="color: green;"></i>{% endif %}
+                            {{ xsl.label }}
+                            {% if journal.xsl == xsl %}<i>(current)</i>{% endif %}
+                        </a>
+                        <div class="accordion-content" data-tab-content>
+                            <ul>
+                                <li>Date Uploaded: {{ xsl.date_uploaded|date:"Y-m-d" }}</li>
+                                {% if xsl.comments %}
+                                <li>Comments: {{ xsl_comments }}</li>
+                                {% endif %}
+                            </ul>
+                            {% if journal.xsl != xsl %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button name="change_xsl" value="{{ xsl.pk }}" type="submit" class="alert button">Make current</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>XSLT</h2>
+            </div>
+            <div class="title-area card-divider">
+                <h5>Upload new stylesheet</h5>
+            </div>
             <div class="content">
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <p>
-                        {% if request.journal.has_xslt %}
-                            This journal has an XSLT file. <br />
-                            <button name="clear" class="warning button">Delete File</button>
-                        {% else %}
-                            This journal is using the default XSLT file.
-                        {% endif %}
-                    </p>
-
-                    <input type="file" name="xsltfile">
-                    <button type="submit" class="success button">Upload</button>
+                    {{ xsl_form}}
+                    <button name="new_xsl" type="submit" class="success button">Upload</button>
                 </form>
             </div>
-        </div>
+            </div>
     </div>
     {% endif %}
 {% endblock body %}

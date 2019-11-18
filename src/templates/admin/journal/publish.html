@@ -17,6 +17,7 @@
             <table class="small scroll" id="prepub">
                 <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Title</th>
                     <th>Submitted</th>
                     <th>Main Author</th>
@@ -28,6 +29,7 @@
                 <tbody>
                 {% for article in articles %}
                     <tr>
+                        <td>{{ article.pk }}</td>
                         <td>{{ article.title }}</td>
                         <td>{{ article.date_submitted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>
@@ -37,13 +39,7 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td>No articles in this stage</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td colspan="7">No articles in this stage</td>
                     </tr>
                 {% endfor %}
                 </tbody>

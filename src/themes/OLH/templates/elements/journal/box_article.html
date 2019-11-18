@@ -23,6 +23,19 @@
             <p><span class="date"><i
                     class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
                     class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue.display_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
+            {% if article.issues.count > 1 %}
+              <p><strong><i class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
+              {% for other in article.issues.all %}
+              {% if other != article.issue %}
+              <p>
+                <i class="fa fa-book"></i>
+                <a class="issue-link" href={% if other.issue_type.code == 'issue'%}"{% url 'journal_issue' other.pk %}"{% else %}"{% url 'journal_collection' other.pk%}"{% endif %}>
+                    {{other.issue_type.pretty_name}}: {{ other.display_title }}
+                </a>
+              </p>
+              {% endif %}
+              {% endfor %}
+            {% endif %}
         </div>
     </div>
 </div>

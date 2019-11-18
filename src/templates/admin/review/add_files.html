@@ -24,6 +24,7 @@
                         <thead>
                         <tr>
                             <th>Select</th>
+                            <th>ID</th>
                             <th>Label</th>
                             <th>Filename</th>
                             <th>Type</th>
@@ -38,6 +39,7 @@
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
+                                <td>{{ file.pk }}</td>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
@@ -54,6 +56,7 @@
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
+                                <td>{{ file.pk }}</td>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Data/Figure</td>

@@ -31,7 +31,7 @@
                     <th>Label</th>
                     <th width="25%">Filename</th>
                     <th>Type</th>
-                    <th>Uploaded</th>
+                    <th>Modified</th>
                     <th>Download</th>
                     <th>History</th>
                     <th>Delete</th>
@@ -43,7 +43,7 @@
                     <td>{{ galley.label }}</td>
                     <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                     <td>Galley</td>
-                    <td>{{ galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                    <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                     <td>{% if can_view_file_flag %}
                         <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                 class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -126,7 +126,7 @@
                     <th>Label</th>
                     <th width="25%">Filename</th>
                     <th>Type</th>
-                    <th>Uploaded</th>
+                    <th>Modified</th>
                     <th>Download</th>
                     <th>Replace</th>
                     <th>History</th>
@@ -140,7 +140,7 @@
                         <td>{{ image.label }}</td>
                         <td>{{ image.original_filename }}</td>
                         <td>Galley Images</td>
-                        <td>{{ image.date_uploaded|date:"Y-m-d G:i" }}</td>
+                        <td>{{ image.date_modified|date:"Y-m-d G:i" }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk image.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -171,7 +171,7 @@
 
             </table>
             <div class="row expanded">
-                {% if galley.file.mime_type == 'application/xml' or galley.file.mime_type == 'text/html' %}
+                {% if galley.file.mime_type in galley.mimetypes_with_figures %}
                     {% for element in galley.has_missing_image_files %}
                         {% if element not in image_names %}
                             <div class="large-6 columns">
@@ -243,6 +243,31 @@
                         </small>
                     </div>
                 </div>
+                {% if galley.has_missing_image_files %}
+                <div class="large-6 columns">
+                    <div class="callout">
+                        <small>
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="large-12 columns">
+                                        <h6>Upload Zip File</h6>
+                                        <p>You can upload a zip file of images using the
+                                            {% if typeset_task %}
+                                                <a href="{% url 'typesetter_zip_uploader' typeset_task.pk galley.pk %}">
+                                            {% else %}
+                                                <a href="{% url 'pm_zip_uploader' article.pk galley.pk %}">
+                                            {% endif %}
+                                                Zip Uploader
+                                            </a>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </form>
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             <div class="row expanded">
                 <div class="large-12 columns">
@@ -253,11 +278,7 @@
 
                         <p>
                             You can upload a CSS file associated with this article for individual style. You should be
-                            wary
-                            not
-                            to
-                            make
-                            style changes
+                            wary not to make style changes
                             to header and footer type elements as this will effect the layout of the page.
                         </p>
                         <table class="scroll small">
@@ -331,6 +352,27 @@
                 {% endif %}
             </div>
         </div>
+    {% if xsl_files %}
+    <div class="title-area">
+        <h2>Galley XSLT</h2>
+    </div>
+    <div class="content">
+        <p>Select the XSL File used for rendering the HTML out of this galley</p>
+        <div class="row expanded">
+            <div class="large-6 columns end">
+                <form method="POST">
+                    {% csrf_token %}
+                    <select name="xsl_file">
+                    {% for xsl in xsl_files %}
+                        <option value={{ xsl.pk }}{% if xsl == galley.xsl_file %} selected{% endif %}>{{ xsl.label }}</option>
+                    {% endfor %}
+                    </select>
+                    <button type="submit" class="button small success">Update XSL</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     </div>
 
 {% endblock body %}

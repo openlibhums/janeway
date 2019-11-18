@@ -335,8 +335,8 @@ class Article(models.Model):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
-    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any competing or conflict"
-                                                                            "of insterests in the publication of this "
+    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
+                                                                            "of interests in the publication of this "
                                                                             "article please state them here.")
 
     # Files

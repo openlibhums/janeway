@@ -8,7 +8,12 @@ from django.utils import translation
 
 from press import models as press_models
 from journal import models as journal_models
-from utils.install import update_settings, update_license, update_issue_types
+from utils.install import (
+        update_issue_types,
+        update_license,
+        update_settings,
+        update_xsl_files,
+)
 from submission import models as submission_models
 
 ROLES_RELATIVE_PATH = 'utils/install/roles.json'
@@ -50,6 +55,7 @@ class Command(BaseCommand):
                 press.save()
 
             print("Thanks! We will now set up out first journal.\n")
+            update_xsl_files()
             journal = journal_models.Journal()
             journal.code = input('Journal #1 code: ')
             if settings.URL_CONFIG == 'domain':

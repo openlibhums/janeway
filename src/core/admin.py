@@ -105,6 +105,12 @@ class FileAdmin(admin.ModelAdmin):
             return '-'
 
 
+class XSLFileAdmin(admin.ModelAdmin):
+    """Displays Setting objects in the Django admin interface."""
+    list_display = ('date_uploaded', 'label', 'file')
+    search_fields = ('label',)
+
+
 class WorkflowElementAdmin(admin.ModelAdmin):
     search_fields = ('element_name',)
     list_display = ('element_name', 'journal', 'handshake_url', 'jump_url', 'stage', 'order')
@@ -192,6 +198,7 @@ admin_list = [
     (models.SettingGroup, SettingGroupAdmin),
     (models.SettingValue, SettingValueAdmin),
     (models.File, FileAdmin),
+    (models.XSLFile, XSLFileAdmin),
     (models.Interest,),
     (models.Task,),
     (models.TaskCompleteEvents,),

@@ -17,7 +17,7 @@
                         <a href="{% url 'journal_collection' collection.pk %}">
                             <h4 class="card-title">{{ collection.issue_title }}</h4>
                         </a>
-                        <p class="card-text"><small>Launched: {{ collection.date|date:"d/m/y" }}</small></p>
+                        <p class="card-text"><small>Published: {{ collection.date|date:"d/m/y" }}</small></p>
                         <p class="card-text">{{ collection.issue_description|safe }}</p>
                     </div>
                 </div>

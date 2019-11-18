@@ -428,7 +428,7 @@
             "is_translatable": false,
             "name": "max_dois",
             "pretty_name": "Maximum preprint DOIs per month",
-            "type": "integer"
+            "type": "number"
         },
         "value": {
             "default": "100"
@@ -2607,6 +2607,14 @@
         },
         "value": {
             "default": "Author(s) agree to the copyright notice, which will apply to this submission if accepted"
+            "description": "The maximum number of proofreaders allowed per round. To disable this set to 0.",
+            "is_translatable": false,
+            "name": "max_proofreaders",
+            "pretty_name": "Maximum Proofreders per Round",
+            "type": "number"
+        },
+        "value": {
+            "default": "0"
         }
     }
 ]

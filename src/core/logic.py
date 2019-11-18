@@ -292,6 +292,12 @@ def get_settings_to_edit(group, journal):
             'object': setting_handler.get_setting('email', 'from_address', journal),
         })
 
+    elif group == 'proofing':
+        proofing_settings = [
+            'max_proofreaders'
+        ]
+        settings = process_setting_list(proofing_settings, 'general', journal)
+        setting_group = 'general'
     else:
         settings = []
         setting_group = None

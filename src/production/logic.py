@@ -4,11 +4,14 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from itertools import chain
+import zipfile
 
+from bs4 import BeautifulSoup
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django.core.files.base import ContentFile
 
 from production import models
 from core import files, models as core_models
@@ -65,7 +68,7 @@ def save_source_file(article, request, uploaded_file):
     article.source_files.add(new_file)
 
 
-def save_galley(article, request, uploaded_file, is_galley, label, save_to_disk=True):
+def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True):
     new_file = files.save_file_to_article(uploaded_file, article, request.user, save=save_to_disk)
     new_file.is_galley = is_galley
     new_file.label = label
@@ -73,12 +76,21 @@ def save_galley(article, request, uploaded_file, is_galley, label, save_to_disk=
     new_file.save()
     article.save()
 
-    if new_file.mime_type == 'text/html':
+    if new_file.mime_type in files.HTML_MIMETYPES:
         type = 'html'
         label = 'HTML'
-    elif new_file.mime_type == 'application/xml':
+        with open(new_file.self_article_path(), 'r+') as f:
+            html_contents = f.read()
+            f.seek(0)
+            cleaned_html = remove_css_from_html(html_contents)
+            f.write(cleaned_html)
+            f.truncate()
+
+    elif new_file.mime_type == files.XML_MIMETYPES:
         type = 'xml'
         label = 'XML'
+    elif label is None:
+        raise TypeError("Invalid file %s" % (new_file.mime_type))
     else:
         type = label.lower()
 
@@ -87,6 +99,30 @@ def save_galley(article, request, uploaded_file, is_galley, label, save_to_disk=
     )
 
     return new_galley
+
+
+def remove_css_from_html(source_html):
+    """ Removes any embedded css from the given html
+    :param html: a str of containing html to be cleaned
+    :return: A str with the cleaned html
+    """
+    soup = BeautifulSoup(source_html, "html.parser")
+    # Remove external stylesheets
+    link_tags = soup("link", {"rel": "stylesheet"})
+    for link_tag in link_tags:
+        link_tag.decompose()
+
+    # Remove internal stylesheets
+    style_tags = soup("style")
+    for style_tag in style_tags:
+        style_tag.decompose()
+
+    # Remove internal stylesheets
+    for tag in soup():
+          del tag["style"]
+
+    return soup.prettify()
+
 
 
 def replace_galley_file(article, request, galley, uploaded_file):
@@ -278,3 +314,112 @@ def get_production_assign_content(user, request, article, url):
         'article': article,
     }
     return render_template.get_message_content(request, context, 'production_assign_article')
+
+
+def edit_galley_redirect(typeset_task, galley, return_url, article):
+    if typeset_task:
+        return redirect(
+            reverse(
+                'edit_galley',
+                kwargs={'typeset_id': typeset_task.pk, 'galley_id': galley.pk},
+            )
+        )
+    else:
+        return_path = '?return={return_url}'.format(
+            return_url=return_url,
+        ) if return_url else ''
+        url = reverse(
+            'pm_edit_galley',
+            kwargs={'article_id': article.pk, 'galley_id': galley.pk},
+        )
+        redirect_url = '{url}{return_path}'.format(
+            url=url,
+            return_path=return_path,
+        )
+        return redirect(redirect_url)
+
+
+def zip_redirect(typeset_id, article_id, galley_id):
+    if typeset_id:
+        return redirect(
+            reverse(
+                'typesetter_zip_uploader',
+                kwargs={
+                    'typeset_id': typeset_id,
+                    'galley_id': galley_id,
+                }
+            )
+        )
+    else:
+        return redirect(
+            reverse(
+                'pm_zip_uploader',
+                kwargs={
+                    'article_id': article_id,
+                    'galley_id': galley_id
+                }
+            )
+        )
+
+
+def handle_zipped_galley_images(zip_file, galley, request):
+
+    with zipfile.ZipFile(zip_file, 'r') as zf:
+        for finfo in zf.infolist():
+            zipped_file = zf.open(finfo)
+            content_file = ContentFile(zipped_file.read())
+            content_file.name = zipped_file.name
+
+            if zipped_file.name in galley.has_missing_image_files():
+                new_file = files.save_file_to_article(
+                    content_file,
+                    galley.article,
+                    request.user,
+                )
+                new_file.is_galley = False
+                new_file.label = "Galley Image"
+                new_file.save()
+
+                galley.images.add(new_file)
+
+            elif zipped_file.name in galley.all_images():
+                try:
+                    file = galley.images.get(
+                        original_filename=zipped_file.name,
+                    )
+
+                    updated_file = files.overwrite_file(
+                        content_file,
+                        file,
+                        ('articles', galley.article.pk)
+                    )
+                    updated_file.original_filename = zipped_file.name
+                    updated_file.save()
+
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'New version of {} saved.'.format(zipped_file.name)
+                    )
+                except core_models.File.DoesNotExist:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'A file was found in XML and Zip but no corresponding'
+                        'File object could be found. {}'.format(
+                            zipped_file.name,
+                        )
+                    )
+
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    ''
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'File {} not found in XML'.format(zipped_file.name)
+                )
+    return
