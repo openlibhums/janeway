@@ -145,6 +145,14 @@
                                         <p><i class="fa fa-reddit"></i> Reddit</p>
                                     </div>
                                 {% endif %}
+                                {% if article.citations %}
+                                    <div class="alm">
+                                        <h5>
+                                            {{ article.citations|length }}
+                                        </h5>
+                                        <p><i class="fa fa-quote-left"></i> Reddit</p>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
