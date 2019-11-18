@@ -73,8 +73,13 @@ class ArticleLink(ForwardLink):
     journal_title = models.TextField()
     journal_issn = models.CharField(max_length=20)
     article_title = models.TextField()
-    volume = models.PositiveIntegerField(blank=True, null=True)
-    issue = models.PositiveIntegerField(blank=True, null=True)
+    volume = models.CharField(max_length=10, blank=True, null=True)
+    issue = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return 'Article Link: {}'.format(
+            self.article_title
+        )
 
 
 class BookLink(ForwardLink):
@@ -82,6 +87,11 @@ class BookLink(ForwardLink):
     isbn_print = models.TextField()
     isbn_electronic = models.TextField()
     component_number = models.TextField()
+
+    def __str__(self):
+        return 'Book Link: {}'.format(
+            self.title
+        )
 
 
 def alt_metric_choices():

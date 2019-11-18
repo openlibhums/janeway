@@ -12,26 +12,50 @@ from metrics import models
 def process_article(link, article):
     print('Processing article', end='...')
     doi = link.doi.contents[0]
+    volume = link.volume.contents[0] if link.volume else ''
+    issue = link.issue.contents[0] if link.issue else ''
+    issn = link.issn.contents[0] if link.issn else None
 
     defaults = {
         'year': link.year.contents[0],
         'journal_title': link.journal_title.contents[0],
         'article_title': link.article_title.contents[0],
+        'volume': volume,
+        'issue': issue,
+        'journal_issn': issn,
     }
-
-    print(defaults)
 
     models.ArticleLink.objects.get_or_create(
         article=article,
         doi=doi,
         object_type='article',
+        defaults=defaults,
     )
     print('[ok]')
 
 
 def process_book(link, article):
     print('Processing book', end='...')
+    doi = link.doi.contents[0]
 
+    isbn_print = link.find('isbn', {'type': 'print'})
+    isbn_elec = link.find('isbn', {'type': 'electronic'})
+
+    title = link.volume_title.contents[0]
+
+    defaults = {
+        'year': link.year.contents[0],
+        'title': title,
+        'component_number': link.component_number.contents[0],
+        'isbn_print': isbn_print.contents[0],
+        'isbn_electronic': isbn_elec.contents[0],
+    }
+    models.BookLink.objects.get_or_create(
+        article=article,
+        doi=doi,
+        object_type='book',
+        defaults=defaults,
+    )
     print('[ok]')
 
 
@@ -114,6 +138,6 @@ class Command(BaseCommand):
                 else:
                     process_book(link, article)
             else:
-                print('Article not found.')
+                print('Article with doi {} not found.'.format(doi))
 
         print(len(forward_links))
