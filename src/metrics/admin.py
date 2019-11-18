@@ -33,11 +33,17 @@ class AltMetricAdmin(admin.ModelAdmin):
     raw_id_fields = ('article',)
 
 
+class ForwardLinkAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'article', 'object_type', 'doi', 'year')
+    list_filter = ('object_type', 'year',)
+    search_fields = ('article__title', 'doi',)
+
+
 admin_list = [
     (models.AltMetric, AltMetricAdmin),
     (models.ArticleAccess, ArticleAccessAdmin),
     (models.HistoricArticleAccess, HistoricArticleAccessAdmin),
-    (models.ForwardLink,),
+    (models.ForwardLink, ForwardLinkAdmin),
     (models.ArticleLink,),
     (models.BookLink,),
 ]

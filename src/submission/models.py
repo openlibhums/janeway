@@ -1045,6 +1045,13 @@ class Article(models.Model):
         except ObjectDoesNotExist:
             return None
 
+    @property
+    def citations(self):
+        for citation in self.forwardlink_set.all():
+            print(citation.pk)
+
+        return self.forwardlink_set.all()
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
