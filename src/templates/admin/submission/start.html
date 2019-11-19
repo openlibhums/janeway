@@ -57,7 +57,7 @@
                         {{ journal_settings.general.copyright_notice|safe }}
 
                         {{ form.copyright_notice }}&nbsp;&nbsp;<label
-                            for="id_copyright_notice">{% trans "Author(s) agrees to copyright notice, which will apply to this submission if accepted" %}</label>
+                            for="id_copyright_notice">{{ form.copyright_notice.label }}</label>
                     </div>
                 {% endif %}
 

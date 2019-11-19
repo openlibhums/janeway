@@ -11,6 +11,8 @@ from core import models as core_models
 from identifiers import models as ident_models
 from review.forms import render_choices
 from utils.forms import KeywordModelForm
+from utils import setting_handler
+
 
 
 class PublisherNoteForm(forms.ModelForm):
@@ -54,6 +56,14 @@ class ArticleStart(forms.ModelForm):
 
         if not journal.submissionconfiguration.comments_to_the_editor:
             self.fields.pop('comments_editor')
+
+
+        copyright_label = setting_handler.get_setting(
+            'general',
+            'copyright_submission_label',
+            journal,
+        ).processed_value
+        self.fields['copyright_notice'].label = copyright_label
 
 
 class ArticleInfo(KeywordModelForm):
