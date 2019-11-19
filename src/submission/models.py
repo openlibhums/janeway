@@ -1046,11 +1046,11 @@ class Article(models.Model):
             return None
 
     @property
-    def citations(self):
-        for citation in self.forwardlink_set.all():
-            print(citation.pk)
+    def citation_count(self):
+        article_link_count = self.articlelink_set.all().count()
+        book_link_count = self.booklink_set.all().count()
 
-        return self.forwardlink_set.all()
+        return article_link_count + book_link_count
 
 
 class FrozenAuthor(models.Model):

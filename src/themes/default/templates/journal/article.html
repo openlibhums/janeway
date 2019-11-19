@@ -169,8 +169,8 @@
                             <li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
                         {% if article.metrics.alm.reddit %}
                             <li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
-                        {% if article.citations %}
-                            <li>{% trans "Citations" %}: {{ article.citations|length }}</li>{% endif %}
+                        {% if article.citation_count %}
+                            <li>{% trans "Citations" %}: {{ article.citation_count }}</li>{% endif %}
                     </ul>
                     {% endif %}
                     <h4>{% trans "Citation" %}</h4>

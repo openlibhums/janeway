@@ -145,12 +145,12 @@
                                         <p><i class="fa fa-reddit"></i> Reddit</p>
                                     </div>
                                 {% endif %}
-                                {% if article.citations %}
+                                {% if article.citation_count %}
                                     <div class="alm">
                                         <h5>
-                                            {{ article.citations|length }}
+                                            {{ article.citation_count }}
                                         </h5>
-                                        <p><i class="fa fa-quote-left"></i> Reddit</p>
+                                        <p><i class="fa fa-quote-left"></i> Citations</p>
                                     </div>
                                 {% endif %}
                             </div>
