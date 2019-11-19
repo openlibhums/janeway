@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlencode
 
 from django.core.management.base import BaseCommand
 
@@ -102,11 +103,15 @@ class Command(BaseCommand):
             journal,
         ).value
 
-        url = 'https://doi.crossref.org/servlet/getForwardLinks?usr={usr}&pwd={pwd}&doi={doi}&startDate={date}'.format(
-            usr=usr,
-            pwd=pwd,
-            doi=doi,
-            date=date
+        payload = {
+            'usr': usr,
+            'pwd': pwd,
+            'doi': doi,
+            'startDate': date,
+        }
+
+        url = 'https://doi.crossref.org/servlet/getForwardLinks?{}'.format(
+            urlencode(payload)
         )
 
         print('Making request.', end='... ')
