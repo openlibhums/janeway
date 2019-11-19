@@ -10,7 +10,7 @@ from metrics import models
 
 
 def process_article(link, article):
-    print('Processing article', end='...')
+    print('Processing article', end='... ')
     doi = link.doi.contents[0]
     volume = link.volume.contents[0] if link.volume else ''
     issue = link.issue.contents[0] if link.issue else ''
@@ -35,7 +35,7 @@ def process_article(link, article):
 
 
 def process_book(link, article):
-    print('Processing book', end='...')
+    print('Processing book', end='... ')
     doi = link.doi.contents[0]
 
     isbn_print = link.find('isbn', {'type': 'print'})
@@ -117,11 +117,11 @@ class Command(BaseCommand):
         soup = BeautifulSoup(r.text, 'lxml')
         print('[ok]')
 
-        print('Finding forward links', end='...')
+        print('Finding forward links', end='... ')
         forward_links = soup.find_all('forward_link')
         print('[ok]')
 
-        print('Looping through links', end='...')
+        print('Looping through links', end='... ')
         for link in forward_links:
             type = link.doi.get('type')
             doi = link.get('doi')
