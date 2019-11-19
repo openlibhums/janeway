@@ -62,14 +62,17 @@ def object_types():
     )
 
 
-class ForwardLink(models.Model):
+class AbstractForwardLink(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     doi = models.CharField(max_length=255)
     object_type = models.CharField(max_length=10, choices=object_types())
     year = models.CharField(max_length=5)
 
+    class Meta:
+        abstract = True
 
-class ArticleLink(ForwardLink):
+
+class ArticleLink(AbstractForwardLink):
     journal_title = models.TextField()
     journal_issn = models.CharField(max_length=20)
     article_title = models.TextField()
@@ -82,7 +85,7 @@ class ArticleLink(ForwardLink):
         )
 
 
-class BookLink(ForwardLink):
+class BookLink(AbstractForwardLink):
     title = models.TextField()
     isbn_print = models.TextField()
     isbn_electronic = models.TextField()
