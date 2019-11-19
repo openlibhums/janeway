@@ -66,7 +66,7 @@ class AbstractForwardLink(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     doi = models.CharField(max_length=255)
     object_type = models.CharField(max_length=10, choices=object_types())
-    year = models.CharField(max_length=5)
+    year = models.PositiveIntegerField()
 
     class Meta:
         abstract = True
