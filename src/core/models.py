@@ -739,7 +739,10 @@ class File(models.Model):
 
     def checksum(self):
         if self.article_id:
-            return files.checksum(self.self_article_path())
+            try:
+                return files.checksum(self.self_article_path())
+            except FileNotFoundError:
+                return 'No checksum could be calculated.'
         else:
             logger.error(
                 'Galley file ({file_id}) found with no article_id.'.format(
