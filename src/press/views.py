@@ -12,7 +12,12 @@ from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse, Http404
 
-from core import files, models as core_models, plugin_loader
+from core import (
+    files,
+    models as core_models,
+    plugin_loader,
+    logic as core_logic,
+)
 from journal import models as journal_models, views as journal_views, forms as journal_forms
 from press import models as press_models, forms
 from security.decorators import press_only
@@ -31,9 +36,9 @@ def index(request):
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
 
-    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                                   object_id=request.press.pk,
-                                                                   active=True).order_by('sequence')
+    homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
+        request,
+    )
 
     template = "press/press_index.html"
     context = {
@@ -42,12 +47,13 @@ def index(request):
 
     # call all registered plugin block hooks to get relevant contexts
     for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
-        hook_module = plugin_loader.import_module(hook.get('module'))
-        function = getattr(hook_module, hook.get('function'))
-        element_context = function(request, homepage_elements)
+        if hook.get('name') in homepage_element_names:
+            hook_module = plugin_loader.import_module(hook.get('module'))
+            function = getattr(hook_module, hook.get('function'))
+            element_context = function(request, homepage_elements)
 
-        for k, v in element_context.items():
-            context[k] = v
+            for k, v in element_context.items():
+                context[k] = v
 
     return render(request, template, context)
 

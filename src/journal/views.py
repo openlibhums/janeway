@@ -26,7 +26,12 @@ from django.views.decorators.http import require_POST
 from django.core.management import call_command
 
 from cms import models as cms_models
-from core import files, models as core_models, plugin_loader
+from core import (
+    files,
+    models as core_models,
+    plugin_loader,
+    logic as core_logic,
+)
 from journal import logic, models, issue_forms, forms
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
@@ -55,11 +60,9 @@ def home(request):
         journal=request.journal,
     )
 
-    homepage_elements = core_models.HomepageElement.objects.filter(
-        content_type=request.model_content_type,
-        object_id=request.journal.pk,
-        active=True).order_by('sequence')
-    homepage_element_names = [el.name for el in homepage_elements]
+    homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
+        request,
+    )
 
     template = 'journal/index.html'
     context = {
