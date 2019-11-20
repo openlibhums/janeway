@@ -14,18 +14,13 @@ logger = get_logger(__name__)
 
 
 def get_random_journals():
-    journals = journal_models.Journal.objects.filter(hide_from_press=False)
-    journal_pks = [journal.pk for journal in journals]
-    random_journal_pks = list()
+    journals = journal_models.Journal.objects.filter(
+        hide_from_press=False,
+    )
 
-    random.shuffle(journal_pks)
-    for i in range(0, 6):
+    sample_size = 6 if journals.count() > 6 else journals.count()
 
-        if journal_pks:
-            choice = journal_pks.pop()
-            random_journal_pks.append(choice)
-
-    return journals.filter(pk__in=random_journal_pks)
+    return random.sample(set(journals), sample_size)
 
 
 def yield_homepage_element_context(request, homepage_elements):
