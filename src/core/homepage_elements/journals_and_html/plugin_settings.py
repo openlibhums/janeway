@@ -46,5 +46,5 @@ def hook_registry():
     except OperationalError:
         # if we get here the database hasn't yet been created
         return {}
-    except BaseException:
+    except:
         return {}

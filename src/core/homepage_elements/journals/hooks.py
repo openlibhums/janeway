@@ -14,7 +14,7 @@ def get_random_journals():
         hide_from_press=False,
     )
 
-    sample_size = 6 if journals.count() > 6 else journals.count()
+    sample_size = min(6, journals.count())
 
     return random.sample(set(journals), sample_size)
 
