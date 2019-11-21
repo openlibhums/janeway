@@ -178,9 +178,10 @@ def serve_press_cover(request):
     """
     p = press_models.Press.get_press(request)
 
-    response = files.serve_press_cover(request, p.thumbnail_image)
-
-    return response
+    if p.thumbnail_image:
+        return files.serve_press_cover(request, p.thumbnail_image)
+    else:
+        raise Http404
 
 
 @staff_member_required
