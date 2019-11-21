@@ -8,5 +8,5 @@
             <p>{{ journal_settings.general.journal_description|safe }}</p>
         </div>
     </div>
-    <div class="figure">{% svg request.press_cover %}</div>
+    {% if request.press_cove %}<div class="figure">{% svg request.press_cover %}</div>{% endif %}
 </section>
