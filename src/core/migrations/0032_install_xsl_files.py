@@ -6,7 +6,7 @@ from django.core.files import File as DjangoFile
 
 
 def install_xsl_files(apps, schema_editor):
-    default_xsl_path = os.path.join("src/transform/xsl/default.xsl")
+    default_xsl_path = os.path.join(settings.BASE_DIR, "transform/xsl/default.xsl")
     install_xsl_file(
         apps,
         label=settings.DEFAULT_XSL_FILE_LABEL,

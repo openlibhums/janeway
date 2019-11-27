@@ -464,7 +464,7 @@ SILENT_IMPORT_CACHE = False
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default v1'
+DEFAULT_XSL_FILE_LABEL = 'Janeway default'
 
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
