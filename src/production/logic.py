@@ -86,7 +86,7 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
             f.write(cleaned_html)
             f.truncate()
 
-    elif new_file.mime_type == files.XML_MIMETYPES:
+    elif new_file.mime_type in files.XML_MIMETYPES:
         type = 'xml'
         label = 'XML'
     elif label is None:
