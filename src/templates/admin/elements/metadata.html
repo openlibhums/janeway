@@ -20,7 +20,11 @@
     </tr>
     <tr>
         <td>{{ article.section.name }}</td>
+        {% if article.correspondence_author %}
         <td>{{ article.correspondence_author.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' article.correspondence_author.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
+        {% else %}
+        <td><i class="fa fa-warning">&nbsp;</i> This article has no correspondence_author</td>
+        {% endif %}
         <td>{{ article.license.short_name }}</td>
         <td>{{ article.get_language_display }}</td>
     </tr>
