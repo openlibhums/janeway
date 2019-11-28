@@ -24,7 +24,8 @@ class JanewayFileSystemStorage(FileSystemStorage):
             try:
                 _, relative_path = location.split(settings.MEDIA_ROOT)
             except ValueError:
-                relative_path = location
+                absolute_path = os.path.join(settings.BASE_DIR, location)
+                relative_path = os.path.relpath(absolute_path, os.getcwd())
         else:
             relative_path = None
         self.relative_path = relative_path
