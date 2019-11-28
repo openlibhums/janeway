@@ -907,7 +907,7 @@ class Galley(models.Model):
 
 
 class XSLFile(models.Model):
-    file = models.FileField(storage=JanewayFileSystemStorage('src/transform/xsl'))
+    file = models.FileField(storage=JanewayFileSystemStorage('transform/xsl'))
     date_uploaded = models.DateTimeField(default=timezone.now)
     label = models.CharField(max_length=255,
         help_text="A label to help recognise this stylesheet",

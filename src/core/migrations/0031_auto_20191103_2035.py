@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='XSLFile',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(storage=core.file_system.JanewayFileSystemStorage('src/transform/xsl'), upload_to='')),
+                ('file', models.FileField(storage=core.file_system.JanewayFileSystemStorage('transform/xsl'), upload_to='')),
                 ('date_uploaded', models.DateTimeField(default=django.utils.timezone.now)),
                 ('label', models.CharField(help_text='A label to help recognise this stylesheet', max_length=255, unique=True)),
                 ('comments', models.TextField(blank=True, null=True)),
