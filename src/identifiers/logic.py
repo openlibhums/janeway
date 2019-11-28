@@ -140,7 +140,7 @@ def send_crossref_deposit(server, identifier):
     if article.license:
         template_context["license"] = article.license.url
 
-    template = 'admin/identifiers/crossref.xml'
+    template = 'common/identifiers/crossref.xml'
     crossref_template = render_to_string(template, template_context)
     logger.debug(crossref_template)
 
@@ -298,7 +298,7 @@ def register_preprint_doi(request, crossref_enabled, identifier):
             url = CROSSREF_LIVE_URL
 
         template_context = get_preprint_tempate_context(request, identifier)
-        template = 'admin/identifiers/crossref.xml'
+        template = 'common/identifiers/crossref.xml'
         crossref_template = render_to_string(template, template_context)
 
         pdfs = identifier.article.pdfs
