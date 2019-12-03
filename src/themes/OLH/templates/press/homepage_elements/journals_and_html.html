@@ -4,8 +4,9 @@
     <div class="row">
         <div class="large-6 columns">
             <div class="row column text-center">
-            <h2 class="title">{% trans "Featured Journals" %}</h2>
-        </div>
+                <h2 class="title">{% trans "Featured Journals" %}</h2>
+            </div>
+        <div class="row">
         {% for current_journal in featured_journals %}
             <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
                 <div class="box journal-list">
@@ -31,9 +32,8 @@
                     {% endif %}
                 </div>
             </div>
-             {% if forloop.counter|divisibleby:6 %}</div>
-            <div class="row">{% endif %}
         {% endfor %}
+        </div>
         </div>
         <div class="large-6 columns">
             {{ html_block_content|safe }}
