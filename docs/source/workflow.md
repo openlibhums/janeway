@@ -9,7 +9,7 @@ Workflow Guides
    editor/editor
    reviewer
    copyeditor
-   production
+   typesetter
    proofing
 
 
