@@ -1,0 +1,46 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Editorial Team{% endblock title %}
+
+{% block body %}
+    <div class="row mb-2">
+        <div class="col-md-12">
+            <h1>Editorial Team</h1>
+        </div>
+
+        {% for group in editorial_groups %}
+            <div class="col-md-12">
+                <h2>{{ group.name }}</h2>
+                {% if group.description %}
+                    <p>{{ group.description|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+                <div class="card-deck">
+                    {% for member in group.members %}
+                        <div class="col-md-3">
+                            <div class="card">
+                                {% if journal_settings.general.enable_editorial_images %}
+                                <img class="card-img-top card-img" src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="A picture of {{ member.user.full_name }}">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ member.user.full_name }}</h5>
+                                    <p class="card-text">
+                                        <small>{{ member.user.affiliation }}</small>
+                                    </p>
+                                    {% if user.enable_public_profile %}
+                                        <p class="card-text">
+                                            <small class="text-muted"><a href="{% url 'core_public_profile' member.user.uuid %}">View
+                                                Profile</a>
+                                            </small>
+                                        </p>
+                                    {% endif %}
+                                    {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+        {% endfor %}
+    </div>
+{% endblock %}

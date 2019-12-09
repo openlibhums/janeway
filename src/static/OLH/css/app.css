@@ -4650,6 +4650,9 @@ main section {
   main section.no-padding {
     padding: 0; }
 
+#article {
+  word-wrap: break-word; }
+
 .dark-primary-bg {
   background: #062657; }
 
@@ -5250,3 +5253,11 @@ button.list-group-item-danger.active:focus {
 
 .feature-article-image {
   object-fit: cover; }
+
+.alignright {
+  float: right;
+  padding: 5px; }
+
+.alignleft {
+  float: left;
+  padding: 5px; }
