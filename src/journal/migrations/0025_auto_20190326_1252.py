@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.db import migrations, models, connection
+from django.db import migrations, models
 import django.db.models.deletion
 
 
@@ -12,12 +12,12 @@ def copy_guest_editors(apps, schema_editor):
     Issue = apps.get_model('journal', 'Issue')
     IssueEditor = apps.get_model('journal', 'IssueEditor')
 
-    cursor = connection.cursor()
+    guest_editors = Issue.guest_editors.through.objects.all()
+    print('Guest Editors:', guest_editors)
 
-    cursor.execute('''SELECT * FROM journal_issue_guest_editors;''')
-    for row in cursor.fetchall():
-        issue_pk = row[1]
-        account_pk = row[2]
+    for editor in guest_editors:
+        issue_pk = editor.issue_id
+        account_pk = editor.account_id
 
         issue_obj = Issue.objects.get(pk=issue_pk)
         account_obj = Account.objects.get(pk=account_pk)

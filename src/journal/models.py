@@ -27,7 +27,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic
+from utils import setting_handler, logic, decorators
 from utils.function_cache import cache
 from utils.logger import get_logger
 
@@ -814,6 +814,7 @@ class Notifications(models.Model):
 
 # Signals
 
+@decorators.disable_for_loaddata
 @receiver(post_save, sender=Journal)
 def setup_default_section(sender, instance, created, **kwargs):
     if created:
@@ -826,12 +827,14 @@ def setup_default_section(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Journal)
+@decorators.disable_for_loaddata
 def setup_default_workflow(sender, instance, created, **kwargs):
     if created:
         workflow.create_default_workflow(instance)
 
 
 @receiver(post_save, sender=Journal)
+@decorators.disable_for_loaddata
 def setup_submission_configuration(sender, instance, created, **kwargs):
     if created:
         submission_models.SubmissionConfiguration.objects.get_or_create(
@@ -840,6 +843,7 @@ def setup_submission_configuration(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Journal)
+@decorators.disable_for_loaddata
 def setup_default_form(sender, instance, created, **kwargs):
     if created:
         from review import models as review_models
@@ -869,6 +873,7 @@ def setup_default_form(sender, instance, created, **kwargs):
             default_review_form.elements.add(main_element)
 
 
+@decorators.disable_for_loaddata
 def issue_articles_change(sender, **kwargs):
     """
     When an article is removed from an issue this signal will delete any
@@ -910,4 +915,4 @@ def issue_articles_change(sender, **kwargs):
                 )
 
 
-m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)
+#m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)

@@ -32,31 +32,35 @@ def load(directory="plugins", prefix="plugins", permissive=False):
 
     hooks = []
     plugins = []
+
     for dir in dirs:
-        plugin = get_plugin(dir, permissive)
-        if plugin:
-            plugins.append(plugin)
-            module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
+        try:
+            plugin = get_plugin(dir, permissive)
+            if plugin:
+                plugins.append(plugin)
+                module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
 
-            # Load settings module
-            plugin_settings = import_module(module_name)
-            validate_plugin_version(plugin_settings)
+                # Load settings module
+                plugin_settings = import_module(module_name)
+                validate_plugin_version(plugin_settings)
 
-            # Load hooks
-            hooks.append(load_hooks(plugin_settings))
+                # Load hooks
+                hooks.append(load_hooks(plugin_settings))
 
-            # Check for workflow
-            workflow_check = check_plugin_workflow(plugin_settings)
-            if workflow_check:
-                settings.WORKFLOW_PLUGINS[workflow_check] = module_name
-                STAGE_CHOICES.append(
-                    (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
-                )
-                ELEMENT_STAGES[
-                    plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
+                # Check for workflow
+                workflow_check = check_plugin_workflow(plugin_settings)
+                if workflow_check:
+                    settings.WORKFLOW_PLUGINS[workflow_check] = module_name
+                    STAGE_CHOICES.append(
+                        (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
+                    )
+                    ELEMENT_STAGES[
+                        plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
 
-            # Call event registry
-            register_for_events(plugin_settings)
+                # Call event registry
+                register_for_events(plugin_settings)
+        except ModuleNotFoundError as e:
+            print('Error loading plugin: {}'.format(e))
 
     # Register plugin hooks
     if settings.PLUGIN_HOOKS:
@@ -104,6 +108,7 @@ def validate_plugin_version(plugin_settings):
                 plugin_settings.PLUGIN_NAME, current_version, wants_version
             )
         )
+
 
 def get_plugin(module_name, permissive):
     # Check that the module is installed.
