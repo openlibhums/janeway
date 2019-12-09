@@ -48,4 +48,8 @@
         </div>
     </div>
 
+    {% for review_request in new_requests %}
+    {% include "admin/elements/review/review_request_metadata.html" %}
+    {% endfor %}
+
 {% endblock %}

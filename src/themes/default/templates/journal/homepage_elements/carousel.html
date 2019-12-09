@@ -15,7 +15,7 @@
                                 {% else %}
                              src=""
                                 {% endif %}
-                             alt="{{ carousel_item.carousel_title|urlencode }}">
+                             alt="{{ carousel_item.carousel_title|striptags }}">
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                              <p>{{ carousel_item.carousel_subtitle }}</p>
                              <h3>{{ carousel_item.carousel_title|safe|truncatechars:200 }}</h3>

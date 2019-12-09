@@ -36,21 +36,6 @@ function getUrlVars()
     return vars;
 }
 
-function submit_note(article_id){
-    var text = $('#' + article_id + '_new_note').val();
-    data = {'note': text}
-    $.ajax({
-            "type": "POST",
-            "dataType": "json",
-            "url": "/note/" + article_id + "/new/ ",
-            "data": data,
-            "success": function(data) { 
-                $('#' + article_id + '_new_note').val("")
-                $('.note-holder').prepend(data.html);
-            },
-        });
-}
-
 try {
     var target_modal = getUrlVars()["article_id"];
     //var popup = new Foundation.Reveal($('#modal-' + target_modal));

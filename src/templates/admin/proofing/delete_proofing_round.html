@@ -1,0 +1,38 @@
+{% extends "admin/core/base.html" %}
+{% load securitytags %}
+{% load files %}
+{% load foundation %}
+
+{% block title %}Deleting Proofing Round #{{ round.number }}{% endblock %}
+{% block title-section %}Deleting Proofing Round #{{ round.number }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/proofing_manager_base.html" %}
+    <li>Deleting Proofing Round #{{ round.number }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Open Tasks in Round #{{ round.number }}</h2>
+        </div>
+        <div class="content">
+            <p>Proofreaders and Typesetters will be notified that their tasks have been closed. <br /><strong>Please note, this action will irrevocably delete this data. Only do so if you really want to remove it.</strong></p>
+            <ul>
+                {% for task in proofing_tasks %}
+                    <li>{{ task }}</li>
+                {% endfor %}
+                {% for task in correction_tasks %}
+                    <li>{{ task }}</li>
+                {% endfor %}
+            </ul>
+            <form method="POST">
+                {% csrf_token %}
+                <button class="button alert">Delete Round</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

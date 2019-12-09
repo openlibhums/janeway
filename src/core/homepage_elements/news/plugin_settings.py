@@ -1,13 +1,15 @@
 from django.db.utils import OperationalError
+from django.db.utils import ProgrammingError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
+from utils import models, setting_handler
 
 PLUGIN_NAME = 'News'
 SHORT_NAME = 'news'
 DESCRIPTION = 'This is a homepage element that renders News section.'
 AUTHOR = 'Martin Paul Eve & Andy Byers'
 VERSION = '1.0'
+DEFAULT_NEWS = 5 #Defines how many news are to be displayed by default
 
 
 def install():
@@ -17,6 +19,14 @@ def install():
 
     # check whether this homepage element has already been installed for all journals
     journals = journal_models.Journal.objects.all()
+    plugin, created = models.Plugin.objects.get_or_create(
+        name=PLUGIN_NAME,
+        version=VERSION,
+        enabled=True,
+        display_name='News',
+        press_wide=True,
+        homepage_element=True,
+    )
 
     for journal in journals:
         content_type = ContentType.objects.get_for_model(journal)
@@ -30,6 +40,20 @@ def install():
             defaults={'available_to_press': True})
 
         element.save()
+        number_of_articles = setting_handler.get_plugin_setting(
+                plugin=plugin,
+                setting_name='number_of_articles',
+                journal=journal,
+                create=True,
+                pretty='Number of Articles',
+        ).value
+        if number_of_articles in {None, " ", ""}:
+            setting_handler.save_plugin_setting(
+                    plugin=plugin,
+                    setting_name='number_of_articles',
+                    value=DEFAULT_NEWS,
+                    journal=journal,
+            )
 
     presses = press_models.Press.objects.all()
 
@@ -46,23 +70,17 @@ def install():
 
         element.save()
 
-    models.Plugin.objects.get_or_create(
-        name=PLUGIN_NAME,
-        version=VERSION,
-        enabled=True,
-        display_name='News',
-        press_wide=True,
-    )
-
 
 def hook_registry():
     try:
         install()
-        return {'yield_homepage_element_context': {'module': 'core.homepage_elements.news.hooks',
-                                                   'function': 'yield_homepage_element_context'}
-                }
-    except OperationalError:
+        return {
+            'yield_homepage_element_context': {
+                'module': 'core.homepage_elements.news.hooks',
+                'function': 'yield_homepage_element_context',
+                'name': PLUGIN_NAME,
+            }
+        }
+    except (OperationalError, ProgrammingError):
         # if we get here the database hasn't yet been created
-        return {}
-    except BaseException:
         return {}

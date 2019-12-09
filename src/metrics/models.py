@@ -20,6 +20,7 @@ class ArticleAccess(models.Model):
     identifier = models.CharField(max_length=200)
     accessed = models.DateTimeField(default=timezone.now)
     galley_type = models.CharField(max_length=200)
+    country = models.ForeignKey('core.Country', blank=True, null=True)
 
     def __str__(self):
         return '[{0}] - {1} at {2}'.format(self.identifier, self.article.title, self.accessed)
@@ -52,6 +53,48 @@ class HistoricArticleAccess(models.Model):
         downloads = self.downloads
         self.downloads = downloads - 1
         self.save()
+
+
+def object_types():
+    return (
+        ('book', 'Book'),
+        ('article', 'Article'),
+    )
+
+
+class AbstractForwardLink(models.Model):
+    article = models.ForeignKey('submission.Article', blank=True, null=True)
+    doi = models.CharField(max_length=255)
+    object_type = models.CharField(max_length=10, choices=object_types())
+    year = models.PositiveIntegerField()
+
+    class Meta:
+        abstract = True
+
+
+class ArticleLink(AbstractForwardLink):
+    journal_title = models.TextField()
+    journal_issn = models.CharField(max_length=20)
+    article_title = models.TextField()
+    volume = models.CharField(max_length=10, blank=True, null=True)
+    issue = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return 'Article Link: {}'.format(
+            self.article_title
+        )
+
+
+class BookLink(AbstractForwardLink):
+    title = models.TextField()
+    isbn_print = models.TextField()
+    isbn_electronic = models.TextField()
+    component_number = models.TextField()
+
+    def __str__(self):
+        return 'Book Link: {}'.format(
+            self.title
+        )
 
 
 def alt_metric_choices():

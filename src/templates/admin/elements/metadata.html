@@ -1,20 +1,30 @@
 {% load settings %}
+{% load roles %}
+{% load static from staticfiles %}
 
-{% if not view_type == "author" %}
+{% user_has_role request 'editor' as user_is_editor %}
+{% user_has_role request 'production' as user_is_production %}
+
+{% if user_is_editor or user_is_production %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
-            class="fa fa-edit">&nbsp;</i>Edit</a>{% endif %}
+            class="fa fa-edit">&nbsp;</i>Edit</a>
+{% endif %}
 <h4>{{ article.title|safe }}</h4>
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
 <table class="scroll small">
     <tr>
         <th>Section</th>
-        <th>Owner</th>
+        <th>Correspondence Author</th>
         <th>Licence</th>
         <th>Language</th>
     </tr>
     <tr>
         <td>{{ article.section.name }}</td>
-        <td>{{ article.owner.full_name }}</td>
+        {% if article.correspondence_author %}
+        <td>{{ article.correspondence_author.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' article.correspondence_author.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
+        {% else %}
+        <td><i class="fa fa-warning">&nbsp;</i> This article has no correspondence_author</td>
+        {% endif %}
         <td>{{ article.license.short_name }}</td>
         <td>{{ article.get_language_display }}</td>
     </tr>
@@ -77,27 +87,6 @@
     {% endfor %}
 
 </table>
-<div class="title-area">
-    <h2>Authors</h2>
-</div>
-
-<table class="scroll small" id="unassigned">
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Primary?</th>
-    </tr>
-    {% for order in article.articleauthororder_set.all %}
-        <tr>
-            <td>{{ order.author.full_name }}</td>
-            <td>{{ order.author.email }}</td>
-            <td>{% if order.author == article.correspondence_author %}
-                <i class="fa fa-check-circle" style="color: green;"></i>
-            {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
-            </td>
-        </tr>
-    {% endfor %}
-</table>
 
 {% if article.frozenauthor_set.all %}
     <div class="title-area">
@@ -115,7 +104,7 @@
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
-                <td>{{ f_author.author.email }}</td>
+                <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
@@ -184,6 +173,7 @@
             <th>Label</th>
             <th>Filename</th>
             <th>Type</th>
+            <th>Uploaded</th>
             <th>Download</th>
         </tr>
         {% for file in article.manuscript_files.all %}
@@ -191,6 +181,7 @@
                 <td>{{ file.label }}</td>
                 <td>{{ file.original_filename }}</td>
                 <td>Manuscript</td>
+                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                         class="fa fa-download">&nbsp;</i></a>
                 </td>
@@ -201,6 +192,7 @@
                 <td>{{ file.label }}</td>
                 <td>{{ file.original_filename }}</td>
                 <td>Data/Figure</td>
+                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                         class="fa fa-download">&nbsp;</i></a>
                 </td>
@@ -208,3 +200,5 @@
         {% endfor %}
     </table>
 {% endif %}
+
+<script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>

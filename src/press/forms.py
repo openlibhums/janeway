@@ -5,29 +5,52 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 
 from press import models
-from journal import models as journal_models
-from comms import models as comms_models
+from core.widgets import JanewayFileInput
+from core import files, logic
+from core.middleware import GlobalRequestMiddleware
 
 
 class PressForm(forms.ModelForm):
 
+    press_logo = forms.FileField(
+        required=False,
+        widget=JanewayFileInput,
+    )
+
     class Meta:
         model = models.Press
-        exclude = ('domain', 'thumbnail_image', 'preprints_about', 'preprint_start', 'preprint_pdf_only',
-                   'preprint_submission', 'preprint_publication', 'preprint_editors', 'random_homepage_preprints',
-                   'homepage_preprints')
-        widgets = {'featured_journals': forms.CheckboxSelectMultiple}
-
-    def __init__(self, *args, **kwargs):
-        super(PressForm, self).__init__(*args, **kwargs)
-        press = models.Press.objects.all()[0]
-        content_type = ContentType.objects.get_for_model(press)
-
-        self.fields['featured_journals'].queryset = journal_models.Journal.objects.filter(hide_from_press=False)
-        self.fields['carousel_news_items'].queryset = comms_models.NewsItem.objects.filter(
-            content_type=content_type,
-            object_id=press.pk
+        fields = (
+            'name', 'main_contact', 'theme', 'footer_description',
+            'default_carousel_image', 'favicon', 'enable_preprints',
+            'is_secure', 'password_number', 'password_upper',
+            'password_length', 'password_reset_text', 'registration_text',
+            'tracking_code',
         )
+        widgets = {
+            'theme': forms.Select(
+                choices=logic.get_theme_list()
+            )
+        }
+
+    def save(self, commit=True):
+        press = super(PressForm, self).save(commit=False)
+        request = GlobalRequestMiddleware.get_current_request()
+
+        file = self.cleaned_data.get('press_logo', None)
+
+        if file:
+            file = files.save_file_to_press(request, file, 'Press Logo', '')
+
+            # Delete the old file from the disk
+            if press.thumbnail_image:
+                press.thumbnail_image.delete()
+
+            press.thumbnail_image = file
+
+        if commit:
+            press.save()
+
+        return press
+

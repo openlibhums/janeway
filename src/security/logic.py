@@ -7,7 +7,7 @@ from proofing import models as proofing_models
 from submission import models as submission_models
 
 
-def can_edit_file(request, user, file_object, article_object):
+def can_edit_file(request, user, file_object, article):
     if user.is_anonymous():
         return False
 
@@ -17,10 +17,10 @@ def can_edit_file(request, user, file_object, article_object):
 
     # allow file editing when the user is a production manager and the piece is in production
     try:
-        production_assigned = production_models.ProductionAssignment.objects.get(article=article_object,)
+        production_assigned = production_models.ProductionAssignment.objects.get(article=article,)
 
         if (user.is_production(request) and production_assigned.production_manager.pk == user.pk) and \
-                article_object.stage == submission_models.STAGE_TYPESETTING and file_object.is_galley:
+                article.stage == submission_models.STAGE_TYPESETTING and file_object.is_galley:
             return True
     except production_models.ProductionAssignment.DoesNotExist:
         pass
@@ -33,15 +33,25 @@ def can_edit_file(request, user, file_object, article_object):
     except proofing_models.ProofingAssignment.DoesNotExist:
         pass
 
-    try:
-        production_assigned = production_models.ProductionAssignment.objects.get(article=article_object)
-        typeset_assignments = production_assigned.active_typeset_tasks()
-        typesetters = [task.typesetter for task in typeset_assignments]
+    # Allow access to typesetters in production
+    prod_task = production_models.TypesetTask.objects.filter(
+        typesetter=request.user,
+        assignment__article=article,
+        completed__isnull=True
+    ).exists()
+    if prod_task:
+        return True
 
-        if request.user in typesetters:
-            return True
-    except production_models.ProductionAssignment.DoesNotExist:
-        pass
+    # Allow access to typesetters during proofing corrections
+    correction_task = proofing_models.TypesetterProofingTask.objects.filter(
+        typesetter=request.user,
+        proofing_task__round__assignment__article=article,
+        completed__isnull=True,
+    )
+
+    if correction_task:
+        return True
+
 
     # deny access to all others
     return False
@@ -75,16 +85,13 @@ def can_view_file(request, user, file_object):
     except proofing_models.ProofingAssignment.DoesNotExist:
         pass
 
-    try:
-        if file_object.article_id:
-            proofing_models.TypesetterProofingTask.objects.get(
+    if file_object.article_id:
+        if proofing_models.TypesetterProofingTask.objects.filter(
                 proofing_task__round__assignment__article__pk=file_object.article_id,
                 typesetter=request.user,
                 completed__isnull=True
-            )
+        ).exists():
             return True
-    except proofing_models.TypesetterProofingTask.DoesNotExist:
-        pass
 
     try:
         production_assigned = production_models.ProductionAssignment.objects.get(article=file_object.article)

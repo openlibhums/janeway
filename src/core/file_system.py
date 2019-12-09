@@ -20,13 +20,14 @@ class JanewayFileSystemStorage(FileSystemStorage):
     :param relative_path: relative path on top of settings.MEDIA_ROOT
     """
     def __init__(self, location=None, *args, **kwargs):
+        relative_path = None
         if location:
             try:
                 _, relative_path = location.split(settings.MEDIA_ROOT)
             except ValueError:
-                relative_path = location
-        else:
-            relative_path = None
+                absolute_path = os.path.join(settings.BASE_DIR, location)
+                location = os.path.relpath(absolute_path, os.getcwd())
+
         self.relative_path = relative_path
         super().__init__(location, *args, **kwargs)
 

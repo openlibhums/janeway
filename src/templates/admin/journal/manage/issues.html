@@ -18,12 +18,33 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Issue Management</h2>
-                    {% if not issue %}<a href="#" data-open="issue" class="button small success"><i class="fa fa-plus">&nbsp;</i>Create Issue</a>{% else %}<a class="button" href="{% url 'journal_issue' issue.pk %}">View Issue</a>{% endif %}
+                    {% if not issue %}
+                        <a href="#" data-open="issue" class="button">
+                            <i class="fa fa-plus">&nbsp;</i>Create Issue
+                        </a>
+                        <a href="{% url 'manage_issue_display' %}" class="button">
+                            <i class="fa fa-edit">&nbsp;</i>Edit Display Settings
+                        </a>
+                    {% else %}
+                        <a class="button" href="{% url 'journal_issue' issue.pk %}">
+                            View Issue
+                        </a>
+                    {% endif %}
                 </div>
                 <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="sort" value="date_sort_desc" class="button">
+                            <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
+                        </button>
+                        <button name="sort" value="date_sort_asc" class="button">
+                            <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
+                        </button>
+                    </form>
                     <table class="scroll">
                         <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Title</th>
                             <th>Type</th>
                             <th>Volume</th>
@@ -36,6 +57,7 @@
                         <tbody {% if not issue %}class="sortable"{% endif %}>
                         {% for i in issues %}
                             <tr {% if not issue %}id="issues-{{ i.pk }}"{% endif %}>
+                                <td>{{ i.pk }}</td>
                                 <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
                                 <td>{{ i.issue_type }}</td>
                                 <td>{{ i.volume }}</td>
@@ -60,6 +82,7 @@
 {% if issue %}
     {% include "elements/issue/table_of_contents.html" with issue=issue %}
     {% include "elements/issue/guest_editors.html" with issue=issue %}
+    {% include "elements/issue/galleys.html" with issue=issue galleys=galleys %}
 {% endif %}
 {% include "elements/issue/issue_modal.html" %}
 {% include "elements/issue/delete_modal.html" %}

@@ -4,6 +4,9 @@ from django.conf import settings
 
 from utils.notify_plugins import notify_webhook
 from utils import setting_handler
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def notify_hook(**kwargs):
@@ -30,8 +33,8 @@ def notify_hook(**kwargs):
                 journal_name = request.journal.code
 
                 # reformat the HTML into a slack-recognized format
-                slack_message = {"text": u"[{0}] {1}".format(journal_name, slack_message), "icon_emoji": ":ghost:"}
-                slack_json = json.dumps(slack_message)
+                message = {"text": u"[{0}] {1}".format(journal_name, slack_message), "icon_emoji": ":ghost:"}
+                slack_json = json.dumps(message)
 
                 # call the method
                 if 'slack_editors' in action:
@@ -46,6 +49,10 @@ def notify_hook(**kwargs):
                     print('There is no slack webhook registered for this journal.')
                 else:
                     pass
+        elif settings.DEBUG:
+            logger.debug(
+                '[SLACK] {}'.format(slack_message)
+            )
 
 
 def plugin_loaded():

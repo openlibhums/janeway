@@ -18,7 +18,7 @@ def install():
         content_type = ContentType.objects.get_for_model(journal)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='press_edit_press',
+            configure_url='featured_articles_setup',
             template_path='journal/homepage_elements/featured.html',
             content_type=content_type,
             object_id=journal.pk,
@@ -32,7 +32,7 @@ def install():
         content_type = ContentType.objects.get_for_model(press)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='press_edit_press',
+            configure_url='featured_articles_setup',
             template_path='journal/homepage_elements/featured.html',
             content_type=content_type,
             object_id=press.pk,
@@ -44,9 +44,13 @@ def install():
 def hook_registry():
     try:
         install()
-        return {'yield_homepage_element_context': {'module': 'core.homepage_elements.issue.hooks',
-                                                   'function': 'yield_homepage_element_context'}
-                }
+        return {
+            'yield_homepage_element_context': {
+                'module': 'core.homepage_elements.featured.hooks',
+                'function': 'yield_homepage_element_context',
+                'name': PLUGIN_NAME,
+            }
+        }
     except OperationalError:
         # if we get here the database hasn't yet been created
         return {}

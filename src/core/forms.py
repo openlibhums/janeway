@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 import uuid
 
 from django import forms
@@ -13,19 +12,24 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
 from django.conf import settings
+from django.contrib.auth.forms import UserCreationForm
 
-from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from simplemathcaptcha.fields import MathCaptchaField
 
-from core import models
+from core import models, validators
 from journal import models as journal_models
 from utils import setting_handler
+from utils.forms import KeywordModelForm
+from utils.logger import get_logger
 from submission import models as submission_models
 
 # This will set is_checkbox attribute to True for checkboxes.
 # Usage:  {% if field.field.is_checkbox %}
 setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))
+
+logger = get_logger(__name__)
 
 
 class EditKey(forms.Form):
@@ -48,6 +52,7 @@ class EditKey(forms.Form):
             self.fields['value'].widget.attrs['size'] = '100%'
 
         self.fields['value'].initial = value
+        self.fields['value'].required = False
 
     value = forms.CharField(label='')
 
@@ -294,6 +299,7 @@ class GeneratedSettingForm(forms.Form):
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=False)
 
+            self.fields[field['name']].label = object.setting.pretty_name
             self.fields[field['name']].initial = object.processed_value
             self.fields[field['name']].help_text = object.setting.description
 
@@ -302,7 +308,7 @@ class GeneratedSettingForm(forms.Form):
             setting_handler.save_setting('general', setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(forms.ModelForm):
+class JournalAttributeForm(KeywordModelForm):
 
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
@@ -314,19 +320,23 @@ class JournalAttributeForm(forms.ModelForm):
            'default_large_image', 'favicon',
            'is_remote', 'remote_view_url', 'remote_submit_url',
            'disable_metrics_display', 'disable_article_images',
-           'full_width_navbar', 'view_pdf_button',
+           'enable_correspondence_authors', 'full_width_navbar',
+           'view_pdf_button',
         )
 
 
-class PressJournalAttrForm(forms.ModelForm):
-
+class PressJournalAttrForm(KeywordModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 
     class Meta:
         model = journal_models.Journal
-        fields = ('contact_info', 'header_image', 'default_cover_image', 'default_large_image', 'favicon',
-                  'is_remote', 'remote_view_url', 'remote_submit_url', 'hide_from_press', 'disable_metrics_display')
+        fields = (
+            'contact_info', 'header_image', 'default_cover_image',
+            'default_large_image', 'favicon', 'is_remote', 'is_conference',
+            'remote_view_url', 'remote_submit_url', 'hide_from_press',
+            'disable_metrics_display',
+        )
 
 
 class NotificationForm(forms.ModelForm):
@@ -376,13 +386,66 @@ class QuickUserForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    user_name = forms.CharField(max_length=255)
-    user_pass = forms.CharField(max_length=255, widget=forms.PasswordInput)
+    user_name = forms.CharField(max_length=255, label="Email")
+    user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
 
     def __init__(self, *args, **kwargs):
-        bad_logins = kwargs.pop('bad_logins', None)
+        bad_logins = kwargs.pop('bad_logins', 0)
         super(LoginForm, self).__init__(*args, **kwargs)
-        if bad_logins >= 3 and (settings.CAPTCHA_TYPE == 'simple_math' or settings.CAPTCHA_TYPE == 'recaptcha'):
-            self.fields['captcha'] = ReCaptchaField(widget=ReCaptchaWidget())
+        if bad_logins:
+            logger.warning(
+                "[FAILED_LOGIN:%s][FAILURES: %s]"
+                "" % (self.fields["user_name"], bad_logins),
+            )
+        if bad_logins >= 3:
+            self.fields['captcha'] = self.captcha_field
         else:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    @property
+    def captcha_field(self):
+        if settings.CAPTCHA_TYPE == 'simple_math':
+            self.question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
+            return MathCaptchaField(label=_('Anti-spam captcha'))
+        elif settings.CAPTCHA_TYPE == 'recaptcha':
+            field = ReCaptchaField(widget=ReCaptchaWidget())
+            field.label = "Anti-spam captcha"
+            return field
+        else:
+            logger.warning(
+                    "Unknown CAPTCHA_TYPE in settings: %s"
+            "" % settings.CAPTCHA_TYPE
+            )
+            return self.no_cacptcha_field
+
+    @property
+    def no_captcha_field(self):
+        return forms.CharField(widget=forms.HiddenInput(), required=False)
+
+
+class FileUploadForm(forms.Form):
+    file = forms.FileField()
+
+    def __init__(self, *args, extensions=None, mimetypes=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        validator = validators.FileTypeValidator(
+                extensions=extensions,
+                mimetypes=mimetypes,
+        )
+        self.fields["file"].validators.append(validator)
+
+
+class UserCreationFormExtended(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserCreationFormExtended, self).__init__(*args, **kwargs)
+        self.fields['email'] = forms.EmailField(
+            label=_("E-mail"),
+            max_length=75,
+        )
+
+
+class XSLFileForm(forms.ModelForm):
+
+    class Meta:
+        model = models.XSLFile
+        exclude = ["date_uploaded"]

@@ -1,0 +1,74 @@
+# SECURITY WARNING: keep the secret key used in production secret!
+# You should change this key before you go live!
+DEBUG = True
+SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
+
+# This is the default redirect if no other sites are found.
+DEFAULT_HOST = 'https://www.example.org'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+URL_CONFIG = 'path'  # path or domain
+
+MIDDLEWARE_CLASSES = (
+    'utils.middleware.TimeMonitoring',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+)
+INSTALLED_APPS = [
+    'debug_toolbar',
+    'django_nose',
+    'hijack',
+    'compat',
+]
+
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+}
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['console'],
+    },
+    'formatters': {
+        'default': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+            'P:%(process)d T:%(thread)d %(message)s',
+        },
+        'coloured': {
+            '()': 'colorlog.ColoredFormatter',
+            'format': '%(log_color)s%(levelname)s %(asctime)s %(module)s '
+            'P:%(process)d T:%(thread)d %(message)s',
+            'log_colors': {
+                'DEBUG':    'green',
+                'WARNING':  'yellow',
+                'ERROR':    'red',
+                'CRITICAL': 'red',
+            }
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'coloured',
+            'stream': 'ext://sys.stdout',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}

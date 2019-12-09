@@ -1,107 +1,16 @@
 {% extends "core/base.html" %}
-{% load static %}
 {% load i18n %}
-
 
 {% block title %}{% trans "Edit Profile" %}{% endblock title %}
 
-{% block css %}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/css/jquery.tagit.min.css" />{% endblock %}
+{% block css %}
+    {% include "common/elements/edit_profile_css_block.html" %}
+{% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col m6">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">{% trans "Change Your Email Address" %}</span>
-                    <p>{% trans "If you want to change your email address you may do so below, however, you will be logged out and your account will be marked as inactive until you follow the instructions in the verification email." %}
-                        <strong>{% trans "Note:" %} </strong>
-                        {% trans "Changing your email address will also change your username as these are one and the same." %}</p>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="input-field">
-                            <input type="email" name="email_address" class="form-control"
-                                   placeholder="janeway@voyager.com">
-                            <label for="email_address">{% trans "Email Address" %}</label>
-                        </div>
-                        <button type="submit" name="email" class="btn btn-warning">{% trans "Update Email Address" %}</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    <div class="col m6">
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">{% trans "Data Export" %}</span>
-                <p>{% trans "You may export your data into a JSON file for reuse." %}</p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <button name="export" class="btn btn-warning">{% trans "Export" %}</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="row">
-        <div class="col m12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">{% trans "Update Password" %}</span>
-                    <p>{% trans "You can update your password by entering your existing password plus your new password." %}</p>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="input-field col m4">
-                                <input type="password" name="current_password">
-                                <label for="current_password">{% trans "Current Password" %}</label>
-                            </div>
-                            <div class="input-field col m4">
-                                <input type="password" name="new_password_one">
-                                <label for="new_password_one">{% trans "New Password" %}</label>
-                            </div>
-                            <div class="input-field col m4">
-                                <input type="password" name="new_password_two">
-                                <label for="new_password_two">{% trans "Enter Password Again" %}</label>
-                            </div>
-                        </div>
-                        <br />
-                        <button type="submit" name="change_password" class="btn btn-warning">{% trans "Update Password" %}</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col m12">
-            <div class="card">
-                <div class="card-content">
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        {% include "elements/accounts/user_form.html" with form=form %}
-                        <p>
-                            <button type="submit" name="edit_profile" class="btn btn-primary float-right">{% trans "Update" %}
-                            </button>
-                        </p>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    {% include "elements/accounts/edit_profile_body_block.html" %}
 {% endblock body %}
 
 {% block js %}
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.js"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#id_interests").tagit(
-                {allowSpaces: true});
-        });
-    </script>
-    {% include "elements/jqte.html" %}
+    {% include "common/elements/edit_profile_js_block.html" %}
 {% endblock %}

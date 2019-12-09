@@ -15,10 +15,11 @@ from utils import setting_handler
 from submission import models as submission_models
 
 
-def update_settings(journal_object, management_command=False, overwrite_with_defaults=False):
+def update_settings(journal_object=None, management_command=False, overwrite_with_defaults=False):
     """ Updates or creates the settings for a journal from journal_defaults.json.
 
-    :param journal_object: the journal object to update
+    :param journal_object: the journal object to update or None to set the
+        default setting value
     :param management_command: whether or not to print output to the console
     :return: None
     """
@@ -63,10 +64,11 @@ def update_settings(journal_object, management_command=False, overwrite_with_def
                 print('Parsed setting {0}'.format(item['setting'].get('name')))
 
 
-def update_emails(journal_object, management_command=False):
+def update_emails(journal_object=None, management_command=False):
     """
     Updates email settings with new versions.
-    :param journal_object: Journal object
+    :param journal_object: Journal object or None to set the default setting
+        value
     :param management_command: Boolean
     :return: Nothing
     """
@@ -129,6 +131,57 @@ def update_license(journal_object, management_command=False):
 
             if management_command:
                 print('Parsed licence {0}'.format(item['fields'].get('short_name')))
+
+
+def update_xsl_files(journal_object=None, management_command=False):
+    with codecs.open(
+        os.path.join( settings.BASE_DIR, 'utils/install/xsl_files.json'),
+        encoding='utf-8',
+    ) as json_data:
+
+        default_data = json.load(json_data)
+
+        for item in default_data:
+            default_dict = {
+                'file': item["fields"]["file"],
+                'comments': item["fields"].get("commments"),
+            }
+            xsl, created = core_models.XSLFile.objects.get_or_create(
+                label=item["fields"]["label"],
+                defaults=default_dict,
+            )
+
+            if management_command:
+                print('Parsed XSL {0}'.format(item['fields'].get('label')))
+
+
+def update_issue_types(journal_object, management_command=False):
+    """ Updates or creates the default issue types for journal
+
+    :param journal_object: the journal object to update
+    :param management_command: whether or not to print output to the console
+    :return: None
+    """
+    with codecs.open(
+        os.path.join(settings.BASE_DIR, 'utils/install/issue_type.json'),
+        encoding='utf-8'
+    ) as json_data:
+        default_data = json.load(json_data)
+
+        for item in default_data:
+            default_dict = {
+                'pretty_name': item['fields'].get('pretty_name'),
+                'custom_plural': item['fields'].get('custom_plural'),
+            }
+            issue_type, created = models.IssueType.objects\
+            .get_or_create(
+                journal=journal_object,
+                code=item['fields']['code'],
+                defaults=default_dict
+            )
+
+            if management_command:
+                print('Parsed {0}'.format(issue_type))
 
 
 def journal(name, code, base_url, delete):

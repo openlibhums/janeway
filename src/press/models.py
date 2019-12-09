@@ -4,9 +4,9 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
+import json
 import os
 import uuid
-import json
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -14,7 +14,13 @@ from django.db import models
 
 from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
+from utils import logic
 from utils.function_cache import cache
+from utils.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 fs = JanewayFileSystemStorage()
@@ -49,11 +55,20 @@ def press_text(type):
         return text.get(type)
 
 
-class Press(models.Model):
+class Press(AbstractSiteModel):
     name = models.CharField(max_length=600)
-    domain = models.CharField(max_length=255, default='localhost', unique=True)
-    thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='press_thumbnail_image')
-    footer_description = models.TextField(null=True, blank=True)
+    thumbnail_image = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='press_thumbnail_image',
+        verbose_name='Press Logo',
+    )
+    footer_description = models.TextField(
+        null=True,
+        blank=True,
+        help_text='Additional HTML for the press footer.',
+    )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
     theme = models.CharField(max_length=255, default='default', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
@@ -62,8 +77,6 @@ class Press(models.Model):
     carousel = models.OneToOneField('carousel.Carousel', related_name='press', null=True, blank=True)
     default_carousel_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    is_secure = models.BooleanField(default=False, help_text="If the press should redirect to HTTPS, mark this.")
-
     random_featured_journals = models.BooleanField(default=False)
     featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
     carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)
@@ -74,9 +87,16 @@ class Press(models.Model):
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
-    password_length = models.PositiveIntegerField(default=12, validators=[MinValueValidator(9)])
+    password_length = models.PositiveIntegerField(
+        default=12,
+        validators=[MinValueValidator(9)],
+        help_text='The minimum length of an account password.',
+    )
 
-    enable_preprints = models.BooleanField(default=False)
+    enable_preprints = models.BooleanField(
+        default=False,
+        help_text='Enables the preprints system for this press.',
+    )
     preprints_about = models.TextField(blank=True, null=True)
     preprint_start = models.TextField(blank=True, null=True)
     preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
@@ -102,8 +122,10 @@ class Press(models.Model):
             return None
 
     @staticmethod
-    def journals():
+    def journals(**filters):
         from journal import models as journal_models
+        if filters:
+            return journal_models.Journal.objects.filter(**filters)
         return journal_models.Journal.objects.all()
 
     @staticmethod
@@ -112,10 +134,30 @@ class Press(models.Model):
 
     @staticmethod
     def press_url(request):
+        logger.warning("Using press.press_url is deprecated")
         return 'http{0}://{1}{2}{3}'.format('s' if request.is_secure() else '',
                                             Press.get_press(request).domain,
                                             ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',
                                             '/press' if settings.URL_CONFIG == 'path' else '')
+
+    def journal_path_url(self, journal, path=None):
+        """ Returns a Journal's path mode url relative to its press """
+
+        _path = journal.code
+        request = logic.get_current_request()
+        if settings.DEBUG and request:
+            port = request.get_port()
+        else:
+            port = None
+        if path is not None:
+            _path += path
+
+        return logic.build_url(
+            netloc=self.domain,
+            scheme=self.SCHEMES[self.is_secure],
+            port=port,
+            path=_path,
+        )
 
     @staticmethod
     def press_cover(request, absolute=True):
@@ -246,6 +288,14 @@ class Press(models.Model):
         except PressSetting.DoesNotExist:
             return ''
 
+    @property
+    def publishes_conferences(self):
+        return self.journals(is_conference=True).count() > 0
+
+    @property
+    def publishes_journals(self):
+        return self.journals(is_conference=False).count() > 0
+
     @cache(600)
     def preprint_editors(self):
         from preprint import models as pp_models
@@ -274,6 +324,9 @@ class Press(models.Model):
     @property
     def code(self):
         return 'press'
+
+    class Meta:
+        verbose_name_plural = 'presses'
 
 
 class PressSetting(models.Model):

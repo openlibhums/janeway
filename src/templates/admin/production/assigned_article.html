@@ -3,6 +3,7 @@
 {% load securitytags %}
 {% load hooks %}
 {% load static from staticfiles %}
+{% load render_string %}
 
 {% block title %}Article - {{ article.pk }}{% endblock title %}
 {% block admin-header %}Article - {{ article.pk }}{% endblock %}
@@ -44,24 +45,29 @@
                                         <th>Typesetter</th>
                                         <th>Assigned</th>
                                         <th>Notified</th>
+                                        <th>Due</th>
                                         <th>Status</th>
                                         <th></th>
 
                                     </tr>
                                     <tr>
-                                        <td>{{ task.typesetter.full_name }}</td>
+                                        <td>{{ task.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' task.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{% if task.notified %}
-                                            <i style="color: green;" class="fa fa-check-circle info">
-                                                &nbsp;</i>{% else %}
-                                            <i style="color: red;" class="fa fa-times-circle info">&nbsp;</i>{% endif %}
+                                            <i style="color: green;" class="fa fa-check-circle info"></i>
+                                            {% elif task.status == 'assigned' %}
+                                            <a href="{% url 'notify_typesetter_event' task.pk 'false' %}">Send Notification</a>
+                                            {% else %}
+                                            Not sent
+                                            {% endif %}
                                         </td>
-                                        <td>{{ task.status.friendly|safe }}</td>
+                                        <td>{{ task.due|date:"Y-m-d" }} {% if task.is_overdue %}(Overdue){% endif %}</td>
+                                        <td>{{ task.friendly_status|safe }} {% if task.status == 'completed' %}({{ task.completed }}){% endif %}</td>
                                         <td>
                                             <div class="button-group">
                                                 <a href="{% url 'edit_typesetter_assignment' task.pk %}"
-                                                   class="button">Edit</a>
-                                                {% if task.status.slug == 'completed' %}
+                                                   class="button">Manage</a>
+                                                {% if task.status == 'completed' %}
                                                     <a class="dropdown button arrow-only"
                                                        data-toggle="review-dropdown-{{ task.pk }}"><span
                                                             class="show-for-sr">Show menu</span></a>
@@ -82,7 +88,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    {% if task.status.slug == 'completed' or task.status.slug == 'closed' %}
+                                    {% if task.status == 'completed' or task.status == 'closed' %}
                                         <tr>
                                             <th colspan="5">Notes from Typesetter</th>
                                         </tr>
@@ -107,9 +113,11 @@
             <div class="content">
                 <table class="scroll small">
                     <tr style="text-align: left">
+                        <th>ID</th>
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Modified</th>
                         <th>Download</th>
                         <th>Make galley</th>
                     </tr>
@@ -118,9 +126,11 @@
                         {% can_edit_file file article as can_edit_file_flag %}
                         {% can_view_file_history file article as can_view_file_history_flag %}
                         <tr>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Manuscript</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -136,6 +146,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Data/Figure</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -154,14 +165,12 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Copyedit</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
                             </td>
-                            <td>{% if can_view_file_flag %}<a
-                                    href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
-                                    class="fa fa-share-square-o">&nbsp;</i></a>{% endif %}
-                            </td>
+                            <td>{% hook 'conversion_buttons' %}</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -175,12 +184,15 @@
             <div class="content">
                 <table class="scroll small">
                     <tr style="text-align: left">
+                        <th>ID</th>
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Modified</th>
                         <th>Edit</th>
                         <th>Download</th>
                         <th>History</th>
+                        <th>Preview</th>
                         <th>Create PDF</th>
                         <th>Create EPUB</th>
                     </tr>
@@ -189,9 +201,11 @@
                         {% can_edit_file galley.file article as can_edit_file_flag %}
                         {% can_view_file_history galley.file article as can_view_file_history_flag %}
                         <tr>
+                            <td>{{ galley.pk }}</td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley</td>
+                            <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
@@ -203,17 +217,25 @@
                                     &nbsp;</i></a>{% endif %}
                             </td>
                             <td>
+                                <a href="{% url 'production_preview_galley' article.pk galley.pk %}" target="_blank">
+                                    <i class="fa fa-eye">&nbsp;</i>
+                                </a>
+                            </td>
+                            <td>
                                 {% if galley.file.mime_type == 'application/xml' and not galley.has_missing_image_files %}
                                     <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-file-text-o">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
-                                    Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
+
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true"
+                                             class="has-tip top"
                                              data-disable-hover="false"
                                              tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                                             title="{% has_missing_supplements galley %}">Missing Images</span>
+                                    </p>
+                                {% else %}
+                                    Function for XML only.
                                 {% endif %}
                             </td>
                             <td>
@@ -221,13 +243,13 @@
                                     <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-book">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
-                                    Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
                                     <p><span data-tooltip aria-haspopup="true" class="has-tip top"
                                              data-disable-hover="false"
                                              tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
+                                             title="{% has_missing_supplements galley %}">Missing Images</span></p>
+                                {% else %}
+                                    Function for XML only.
                                 {% endif %}
                             </td>
                         </tr>
@@ -253,6 +275,7 @@
                     <tr style="text-align: left">
                         <th>Label</th>
                         <th width="25%">Filename</th>
+                        <th>Modified</th>
                         <th>Download</th>
                         <th>History</th>
                         <th>DOI</th>
@@ -264,6 +287,7 @@
                         <tr>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+                            <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
@@ -296,11 +320,63 @@
             </div>
         </div>
 
+        <div class="box">
+            <div class="title-area">
+                <h2>Source Files</h2>
+            </div>
+            <div class="content">
+                <p>Source files are uploaded by Typesetters and are the intermediate files used to generate Galleys.</p>
+                <table class="scroll small">
+                    <tr style="text-align: left">
+                        <th width="25%">Filename</th>
+                        <th>Type</th>
+                        <th>Modified</th>
+                        <th>Download</th>
+                        <th>Replace</th>
+                        <th>History</th>
+                    </tr>
+                    {% for file in article.source_files.all %}
+                        {% can_view_file file as can_view_file_flag %}
+                        {% can_edit_file file article as can_edit_file_flag %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
+                        <tr>
+                            <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>Source File</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
+                            <td>{% if can_view_file_flag %}
+                                <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>{% if can_edit_file_flag %}
+                                <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                        class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
+                            </td>
+                            <td>{% if can_view_file_history_flag %}
+                                <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                        class="fa fa-history">
+                                    &nbsp;</i></a>{% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9">No galleys have been uploaded.</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="float-right"><a class="button success" data-open="sourceupload"><i class="fa fa-cloud-upload">
+                    &nbsp;</i>Upload Source Files</a>
+                </div>
+                <br />
+            </div>
+        </div>
+
     </div>
 
     {% include "elements/production/new_galley.html" %}
     {% include "elements/production/new_production_file.html" %}
     {% include "elements/production/new_supp_file.html" %}
+    {% include "elements/production/source_files_upload.html" %}
+
 
     <div class="large-4 columns">
 
@@ -310,23 +386,13 @@
             </div>
             <div class="content">
                 <small>
-                    <ol>
-                        <li>
-                            Assign a Typesetter {% if production_assignment.typeset_tasks %}
-                            <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
-                        </li>
-                        {% for task in production_assignment.typeset_tasks %}
-                            <li>
-                                Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}
-                                <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i> {% endif %}
-                            </li>
-                        {% endfor %}
-                        <li>Have at lease one Galley {% if article.has_galley %}
-                            <i style="color: green;" class="fa fa-check-circle info">&nbsp;</i>{% endif %}
-                        </li>
-                    </ol>
+                    This article is in the {{ article.stage }} stage.
                 </small>
             </div>
+            <div class="title-area">
+                <h2>Steps</h2>
+            </div>
+            <div class="content">{% render_string journal_settings.general.production_steps %}</div>
         </div>
         <div class="box">
             <div class="title-area">
@@ -344,7 +410,7 @@
                     {% endif %}
                     <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i
                             class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
-                    {% if galleys and not production_assignment.closed %}
+                    {% if article.stage == 'Typesetting' and not production_assignment.closed %}
                         <li><a data-open="productionmodal">
                             <i class="fa fa-check action-icon">&nbsp;</i>Mark production as complete
                         </a>
@@ -357,13 +423,14 @@
     </div>
 
     {% include "admin/elements/summary_modal.html" %}
-    {% include "elements/production/complete.html" %}
+    {% if article.stage == 'Typesetting' %}{% include "elements/production/complete.html" %}{% endif %}
 
 {% endblock body %}
 
 {% block js %}
     {% include "elements/jqte.html" %}
     <script src="{% static "admin/js/modal.js" %}"></script>
+    {% include "elements/notes/note_script.html" %}
     <script src="{% static "admin/js/tabs.js" %}"></script>
     <script>
         var myTabs = tabs({

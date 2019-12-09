@@ -58,11 +58,13 @@ target/
 
 # Django
 src/core/settings.py
-*.sqlite3
+*.sqlite*
 *.db
+*tar.gz
 /src/files/articles
 /src/files/journals
 /src/files/journal
+/src/files/issues
 /src/files/press
 /src/files/temp
 /src/files/import_cache
@@ -96,6 +98,8 @@ src/utils/management/commands/redirects\.py
 src/static/mater
 ial/
 src/texture/**
+src/transform/xsl/*
+!src/transform/xsl/default.xsl
 /src/static/material/**
 /src/static/admin/hypothesis/**
 
@@ -115,3 +119,5 @@ src/auth\.json
 
 src/test\.txt
 venv/**
+src/.DS_Store
+.DS_Store

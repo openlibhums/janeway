@@ -10,18 +10,28 @@ import uuid
 import os
 
 from django.conf import settings
-from django.db import models
-from django.db.models.signals import post_save
+from django.db import models, transaction
+from django.db.models import OuterRef, Subquery, Value
+from django.db.models.signals import post_save, m2m_changed
+from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from core import models as core_models, workflow
+from core import (
+        files,
+        models as core_models,
+        workflow,
+)
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
+from utils import setting_handler, logic
 from utils.function_cache import cache
-from utils import setting_handler
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # Issue types
 # Use "Issue" for regular issues (rolling or periodic)
@@ -54,9 +64,13 @@ def issue_large_image_path(instance, filename):
     return os.path.join(path, filename)
 
 
-class Journal(models.Model):
-    code = models.CharField(max_length=10)
-    domain = models.CharField(max_length=255, default='www.example.com', unique=True)
+def default_xsl():
+    return core_models.XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
+
+
+class Journal(AbstractSiteModel):
+    code = models.CharField(max_length=15, unique=True)
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
@@ -69,12 +83,15 @@ class Journal(models.Model):
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
+    keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
 
     disable_metrics_display = models.BooleanField(default=False)
     disable_article_images = models.BooleanField(default=False)
+    enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(default=False)
+    is_conference = models.BooleanField(default=False)
     remote_submit_url = models.URLField(blank=True, null=True)
     remote_view_url = models.URLField(blank=True, null=True)
     view_pdf_button = models.BooleanField(
@@ -93,10 +110,14 @@ class Journal(models.Model):
     nav_review = models.BooleanField(default=True)
     nav_sub = models.BooleanField(default=True)
 
-    # Boolean to determine if this journal has XSLT file
+    # (DEPRECATED)Boolean to determine if this journal has an XSLT file
     has_xslt = models.BooleanField(default=False)
+    xsl = models.ForeignKey('core.XSLFile',
+        default=default_xsl,
+        on_delete=models.SET_DEFAULT,
+    )
 
-    # Boolean to determine if this journal should be hdden from the press
+    # Boolean to determine if this journal should be hidden from the press
     hide_from_press = models.BooleanField(default=False)
 
     # Display sequence on the Journals page
@@ -107,6 +128,12 @@ class Journal(models.Model):
         press_name = press_models.Press.get_press(None).name
     except BaseException:
         press_name = ''
+
+    # Issue Display
+    display_issue_volume = models.BooleanField(default=True)
+    display_issue_number = models.BooleanField(default=True)
+    display_issue_year = models.BooleanField(default=True)
+    display_issue_title = models.BooleanField(default=True)
 
     def __str__(self):
         return u'{0}: {1}'.format(self.code, self.domain)
@@ -183,31 +210,34 @@ class Journal(models.Model):
         press = press_models.Press.objects.all()[0]
         return press
 
-    def full_url(self, request=None):
-        if not request:
-            return self.requestless_url()
+    def site_url(self, path=""):
+        if settings.URL_CONFIG == "path":
+            return self._site_path_url(path)
 
-        return 'http{0}://{1}{2}'.format(
-            's' if request.is_secure() else '',
-            self.domain if settings.URL_CONFIG == 'domain' else self.press.domain,
-            ':{0}'.format(request.port) if (request != 80 or request.port == 443) and settings.DEBUG else '',
-            '{0}{1}'.format('/' if settings.URL_CONFIG == 'path' else '',
-                            self.code if settings.URL_CONFIG == 'path' else '')
+        return logic.build_url(
+                netloc=self.domain,
+                scheme=self.SCHEMES[self.is_secure],
+                port=None,
+                path=path,
         )
+
+    def _site_path_url(self, path=None):
+        request = logic.get_current_request()
+        if request and request.journal == self:
+            if not path:
+                path = "/{}".format(self.code)
+            return request.build_absolute_uri(path)
+        else:
+            return self.press.journal_path_url(self, path)
+
+    def full_url(self, request=None):
+        logger.warning("Using journal.full_url is deprecated")
+        return self.site_url()
 
     def full_reverse(self, request, url_name, kwargs):
         base_url = self.full_url(request)
         url_path = reverse(url_name, kwargs=kwargs)
         return "{0}{1}".format(base_url, url_path)
-
-    def requestless_url(self):
-        from core.middleware import GlobalRequestMiddleware
-        local_request = GlobalRequestMiddleware.get_current_request()
-
-        if local_request.journal:
-            return local_request.journal_base_url
-        else:
-            return local_request.press_base_url
 
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
@@ -229,12 +259,17 @@ class Journal(models.Model):
                 core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
 
     def journal_users(self, objects=True):
-        if objects:
-            users = [role.user for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
-        else:
-            users = [role.user.pk for role in core_models.AccountRole.objects.filter(journal=self, user__is_active=True)]
+        account_roles = core_models.AccountRole.objects.filter(
+            journal=self,
+            user__is_active=True,
+        ).select_related('user')
 
-        return set(users)
+        if objects:
+            users = {role.user for role in account_roles}
+        else:
+            users = {role.user.pk for role in account_roles}
+
+        return users
 
     @cache(300)
     def editorial_groups(self):
@@ -380,8 +415,11 @@ class Issue(models.Model):
     issue = models.IntegerField(default=1)
     issue_title = models.CharField(blank=True, max_length=300)
     date = models.DateTimeField(default=timezone.now)
-    order = models.IntegerField(default=1)
-    issue_type = models.CharField(max_length=200, blank=False, null=False, default='Issue', choices=ISSUE_TYPES)
+    order = models.IntegerField(default=0)
+    issue_type = models.ForeignKey(
+        "journal.IssueType", blank=False, null=True, on_delete=models.SET_NULL)
+    # To be deprecated in 1.3.7
+    old_issue_type = models.CharField(max_length=200, default='Issue', choices=ISSUE_TYPES, null=True, blank=True)
     issue_description = models.TextField(blank=True, null=True)
 
     cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
@@ -391,17 +429,36 @@ class Issue(models.Model):
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
 
     # guest editors
-    guest_editors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='guest_editors')
+    editors = models.ManyToManyField(
+        'core.Account',
+        blank=True,
+        null=True,
+        related_name='guest_editors',
+        through='IssueEditor',
+    )
 
     class Meta:
-        ordering = ('year', 'volume', 'issue', 'title')
+        ordering = ('order', 'year', 'volume', 'issue', 'title')
 
     @property
     def display_title(self):
-        if self.issue_title:
+        if self.issue_type.code != 'issue':
             return self.issue_title
-        else:
-            return u'Volume {0}, Issue {1} ({2})'.format(self.volume, self.issue, self.date.year)
+
+        journal = self.journal
+
+        volume = "Volume {}".format(
+            self.volume) if journal.display_issue_volume else ""
+        issue = "Issue {}".format(
+            self.issue) if journal.display_issue_number else ""
+        year = "{}".format(
+            self.date.year) if journal.display_issue_year else ""
+        title = "{}".format(
+            self.issue_title) if journal.display_issue_title else ""
+
+        title_list = [volume, issue, year, title]
+
+        return mark_safe(" &bull; ".join((filter(None, title_list))))
 
     @property
     def manage_issue_list(self):
@@ -472,8 +529,12 @@ class Issue(models.Model):
 
     @property
     def issue_articles(self):
-        # this property should be used to display article ToCs since it enforces visibility of Published items
-        articles = self.articles.filter(stage=submission_models.STAGE_PUBLISHED)
+        # this property should be used to display article ToCs since
+        # it enforces visibility of Published items
+        articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
         ordered_list = list()
         for article in articles:
@@ -482,13 +543,26 @@ class Issue(models.Model):
         return sorted(ordered_list, key=itemgetter('order'))
 
     def structure(self):
+        # This method is very inefficient and is not used in core anymore
+        # Kept for backwards compatibility with 3rd party themes
+        logger.warning(
+            "Using 'Issue.structure' will be deprecated as of Janeway 1.4"
+        )
         structure = collections.OrderedDict()
 
         sections = self.all_sections
-        articles = self.articles.all()
+        articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
 
         for section in sections:
-            article_with_order = ArticleOrdering.objects.filter(issue=self, section=section)
+            article_with_order = ArticleOrdering.objects.filter(
+                issue=self,
+                section=section,
+                article__stage=submission_models.STAGE_PUBLISHED,
+                article__date_published__lte=timezone.now(),
+            )
 
             article_list = list()
             for order in article_with_order:
@@ -500,6 +574,45 @@ class Issue(models.Model):
             structure[section] = article_list
 
         return structure
+
+    def get_sorted_articles(self):
+        """ Returns issue articles sorted by section and article order
+
+        Many fields are prefetched and annotated to handle large issues more
+        eficiently. In particular, it annotates relevant SectionOrder and
+        ArticleOrdering rows as section_order and article_order respectively.
+        Returns a Queryset which should keep the memory footprint at a minimum
+        """
+
+        section_order_subquery = SectionOrdering.objects.filter(
+            section=OuterRef("section__pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        article_order_subquery = ArticleOrdering.objects.filter(
+            section=OuterRef("section__pk"),
+            article=OuterRef("pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        issue_articles = self.articles.filter(
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        ).prefetch_related(
+            'authors', 'frozenauthor_set',
+            'manuscript_files',
+        ).select_related(
+            'section',
+        ).annotate(
+            section_order=Subquery(section_order_subquery),
+            article_order=Subquery(article_order_subquery),
+        ).order_by(
+            "section_order",
+            "section__sequence",
+            "article_order",
+        )
+
+        return issue_articles
 
     @property
     def article_pks(self):
@@ -553,6 +666,64 @@ class Issue(models.Model):
 
     class Meta:
         ordering = ("order", "-date")
+
+
+class IssueType(models.Model):
+    journal = models.ForeignKey(Journal)
+    code = models.CharField(max_length=255)
+
+    pretty_name = models.CharField(max_length=255)
+    custom_plural = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return "{self.code}".format(self=self)
+
+    @property
+    def plural_name(self):
+        return self.custom_plural or "{self.pretty_name}s".format(self=self)
+
+    class Meta:
+        unique_together = ('journal', 'code')
+
+
+class IssueGalley(models.Model):
+    FILES_PATH = 'issues'
+
+    file = models.ForeignKey('core.File')
+    # An Issue can only have one galley at this time (PDF)
+    issue = models.OneToOneField('journal.Issue', related_name='galley')
+
+    @transaction.atomic
+    def replace_file(self, other):
+        new_file = files.overwrite_file(other, self.file, self.path_parts)
+        self.file = new_file
+        self.save()
+
+    def serve(self, request):
+        public = True
+        return files.serve_any_file(
+            request,
+            self.file,
+            public,
+            path_parts=self.path_parts,
+        )
+
+    @property
+    def path_parts(self):
+        path_parts = (self.FILES_PATH, self.issue.pk)
+        return path_parts
+
+
+class IssueEditor(models.Model):
+    account = models.ForeignKey('core.Account')
+    issue = models.ForeignKey(Issue)
+    role = models.CharField(max_length=255, default='Guest Editor')
+
+    def __str__(self):
+        return "{user} {role}".format(
+            user=self.account.full_name(),
+            role=self.role,
+        )
 
 
 class SectionOrdering(models.Model):
@@ -642,18 +813,16 @@ class Notifications(models.Model):
 
 
 # Signals
-@receiver(post_save, sender=Journal)
-def create_sites_folder(sender, instance, created, **kwargs):
-    path = os.path.join(settings.BASE_DIR, 'sites', instance.code)
-    if created:
-        if not os.path.exists(path):
-            os.makedirs(path)
 
-        from submission.models import Section
-        Section.objects.language('en').get_or_create(journal=instance,
-                                                     number_of_reviewers=2,
-                                                     name='Article',
-                                                     plural='Articles')
+@receiver(post_save, sender=Journal)
+def setup_default_section(sender, instance, created, **kwargs):
+    if created:
+        submission_models.Section.objects.language('en').get_or_create(
+            journal=instance,
+            number_of_reviewers=2,
+            name='Article',
+            plural='Articles'
+        )
 
 
 @receiver(post_save, sender=Journal)
@@ -665,7 +834,9 @@ def setup_default_workflow(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Journal)
 def setup_submission_configuration(sender, instance, created, **kwargs):
     if created:
-        submission_models.SubmissionConfiguration.objects.get_or_create(journal=instance)
+        submission_models.SubmissionConfiguration.objects.get_or_create(
+            journal=instance,
+        )
 
 
 @receiver(post_save, sender=Journal)
@@ -673,7 +844,10 @@ def setup_default_form(sender, instance, created, **kwargs):
     if created:
         from review import models as review_models
 
-        if not review_models.ReviewForm.objects.filter(slug='default-form', journal=instance).exists():
+        if not review_models.ReviewForm.objects.filter(
+                slug='default-form',
+                journal=instance,
+        ).exists():
 
             default_review_form = review_models.ReviewForm.objects.create(
                 journal=instance,
@@ -693,3 +867,47 @@ def setup_default_form(sender, instance, created, **kwargs):
             )
 
             default_review_form.elements.add(main_element)
+
+
+def issue_articles_change(sender, **kwargs):
+    """
+    When an article is removed from an issue this signal will delete any
+    orderings for that article in the issue.
+    """
+    supported_actions = ['post_remove', 'post_add']
+    issue_or_article = kwargs.get('instance')
+    action = kwargs.get('action')
+    update_side = kwargs.get('reverse')
+
+    if issue_or_article and action in supported_actions:
+
+        object_pks = kwargs.get('pk_set', [])
+        for object_pk in object_pks:
+
+            if update_side:
+                article = issue_or_article
+                issue = Issue.objects.get(pk=object_pk)
+            else:
+                article = submission_models.Article.objects.get(pk=object_pk)
+                issue = issue_or_article
+
+            if action == 'post_remove':
+                try:
+                    ordering = ArticleOrdering.objects.get(
+                        issue=issue,
+                        article=article,
+                    )
+                    ordering.delete()
+                except ArticleOrdering.DoesNotExist:
+                    pass
+
+            elif action == 'post_add':
+                ArticleOrdering.objects.get_or_create(
+                    issue=issue,
+                    article=article,
+                    section=article.section,
+                    order=issue.next_order(),
+                )
+
+
+m2m_changed.connect(issue_articles_change, sender=Issue.articles.through)

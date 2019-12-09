@@ -5,10 +5,12 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+from utils.logic import build_url_for_request
 
 class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
@@ -45,3 +47,51 @@ class NavigationItem(models.Model):
 
     def sub_nav_items(self):
         return NavigationItem.objects.filter(top_level_nav=self)
+
+    @property
+    def build_url_for_request(self):
+        if self.is_external:
+            return self.link
+        else:
+            return build_url_for_request(path=self.link)
+
+    @property
+    def url(self):
+        #alias for backwards compatibility with templates
+        return self.build_url_for_request
+
+    @classmethod
+    def toggle_collection_nav(cls, issue_type):
+        """Toggles a nav item for the given issue_type
+        :param `journal.models.IssueType` issue_type: The issue type to toggle
+        """
+
+        defaults = {
+            "link_name": issue_type.plural_name,
+            "link": "/collections/%s" % (issue_type.code),
+        }
+        content_type = ContentType.objects.get_for_model(issue_type.journal)
+
+        nav, created = cls.objects.get_or_create(
+            content_type=content_type,
+            object_id=issue_type.pk,
+            defaults=defaults,
+        )
+
+        if not created:
+            nav.delete()
+
+    @classmethod
+    def get_content_nav_for_journal(cls, journal):
+        for issue_type in journal.issuetype_set.filter(
+            ~Q(code="issue") # Issues have their own navigation
+        ):
+            try:
+                content_type = ContentType.objects.get_for_model(
+                    issue_type.journal)
+                yield issue_type, cls.objects.get(
+                    content_type=content_type,
+                    object_id=issue_type.pk,
+                )
+            except cls.DoesNotExist:
+                yield issue_type, None

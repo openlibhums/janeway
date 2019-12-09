@@ -10,12 +10,12 @@
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="{% if request.journal %}{{ request.journal_base_url }}{% else %}{{ request.press_base_url }}{% endif %}">
+    <a class="navbar-brand" href="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}">
         {% if request.journal %}
             {% if request.journal.header_image %}
-                <a href="/"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
+                <a href="{% url 'website_index' %}"><img src="{{ request.journal.header_image.url }}" class="img-fluid"></a>
             {% else %}
-                <a href="/"><img src="{% static "common/img/sample/janeway.png" %}"></a>
+            <a href="{% url 'website_index' %}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
             {% endif %}
         {% else %}
             <a href="/">{% svg request.press_cover %}</a>
@@ -24,7 +24,7 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto font-weight-bold">
             {% if request.journal.nav_home %}
-                <li class="nav-item"><a href="/" class="nav-link">Home</a></li>{% endif %}
+            <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">Home</a></li>{% endif %}
             {% if request.journal.nav_news %}
                 <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">News</a></li>{% endif %}
 
@@ -33,13 +33,10 @@
                 </li>{% endif %}
             {% if request.journal.nav_issues %}
                 <li class="nav-item"><a href="{% url 'journal_issues' %}" class="nav-link">Issues</a></li>{% endif %}
-            {% if request.journal.nav_collections %}
-            <li class="nav-item"><a href="{% url 'journal_collections' %}" class="nav-link">{% with collections=journal_settings.general.collection_name_plural %}{% if collections %}{{collections}}{% else %}{% trans 'Collections'%}asd{% endif %}{% endwith %}</a></li>
-            {% endif %}
 
 
             {% if journal_settings.general.enable_editorial_display %}
-                {% if journal_settings.general.mulit_page_editorial %}
+                {% if journal_settings.general.multi_page_editorial %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="" id="editorial_team"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -69,12 +66,12 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
                             {% for subnav in item.sub_nav_items %}
-                                <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
+                                <a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a>
                             {% endfor %}
                         </div>
                     </li>
                 {% else %}
-                    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                    <li class="nav-item"><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
             {% if request.journal.nav_contact %}
@@ -96,10 +93,10 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="user">
                         <a class="dropdown-item" href="{% url 'core_dashboard' %}">Dashboard</a>
-                        <a class="dropdown-item" href="{% url 'kanban' %}">Kanban</a>
                         {% if not journal_settings.general.disable_journal_submission %}<a class="dropdown-item" href="{% url 'submission_start' %}">Submit</a>{% endif %}
                         {% user_has_role request 'editor' as user_is_editor %}
                         {% if user_is_editor or request.user.is_staff %}
+                            <a class="dropdown-item" href="{% url 'kanban' %}">Kanban</a>
                             <a class="dropdown-item" href="{% url 'core_manager_index' %}">Manager</a>
                             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' and article %}
                                 <a class="dropdown-item" href="{% url 'manage_archive_article' article.pk %}">Edit
@@ -120,10 +117,10 @@
                     &nbsp;</i>Register</a></li>
             {% endif %}
         </ul>
-
-        <form method="POST" action="/search/" class="form-inline mt-2 mt-md-0">
+        <form method="POST" action="{% url 'search' %}" class="form-inline mt-2 mt-md-0">
             {% csrf_token %}
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="article_search">
+            <input type="hidden" name="sort" value="title">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
 

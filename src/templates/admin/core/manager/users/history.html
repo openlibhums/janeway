@@ -181,6 +181,56 @@
                     </table>
                 </div>
             </div>
+            <div class="large-12 columns">
+                <div class="title-area">
+                    <h2>Direct Contact Log</h2>
+                </div>
+                <div class="content">
+                    <table id="log" class="scroll">
+                        <thead>
+                        <tr>
+                            <th>Entry Type</th>
+                            <th>Date</th>
+                            <th>Actor</th>
+                            <th>Level</th>
+                            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}
+                                <th>Email Status</th>{% endif %}
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in log_entries %}
+                            <tr>
+                                <td>{{ entry.types }}</td>
+                                <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
+                                <td>{{ entry.actor.full_name }}</td>
+                                <td>{{ entry.get_level_display|capfirst }}</td>
+                                {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}
+                                    <td>
+                                        {% if entry.is_email %}
+                                            <i class="fa fa-circle {{ entry.message_status_class }}"
+                                               aria-hidden="true"></i>
+                                            {{ entry.get_message_status_display }}
+                                        {% endif %}
+                                    </td>{% endif %}
+                                <td><a href="#"
+                                       data-open="entry-{{ entry.pk }}">View
+                                    Content</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+
+    {% for entry in log_entries %}
+    {% include "elements/journal/log_description.html" with entry=entry %}
+    {% endfor %}
+
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#log" sort=1 %}
 {% endblock %}

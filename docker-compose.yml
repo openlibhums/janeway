@@ -25,6 +25,18 @@ services:
       - "MYSQL_USER=${DB_USER}"
       - "MYSQL_DATABASE=${DB_NAME}"
 
+  janeway-mariadb:
+    image: mariadb/server:10.2.22
+    volumes:
+      - ./db/mariadb-data:/var/lib/mysql
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_USER=${DB_USER}"
+      - "MYSQL_DATABASE=${DB_NAME}"
+
   start_dependencies:
     image: dadarek/wait-for-dependencies
     depends_on:
@@ -32,10 +44,14 @@ services:
     command: "janeway-${DB_VENDOR}:${DB_PORT}"
 
   janeway-web:
-    build: .
-    command: python3 src/manage.py runserver 0.0.0.0:8000
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     volumes:
-      - .:/vol/janeway
+      - ./src:/vol/janeway/src
+      - ./lib:/vol/janeway/lib
+      - ./logs:/vol/janeway/logs
+      - ./db/janeway.sqlite3:/db/janeway.sqlite3
     ports:
       - "8000:8000"
     environment:
@@ -46,12 +62,15 @@ services:
       - DB_USER
       - DB_NAME
       - PYTHONDONTWRITEBYTECODE=yes
-      - JANEWAY_SETTINGS_MODULE=core.janeway_global_settings
+      - JANEWAY_SETTINGS_MODULE=core.dev_settings
+      - NOSE_INCLUDE_EXE=1
     depends_on:
       - "start_dependencies"
 
   janeway-sqlite:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     command: /bin/bash
     volumes:
       - ./db/janeway.sqlite:/var/lib/janeway.sqlite

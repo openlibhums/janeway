@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load pages %}
 
 
 {% block title %}{% trans "Articles" %}{% endblock %}
@@ -14,12 +15,12 @@
         <div class="row">
             <div class="large-8 columns border-right">
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
-                <h3>Pinned Articles</h3>
+                <h1>Pinned Articles</h1>
                     {% for article in pinned_articles %}
                         {% include "elements/journal/box_article.html" with article=article %}
                     {% endfor %}
                 {% endif %}
-                <h3>{% trans "Articles" %}</h3>
+                <h1>{% trans "Articles" %}</h1>
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% empty %}
@@ -32,9 +33,9 @@
                             <li class="arrow"><a href="?page={{ articles.previous_page_number }}">&laquo;</a>
                             </li>{% endif %}
                         {{ articles.page.page_range }}
-                        {% for page in articles.paginator.page_range %}
-                            <li class="{% if articles.number == page %}current{% endif %}"><a
-                                    href="?page={{ page }}">{{ page }}</a></li>
+                        {% for page in articles|slice_pages:3 %}
+                            <li class="{% if articles.number == page.number %}current{% endif %}"><a
+                                    href="?page={{ page.number }}">{{ page.number }}</a></li>
                         {% endfor %}
                         {% if articles.has_next %}
                             <li class="arrow"><a href="?page={{ articles.next_page_number }}">&raquo;</a>
@@ -86,3 +87,16 @@
     </section>
 
 {% endblock body %}
+
+{% block js %}
+{{ block.super }}
+<script>
+    //.sticky not behaving correctly
+    //https://github.com/zurb/foundation-sites/issues/9892
+    Foundation.MediaQuery._init()
+    if (Foundation.MediaQuery.current == 'medium') {
+      $('.sticky').removeAttr('data-sticky');
+    }
+    $(document).foundation();
+</script>
+{% endblock js %}

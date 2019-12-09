@@ -1,11 +1,14 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load roles %}
+
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
 {% block title-sub %}{{ article.title }}{% endblock %}
 
 {% block body %}
+    {% user_has_role request 'editor' as is_editor %}
     <div class="large-7 columns">
         <div class="box">
             <div class="title-area">
@@ -115,6 +118,7 @@
                         <th>Label</th>
                         <th>Filename</th>
                         <th>Type</th>
+                        <th>Uploaded</th>
                         <th>Download</th>
                         <th>Replace</th>
                         <th>File History</th>
@@ -128,6 +132,7 @@
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
+                                <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
@@ -156,6 +161,7 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a></td>
                             <td>n/a</td>
@@ -166,7 +172,9 @@
         </div>
 
     </div>
+
     <div class="large-5 columns">
+        {% if is_editor or request.user in section_editors and request.user not in editors %}
         <div class="box">
             <div class="title-area">
                 <h2>Editors</h2>
@@ -243,7 +251,7 @@
                 </table>
             </div>
         </div>
-
+        {% endif %}
         <div class="box">
             <div class="title-area">
                 <h2>Actions</h2>
@@ -272,8 +280,8 @@
                 {% endif %}
             </div>
         </div>
-
     </div>
+
 
 {% endblock body %}
 

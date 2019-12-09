@@ -1,1 +1,3 @@
+django_nose
+coverage
 ipdb

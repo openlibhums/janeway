@@ -13,7 +13,7 @@ from submission import models
 
 class LicenseChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return "{0}: {1}".format(obj.journal.code, obj.short_name)
+        return obj.short_name
 
 
 class FrozenAuthorAdmin(admin.ModelAdmin):
@@ -22,10 +22,11 @@ class FrozenAuthorAdmin(admin.ModelAdmin):
 
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'date_submitted', 'journal', 'stage', 'owner', 'is_import', 'ithenticate_score')
-    list_display = ('pk', 'title', 'date_submitted', 'stage', 'owner', 'is_import', 'ithenticate_score')
-    search_fields = ('title', 'subtitle')
+    list_display = ('pk', 'title', 'journal', 'date_submitted', 'stage',
+                    'owner', 'is_import', 'ithenticate_score')
+    search_fields = ('pk', 'title', 'subtitle')
     list_filter = ('stage', 'is_import', 'journal')
+    raw_id_fields = ('section',)
 
     def get_queryset(self, request):
         return self.model.allarticles.get_queryset()

@@ -3,6 +3,9 @@
 {% load files %}
 {% load static from staticfiles %}
 {% load foundation %}
+{% load roles %}
+{% load render_string %}
+{% load i18n %}
 
 {% block title %}Proofing - {{ article.pk }}{% endblock title %}
 {% block title-section %}Proofing{% endblock %}
@@ -31,6 +34,9 @@
                         <div class="title-area">
                             <h2>Proofreading Tasks</h2>
                             {% if forloop.first %}
+                                <a href="{% url 'delete_proofing_round' article.pk round.pk %}" class="button">
+                                    Delete Round
+                                </a>
                                 <a href="#" data-open="add_round" class="button">
                                     Add New Round
                                 </a>
@@ -52,7 +58,7 @@
                                 {% for task in round.proofingtask_set.all %}
                                     <tr>
                                         <td>{{ task.id }}</td>
-                                        <td>{{ task.proofreader.full_name }}</td>
+                                        <td>{{ task.proofreader.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' task.proofreader.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{{ task.due|date:"Y-m-d" }}</td>
                                         <td>{{ task.status.friendly }}</td>
@@ -75,7 +81,7 @@
                                                     {% else %}<hr /><p>Acknowledged {{ task.acknowledged|date:"Y-m-d H:i" }}{% endif %}</p>
                                                 {% elif not task.complete %}
                                                     <a href="{% url 'edit_proofing_assignment' article.pk task.pk %}"
-                                                       class="button expanded"><i class="fa fa-edit">&nbsp;</i>Edit</a>
+                                                       class="button expanded"><i class="fa fa-edit">&nbsp;</i>Manage</a>
                                                 {% else %}
                                                     Awaiting<br/>proofreader
                                                 {% endif %}
@@ -107,7 +113,7 @@
                                 {% for task in round.typeset_tasks %}
                                     <tr>
                                         <td>{{ task.pk }}</td>
-                                        <td>{{ task.typesetter.full_name }}</td>
+                                        <td>{{ task.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' task.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                         <td>{{ task.assigned|date:"Y-m-d" }}</td>
                                         <td>{{ task.due|date:"Y-m-d" }}</td>
                                         <td>
@@ -157,8 +163,10 @@
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Modified</th>
                         <th>Edit</th>
                         <th>Download</th>
+                        <th>Preview</th>
                         <th>Replace</th>
                         <th>History</th>
                         <th>Create PDF</th>
@@ -172,11 +180,16 @@
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley</td>
+                            <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>{% endif %}
                             </td>
+                            <td>
+                                <a href="{% url 'production_preview_galley' article.pk galley.pk %}" target="_blank">
+                                    <i class="fa fa-eye">&nbsp;</i>
+                                </a>
                             <td>{% if can_edit_file_flag %}
                                 <a href="{% url 'article_file_replace' 'id' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                                         class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
@@ -191,12 +204,15 @@
                                     <a href="{% url 'cassius_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-file-text-o">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true"
+                                             class="has-tip top"
+                                             data-disable-hover="false"
+                                             tabindex="2"
+                                             title="{% has_missing_supplements galley %}">Missing Images</span>
+                                    </p>
+                                {% else %}
                                     Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
-                                             data-disable-hover="false" tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
                                 {% endif %}
                             </td>
                             <td>
@@ -204,12 +220,15 @@
                                     <a href="{% url 'epub_generate' galley.pk %}?return={{ request.path|urlencode }}">
                                         <i class="fa fa-book">&nbsp;</i>
                                     </a>
-                                {% elif not galley.file.mime_type == 'application/xml' %}
+                                {% elif galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
+                                    <p><span data-tooltip aria-haspopup="true"
+                                             class="has-tip top"
+                                             data-disable-hover="false"
+                                             tabindex="2"
+                                             title="{% has_missing_supplements galley %}">Missing Images</span>
+                                    </p>
+                                {% else %}
                                     Function for XML only.
-                                {% elif galley.file.mime_type == 'application/xml' and galley.has_missing_image_files %}
-                                    <p><span data-tooltip aria-haspopup="true" class="has-tip top"
-                                             data-disable-hover="false" tabindex="2"
-                                             title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
                                 {% endif %}
                             </td>
                         </tr>
@@ -228,19 +247,47 @@
     </div>
 
     <div class="large-4 columns box">
-        <div class="title-area">
-            <h2>Actions</h2>
+        <div class="box">
+            <div class="title-area">
+                <h2>Status</h2>
+            </div>
+            <div class="content">
+                <small>
+                    This article is in the {{ article.stage }} stage.
+                </small>
+            </div>
+            <div class="title-area">
+                <h2>Steps</h2>
+            </div>
+            <div class="content">
+            {% render_string journal_settings.general.proofing_steps %}</div>
+
+            {% if not journal_settings.general.max_proofreaders.processed_value %}
+                <div class="title-area">
+                    <h2>Notes</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans "Each proofing round is limited to" %} {{ journal_settings.general.max_proofreaders }} {% trans "proofreaders" %}.</p>
+                </div>
+            {% endif %}
+
         </div>
-        <div class="content">
-            <ul class="menu vertical actions">
-                <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
-                <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
-                <li><a href="{% url 'production_article' article.pk %}"><i class="fa fa-files-o action-icon">&nbsp;</i>Manage Galleys</a></li>
-                <li><a href="{% url 'complete_proofing' article.pk %}"><i class="fa fa-check action-icon">&nbsp;</i>Complete Proofing</a></li>
-                {% if article.has_galley and production_assignment.typeset_tasks and not production_assignment.closed %}
-                    <li><a data-open="productionmodal"><i class="fa fa-">&nbsp;</i>Mark production as complete</a></li>
-                {% endif %}
-            </ul>
+        <div class="box">
+            <div class="title-area">
+                <h2>Actions</h2>
+            </div>
+            <div class="content">
+                <ul class="menu vertical actions">
+                    <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a></li>
+                    <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
+                    {% user_has_role request 'production_manager' as user_is_production_manager %}
+                    {% if user_is_production_manager %}<li><a href="{% url 'production_article' article.pk %}"><i class="fa fa-files-o action-icon">&nbsp;</i>Manage Galleys</a></li>{% endif %}
+                    <li><a href="{% url 'complete_proofing' article.pk %}"><i class="fa fa-check action-icon">&nbsp;</i>Complete Proofing</a></li>
+                    {% if article.has_galley and production_assignment.typeset_tasks and not production_assignment.closed %}
+                        <li><a data-open="productionmodal"><i class="fa fa-">&nbsp;</i>Mark production as complete</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -252,6 +299,7 @@
 
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
+    {% include "elements/notes/note_script.html" %}
     {% include "elements/jqte.html" %}
     {% include "elements/datepicker.html" with target="#id_due" %}
     <script src="{% static "admin/js/csrf.js" %}"></script>

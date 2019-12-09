@@ -9,7 +9,7 @@ $(document).ready(function() {
         "lengthMenu": [[25, 50, 10, -1], [25, 50, 10, "All"]],
     {% if hide_length %}"bLengthChange": false,{% endif %}
     {% if hide_page %}"bPaginate": false,{% endif %}
-    {% if sort %}"order": [[ {{ order }}, "{{ sort }}" ]],{% endif %}
+    {% if sort and order %}"order": [[ {{ sort }}, "{{ order }}" ]],{% endif %}
     {% if disable_ordering %}"ordering": false,{% endif %}
     {% if page_length %}"pageLength": {{ page_length }},{% endif %}
     });

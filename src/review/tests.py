@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.utils import timezone
 from django.urls import reverse
 from django.core.management import call_command
@@ -19,16 +19,18 @@ from review import models as review_models
 from submission import models as submission_models
 from proofing import models as proofing_models
 from press import models as press_models
+from utils.install import update_xsl_files
 
 
 # Create your tests here.
 class ReviewTests(TestCase):
 
+    @override_settings(URL_CONFIG='domain')
     def test_index_view_with_no_questions(self):
         """
         If no questions exist, an appropriate message should be displayed.
         """
-        response = self.client.get(reverse('website_index'))
+        response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
     @staticmethod
@@ -71,6 +73,7 @@ class ReviewTests(TestCase):
         Creates a set of dummy journals for testing
         :return: a 2-tuple of two journals
         """
+        update_xsl_files()
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.save()
 
@@ -362,10 +365,9 @@ class ReviewTests(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
-        call_command('sync_settings_to_journals')
+        call_command('load_default_settings')
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
         self.press.save()
-        call_command('sync_journals_to_sites')
         call_command('install_plugins')

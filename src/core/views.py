@@ -21,10 +21,15 @@ from django.http import HttpResponse
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.conf import settings as django_settings
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.contenttypes.models import ContentType
+import pytz
 
 from core import models, forms, logic, workflow
-from security.decorators import editor_user_required, article_author_required
+from security.decorators import editor_user_required, article_author_required, has_journal
 from submission import models as submission_models
 from review import models as review_models
 from copyediting import models as copyedit_models
@@ -33,8 +38,11 @@ from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
+from utils.logger import get_logger
 
 from django.db.models import Q
+
+logger = get_logger(__name__)
 
 
 def user_login(request):
@@ -53,7 +61,11 @@ def user_login(request):
         bad_logins = logic.check_for_bad_login_attempts(request)
 
     if bad_logins >= 5:
-        messages.add_message(request, messages.ERROR, 'You have been banned from logging in due to failed attempts.')
+        messages.info(
+                request,
+                'You have been banned from logging in due to failed attempts.'
+        )
+        logger.warning("[LOGIN_DENIED][FAILURES:%d]" % bad_logins)
         return redirect(reverse('website_index'))
 
     form = forms.LoginForm(bad_logins=bad_logins)
@@ -121,11 +133,10 @@ def user_login_orcid(request):
     :return: HttpResponse object
     """
     orcid_code = request.GET.get('code', None)
-    domain = request.journal_base_url if request.journal else request.press_base_url
 
     if orcid_code and django_settings.ENABLE_ORCID:
-        auth = orcid.retrieve_tokens(orcid_code, domain=domain)
-        orcid_id = auth.get('orcid', None)
+        orcid_id = orcid.retrieve_tokens(
+            orcid_code, request.site_type)
 
         if orcid_id:
             try:
@@ -297,18 +308,29 @@ def orcid_registration(request, token):
 
 def activate_account(request, token):
     """
-    Activates a user account if an Account object with the matching token is found and is not already active.
+    Activates a user account if an Account object with the
+    matching token is found and is not already active.
     :param request: HttpRequest object
     :param token: string, Account.confirmation_token
     :return: HttpResponse object
     """
     try:
         account = models.Account.objects.get(confirmation_code=token, is_active=False)
+    except models.Account.DoesNotExist:
+        account = None
+
+    if account and request.POST:
         account.is_active = True
         account.confirmation_code = None
         account.save()
-    except models.Account.DoesNotExist:
-        account = None
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Account activated',
+        )
+
+        return redirect(reverse('core_login'))
 
     template = 'core/accounts/activate_account.html'
     context = {
@@ -334,10 +356,21 @@ def edit_profile(request):
             email_address = request.POST.get('email_address')
             try:
                 validate_email(email_address)
-                logic.handle_email_change(request, email_address)
-                return redirect(reverse('website_index'))
+                try:
+                    logic.handle_email_change(request, email_address)
+                    return redirect(reverse('website_index'))
+                except IntegrityError:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        'An account with that email address already exists.',
+                    )
             except ValidationError:
-                messages.add_message(request, messages.WARNING, 'Email address is not valid.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Email address is not valid.',
+                )
 
         elif 'change_password' in request.POST:
             old_password = request.POST.get('current_password')
@@ -400,6 +433,7 @@ def public_profile(request, uuid):
     return render(request, template, context)
 
 
+@has_journal
 @login_required
 def dashboard(request):
     """
@@ -408,8 +442,8 @@ def dashboard(request):
     :return: HttpResponse object
     """
     template = 'core/dashboard.html'
-    new_proofing, active_proofing, completed_proofing, new_proofing_typesetting, active_proofing_typesetting, \
-        completed_proofing_typesetting = proofing_logic.get_tasks(request)
+    new_proofing, active_proofing, completed_proofing = proofing_logic.get_tasks(request)
+    new_proofing_typesetting, active_proofing_typesetting, completed_proofing_typesetting = proofing_logic.get_typesetting_tasks(request)
     section_editor_articles = review_models.EditorAssignment.objects.filter(editor=request.user,
                                                                             editor_type='section-editor',
                                                                             article__journal=request.journal)
@@ -462,7 +496,7 @@ def dashboard(request):
         'assigned_articles_for_user_review_completed_count': review_models.ReviewAssignment.objects.filter(
             Q(is_complete=True) &
             Q(reviewer=request.user) &
-            Q(date_declined__isnull=False), article__journal=request.journal).count(),
+            Q(date_declined__isnull=True), article__journal=request.journal).count(),
 
         'copyeditor_requests': copyedit_models.CopyeditAssignment.objects.filter(
             Q(copyeditor=request.user) &
@@ -483,16 +517,19 @@ def dashboard(request):
         'typeset_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=True,
-            completed__isnull=True).count(),
+            completed__isnull=True,
+            typesetter=request.user).count(),
         'typeset_in_progress_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
-            completed__isnull=True).count(),
+            completed__isnull=True,
+            typesetter=request.user).count(),
         'typeset_completed_tasks': production_models.TypesetTask.objects.filter(
             assignment__article__journal=request.journal,
             accepted__isnull=False,
-            completed__isnull=False).count(),
-        'active_submissions': submission_models.Article.objects.filter(owner=request.user,
+            completed__isnull=False,
+            typesetter=request.user).count(),
+        'active_submissions': submission_models.Article.objects.filter(authors=request.user,
                                                                        journal=request.journal).exclude(
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_submitted'),
         'progress_submissions': submission_models.Article.objects.filter(
@@ -505,6 +542,7 @@ def dashboard(request):
     return render(request, template, context)
 
 
+@has_journal
 @editor_user_required
 def active_submissions(request):
     template = 'core/active_submissions.html'
@@ -520,6 +558,7 @@ def active_submissions(request):
     return render(request, template, context)
 
 
+@has_journal
 @editor_user_required
 def active_submission_filter(request):
     articles = logic.build_submission_list(request)
@@ -534,6 +573,7 @@ def active_submission_filter(request):
     return HttpResponse(json.dumps({'status': 200, 'html': html}))
 
 
+@has_journal
 @article_author_required
 def dashboard_article(request, article_id):
     """
@@ -600,6 +640,16 @@ def settings_index(request):
 
     return render(request, template, context)
 
+@staff_member_required
+def default_settings_index(request):
+    """ Proxy view for edit_setting allowing to edit defaults
+
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+
+    return settings_index(request)
+
 
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
@@ -610,16 +660,25 @@ def edit_setting(request, setting_group, setting_name):
     :param setting_name: string, Setting.name
     :return: HttpResponse object
     """
-    setting_value = setting_handler.get_setting(setting_group, setting_name, request.journal, create=True)
+    setting = models.Setting.objects.get(
+            name=setting_name, group__name=setting_group)
+    setting_value = setting_handler.get_setting(
+            setting_group,
+            setting_name,
+            request.journal,
+            default=False
+        )
 
-    if setting_value.setting.types == 'rich-text':
+    if setting_value and setting_value.setting.types == 'rich-text':
         setting_value.value = linebreaksbr(setting_value.value)
 
-    edit_form = forms.EditKey(key_type=setting_value.setting.types, value=setting_value.value)
+    edit_form = forms.EditKey(
+            key_type=setting.types,
+            value=setting_value.value if setting_value else None
+    )
 
-    if request.POST and 'delete' in request.POST:
-        setting_value.value = ''
-        setting_value.save()
+    if request.POST and 'delete' in request.POST and setting_value:
+        setting_value.delete()
 
         return redirect(reverse('core_settings_index'))
 
@@ -628,22 +687,33 @@ def edit_setting(request, setting_group, setting_name):
         if request.FILES:
             value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        setting_value.value = value
-        setting_value.save()
-
+        setting_value = setting_handler.save_setting(
+            setting_group, setting_name, request.journal, value)
         cache.clear()
 
         return redirect(reverse('core_settings_index'))
 
     template = 'core/manager/settings/edit_setting.html'
     context = {
-        'setting': setting_value.setting,
-        'group': setting_value.setting.group,
+        'setting': setting,
+        'setting_value': setting_value,
+        'group': setting.group,
         'edit_form': edit_form,
-        'value': setting_value.value
+        'value': setting_value.value if setting_value else None
     }
-
     return render(request, template, context)
+
+
+@staff_member_required
+def edit_default_setting(request, setting_group, setting_name):
+    """ Proxy view for edit_setting allowing editing the default value
+
+    :param request: HttpRequest object
+    :param setting_group: string, SettingGroup.name
+    :param setting_name: string, Setting.name
+    :return: HttpResponse object
+    """
+    return edit_setting(request, setting_group, setting_name)
 
 
 @editor_user_required
@@ -866,17 +936,33 @@ def add_user(request):
     role = request.GET.get('role', None)
 
     if request.POST:
-        registration_form = forms.AdminUserForm(request.POST, active='add', request=request)
+        registration_form = forms.AdminUserForm(
+            request.POST,
+            active='add',
+            request=request
+        )
 
         if registration_form.is_valid():
             new_user = registration_form.save()
+            # Every new user is given the author role
+            new_user.add_account_role('author', request.journal)
+
             if role:
                 new_user.add_account_role(role, request.journal)
 
-            form = forms.EditAccountForm(request.POST, request.FILES, instance=new_user)
+            form = forms.EditAccountForm(
+                request.POST,
+                request.FILES,
+                instance=new_user
+            )
+
             if form.is_valid():
                 form.save()
-                messages.add_message(request, messages.SUCCESS, 'User created.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'User created.'
+                )
 
                 if return_url:
                     return redirect(return_url)
@@ -884,7 +970,8 @@ def add_user(request):
                 return redirect(reverse('core_manager_users'))
 
         else:
-            # If the registration form is not valid, we need to add post data to the Edit form for display.
+            # If the registration form is not valid,
+            # we need to add post data to the Edit form for display.
             form = forms.EditAccountForm(request.POST)
 
     template = 'core/manager/users/edit.html'
@@ -980,14 +1067,26 @@ def user_history(request, user_id):
     """
 
     user = get_object_or_404(models.Account, pk=user_id)
+    content_type = ContentType.objects.get_for_model(user)
+    log_entries = util_models.LogEntry.objects.filter(
+        content_type=content_type,
+        object_id=user.pk,
+        is_email=True,
+    )
 
     template = 'core/manager/users/history.html'
     context = {
         'user': user,
-        'review_assignments': review_models.ReviewAssignment.objects.filter(reviewer=user,
-                                                                            article__journal=request.journal),
-        'copyedit_assignments': copyedit_models.CopyeditAssignment.objects.filter(copyeditor=user,
-                                                                                  article__journal=request.journal)
+        'review_assignments': review_models.ReviewAssignment.objects.filter(
+            reviewer=user,
+            article__journal=request.journal,
+        ),
+        'copyedit_assignments':
+            copyedit_models.CopyeditAssignment.objects.filter(
+                copyeditor=user,
+                article__journal=request.journal,
+            ),
+        'log_entries': log_entries,
     }
 
     return render(request, template, context)
@@ -1290,23 +1389,45 @@ def add_member_to_group(request, group_id, user_id=None):
     :param user_id: Account object PK, optional
     :return:
     """
-    group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
-    member_pks = [member.user.pk for member in group.editorialgroupmember_set.all()]
-    user_list = models.Account.objects.exclude(pk__in=member_pks)
+    group = get_object_or_404(
+        models.EditorialGroup,
+        pk=group_id,
+        journal=request.journal
+    )
+    journal_users = request.journal.journal_users(objects=True)
+    members = [member.user for member in group.editorialgroupmember_set.all()]
+
+    # Drop users thagit t are in both lists.
+    user_list = list(set(journal_users) ^ set(members))
 
     if 'delete' in request.POST:
         delete_id = request.POST.get('delete')
-        membership = get_object_or_404(models.EditorialGroupMember, pk=delete_id)
+        membership = get_object_or_404(
+            models.EditorialGroupMember,
+            pk=delete_id
+        )
         membership.delete()
-        return redirect(reverse('core_editorial_member_to_group', kwargs={'group_id': group.pk}))
+        return redirect(
+            reverse(
+                'core_editorial_member_to_group',
+                kwargs={'group_id': group.pk}
+            )
+        )
 
     if user_id:
         user_to_add = get_object_or_404(models.Account, pk=user_id)
-        if user_id not in member_pks:
-            models.EditorialGroupMember.objects.create(group=group,
-                                                       user=user_to_add,
-                                                       sequence=group.next_member_sequence())
-        return redirect(reverse('core_editorial_member_to_group', kwargs={'group_id': group.pk}))
+        if user_to_add not in members:
+            models.EditorialGroupMember.objects.create(
+                group=group,
+                user=user_to_add,
+                sequence=group.next_member_sequence()
+            )
+        return redirect(
+            reverse(
+                'core_editorial_member_to_group',
+                kwargs={'group_id': group.pk}
+            )
+        )
 
     template = 'core/manager/editorial/add_member.html'
     context = {
@@ -1328,19 +1449,29 @@ def plugin_list(request):
     plugin_list = list()
 
     if request.journal:
-        plugins = util_models.Plugin.objects.filter(enabled=True)
+        plugins = util_models.Plugin.objects.filter(
+            enabled=True,
+            homepage_element=False,
+        )
     else:
-        plugins = util_models.Plugin.objects.filter(enabled=True, press_wide=True)
+        plugins = util_models.Plugin.objects.filter(
+            enabled=True,
+            press_wide=True,
+            homepage_element=False,
+        )
 
     for plugin in plugins:
         try:
             module_name = "{0}.{1}.plugin_settings".format("plugins", plugin.name)
             plugin_settings = import_module(module_name)
-            plugin_list.append({'model': plugin,
-                                'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
-                                'name': getattr(plugin_settings, 'PLUGIN_NAME')
-                                })
-        except ImportError:
+            plugin_list.append(
+                {'model': plugin,
+                 'manager_url': getattr(plugin_settings, 'MANAGER_URL', ''),
+                 'name': getattr(plugin_settings, 'PLUGIN_NAME')
+                 },
+            )
+        except ImportError as e:
+            logger.error("Importing plugin %s failed: %s" % (plugin, e))
             pass
 
     template = 'core/manager/plugins.html'
@@ -1380,6 +1511,7 @@ def editorial_ordering(request, type_to_order, group_id=None):
     return HttpResponse('Thanks')
 
 
+@has_journal
 @editor_user_required
 def kanban(request):
     """
@@ -1502,7 +1634,7 @@ def manage_notifications(request, notification_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def email_templates(request):
     """
     Displays a list of email templates
@@ -1519,7 +1651,7 @@ def email_templates(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def edit_email_template(request, template_code, subject=False):
     """
     Allows staff to edit email templates and subjects
@@ -1644,6 +1776,7 @@ def pinned_articles(request):
     return render(request, template, context)
 
 
+@has_journal
 @staff_member_required
 def journal_workflow(request):
     """
@@ -1651,34 +1784,51 @@ def journal_workflow(request):
     :param request: django request object
     :return: template contextualised
     """
-    workflow, created = models.Workflow.objects.get_or_create(journal=request.journal)
+    journal_workflow, created = models.Workflow.objects.get_or_create(
+        journal=request.journal
+    )
 
     if created:
-        from core import workflow as workflow_utils
-        workflow_utils.create_default_workflow(request.journal)
+        workflow.create_default_workflow(request.journal)
 
-    available_elements = logic.get_available_elements(workflow)
+    available_elements = logic.get_available_elements(journal_workflow)
 
     if request.POST:
         if 'element_name' in request.POST:
             element_name = request.POST.get('element_name')
-            element = logic.handle_element_post(workflow, element_name, request)
+            element = logic.handle_element_post(journal_workflow, element_name, request)
             if element:
-                workflow.elements.add(element)
-                messages.add_message(request, messages.SUCCESS, 'Element added.')
+                journal_workflow.elements.add(element)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Element added.'
+                )
             else:
-                messages.add_message(request, messages.WARNING, 'Element not found.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Element not found.'
+                )
 
         if 'delete' in request.POST:
             delete_id = request.POST.get('delete')
-            delete_element = get_object_or_404(models.WorkflowElement, journal=request.journal, pk=delete_id)
-            workflow.elements.remove(delete_element)
-            messages.add_message(request, messages.SUCCESS, 'Removed element.')
+            delete_element = get_object_or_404(
+                models.WorkflowElement,
+                journal=request.journal,
+                pk=delete_id
+            )
+            workflow.remove_element(
+                request,
+                journal_workflow,
+                delete_element
+            )
+
         return redirect(reverse('core_journal_workflow'))
 
     template = 'core/workflow.html'
     context = {
-        'workflow': workflow,
+        'workflow': journal_workflow,
         'available_elements': available_elements,
     }
 
@@ -1703,3 +1853,25 @@ def order_workflow_elements(request):
             element.save()
 
     return HttpResponse('Thanks')
+
+
+@ensure_csrf_cookie
+@require_POST
+def set_session_timezone(request):
+    chosen_timezone = request.POST.get("chosen_timezone")
+    response_data = {}
+    if chosen_timezone in pytz.all_timezones_set:
+        request.session["janeway_timezone"] = chosen_timezone
+        status = 200
+        response_data['message'] = 'OK'
+        logger.debug("Timezone set to %s for this session" % chosen_timezone)
+    else:
+        status = 404
+        response_data['message'] = 'Timezone not found: %s' % chosen_timezone
+    response_data = {}
+
+    return HttpResponse(
+            content=json.dumps(response_data),
+            content_type='application/json',
+            status=200,
+    )

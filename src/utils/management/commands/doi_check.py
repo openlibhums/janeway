@@ -39,10 +39,7 @@ class Command(BaseCommand):
         request = cron_models.Request()
 
         for journal in journals:
-            try:
-                request.secure = setting_handler.get_setting('general', 'is_secure', journal)
-            except IndexError:
-                request.secure = False
+            request.secure = journal.is_secure
 
             print('Processing {0}'.format(journal.name))
             articles = submission_models.Article.objects.filter(journal=journal)

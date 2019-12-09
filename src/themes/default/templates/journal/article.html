@@ -7,77 +7,7 @@
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
-
-    <!-- Commented out meta fields are TODO -->
-
-    <!-- <meta name="DC.Coverage.spatial" xml:lang="en" content="London"/> -->
-
-    <!-- <meta name="DC.Coverage.temporal" xml:lang="en" content="long-eighteenth century"/> -->
-
-
-    <meta name="DC.Date.created" scheme="ISO8601" content="{{ article.date_published }}"/>
-    <meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ article.date_submitted }}"/>
-    <meta name="DC.Date.issued" scheme="ISO8601" content="{{ article.date_published }}"/>
-    <meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published }}"/>
-
-    <meta name="DC.Description" xml:lang="en" content="{{ article.abstract | striptags }}"/>
-
-    <meta name="DC.Format" scheme="IMT" content="xml"/>
-    <meta name="DC.Format" scheme="IMT" content="pdf"/>
-    <meta name="DC.Identifier.pageNumber" content="{{ article.page_number }}"/>
-    {% if article.identifier.id_type == "doi" %}
-        <meta name="DC.Identifier.DOI" content="{{ article.identifier.identifier }}"/>{% endif %}
-    <meta name="DC.Identifier.URI" content="
-
-
-
-
-
-            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
-    <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
-    <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
-    <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
-    <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
-    <meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>
-    <meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>
-    <meta name="DC.Source.URI" content="{{ request.journal_base_url }}{% url 'website_index' %}"/>
-    <meta name="DC.Title" content="{{ article.title | striptags }}"/>
-
-    <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
-    <meta name="citation_issn" content="{{ journal_settings.general.issn }}"/>
-    {% for author in article.frozen_authors.all %}
-        <meta name="citation_author" content="{{ author.full_name }}"/>
-        {% if not '@journal.org' in author.author.email %}
-            <meta name="citation_author_email" content="{{ author.author.email }}"/>{% endif %}
-        <meta name="citation_author_institution" content="{{ author.institution }}"/>{% endfor %}
-    <meta name="citation_title" content="{{ article.title | striptags }}"/>
-    <meta name="citation_publication_date" content="{{ article.date_published }}"/>
-    <meta name="citation_volume" content="{{ article.issue.volume }}"/>
-    <meta name="citation_issue" content="{{ article.issue.issue }}"/>{% if article.identifier.id_type == "doi" %}
-    <meta name="citation_doi" content="{{ article.identifier.identifier }}"/>{% endif %}
-    <meta name="citation_abstract_html_url" content="
-
-
-
-
-
-            {{ request.journal_base_url }}{% url 'article_view' article.identifier.id_type article.identifier.identifier %}"/>
-    <meta name="citation_language" content="{{ article.language }}"/>
-
-    {% if article.keywords %}
-        <meta name="citation_keywords" xml:lang="en" content="
-
-
-
-
-
-                {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
-    {% endif %}
-
-    {% for pdf in pdfs %}
-        <meta name="citation_pdf_url" content="{% url 'article_file_download' identifier_type identifier pdf.id %}"/>
-    {% endfor %}
-    {% include "elements/journal/social_meta.html" %}
+    {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
 {% block body %}
@@ -86,23 +16,21 @@
     {% if not journal.disable_article_images %}
         <div class="col-md-12">
             <div class="card">
-                {% if article.large_image_file.id %}
                     <img class="card-img img-fluid article-img"
+                        {% if article.large_image_file.id %}
                          src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                         alt="{{ article.title | urlencode }}">
-                {% elif journal.default_large_image %}
-                    <img class="card-img img-fluid article-img"
+                        {% elif article.issue.large_image %}
+                         src="{{ article.issue.large_image.url }}"
+                        {% elif journal.default_large_image %}
                          src="{{ journal.default_large_image.url }}"
-                         alt="{{ article.title | urlencode }}">
-                {% else %}
-                    <img class="card-img"
+                        {% else %}
                          src=""
-                         alt="{{ article.title | urlencode }}">
-                {% endif %}
+                        {% endif %}
+                         alt="{{ article.title | striptags }}">
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
-                        <h4 class="card-title align-text-bottom">{{ article.title|safe }}</h4>
+                        <h1 class="card-title align-text-bottom">{{ article.title|safe }}</h1>
                         {% if article.is_published %}
                             <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
                             {% trans "Author" %}{% endif %}:</strong>
@@ -120,7 +48,7 @@
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
                                                 itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                    {% if not '@journal.org' in author.author.email and author.author.email %}
+                                    {% if author.is_correspondence_author %}
                                         <a itemprop="email" href="mailto:{{ author.author.email }}"
                                            class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                             {% endfor %}
@@ -137,8 +65,7 @@
             <div id="article">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h5>
-                <hr/>
+                    <h3>{{ article.title|safe }}</h3>
                 {% endif %}
                 {% if article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
@@ -163,7 +90,7 @@
                 {% endif %}
                 {% if article_content %}
                     <h2>{% trans "Article" %}</h2>
-                    <div itemprop="articleBody">
+                    <div itemprop="articleBody" id="main_article">
                         {{ article_content|safe }}
                         {% hook 'article_footer_block' %}
                     </div>
@@ -173,6 +100,17 @@
 
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
+                {% if journal.disable_article_images %}
+                    <h4>{% trans "Authors" %}</h4>
+                    <ul>
+                    {% for author in article.frozen_authors.all %}
+                        <li>
+                            {{ author.full_name }}
+                        </li>
+                    {% endfor %}
+                     </ul>
+                {% endif %}
+
                 {% if article.is_published %}
                     <h4>{% trans "Download" %}</h4>
                     <ul>
@@ -215,6 +153,10 @@
                         </li>
                     {% endif %}
                 </ul>
+                {% for field in article.custom_fields %}
+                <h4>{% trans field.field.name %}</h4>
+                <p>{{ field.answer }}</p>
+                {% endfor %}
                 {% if article.is_published %}
                     {% if not request.journal.disable_metrics_display %}
                     <h4>{% trans "Metrics" %}</h4>
@@ -227,6 +169,8 @@
                             <li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
                         {% if article.metrics.alm.reddit %}
                             <li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
+                        {% if article.citation_count %}
+                            <li>{% trans "Citations" %}: {{ article.citation_count }}</li>{% endif %}
                     </ul>
                     {% endif %}
                     <h4>{% trans "Citation" %}</h4>

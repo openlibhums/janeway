@@ -1,9 +1,10 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
 {% load hooks %}
+{% load i18n %}
 
-{% block page_title %}{% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections"%}{% endif %}{% endwith %}{% endblock %}
-{% block title %}{% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections"%}{% endif %}{% endwith %}{% endblock %}
+{% block page_title %}{% trans issue_type.plural_name  %}{% endblock %}
+{% block title %}{% trans issue_type.plural_name  %}{% endblock %}
 
 {% block body %}
 
@@ -16,7 +17,7 @@
                         <a href="{% url 'journal_collection' collection.pk %}">
                             <h4 class="card-title">{{ collection.issue_title }}</h4>
                         </a>
-                        <p class="card-text"><small>Launched: {{ collection.date|date:"d/m/y" }}</small></p>
+                        <p class="card-text"><small>Published: {{ collection.date|date:"d/m/y" }}</small></p>
                         <p class="card-text">{{ collection.issue_description|safe }}</p>
                     </div>
                 </div>

@@ -19,6 +19,8 @@
                 <tr>
                     <th>ID</th>
                     <th>Label</th>
+                    <th>Uploaded</th>
+                    <th>Modified</th>
                     <th>Filename</th>
                     <th>Download</th>
                     <th>Replace</th>
@@ -33,6 +35,8 @@
                     <tr class="active">
                         <td>{{ file.pk }}</td>
                         <td>{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
+                        <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                        <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                         <td>{{ file }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
@@ -42,7 +46,7 @@
                             <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
                         <td>{% if can_edit_file_flag %}
-                            <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.GET.return|urlencode }}"><i
+                            <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-trash">
                                 &nbsp;</i></a>{% endif %}</td>
                         <td>{% file_type article file %}</td>

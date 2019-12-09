@@ -1,0 +1,47 @@
+{% extends "admin/core/base.html" %}}
+{% load foundation %}
+
+{% block title %}Edit Identifiers - {{ article.pk }}{% endblock title %}
+
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li>Edit</li>
+<li>{{ article.title }}</li>
+<li>Identifiers</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns box">
+    <div class="pull-right">
+
+    </div>
+    <div class="title-area">
+        <h2>Edit Identifiers</h2>
+        <a href="{% url 'add_new_identifier' article.pk %}" class="button">Add Identifier</a>
+    </div>
+    <table class="small scroll">
+        <tr>
+            <th>Identifier Type</th>
+            <th>Identifier</th>
+            <th>Enabled</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        {% for ident in identifiers %}
+        <tr>
+            <form method="POST">
+                {% csrf_token %}
+                <td>{{ ident.get_id_type_display }}</td>
+                <td>{{ ident.identifier }}</td>
+                <td>{% if ident.enabled %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
+                <td><a href="{% url 'edit_identifier' article.pk ident.pk %}" class="small button"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                <td><button class="small button warning" name="delete" formaction="{% url 'delete_identifier' article.pk ident.pk %}"><i class="fa fa-trash">&nbsp;</i>Delete</button></td>
+                <td>{% if ident.get_id_type_display == 'DOI' %}<button type="submit" class="small success button" formaction="{% url 'issue_doi' article.pk ident.pk %}">Issue DOI</button>{% endif %}</td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock body %}

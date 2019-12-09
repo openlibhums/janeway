@@ -394,6 +394,10 @@ main section {
   }
 }
 
+#article {
+  word-wrap: break-word;
+}
+
 .dark-primary-bg {
   background: $primary-dark-color;
 
@@ -442,7 +446,7 @@ div.caption span.label {
 }
 
 .box {
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   position: relative;
 
   .button {
@@ -1148,4 +1152,18 @@ button.list-group-item-danger.active:focus {
 
 .issue-link:hover {
     text-decoration: underline;
+}
+
+.feature-article-image {
+  object-fit: cover;
+}
+
+.alignright {
+  float: right;
+  padding: 5px;
+}
+
+.alignleft {
+  float: left;
+  padding: 5px;
 }

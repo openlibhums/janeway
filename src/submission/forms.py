@@ -10,6 +10,9 @@ from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
 from review.forms import render_choices
+from utils.forms import KeywordModelForm
+from utils import setting_handler
+
 
 
 class PublisherNoteForm(forms.ModelForm):
@@ -55,18 +58,29 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('comments_editor')
 
 
-class ArticleInfo(forms.ModelForm):
-    keywords = forms.CharField(required=False)
+        copyright_label = setting_handler.get_setting(
+            'general',
+            'copyright_submission_label',
+            journal,
+        ).processed_value
+        self.fields['copyright_notice'].label = copyright_label
+
+
+class ArticleInfo(KeywordModelForm):
 
     class Meta:
         model = models.Article
-        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary', 'language', 'section', 'license',
-                  'primary_issue', 'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
+        fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
+                  'language', 'section', 'license', 'primary_issue',
+                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
             'abstract': forms.Textarea(
-                attrs={'placeholder': _('Enter your article\'s abstract here')}),
+                attrs={
+                    'placeholder': _('Enter your article\'s abstract here')
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -78,12 +92,24 @@ class ArticleInfo(forms.ModelForm):
         if 'instance' in kwargs:
             article = kwargs['instance']
             self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
-                journal=article.journal, public_submissions=True)
-            self.fields['license'].queryset = models.Licence.objects.filter(journal=article.journal,
-                                                                            available_for_submission=True)
+                journal=article.journal,
+                public_submissions=True,
+            )
+            self.fields['license'].queryset = models.Licence.objects.filter(
+                journal=article.journal,
+                available_for_submission=True,
+            )
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.journal.issues()
+
+            abstracts_required = article.journal.get_setting(
+                'general',
+                'abstract_required',
+            )
+
+            if abstracts_required:
+                self.fields['abstract'].required = True
 
             if submission_summary:
                 self.fields['non_specialist_summary'].required = True
@@ -150,16 +176,6 @@ class ArticleInfo(forms.ModelForm):
 
     def save(self, commit=True, request=None):
         article = super(ArticleInfo, self).save(commit=False)
-
-        posted_keywords = self.cleaned_data.get('keywords', '').split(',')
-        for keyword in posted_keywords:
-            if keyword != '':
-                new_keyword, c = models.Keyword.objects.get_or_create(word=keyword)
-                article.keywords.add(new_keyword)
-
-        for keyword in article.keywords.all():
-            if keyword.word not in posted_keywords:
-                article.keywords.remove(keyword)
 
         if request:
             additional_fields = models.Field.objects.filter(journal=request.journal)
@@ -243,6 +259,15 @@ class FileDetails(forms.ModelForm):
 
 
 class EditFrozenAuthor(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.pop("instance", None)
+        if instance:
+            del self.fields["is_corporate"]
+            if instance.is_corporate:
+                del self.fields["first_name"]
+                del self.fields["middle_name"]
+                del self.fields["last_name"]
 
     class Meta:
         model = models.FrozenAuthor
@@ -253,6 +278,7 @@ class EditFrozenAuthor(forms.ModelForm):
             'institution',
             'department',
             'country',
+            'is_corporate',
         )
 
 
@@ -291,8 +317,46 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields['default_section'].queryset = models.Section.objects.filter(journal=self.instance.journal)
-        self.fields['default_license'].queryset = models.Licence.objects.filter(journal=self.instance.journal)
+        self.fields[
+            'default_section'].queryset = models.Section.objects.filter(
+            journal=self.instance.journal,
+        )
+        self.fields[
+            'default_license'].queryset = models.Licence.objects.filter(
+            journal=self.instance.journal,
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        license = cleaned_data.get('license', False)
+        section = cleaned_data.get('section', False)
+        language = cleaned_data.get('language', False)
+
+        default_license = cleaned_data.get('default_license', None)
+        default_section = cleaned_data.get('default_section', None)
+        default_language = cleaned_data.get('default_language', None)
+
+        if not license and not default_license:
+            self.add_error(
+                'default_license',
+                'If license is unset you must select a default license.',
+            )
+
+        if not section and not default_section:
+            self.add_error(
+                'default_section',
+                'If section is unset you must select a default section.',
+            )
+
+        if not language and not default_language:
+            self.add_error(
+                'default_language',
+                'If language is unset you must select a default language.'
+            )
+
+
+
 
     class Meta:
         model = models.SubmissionConfiguration

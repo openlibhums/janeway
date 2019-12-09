@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from django.contrib.sites import models as site_models
+from core.models import DomainAlias
 from journal import models as journal_models
 from press import models as press_models
 
@@ -27,9 +27,3 @@ class Command(BaseCommand):
         print("\nJournals:")
         for journal in journals:
             print('Journal with ID {0} [{1}]: {2}'.format(journal.id, journal.name, journal.domain))
-
-        site_list = site_models.Site.objects.all()
-
-        print("\nSites:")
-        for site in site_list:
-            print('Site with ID {0} [{1}]: {2}'.format(site.id, site.name, site.domain))

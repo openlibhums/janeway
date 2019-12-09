@@ -31,7 +31,7 @@
                                 <th></th>
                             </tr>
                             <tr>
-                                <td>{{ assignment.copyeditor.full_name }}</td>
+                                <td>{{ assignment.copyeditor.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' assignment.copyeditor.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                 <td>{{ assignment.assigned|date:"Y-m-d" }}</td>
                                 <td>{{ assignment.due|date:"Y-m-d" }}</td>
                                 <td>
@@ -129,9 +129,13 @@
                 </div>
                 <div class="content">
                     <div class="callout warning">
-                        <small>This article is currently in {{ article.stage }}.</small>
+                        <small>This article is currently in the {{ article.stage }} stage.</small>
                     </div>
                 </div>
+                <div class="title-area">
+                    <h2>Steps</h2>
+                </div>
+                <div class="content">{{ journal_settings.general.copyediting_steps|safe }}</div>
             </div>
             <div class="box">
                 <div class="title-area">
@@ -158,4 +162,5 @@
 
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
+    {% include "elements/notes/note_script.html" %}
 {% endblock js %}

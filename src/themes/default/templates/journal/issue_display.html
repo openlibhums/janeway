@@ -1,51 +1,20 @@
 {% load staticfiles %}
 {% load i18n %}
+{% load pages %}
 
 <div class="row">
     <div class="col-md-{% if not show_sidebar %}12{% else %}8 border-right{% endif %}" id="issue_top">
-        {% if issue.large_image %}
-            <div class="card">
-                <img class="card-img img-fluid article-img" src="{{ issue.large_image.url }}" alt="Card image">
-                <div class="card-img-overlay white-text">
-                    <div class="card-text">
-                        <h4 class="card-title">{{ issue.display_title }}</h4>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <h2 class="em">{{ issue.display_title }}</h2>
-            <p>{{ issue.issue_description|safe }}</p>
-        {% endif %}
-        <br/>
 
-        {% for section, articles in structure.items %}
-            <h3 class="em">{{ section.name }}</h3>
-            {% for article in articles %}
-                {% include "elements/article_listing.html" with article=article %}
-            {% endfor %}
-        {% endfor %}
+        {% include "elements/journal/issue_top.html" %}
+        {% include "elements/journal/issue_block.html" %}
+        {% include "elements/journal/issue_paginator.html" %}
+
+
     </div>
 
     {% if show_sidebar %}
-        <aside class="col-md-4" data-sticky-container>
-            <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
-                <div class="section">
-                    <h3>{% trans 'Downloads' %}</h3>
-                    <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>Download Issue</a></p>
-                    <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
-                        {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
-                    <ul>
-                        {% for issue in issues %}
-                        {% if issue.issue_type == 'Issue' %}
-                            <li><a href="{% url 'journal_issue' issue.id %}">{{ issue }} </a></li>
-                        {% else %}
-                            <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </aside>
+        {% include "elements/journal/issue_sidebar.html" %}
+
     {% endif %}
 
 </div>

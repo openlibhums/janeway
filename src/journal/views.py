@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
@@ -26,9 +26,14 @@ from django.views.decorators.http import require_POST
 from django.core.management import call_command
 
 from cms import models as cms_models
-from core import files, models as core_models, plugin_loader
+from core import (
+    files,
+    models as core_models,
+    plugin_loader,
+    logic as core_logic,
+)
 from journal import logic, models, issue_forms, forms
-from journal.logic import list_galleys
+from journal.logic import get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms
 from security.decorators import article_stage_accepted_or_later_required, \
@@ -37,7 +42,10 @@ from security.decorators import article_stage_accepted_or_later_required, \
     editor_user_required
 from submission import models as submission_models
 from utils import models as utils_models, shared
+from utils.logger import get_logger
 from events import logic as event_logic
+
+logger = get_logger(__name__)
 
 
 @has_journal
@@ -48,11 +56,13 @@ def home(request):
     :return: a rendered template of the journal homepage
     """
     issues_objects = models.Issue.objects.filter(journal=request.journal)
-    sections = submission_models.Section.objects.filter(journal=request.journal)
+    sections = submission_models.Section.objects.filter(
+        journal=request.journal,
+    )
 
-    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                                   object_id=request.journal.pk,
-                                                                   active=True).order_by('sequence')
+    homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
+        request,
+    )
 
     template = 'journal/index.html'
     context = {
@@ -62,13 +72,21 @@ def home(request):
     }
 
     # call all registered plugin block hooks to get relevant contexts
-    for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
-        hook_module = plugin_loader.import_module(hook.get('module'))
-        function = getattr(hook_module, hook.get('function'))
-        element_context = function(request, homepage_elements)
 
-        for k, v in element_context.items():
-            context[k] = v
+    for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
+        if hook.get('name') in homepage_element_names:
+            try:
+                hook_module = plugin_loader.import_module(hook.get('module'))
+                function = getattr(hook_module, hook.get('function'))
+                element_context = function(request, homepage_elements)
+
+                for k, v in element_context.items():
+                    context[k] = v
+            except utils_models.Plugin.DoesNotExist as e:
+                if settings.DEBUG:
+                    logger.debug(e)
+                else:
+                    pass
 
     return render(request, template, context)
 
@@ -138,6 +156,7 @@ def articles(request):
         'sort': sort,
         'show': show,
         'active_filters': active_filters,
+        'search_form': forms.SearchForm(),
     }
     return render(request, template, context)
 
@@ -149,9 +168,11 @@ def issues(request):
     :param request: the request associated with this call
     :return: a rendered template of all issues
     """
-    issue_objects = models.Issue.objects.filter(journal=request.journal,
-                                                issue_type='Issue',
-                                                date__lte=timezone.now()).order_by("-order")
+    issue_objects = models.Issue.objects.filter(
+        journal=request.journal,
+        issue_type__code='issue',
+        date__lte=timezone.now(),
+    )
     template = 'journal/issues.html'
     context = {
         'issues': issue_objects,
@@ -167,46 +188,73 @@ def current_issue(request, show_sidebar=True):
 
 @has_journal
 def issue(request, issue_id, show_sidebar=True):
-    """ Renders a specific issue in the journal.
+    """ Renders a specific issue/collection in the journal.
 
+    It also returns all the other issues/collections in the journal
+    for building a navigation menu
     :param request: the request associated with this call
     :param issue_id: the ID of the issue to render
     :param show_sidebar: whether or not to show the sidebar of issues
     :return: a rendered template of this issue
     """
-    issue_object = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal, issue_type='Issue',
-                                     date__lte=timezone.now())
-    articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors', 'frozenauthor_set',
-                                                                                     'manuscript_files').select_related(
-        'section')
+    issue_object = get_object_or_404(
+        models.Issue.objects.prefetch_related('editors'),
+        pk=issue_id,
+        journal=request.journal,
+        date__lte=timezone.now(),
+    )
 
-    issue_objects = models.Issue.objects.filter(journal=request.journal, issue_type='Issue')
+    page = request.GET.get("page", 1)
+    paginator = Paginator(issue_object.get_sorted_articles(), 50)
+
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    issue_objects = models.Issue.objects.filter(
+        journal=request.journal,
+        issue_type=issue_object.issue_type,
+    )
+
+    editors = models.IssueEditor.objects.filter(
+        issue=issue_object,
+    )
 
     template = 'journal/issue.html'
     context = {
         'issue': issue_object,
         'issues': issue_objects,
-        'structure': issue_object.structure(),
-        'show_sidebar': show_sidebar
+        'structure': issue_object.structure,  # for backwards compatibility
+        'articles': articles,
+        'editors': editors,
+        'show_sidebar': show_sidebar,
     }
 
     return render(request, template, context)
 
 
 @has_journal
-def collections(request):
+def collections(request, issue_type_code="collection"):
     """
     Displays a list of collection Issues.
     :param request: request object
     :return: a rendered template of the collections
     """
-
-    collections = models.Issue.objects.filter(journal=request.journal, issue_type='Collection')
+    issue_type = get_object_or_404(
+        models.IssueType,
+        journal=request.journal,
+        code=issue_type_code,
+    )
+    collections = models.Issue.objects.filter(
+        journal=request.journal, issue_type=issue_type)
 
     template = 'journal/collections.html'
     context = {
         'collections': collections,
+        'issue_type': issue_type,
     }
 
     return render(request, template, context)
@@ -215,29 +263,14 @@ def collections(request):
 @has_journal
 def collection(request, collection_id, show_sidebar=True):
     """
-    Displays a single collection.
+    A proxy view for an issue of type `Collection`.
     :param request: request object
     :param collection_id: primary key of an Issue object
     :param show_sidebar: boolean
     :return: a rendered template
     """
 
-    collection = get_object_or_404(models.Issue, journal=request.journal, issue_type='Collection', pk=collection_id)
-    collections = models.Issue.objects.filter(journal=request.journal, issue_type='Collection')
-
-    articles = collection.articles.all().order_by(
-        'section', 'page_numbers').prefetch_related('authors', 'manuscript_files').select_related('section')
-
-    template = 'journal/issue.html'
-    context = {
-        'issue': collection,
-        'issues': collections,
-        'structure': collection.structure(),
-        'show_sidebar': show_sidebar,
-        'collection': True,
-    }
-
-    return render(request, template, context)
+    return issue(request, collection_id, show_sidebar)
 
 
 @article_exists
@@ -257,7 +290,7 @@ def article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = list_galleys(article_object, galleys)
+        content = get_galley_content(article_object, galleys)
     else:
         article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
                                   "that is not yet published.</strong></p>" + article_object.abstract
@@ -301,7 +334,7 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = list_galleys(article_object, galleys)
+        content = get_galley_content(article_object, galleys)
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
@@ -462,11 +495,32 @@ def replace_article_file(request, identifier_type, identifier, file_id):
 
     if request.POST:
 
-        if 'replacement' in request.POST:
+        if 'replacement' in request.POST and request.FILES:
             uploaded_file = request.FILES.get('replacement-file')
-            files.overwrite_file(uploaded_file, article_to_replace, file_to_replace)
+            files.overwrite_file(
+                    uploaded_file,
+                    file_to_replace,
+                    ('articles', article_to_replace.pk),
+            )
+        elif not request.FILES and 'back' not in request.POST:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No file uploaded',
+            )
 
-        return redirect(request.GET.get('return', 'core_dashboard'))
+            url = '{url}?return={get}'.format(
+                url=reverse('article_file_replace',
+                            kwargs={'identifier_type': 'id',
+                                    'identifier': article_to_replace.pk,
+                                    'file_id': file_to_replace.pk}
+                            ),
+                get=request.GET.get('return', ''),
+            )
+
+            return redirect(url)
+
+        return redirect(request.GET.get('return', reverse('core_dashboard')))
 
     template = "journal/replace_file.html"
     context = {
@@ -556,6 +610,25 @@ def file_history(request, article_id, file_id):
     return render(request, template, context)
 
 
+@editor_user_required
+def issue_file_history(request, issue_id):
+    """ Returns the file history of a given Issue Galley file
+
+    """
+    # TODO: Combine with `file_history` above, disabled until GH #865
+    raise Http404
+    issue_galley = get_object_or_404(models.IssueGalley, issue__pk=issue_id)
+    file_object = issue_galley.file
+
+    template = "journal/file_history.html"
+    context = {
+        'article': None,
+        'file': file_object,
+    }
+
+    return render(request, template, context)
+
+
 @login_required
 @file_edit_user_required
 def file_delete(request, article_id, file_id):
@@ -628,15 +701,25 @@ def identifier_figure(request, identifier_type, identifier, file_name):
     :param file_name: a File object name
     :return: a streaming file reponse
     """
-    figure_article = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+    figure_article = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier
+    )
 
-    if figure_article:
-        galley = figure_article.get_render_galley
-        figure = get_object_or_404(galley.images, original_filename=file_name)
-
-        return files.serve_file(request, figure, figure_article)
-    else:
+    if not figure_article:
         raise Http404
+
+    article_galleys = figure_article.galley_set.all()
+
+    galley = logic.get_best_galley(figure_article, article_galleys)
+
+    if not galley:
+        raise Http404
+
+    figure = get_object_or_404(galley.images, original_filename=file_name)
+
+    return files.serve_file(request, figure, figure_article)
 
 
 def article_figure(request, article_id, galley_id, file_name):
@@ -655,7 +738,7 @@ def article_figure(request, article_id, galley_id, file_name):
     return files.serve_file(request, figure, figure_article)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def publish(request):
     """
     Displays a list of articles in pre publication for the current journal
@@ -673,7 +756,7 @@ def publish(request):
     return render(request, template, context)
 
 
-@production_user_or_editor_required
+@editor_user_required
 def publish_article(request, article_id):
     """
     View allows user to set an article for publication
@@ -690,7 +773,7 @@ def publish_article(request, article_id):
 
     doi_data, doi = logic.get_doi_data(article)
     issues = request.journal.issues()
-    new_issue_form = issue_forms.NewIssue()
+    new_issue_form = issue_forms.NewIssue(journal=article.journal)
     modal = request.GET.get('m', None)
     pubdate_errors = []
 
@@ -785,7 +868,7 @@ def publish_article(request, article_id):
 
 
 @require_POST
-@production_user_or_editor_required
+@editor_user_required
 def publish_article_check(request, article_id):
     """
     A POST only view that updates checklist items on the prepublication page.
@@ -833,11 +916,12 @@ def manage_issues(request, issue_id=None, event=None):
     """
     from core.logic import resize_and_crop
     issue_list = models.Issue.objects.filter(journal=request.journal)
-    issue, modal, form = None, None, issue_forms.NewIssue()
+    issue, modal, form, galley_form = None, None, issue_forms.NewIssue(journal=request.journal), None
 
     if issue_id:
         issue = get_object_or_404(models.Issue, pk=issue_id)
-        form = issue_forms.NewIssue(instance=issue)
+        form = issue_forms.NewIssue(instance=issue, journal=issue.journal)
+        galley_form = issue_forms.IssueGalleyForm()
         if event == 'edit':
             modal = 'issue'
         if event == 'delete':
@@ -860,10 +944,14 @@ def manage_issues(request, issue_id=None, event=None):
             issue.delete()
             return redirect(reverse('manage_issues'))
 
+        if 'sort' in request.POST:
+            logic.sort_issues(request, issue_list)
+            return redirect(reverse('manage_issues'))
+
         if issue:
-            form = issue_forms.NewIssue(request.POST, request.FILES, instance=issue)
+            form = issue_forms.NewIssue(request.POST, request.FILES, instance=issue, journal=request.journal)
         else:
-            form = issue_forms.NewIssue(request.POST, request.FILES)
+            form = issue_forms.NewIssue(request.POST, request.FILES, journal=request.journal)
 
         if form.is_valid():
             save_issue = form.save(commit=False)
@@ -884,9 +972,80 @@ def manage_issues(request, issue_id=None, event=None):
         'issue': issue,
         'form': form,
         'modal': modal,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
+
+
+@has_journal
+@editor_user_required
+def manage_issue_display(request):
+    """
+    Allows an Editor to change the way issue titles are displayed.
+    :param request: HttpRequest
+    :return: HttpResponse or HttpRedirect
+    """
+    issue_display_form = forms.IssueDisplayForm(instance=request.journal)
+
+    if request.POST:
+        issue_display_form = forms.IssueDisplayForm(
+            request.POST,
+            instance=request.journal,
+        )
+
+        if issue_display_form.is_valid():
+            issue_display_form.save()
+            return redirect(
+                reverse(
+                    'manage_issue_display',
+                )
+            )
+
+    template = 'journal/manage/issue_display.html'
+    context = {
+        'issue_display_form': issue_display_form,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def issue_galley(request, issue_id, delete=False):
+    issue = get_object_or_404(models.Issue, pk=issue_id)
+
+    if request.method == 'POST':
+        form = issue_forms.IssueGalleyForm(request.POST, request.FILES)
+        if 'delete' in request.POST:
+            issue_galley = get_object_or_404(models.IssueGalley, issue=issue)
+            issue_galley.delete()
+            messages.info(request, "Issue Galley Deleted")
+        elif form.is_valid():
+            uploaded_file = request.FILES["file"]
+            try:
+                issue_galley = models.IssueGalley.objects.get(issue=issue)
+                issue_galley.replace_file(uploaded_file)
+            except models.IssueGalley.DoesNotExist:
+                file_obj = files.save_file(
+                    request,
+                    uploaded_file,
+                    label=issue.issue_title,
+                    public=False,
+                    path_parts=(models.IssueGalley.FILES_PATH, issue.pk),
+                )
+                models.IssueGalley.objects.create(
+                    file=file_obj,
+                    issue=issue,
+                )
+
+            messages.info(request, "Issue Galley Uploaded")
+        elif form.errors:
+            messages.error(
+                    request,
+                    "\n".join(field.errors.as_text() for field in form)
+         )
+
+    return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
 
 @editor_user_required
@@ -957,7 +1116,11 @@ def issue_add_article(request, issue_id):
     """
 
     issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    articles = submission_models.Article.objects.filter(journal=request.journal).exclude(pk__in=issue.article_pks)
+    articles = submission_models.Article.objects.filter(
+            journal=request.journal,
+    ).exclude(
+        Q(pk__in=issue.article_pks) | Q(stage=submission_models.STAGE_REJECTED)
+    )
 
     if request.POST.get('article'):
         article_id = request.POST.get('article')
@@ -967,11 +1130,6 @@ def issue_add_article(request, issue_id):
             messages.add_message(request, messages.WARNING, 'Articles without a section cannot be added to an issue.')
             return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
         else:
-
-            models.ArticleOrdering.objects.create(article=article,
-                                                  issue=issue,
-                                                  order=issue.next_order(),
-                                                  section=article.section)
             issue.articles.add(article)
         return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
@@ -992,36 +1150,99 @@ def add_guest_editor(request, issue_id):
     :param issue_id: PK of an Issue object
     :return: a contextualised django template
     """
-    issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    users = request.journal.journal_users()
-    guest_editors = issue.guest_editors.all()
+    issue = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+
+    current_editors = issue.editors.all()
+    users = logic.potential_issue_editors(request.journal, current_editors)
 
     if request.POST:
         if 'user' in request.POST:
             user_id = request.POST.get('user')
+            role = request.POST.get('role')
+
             user = get_object_or_404(core_models.Account, pk=user_id)
 
-            if user in guest_editors:
-                messages.add_message(request, messages.WARNING, 'User is already a guest editor.')
+            if user in current_editors:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'User is already a guest editor.',
+                )
             elif user not in users:
-                messages.add_message(request, messages.WARNING, 'This user is not a member of this journal.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'This user is not a member of this journal.',
+                )
             else:
-                issue.guest_editors.add(user)
-        elif 'user_remove' in request.POST:
-            user_id = request.POST.get('user_remove')
-            user = get_object_or_404(core_models.Account, pk=user_id)
-            issue.guest_editors.remove(user)
+                models.IssueEditor.objects.create(
+                    issue=issue,
+                    account=user,
+                    role=role,
+                )
 
-        return redirect(reverse('manage_add_guest_editor', kwargs={'issue_id': issue.pk}))
+            return redirect(
+                reverse(
+                    'manage_add_guest_editor',
+                    kwargs={'issue_id': issue.pk}
+                )
+            )
 
     template = 'journal/manage/add_guest_editor.html'
     context = {
         'issue': issue,
         'users': users,
-        'guest_editors': guest_editors,
+        'editors': models.IssueEditor.objects.filter(issue=issue),
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+@require_POST
+def remove_issue_editor(request, issue_id):
+    issue = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+
+    if 'user_remove' in request.POST:
+        issue_editor_id = request.POST.get('user_remove', 0)
+
+        if issue_editor_id:
+            try:
+                models.IssueEditor.objects.get(
+                    pk=issue_editor_id,
+                ).delete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Editor removed from Issue.',
+                )
+            except models.IssueEditor.DoesNotExist:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Issue Editor not found.',
+                )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No Issue Editor ID supplied.',
+            )
+
+    return redirect(
+        reverse(
+            'manage_add_guest_editor',
+            kwargs={'issue_id': issue.pk},
+        )
+    )
 
 
 @csrf_exempt
@@ -1125,11 +1346,11 @@ def manage_archive_article(request, article_id):
 
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "XML", False)
+                production_logic.save_galley(article, request, uploaded_file, True, "XML")
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "PDF", False)
+                production_logic.save_galley(article, request, uploaded_file, True, "PDF")
 
         if 'delete_note' in request.POST:
             note_id = int(request.POST['delete_note'])
@@ -1154,7 +1375,7 @@ def manage_archive_article(request, article_id):
 
         if 'other' in request.POST:
             for uploaded_file in request.FILES.getlist('other-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "Other", True)
+                production_logic.save_galley(article, request, uploaded_file, True, "Other")
 
         return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
 
@@ -1288,6 +1509,20 @@ def editorial_team(request, group_id=None):
 
     return render(request, template, context)
 
+@has_journal
+def author_list(request):
+    """
+    Displays list of authors.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    author_list = request.journal.users_with_role('author')
+    template = 'journal/authors.html'
+
+    context = {
+        'author_list': author_list,
+    }
+    return render(request, template, context)
 
 def sitemap(request):
     """
@@ -1315,36 +1550,60 @@ def search(request):
     """
     articles = []
     search_term = None
+    keyword = None
+    redir = False
+    sort = 'title'
 
-    if request.POST:
-        search_term = request.POST.get('search')
-        request.session['article_search'] = search_term
-        return redirect(reverse('search'))
+    search_term, keyword, sort, form, redir = logic.handle_search_controls(request)
 
-    if request.session.get('article_search'):
-        search_term = request.session.get('article_search')
+    if redir:
+        return redir
+    from itertools import chain
+    if search_term:
+        # checks titles, keywords and subtitles first,
+        # then matches author based on below regex split search term.
+        search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
+        articles = submission_models.Article.objects.filter(
+                    (
+                        Q(title__icontains=search_term) |
+                        Q(keywords__word__iregex=search_regex) |
+                        Q(subtitle__icontains=search_term)
+                    )
+                    |
+                    (
+                        Q(frozenauthor__first_name__iregex=search_regex) |
+                        Q(frozenauthor__last_name__iregex=search_regex)
+                    ),
+                    journal=request.journal,
+                    stage=submission_models.STAGE_PUBLISHED,
+                    date_published__lte=timezone.now()
+                ).distinct().order_by(sort)
 
-        article_search = submission_models.Article.objects.filter(
-            (Q(title__icontains=search_term) |
-             Q(subtitle__icontains=search_term)) &
-            Q(journal=request.journal)
-        )
-        article_search = [article for article in article_search]
+    # just single keyword atm. but keyword is included in article_search.
+    elif keyword:
+        articles = submission_models.Article.objects.filter(
+            keywords__word=keyword,
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now()
+        ).order_by(sort)
 
-        author_search = search_term.split(' ')
-        from_author = submission_models.FrozenAuthor.objects.filter(
-            (Q(first_name__in=author_search) |
-             Q(last_name__in=author_search)) &
-            Q(article__journal=request.journal)
-        )
+    keyword_limit = 20
+    popular_keywords = submission_models.Keyword.objects.filter(
+            article__journal=request.journal,
+            article__stage=submission_models.STAGE_PUBLISHED,
+            article__date_published__lte=timezone.now(),
+        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
 
-        articles_from_author = [author.article for author in from_author]
-        articles = set(article_search + articles_from_author)
 
     template = 'journal/search.html'
     context = {
         'articles': articles,
-        'search_term': search_term
+        'article_search': search_term,
+        'keyword': keyword,
+        'form': form,
+        'sort': sort,
+        'all_keywords': popular_keywords
     }
 
     return render(request, template, context)
@@ -1415,6 +1674,47 @@ def resend_logged_email(request, article_id, log_id):
     }
 
     return render(request, template, context)
+
+
+@has_journal
+@editor_user_required
+def send_user_email(request, user_id, article_id=None):
+    user = get_object_or_404(core_models.Account, pk=user_id)
+    form = forms.EmailForm(
+        initial={'body': '<br/ >{signature}'.format(
+            signature=request.user.signature)},
+    )
+    close = False
+    article = None
+
+    if article_id:
+        article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id
+        )
+
+    if request.POST and 'send' in request.POST:
+        form = forms.EmailForm(request.POST)
+
+        if form.is_valid():
+            logic.send_email(
+                user,
+                form,
+                request,
+                article,
+            )
+            close = True
+
+    template = 'journal/send_user_email.html'
+    context = {
+        'user': user,
+        'close': close,
+        'form': form,
+        'article': article,
+    }
+
+    return render(request, template, context)
+
 
 
 @editor_user_required
@@ -1538,10 +1838,11 @@ def document_management(request, article_id):
         if 'proof' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('proof-file')
-            prod_logic.save_galley(document_article, request, file, True, 'File for Proofing', is_other=False)
+            prod_logic.save_galley(document_article, request, file, True, 'File for Proofing')
             messages.add_message(request, messages.SUCCESS, 'Proofing file uploaded.')
 
-        return redirect(reverse('document_management', kwargs={'article_id': document_article.pk}))
+        return redirect('{0}?return={1}'.format(reverse('document_management', kwargs={'article_id':document_article.pk}),
+                                        return_url))
 
     template = 'admin/journal/document_management.html'
     context = {
@@ -1557,7 +1858,7 @@ def download_issue(request, issue_id):
     issue_object = get_object_or_404(models.Issue,
                                      pk=issue_id,
                                      journal=request.journal,
-                                     issue_type='Issue')
+    )
     articles = issue_object.articles.all().order_by('section',
                                                     'page_numbers').prefetch_related('authors',
                                                                                      'frozenauthor_set',
@@ -1572,3 +1873,34 @@ def download_issue(request, issue_id):
 
     zip_file, file_name = files.zip_files(galley_files, article_specific=True)
     return files.serve_temp_file(zip_file, file_name)
+
+
+def download_issue_galley(request, issue_id, galley_id):
+    issue_galley = get_object_or_404(
+            models.IssueGalley,
+            pk=galley_id,
+            issue__pk=issue_id,
+    )
+
+    return issue_galley.serve(request)
+
+
+def doi_redirect(request, identifier_type, identifier):
+    """
+    Fetches an article object from a DOI and redirects to the local url.
+    :param request: HttpRequest
+    :param identifier_type: String, Identifier type
+    :param identifier: DOI string
+    :return: HttpRedirect or Http404
+    """
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        logger.debug("No article found with this DOI.")
+        raise Http404()
+
+    return redirect(article_object.local_url)

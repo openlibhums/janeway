@@ -15,12 +15,16 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
 from review import models as review_models
+from utils import logic
 from utils.function_cache import cache
 
 fs = JanewayFileSystemStorage()
@@ -204,29 +208,29 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
-REVIEW_STAGES = [
+REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
     STAGE_UNDER_REVISION
-]
+}
 
-COPYEDITING_STAGES = [
+COPYEDITING_STAGES = {
     STAGE_EDITOR_COPYEDITING,
     STAGE_AUTHOR_COPYEDITING,
     STAGE_FINAL_COPYEDITING,
-]
+}
 
-PREPRINT_STAGES = [
+PREPRINT_STAGES = {
     STAGE_PREPRINT_REVIEW,
     STAGE_PREPRINT_PUBLISHED
-]
+}
 
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, 'Unsubmitted'),
     (STAGE_UNASSIGNED, 'Unassigned'),
-    (STAGE_ASSIGNED, 'Assigned'),
-    (STAGE_UNDER_REVIEW, 'Under Review'),
-    (STAGE_UNDER_REVISION, 'Under Revision'),
+    (STAGE_ASSIGNED, 'Assigned to Editor'),
+    (STAGE_UNDER_REVIEW, 'Peer Review'),
+    (STAGE_UNDER_REVISION, 'Revision'),
     (STAGE_REJECTED, 'Rejected'),
     (STAGE_ACCEPTED, 'Accepted'),
     (STAGE_EDITOR_COPYEDITING, 'Editor Copyediting'),
@@ -301,7 +305,14 @@ class Article(models.Model):
     title = models.CharField(max_length=300, help_text=_('Your article title'))
     subtitle = models.CharField(max_length=300, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
-    abstract = models.TextField(blank=True, null=True)
+    abstract = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_('Please avoid pasting content from word processors as they can add '
+                    'unwanted styling to the abstract. You can retype the abstract '
+                    'here or copy and paste it into notepad/a plain text editor before '
+                    'pasting here.')
+    )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
     keywords = models.ManyToManyField(Keyword, blank=True, null=True)
@@ -324,14 +335,19 @@ class Article(models.Model):
                                               null=True, on_delete=models.SET_NULL)
 
     competing_interests_bool = models.BooleanField(default=False)
-    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any competing or conflict"
-                                                                            "of insterests in the publication of this "
+    competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
+                                                                            "of interests in the publication of this "
                                                                             "article please state them here.")
 
     # Files
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')
     data_figure_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='data_figure_files')
     supplementary_files = models.ManyToManyField('core.SupplementaryFile', null=True, blank=True, related_name='supp')
+    source_files = models.ManyToManyField(
+        'core.File',
+        blank=True,
+        related_name='source_files',
+    )
 
     # Galley
     render_galley = models.ForeignKey('core.Galley', related_name='render_galley', blank=True, null=True,
@@ -611,37 +627,39 @@ class Article(models.Model):
     @property
     @cache(600)
     def url(self):
-        if self.is_remote:
-            return self.remote_url
-        else:
-            from utils import setting_handler
-            secure = setting_handler.get_setting('general', 'is_secure', self.journal).processed_value
-            base = "http{0}://{1}".format(
-                's' if secure else '',
-                self.journal.domain
-            )
-            return base + self.local_url
+        return self.journal.site_url(path=self.local_url)
 
     @property
     def local_url(self):
-        identifier = self.identifier
+        from identifiers import models as identifier_models
+        try:
+            identifier = identifier_models.Identifier.objects.get(
+                id_type='pubid',
+                article=self,
+            )
+        except identifier_models.Identifier.DoesNotExist:
+            identifier = identifier_models.Identifier(
+                id_type="id",
+                identifier=self.pk,
+                article=self
+            )
 
-        url = reverse('article_view',
-                      kwargs={'identifier_type': identifier.id_type, 'identifier': identifier.identifier})
+        url = reverse(
+            'article_view',
+            kwargs={'identifier_type': identifier.id_type,
+                    'identifier': identifier.identifier}
+        )
 
         return url
 
     @property
     def pdf_url(self):
-        from utils import setting_handler
         pdfs = self.pdfs
-        secure = setting_handler.get_setting('general', 'is_secure', self.journal).processed_value
-        base = "http{0}://{1}".format(
-            's' if secure else '',
-            self.journal.domain
-        )
-        return base + reverse('article_download_galley', kwargs={'article_id': self.pk,
-                                                                 'galley_id': pdfs[0].pk})
+        path = reverse('article_download_galley', kwargs={
+            'article_id': self.pk,
+            'galley_id': pdfs[0].pk
+        })
+        return self.journal.site_url(path=path)
 
     def get_remote_url(self, request):
         parsed_uri = urlparse('http' + ('', 's')[request.is_secure()] + '://' + request.META['HTTP_HOST'])
@@ -764,13 +782,17 @@ class Article(models.Model):
     def can_edit(self, user):
         # returns True if a user can edit an article
         # editing is always allowed when a user is staff
-        # otherwise, the user must own the article and it must not have already been published
+        # otherwise, the user must own the article and it
+        # must not have already been published
 
         if user.is_staff:
             return True
         elif user in self.section_editors():
             return True
-        elif not user.is_anonymous() and user.is_editor(request=None, journal=self.journal):
+        elif not user.is_anonymous() and user.is_editor(
+                request=None,
+                journal=self.journal,
+        ):
             return True
         else:
             if self.owner != user:
@@ -900,16 +922,29 @@ class Article(models.Model):
 
     @property
     def current_stage_url(self):
-        if self.stage == STAGE_UNDER_REVIEW or self.stage == STAGE_UNDER_REVISION:
-            return reverse('review_in_review', kwargs={'article_id': self.id})
+
+        kwargs = {'article_id': self.pk}
+
+        if self.stage == STAGE_UNASSIGNED:
+            return reverse('review_unassigned_article', kwargs=kwargs)
+        elif self.stage in REVIEW_STAGES:
+            return reverse('review_in_review', kwargs=kwargs)
         elif self.stage in COPYEDITING_STAGES:
-            return reverse('article_copyediting', kwargs={'article_id': self.id})
+            return reverse('article_copyediting', kwargs=kwargs)
         elif self.stage == STAGE_TYPESETTING:
-            return reverse('production_article', kwargs={'article_id': self.id})
+            return reverse('production_article', kwargs=kwargs)
         elif self.stage == STAGE_PROOFING:
-            return reverse('proofing_article', kwargs={'article_id': self.id})
+            return reverse('proofing_article', kwargs=kwargs)
         elif self.stage == STAGE_READY_FOR_PUBLICATION:
-            return reverse('publish_article', kwargs={'article_id': self.id})
+            return reverse('publish_article', kwargs=kwargs)
+
+    @property
+    def custom_fields(self):
+        """ Returns all the FieldAnswers configured for rendering"""
+        return self.fieldanswer_set.filter(
+            field__display=True,
+            answer__isnull=False,
+        )
 
     def get_meta_image_path(self):
         if self.meta_image and self.meta_image.url:
@@ -1004,6 +1039,19 @@ class Article(models.Model):
             cancelled=True
         )
 
+    def production_assignment_or_none(self):
+        try:
+            return self.productionassignment
+        except ObjectDoesNotExist:
+            return None
+
+    @property
+    def citation_count(self):
+        article_link_count = self.articlelink_set.all().count()
+        book_link_count = self.booklink_set.all().count()
+
+        return article_link_count + book_link_count
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
@@ -1019,6 +1067,12 @@ class FrozenAuthor(models.Model):
 
     order = models.PositiveIntegerField(default=1)
 
+    is_corporate = models.BooleanField(
+            default=False,
+            help_text="If enabled, the institution and department fields will "
+                "be used as the author full name",
+    )
+
     class Meta:
         ordering = ('order',)
 
@@ -1026,12 +1080,23 @@ class FrozenAuthor(models.Model):
         return self.full_name()
 
     def full_name(self):
-        if self.middle_name:
+        if self.is_corporate:
+            return self.corporate_name
+        elif self.middle_name:
             return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
         else:
             return u"%s %s" % (self.first_name, self.last_name)
 
+    @property
+    def corporate_name(self):
+        name = self.institution
+        if self.department:
+            name = "{}, {}".format(self.department, name)
+        return name
+
     def citation_name(self):
+        if self.is_corporate:
+            return self.corporate_name
         first_initial, middle_initial = '', ''
 
         if self.middle_name:
@@ -1052,6 +1117,25 @@ class FrozenAuthor(models.Model):
             return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
         else:
             return self.institution
+
+    @property
+    def is_correspondence_author(self):
+        # early return if no email address available
+        if (not self.author
+                or settings.DUMMY_EMAIL_DOMAIN in self.author.email):
+            return False
+
+        elif self.article.journal.enable_correspondence_authors is True:
+            if self.article.correspondence_author is not None:
+                return self.article.correspondence_author == self.author
+            else:
+                order = ArticleAuthorOrder.objects.get(
+                        article=self.article,
+                        author=self.author,
+                ).order
+                return order == 0
+        else:
+            return True
 
 
 class Section(TranslatableModel):
@@ -1075,7 +1159,7 @@ class Section(TranslatableModel):
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.name
+        return self.safe_translation_getter('name', str(self.pk))
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
@@ -1160,6 +1244,10 @@ class Field(models.Model):
                                help_text='Separate choices with the bar | character.')
     required = models.BooleanField(default=True)
     order = models.IntegerField()
+    display = models.BooleanField(
+        default=False,
+        help_text='Whether or not display this field in the article page'
+    )
     help_text = models.TextField()
 
     class Meta:
@@ -1207,14 +1295,31 @@ class SubmissionConfiguration(models.Model):
     keywords = models.BooleanField(default=True)
     section = models.BooleanField(default=True)
 
-    figures_data = models.BooleanField(default=True, verbose_name=_('Figures and Data Files'))
+    figures_data = models.BooleanField(
+        default=True,
+        verbose_name=_('Figures and Data Files'),
+    )
 
-    default_license = models.ForeignKey(Licence, null=True,
-                                        help_text=_('The default license applied when no option is presented'))
-    default_language = models.CharField(max_length=200, null=True, choices=LANGUAGE_CHOICES,
-                                        help_text=_('The default language of articles when lang is hidden'))
-    default_section = models.ForeignKey(Section, null=True,
-                                        help_text=_('The default section of articles when no option is presented'))
+    default_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_('The default license applied when no option is presented'),
+    )
+    default_language = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        choices=LANGUAGE_CHOICES,
+        help_text=_('The default language of articles when lang is hidden'),
+    )
+    default_section = models.ForeignKey(
+        Section,
+        null=True,
+        blank=True,
+        help_text=_('The default section of '
+                    'articles when no option is presented'),
+    )
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)
@@ -1240,3 +1345,25 @@ class SubmissionConfiguration(models.Model):
             article.license = self.default_license
 
         article.save()
+
+
+# Signals
+
+@receiver(pre_delete, sender=FrozenAuthor)
+def remove_author_from_article(sender, instance, **kwargs):
+    """
+    This signal will remove an author from a paper if the user deletes the
+    frozen author record to ensure they are in sync.
+    :param sender: FrozenAuthor class
+    :param instance: FrozenAuthor instance
+    :return: None
+    """
+    try:
+        ArticleAuthorOrder.objects.get(
+            author=instance.author,
+            article=instance.article,
+        ).delete()
+    except ArticleAuthorOrder.DoesNotExist:
+        pass
+
+    instance.article.authors.remove(instance.author)

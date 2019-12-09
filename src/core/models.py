@@ -8,35 +8,36 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
+from urllib.parse import urlunparse
+
+import pytz
+
 from bs4 import BeautifulSoup
 from hvad.models import TranslatableModel, TranslatedFields
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.models import Site
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
-if settings.URL_CONFIG == 'path':
-    from core.monkeypatch import reverse
-    from django import urls
-
-    urls.reverse = reverse
-    urls.base.reverse = reverse
-
 from core import files
 from core.file_system import JanewayFileSystemStorage
+from core.model_utils import AbstractSiteModel
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
+from utils import setting_handler
+from utils.logger import get_logger
 
 fs = JanewayFileSystemStorage()
+logger = get_logger(__name__)
+
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -130,6 +131,8 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
                    (u'VG', u'Virgin Islands, British'), (u'VI', u'Virgin Islands, U.S.'), (u'WF', u'Wallis and Futuna'),
                    (u'EH', u'Western Sahara'), (u'YE', u'Yemen'), (u'ZM', u'Zambia'), (u'ZW', u'Zimbabwe')]
 
+TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
+
 
 class Country(models.Model):
     code = models.TextField(max_length=5)
@@ -176,9 +179,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=48, unique=True, verbose_name=_('Username'))
 
-    first_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('First name'))
+    first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
     middle_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Middle name'))
-    last_name = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Last name'))
+    last_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('Last name'))
 
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
@@ -199,6 +202,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     signature = models.TextField(null=True, blank=True)
     interest = models.ManyToManyField('Interest', null=True, blank=True)
     country = models.ForeignKey(Country, null=True, blank=True, verbose_name=_('Country'))
+    preferred_timezone = models.CharField(max_length=300, null=True, blank=True, choices=TIMEZONE_CHOICES)
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -319,7 +323,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         AccountRole.objects.get(role=role, user=self, journal=journal).delete()
 
     def check_role(self, journal, role):
-        return AccountRole.objects.filter(user=self, journal=journal, role__slug=role).count() > 0 or self.is_staff
+        return AccountRole.objects.filter(
+            user=self,
+            journal=journal,
+            role__slug=role
+        ).exists() or self.is_staff
 
     def is_editor(self, request, journal=None):
         if not journal:
@@ -541,17 +549,33 @@ class Setting(models.Model):
     def __repr__(self):
         return u'%s' % self.name
 
+    @property
+    def default_setting_value(self):
+        return SettingValue.objects.language("en").get(
+            setting=self,
+            journal=None,
+    )
+
 
 class SettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal')
+    journal = models.ForeignKey('journal.Journal', null=True, blank=True)
     setting = models.ForeignKey(Setting)
 
     translations = TranslatedFields(
         value=models.TextField(null=True, blank=True)
     )
 
+    class Meta:
+        unique_together = (
+                ("journal", "setting"),
+        )
+
     def __repr__(self):
-        return "[{0}]: {1}, {2}".format(self.journal.code, self.setting.name, self.value)
+        if self.journal:
+            code = self.journal.code
+        else:
+            code = "default"
+        return "[{0}]: {1}, {2}".format(code, self.setting.name, self.value)
 
     def __str__(self):
         return "[{0}]: {1}".format(self.journal, self.setting.name)
@@ -579,6 +603,34 @@ class SettingValue(TranslatableModel):
             return json.loads(self.value)
         else:
             return self.value
+
+    @property
+    def render_value(self):
+        """ Converts string values of settings to values for rendering
+
+        :return: a value
+        """
+        if self.setting.types == 'boolean' and not self.value:
+            return "off"
+        elif self.setting.types == 'boolean':
+            return "on"
+        elif self.setting.types == 'file':
+            if self.journal:
+                return self.journal.site_url(
+                        reverse("journal_file",self.value))
+            else:
+                return self.press.site_url(
+                        reverse("serve_press_file", self.value))
+        else:
+            return self.value
+
+    @property
+    def press(self):
+        if self.journal:
+            return self.journal.press
+        else:
+            from press.models import Press
+            return Press.objects.all()[0]
 
 
 class File(models.Model):
@@ -647,14 +699,26 @@ class File(models.Model):
         if self.article_id:
             return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
 
+    def url(self):
+        from core.middleware import GlobalRequestMiddleware
+        request = GlobalRequestMiddleware.get_current_request()
+        url_kwargs = {'file_id': self.pk}
+
+        if request.journal and self.article_id:
+            raise NotImplementedError
+        elif request.journal:
+            raise NotImplementedError
+        else:
+            return reverse(
+                'serve_press_file',
+                kwargs=url_kwargs,
+            )
+
     def get_file(self, article):
         return files.get_file(self, article)
 
     def get_file_path(self, article):
         return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
-
-    def render_xml(self, article, galley=None):
-        return files.render_xml(self, article, galley=galley)
 
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
@@ -674,19 +738,47 @@ class File(models.Model):
             return 0
 
     def checksum(self):
-        return files.checksum(self.self_article_path())
+        if self.article_id:
+            try:
+                return files.checksum(self.self_article_path())
+            except FileNotFoundError:
+                return 'No checksum could be calculated.'
+        else:
+            logger.error(
+                'Galley file ({file_id}) found with no article_id.'.format(
+                    file_id=self.pk
+                ), extra={'stack': True}
+            )
+            return 'No checksum could be calculated.'
 
     def public_download_name(self):
         article = self.article
         if article:
             file_elements = os.path.splitext(self.original_filename)
             extension = file_elements[-1]
-            author_surname = article.correspondence_author.last_name if article.correspondence_author else \
-                article.frozen_authors()[0].last_name
-            file_name = '{code}-{pk}-{surname}{extension}'.format(code=article.journal.code,
-                                                                  pk=article.pk,
-                                                                  surname=author_surname,
-                                                                  extension=extension)
+
+            if article.frozen_authors():
+                author_surname = "-{0}".format(
+                    article.frozen_authors()[0].last_name,
+                )
+            elif article.correspondence_author:
+                author_surname = "-{0}".format(
+                    article.correspondence_author.last_name,
+                )
+            else:
+                logger.warning(
+                    'Article {pk} has no author records'.format(
+                        pk=article.pk
+                    )
+                )
+                author_surname = ''
+
+            file_name = '{code}-{pk}{surname}{extension}'.format(
+                code=article.journal.code,
+                pk=article.pk,
+                surname=author_surname,
+                extension=extension
+            )
             return file_name.lower()
         else:
             return self.original_filename
@@ -736,6 +828,7 @@ class Galley(models.Model):
     file = models.ForeignKey(File)
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
+    xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
 
     # Remote Galley
     is_remote = models.BooleanField(default=False)
@@ -749,7 +842,10 @@ class Galley(models.Model):
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
 
-    def has_missing_image_files(self):
+    def render(self):
+        return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
+
+    def has_missing_image_files(self, show_all=False):
         xml_file_contents = self.file.get_file(self.article)
 
         souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
@@ -770,32 +866,61 @@ class Galley(models.Model):
                 # attempt to pull a URL from the specified attribute
                 url = os.path.basename(val.get(attribute, None))
 
-                try:
-                    try:
-                        self.images.get(original_filename=url)
-                    except File.MultipleObjectsReturned:
-                        self.images.filter(original_filename=url).first()
-                except File.DoesNotExist:
+                if show_all:
                     missing_elements.append(url)
+                else:
+                    if not self.images.filter(original_filename=url).first():
+                        missing_elements.append(url)
 
         if not missing_elements:
             return []
         else:
             return missing_elements
 
+    def all_images(self):
+        """
+        Returns all images/figures in a galley file.
+        :return: A list of image paths found in the galley
+        """
+        return self.has_missing_image_files(show_all=True)
+
     def file_content(self, dont_render=False):
         if self.file.mime_type == "text/html" or dont_render:
-            # get raw HTML and render
             return self.file.get_file(self.article)
-        elif self.file.mime_type == "application/xml" or self.file.mime_type == 'text/xml':
-            # perform an XSLT render
-            return self.file.render_xml(self.article, galley=self)
+        elif self.file.mime_type in files.XML_MIMETYPES:
+            return self.render()
 
     def path(self):
-        url = reverse('article_download_galley', kwargs={'article_id': self.article.pk,
-                                                         'galley_id': self.pk})
-        base_url = self.article.journal.requestless_url()
-        return '{base_url}{url}'.format(base_url=base_url, url=url)
+        url = reverse('article_download_galley',
+                      kwargs={'article_id': self.article.pk,
+                              'galley_id': self.pk})
+        return self.article.journal.site_url(path=url)
+
+    @staticmethod
+    def mimetypes_with_figures():
+        return files.MIMETYPES_WITH_FIGURES
+
+    def save(self, *args, **kwargs):
+        if not self.xsl_file:
+            self.xsl_file = self.article.journal.xsl
+        super().save(*args, **kwargs)
+
+
+class XSLFile(models.Model):
+    file = models.FileField(storage=JanewayFileSystemStorage('transform/xsl'))
+    date_uploaded = models.DateTimeField(default=timezone.now)
+    label = models.CharField(max_length=255,
+        help_text="A label to help recognise this stylesheet",
+        unique=True,
+    )
+    comments = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "%s(%s@%s)" % (
+            self.__class__.__name__, self.label, self.file.path)
 
 
 class SupplementaryFile(models.Model):
@@ -816,7 +941,7 @@ class SupplementaryFile(models.Model):
         return files.file_path_mime(self.path())
 
     def url(self):
-        base_url = self.file.article.journal.requestless_url()
+        base_url = self.file.article.journal.full_url()
         path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
                                                              'supp_file_id': self.pk})
         return '{base}{path}'.format(base=base_url, path=path)
@@ -943,21 +1068,29 @@ class Contact(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
 
-class DomainAlias(models.Model):
-    domain = models.CharField(max_length=255)
-    redirect = models.BooleanField(default=True, verbose_name="301",
-                                   help_text="If enabled, the site will throw a 301 redirect to the master domain.")
-    site_id = models.PositiveIntegerField()
+class DomainAlias(AbstractSiteModel):
+    redirect = models.BooleanField(
+            default=True,
+            verbose_name="301",
+            help_text="If enabled, the site will throw a 301 redirect to the "
+                "master domain."
+    )
+    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
+    press = models.ForeignKey('press.Press', blank=True, null=True)
 
     @property
-    def site(self):
-        return Site.objects.get(pk=self.site_id)
+    def site_object(self):
+        return self.journal or self.press
 
-    def build_redirect_url(self, request):
-        protocol = 'https' if request.is_secure() else 'http'
-        return "{0}://{1}{2}".format(protocol,
-                                     self.site.domain,
-                                     request.path)
+    @property
+    def redirect_url(self):
+           return self.site_object.site_url()
+
+    def save(self, *args, **kwargs):
+        if not bool(self.journal) ^ bool(self.press):
+            raise ValidationError(
+                    " One and only one of press or journal must be set")
+        return super().save(*args, **kwargs)
 
 
 BASE_ELEMENTS = [
@@ -1018,6 +1151,9 @@ class WorkflowLog(models.Model):
     class Meta:
         ordering = ('timestamp',)
 
+    def __str__(self):
+        return '{0} {1}'.format(self.element.element_name, self.timestamp)
+
 
 class HomepageElement(models.Model):
     # the URL to configure this homepage element, or null/blank if no configuration is needed
@@ -1066,7 +1202,7 @@ class LoginAttempt(models.Model):
 
 
 @receiver(post_save, sender=Account)
-def setup_default_workflow(sender, instance, created, **kwargs):
+def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()

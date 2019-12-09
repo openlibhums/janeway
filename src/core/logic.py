@@ -101,7 +101,7 @@ def resize_and_crop(img_path, size, crop_type='middle'):
             final_thumb = Image.new(mode='RGBA', size=size, color=(255, 255, 255, 0))
             final_thumb.paste(img, offset_tuple)  # paste the thumbnail into the full sized image
 
-            final_thumb.save(img_path)
+            final_thumb.save(img_path, "png")
             return
         elif crop_type == 'bottom':
             box = (img.size[0] - size[0], 0, img.size[0], img.size[1])
@@ -112,7 +112,7 @@ def resize_and_crop(img_path, size, crop_type='middle'):
     else:
         img = img.resize((size[0], size[1]), Image.ANTIALIAS)
 
-    img.save(img_path)
+    img.save(img_path, "png")
 
 
 def settings_for_context(request):
@@ -157,6 +157,13 @@ def get_settings_to_edit(group, journal):
         settings = [
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
+             },
+            {'name': 'abstract_required',
+             'object': setting_handler.get_setting(
+                 'general',
+                 'abstract_required',
+                 journal,
+             )
              },
             {'name': 'submission_intro_text',
              'object': setting_handler.get_setting(
@@ -204,6 +211,9 @@ def get_settings_to_edit(group, journal):
              },
             {'name': 'peer_review_info',
              'object': setting_handler.get_setting('general', 'peer_review_info', journal),
+             },
+            {'name': 'copyright_submission_label',
+             'object': setting_handler.get_setting('general', 'copyright_submission_label', journal)
              }
         ]
         setting_group = 'general'
@@ -218,6 +228,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'default_review_visibility',
                 'object': setting_handler.get_setting('general', 'default_review_visibility', journal),
                 'choices': review_models.review_visibilty()
+            },
+            {
+                'name': 'review_file_help',
+                'object': setting_handler.get_setting('general', 'review_file_help', journal),
             },
             {
                 'name': 'default_review_days',
@@ -263,8 +277,8 @@ def get_settings_to_edit(group, journal):
 
     elif group == 'journal':
         journal_settings = [
-            'journal_name', 'journal_issn', 'journal_theme', 'journal_description', 'is_secure',
-            'enable_editorial_display', 'mulit_page_editorial', 'enable_editorial_images', 'main_contact',
+            'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
+            'enable_editorial_display', 'multi_page_editorial', 'enable_editorial_images', 'main_contact',
             'publisher_name', 'publisher_url',
             'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
             'twitter_handle', 'switch_language', 'google_analytics_code'
@@ -278,6 +292,12 @@ def get_settings_to_edit(group, journal):
             'object': setting_handler.get_setting('email', 'from_address', journal),
         })
 
+    elif group == 'proofing':
+        proofing_settings = [
+            'max_proofreaders'
+        ]
+        settings = process_setting_list(proofing_settings, 'general', journal)
+        setting_group = 'general'
     else:
         settings = []
         setting_group = None
@@ -339,7 +359,11 @@ def handle_article_large_image_file(uploaded_file, article, request):
         article.large_image_file = new_file
         article.save()
     else:
-        new_file = files.overwrite_file(uploaded_file, article, article.large_image_file)
+        new_file = files.overwrite_file(
+                uploaded_file,
+                article.large_image_file,
+                ('articles', article.pk)
+        )
         article.large_image_file = new_file
         article.save()
 
@@ -353,7 +377,11 @@ def handle_article_thumb_image_file(uploaded_file, article, request):
         article.thumbnail_image_file = new_file
         article.save()
     else:
-        new_file = files.overwrite_file(uploaded_file, article, article.thumbnail_image_file)
+        new_file = files.overwrite_file(
+                uploaded_file,
+                article.large_image_file,
+                ('articles', article.pk)
+        )
         article.thumbnail_image_file = new_file
         article.save()
 
@@ -399,7 +427,7 @@ def clear_active_elements(elements, workflow, plugins):
 
 
 def get_available_elements(workflow):
-    plugins = plugin_installed_apps.load_plugin_apps()
+    plugins = plugin_installed_apps.load_plugin_apps(settings.BASE_DIR)
     our_elements = list()
     elements = models.BASE_ELEMENTS
 
@@ -634,3 +662,13 @@ def export_gdpr_user_profile(user):
       'is_staff']]
     response = JsonResponse(user_dict)
     return response
+
+
+def get_homepage_elements(request):
+    homepage_elements = models.HomepageElement.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+        active=True).order_by('sequence')
+    homepage_element_names = [el.name for el in homepage_elements]
+
+    return homepage_elements, homepage_element_names

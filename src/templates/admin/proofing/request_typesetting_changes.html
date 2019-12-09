@@ -34,6 +34,14 @@
                     <div class="large-8 columns">
                         {{ form.task|foundation }}
                         {{ form.due|foundation }}
+                        {{ form.include_comments|foundation }}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <h4>Comments to be Included</h4>
+                                {{ comments|safe }}
+                                <br /><br />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -47,6 +55,7 @@
                     <tr style="text-align: left">
                         <th></th>
                         <th>Label</th>
+                        <th>Modified</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
                         <th>Download</th>
@@ -59,6 +68,7 @@
                             <td><input type="checkbox" name="galleys_for_proofing" value="{{ galley.id }}"
                                        {% if galley in galleys %}checked="checked"{% endif %}></td>
                             <td>{{ galley.label }}</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley {% if galley in proofing_task.galleys_for_proofing.all %}(Proofed){% else %}(Not Proofed){% endif %}</td>
                             <td>{% if can_view_file_flag %}
@@ -82,6 +92,7 @@
                     <tr style="text-align: left">
                         <th></th>
                         <th>Label</th>
+                        <th>Modified</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
                         <th>Download</th>
@@ -95,6 +106,7 @@
                                        {% if galley in galleys %}checked="checked"{% endif %}></td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
+                            <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td>Proofing</td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i

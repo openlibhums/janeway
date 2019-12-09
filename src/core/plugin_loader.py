@@ -3,15 +3,17 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
+from importlib import import_module
 
 from django.conf import settings
-from django.db.utils import ProgrammingError
+from django.core.exceptions import ImproperlyConfigured
+from django.db.utils import OperationalError, ProgrammingError
 
+from core.workflow import ELEMENT_STAGES
+from submission.models import STAGE_CHOICES
 from utils import models
-
-import os
-from django.db.utils import OperationalError
-from importlib import import_module
+from utils.logic import get_janeway_version
 
 
 def get_dirs(directory):
@@ -24,8 +26,8 @@ def get_dirs(directory):
 
 
 def load(directory="plugins", prefix="plugins", permissive=False):
-    # Get all of the folders in the plugins folder, check if they are installed and then
-    # load up their hooks.
+    # Get all of the folders in the plugins folder, check if they are
+    # installed and then load up their hooks.
     dirs = get_dirs(directory)
 
     hooks = []
@@ -36,16 +38,25 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             plugins.append(plugin)
             module_name = "{0}.{1}.plugin_settings".format(prefix, dir)
 
+            # Load settings module
+            plugin_settings = import_module(module_name)
+            validate_plugin_version(plugin_settings)
+
             # Load hooks
-            hooks.append(load_hooks(module_name))
+            hooks.append(load_hooks(plugin_settings))
 
             # Check for workflow
-            workflow_check = check_plugin_workflow(module_name)
+            workflow_check = check_plugin_workflow(plugin_settings)
             if workflow_check:
                 settings.WORKFLOW_PLUGINS[workflow_check] = module_name
+                STAGE_CHOICES.append(
+                    (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
+                )
+                ELEMENT_STAGES[
+                    plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
 
             # Call event registry
-            register_for_events(module_name)
+            register_for_events(plugin_settings)
 
     # Register plugin hooks
     if settings.PLUGIN_HOOKS:
@@ -65,6 +76,35 @@ def load(directory="plugins", prefix="plugins", permissive=False):
     return plugins
 
 
+def validate_plugin_version(plugin_settings):
+    valid = None
+    try:
+        wants_version  = plugin_settings.JANEWAY_VERSION.split(".")
+    except AttributeError:
+        # No MIN version pinned by plugin
+        return
+
+    current_version = get_janeway_version().split(".")
+
+    for current, wants in zip(current_version, wants_version):
+        current, wants = int(current), int(wants)
+        if current > wants:
+            valid = True
+            break
+        elif current < wants:
+            valid = False
+            break
+
+    if valid is None: #Handle exact match
+        valid = True
+
+    if not valid:
+        raise ImproperlyConfigured(
+            "Plugin {} not  compatibile with current install: {} < {}".format(
+                plugin_settings.PLUGIN_NAME, current_version, wants_version
+            )
+        )
+
 def get_plugin(module_name, permissive):
     # Check that the module is installed.
     if permissive:
@@ -82,13 +122,11 @@ def get_plugin(module_name, permissive):
         return False
 
 
-def load_hooks(module_name):
-    plugin_settings = import_module(module_name)
+def load_hooks(plugin_settings):
     return plugin_settings.hook_registry()
 
 
-def check_plugin_workflow(module_name):
-    plugin_settings = import_module(module_name)
+def check_plugin_workflow(plugin_settings):
     try:
         if plugin_settings.IS_WORKFLOW_PLUGIN:
             return plugin_settings.PLUGIN_NAME
@@ -96,9 +134,7 @@ def check_plugin_workflow(module_name):
         return False
 
 
-def register_for_events(module_name):
-    plugin_settings = import_module(module_name)
-
+def register_for_events(plugin_settings):
     try:
         plugin_settings.register_for_events()
     except AttributeError:

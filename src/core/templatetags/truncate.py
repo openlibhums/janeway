@@ -14,6 +14,8 @@ def truncatesmart(value, limit=80):
     {{ string|truncatesmart }}
     {{ string|truncatesmart:100 }}
     """
+    if not value:
+        return ''
 
     try:
         limit = int(limit)

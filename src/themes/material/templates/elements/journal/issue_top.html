@@ -1,0 +1,18 @@
+{% load i18n %}
+
+{% if issue.large_image %}
+    <div class="card">
+        <div class="card-image waves-effect waves-block waves-light">
+            <img class="activator" src="{{ issue.large_image.url }}">
+            <span class="card-title">{{ issue.display_title }}</span>
+        </div>
+        {% if issue.issue_description %}
+            <div class="card-content">
+                {{ issue.issue_description|safe }}
+            </div>
+        {% endif %}
+    </div>
+{% else %}
+    <h1>{{ issue.display_title }}</h1>
+    {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
+{% endif %}

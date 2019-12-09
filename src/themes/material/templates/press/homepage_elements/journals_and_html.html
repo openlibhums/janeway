@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<div class="row">
+    <div class="col m6">
+        <h3 class="index-header">{% trans "Featured Journals" %}</h3>
+
+        <div class="row">
+            {% for current_journal in featured_journals %}
+                <div class="col m4 row-eq-height">
+                    <div class="card">
+                        <div class="card-image">
+                            <img class="" src="
+
+                                    {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
+                        </div>
+                        <div class="card-content">
+                            {% if current_journal.is_remote %}
+                                <a href="{{ current_journal.remote_view_url }}">
+                            {% else %}
+                                <a href="{{ current_journal.site_url }}">
+                            {% endif %}
+                            {{ current_journal.name }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col m6">
+        {{ html_block_content|safe }}
+    </div>
+</div>

@@ -31,6 +31,30 @@ def send_reviewer_withdrawl_notice(**kwargs):
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
+def send_editor_unassigned_notice(request, message, assignment, skip=False):
+    description = "{a.editor} unassigned from {a.article} by {r.user}".format(
+            a=assignment,
+            r=request,
+    )
+
+    if not skip:
+
+        log_dict = {
+                'level': 'Info', 'action_text': description,
+                'types': 'Editor Unassigned',
+                'target': assignment.article
+        }
+
+        notify_helpers.send_email_with_body_from_user(
+                request,
+                'subject_review_withdrawl',
+                assignment.editor.email,
+                message,
+                log_dict=log_dict,
+        )
+    notify_helpers.send_slack(request, description, ['slack_editors'])
+
+
 def send_editor_assigned_acknowledgements_mandatory(**kwargs):
     """
     This function is called via the event handling framework and it notifies that an editor has been assigned.
@@ -246,7 +270,8 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
 
 def send_submission_acknowledgement(**kwargs):
     """
-    This function is called via the event handling framework and it notifies site operators of a submission. It is
+    This function is called via the event handling framework and it
+    notifies site operators of a submission. It is
     wired up in core/urls.py.
     :param kwargs: a list of kwargs that includes article and request
     :return: None
@@ -255,31 +280,47 @@ def send_submission_acknowledgement(**kwargs):
     article = kwargs['article']
     request = kwargs['request']
 
-    util_models.LogEntry.add_entry(types='Submission Complete',
-                                   description='A new article {0} was submitted'.format(article.title),
-                                   level='Info', actor=request.user, target=article, request=request)
+    util_models.LogEntry.add_entry(
+        types='Submission Complete',
+        description='A new article {0} was submitted'.format(article.title),
+        level='Info',
+        actor=request.user,
+        target=article,
+        request=request,
+    )
 
     context = {
         'article': article,
         'request': request
     }
 
-    log_dict = {'level': 'Info',
-                'action_text': 'A new article {0} was submitted'.format(article.title),
-                'types': 'New Submission Acknowledgement',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': 'A new article {0} was submitted'.format(article.title),
+        'types': 'New Submission Acknowledgement',
+        'target': article,
+    }
 
     # send to slack
-    notify_helpers.send_slack(request,
-                              'New submission: {0} {1}'.format(article.title, article.get_remote_url(request)),
-                              ['slack_editors'])
+    slack_url = request.journal.site_url(
+        path=reverse('review_unassigned_article',
+                     kwargs={'article_id': article.pk})
+    )
+    notify_helpers.send_slack(
+        request,
+        'New submission: {0} {1}'.format(article.title,
+                                         slack_url),
+        ['slack_editors'])
 
     # send to author
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'submission_acknowledgement',
-                                                              'subject_submission_acknowledgement',
-                                                              article.correspondence_author.email,
-                                                              context, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'submission_acknowledgement',
+        'subject_submission_acknowledgement',
+        article.correspondence_author.email,
+        context,
+        log_dict=log_dict,
+    )
 
     # send to all authors
     editors_to_email = setting_handler.get_setting(
@@ -1025,3 +1066,30 @@ def preprint_comment(**kwargs):
 
     notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
                                                   email_text, log_dict=log_dict)
+
+
+def send_cancel_corrections(**kwargs):
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    correction = kwargs.get('correction')
+
+    description = '{user} has cancelled correction task {task}'.format(
+        user=request.user,
+        task=correction,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Correction Cancelled',
+        'target': article,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_correction_cancelled',
+        'subject_notify_correction_cancelled',
+        correction.typesetter.email,
+        context=kwargs,
+        log_dict=log_dict,
+    )

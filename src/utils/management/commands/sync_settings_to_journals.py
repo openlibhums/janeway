@@ -31,6 +31,10 @@ class Command(BaseCommand):
         :return: None
         """
 
+        #We don't need this now that we have a default for the settings
+        self.stderr.write("Command deprecated on Janeway > v1.3.3.1")
+        return
+
         translation.activate('en')
         journals = journal_models.Journal.objects.all()
 

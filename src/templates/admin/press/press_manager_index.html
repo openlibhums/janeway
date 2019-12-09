@@ -1,7 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load static from staticfiles %}
-{% load fqdn %}
 
 {% block title %}Press Manager{% endblock %}
 {% block title-section %}Press Manager{% endblock %}
@@ -24,6 +23,7 @@
                         <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
                         <a class="button" href="{% url 'core_journal_contacts' %}">Contact Manager</a>
                         <a class="button" href="{% url 'press_edit_press' %}">Edit Press Details</a>
+                        <a class="button" href="{% url 'core_default_settings_index' %}">Edit journal default settings</a>
                         <a class="button" href="{% url 'home_settings_index' %}">Homepage Elements</a>
                         {% if request.user.is_superuser %}
                         <a class="button" href="{% url 'core_flush_cache' %}">Clear Cache</a>
@@ -108,6 +108,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="large-12 columns">
+            <p align="right">Janeway Version: {{ version }}</p>
         </div>
     </div>
     </section>

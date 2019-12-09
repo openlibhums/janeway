@@ -16,32 +16,42 @@
             <div class="large-12 columns">
                 <div class="box">
                     <div class="title-area">
-                        <h2>Edit {{ setting.pretty_name }} ({{ setting.name }})</h2>
-                        <a href="{% url 'core_email_templates' %}" class="button warning small float-right">< Back</a>
+                        <h2>Edit {{ setting.pretty_name }}
+                            ({{ setting.name }})</h2>
+                        <a href="{% url 'core_email_templates' %}"
+                           class="button warning small float-right">< Back</a>
                     </div>
                     <div class="content">
-                        {% if setting.description %}<p>{{ setting.description }}</p>{% endif %}
+                        <div class="card">
+                            {% include "elements/core/default_setting_card.html" %}
+                            {% if setting.description %}
+                                <p><strong>Setting
+                                    Description: </strong>{{ setting.description }}
+                                </p>{% endif %}
 
-                        <form action="" method="POST" enctype="multipart/form-data">
+                            <form action="" method="POST"
+                                  enctype="multipart/form-data">
 
-                            {% csrf_token %}
+                                {% csrf_token %}
 
-                            {% if setting.types == 'date' %}Date Format: dd/mm/yyyy<br/>{% endif %}
-                            {% if setting.types == 'rich_text' %}
-                                {{ edit_form.as_p }}
-                            {% else %}
-                                {{ edit_form|foundation }}
-                            {% endif %}
+                                {% if setting.types == 'date' %}Date
+                                    Format: dd/mm/yyyy<br/>{% endif %}
+                                {% if setting.types == 'rich_text' %}
+                                    {{ edit_form.as_p }}
+                                {% else %}
+                                    {{ edit_form|foundation }}
+                                {% endif %}
 
-                            <button type="submit" class="button success" style="margin-right:5px">
-                               Submit
-                            </button>
-                        </form>
+                                <button type="submit"
+                                        class="button success"
+                                        style="margin-right:5px">
+                                    Submit
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
         </div>
     </section>
 {% endblock body %}

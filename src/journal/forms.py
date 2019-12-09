@@ -16,6 +16,13 @@ from django_summernote.widgets import SummernoteWidget
 from core import models as core_models
 from journal import models as journal_models
 
+SEARCH_SORT_OPTIONS = [
+        ('title', 'Titles A-Z'),
+        ('-title', 'Titles Z-A'),
+        ('-date_published', 'Newest'),
+        ('date_published', 'Oldest'),
+      ]
+
 
 class JournalForm(forms.ModelForm):
 
@@ -63,7 +70,6 @@ class ContactForm(forms.ModelForm):
             for contact in contacts:
                 contact_choices.append([contact.email, '{name}, {role}'.format(name=contact.name, role=contact.role)])
             self.fields['recipient'].widget = forms.Select(choices=contact_choices)
-            # self.fields['recipient'].required = True
 
     class Meta:
         model = core_models.Contact
@@ -82,3 +88,24 @@ class ResendEmailForm(forms.Form):
         self.fields['to'].initial = '{to}; '.format(to=log_entry.to)
         self.fields['subject'].initial = log_entry.subject
         self.fields['body'].initial = mark_safe(log_entry.description)
+
+
+class EmailForm(forms.Form):
+    subject = forms.CharField(max_length=1000)
+    body = forms.CharField(widget=SummernoteWidget)
+
+
+class SearchForm(forms.Form):
+    article_search = forms.CharField(label='search term', min_length=3, max_length=100, required=False)
+    sort = forms.ChoiceField(label='sort by', widget=forms.Select, choices=SEARCH_SORT_OPTIONS)
+
+
+class IssueDisplayForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'display_issue_volume',
+            'display_issue_number',
+            'display_issue_year',
+            'display_issue_title',
+        )

@@ -1,0 +1,42 @@
+{% load i18n %}
+
+<section>
+    <div class="row">
+        <div class="large-6 columns">
+            <div class="row column text-center">
+            <h2 class="title">{% trans "Featured Journals" %}</h2>
+        </div>
+        {% for current_journal in featured_journals %}
+            <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
+                <div class="box journal-list">
+
+                    {% if current_journal.is_remote %}
+                        <a href="{{ current_journal.remote_view_url }}" class="box-link"></a>
+                        <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
+
+                        <div class="content">
+                            <h3><a href="{{ current_journal.remote_view_url }}">{{ current_journal.name }}</a></h3>
+                        </div>
+
+                    {% else %}
+
+                        <a href="{{ current_journal.site_url }}"
+                           class="box-link"></a>
+                        <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}Unnamed Journal{% endif %}"></img>
+                        </a>
+                        <div class="content">
+                            <h3><a href="{{ current_journal.site_url }}"/>{% if current_journal.name != " " and current_journal.name != "" %}
+                                {{ current_journal.name }}{% else %}{% trans "Unnamed Journal" %}{% endif %}</a></h3>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+             {% if forloop.counter|divisibleby:6 %}</div>
+            <div class="row">{% endif %}
+        {% endfor %}
+        </div>
+        <div class="large-6 columns">
+            {{ html_block_content|safe }}
+        </div>
+    </div>
+</section>

@@ -63,18 +63,23 @@ def get_copyeditor_notification(request, article, copyedit):
     return render_template.get_message_content(request, email_context, 'copyeditor_assignment_notification')
 
 
-def get_copyedit_message(request, article, copyedit, template):
+def get_copyedit_message(request, article, copyedit, template,
+                         author_review=None):
     """
     Takes a set of variables and renders a template into a string.
     :param request: HttpReqest object
     :param article: Article object
     :param copyedit: CopyeditAssignment object
-    :param template: a string matching a Setting.name from the email setting group
+    :param template: a string matching a Setting.name from the email
+    setting group
+    :param author_review: an AuthorReview object relating to the
+    CopyeditAssignment
     :return:
     """
     email_context = {
         'article': article,
         'assignment': copyedit,
+        'author_review': author_review,
     }
 
     return render_template.get_message_content(request, email_context, template)
@@ -105,36 +110,27 @@ def handle_file_post(request, copyedit):
         return errors
 
 
-def request_author_review(copyedit, article, request):
+def request_author_review(request, article, copyedit, author_review):
     """
-    Creates a AuthorReview object and fires an event to send the article author an email
-    :param copyedit: CopyeditAssignment object
-    :param article: Article object
-    :param request: HttpRequest object
-    :return: AuthorReview object
+    :param request:
+    :param article:
+    :param copyedit:
+    :param author_review:
+    :return:
     """
-    user_message_content = request.POST.get('review_note')
-
-    author_review = models.AuthorReview.objects.create(
-        author=article.correspondence_author,
-        assignment=copyedit,
-        notified=True
-    )
-
-    url = reverse('author_copyedit', kwargs={'article_id': article.pk, 'author_review_id': author_review.pk})
+    user_message_content = request.POST.get('content_email')
 
     kwargs = {
         'copyedit_assignment': copyedit,
         'article': article,
+        'author_review': author_review,
         'user_message_content': user_message_content,
         'request': request,
         'skip': True if 'skip' in request.POST else False,
-        'url': url,
     }
 
-    event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW, **kwargs)
-
-    return author_review
+    event_logic.Events.raise_event(
+        event_logic.Events.ON_COPYEDIT_AUTHOR_REVIEW, **kwargs)
 
 
 def accept_copyedit(copyedit, article, request):

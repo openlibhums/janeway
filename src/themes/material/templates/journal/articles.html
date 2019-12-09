@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load hooks %}
 {% load i18n %}
+{% load pages %}
 
 {% block page_title %}{% trans "Articles" %}{% endblock %}
 
@@ -9,7 +10,7 @@
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h3>{% trans "Articles" %}</h3>
+            <h1>{% trans "Articles" %}</h1>
         </div>
         <div class="col m8">
             {% if pinned_articles and articles.number == 1 and not active_filters %}
@@ -28,8 +29,8 @@
                     <li class="waves-effect"><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
                     &nbsp;{% endif %}
                 {{ articles.page.page_range }}
-                {% for page in articles.paginator.page_range %}
-                    <li class="waves-effect {% if articles.number == page %}active{% endif %}"><a href="?page={{ page }}">{{ page }}</a>&nbsp;
+                {% for page in articles|slice_pages:3 %}
+                    <li class="waves-effect {% if articles.number == page.number %}active{% endif %}"><a href="?page={{ page.number }}">{{ page.number }}</a>&nbsp;
                     </li>
                 {% endfor %}
                 {% if articles.has_next %}
@@ -39,6 +40,35 @@
             </ul>
         </div>
         <div class="col m4">
+            <div class="card-panel">
+                <form method="POST" action="{% url 'search' %}">
+                    {% csrf_token %}
+                    {% if not keyword %}
+                        <label for="{{ search_form.article_search.id_for_label }}">Search
+                            titles, subtitles, keywords, and authors</label>
+                    {% endif %}
+                    <div class="input-field">
+                        {% if not keyword %}
+                            {{ search_form.article_search.errors }}
+                            {{ search_form.article_search }}
+                        {% else %}
+                            You are currently browsing by keyword.
+                            <p><a href="{% url 'search' %}">Search for an
+                                article.</a></p>
+                        {% endif %}
+                    </div>
+                    <label for="{{ search_form.sort.id_for_label }}">Sort articles
+                        by</label>
+                    <div class="input-field">
+                        {{ search_form.sort.errors }}
+                        {{ search_form.sort }}
+                    </div>
+                    <div class="input-field">
+                        <button name="submit"
+                                class="btn">{% trans "Search" %}</button>
+                    </div>
+                </form>
+            </div>
             <div class="card-panel">
                 <form method="POST">
                     {% csrf_token %}

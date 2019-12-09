@@ -12,7 +12,9 @@
                 {% if entry.is_email %}
                     <div class="title-area">
                         <h2>Headers</h2>
+                        {% if article %}
                         <a class="button" onclick="return popitup('{% url 'manage_resend_logged_email' article.pk entry.pk %}')"><i class="fa fa-refresh">&nbsp;</i>Resend Email</a>
+                        {% endif %}
                     </div>
                     <div class="content">
                         <p><strong>To: </strong>{{ entry.to }}</p>

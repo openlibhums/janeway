@@ -18,20 +18,8 @@ urlpatterns = [
     url(r'^$', press_views.index, name='website_index'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^summernote/', include('django_summernote.urls')),
+    url(r'', include('core.include_urls')),
 ]
-
-if settings.URL_CONFIG == 'domain':
-
-    urlpatterns += [
-        url(r'', include('core.include_urls')),
-    ]
-
-else:
-
-    urlpatterns += [
-        url(r'^(?P<journal_code>[-\w.]+)/', include('core.include_urls')),
-    ]
-
 
 if settings.DEBUG:
     import debug_toolbar
@@ -41,4 +29,5 @@ if settings.DEBUG:
         url(r'^404/$', TemplateView.as_view(template_name='404.html')),
         url(r'^500/$', TemplateView.as_view(template_name='500.html')),
         url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^hijack/', include('hijack.urls', namespace='hijack')),
     ]

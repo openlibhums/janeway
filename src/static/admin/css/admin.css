@@ -460,6 +460,6 @@ th {
     transition: background 0.4s linear;
 }
 
-.list-group-item-dashboard {
-    height: 100px;
+.file p {
+    word-break: break-all;
 }

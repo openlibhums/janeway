@@ -12,12 +12,24 @@ class IssueAdmin(admin.ModelAdmin):
     list_display = ('volume', 'issue', 'issue_title', 'journal', 'issue_type')
     list_filter = ('journal', 'issue_type')
     search_fields = ('issue_title',)
-    filter_horizontal = ('articles', 'guest_editors')
+    filter_horizontal = ('articles',)
+
+
+class IssueTypeAdmin(admin.ModelAdmin):
+    list_filter = ('journal',)
+    search_fields = ('pretty_name', 'code')
 
 
 class JournalAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'domain', 'is_remote', 'hide_from_press')
-    list_filter = ('is_remote', 'hide_from_press')
+    list_display = (
+        'name',
+        'code',
+        'domain',
+        'is_remote',
+        'is_conference',
+        'hide_from_press',
+    )
+    list_filter = ('is_remote', 'is_conference', 'hide_from_press')
 
 
 class BannedIPAdmin(admin.ModelAdmin):
@@ -36,11 +48,12 @@ class ArticleOrderingAdmin(admin.ModelAdmin):
 
 admin_list = [
     (models.Issue, IssueAdmin),
+    (models.IssueType, IssueTypeAdmin),
     (models.Journal, JournalAdmin),
     (models.PresetPublicationCheckItem,),
     (models.PrePublicationChecklistItem,),
     (models.FixedPubCheckItems,),
-    (models.ArticleOrdering,),
+    (models.ArticleOrdering, ArticleOrderingAdmin),
     (models.SectionOrdering,),
     (models.BannedIPs, BannedIPAdmin),
     (models.Notifications,),

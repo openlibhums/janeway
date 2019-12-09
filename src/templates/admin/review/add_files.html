@@ -24,9 +24,11 @@
                         <thead>
                         <tr>
                             <th>Select</th>
+                            <th>ID</th>
                             <th>Label</th>
                             <th>Filename</th>
                             <th>Type</th>
+                            <th>Uploaded</th>
                             <th>Download</th>
                             <th>Replace</th>
 
@@ -37,9 +39,11 @@
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
+                                <td>{{ file.pk }}</td>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
@@ -52,9 +56,11 @@
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
+                                <td>{{ file.pk }}</td>
                                 <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
                                 <td>Data/Figure</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
@@ -65,6 +71,14 @@
                         {% endfor %}
                         </tbody>
                     </table>
+
+                    {% if journal_settings.general.default_review_visibility == 'double-blind' or journal_settings.general.default_review_visibility == 'blind' %}
+                    {{ journal_settings.general.review_file_help|safe }}
+
+                    <input type="checkbox" id="anon" required>
+                    <label for="anon">Review files have been anonymised or this paper is not being reviews blind or double-blind.</label>
+                    <br />
+                    {% endif %}
 
                     <button class="button success" type="submit">Select Files for Review</button>
                     <a href="{% url 'review_in_review' article.pk %}" class="button alert" type="submit">Cancel</a>

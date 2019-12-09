@@ -87,7 +87,7 @@
                                 {% for review in round.reviewassignment_set.all %}
                                     <div class="callout breakdown reviewer">
                                         <div class="title-area">
-                                            <h4>{{ review.reviewer.full_name }}</h4>
+                                            <h4>{{ review.reviewer.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
                                         </div>
                                         <div class="table-scroll">
                                             <table class="scroll">
@@ -110,7 +110,7 @@
                                                         {{ review.date_declined|date:"Y-m-d" }}
                                                     {% else %}Awaiting acknowledgement{% endif %}
                                                     </td>
-                                                    <td>{{ review.date_due|date:"Y-m-d" }}</td>
+                                                    <td>{{ review.date_due|date:"Y-m-d" }} {% if not review.is_complete %}<a href="{% if not review.date_accepted and not review.date_declined %}{% url 'review_send_reminder' article.pk review.pk 'request' %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}"><i class="fa fa-envelope-o"></i>&nbsp; <i class="fa fa-clock-o"></i></a>{% endif %}</td>
                                                     <td>{% if review.decision %}
                                                         {{ review.get_decision_display|capfirst }}{% else %}
                                                         --{% endif %}</td>
@@ -232,7 +232,7 @@
                 </div>
                 <div class="content">
                     <div class="callout warning">
-                        <small>This article is currently {{ article.stage }}.
+                        <small>This article is currently in the {{ article.stage }} stage.
                             {% if article.stage == 'Under Review' and article.is_under_revision %} This article also has
                                 active
                                 Revision Requests.</small>{% endif %}
@@ -246,14 +246,7 @@
                 <div class="title-area">
                     <h2>Steps</h2>
                 </div>
-                <div class="content">
-                    <ol>
-                        <li>Add files to your review round.</li>
-                        <li>Select reviewers for your review round.</li>
-                        <li>Once reviews are complete decide if revisions are required, if they are: add a revision task.</li>
-                        <li>After revisions are complete, you may want to add a new round of peer review, go to: 1.</li>
-                    </ol>
-                </div>
+                <div class="content">{{ journal_settings.general.review_steps|safe }}</div>
             </div>
             <div class="box">
                 <div class="title-area">
@@ -304,4 +297,5 @@
 
 {% block js %}
     <script src="{% static "admin/js/modal.js" %}"></script>
+    {% include "elements/notes/note_script.html" %}
 {% endblock js %}

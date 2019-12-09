@@ -17,6 +17,11 @@ urlpatterns = [
         name='notify_proofreader'),
     url(r'^(?P<article_id>\d+)/proofing_task/(?P<proofing_task_id>\d+)/edit/$', views.edit_proofing_assignment,
         name='edit_proofing_assignment'),
+
+    url(r'^(?P<article_id>\d+)/round/(?P<round_id>\d+)/edit/$',
+        views.delete_proofing_round,
+        name='delete_proofing_round'),
+
     url(r'^(?P<article_id>\d+)/proofing_task/(?P<proofing_task_id>\d+)/review/$', views.do_proofing,
         name='review_proofing_task'),
     url(r'^(?P<article_id>\d+)/proofing_task/(?P<proofing_task_id>\d+)/corrections/$',
@@ -53,9 +58,9 @@ urlpatterns = [
         name='preview_figure'),
 
     # Corrections
-    url(r'^requests/corrections/(?P<typeset_task_id>\d+)/decision/(?P<decision>accept|decline)/$',
-        views.proofing_requests,
-        name='proofing_requests_decision_typesetting'),
+    url(r'^requests/corrections/$',
+        views.correction_requests,
+        name='proofing_correction_requests'),
     url(r'^requests/corrections/(?P<typeset_task_id>\d+)/$',
         views.typesetting_corrections,
         name='typesetting_corrections'),

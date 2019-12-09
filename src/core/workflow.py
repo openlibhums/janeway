@@ -5,10 +5,23 @@ from django.shortcuts import redirect
 from django.http import Http404
 from django.conf import settings
 from django.urls.resolvers import NoReverseMatch
+from django.contrib import messages
 
 from core import models
 from submission import models as submission_models
+from utils.logger import get_logger
 from utils.shared import clear_cache
+
+logger = get_logger(__name__)
+
+
+ELEMENT_STAGES = {
+    'review': submission_models.REVIEW_STAGES,
+    'copyediting': submission_models.COPYEDITING_STAGES,
+    'production': [submission_models.STAGE_TYPESETTING],
+    'proofing': [submission_models.STAGE_PROOFING],
+    'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION]
+}
 
 
 def workflow_element_complete(**kwargs):
@@ -63,12 +76,28 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             article.save()
 
         try:
-            return redirect(reverse(next_element.handshake_url, kwargs={'article_id': article.pk}))
+            response = redirect(reverse(
+                next_element.handshake_url,
+                kwargs={'article_id': article.pk},
+            ))
         except NoReverseMatch:
-            return redirect(reverse(next_element.handshake_url))
-    except BaseException as e:
-        print(e)
-        return redirect(reverse('core_dashboard'))
+            response = redirect(reverse(next_element.handshake_url))
+
+    except Exception as e:
+        logger.exception(e)
+        response = redirect(reverse('core_dashboard'))
+
+    if response.status_code == 302:
+        response = redirect(reverse('core_dashboard'))
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        '%s stage completed for article: %d'
+        '' % (current_element.stage, article.pk),
+    )
+
+    return response
 
 
 def log_stage_change(article, next_element):
@@ -147,3 +176,35 @@ def articles_in_workflow_stages(request):
 
 def element_names(elements):
     return [element.element_name for element in elements]
+
+
+def remove_element(request, journal_workflow, element):
+    """
+    Checks if there are any articles in the current stage and
+    blocks its removal if there are.
+    :param request:
+    :param journal_workflow:
+    :param element:
+    :return:
+    """
+    stages = ELEMENT_STAGES.get(element.element_name, None)
+
+    articles = submission_models.Article.objects.filter(
+        stage__in=stages,
+        journal=request.journal,
+    )
+
+    if articles:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Element cannot be removed as there are {0}'
+            ' articles in this stage.'.format(articles.count())
+        )
+    else:
+        journal_workflow.elements.remove(element)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Element removed from workflow.'
+        )

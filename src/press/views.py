@@ -10,14 +10,20 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
-from django.http import HttpResponse
-from django.contrib.sites import models as site_models
+from django.http import HttpResponse, Http404
 
-from core import files, models as core_models, plugin_loader
+from core import (
+    files,
+    models as core_models,
+    plugin_loader,
+    logic as core_logic,
+)
 from journal import models as journal_models, views as journal_views, forms as journal_forms
 from press import models as press_models, forms
 from security.decorators import press_only
 from submission import models as submission_models
+from utils import install
+from utils.logic import get_janeway_version
 
 
 def index(request):
@@ -30,9 +36,9 @@ def index(request):
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
 
-    homepage_elements = core_models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                                   object_id=request.press.pk,
-                                                                   active=True).order_by('sequence')
+    homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
+        request,
+    )
 
     template = "press/press_index.html"
     context = {
@@ -41,12 +47,13 @@ def index(request):
 
     # call all registered plugin block hooks to get relevant contexts
     for hook in settings.PLUGIN_HOOKS.get('yield_homepage_element_context', []):
-        hook_module = plugin_loader.import_module(hook.get('module'))
-        function = getattr(hook_module, hook.get('function'))
-        element_context = function(request, homepage_elements)
+        if hook.get('name') in homepage_element_names:
+            hook_module = plugin_loader.import_module(hook.get('module'))
+            function = getattr(hook_module, hook.get('function'))
+            element_context = function(request, homepage_elements)
 
-        for k, v in element_context.items():
-            context[k] = v
+            for k, v in element_context.items():
+                context[k] = v
 
     return render(request, template, context)
 
@@ -59,7 +66,28 @@ def journals(request):
     """
     template = "press/press_journals.html"
 
-    journal_objects = journal_models.Journal.objects.filter(hide_from_press=False).order_by('sequence')
+    journal_objects = journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_conference=False,
+    ).order_by('sequence')
+
+    context = {'journals': journal_objects}
+
+    return render(request, template, context)
+
+
+def conferences(request):
+    """
+    Displays a filterable list of conferences that are not marked as hidden
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    template = "press/press_journals.html"
+
+    journal_objects = journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_conference=True,
+    ).order_by('sequence')
 
     context = {'journals': journal_objects}
 
@@ -75,6 +103,7 @@ def manager_index(request):
     """
     form = journal_forms.JournalForm()
     modal = None
+    version = get_janeway_version()
 
     if request.POST:
         form = journal_forms.JournalForm(request.POST)
@@ -83,9 +112,9 @@ def manager_index(request):
             new_journal = form.save(request=request)
             new_journal.sequence = request.press.next_journal_order()
             new_journal.save()
-            call_command('sync_settings_to_journals', new_journal.code)
-            call_command('sync_journals_to_sites')
             call_command('install_plugins')
+            install.update_license(new_journal)
+            install.update_issue_types(new_journal)
             new_journal.setup_directory()
             return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
                                                      new_journal.pk))
@@ -96,7 +125,9 @@ def manager_index(request):
         'form': form,
         'modal': modal,
         'published_articles': submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED).select_related('journal')[:50]
+            stage=submission_models.STAGE_PUBLISHED
+        ).select_related('journal')[:50],
+        'version': version,
     }
 
     return render(request, template, context)
@@ -112,7 +143,10 @@ def edit_press(request):
     """
 
     press = request.press
-    form = forms.PressForm(instance=press)
+    form = forms.PressForm(
+        instance=press,
+        initial={'press_logo': press.thumbnail_image}
+    )
 
     if request.POST:
         form = forms.PressForm(request.POST, request.FILES, instance=press)
@@ -125,7 +159,7 @@ def edit_press(request):
 
             messages.add_message(request, messages.INFO, 'Press updated.')
 
-            return redirect(reverse('core_manager_index'))
+            return redirect(reverse('press_edit_press'))
 
     template = 'press/edit_press.html'
     context = {
@@ -144,7 +178,35 @@ def serve_press_cover(request):
     """
     p = press_models.Press.get_press(request)
 
-    response = files.serve_press_cover(request, p.thumbnail_image)
+    if p.thumbnail_image:
+        return files.serve_press_cover(request, p.thumbnail_image)
+    else:
+        raise Http404
+
+
+@staff_member_required
+def serve_press_file(request, file_id):
+    """
+    If a user is staff this view will serve a press file.
+    :param request: HttpRequest
+    :param file_id: core.File object pk
+    :return: HttpStreamingResponse or Http404
+    """
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    # If the file has an article_id the press should not serve it.
+    # TODO: when untangling Files/Galleys this should be reviewed
+    if file.article_id:
+        raise Http404
+
+    path_parts = ('press',)
+
+    response = files.serve_any_file(
+        request,
+        file,
+        False,
+        path_parts=path_parts,
+    )
 
     return response
 
@@ -163,8 +225,11 @@ def journal_order(request):
 
     for journal in journals:
         sequence = ids.index(journal.pk)
-        journal.sequence = sequence
-        journal.save()
+        journal_models.Journal.objects.filter(
+            pk=journal.pk
+        ).update(
+            sequence=sequence
+        )
 
     return HttpResponse('Thanks')
 
@@ -177,9 +242,6 @@ def journal_domain(request, journal_id):
         new_domain = request.POST.get('domain', None)
 
         if new_domain:
-            site = site_models.Site.objects.get(domain=journal.domain)
-            site.domain = new_domain
-            site.save()
             journal.domain = new_domain
             journal.save()
             messages.add_message(request, messages.SUCCESS, 'Domain updated')

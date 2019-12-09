@@ -3,12 +3,13 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from bs4 import BeautifulSoup
+import csv
+from dateutil import parser as dateparser
 from os import listdir, makedirs
 from os.path import isfile, join
 import requests
-from dateutil import parser as dateparser
-from bs4 import BeautifulSoup
-import csv
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.conf import settings
@@ -19,10 +20,15 @@ from django.core.validators import validate_email, ValidationError
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
+from journal.forms import SearchForm
+from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
+from utils.logger import get_logger
 from utils.notify_plugins import notify_email
 from events import logic as event_logic
+
+logger = get_logger(__name__)
 
 
 def install_cover(journal, request):
@@ -55,42 +61,61 @@ def list_scss(journal):
     :param journal: the journal in question
     :return: a list of SCSS files
     """
+    scss_path = join(
+            settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
     try:
-        scss_path = join(settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
         makedirs(scss_path, exist_ok=True)
-        return [join(scss_path, f) for f in listdir(scss_path) if isfile(join(scss_path, f))]
+        file_paths = [
+                join(scss_path, f)
+                for f in listdir(scss_path) if isfile(join(scss_path, f))
+        ]
     except FileNotFoundError:
-        return []
+        logger.warning("Failed to load scss from %s" % scss_path)
+        file_paths = []
+
+    return file_paths
 
 
-def list_galleys(article, galleys):
-    """ Gets the correct galley content for an article
-
-    :param article: the article to handle
-    :param galleys: a list of Galley objects
-    :return: a tuple of XML and HTML galleys, PDF files, and the inline contents for an article
+def get_best_galley(article, galleys):
     """
-
-    # We should use an HTML galley if it exists, and render an XML one if it does not.
+    Attempts to get the best galley possible for an article
+    :param article: Article object
+    :param galleys: list of Galley objects
+    :return: Galley object
+    """
     if article.render_galley:
-        return article.render_galley.file_content()
+        return article.render_galley
 
     try:
         try:
-            html_galley = galleys.get(file__mime_type='text/html')
-            return html_galley.file_content()
+            html_galley = galleys.get(file__mime_type__in=files.HTML_MIMETYPES)
+            return html_galley
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type__contains='/xml')
-            return xml_galley.file_content()
+            xml_galley = galleys.get(file__mime_type__in=files.XML_MIMETYPES)
+            return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
     except core_models.Galley.MultipleObjectsReturned:
         pass
 
-    return ''
+    return None
+
+
+def get_galley_content(article, galleys):
+    """
+    Gets the best galley and returns its content
+    :param article: Article object
+    :param galleys: list of Galley objects
+    :return: Inline content of the galley, HTML, or a blank string
+    """
+    galley = get_best_galley(article, galleys)
+    if galley:
+        return galley.file_content()
+    else:
+        return ''
 
 
 def get_doi_data(article):
@@ -103,7 +128,7 @@ def get_doi_data(article):
 
 
 def handle_new_issue(request):
-    form = issue_forms.NewIssue(request.POST)
+    form = issue_forms.NewIssue(request.POST, journal=request.journal)
 
     if form.is_valid():
         new_issue = form.save(commit=False)
@@ -233,7 +258,11 @@ def set_article_image(request, article):
             article.save()
             messages.add_message(request, messages.SUCCESS, 'New file loaded')
         else:
-            new_file = files.overwrite_file(uploaded_file, article, article.large_image_file)
+            new_file = files.overwrite_file(
+                    uploaded_file,
+                    article.large_image_file,
+                    ('articles', article.pk),
+            )
             article.large_image_file = new_file
             article.save()
             messages.add_message(request, messages.SUCCESS, 'File overwritten.')
@@ -308,6 +337,63 @@ def unset_article_session_variables(request):
     return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
 
 
+def handle_search_controls(request, search_term=None, keyword=None, redir=False, sort='title'):
+    """Takes in request and handles post and get and handles for search
+    :param request: required Request object
+    :param search_term: None or incoming st
+    :param keyword: None or incoming keyword
+    :param redir: False or will be processed in set_search_GET_vars
+    :param sort: 'title' or incoming sort
+    :return: strings: search_term, keyword, sort, and redirect() or None.
+    """
+    if request.POST:
+
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            search_term = form.cleaned_data['article_search']
+            sort = form.cleaned_data['sort']
+
+            if search_term:
+                form = SearchForm({'article_search':search_term, 'sort':sort})
+            else:
+                # must get keyword from the GET request. there is no way to POST a keyword in current implementation.
+                keyword = request.GET.get('keyword', False)
+                form = SearchForm({'article_search':'', 'sort':sort})
+            return search_term, keyword, sort, form, set_search_GET_variables(search_term, keyword, sort)
+        # if form not valid no redir to send form w/errors
+        else:
+            return search_term, keyword, sort, form, redir
+    else:
+        search_term = request.GET.get('article_search', '')
+        keyword = request.GET.get('keyword', False)
+        sort = request.GET.get('sort', 'title')
+        if keyword:
+            form = SearchForm({'article_search':'', 'sort': sort})
+        else:
+            form = SearchForm({'article_search':search_term, 'sort': sort})
+
+        return search_term, keyword, sort, form, None
+
+
+def set_search_GET_variables(search_term=False, keyword=False, sort='title'):
+    """Sets the incoming variables to be GET params and returns redirect
+    :param search_term: string or false
+    :param keyword: string or false
+    :param sort: incoming string or 'title'
+    :return: redirect()
+    """
+    if search_term:
+        get_params = urlencode({'article_search' : search_term, 'sort' : sort})
+        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
+    elif keyword:
+        get_params = urlencode({'keyword' : keyword, 'sort' : sort})
+        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
+    else:
+        redir_str = reverse('search')
+
+    return redirect(redir_str)
+
+
 def fire_submission_notifications(**kwargs):
     request = kwargs.get('request')
 
@@ -372,6 +458,27 @@ def resend_email(article, log_entry, request, form):
     notify_helpers.send_email_with_body_from_user(request, subject, valid_email_addresses, message, log_dict=log_dict)
 
 
+def send_email(user, form, request, article):
+
+    subject = form.cleaned_data['subject']
+    message = form.cleaned_data['body']
+
+    log_dict = {
+        'level': 'Info',
+        'action_type': 'Contact User',
+        'types': 'Email',
+        'target': article if article else user
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        user.email,
+        message,
+        log_dict=log_dict,
+    )
+
+
 def get_table_from_html(table_name, content):
     """
     Uses BS4 to fetch an HTML table.
@@ -396,3 +503,73 @@ def parse_html_table_to_csv(table, table_name):
         wr.writerows([[td.text for td in row.find_all("td")] for row in table.select("tr + tr")])
 
     return filepath
+
+
+def potential_issue_editors(journal, current_editors):
+    return {role.user for role in
+            core_models.AccountRole.objects.filter(
+                journal=journal,
+                user__is_active=True,
+            ).select_related('user').exclude(
+                user__in=current_editors,
+            )}
+
+
+def sort_issues(request, issue_list):
+    """
+    Sorts issues by date either asc or dsc
+    :param request: HttpRequest
+    :param issue_list: Issue queryset for sorting
+    :return: None
+    """
+    sort_type = request.POST.get('sort', None)
+
+    if not sort_type:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No sort type provided.',
+        )
+
+        return
+
+    if sort_type == 'date_sort_desc':
+        order = '-date'
+    else:
+        order = 'date'
+
+    ordered_issues = issue_list.order_by(order)
+
+    for order, issue in enumerate(ordered_issues):
+        issue.order = order
+        issue.save()
+
+
+def merge_issues(destination, to_merge):
+    """ Moves the articles from to_merge issues into the destination issue
+    :param destination: models.Issue
+    :param destination: list(models.Issue):
+    """
+    for issue in to_merge:
+        assert destination.journal == issue.journal, "Issues don't belong to "
+        "the same journal"
+        for article in list(issue.articles.all()):
+            destination.articles.add(article)
+            if article.primary_issue != issue:
+                article.primary_issue = destination
+            article.save()
+        issue.delete()
+
+
+def merge_sections(destination, to_merge):
+    """ Moves the articles from to_merge sections into the destination section
+    :param destination: submission.models.Section
+    :param destination: list(submission.models.Section):
+    """
+    for section in to_merge:
+        assert destination.journal == section.journal, "Sections don't belong "
+        "to the same journal"
+        for article in list(section.article_set.all()):
+            article.section = destination
+            article.save()
+        section.delete()

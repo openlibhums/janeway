@@ -20,5 +20,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_missing_configurations),
+        migrations.RunPython(create_missing_configurations, reverse_code=migrations.RunPython.noop),
     ]

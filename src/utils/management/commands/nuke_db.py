@@ -23,5 +23,4 @@ class Command(BaseCommand):
         core_models.SettingValue.objects.all().delete()
         core_models.Setting.objects.all().delete()
 
-        call_command('sync_journals_to_sites')
         call_command('show_configured_journals')

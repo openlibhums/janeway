@@ -3,32 +3,35 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core import mail
 from django.contrib.contenttypes.models import ContentType
 
-from utils.testing import setup
-from utils import transactional_emails
+from utils import merge_settings, transactional_emails
+from utils.forms import FakeModelForm
+from utils.testing import helpers
 from journal import models as journal_models
 from review import models as review_models
 from submission import models as submission_models
+from utils.install import update_xsl_files
 
 
 class UtilsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        setup.create_press()
-        setup.create_journals()
-        setup.create_roles(['reviewer', 'editor', 'author'])
+        helpers.create_press()
+        helpers.create_journals()
+        helpers.create_roles(['reviewer', 'editor', 'author'])
 
+        update_xsl_files()
         cls.journal_one = journal_models.Journal.objects.get(code="TST", domain="testserver")
 
-        cls.regular_user = setup.create_regular_user()
-        cls.second_user = setup.create_second_user(cls.journal_one)
-        cls.editor = setup.create_editor(cls.journal_one)
-        cls.author = setup.create_author(cls.journal_one)
+        cls.regular_user = helpers.create_regular_user()
+        cls.second_user = helpers.create_second_user(cls.journal_one)
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.author = helpers.create_author(cls.journal_one)
 
         cls.review_form = review_models.ReviewForm.objects.create(name="A Form", slug="A Slug", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
@@ -46,8 +49,9 @@ class UtilsTests(TestCase):
                                                                               date_due=timezone.now(),
                                                                               form=cls.review_form)
 
-        cls.request = setup.Request()
+        cls.request = helpers.Request()
         cls.request.journal = cls.journal_one
+        cls.request.press = cls.journal_one.press
         cls.request.site_type = cls.journal_one
         cls.request.user = cls.editor
         cls.request.model_content_type = ContentType.objects.get_for_model(cls.request.journal)
@@ -74,8 +78,9 @@ class UtilsTests(TestCase):
 
         self.assertEqual(expected_recipient, mail.outbox[0].to[0])
 
+    @override_settings(URL_CONFIG="domain")
     def test_send_review_complete_acknowledgements(self):
-        kwargs = self.base_kwargs
+        kwargs = dict(**self.base_kwargs)
         kwargs['review_assignment'] = self.review_assignment
 
         expected_recipient_one = self.review_assignment.reviewer.email
@@ -96,3 +101,47 @@ class UtilsTests(TestCase):
         transactional_emails.send_article_decision(**kwargs)
 
         self.assertEqual(expected_recipient_one, mail.outbox[0].to[0])
+
+class TestMergeSettings(TestCase):
+
+    def test_recursive_merge(self):
+        base = {
+                "setting": "value",
+                "setting_a": "value_a",
+                "setting_list": ["value_a"],
+                "setting_dict": {"a": "a", "b": "a"},
+        }
+
+        overrides = {
+                "setting_a": "value_b",
+                "setting_list": ["value_b"],
+                "setting_dict": {"b": "b", "c": "c"},
+                "other_setting": "value",
+        }
+
+        expected = {
+                "setting": "value",
+                "setting_a": "value_b",
+                "setting_list": ["value_a", "value_b"],
+                "setting_dict": {"a": "a", "b": "b", "c": "c"},
+                "other_setting": "value",
+        }
+        result = merge_settings(base, overrides)
+
+        self.assertDictEqual(expected, result)
+
+class TestForms(TestCase):
+
+    def test_fake_model_form(self):
+
+        class FakeTestForm(FakeModelForm):
+            class Meta:
+                update_xsl_files()
+                model = journal_models.Journal
+                exclude = tuple()
+
+        form = FakeTestForm()
+
+        with self.assertRaises(NotImplementedError):
+            form.save()
+

@@ -1,60 +1,14 @@
-{% load staticfiles %}
-{% load i18n %}
-
 <div class="row">
-    <div class="large-{% if not show_sidebar %}12{% else %}8 border-right{% endif %} columns" id="issue_top">
-        {% if issue.large_image %}
-            <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
-                <ul class="orbit-container article-orbit">
-                    <li class="is-active orbit-slide overlay">
-                        <img class="orbit-image"
-                             src="{{ issue.large_image.url }}"
-                             alt="{{ issue.display_title }}">
-                        <div class="row column">
-                            <figcaption class="orbit-caption">
-                                <h3>{{ issue.display_title }}</h3>
-                            </figcaption>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <br/>
-            <p>{{ issue.issue_description|safe }}</p>
-        {% else %}
-            <h3 class="em">{{ issue.display_title }}</h3>
-            <p>{{ issue.issue_description|safe }}</p>
-        {% endif %}
-    </div>
-
 
     <div class="large-{% if not show_sidebar %}12{% else %}8 border-right{% endif %} columns end">
-        {% for section, articles in structure.items %}
-            <h4 class="em">{{ section.name }}</h4>
-            {% for article in articles %}
-                {% include "elements/journal/box_article.html" with article=article %}
-            {% endfor %}
-        {% endfor %}
+        {% include "elements/journal/issue_top.html" %}
+
+        {% include "elements/journal/issue_block.html" %}
+
+        {% include "elements/journal/issue_paginator.html" %}
     </div>
+
     {% if show_sidebar %}
-        <aside class="large-4 columns" data-sticky-container>
-            <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
-                <div class="section">
-                    <h3>{% trans 'Downloads' %}</h3>
-                    <p><a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %}</a></p>
-                    <h3>{% if not collection %}{% trans "Issue Archive" %}{% else %}
-                        {% with col=journal_settings.general.collection_name_plural %}{% if col %}{{ col }}{% else %}{% trans "Collections" %}{% endif %}{% endwith %}{% endif %}</h3>
-                    <ul>
-                        {% for issue in issues %}
-                            {% if issue.issue_type == 'Issue' %}
-                                <li><a href="{% url 'journal_issue' issue.id %}">{{ issue }} </a></li>
-                            {% else %}
-                                <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </aside>
+        {% include "elements/journal/issue_sidebar.html" %}
     {% endif %}
 </div>
-

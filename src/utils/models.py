@@ -112,6 +112,7 @@ class LogEntry(models.Model):
 class Version(models.Model):
     number = models.CharField(max_length=5)
     date = models.DateTimeField(default=timezone.now)
+    rollback = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return 'Version {number}, upgraded {date}'.format(number=self.number, date=self.date)
@@ -124,6 +125,10 @@ class Plugin(models.Model):
     enabled = models.BooleanField(default=True)
     display_name = models.CharField(max_length=200, blank=True, null=True)
     press_wide = models.BooleanField(default=False)
+    homepage_element = models.BooleanField(
+        default=False,
+        help_text='Enable if the plugin is a homepage element.'
+    )
 
     def __str__(self):
         return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
@@ -216,8 +221,14 @@ class ImportCacheEntry(models.Model):
     @staticmethod
     def nuke():
         for cache in ImportCacheEntry.objects.all():
-            os.remove(cache.on_disk)
             cache.delete()
+
+    def delete(self, *args, **kwargs):
+        try:
+            os.remove(self.on_disk)
+        except FileNotFoundError:
+            pass
+        super().delete(*args, **kwargs)
 
     @staticmethod
     def fetch(url, up_auth_file='', up_base_url='', ojs_auth_file=''):

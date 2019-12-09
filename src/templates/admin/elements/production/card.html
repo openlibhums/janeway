@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="card-divider">
-        <h4>{{ article.title|safe }}</h4>
+        <h4>{{ article.pk }} - {{ article.title|safe }}</h4>
     </div>
     <div class="card-section">
         {% if type == "assignment" %}
@@ -11,6 +11,7 @@
         {% elif type == "assigned" %}
             <p>Production in progress.</p>
         {% endif %}
+        {% if request.user in article.editor_list or request.user in article.section_editors or prod_manager or request.user.is_staff  %}
         <div class="button-group">
             {% if type == "assignment" %}
                 <a class="button tiny" data-open="modal{{ article.pk }}">Assign production manager</a>
@@ -18,20 +19,27 @@
                     self</a>{% endif %}
             {% elif type == 'assigned' %}
                 <a class="button tiny alert" href="{% url 'production_unassign_article' article.pk %}">Unassign</a>
-                {% if user_is_editor %}
+                {% if user_is_editor or prod_manager or request.user in article.section_editors %}
                     <a class="button tiny success" href="{% url 'production_article' article.pk %}">Go to production
                         page</a>{% endif %}
             {% endif %}
         </div>
+        {% else %}
+            <div class="bs-callout bs-callout-danger"><p>You are not an editor for this article.</p></div>
+        {% endif %}
     </div>
     <div class="card-divider">
-        {% if article.productionassignment.production_manager %}
-        {% include "elements/avatar.html" with user=article.productionassignment.production_manager role="PM" %}
-        {% endif %}
+
         {% include "elements/avatar.html" with user=article.correspondence_author role="Author" %}
 
-        {% for task in article.productionassignment.typeset_tasks %}
-            {% include "elements/avatar.html" with user=task.typesetter role="TS" %}
-        {% endfor %}
+        {% if article.production_assignment_or_none and article.productionassignment.production_manager %}
+            {% include "elements/avatar.html" with user=article.productionassignment.production_manager role="PM" %}
+        {% endif %}
+
+        {% if article.production_assignment_or_none %}
+            {% for task in article.productionassignment.typeset_tasks %}
+                {% include "elements/avatar.html" with user=task.typesetter role="TS" %}
+            {% endfor %}
+        {% endif %}
     </div>
 </div>

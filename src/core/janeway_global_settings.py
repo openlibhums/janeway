@@ -37,7 +37,7 @@ sys.path.append(os.path.join(BASE_DIR, "plugins"))
 SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 COMMAND = sys.argv[1:]
 IN_TEST_RUNNER = COMMAND[:1] == ['test']
 ALLOWED_HOSTS = ['*']
@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'django.contrib.humanize',
 
     # Installed Apps
@@ -79,6 +78,7 @@ INSTALLED_APPS = [
     'transform',
     'utils',
     'install',
+    'workflow',
 
     # 3rd Party
     'django_summernote',
@@ -89,6 +89,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'foundationform',
     'materialize',
+    'snowpenguin.django.recaptcha2',
+    'simplemathcaptcha',
+
+    # Forms
+    'django.forms',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
@@ -103,6 +108,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.TimezoneMiddleware',
     'core.middleware.SiteSettingsMiddleware',
     'utils.template_override_middleware.ThemeEngineMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
@@ -119,9 +125,14 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 os.path.join(BASE_DIR, 'templates', 'admin')] + plugin_installed_apps.load_plugin_templates(BASE_DIR) +
-        plugin_installed_apps.load_homepage_element_templates(BASE_DIR),
+        'DIRS': ([
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'templates', 'common'),
+            os.path.join(BASE_DIR, 'templates', 'admin'),
+        ]
+            + plugin_installed_apps.load_plugin_templates(BASE_DIR)
+            + plugin_installed_apps.load_homepage_element_templates(BASE_DIR)
+        ),
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -142,11 +153,13 @@ TEMPLATES = [
                 'django.template.loaders.app_directories.Loader',
             ],
             'builtins': [
-                'core.templatetags.pathurl',
-            ],
+                'core.templatetags.fqdn',
+            ]
         },
     },
 ]
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 SETTINGS_EXPORT = [
     'ORCID_API_URL',
@@ -156,6 +169,7 @@ SETTINGS_EXPORT = [
     'ORCID_URL',
     'ENABLE_ENHANCED_MAILGUN_FEATURES',
     'ENABLE_ORCID',
+    'DEBUG',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -175,7 +189,7 @@ if os.environ.get("DB_VENDOR") == "postgres":
             'PORT': os.environ["DB_PORT"],
         }
     }
-elif os.environ.get("DB_VENDOR") == "mysql":
+elif os.environ.get("DB_VENDOR") in {"mysql", "mariadb"}:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -184,16 +198,19 @@ elif os.environ.get("DB_VENDOR") == "mysql":
             'PASSWORD': os.environ["DB_PASSWORD"],
             'HOST': os.environ["DB_HOST"],
             'PORT': os.environ["DB_PORT"],
-            'OPTIONS': {'init_command': 'SET default_storage_engine=INNODB'},
+            'OPTIONS': {
+                'init_command': 'SET default_storage_engine=INNODB',
+                'charset': 'utf8mb4',
+            },
         }
     }
 else:
     DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_DIR, 'db/janeway.sqlite'),
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/db/janeway.sqlite3',
+        }
     }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -317,8 +334,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'root': {
-        'level': 'DEBUG' if DEBUG else 'WARNING',
-        'handlers': ['console'],
+        'level': 'DEBUG' if DEBUG else 'INFO',
+        'handlers': ['console', 'log_file'],
     },
     'formatters': {
         'default': {
@@ -343,12 +360,20 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'coloured',
             'stream': 'ext://sys.stdout',
-        }
+        },
+        'log_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024*1024*50,  # 50 MB
+            'backupCount': 1,
+            'filename': os.path.join(PROJECT_DIR , 'logs/janeway.log'),
+            'formatter': 'default'
+        },
     },
     'loggers': {
         'django.db.backends': {
             'level': 'WARNING',
-            'handlers': ['console'],
+            'handlers': ['console', 'log_file'],
             'propagate': False,
         },
     },
@@ -361,7 +386,9 @@ class SuppressDeprecated(logging.Filter):
             'RemovedInDjango110Warning',
         ]
         # Return false to suppress message.
-        return not any([warn in record.getMessage() for warn in WARNINGS_TO_SUPPRESS])
+        return not any(
+            [warn in record.getMessage() for warn in WARNINGS_TO_SUPPRESS]
+        )
 
 
 MESSAGE_TAGS = {
@@ -372,12 +399,12 @@ LOGIN_REDIRECT_URL = '/user/profile/'
 LOGIN_URL = '/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = ''
 EMAIL_PORT = ''
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
+DUMMY_EMAIL_DOMAIN = "@journal.com"
 
 # Settings for use with Mailgun
 MAILGUN_ACCESS_KEY = ''
@@ -415,16 +442,14 @@ BACKUP_TYPE = 'directory'  # s3 or directory
 BACKUP_DIR = '/path/to/backup/dir/'
 BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
 
-URL_CONFIG = 'domain'  # path or domain
+URL_CONFIG = 'path'  # path or domain
 
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
 # You can set either to use Google's reCaptcha or a basic math field with no external requirements
 
-INSTALLED_APPS.append('snowpenguin.django.recaptcha2')
-
-CAPTCHA_TYPE = 'recaptcha'  # should be either simple_math or recaptcha to enable captcha fields otherwise disabled
-RECAPTCHA_PRIVATE_KEY = ''
+CAPTCHA_TYPE = 'simple_math'  # should be either 'simple_math' or 'recaptcha' to enable captcha fields otherwise disabled
+RECAPTCHA_PRIVATE_KEY = '' # Public and private keys are required when using recaptcha
 RECAPTCHA_PUBLIC_KEY = ''
 
 BOOTSTRAP4 = {
@@ -437,27 +462,29 @@ WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
 
-# Development Overrides
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    for t in TEMPLATES:
-        t["OPTIONS"]["string_if_invalid"] = "Invalid variable: %s!!"
-    MIDDLEWARE_CLASSES = (('utils.middleware.TimeMonitoring',)
-        + MIDDLEWARE_CLASSES)
+# New XML galleys will be associated with this stylesheet by default when they
+# are first uploaded
+DEFAULT_XSL_FILE_LABEL = 'Janeway default'
 
 # Testing Overrides
 if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
     from collections.abc import Mapping
+
+
     class SkipMigrations(Mapping):
         def __getitem__(self, key):
             return None
+
         def __contains__(self, key):
             return True
+
         def __iter__(self):
             return iter("")
+
         def __len__(self):
             return 1
 
     logging.info("Skipping migrations")
+    logging.disable(logging.CRITICAL)
     MIGRATION_MODULES = SkipMigrations()
 

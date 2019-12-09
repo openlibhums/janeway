@@ -2,6 +2,9 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+from datetime import date
+
 from django.db import models
 from django.utils import timezone
 
@@ -34,15 +37,35 @@ class ProductionAssignment(models.Model):
 
 class TypesetTask(models.Model):
     assignment = models.ForeignKey(ProductionAssignment)
-    typesetter = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
+    typesetter = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     accepted = models.DateTimeField(blank=True, null=True)
+    due = models.DateField(null=True)
 
-    typeset_task = models.TextField(blank=True, null=True, verbose_name="Typesetting Task")
-    files_for_typesetting = models.ManyToManyField('core.File', related_name='files_for_typesetting')
-    galleys_loaded = models.ManyToManyField('core.File', related_name='galleys_loaded')
-    note_from_typesetter = models.TextField(blank=True, null=True, verbose_name='Note to Editor')
+    typeset_task = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Typesetting Task",
+    )
+    files_for_typesetting = models.ManyToManyField(
+        'core.File',
+        related_name='files_for_typesetting',
+    )
+    galleys_loaded = models.ManyToManyField(
+        'core.File',
+        blank=True,
+        related_name='galleys_loaded',
+    )
+    note_from_typesetter = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Note to Editor',
+    )
     completed = models.DateTimeField(blank=True, null=True)
 
     editor_reviewed = models.BooleanField(default=False)
@@ -54,15 +77,43 @@ class TypesetTask(models.Model):
         else:
             return False
 
+    @property
     def status(self):
         if self.assigned and not self.accepted and not self.completed:
-            return {'slug': 'assigned', 'friendly': 'Awaiting response'}
+            return "assigned"
         elif self.assigned and self.accepted and not self.completed:
-            return {'slug': 'accepted', 'friendly': 'Task accepted, underway'}
+            return "accepted"
         elif self.assigned and not self.accepted and self.completed:
-            return {'slug': 'declined', 'friendly': 'Task declined'}
+            return "declined"
         elif self.completed and not self.editor_reviewed:
-            return {'slug': 'completed', 'friendly': 'Completed on {0}<br/>Awaiting manager review'.format(
-                self.completed.strftime("%Y-%m-%d %H:%M"))}
+            return "completed"
         elif self.completed and self.editor_reviewed:
-            return {'slug': 'closed', 'friendly': 'Task closed'}
+            return "closed"
+        else:
+            return "unknown"
+
+    @property
+    def is_overdue(self):
+        if self.due and self.due < date.today():
+            return True
+
+        return False
+
+    FRIENDLY_STATUSES = {
+            "assigned": "Awaiting response",
+            "accepted": "Task accepted",
+            "declined": "Task declined",
+            "completed": "Task completed",
+            "closed": "Task closed",
+            "unknown": "Task status unknown",
+        }
+
+    @property
+    def friendly_status(self):
+        return self.FRIENDLY_STATUSES.get(self.status)
+
+    def reset_task_dates(self):
+        self.accepted = None
+        self.completed = None
+        self.editor_reviewed = False
+        self.save()

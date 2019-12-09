@@ -18,7 +18,12 @@
                 <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
             {% endif %}
         {% endfor %}
+        {% if request.press.publishes_journals %}
         <li><a href="{% url 'press_journals' %}">Journals</a></li>
+        {% endif %}
+        {% if request.press.publishes_conferences%}
+        <li><a href="{% url 'press_conferences' %}">Conferences</a></li>
+        {% endif %}
         {% if request.press.enable_preprints %}
             <li class=".is-dropdown-submenu-parent"><a href="{% url 'preprints_home' %}"
                                                        data-options="is_hover:true; hover_timeout:5000">Preprints</a>

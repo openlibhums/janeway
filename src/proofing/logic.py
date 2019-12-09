@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from core import models as core_models, files
 from events import logic as event_logic
-from utils import render_template
+from utils import render_template, models as utils_models
 from proofing import models
 
 
@@ -62,7 +62,10 @@ def get_user_from_post(request, article=False, typesetter=False):
             return user
 
         # return None if we aren't checking for typesetting and the user isn't a proofreder
-        elif not typesetter and not user.is_proofreader(request):
+        elif not typesetter and not (
+            user.is_proofreader(request)
+            or user.is_editor(request)
+        ):
             return None
 
         # return None if we are checking for a typesetter and the user isn't a typesetter
@@ -113,40 +116,53 @@ def create_html_snippet(note, proofing_task, galley):
 
 
 def get_tasks(request):
-    new = models.ProofingTask.objects.filter(completed__isnull=True,
-                                             accepted__isnull=True,
-                                             cancelled=False,
-                                             proofreader=request.user,
-                                             round__assignment__article__journal=request.journal)
-    active = models.ProofingTask.objects.filter(completed__isnull=True,
-                                                accepted__isnull=False,
-                                                cancelled=False,
-                                                proofreader=request.user,
-                                                round__assignment__article__journal=request.journal)
-    completed = models.ProofingTask.objects.filter(completed__isnull=False,
-                                                   cancelled=False,
-                                                   proofreader=request.user,
-                                                   round__assignment__article__journal=request.journal)
+    new = models.ProofingTask.objects.filter(
+        completed__isnull=True,
+        accepted__isnull=True,
+        cancelled=False,
+        proofreader=request.user,
+        round__assignment__article__journal=request.journal,
+    )
+    active = models.ProofingTask.objects.filter(
+        completed__isnull=True,
+        accepted__isnull=False,
+        cancelled=False,
+        proofreader=request.user,
+        round__assignment__article__journal=request.journal,
+    )
+    completed = models.ProofingTask.objects.filter(
+        completed__isnull=False,
+        cancelled=False,
+        proofreader=request.user,
+        round__assignment__article__journal=request.journal,
+    )
 
+    return new, active, completed
+
+
+def get_typesetting_tasks(request):
     new_typesetting = models.TypesetterProofingTask.objects.filter(
         completed__isnull=True,
         accepted__isnull=True,
         cancelled=False,
         typesetter=request.user,
-        proofing_task__round__assignment__article__journal=request.journal)
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
     active_typesetting = models.TypesetterProofingTask.objects.filter(
         completed__isnull=True,
         accepted__isnull=False,
         cancelled=False,
         typesetter=request.user,
-        proofing_task__round__assignment__article__journal=request.journal)
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
     completed_typesetting = models.TypesetterProofingTask.objects.filter(
         completed__isnull=False,
         cancelled=False,
         typesetter=request.user,
-        proofing_task__round__assignment__article__journal=request.journal)
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
 
-    return new, active, completed, new_typesetting, active_typesetting, completed_typesetting
+    return new_typesetting, active_typesetting, completed_typesetting
 
 
 def handle_proof_decision(request, proofing_task_id, decision):
@@ -166,9 +182,12 @@ def handle_proof_decision(request, proofing_task_id, decision):
 
 
 def handle_typeset_decision(request, typeset_task_id, decision):
-    typeset_task = get_object_or_404(models.TypesetterProofingTask,
-                                     typesetter=request.user,
-                                     pk=typeset_task_id)
+    typeset_task = get_object_or_404(
+        models.TypesetterProofingTask,
+        typesetter=request.user,
+        pk=typeset_task_id,
+        proofing_task__round__assignment__article__journal=request.journal,
+    )
     if decision == 'accept':
         typeset_task.accepted = timezone.now()
     elif decision == 'decline':
@@ -244,3 +263,42 @@ def handle_annotated_galley_upload(request, proofing_task, article):
         return None
     else:
         return 'uploadbox'
+
+
+def add_reset_log_entry(request, proofing_task, article):
+    """
+    Adds a LogEntry when a proofing task is reset.
+    :param request: HttpRequest object
+    :param proofing_task: ProofingTask object
+    :param article: Article object
+    :return: None
+    """
+
+    description = '{user} reset proofing task {id} for article {title}'.format(
+        user=request.user,
+        id=proofing_task.pk,
+        title=article.title,
+    )
+
+    utils_models.LogEntry.add_entry(
+        types='Proofing Task Reset',
+        description=description,
+        level='Info',
+        actor=request.user,
+        request=request,
+        target=article,
+    )
+
+
+def delete_round(article, round):
+    """
+    Deletes a round and checks if a new one needs to be generated.
+    :param article: an Article object
+    :param round: a ProofingRound object
+    :return: None
+    """
+    round.delete()
+
+    if not article.proofingassignment.proofinground_set.all():
+        article.proofingassignment.add_new_proofing_round()
+

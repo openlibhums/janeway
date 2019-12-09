@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from utils.management.commands import sync_journals_to_sites as sync
 from press import models as press_models
 
 
@@ -18,7 +17,7 @@ class Command(BaseCommand):
         parser.add_argument('new_url')
 
     def handle(self, *args, **options):
-        """ Moves your press to a new URL. Note that this command will re-synchronize your sites.
+        """ Moves your press to a new URL."
 
         :param args: None
         :param options: Dictionary containing a 'new_url' string to which the press will be relocated
@@ -28,5 +27,3 @@ class Command(BaseCommand):
         p.domain = options['new_url']
         p.save()
 
-        sync_command = sync.Command()
-        sync_command.handle()

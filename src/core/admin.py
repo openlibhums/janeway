@@ -9,7 +9,7 @@ from django.contrib.auth.admin import UserAdmin
 from hvad.admin import TranslatableAdmin
 from django.utils.safestring import mark_safe
 
-from core import models
+from core import models, forms
 
 
 class AccountRoleAdmin(admin.ModelAdmin):
@@ -31,9 +31,19 @@ class AccountAdmin(UserAdmin):
     search_fields = ('username', 'email', 'first_name', 'middle_name', 'last_name', 'orcid', 'institution', 'biography')
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
-            'middle_name', 'orcid', 'institution', 'department', 'twitter', 'linkedin', 'facebook', 'github',
-            'biography',
-            'signature', 'profile_image', 'interest')}),
+            'middle_name', 'orcid', 'institution', 'department', 'twitter',
+            'linkedin', 'facebook', 'github', 'biography',
+            'signature', 'profile_image', 'interest', "preferred_timezone",
+        )}),
+    )
+
+    add_form = forms.UserCreationFormExtended
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'first_name', 'last_name',
+                       'password1', 'password2',)
+        }),
     )
 
 
@@ -85,6 +95,7 @@ class FileAdmin(admin.ModelAdmin):
     list_filter = ('mime_type', 'article_id')
     raw_id_fields = ('owner',)
     filter_horizontal = ('history',)
+    readonly_fields = ['article_id']
 
     def article_pk(self, obj):
         if obj.article:
@@ -92,6 +103,12 @@ class FileAdmin(admin.ModelAdmin):
             return mark_safe(link)
         else:
             return '-'
+
+
+class XSLFileAdmin(admin.ModelAdmin):
+    """Displays Setting objects in the Django admin interface."""
+    list_display = ('date_uploaded', 'label', 'file')
+    search_fields = ('label',)
 
 
 class WorkflowElementAdmin(admin.ModelAdmin):
@@ -160,7 +177,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 class DomainAliasAdmin(admin.ModelAdmin):
-    list_display = ('domain', 'redirect', 'site_id')
+    list_display = ('domain', 'redirect', 'journal')
 
 
 class WorkflowAdmin(admin.ModelAdmin):
@@ -181,6 +198,7 @@ admin_list = [
     (models.SettingGroup, SettingGroupAdmin),
     (models.SettingValue, SettingValueAdmin),
     (models.File, FileAdmin),
+    (models.XSLFile, XSLFileAdmin),
     (models.Interest,),
     (models.Task,),
     (models.TaskCompleteEvents,),

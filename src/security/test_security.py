@@ -24,7 +24,7 @@ from copyediting import models as copyediting_models
 from proofing import models as proofing_models
 from preprint import models as preprint_models
 from press import models as press_models
-
+from utils.install import update_xsl_files
 
 class TestSecurity(TestCase):
     # Tests for editor role checks
@@ -2987,6 +2987,28 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "proofreader_for_article_required, wrongly prohibits proofreader from content")
 
+    def test_proofreader_for_article_required_with_author_proofreader(self):
+        func = Mock()
+        decorated_func = decorators.proofreader_for_article_required(func)
+
+        author_proofing_task = proofing_models.ProofingTask(
+                round=self.proofing_assignment.current_proofing_round(),
+                proofreader=self.author,
+                notified=True,
+                due=timezone.now(),
+                accepted=timezone.now(),
+                task='author_task')
+        author_proofing_task.save()
+
+        kwargs = {'proofing_task_id': author_proofing_task.pk}
+
+        request = self.prepare_request_with_user(self.author, self.journal_one)
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called,
+                        "proofreader_for_article_required, wrongly prohibits "
+                        "author proofreader from content")
+
     def test_proofreader_for_article_required_with_bad_proofreader(self):
         func = Mock()
         decorated_func = decorators.proofreader_for_article_required(func)
@@ -3041,7 +3063,9 @@ class TestSecurity(TestCase):
 
         request = self.prepare_request_with_user(self.editor, self.journal_one)
         response = decorated_func(request, **kwargs)
-        self.assertEqual(response.url, '/review/article/{0}/access_denied/'.format(self.article_author_is_owner.pk))
+        expected_path = '/review/article/{0}/access_denied/'.format(
+                self.article_author_is_owner.pk)
+        self.assertTrue(response.url.endswith(expected_path))
 
     def test_editor_is_not_author(self):
         func = Mock()
@@ -3138,6 +3162,39 @@ class TestSecurity(TestCase):
         self.assertTrue(func.called,
                         "author wrongly blocked from accessing preprint article")
 
+    def test_article_stage_review_required_with_review_article(self):
+        func = Mock()
+        decorated_func = decorators.article_stage_review_required(func)
+        kwargs = {'article_id': self.article_under_review.pk}
+
+        request = self.prepare_request_with_user(self.editor, None)
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "article_stage_review_required wrongly blocks article in review"
+        )
+
+    def test_article_stage_review_required_with_bad_article(self):
+        func = Mock()
+        decorated_func = decorators.article_stage_review_required(func)
+        kwargs = {'article_id': self.article_author_copyediting.pk}
+
+        request = self.prepare_request_with_user(self.editor, None)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_article_stage_review_required_with_no_article(self):
+        func = Mock()
+        decorated_func = decorators.article_stage_review_required(func)
+        kwargs = {}
+
+        request = self.prepare_request_with_user(self.editor, None)
+
+        with self.assertRaises(Http404):
+            decorated_func(request, **kwargs)
+
     def test_isnt_preprint_editor(self):
         func = Mock()
         decorated_func = decorators.is_preprint_editor(func)
@@ -3147,6 +3204,118 @@ class TestSecurity(TestCase):
 
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
+
+    def test_production_manager_roles(self):
+        func = Mock()
+        decorated_func = decorators.production_manager_roles(func)
+        kwargs = {}
+
+        fail_request = self.prepare_request_with_user(
+            self.proofing_manager,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
+        users_with_permission = [
+            self.editor,
+            self.section_editor,
+            self.production,
+        ]
+
+        for user in users_with_permission:
+            success_request = self.prepare_request_with_user(
+                user,
+                self.journal_one,
+                self.press,
+            )
+            decorated_func(success_request, **kwargs)
+            self.assertTrue(
+                func.called,
+                "production_manager_roles wrongly blocks a user.",
+            )
+
+    def test_proofing_manager_roles(self):
+        func = Mock()
+        decorated_func = decorators.proofing_manager_roles(func)
+        kwargs = {}
+
+        fail_request = self.prepare_request_with_user(
+            self.production,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
+        users_with_permission = [
+            self.editor,
+            self.section_editor,
+            self.proofing_manager,
+        ]
+
+        for user in users_with_permission:
+            success_request = self.prepare_request_with_user(
+                user,
+                self.journal_one,
+                self.press,
+            )
+            decorated_func(success_request, **kwargs)
+            self.assertTrue(
+                func.called,
+                "proofing_manager_roles wrongly blocks a user.",
+            )
+
+    def test_production_user_or_editor_required_section_editor(self):
+        func = Mock()
+        decorated_func = decorators.production_user_or_editor_required(func)
+        kwargs = {
+            'article_id': self.article_in_production.pk,
+        }
+
+        success_request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        decorated_func(success_request, **kwargs)
+        self.assertTrue(
+            func.called,
+            "production_user_or_editor_required wrongly blocks a SE.",
+        )
+
+        fail_request = self.prepare_request_with_user(
+            self.second_section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
+    def test_section_editor_production_no_or_bad_article_id(self):
+        func = Mock()
+        decorated_func = decorators.production_user_or_editor_required(func)
+        no_kwargs = {}
+        bad_kwargs = {
+            'article_id': self.article_unassigned.pk,
+        }
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **no_kwargs)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **bad_kwargs)
 
     # General helper functions
 
@@ -3190,6 +3359,7 @@ class TestSecurity(TestCase):
         Creates a set of dummy journals for testing
         :return: a 2-tuple of two journals
         """
+        update_xsl_files()
         journal_one = journal_models.Journal(code="TST", domain="journal1.localhost")
         journal_one.save()
 
@@ -3271,6 +3441,14 @@ class TestSecurity(TestCase):
                                                journal=self.journal_one)
         self.section_editor.is_active = True
         self.section_editor.save()
+
+        self.second_section_editor = self.create_user(
+            "second_section_editor@martineve.com",
+            ['section-editor'],
+            journal=self.journal_one,
+        )
+        self.second_section_editor.is_active = True
+        self.second_section_editor.save()
 
         self.second_reviewer = self.create_user("second_reviewer@martineve.com", ['reviewer'],
                                                 journal=self.journal_one)
@@ -3422,6 +3600,13 @@ class TestSecurity(TestCase):
                                                                         notified=True)
         self.section_editor_assignment.save()
 
+        self.production_section_editor_assignment = review_models.EditorAssignment(
+            article=self.article_in_production,
+            editor=self.section_editor,
+            editor_type='section-editor',
+            notified=True)
+        self.production_section_editor_assignment.save()
+
         self.article_editor_copyediting = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                                     abstract="An abstract",
                                                                     stage=submission_models.STAGE_EDITOR_COPYEDITING,
@@ -3551,7 +3736,8 @@ class TestSecurity(TestCase):
     @staticmethod
     def prepare_request_with_user(user, journal, press=None):
         """
-        Build a basic request dummy object with the journal set to journal and the user having editor permissions.
+        Build a basic request dummy object with the journal set to journal
+        and the user having editor permissions.
         :param user: the user to use
         :param journal: the journal to use
         :return: an object with user and journal properties
@@ -3564,6 +3750,7 @@ class TestSecurity(TestCase):
         request._messages = Mock()
         request._messages.add = TestSecurity.mock_messages_add
         request.path = '/a/fake/path/'
+        request.path_info = '/a/fake/path/'
         request.press = press
 
         return request

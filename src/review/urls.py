@@ -51,6 +51,9 @@ urlpatterns = [
         name='review_reset_review'),
     url(r'^article/(?P<article_id>\d+)/review/(?P<review_id>\d+)/rate/$', views.rate_reviewer,
         name='review_rate_reviewer'),
+    url(r'article/(?P<article_id>\d+)/review/(?P<review_id>\d+)/reminder/(?P<reminder_type>request|accepted)/',
+        views.send_review_reminder,
+        name='review_send_reminder'),
 
     url(r'^article/(?P<article_id>\d+)/revisions/request/$', views.request_revisions,
         name='review_request_revisions'),
@@ -80,7 +83,12 @@ urlpatterns = [
     url(r'^requests/(?P<assignment_id>\d+)/decline/suggest/$', views.suggest_reviewers, name='suggest_reviewers'),
     url(r'^requests/(?P<assignment_id>\d+)/thanks/$', views.thanks_review, name='thanks_review'),
     url(r'^requests/(?P<assignment_id>\d+)/annotation/$', views.hypothesis_review, name='hypothesis_review'),
-    url(r'^requests/(?P<assignment_id>\d+)/$', views.do_review, name='do_review'),
+    url(r'^requests/(?P<assignment_id>\d+)/$',
+        views.do_review,
+        name='do_review'),
+    url(r'^requests/(?P<assignment_id>\d+)/upload_file/$',
+        views.upload_review_file,
+        name='upload_review_file'),
 
 
     url(r'^author/(?P<article_id>\d+)/$', views.author_view_reviews, name='review_author_view'),

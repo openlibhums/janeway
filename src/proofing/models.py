@@ -2,8 +2,12 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.db import models
 from django.utils import timezone
+
+from events import logic as event_logic
+from utils import setting_handler
 
 
 class ProofingAssignment(models.Model):
@@ -75,6 +79,60 @@ class ProofingRound(models.Model):
 
         return typeset_tasks
 
+    def delete_round_relations(self, request, article, tasks, corrections):
+
+        for task in tasks:
+            if not task.completed:
+                kwargs = {
+                    'article': article,
+                    'proofing_task': task,
+                    'request': request,
+                }
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_CANCEL_PROOFING_TASK,
+                    task_object=article,
+                    **kwargs,
+                )
+                task.delete()
+
+        for correction in corrections:
+            if not correction.completed and not correction.cancelled:
+                kwargs = {
+                    'article': article,
+                    'correction': correction,
+                    'request': request,
+                }
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_CORRECTIONS_CANCELLED,
+                    task_object=article,
+                    **kwargs,
+                )
+                correction.delete()
+
+    def can_add_another_proofreader(self, journal):
+        """
+        Checks if this round can have another proofreader.
+        :param journal: Journal object
+        :return: Boolean, True or False
+        """
+
+        limit = setting_handler.get_setting(
+            'general',
+            'max_proofreaders',
+            journal,
+        ).processed_value
+
+        if not limit == 0:
+
+            current_num_proofers = ProofingTask.objects.filter(
+                round=self,
+            ).count()
+
+            if current_num_proofers >= limit:
+                return False
+
+        return True
+
 
 class ProofingTask(models.Model):
     round = models.ForeignKey(ProofingRound)
@@ -130,6 +188,12 @@ class ProofingTask(models.Model):
                                                                                              note.text)
 
         return comment_text
+
+    def reset(self):
+        self.completed = None
+        self.cancelled = False
+        self.accepted = None
+        self.save()
 
 
 class TypesetterProofingTask(models.Model):

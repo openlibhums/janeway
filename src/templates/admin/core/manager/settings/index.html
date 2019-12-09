@@ -25,7 +25,14 @@
                                 <div class="button-group stacked">
                                 {% for setting in value %}
                                     <a class="button"
-                                       href="{% url 'core_edit_setting' setting.group.name setting.name %}">{{ setting.pretty_name }}</a>
+                                       {% if request.journal %}
+                                       href="{% url 'core_edit_setting' setting.group.name setting.name %}"
+                                       {% else %}
+                                       href="{% url 'core_edit_default_setting' setting.group.name setting.name %}"
+                                       {% endif %}
+                                    >
+                                        {{ setting.pretty_name }}
+                                    </a>
                                 {% endfor %}
                                 </div>
                             </div>
