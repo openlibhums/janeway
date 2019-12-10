@@ -12,6 +12,7 @@
    installation
    workflow
    manager
+   styling
 
 
 # Indices and tables
