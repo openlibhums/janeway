@@ -3,7 +3,7 @@ Author Guide
 The Author role is granted to all users of a given journal whey they begin a submission. This guide will help you make a submission in Janeway.
 
 Creating a New Submission
----------------------
+-------------------------
 There are various pages throughout Janeway what allow you to start a new submission notably:
 
 1. From the drop down in the top right hand corner where you name is displayed
