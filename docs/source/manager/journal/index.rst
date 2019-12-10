@@ -1,5 +1,6 @@
 Journal Settings
 ================
+.. _journal_settings:
 
 The basic management of your journal is split into three different management interfaces.
 
