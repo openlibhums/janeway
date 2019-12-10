@@ -34,7 +34,7 @@ The review page presets various actions:
 Add Files
 ---------------
 
-The Add Files options allows you to list which files will be listed for the reviewers in the current review round. All reviewers for a given round will see the same files.
+The Add Files options allows you to list which files will be listed for the reviewers in the current review round. All reviewers for a given round will see the same files. You will also be asked to confirm that the files you've selected have been checked to ensure there is no identifying author information in them. If there are you can download, edit and replace the version in the system on this screen.
 
 Delete Round
 ------------------
