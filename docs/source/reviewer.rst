@@ -53,7 +53,7 @@ The review from is where the magic happens! It can be a single large text box or
 
 .. figure:: nstatic/review_form.png
 
-    A simple review form
+    A review form
 
 The sections of this form are:
 
