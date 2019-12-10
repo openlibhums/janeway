@@ -23,7 +23,7 @@ To start a new task press the Accept button and it will move to the In Progress 
 
 Copyediting a Paper
 -------------------
-Janeway presents a fairly simple interface for copyeditors broken into three sections:
+Janeway presents an interface for copyeditors broken into three sections:
 
 - Guidelines
     - Here the journal's copyediting guidelines will help you complete your task.
