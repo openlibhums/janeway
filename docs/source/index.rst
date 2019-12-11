@@ -16,7 +16,7 @@ This guide has been written to avoid using language like "easy", "just" or simpl
    workflow
    manager
    styling
-
+   published
 
 # Indices and tables
 
