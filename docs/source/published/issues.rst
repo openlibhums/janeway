@@ -66,3 +66,36 @@ For each section there are arrow icons that allow you to move the section up and
 .. figure:: ../nstatic/issue_table_of_contents.png
 
     Issue table of contents
+
+You can drop an article from an issue using the Remove link and add new ones clicking the Add Article link.
+
+.. figure:: ../nstatic/issue_articles.png
+
+    Articles that can be added to issues
+
+A list of all articles published in the journal that are not already in the issue is displayed and you can use the Add button to place it in the issue.
+
+Guest Editors
+^^^^^^^^^^^^^
+An issue can list Guest Editors if the articles aren't being handled by the normal editorial team. Use the Manage button to control who appears as a Guest Editor for an issue/collection.
+
+.. figure:: ../nstatic/empty_guest_editors.png
+
+    An issue with no guest editors
+
+.. figure:: ../nstatic/manage_guest_editors.png
+
+    An issue with no guest editors
+
+When adding a new guest editor you can also enter a role, the default text for this role is *Guest Editor* though you can change it. Use the Add button to add a new guest editor.
+
+Galleys
+^^^^^^^
+You can upload a Galley file for the whole issue, usually a PDF so that users can download the whole issue in one go.
+
+.. figure:: ../nstatic/issue_galley.png
+
+    An issue with no guest editors
+
+.. tip::
+    If you don't upload a Galley for the issue then Janeway will allow users to download a zip file of all the individual article galley files.
