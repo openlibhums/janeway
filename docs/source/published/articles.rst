@@ -78,3 +78,12 @@ Much like the Production page, the article archive allows you to upload new and 
 
 .. tip::
     The Edit Galleys link will take you to the Production page.
+
+Issues
+------
+You can see the issues that an article is part of at the bottom of the Article Archive page. You can edit each of the issues or jump to the issue manager.
+
+.. figure:: /nstatic/archive_issue.png
+
+    Archive issue block
+
