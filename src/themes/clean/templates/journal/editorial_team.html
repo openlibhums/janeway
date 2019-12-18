@@ -18,7 +18,7 @@
             </div>
                 <div class="card-deck">
                     {% for member in group.members %}
-                        <div class="col-md-3">
+                        <div class="col-md-3 row-eq-height">
                             <div class="card">
                                 {% if journal_settings.general.enable_editorial_images %}
                                 <img class="card-img-top card-img" src="{% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="A picture of {{ member.user.full_name }}">
