@@ -218,3 +218,29 @@ main a:hover {
     max-width: 100%;
     height: auto;
 }
+
+.carousel-min {
+    min-width: 100%;
+    min-height: 500px;
+}
+
+.carousel-caption {
+    left: 0px;
+    bottom: 0px;
+    background-color: rgba(55, 55, 55, .5);
+}
+
+.row-eq-height {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.article-thumbnail {
+    object-fit: cover;
+}
+
+.card-block {
+    padding: 20px;
+}
