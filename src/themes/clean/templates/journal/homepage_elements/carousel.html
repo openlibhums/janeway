@@ -2,11 +2,10 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div id="carousel" class="carousel slide carousel-min" data-ride="carousel">
-
-            <div class="carousel-inner carousel-min" role="listbox">
+        <div id="carousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min">
+                    <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
                         <img class="d-block img-fluid article-img carousel-min"
                                 {% if carousel_item.large_image_file.id %}
                              src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
@@ -23,6 +22,14 @@
                     </div>
                 {% endfor %}
             </div>
+            <a class="carousel-control-prev" href="#" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
         </div>
     </div>
 </div>

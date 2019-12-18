@@ -117,7 +117,6 @@ main a:hover {
  */
 .site-footer {
     padding: 2.5rem 15px;
-    color: #999;
     text-align: center;
     background-color: #f9f9f9;
     border-top: .05rem solid #e5e5e5;
@@ -125,6 +124,11 @@ main a:hover {
 
 .site-footer p:last-child {
     margin-bottom: 0;
+}
+
+.site-footer a {
+    color: #4F637D;
+    text-decoration: underline;
 }
 
 .navbar-custom {
@@ -243,4 +247,22 @@ main a:hover {
 
 .card-block {
     padding: 20px;
+}
+
+.white-text {
+    color: #FFFFFF !important;
+}
+
+.profilelink {
+    color: #FFF !important;
+}
+
+.card-img-overlay {
+    background: rgba(55, 55, 55, .5);
+}
+
+#carouselButtons {
+    margin-left: 100px;
+    position: absolute;
+    bottom: 200px;
 }

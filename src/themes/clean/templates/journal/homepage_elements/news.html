@@ -11,10 +11,9 @@
             <div class="col-md-6 row-eq-height">
                 <div class="card" style="width: 100%;">
                     <div class="card-body">
-                        <h5 class="card-title">{{ item.title }}</h5>
+                        <h5 class="card-title"><a href="{% url 'core_news_item' item.pk %}" class="card-link">{{ item.title }}</a></h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</h6>
                         <p class="card-text mb-auto">{{ item.body|striptags|truncatesmart:400 }}</p>
-                        <a href="{% url 'core_news_item' item.pk %}" class="card-link">{% trans "Read More" %}</a>
                     </div>
                 </div>
             </div>
