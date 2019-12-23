@@ -1346,7 +1346,12 @@ def manage_archive_article(request, article_id):
 
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "XML")
+                try:
+                    production_logic.save_galley(
+                        article, request, uploaded_file, True, "XML")
+                except UnicodeDecodeError:
+                    messages.add_message(request, messages.ERROR,
+                        "Uploaded file is not UTF-8 encoded")
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
