@@ -143,6 +143,7 @@
                         {% can_edit_file file article as can_edit_file_flag %}
                         {% can_view_file_history file article as can_view_file_history_flag %}
                         <tr>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Data/Figure</td>
@@ -162,6 +163,7 @@
                         {% can_edit_file file article as can_edit_file_flag %}
                         {% can_view_file_history file article as can_view_file_history_flag %}
                         <tr>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Copyedit</td>
@@ -273,6 +275,7 @@
             <div class="content">
                 <table class="scroll small">
                     <tr style="text-align: left">
+                        <th>ID</th>
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Modified</th>
@@ -285,6 +288,7 @@
                         {% can_edit_file galley.file article as can_edit_file_flag %}
                         {% can_view_file_history galley.file article as can_view_file_history_flag %}
                         <tr>
+                            <td>{{ galley.pk }}</td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
@@ -328,6 +332,7 @@
                 <p>Source files are uploaded by Typesetters and are the intermediate files used to generate Galleys.</p>
                 <table class="scroll small">
                     <tr style="text-align: left">
+                        <th>ID</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
                         <th>Modified</th>
@@ -340,6 +345,7 @@
                         {% can_edit_file file article as can_edit_file_flag %}
                         {% can_view_file_history file article as can_view_file_history_flag %}
                         <tr>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.original_filename|truncatechars:40 }}</td>
                             <td>Source File</td>
                             <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
