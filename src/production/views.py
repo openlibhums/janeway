@@ -303,6 +303,9 @@ def production_article(request, article_id):
                     )
         except TypeError as exc:
             messages.add_message(request, messages.ERROR, str(exc))
+        except UnicodeDecodeError:
+            messages.add_message(request, messages.ERROR,
+                "Uploaded file is not UTF-8 encoded")
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
@@ -723,13 +726,17 @@ def do_typeset_task(request, typeset_id):
         new_galley = None
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                new_galley = logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "XML",
-                )
+                try:
+                    new_galley = logic.save_galley(
+                        article,
+                        request,
+                        uploaded_file,
+                        True,
+                        "XML",
+                    )
+                except UnicodeDecodeError:
+                    messages.add_message(request, messages.ERROR,
+                        "Uploaded file is not UTF-8 encoded")
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
