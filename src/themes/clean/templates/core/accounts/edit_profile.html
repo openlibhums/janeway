@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Edit Profile" %}{% endblock title %}
+
+{% block css %}
+    {% include "common/elements/edit_profile_css_block.html" %}
+{% endblock %}
+
+{% block body %}
+    {% include "elements/accounts/edit_profile_body_block.html" %}
+{% endblock body %}
+
+{% block js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#id_interests").tagit(
+            {allowSpaces: true});
+    });
+</script>
+{% endblock %}

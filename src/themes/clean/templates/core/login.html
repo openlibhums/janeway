@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load recaptcha2 %}
+{% load orcid %}
+
+{% block title %}{% trans "Login" %}{% endblock title %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-block">
+                    <div class="col-md-12">
+                        {% if settings.ENABLE_ORCID %}
+                        <h2 class="text-center">{% trans "Log in with your account" %}</h2>
+                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
+                           class="btn btn-primary btn-block">{% trans "Log in with ORCiD" %}</a>
+                        <br/>
+                        {% endif %}
+                        <form method="POST">
+                            {% include "common/elements/static-error-messages.html" with form=form %}
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="user_name">{% trans form.fields.user_name.label %}</label>
+                                <input name="user_name" type="text" placeholder="janeway@voyager.com"
+                                       class="form-control" id="user_name">
+                                <label for="password">{% trans form.user_pass.label %}</label>
+                                <input type="password" placeholder="Password" name="user_pass" class="form-control" id="password">
+                                <br />
+                                {{ form.captcha }}
+                            </div>
+                            <p>
+                                <button type="submit"
+                                        class="btn btn-primary btn-block">{% trans "Log in" %}</button>
+                            </p>
+                        </form>
+                        <p class="text-center"><a
+                                href="{% url 'core_get_reset_token' %}">{% trans "Forgotten your password?" %}</a>
+                        </p>
+
+                        <p class="text-center">
+                            <a href="{% url 'core_register' %}">{% trans "Register a new account" %}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
