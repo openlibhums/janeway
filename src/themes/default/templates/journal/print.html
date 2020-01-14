@@ -7,6 +7,21 @@
 
 <head>
 
+
+
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+
+    </script>
+
     <!-- Commented out meta fields are TODO -->
 
     <!-- <meta name="DC.Coverage.spatial" xml:lang="en" content="London"/> -->
@@ -115,5 +130,5 @@
 <p><strong>{% trans "How to Cite" %}:</strong>
     {% include "elements/journal/how_to_cite.html" with article=article %}
     {{ article_content|safe }}
-</body>
+ </body>
 </html>
