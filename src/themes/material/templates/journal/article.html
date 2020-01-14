@@ -221,6 +221,11 @@
                     {% endif %}
                     {% endwith %}
 
+                    {% include "elements/journal/article_issue_list.html" %}
+                     <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
                     {% if article.supplementary_files.all %}
                         <h4>{% trans "Supplementary Files" %}</h4>
 
