@@ -105,6 +105,7 @@ def validate_plugin_version(plugin_settings):
             )
         )
 
+
 def get_plugin(module_name, permissive):
     # Check that the module is installed.
     if permissive:
@@ -114,9 +115,15 @@ def get_plugin(module_name, permissive):
 
         return plugin
     try:
+        print(module_name)
         plugin = models.Plugin.objects.get(name=module_name, enabled=True)
         return plugin
-    except (models.Plugin.DoesNotExist, ProgrammingError, OperationalError) as e:
+    except (
+            models.Plugin.DoesNotExist,
+            ProgrammingError,
+            OperationalError,
+            models.Plugin.MultipleObjectsReturned
+    ) as e:
         if settings.DEBUG:
             print('Error loading plugin {0} {1}'.format(module_name, e))
         return False
