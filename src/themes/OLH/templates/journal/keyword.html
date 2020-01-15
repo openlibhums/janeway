@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
+
+{% block body %}
+<section id="content">
+    <div class="row">
+        <div class="large-8 columns border-right">
+            <h1>{% trans "Keyword" %}: {{ keyword.word }}</h1>
+            <p>{% trans "Articles that use this keyword are listed below." %}</p>
+
+            {% for article in articles %}
+                {% include "elements/journal/box_article.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock body %}

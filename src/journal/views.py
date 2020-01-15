@@ -359,6 +359,49 @@ def print_article(request, identifier_type, identifier):
     return render(request, template, context)
 
 
+@has_journal
+def keywords(request):
+    """
+    Renders a list of keywords
+    :param request: HttpRequest object
+    :return: a rendered template
+    """
+    print(request.journal.article_keywords())
+    keywords = request.journal.article_keywords()
+
+    template = 'journal/keywords.html'
+    context = {
+        'keywords': keywords,
+    }
+
+    return render(request, template, context)
+
+
+@has_journal
+def keyword(request, keyword_id):
+    """
+    Displays a list of articles that use a given keyword.
+    :param request: HttpRequest object
+    :param keyword_id: Keyword object PK
+    :return: a rendered template
+    """
+    keyword = get_object_or_404(submission_models.Keyword, pk=keyword_id)
+    articles = submission_models.Article.objects.filter(
+        journal=request.journal,
+        date_published__lte=timezone.now(),
+        stage=submission_models.STAGE_PUBLISHED,
+        keywords__pk=keyword.pk,
+    )
+
+    template = 'journal/keyword.html'
+    context = {
+        'keyword': keyword,
+        'articles': articles,
+    }
+
+    return render(request, template, context)
+
+
 @staff_member_required
 @has_journal
 @article_exists
@@ -1514,6 +1557,7 @@ def editorial_team(request, group_id=None):
 
     return render(request, template, context)
 
+
 @has_journal
 def author_list(request):
     """
@@ -1528,6 +1572,7 @@ def author_list(request):
         'author_list': author_list,
     }
     return render(request, template, context)
+
 
 def sitemap(request):
     """
@@ -1719,7 +1764,6 @@ def send_user_email(request, user_id, article_id=None):
     }
 
     return render(request, template, context)
-
 
 
 @editor_user_required

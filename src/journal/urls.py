@@ -158,6 +158,11 @@ urlpatterns = [
     # Search
     url(r'^search/$',
         views.search, name='search'),
+    url(r'^keywords/$',
+        views.keywords, name='keywords'),
+
+    url(r'^keywords/(?P<keyword_id>\d+)/$',
+        views.keyword, name='keyword'),
 
     # Submissions
     url(r'^submissions/$',
@@ -187,4 +192,5 @@ urlpatterns = [
         views.send_user_email, name='send_user_email'),
     url(r'^email/user/(?P<user_id>\d+)/article/(?P<article_id>\d+)/$',
         views.send_user_email, name='send_user_email_article'),
+
 ]
