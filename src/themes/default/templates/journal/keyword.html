@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
+{% block title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <p>{% trans "Articles that use this keyword are listed below." %}</p>
+
+            {% for article in articles %}
+                {% include "elements/article_listing.html" %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

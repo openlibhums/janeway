@@ -1,17 +1,13 @@
 {% extends "core/base.html" %}
-{% load static %}
 {% load i18n %}
 
-
+{% block page_title %}{% trans "Keywords" %}{% endblock %}
 {% block title %}{% trans "Keywords" %}{% endblock %}
 
 {% block body %}
-<section id="content">
     <div class="row">
-        <div class="large-8 columns border-right">
-            <h1>{% trans "Keywords" %}</h1>
+        <div class="col-md-12">
             {% include "elements/journal/keywords_block.html" %}
         </div>
     </div>
-</section>
-{% endblock body %}
+{% endblock %}
