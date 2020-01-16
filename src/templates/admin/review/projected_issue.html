@@ -1,0 +1,40 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load i18n %}
+
+
+{% block title %}Projected Issue {{ article.title }}{% endblock %}
+{% block title-section %}Projected Issue{% endblock %}
+{% block title-sub %}Set projected issue for {{ article.title }}{% endblock %}
+
+{% block body %}
+	<div class="row">
+		<div class="large-6 columns">
+			<div class="box">
+				<div class="title-area">
+					<h2>Form</h2>
+				</div>
+				<form method="POST">
+					{% csrf_token %}
+					{{ form|foundation }}
+					<button name="add_projected_issue" class="success button">{% trans "Save Projected Issue" %}</button>
+				</form>
+			</div>
+		</div>
+		<div class="large-6 columns">
+			<div class="box">
+				<div class="title-area">
+					<h2>Help</h2>
+				</div>
+				<div class="content">
+					<p><strong>{% trans "What is this for?" %}</strong></p>
+					<p>{% trans "The projected issue setting helps you track which issue an article is intended to be published with."%}</p>
+					<p><strong>{% trans "How does it work?" %}</strong></p>
+					<p>{% trans "Select an issue from the drop down on the left and press save, this articles projected issue will now be set." %}</p>
+					<p><strong>{% trans "Can I unset a projected issue?" %}</strong></p>
+					<p>{% trans "Yes, simply select the blank option (-------) from the drop down." %}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock body %}
