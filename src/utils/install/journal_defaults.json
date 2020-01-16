@@ -2623,5 +2623,20 @@
         "value": {
             "default": "0"
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Lists all of the keywords used by a journal and for each keyword a list of articles that use it.",
+            "is_translatable": false,
+            "name": "keyword_list_page",
+            "pretty_name": "Enable the Keyword list page",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

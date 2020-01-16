@@ -281,7 +281,7 @@ def get_settings_to_edit(group, journal):
             'enable_editorial_display', 'multi_page_editorial', 'enable_editorial_images', 'main_contact',
             'publisher_name', 'publisher_url',
             'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
-            'twitter_handle', 'switch_language', 'google_analytics_code'
+            'twitter_handle', 'switch_language', 'google_analytics_code', 'keyword_list_page',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
