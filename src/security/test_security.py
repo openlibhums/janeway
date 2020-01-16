@@ -3335,7 +3335,12 @@ class TestSecurity(TestCase):
         func = Mock()
         decorated_func = decorators.keyword_page_enabled(func)
 
-        setting_handler.save_setting('general', 'keyword_list_page', self.journal_one, 'on')
+        setting_handler.save_setting(
+            'general', 
+            'keyword_list_page', 
+            self.journal_one,
+            'on',
+        )
 
         request = self.prepare_request_with_user(
             self.admin_user,
@@ -3344,13 +3349,19 @@ class TestSecurity(TestCase):
         )
 
         decorated_func(request)
+
+        # Negate any database changes on keepdb input
+        setting_handler.save_setting(
+            'general', 
+            'keyword_list_page', 
+            self.journal_one, 
+            '',
+        )
+
         self.assertTrue(
             func.called,
             "keyword_page_enabled wrongly blocks this page from rendering.",
         )
-
-        # Negate any database changes on keepdb input
-        setting_handler.save_setting('general', 'keyword_list_page', self.journal_one, '')
 
     # General helper functions
 
