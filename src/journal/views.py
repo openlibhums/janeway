@@ -366,7 +366,6 @@ def keywords(request):
     :param request: HttpRequest object
     :return: a rendered template
     """
-    print(request.journal.article_keywords())
     keywords = request.journal.article_keywords()
 
     template = 'journal/keywords.html'
