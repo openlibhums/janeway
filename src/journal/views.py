@@ -387,10 +387,7 @@ def keyword(request, keyword_id):
     :return: a rendered template
     """
     keyword = get_object_or_404(submission_models.Keyword, pk=keyword_id)
-    articles = submission_models.Article.objects.filter(
-        journal=request.journal,
-        date_published__lte=timezone.now(),
-        stage=submission_models.STAGE_PUBLISHED,
+    articles =  request.journal.published_articles.filter(
         keywords__pk=keyword.pk,
     )
 

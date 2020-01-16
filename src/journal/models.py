@@ -394,6 +394,7 @@ class Journal(AbstractSiteModel):
         except core_models.WorkflowElement.DoesNotExist:
             return False
 
+    @property
     def published_articles(self):
         return submission_models.Article.objects.filter(
             journal=self,
@@ -403,7 +404,7 @@ class Journal(AbstractSiteModel):
 
     def article_keywords(self):
         return submission_models.Keyword.objects.filter(
-            article__in=self.published_articles()
+            article__in=self.published_articles
         ).order_by('word')
 
 
