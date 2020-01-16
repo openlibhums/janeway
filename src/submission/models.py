@@ -400,8 +400,19 @@ class Article(models.Model):
     ithenticate_score = models.IntegerField(blank=True, null=True)
 
     # Primary issue, allows the Editor to set the Submission's primary Issue
-    primary_issue = models.ForeignKey('journal.Issue', blank=True, null=True, on_delete=models.SET_NULL)
-    projected_issue = models.ForeignKey('journal.Issue', blank=True, null=True, on_delete=models.SET_NULL)
+    primary_issue = models.ForeignKey(
+        'journal.Issue', 
+        blank=True,
+        null=True, 
+        on_delete=models.SET_NULL,
+    )
+    projected_issue = models.ForeignKey(
+        'journal.Issue', 
+        blank=True, 
+        null=True, 
+        on_delete=models.SET_NULL,
+        related_name='projected_issue',
+    )
 
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
