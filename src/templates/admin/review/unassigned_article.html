@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
 {% load roles %}
+{% load i18n %}
 
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
@@ -105,6 +106,22 @@
                         </tr>
                     {% endfor %}
                 </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Projected Issue</h2>
+                <a href="{% url 'review_projected_issue' article.pk %}?return={{request.path|urlencode}}" class="button">
+                    {% if article.projected_issue %}{% trans "Edit" %}{% else %}{% trans "Assign" %}{% endif %} {% trans "Projected Issue" %}
+                </a>
+            </div>
+            <div class="content">
+                {% if article.projected_issue %}
+                <p>{% trans "This article is projected to be published as part of" %} {{ article.projected_issue.display_title }}.</p>
+                {% else %}
+                <p>{% trans "This article is not projected to be published as part of any issue." %}</p>
+                {% endif %}
             </div>
         </div>
 

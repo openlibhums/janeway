@@ -353,11 +353,19 @@ class ConfiguratorForm(forms.ModelForm):
                 'If language is unset you must select a default language.'
             )
 
-
-
-
     class Meta:
         model = models.SubmissionConfiguration
         exclude = (
             'journal',
         )
+
+
+class ProjectedIssueForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectedIssueForm, self).__init__(*args, **kwargs)
+        self.fields['projected_issue'].queryset = self.instance.journal.issue_set.all()
+
+    class Meta:
+        model = models.Article
+        fields = ('projected_issue',)
