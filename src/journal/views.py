@@ -39,7 +39,7 @@ from review import forms as review_forms
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
-    editor_user_required
+    editor_user_required, keyword_page_enabled
 from submission import models as submission_models
 from utils import models as utils_models, shared
 from utils.logger import get_logger
@@ -360,6 +360,7 @@ def print_article(request, identifier_type, identifier):
 
 
 @has_journal
+@keyword_page_enabled
 def keywords(request):
     """
     Renders a list of keywords
@@ -377,6 +378,7 @@ def keywords(request):
 
 
 @has_journal
+@keyword_page_enabled
 def keyword(request, keyword_id):
     """
     Displays a list of articles that use a given keyword.
