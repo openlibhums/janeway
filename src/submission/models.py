@@ -401,6 +401,7 @@ class Article(models.Model):
 
     # Primary issue, allows the Editor to set the Submission's primary Issue
     primary_issue = models.ForeignKey('journal.Issue', blank=True, null=True, on_delete=models.SET_NULL)
+    projected_issue = models.ForeignKey('journal.Issue', blank=True, null=True, on_delete=models.SET_NULL)
 
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
