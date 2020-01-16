@@ -10,6 +10,6 @@
     <p>{% trans "Articles that use this keyword are listed below." %}</p>
 
     {% for article in articles %}
-        {% include "elements/article_listing.html" %}
+        {% include "elements/article_listing.html" with article=article %}
     {% endfor %}
 {% endblock %}
