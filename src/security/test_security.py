@@ -3349,6 +3349,9 @@ class TestSecurity(TestCase):
             "keyword_page_enabled wrongly blocks this page from rendering.",
         )
 
+        # Negate any database changes on keepdb input
+        setting_handler.save_setting('general', 'keyword_list_page', self.journal_one, '')
+
     # General helper functions
 
     @staticmethod
