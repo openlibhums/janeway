@@ -11,6 +11,9 @@
         {% elif type == "assigned" %}
             <p>Production in progress.</p>
         {% endif %}
+        {% if article.projected_issue %}
+            <p><strong>Projected Issue:</strong> {{ article.projected_issue.display_title }}</p>
+        {% endif %}
         {% if request.user in article.editor_list or request.user in article.section_editors or prod_manager or request.user.is_staff  %}
         <div class="button-group">
             {% if type == "assignment" %}

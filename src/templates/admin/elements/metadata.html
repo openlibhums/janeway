@@ -147,18 +147,20 @@
             <th>Volume</th>
             <th>Number</th>
             <th>Published</th>
+            <th></th>
         </tr>
         {% if article.projected_issue %}
         <tr>
-            <td>{{ article.projected_isssue.id }}</td>
-            <td>{{ article.projected_isssue.id }}</td>
-            <td>{{ article.projected_isssue.id }}</td>
-            <td>{{ article.projected_isssue.id }}</td>
-            <td>{{ article.projected_isssue.id }}</td>
+            <td>{{ article.projected_issue.id }}</td>
+            <td>{{ article.projected_issue.issue_title }}</td>
+            <td>{{ article.projected_issue.volume }}</td>
+            <td>{{ article.projected_issue.issue }}</td>
+            <td>{{ article.projected_issue.date }}</td>
+            <td><a href="{% url 'manage_issues_id' article.projected_issue.pk %}">Issue Manager</a></td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="5">This article does not have a projected issue</td>
+            <td colspan="6">This article does not have a projected issue. You can <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">assign one</a>.</td>
         </tr>
         {% endif %}
     </table>
