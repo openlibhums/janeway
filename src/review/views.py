@@ -157,12 +157,12 @@ def add_projected_issue(request, article_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Projected Issue set.'
+                'Projected Issue set.',
             )
 
             if request.GET.get('return'):
                 return redirect(
-                    request.GET.get('return')
+                    request.GET.get('return'),
                 )
             else:
                 return redirect(
