@@ -1004,7 +1004,7 @@ def add_review_assignment(request, article_id):
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
-        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviwers.')
+        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviewers.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
