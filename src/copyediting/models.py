@@ -39,7 +39,7 @@ class CopyeditAssignment(models.Model):
     date_decided = models.DateTimeField(null=True, blank=True)
 
     files_for_copyediting = models.ManyToManyField('core.File', related_name='files_for_copyediting')
-    copyeditor_files = models.ManyToManyField('core.File')
+    copyeditor_files = models.ManyToManyField('core.File', blank=True)
     copyeditor_completed = models.DateTimeField(blank=True, null=True)
 
     copyedit_reopened = models.DateTimeField(blank=True, null=True)
