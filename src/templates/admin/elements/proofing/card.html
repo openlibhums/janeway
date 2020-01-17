@@ -8,6 +8,9 @@
         {% elif type == "assigned" %}
             <p>Proofing in progress.</p>
         {% endif %}
+        {% if article.projected_issue %}
+            <p><strong>Projected Issue:</strong> {{ article.projected_issue.display_title }}</p>
+        {% endif %}
         <div class="button-group">
             {% if type == "assignment" %}
                 <a class="button tiny success" data-open="modal{{ article.pk }}">

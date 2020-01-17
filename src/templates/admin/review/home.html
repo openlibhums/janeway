@@ -24,6 +24,7 @@
                         <th>Main Author</th>
                         <th>Editors</th>
                         <th>Section</th>
+                        <th>Projected Issue</th>
                         <th>No. Active Reviews</th>
                         <th>No. Complete Reviews</th>
                         <th></th>
@@ -38,6 +39,7 @@
                         <td>{{ article.correspondence_author.full_name }}</td>
                         <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% endfor %}</td>
                         <td>{{ article.section.name }}</td>
+                        <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
                         <td>{{ article.active_reviews|length }}</td>
                         <td>{{ article.completed_reviews|length }}</td>
                         <td><a href="{% url 'review_in_review' article.pk %}">View</a></td>
