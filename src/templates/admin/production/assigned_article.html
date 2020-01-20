@@ -67,16 +67,15 @@
                                             <div class="button-group">
                                                 <a href="{% url 'edit_typesetter_assignment' task.pk %}"
                                                    class="button">Manage</a>
-                                                {% if task.status == 'completed' %}
                                                     <a class="dropdown button arrow-only"
-                                                       data-toggle="review-dropdown-{{ task.pk }}"><span
+                                                       data-toggle="production-dropdown-{{ task.pk }}"><span
                                                             class="show-for-sr">Show menu</span></a>
-                                                {% endif %}
                                             </div>
                                             <div class="dropdown-pane right"
-                                                 id="review-dropdown-{{ task.pk }}"
+                                                 id="production-dropdown-{{ task.pk }}"
                                                  data-dropdown data-close-on-click="true">
                                                 <ul class="menu vertical actions">
+                                                    {% if task.status == 'completed' %}
                                                     <form method="POST">
                                                         {% csrf_token %}
                                                         <li>
@@ -84,6 +83,15 @@
                                                                class="button success tiny">Mark as Reviewed</a>
                                                         </li>
                                                     </form>
+                                                    {% endif %}
+                                                    {% if request.user.is_admin %}
+                                                        <li><a class="" target="_blank"
+                                                               href="{% url 'admin:production_typesettask_change' task.pk %}"><span
+                                                                class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></li>
+                                                    {% endif %}
+                                                    <li>
+                                                        <a href="{% url 'edit_typesetter_assignment' task.pk %}"><span class="fa fa-trash">&nbsp;</span>Delete Typesetting Task</a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -189,14 +197,14 @@
                         <th>ID</th>
                         <th>Label</th>
                         <th width="25%">Filename</th>
-                        <th>Type</th>
                         <th>Modified</th>
                         <th>Edit</th>
-                        <th>Download</th>
+                        <th></th>
                         <th>History</th>
                         <th>Preview</th>
                         <th>Create PDF</th>
                         <th>Create EPUB</th>
+                        {% if request.user.is_admin %}<th></th>{% endif %}
                     </tr>
                     {% for galley in galleys %}
                         {% can_view_file galley.file as can_view_file_flag %}
@@ -206,7 +214,6 @@
                             <td>{{ galley.pk }}</td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
-                            <td>Galley</td>
                             <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
@@ -254,10 +261,11 @@
                                     Function for XML only.
                                 {% endif %}
                             </td>
+                            {% if request.user.is_admin %}<td><a target="_blank" href="{% url 'admin:core_galley_change' galley.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a> </td>{% endif %}
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="9">No galleys have been uploaded.</td>
+                            <td colspan="10">No galleys have been uploaded.</td>
                         </tr>
                     {% endfor %}
                 </table>

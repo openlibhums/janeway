@@ -79,6 +79,7 @@
                                 <th>Notified</th>
                                 <th>Decision</th>
                                 <th>Decision Date</th>
+                                {% if request.user.is_admin %}<th></th>{% endif %}
                             </tr>
 
                             <tr>
@@ -90,6 +91,7 @@
                                     response{% endif %}</td>
                                 <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }} {% else %}
                                     --{% endif %}</td>
+                                {% if request.user.is_admin %}<td><a class="" target="_blank" href="{% url 'admin:copyediting_authorreview_change' review.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>{% endif %}
                             </tr>
                         </table>
                         <table class="scroll small">

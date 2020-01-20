@@ -85,6 +85,9 @@
                                                 {% else %}
                                                     Awaiting<br/>proofreader
                                                 {% endif %}
+                                                {% if request.user.is_admin %}
+                                                        <a class="button expanded" target="_blank" href="{% url 'admin:proofing_proofingassignment_change' task.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a>
+                                                {% endif %}
                                             </div>
                                         </td>
                                     </tr>
@@ -108,7 +111,8 @@
                                     <th>Due</th>
                                     <th>Galleys</th>
                                     <th>Status</th>
-                                    <th></th>
+                                    <th>Acknowledge</th>
+                                    {% if request.user.is_admin %}<th></th>{% endif %}
                                 </tr>
                                 {% for task in round.typeset_tasks %}
                                     <tr>
@@ -138,6 +142,9 @@
                                                 Awaiting typesetter
                                             {% endif %}
                                         </td>
+                                        {% if request.user.is_admin %}
+                                            <td><a target="_blank" href="{% url 'admin:proofing_typesetterproofingtask_change' task.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>
+                                        {% endif %}
                                     </tr>
                                     {% empty %}
                                     <tr>
@@ -165,9 +172,8 @@
                         <th>Type</th>
                         <th>Modified</th>
                         <th>Edit</th>
-                        <th>Download</th>
+                        <th></th>
                         <th>Preview</th>
-                        <th>Replace</th>
                         <th>History</th>
                         <th>Create PDF</th>
                         <th>Create EPUB</th>
@@ -190,10 +196,6 @@
                                 <a href="{% url 'production_preview_galley' article.pk galley.pk %}" target="_blank">
                                     <i class="fa fa-eye">&nbsp;</i>
                                 </a>
-                            <td>{% if can_edit_file_flag %}
-                                <a href="{% url 'article_file_replace' 'id' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
-                                        class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}
-                            </td>
                             <td>{% if can_view_file_history_flag %}
                                 <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                                         class="fa fa-history">
