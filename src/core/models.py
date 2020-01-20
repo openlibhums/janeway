@@ -905,6 +905,16 @@ class Galley(models.Model):
             self.xsl_file = self.article.journal.xsl
         super().save(*args, **kwargs)
 
+    @property
+    def file_path(self):
+        return os.path.join(
+            settings.BASE_DIR,
+            'files',
+            'articles',
+            str(self.article_id),
+            str(self.file.uuid_filename),
+        )
+
 
 class XSLFile(models.Model):
     file = models.FileField(storage=JanewayFileSystemStorage('transform/xsl'))

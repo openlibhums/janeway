@@ -735,16 +735,19 @@ def zip_files(files, article_specific=False):
     _dir = os.path.join(settings.BASE_DIR, 'files/temp', str(uuid4()))
     os.makedirs(_dir, 0o775)
 
-    for file in files:
+    for galley in files:
 
-        if article_specific and file.article_id:
-            folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
+        if article_specific and galley.article.pk:
+            folder_name = '{id} - {title}'.format(
+                id=galley.article_id,
+                title=strip_tags(galley.article.title)[:50],
+            )
             article_dir = os.path.join(_dir, folder_name)
             if not os.path.exists(article_dir):
                 os.makedirs(article_dir, 0o775)
-            shutil.copy(file.self_article_path(), article_dir)
+            shutil.copy(galley.file_path, article_dir)
         else:
-            shutil.copy(file.self_article_path(), _dir)
+            shutil.copy(galley.file_path, _dir)
 
     zip_path = '{dir}.zip'.format(dir=_dir)
 

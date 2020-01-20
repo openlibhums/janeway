@@ -1902,21 +1902,26 @@ def document_management(request, article_id):
 
 
 def download_issue(request, issue_id):
-    issue_object = get_object_or_404(models.Issue,
-                                     pk=issue_id,
-                                     journal=request.journal,
+    issue_object = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
     )
-    articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors',
-                                                                                     'frozenauthor_set',
-                                                                                     'manuscript_files')
+    articles = issue_object.articles.all().order_by(
+        'section',
+        'page_numbers',
+    ).prefetch_related(
+        'authors',
+        'frozenauthor_set',
+        'manuscript_files',
+    )
 
     galley_files = []
 
     for article in articles:
         for galley in article.galley_set.all():
             store_article_access(request, article, 'download', galley_type=galley.file.label)
-            galley_files.append(galley.file)
+            galley_files.append(galley)
 
     zip_file, file_name = files.zip_files(galley_files, article_specific=True)
     return files.serve_temp_file(zip_file, file_name)
