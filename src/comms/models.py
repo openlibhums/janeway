@@ -76,7 +76,7 @@ class NewsItem(models.Model):
 
     def __str__(self):
         if self.posted_by:
-            return '{0} posted by {1} on {2}'.format(self.title, self.posted_by.full_name, self.posted)
+            return '{0} posted by {1} on {2}'.format(self.title, self.posted_by.full_name(), self.posted)
         else:
             return '{0} posted on {1}'.format(self.title, self.posted)
 
