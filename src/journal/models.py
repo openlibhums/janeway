@@ -622,6 +622,7 @@ class Issue(models.Model):
         ).order_by(
             "section_order",
             "section__sequence",
+            "section__pk",
             "article_order",
         )
 
