@@ -502,8 +502,8 @@ def sort_mixed(article_objects, news_objects):
 
     for news_item in news_objects:
         for article in article_objects:
-            if article.date_published > news_item.posted:
-                carousel_objects.append(article)
+            if article.date_published > news_item.posted and article not in carousel_objects:
+                    carousel_objects.append(article)
         carousel_objects.append(news_item)
 
     # add any articles that were not inserted during the above sort procedure
