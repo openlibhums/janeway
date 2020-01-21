@@ -14,7 +14,11 @@ def settings_carousel(request):
         return redirect(reverse('core_manager_index'))
 
     if request.POST:
-        home_form = forms.CarouselForm(request.POST, request.FILES, request=request)
+        home_form = forms.CarouselForm(
+            request.POST,
+            request.FILES,
+            request=request,
+        )
 
         if home_form.is_valid():
             home_form.save(request=request)
