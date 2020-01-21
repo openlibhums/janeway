@@ -331,7 +331,7 @@ class Journal(AbstractSiteModel):
 
         elif self.carousel.mode == "mixed-selected":
             # news items and latest articles
-            news_objects = core_logic.news_items(self.carousel, 'journal')
+            news_objects = self.carousel.news_articles.all()
             article_objects = core_logic.selected_articles(self.carousel)
 
         # run the exclusion routine
