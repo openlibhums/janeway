@@ -68,13 +68,11 @@
                     <table class="scroll small">
                         <tr>
                             <th>Label</th>
-                            <th>Filename</th>
                             <th>Download</th>
                         </tr>
                         {% for file in review_round.review_files.all %}
                             <tr>
                                 <td>{{ file.label }}</td>
-                                <td>{{ file.original_filename }}</td>
                                 <td><a href="
 
                                         {% url 'review_file_download' assignment.id file.id %}{% if access_code %}?access_code={{ access_code }}{% endif %}"><i

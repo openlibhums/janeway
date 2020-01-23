@@ -336,7 +336,8 @@ def render_xml(file_to_render, article, xsl_file=None):
         return transform(etree.XML(xml_string))
 
 
-def serve_any_file(request, file_to_serve, public=False, path_parts=()):
+def serve_any_file(request, file_to_serve, public=False, hide_name=False,
+                   path_parts=()):
     # TODO: should rename to serve_file and the latter to serve_article_file
     # Or removed
     file_path = os.path.join(
@@ -346,19 +347,25 @@ def serve_any_file(request, file_to_serve, public=False, path_parts=()):
             str(file_to_serve.uuid_filename),
     )
     try:
-        return serve_file_to_browser(file_path, file_to_serve, public=public)
+        return serve_file_to_browser(
+            file_path,
+            file_to_serve,
+            public=public,
+            hide_name=hide_name,
+        )
     except IOError:
         messages.add_message(request, messages.ERROR, 'File not found. {0}'.format(file_path))
         raise Http404
 
 
-def serve_file(request, file_to_serve, article, public=False):
+def serve_file(request, file_to_serve, article, public=False, hide_name=False):
     """Serve a file to the user using a StreamingHttpResponse.
 
     :param request: the active request
     :param file_to_serve: the file object to retrieve and serve
     :param article: the associated article
     :param public: boolean
+    :param hide_name: boolean
     :return: a StreamingHttpResponse object with the requested file or an HttpResponseRedirect if there is an IO or
     permission error
     """
@@ -367,17 +374,20 @@ def serve_file(request, file_to_serve, article, public=False):
         request,
         file_to_serve,
         public,
+        hide_name=hide_name,
         path_parts=path_parts
     )
 
 
 @cache_control(max_age=600)
-def serve_file_to_browser(file_path, file_to_serve, public=False):
+def serve_file_to_browser(file_path, file_to_serve, public=False,
+                          hide_name=False):
     """ Stream a file to the browser in a safe way
 
     :param file_path: the path on disk to the file
     :param file_to_serve: the core.models.File object to serve
     :param public: boolean
+    :param hide_name: boolean
     :return: HttpStreamingResponse object
     """
     # stream the response to the browser
@@ -393,6 +403,10 @@ def serve_file_to_browser(file_path, file_to_serve, public=False):
     response['Content-Length'] = os.path.getsize(file_path)
     if public:
         response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_to_serve.public_download_name())
+    elif hide_name:
+        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+            file_to_serve.uuid_filename,
+        )
     else:
         response['Content-Disposition'] = 'attachment; filename="{0}{1}"'.format(slugify(filename), extension)
 
