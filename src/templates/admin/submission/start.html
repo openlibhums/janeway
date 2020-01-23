@@ -32,6 +32,7 @@
                     <div class="content submission-content">
                         {{ journal_settings.general.publication_fees|safe }}
                         {% hook 'publication_fees' %}
+                        <br />
                         {{ form.publication_fees }}&nbsp;&nbsp;<label
                             for="id_publication_fees">{% trans "Author(s) agrees to the above statement" %}</label>
                     </div>
@@ -43,7 +44,7 @@
                     </div>
                     <div class="content submission-content">
                         {{ journal_settings.general.submission_checklist|safe }}
-
+                        <br />
                         {{ form.submission_requirements }}&nbsp;&nbsp;<label
                             for="id_submission_requirements">{% trans "Author(s) confirms that this article adheres to the above requirements" %}</label>
                     </div>
@@ -55,7 +56,7 @@
                     </div>
                     <div class="content submission-content">
                         {{ journal_settings.general.copyright_notice|safe }}
-
+                        <br />
                         {{ form.copyright_notice }}&nbsp;&nbsp;<label
                             for="id_copyright_notice">{{ form.copyright_notice.label }}</label>
                     </div>
