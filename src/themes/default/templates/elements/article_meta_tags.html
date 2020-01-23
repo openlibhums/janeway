@@ -55,6 +55,6 @@
     {% endif %}
 
     {% for pdf in article.pdfs %}
-        <meta name="citation_pdf_url" content="{% journal_url 'article_file_download' identifier_type identifier pdf.id %}"/>
+        <meta name="citation_pdf_url" content="{% journal_url 'article_download_galley' article.id pdf.id %}"/>
     {% endfor %}
     {% include "elements/journal/social_meta.html" %}
