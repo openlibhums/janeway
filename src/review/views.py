@@ -1908,7 +1908,12 @@ def reviewer_article_file(request, assignment_id, file_id):
     if not file_object:
         raise Http404()
 
-    return files.serve_file(request, file_object, article_object)
+    return files.serve_file(
+        request,
+        file_object,
+        article_object,
+        hide_name=True
+    )
 
 
 @reviewer_user_for_assignment_required
