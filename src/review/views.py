@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from uuid import uuid4
+from collections import Counter
 
 from django.contrib import messages
 from django.urls import reverse
@@ -2164,6 +2165,49 @@ def hypothesis_review(request, assignment_id):
         'pdf': pdf,
         'grant_token': grant_token,
         'authority': settings.HYPOTHESIS_CLIENT_AUTHORITY,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def decision_helper(request, article_id):
+    """
+    Displays all of the completed reviews to help the Editor make a decision.
+    :param request: HttpRequest object
+    :param article_id: Article object pk, integer
+    :return: a django response
+    """
+    article = get_object_or_404(
+        submission_models.Article, pk=article_id,
+    )
+
+    reviews = models.ReviewAssignment.objects.filter(
+        article=article,
+    )
+
+    uncomplete_reviews = reviews.filter(
+        article=article,
+        is_complete=False,
+        date_complete__isnull=True,
+    )
+    complete_reviews = reviews.filter(
+        article=article,
+        is_complete=True,
+        date_complete__isnull=False,
+    )
+
+    decisions = Counter(
+        [review.get_decision_display() for review in reviews if
+         review.decision]
+    )
+
+    template = 'review/decision_helper.html'
+    context = {
+        'article': article,
+        'complete_reviews': complete_reviews,
+        'uncomplete_reviews': uncomplete_reviews,
+        'decisions': dict(decisions)
     }
 
     return render(request, template, context)
