@@ -274,32 +274,10 @@
                         </li>
                         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
                         <li>
-                            <form method="POST">{% csrf_token %}
-                                <button name="new_review_round" type="submit" class="expanded"><i
-                                        class="fa fa-plus-circle action-icon">&nbsp;</i>New Review Round
-                                </button>
-                            </form>
+                            <a href="{% url 'decision_helper' article.pk %}">
+                                <span class="fa fa-gavel"></span> Make a Decision
+                            </a>
                         </li>
-                        {% if journal_settings.general.draft_decisions %}
-                            <li><a href="{% url 'review_draft_decision' article.pk %}"><i
-                                    class="fa fa-pencil-square action-icon">&nbsp;</i>Draft a
-                                Decision</a></li>
-                        {% endif %}
-                        {% if not journal_settings.general.draft_decisions or editor %}
-                            <li><a href="{% url 'review_request_revisions' article.pk %}"><i
-                                    class="fa fa-inbox action-icon">&nbsp;</i>Request
-                                Revisions</a></li>
-                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
-                                <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
-                                        class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a>
-                                </li>
-                            {% endif %}
-                            {% if article.stage == 'Under Review' or article.stage == 'Under Revision' or article.stage == 'Assigned' %}
-                                <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
-                                        class="fa fa-minus-circle action-icon">&nbsp;</i>Decline
-                                    Article</a></li>
-                            {% endif %}
-                        {% endif %}
                     </ul>
                 </div>
             </div>

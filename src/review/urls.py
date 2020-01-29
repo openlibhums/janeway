@@ -128,4 +128,9 @@ urlpatterns = [
     url(r'^manager/form/(?P<form_id>\d+)/element/(?P<element_id>\d+)/$',
         views.edit_review_form,
         name='edit_review_form_element'),
+
+    url(r'^article/(?P<article_id>\d+)/decision_helper/$',
+        views.decision_helper,
+        name='decision_helper',
+        )
 ]
