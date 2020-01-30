@@ -411,7 +411,11 @@ def preprints_files(request, article_id):
 
     if request.POST and 'delete' in request.POST:
         file_id = request.POST.get('delete')
-        file = get_object_or_404(core_models.File, pk=file_id)
+        file = get_object_or_404(
+            core_models.File,
+            pk=file_id,
+            article_id=article.pk,
+        )
         file.unlink_file(journal=None)
         file.delete()
         messages.add_message(request, messages.WARNING, 'File deleted')
