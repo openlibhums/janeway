@@ -13,7 +13,7 @@ JANEWAY_VERSION = "1.3.7"
 IS_WORKFLOW_PLUGIN = True
 HANDSHAKE_URL = 'typesetting_article'
 ARTICLE_PK_IN_HANDSHAKE_URL = True
-STAGE = 'Typesetting'
+STAGE = 'typesetting_plugin'
 
 
 class TypesettingPlugin(plugins.Plugin):

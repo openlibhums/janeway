@@ -1,0 +1,45 @@
+<div class="box">
+    <div class="title-area">
+        <h2>Production Manager</h2>
+    </div>
+    <div class="content">
+        <p>
+            <small>
+                {% if article.typesettingclaim %}
+                    {{ article.typesettingclaim.editor.full_name }} is managing
+                    the typesetting stage for this article.
+                    {% if article.typesettingclaim.editor == request.user %}
+                        <a href="{% url 'typesetting_claim_article' article.pk 'unclaim' %}">Release Claim.</a>{% endif %}
+                {% else %}
+                    No one is managing typesetting for this article,
+                    <a href="{% url 'typesetting_claim_article' article.pk 'claim' %}">claim</a>.
+                {% endif %}
+            </small>
+        </p>
+    </div>
+    <div class="title-area">
+        <h2>Help</h2>
+    </div>
+    <div class="content">
+        <p>
+            <small>
+                Typesetting follows this process:
+            </small>
+        </p>
+        <small>
+            <ol>
+                <li>Assign a typesetter.</li>
+                <li>Review the uploaded galleys.</li>
+                <li>If required, assign proofreader.</li>
+                <li>If required, ask the typesetter to make corrections.</li>
+                <li>Loop until you're happy with the galleys.</li>
+            </ol>
+        </small>
+        <p>
+            <small>
+                As long as there are galleys assigned, you can complete the
+                typesetting stage at any point.
+            </small>
+        </p>
+    </div>
+</div>
