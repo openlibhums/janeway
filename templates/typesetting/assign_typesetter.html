@@ -1,0 +1,52 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Assigning Typesetter to Article #{{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Assign Typesetter</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Assign Typesetter to {{ article.title|safe }}</h2>
+        </div>
+        <div class="content">
+            <p>Select a Typesetter from the list below and detail what galley files you would like them to generate. They will have access to:</p>
+            <ul>
+                <li>The manuscript files you select from the list below.</li>
+                <li>The data and figure files uploaded by the author.</li>
+                <li>Any galley files from previous typesetting rounds.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="box">
+        <div class="title-area">
+            <h2>1. Select a Typesetter</h2>
+        </div>
+        <div class="content">
+            {% include "typesetting/elements/typesetter_list.html" with typesetters=typesetters %}
+        </div>
+        <div class="title-area">
+            <h2>2. Select Files</h2>
+        </div>
+        <div class="content">
+            {% include "typesetting/elements/file_list.html" with files=files %}
+        </div>
+        <div class="title-area">
+            <h2>3. Set a Due Date</h2>
+        </div>
+        <div class="content">
+            {{ form.due|foundation }}
+        </div>
+        <div class="title-area">
+            <h2>4. Define the Task</h2>
+        </div>
+        <div class="content">
+            {{ form.task|foundation }}
+        </div>
+    </div>
+{% endblock %}

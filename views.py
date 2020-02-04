@@ -1,0 +1,365 @@
+from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.contrib import messages
+from django.views.decorators.http import require_POST
+
+from plugins.typesetting import plugin_settings, models, logic, forms
+from security import decorators
+from submission import models as submission_models
+from core import models as core_models
+from production import logic as production_logic
+
+
+@decorators.has_journal
+@decorators.editor_user_required
+def typesetting_manager(request):
+    pass
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_articles(request):
+    """
+    Displays a list of articles in the Typesetting stage.
+    :param request: HttpRequest
+    :return: HttpResponse
+    """
+    article_filter = request.GET.get('filter', None)
+
+    articles_in_typesetting = submission_models.Article.objects.filter(
+        stage=plugin_settings.STAGE,
+    )
+
+    if article_filter and article_filter == 'me':
+        articles_in_typesetting = articles_in_typesetting.filter(
+            typesettingclaim__editor=request.user,
+        )
+
+    template = 'typesetting/typesetting_articles.html'
+    context = {
+        'articles_in_typesetting': articles_in_typesetting,
+        'filter': article_filter,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_article(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    rounds = models.TypesettingRound.objects.filter(article=article)
+    galleys = core_models.Galley.objects.filter(
+        article=article,
+    )
+    manuscript_files = logic.production_ready_files(article)
+
+    if not rounds:
+        models.TypesettingRound.objects.create(
+            article=article,
+        )
+
+        messages.add_message(
+            request,
+            messages.INFO,
+            'New typesetting round created.',
+        )
+
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    template = 'typesetting/typesetting_article.html'
+    context = {
+        'article': article,
+        'rounds': rounds,
+        'galleys': galleys,
+        'manuscript_files': manuscript_files,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_claim_article(request, article_id, action):
+    """
+    Allows a PM or Editor to claim or unclaim an article.
+    :param request: HttpRequest
+    :param article_id: int, Article object PK
+    :param action: string, either claim or release
+    :return: HttpRedirect
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+
+    if not hasattr(article, 'typesettingclaim'):
+        if request.user.is_production(request) or request.user.has_an_editor_role(request):
+
+            models.TypesettingClaim.objects.get_or_create(
+                editor=request.user,
+                article=article,
+            )
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Article claim successful.'
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'You must be an Editor or Production Manager.'
+            )
+
+    elif action == 'unclaim' and article.typesettingclaim.editor == request.user:
+        article.typesettingclaim.delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Article successfully released.',
+        )
+
+    else:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            'This article is already being managed by {}.'.format(
+                article.typesettingclaim.editor.full_name(),
+            )
+        )
+
+    return redirect(
+        reverse(
+            'typesetting_article',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
+
+@require_POST
+@decorators.has_journal
+@decorators.typesetting_user_or_production_user_or_editor_required
+def typesetting_upload_galley(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+
+    try:
+        if 'xml' in request.POST:
+            for uploaded_file in request.FILES.getlist('xml-file'):
+                production_logic.save_galley(
+                    article,
+                    request,
+                    uploaded_file,
+                    True,
+                )
+    except TypeError as exc:
+        messages.add_message(request, messages.ERROR, str(exc))
+    except UnicodeDecodeError:
+        messages.add_message(request, messages.ERROR,
+                             "Uploaded file is not UTF-8 encoded")
+
+    if 'pdf' in request.POST:
+        for uploaded_file in request.FILES.getlist('pdf-file'):
+            production_logic.save_galley(
+                article,
+                request,
+                uploaded_file,
+                True,
+                "PDF",
+            )
+
+    if 'other' in request.POST:
+        for uploaded_file in request.FILES.getlist('other-file'):
+            production_logic.save_galley(
+                article,
+                request,
+                uploaded_file,
+                True,
+                "Other",
+            )
+
+    if 'prod' in request.POST:
+        for uploaded_file in request.FILES.getlist('prod-file'):
+            production_logic.save_prod_file(
+                article,
+                request,
+                uploaded_file,
+                'Production Ready File',
+            )
+
+    return redirect(
+        reverse(
+            'typesetting_article',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
+
+@decorators.has_journal
+@decorators.typesetting_user_or_production_user_or_editor_required
+def typesetting_edit_galley(request, galley_id, article_id):
+    """
+    Allows a typesetter or editor to edit a Galley file.
+    :param request: HttpRequest object
+    :param galley_id: Galley object PK
+    :param typeset_id: TypesetTask PK, optional
+    :param article_id: Article PK, optional
+    :return: HttpRedirect or HttpResponse
+    """
+    return_url = request.GET.get('return', None)
+
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article=article,
+    )
+    if galley.label == 'XML':
+        xsl_files = core_models.XSLFile.objects.all()
+    else:
+        xsl_files = None
+
+    if request.POST:
+
+        if 'delete' in request.POST:
+
+            production_logic.handle_delete_request(
+                request,
+                galley,
+                article=article,
+                page="pm_edit",
+            )
+            if not return_url:
+                return redirect(
+                    reverse(
+                        'typesetting_article',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            else:
+                return redirect(return_url)
+
+        label = request.POST.get('label')
+
+        if 'fixed-image-upload' in request.POST:
+            if request.POST.get('datafile') is not None:
+                production_logic.use_data_file_as_galley_image(
+                    galley,
+                    request,
+                    label,
+                )
+            for uploaded_file in request.FILES.getlist('image'):
+                production_logic.save_galley_image(
+                    galley,
+                    request,
+                    uploaded_file,
+                    label,
+                    fixed=True,
+                )
+
+        if 'image-upload' in request.POST:
+            for uploaded_file in request.FILES.getlist('image'):
+                production_logic.save_galley_image(
+                    galley,
+                    request,
+                    uploaded_file,
+                    label,
+                    fixed=False,
+                )
+
+        elif 'css-upload' in request.POST:
+            for uploaded_file in request.FILES.getlist('css'):
+                production_logic.save_galley_css(
+                    galley,
+                    request,
+                    uploaded_file,
+                    'galley-{0}.css'.format(galley.id),
+                    label,
+                )
+
+        if 'galley-label' in request.POST:
+            galley.label = request.POST.get('galley_label')
+            galley.save()
+
+        if 'replace-galley' in request.POST:
+            production_logic.replace_galley_file(
+                article, request,
+                galley,
+                request.FILES.get('galley'),
+            )
+
+        if 'xsl_file' in request.POST:
+            xsl_file = get_object_or_404(core_models.XSLFile,
+                    pk=request.POST["xsl_file"])
+            galley.xsl_file = xsl_file
+            galley.save()
+
+        return_path = '?return={return_url}'.format(
+            return_url=return_url,
+        ) if return_url else ''
+        url = reverse(
+            'typesetting_edit_galley',
+            kwargs={'article_id': article.pk, 'galley_id': galley_id},
+        )
+        redirect_url = '{url}{return_path}'.format(
+            url=url,
+            return_path=return_path,
+        )
+        return redirect(redirect_url)
+
+    template = 'typesetting/edit_galley.html'
+    context = {
+        'galley': galley,
+        'article': galley.article,
+        'image_names': production_logic.get_image_names(galley),
+        'return_url': return_url,
+        'data_files': article.data_figure_files.all(),
+        'galley_images': galley.images.all(),
+        'xsl_files': xsl_files,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_assign_typesetter(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+
+    form = forms.AssignTypesetter()
+
+    if request.POST:
+        form = forms.AssignTypesetter(request.POST)
+        print(form.cleaned_data)
+
+    template = 'typesetting/assign_typesetter.html'
+    context = {
+        'article': article,
+        'typesetters': production_logic.get_typesetters(article),
+        'files': logic.production_ready_files(article),
+        'form': form,
+    }
+
+    return render(request, template, context)

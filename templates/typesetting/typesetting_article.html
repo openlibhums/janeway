@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-9 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Typesetting Article #{{ article.pk }}</h2>
+            </div>
+            <div class="content">
+                <ul class="tabs" data-tabs id="round-tabs">
+                    {% for round in rounds %}
+                        <li class="tabs-title {% if forloop.first %} is-active{% endif %}">
+                            <a href="#tab{{ round.round_number }}" aria-selected="true">Round {{ round.round_number }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="tabs-content" data-tabs-content="round-tabs">
+                    {% for round in rounds %}
+                        <div class="tabs-panel{% if forloop.first %} is-active{% endif %}" id="tab{{ round.round_number }}">
+                            {% if not round.typesetter_set.all %}
+                                {% include "typesetting/elements/no_typesetter.html" %}
+                            {% else %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% include "typesetting/elements/production_files.html" %}
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Current Galleys</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>Any galley files that have been uploaded either by Editors or Typesetters are listed below.</small>
+                </p>
+                {% include "typesetting/elements/galleys.html" %}
+            </div>
+        </div>
+
+    </div>
+    <div class="large-3 columns">
+        {% include "typesetting/elements/sidebar.html" %}
+    </div>
+
+    {% include "typesetting/elements/new_galley.html" %}
+    {% include "typesetting/elements/new_production_file.html" %}
+{% endblock body %}
