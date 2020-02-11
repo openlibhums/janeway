@@ -497,7 +497,7 @@ def parse_html_table_to_csv(table, table_name):
     filepath = files.get_temp_file_path_from_name('{0}.csv'.format(table_name))
     headers = [th.text for th in table.select("tr th")]
 
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         wr = csv.writer(f)
         wr.writerow(headers)
         wr.writerows([[td.text for td in row.find_all("td")] for row in table.select("tr + tr")])

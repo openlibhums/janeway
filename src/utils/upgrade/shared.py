@@ -7,11 +7,11 @@ from utils import models
 
 
 def versions():
-    file = open(os.path.join(settings.BASE_DIR, 'utils', 'upgrade', 'versions.json'))
+    path = os.path.join(settings.BASE_DIR, 'utils', 'upgrade', 'versions.json')
+    with open(path, 'r', encoding="utf-8") as f:
 
-    versions = json.loads(file.read())
-
-    return versions
+        versions = json.loads(f.read())
+        return versions
 
 
 def current_version():

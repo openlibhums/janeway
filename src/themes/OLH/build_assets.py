@@ -23,7 +23,7 @@ def process_scss():
     compiled_css_from_file = sass.compile(filename=app_scss_file, include_paths=paths)
 
     # Open the CSS file and write into it
-    write_file = open(app_css_file, 'w')
+    write_file = open(app_css_file, 'w', encoding="utf-8")
     write_file.write(compiled_css_from_file)
 
 
@@ -36,12 +36,12 @@ def minify_js_proc(src_text):
 
 
 def process_js_files(source_paths, dest_path, min_path):
-    f = open(dest_path, 'w')
+    f = open(dest_path, 'w', encoding="utf-8")
     js_file = None
     try:
-        js_file = open(min_path, 'w')
+        js_file = open(min_path, 'w', encoding="utf-8")
         for src_file in source_paths:
-            with open(src_file) as inputFile:
+            with open(src_file, "r", encoding="utf-8") as inputFile:
                 src_text = inputFile.read()
                 min_text = src_text  # minify_js_proc(src_text)
             f.write(src_text)
@@ -141,8 +141,8 @@ def process_journals(override_css_dir, paths):
             compiled_css_from_file = sass.compile(filename=scss_files[0], include_paths=paths)
 
             # open the journal CSS override file and write into it
-            write_file = open(override_css_file, 'w')
-            write_file.write(compiled_css_from_file)
+            with open(override_css_file, 'w', encoding="utf-8") as write_file:
+                write_file.write(compiled_css_from_file)
 
         journal_dir = os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.id))
         journal_header_image = os.path.join(journal_dir, 'header.png')
@@ -166,7 +166,7 @@ def process_default_override(override_css_dir, include_paths):
                 filename=scss_default_override,
                 include_paths=include_paths,
         )
-        with open(override_css_file, "w") as f:
+        with open(override_css_file, "w", encoding="utf-8") as f:
             f.write(compiled)
 
 

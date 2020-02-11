@@ -20,7 +20,7 @@ def install_xsl_file(apps, label, path=None, file_=None):
         return
     xsl_file = XSLFile(label=label)
     if path:
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding="utf-8") as f:
             xsl_file.file = DjangoFile(f)
             xsl_file.save()
     elif file_:

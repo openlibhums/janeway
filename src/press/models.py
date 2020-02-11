@@ -45,14 +45,16 @@ def press_carousel_choices():
 
 
 def press_text(type):
-    file = open(os.path.join(settings.BASE_DIR, 'utils', 'install', 'press_text.json'), 'r')
-    text = json.loads(file.read())[0]
-    if type == 'registration':
-        return text.get('registration')
-    elif type == 'reset':
-        return text.get('reset')
-    else:
-        return text.get(type)
+    path = os.path.join(
+        settings.BASE_DIR, 'utils', 'install', 'press_text.json')
+    with open(path, 'r', encoding="utf-8") as f:
+        text = json.loads(f.read())[0]
+        if type == 'registration':
+            return text.get('registration')
+        elif type == 'reset':
+            return text.get('reset')
+        else:
+            return text.get(type)
 
 
 class Press(AbstractSiteModel):
