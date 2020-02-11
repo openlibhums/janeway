@@ -88,7 +88,7 @@ def create_temp_file(content, filename):
     mkdirs(TEMP_DIR)
     filepath = os.path.join(TEMP_DIR, filename)
 
-    temp_file = open(filepath, 'w')
+    temp_file = open(filepath, 'w', encoding="utf-8")
     temp_file.write(content)
     temp_file.flush()
     temp_file.close()

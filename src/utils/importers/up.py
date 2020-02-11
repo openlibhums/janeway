@@ -548,7 +548,7 @@ def get_ojs_plugin_response(url, auth_file, up_base_url):
     session = requests.Session()
 
     # first, check whether there's an auth file
-    with open(auth_file, 'r') as auth_in:
+    with open(auth_file, 'r', encoding="utf-8") as auth_in:
         auth_dict = json.loads(auth_in.read())
         do_auth = True
         username = auth_dict['username']
@@ -752,7 +752,7 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
 
         if review.get('comments'):
             filepath = core_files.create_temp_file(review.get('comments'), 'comment.txt')
-            file = open(filepath, 'r')
+            file = open(filepath, 'r', encoding="utf-8")
             comment_file = core_files.save_file_to_article(file,
                                                            article,
                                                            article.owner,

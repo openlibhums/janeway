@@ -66,12 +66,12 @@ class CassiusDriver:
         javascript_path = os.path.join(uuid_directory_name, 'cassius', 'cassius.js')
         old_logo_text = "cassius/images/logo.png"
 
-        with open(javascript_path, 'r') as javascript:
+        with open(javascript_path, 'r', encoding="utf-8") as javascript:
             in_data = javascript.read()
 
         out_data = in_data.replace(old_logo_text, self.request.press.press_cover(self.request))
 
-        with open(javascript_path, 'w') as new_javascript:
+        with open(javascript_path, 'w', encoding="utf-8") as new_javascript:
             new_javascript.write(out_data)
 
     def replace_figures(self, uuid_directory_name, html):
@@ -83,14 +83,14 @@ class CassiusDriver:
         :param html: the path to the CaSSius HTML
         :return:
         """
-        with open(html, 'r') as html_file_object:
+        with open(html, 'r', encoding="utf-8") as html_file_object:
             in_data = html_file_object.read()
 
         for key, val in self.rewritten_figures.items():
             in_data = in_data.replace('figures/{0}'.format(key), os.path.join(uuid_directory_name, val))
             in_data = in_data.replace('{0}'.format(key), os.path.join(uuid_directory_name, val))
 
-        with open(html, 'w') as new_html:
+        with open(html, 'w', encoding="utf-8") as new_html:
             new_html.write(in_data)
 
     def print_to_pdf(self, html_file, uuid_directory_name, uuid_file_name):

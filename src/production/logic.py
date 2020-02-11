@@ -79,7 +79,7 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
     if new_file.mime_type in files.HTML_MIMETYPES:
         type = 'html'
         label = 'HTML'
-        with open(new_file.self_article_path(), 'r+') as f:
+        with open(new_file.self_article_path(), 'r+', encoding="utf-8") as f:
             html_contents = f.read()
             f.seek(0)
             cleaned_html = remove_css_from_html(html_contents)
