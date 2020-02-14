@@ -4,7 +4,7 @@ from django.db import migrations
 
 OLD_VALUE = "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{% journal_url 'do_review' review_assignment.id  %}\">{% journal_url 'do_review' review_assignment.id  %}</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
 
-NEW_VALUE = "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{% journal_url 'do_review' review_assignment.id  %}\">{% journal_url 'do_review' review_assignment.id  %}</a>. <br><br>Regards, <br>{{ review_assignment.article.editorassignment_set.all.0.editor.signature|safe }}"
+NEW_VALUE = "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{% journal_url 'do_review' review_assignment.id  %}\">{% journal_url 'do_review' review_assignment.id  %}</a>. <br><br>Regards, <br>{{ review_assignment.editor.signature|safe }}"
 
 
 def replace_template(apps, schema_editor):
