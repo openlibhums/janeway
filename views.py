@@ -7,6 +7,7 @@ from security import decorators
 from submission import models as submission_models
 from core import models as core_models
 from production import logic as production_logic
+from events import logic as event_logic
 
 
 @decorators.has_journal
@@ -348,18 +349,124 @@ def typesetting_assign_typesetter(request, article_id):
         journal=request.journal,
     )
 
-    form = forms.AssignTypesetter()
+    typesetters = logic.get_typesetters(request.journal)
+    files = logic.production_ready_files(article, file_objects=True)
+    rounds = models.TypesettingRound.objects.filter(article=article)
+
+    form = forms.AssignTypesetter(
+        typesetters=typesetters,
+        files=files,
+        rounds=rounds,
+    )
 
     if request.POST:
-        form = forms.AssignTypesetter(request.POST)
-        print(form.cleaned_data)
+        form = forms.AssignTypesetter(
+            request.POST,
+            typesetters=typesetters,
+            files=files,
+            rounds=rounds,
+        )
+
+        if form.is_valid():
+            assignment = form.save()
+
+            assignment.manager = request.user
+            assignment.save()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Assignment created.'
+            )
+
+            return redirect(
+                reverse(
+                    'typesetting_notify_typesetter',
+                    kwargs={
+                        'article_id': article.pk,
+                        'assignment_id': assignment.pk
+                    }
+                )
+            )
 
     template = 'typesetting/assign_typesetter.html'
     context = {
         'article': article,
-        'typesetters': production_logic.get_typesetters(article),
+        'typesetters': typesetters,
         'files': logic.production_ready_files(article),
         'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_notify_typesetter(request, article_id, assignment_id):
+    """
+    Allows the Editor to send a notification email to the typesetter.
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param assignment_id: TypesettingAssignment PK
+    :return: HttpResponse
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    assignment = get_object_or_404(
+        models.TypesettingAssignment,
+        pk=assignment_id,
+    )
+
+    if assignment.notified:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'A notification has already been sent for this assignment.'
+        )
+
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    if request.POST:
+        message = request.POST.get('message')
+
+        assignment.send_notification(
+            message,
+            request,
+            skip=True if 'skip' in request.POST else False,
+        )
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Assignment created.',
+        )
+
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk    }
+            )
+        )
+
+    message = logic.get_typesetter_notification(
+        assignment,
+        article,
+        request,
+    )
+
+    template = 'typesetting/notify_typesetter.html'
+    context = {
+        'article': article,
+        'assignment': assignment,
+        'message': message,
     }
 
     return render(request, template, context)

@@ -13,9 +13,32 @@ class TypesettingRoundAdmin(admin.ModelAdmin):
     raw_id_fields = ('article',)
 
 
+class TypesettingAssignmentAdmin(admin.ModelAdmin):
+    list_display = (
+        'article_title',
+        'round',
+        'typesetter',
+        'friendly_status',
+        'pk',
+    )
+    raw_id_fields = (
+        'typesetter',
+        'manager',
+        'round',
+    )
+    filter_horizontal = (
+        'files_to_typeset',
+        'galleys_created',
+    )
+
+    def article_title(self, obj):
+        return obj.round.article.title
+
+
 admin_list = [
     (models.TypesettingRound, TypesettingRoundAdmin),
     (models.TypesettingClaim, ),
+    (models.TypesettingAssignment, TypesettingAssignmentAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

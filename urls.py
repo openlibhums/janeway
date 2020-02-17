@@ -31,4 +31,8 @@ urlpatterns = [
         views.typesetting_assign_typesetter,
         name='typesetting_assign_typesetter'
         ),
+    url(r'^article/(?P<article_id>\d+)/typesetter/(?P<assignment_id>\d+)/notify/$',
+        views.typesetting_notify_typesetter,
+        name='typesetting_notify_typesetter'
+        ),
 ]

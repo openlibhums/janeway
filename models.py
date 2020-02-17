@@ -3,6 +3,8 @@ from datetime import date
 from django.db import models
 from django.utils import timezone
 
+from utils import notify_helpers
+
 
 def review_choices():
     return (
@@ -29,9 +31,12 @@ class TypesettingRound(models.Model):
     class Meta:
         ordering = ('-round_number',)
 
+    def __str__(self):
+        return str(self.round_number)
+
 
 class TypesettingAssignment(models.Model):
-    round = models.ForeignKey(TypesettingRound)
+    round = models.OneToOneField(TypesettingRound)
     manager = models.ForeignKey(
         'core.Account',
         null=True,
@@ -115,6 +120,35 @@ class TypesettingAssignment(models.Model):
     @property
     def friendly_status(self):
         return self.FRIENDLY_STATUSES.get(self.status)
+
+    def send_notification(self, message, request, skip=False):
+        description = '{0} has been assigned as a typesetter for {1}'.format(
+            self.typesetter.full_name(),
+            self.round.article.title,
+        )
+
+        if not skip:
+            log_dict = {
+                'level': 'Info',
+                'action_text': description,
+                'types': 'Typesetting Assignment',
+                'target': self.round.article,
+            }
+            notify_helpers.send_email_with_body_from_user(
+                request,
+                'subject_typesetter_notification',
+                self.typesetter.email,
+                message,
+                log_dict=log_dict,
+            )
+            notify_helpers.send_slack(
+                request,
+                description,
+                ['slack_editors'],
+            )
+
+            self.notified = True
+            self.save()
 
 
 

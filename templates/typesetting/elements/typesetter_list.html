@@ -9,13 +9,13 @@
     </thead>
 
     <tbody>
-    {% for typesetter_role in typesetters %}
+    {% for typesetter in typesetters %}
         <tr>
-            <td><input type="radio" name="typesetter" value="{{ typesetter_role.user.id }}"
-                       {% if form.cleaned_data.typesetter.id == typesetter_role.user.id %}checked="checked"{% endif %}></td>
-            <td>{{ typesetter_role.user.full_name }}</td>
-            <td>{{ typesetter_role.user.email }}</td>
-            <td>{{ typesetter_role.user.active_typesets|length }}</td>
+            <td><input type="radio" name="typesetter" value="{{ typesetter.id }}"
+                       {% if form.cleaned_data.typesetter.id == typesetter.id %}checked="checked"{% endif %}></td>
+            <td>{{ typesetter.full_name }}</td>
+            <td>{{ typesetter.email }}</td>
+            <td>{{ typesetter.active_typesets|length }}</td>
         </tr>
     {% empty %}
         <tr>
