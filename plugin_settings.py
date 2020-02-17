@@ -1,4 +1,5 @@
 from utils import plugins
+from utils.install import update_settings
 
 PLUGIN_NAME = 'Typesetting Plugin'
 DISPLAY_NAME = 'Typesetting'
@@ -36,6 +37,9 @@ class TypesettingPlugin(plugins.Plugin):
 
 def install():
     TypesettingPlugin.install()
+    update_settings(
+        file_path='plugins/typesetting/install/settings.json'
+    )
 
 
 def hook_registry():
