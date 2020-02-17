@@ -846,6 +846,9 @@ class Galley(models.Model):
         return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
 
     def has_missing_image_files(self, show_all=False):
+        if not self.file.mime_type in files.MIMETYPES_WITH_FIGURES:
+            return []
+
         xml_file_contents = self.file.get_file(self.article)
 
         souped_xml = BeautifulSoup(xml_file_contents, 'lxml')

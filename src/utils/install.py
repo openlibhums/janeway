@@ -15,7 +15,9 @@ from utils import setting_handler
 from submission import models as submission_models
 
 
-def update_settings(journal_object=None, management_command=False, overwrite_with_defaults=False):
+def update_settings(journal_object=None, management_command=False,
+                    overwrite_with_defaults=False,
+                    file_path='utils/install/journal_defaults.json'):
     """ Updates or creates the settings for a journal from journal_defaults.json.
 
     :param journal_object: the journal object to update or None to set the
@@ -23,7 +25,7 @@ def update_settings(journal_object=None, management_command=False, overwrite_wit
     :param management_command: whether or not to print output to the console
     :return: None
     """
-    with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), encoding='utf-8') as json_data:
+    with codecs.open(os.path.join(settings.BASE_DIR, file_path), encoding='utf-8') as json_data:
 
         default_data = json.load(json_data)
 
