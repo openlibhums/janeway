@@ -65,6 +65,9 @@ class TypesettingAssignment(models.Model):
     task = models.TextField(
         null=True,
         verbose_name='Typesetting Task',
+        help_text='Please let the typesetter know what you want them to create '
+                  'and if there are any special circumstances. They will have'
+                  ' access to the articles metadata.',
     )
     files_to_typeset = models.ManyToManyField(
         'core.File',
