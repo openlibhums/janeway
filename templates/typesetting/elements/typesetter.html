@@ -1,20 +1,28 @@
+{% load bool_fa %}
+
 <div class="callout breakdown file">
     <div class="callout-title">
-        <h4>Typesetter: {{ round.typesettingassignment.typesetter.full_name }}</h4>
+        <h4>Typesetter: {{ round.typesettingassignment.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' round.typesettingassignment.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
     </div>
 
     <table class="table small">
         <tr>
+            <th>ID</th>
             <th>Created</th>
             <th>Manager</th>
             <th>Notified</th>
             <th>Due</th>
             <th>Completed</th>
-            <th>Reviewed</th>
-            <th>Review Decision</th>
+            <th>Status</th>
         </tr>
         <tr>
-            <td></td>
+            <td>{{ round.typesettingassignment.pk }}</td>
+            <td>{{ round.typesettingassignment.assigned }}</td>
+            <td>{{ round.typesettingassignment.manager.full_name }}</td>
+            <td>{{ round.typesettingassignment.notified|bool_fa }}</td>
+            <td>{{ round.typesettingassignment.due }}</td>
+            <td>{% if round.typesettingassignment.completed %}{{ round.typesettingassignment.completed }}{% else %}{{ round.typesettingassignment.completed|bool_fa }}{% endif %}</td>
+            <td>{{ round.typesettingassignment.status|capfirst }}</td>
         </tr>
     </table>
 </div>
