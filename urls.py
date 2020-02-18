@@ -35,4 +35,14 @@ urlpatterns = [
         views.typesetting_notify_typesetter,
         name='typesetting_notify_typesetter'
         ),
+
+    url(r'^assignments/$',
+        views.typesetting_assignments,
+        name='typesetting_assignments'
+        ),
+
+    url(r'^assignments/(?P<assignment_id>\d+)/$',
+        views.typesetting_assignment,
+        name='typesetting_assignment'
+        ),
 ]
