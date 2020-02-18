@@ -19,7 +19,9 @@
         <journal>
             <journal_metadata>
                 <full_title>{{ journal_title }}</full_title>
+		{% if journal_issn and journal_issn != '0000-0000' %}
                 <issn media_type="electronic">{{ journal_issn }}</issn>
+		{% endif %}
             </journal_metadata>
             {% if issue %}
             <journal_issue>

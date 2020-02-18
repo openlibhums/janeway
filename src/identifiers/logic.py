@@ -11,6 +11,7 @@ import requests
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
+from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 
@@ -66,7 +67,9 @@ def register_crossref_component(article, xml, supp_file):
         logger.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return
 
-    test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
+    test_mode = setting_handler.get_setting(
+            'Identifiers', 'crossref_test', article.journal
+    ).processed_value or settings.DEBUG
 
     server = test_url if test_mode else live_url
 
@@ -148,6 +151,7 @@ def send_crossref_deposit(server, identifier):
                                    'Info',
                                    target=identifier.article)
 
+    logger.debug("[CROSSREF:DEPOSIT:%s] Sending to %s" % (identifier.article.id, server))
     response = requests.post(server, data=crossref_template.encode('utf-8'),
                              auth=(setting_handler.get_setting('Identifiers',
                                                                'crossref_username',
@@ -155,7 +159,7 @@ def send_crossref_deposit(server, identifier):
                                    setting_handler.get_setting('Identifiers', 'crossref_password',
                                                                identifier.article.journal).processed_value),
                              headers={"Content-Type": "application/vnd.crossref.deposit+xml"})
-
+    logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (identifier.article.id, response.status_code))
     if response.status_code != 200:
         util_models.LogEntry.add_entry('Error',
                                        "Error depositing: {0}. {1}".format(response.status_code, response.text),
