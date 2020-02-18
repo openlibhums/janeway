@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 
 from plugins.typesetting import plugin_settings, models, logic, forms
 from security import decorators
 from submission import models as submission_models
 from core import models as core_models
 from production import logic as production_logic
-from events import logic as event_logic
 
 
 @decorators.has_journal
@@ -467,6 +467,60 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
         'article': article,
         'assignment': assignment,
         'message': message,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.typesetter_user_required
+def typesetting_assignments(request):
+    pass
+
+
+@decorators.has_journal
+@decorators.typesetter_user_required
+def typesetting_assignment(request, assignment_id):
+    assignment = get_object_or_404(
+        models.TypesettingAssignment,
+        pk=assignment_id,
+        typesetter=request.user,
+        completed__isnull=True,
+    )
+
+    form = forms.TypesetterDecision()
+
+    if request.POST:
+        form = forms.TypesetterDecision(request.POST)
+
+        if form.is_valid():
+            note = form.cleaned_data.get('note', 'No note supplied.')
+            decision = form.cleaned_data.get('decision')
+            if decision == 'accept':
+                assignment.accepted = timezone.now()
+                assignment.save()
+                assignment.send_decision_notification(request, note, decision)
+                return redirect(reverse(
+                    'typesetting_assignment',
+                    kwargs={'assignment_id': assignment.pk},
+                ))
+            else:
+                assignment.completed = timezone.now()
+                assignment.save()
+                assignment.send_decision_notification(request, note, decision)
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    'Thanks, the manager has been informed.'
+                )
+
+                return redirect(reverse('typesetting_assignments'))
+
+    template = 'typesetting/typesetting_assignment.html'
+    context = {
+        'assignment': assignment,
+        'article': assignment.round.article,
+        'form': form,
     }
 
     return render(request, template, context)
