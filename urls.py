@@ -45,4 +45,8 @@ urlpatterns = [
         views.typesetting_assignment,
         name='typesetting_assignment'
         ),
+    url(r'^assignments/(?P<assignment_id>\d+)/download/(?P<file_id>\d+)/$',
+        views.typesetting_typesetter_download_file,
+        name='typesetting_typesetter_download_file'
+        ),
 ]

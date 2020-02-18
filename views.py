@@ -2,11 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 
 from plugins.typesetting import plugin_settings, models, logic, forms
 from security import decorators
 from submission import models as submission_models
-from core import models as core_models
+from core import models as core_models, files
 from production import logic as production_logic
 
 
@@ -217,7 +218,6 @@ def typesetting_edit_galley(request, galley_id, article_id):
     Allows a typesetter or editor to edit a Galley file.
     :param request: HttpRequest object
     :param galley_id: Galley object PK
-    :param typeset_id: TypesetTask PK, optional
     :param article_id: Article PK, optional
     :return: HttpRedirect or HttpResponse
     """
@@ -309,7 +309,7 @@ def typesetting_edit_galley(request, galley_id, article_id):
 
         if 'xsl_file' in request.POST:
             xsl_file = get_object_or_404(core_models.XSLFile,
-                    pk=request.POST["xsl_file"])
+                                         pk=request.POST["xsl_file"])
             galley.xsl_file = xsl_file
             galley.save()
 
@@ -452,7 +452,7 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
         return redirect(
             reverse(
                 'typesetting_article',
-                kwargs={'article_id': article.pk    }
+                kwargs={'article_id': article.pk}
             )
         )
 
@@ -480,12 +480,43 @@ def typesetting_assignments(request):
 
 @decorators.has_journal
 @decorators.typesetter_user_required
+def typesetting_typesetter_download_file(request, assignment_id, file_id):
+    assignment = get_object_or_404(
+        models.TypesettingAssignment,
+        pk=assignment_id,
+        typesetter=request.user,
+        completed__isnull=True,
+    )
+
+    file = get_object_or_404(
+        core_models.File,
+        pk=file_id,
+        article_id=assignment.round.article.pk,
+    )
+
+    if file in assignment.files_to_typeset.all():
+        return files.serve_any_file(
+            request,
+            file,
+            path_parts=('articles', assignment.round.article.pk),
+        )
+    else:
+        raise PermissionDenied(
+            'You do not have permission to view this file.',
+        )
+
+
+@decorators.has_journal
+@decorators.typesetter_user_required
 def typesetting_assignment(request, assignment_id):
     assignment = get_object_or_404(
         models.TypesettingAssignment,
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
+    )
+    galleys = core_models.Galley.objects.filter(
+        article=assignment.round.article,
     )
 
     form = forms.TypesetterDecision()
@@ -521,6 +552,7 @@ def typesetting_assignment(request, assignment_id):
         'assignment': assignment,
         'article': assignment.round.article,
         'form': form,
+        'galleys': galleys,
     }
 
     return render(request, template, context)
