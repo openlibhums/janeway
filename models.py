@@ -60,6 +60,7 @@ class TypesettingAssignment(models.Model):
     review_decision = models.CharField(
         choices=review_choices(),
         max_length=21,
+        blank=True,
     )
 
     task = models.TextField(
@@ -153,6 +154,25 @@ class TypesettingAssignment(models.Model):
             self.notified = True
             self.save()
 
+    def send_decision_notification(self, request, note, decision):
+        description = 'Typesetting task {0} decision made by {1}: {2}'.format(
+            self.pk,
+            self.typesetter.full_name(),
+            decision,
+        )
 
+        log_dict = {
+            'level': 'Info',
+            'action_text': description,
+            'types': 'Typesetting Assignment Decision',
+            'target': self.round.article,
+        }
 
-
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'typsetting_typesetter_decision_{}'.format(decision),
+            'Typesetting Assignment Decision',
+            self.manager.email,
+            context={'assignment': self, 'note': note},
+            log_dict=log_dict,
+        )
