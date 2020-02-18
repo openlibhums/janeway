@@ -40,3 +40,14 @@ class AssignTypesetter(forms.ModelForm):
 
         return assignment
 
+
+def decision_choices():
+    return (
+        ('accept', 'Accept'),
+        ('decline', 'Decline'),
+    )
+
+
+class TypesetterDecision(forms.Form):
+    decision = forms.ChoiceField(choices=decision_choices(), required=True)
+    note = forms.CharField(widget=forms.Textarea, required=False)
