@@ -1,0 +1,190 @@
+{% load settings %}
+{% load roles %}
+{% load static from staticfiles %}
+
+{% user_has_role request 'editor' as user_is_editor %}
+{% user_has_role request 'production' as user_is_production %}
+
+<table class="scroll small">
+    <tr>
+        <th colspan="3">
+            Title
+        </th>
+    </tr>
+    <tr>
+        <td colspan="3">{{ article.title|safe }}</td>
+    </tr>
+    <tr>
+        <th>Section</th>
+        <th>Licence</th>
+        <th>Language</th>
+    </tr>
+    <tr>
+        <td>{{ article.section.name }}</td>
+        <td>{{ article.license.short_name }}</td>
+        <td>{{ article.get_language_display }}</td>
+    </tr>
+    <tr>
+        <th colspan="2">Started</th>
+        <th colspan="2">Submitted</th>
+    </tr>
+    <tr>
+        <td colspan="2">{{ article.date_started }}</td>
+        <td colspan="2">{{ article.date_submitted }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Abstract</th>
+    </tr>
+    <tr>
+        <td colspan="4">{{ article.abstract|safe }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Keywords</th>
+    </tr>
+    <tr>
+        <td colspan="4">{% for keyword in article.keywords.all %}{{ keyword }}{% if not forloop.last %}, {% endif %}{% empty %}No keywords recorded{% endfor %}</td>
+    </tr>
+    {% if journal_settings.general.submission_summary %}
+        <tr>
+            <th colspan="4">Non Specialist Summary</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                {% if article.competing_interests %}{{ article.non_specialist_summary|safe }}
+                {% else %}
+                    No Summary Supplied
+                {% endif %}
+            </td>
+        </tr>
+    {% endif %}
+    {% if journal_settings.general.submission_competing_interests %}
+        <tr>
+            <th colspan="4">Competing Interests</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
+        </tr>
+    {% endif %}
+    {% for field_answer in article.fieldanswer_set.all %}
+        <tr>
+            <th colspan="4">{{ field_answer.field.name }}</th>
+        </tr>
+        <tr>
+            <td colspan="4">{{ field_answer.answer }}</td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+{% if article.frozenauthor_set.all %}
+    <div class="title-area">
+        <h2>Authors</h2>
+    </div>
+    <table class="small scroll" id="unassigned">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Institution</th>
+            <th>Country</th>
+            <th>Primary?</th>
+        </tr>
+        {% for f_author in article.frozenauthor_set.all %}
+            <tr>
+                <td>{{ f_author.full_name }}</td>
+                <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
+                <td>{% if f_author.department %}{{ f_author.department }}, {% endif %}{{ f_author.institution }}</td>
+                <td>{{ f_author.country }}</td>
+                <td>{% if f_author.author == article.correspondence_author %}
+                    <i class="fa fa-check-circle" style="color: green;"></i>
+                {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+<div class="title-area">
+    <h2>Editors</h2>
+</div>
+<table id="unassigned" class="scroll small">
+    <tr style="text-align: left">
+        <th>Name</th>
+        <th>Email</th>
+        <th>Type</th>
+    </tr>
+    {% for assignment in article.editors %}
+        <tr>
+            <td>{{ assignment.editor.full_name }}</td>
+            <td><a href="mailto:{{ assignment.editor.email }}">{{ assignment.editor.email }} <a onclick="return popitup('{% url 'send_user_email_article' assignment.editor.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></a></td>
+            <td>{{ assignment.editor_type|capfirst }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No users assigned</td>
+        </tr>
+    {% endfor %}
+</table>
+
+
+<div class="title-area">
+    <h2>Projected Issue</h2>
+</div>
+<div class="content">
+    {% if article.projected_issue %}
+    <table class="scroll small">
+        <tr>
+            <th>Issue ID</th>
+            <th>Issue Title</th>
+            <th>Volume</th>
+            <th>Number</th>
+            <th>Published</th>
+            <th></th>
+        </tr>
+
+        <tr>
+            <td>{{ article.projected_issue.id }}</td>
+            <td>{{ article.projected_issue.issue_title }}</td>
+            <td>{{ article.projected_issue.volume }}</td>
+            <td>{{ article.projected_issue.issue }}</td>
+            <td>{{ article.projected_issue.date }}</td>
+            <td><a href="{% url 'manage_issues_id' article.projected_issue.pk %}">Issue Manager</a></td>
+        </tr>
+    </table>
+    {% else %}
+    <p><small>This article does not have a projected issue, please contact the Editor or Manager to get an issue for this paper.</small></p>
+    {% endif %}
+</div>
+
+
+
+<div class="title-area">
+    <h2>Identifiers</h2>
+</div>
+{% setting_var request.journal 'use_crossref' as use_crossref %}
+<div class="content">
+    <table class="scroll small">
+        <tr>
+            <th>ID Type</th>
+            <th>Identifier</th>
+        </tr>
+        <tr>
+            <td>ID</td>
+            <td>{{ article.pk }}</td>
+        </tr>
+        {% if use_crossref %}
+            <tr>
+                {% with article.get_doi as doi %}
+                {% if doi %}
+                    <td>DOI</td>
+                    <td>{{ doi }}</td>
+                {% else %}
+                    <td>Example DOI Based on Pattern</td>
+                    <td>{{ article.render_sample_doi }}</td>
+                {% endif %}
+                {% endwith %}
+            </tr>
+        {% endif %}
+    </table>
+</div>
+

@@ -1,0 +1,22 @@
+<table class="table small">
+    <tr>
+        <th>ID</th>
+        <th>Created</th>
+        <th>Manager</th>
+        <th>Due</th>
+    </tr>
+    <tr>
+        <td>{{ assignment.pk }}</td>
+        <td>{{ assignment.assigned }}</td>
+        <td>{{ assignment.manager.full_name }} <a
+                onclick="return popitup('{% url 'send_user_email_article' assignment.typesetter.pk article.pk %}')"><i
+                class="fa fa-envelope">&nbsp;</i></a></td>
+        <td>{{ assignment.due }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">Task</th>
+    </tr>
+    <tr>
+        <td colspan="4">{{ assignment.task|safe }}</td>
+    </tr>
+</table>
