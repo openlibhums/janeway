@@ -49,4 +49,8 @@ urlpatterns = [
         views.typesetting_typesetter_download_file,
         name='typesetting_typesetter_download_file'
         ),
+    url(r'^article/(?P<article_id>\d+)/assignment/(?P<assignment_id>\d+)/galley/upload/$',
+        views.typesetting_upload_galley,
+        name='typesetting_assignment_upload_galley'
+        ),
 ]

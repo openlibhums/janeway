@@ -43,5 +43,20 @@
     "value": {
       "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has declined your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
     }
+  },
+  {
+    "group": {
+      "name": "email"
+    },
+    "setting": {
+      "description": "Email sent to typesetting manager when a typesetter completes a task.",
+      "is_translatable": true,
+      "name": "typesetting_typesetter_complete",
+      "pretty_name": "Typesetting Plugin: Typesetter Complete",
+      "type": "rich-text"
+    },
+    "value": {
+      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Regards,</p>"
+    }
   }
 ]

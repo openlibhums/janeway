@@ -176,3 +176,34 @@ class TypesettingAssignment(models.Model):
             context={'assignment': self, 'note': note},
             log_dict=log_dict,
         )
+
+    def complete(self, note, galleys):
+        self.typesetter_note = note
+
+        for galley in galleys:
+            self.galleys_created.add(galley)
+
+        self.completed = timezone.now()
+        self.save()
+
+    def send_complete_notification(self, request):
+        description = 'Typesetting task completed by {0}'.format(
+            self.typesetter.full_name(),
+        )
+
+        log_dict = {
+            'level': 'Info',
+            'action_text': description,
+            'types': 'Typesetting Complete',
+            'target': self.round.article,
+        }
+
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'typesetting_typesetter_complete',
+            'Typesetting Assignment Complete',
+            self.manager.email,
+            context={'assignment': self},
+            log_dict=log_dict,
+        )
+

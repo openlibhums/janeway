@@ -152,7 +152,7 @@ def typesetting_claim_article(request, article_id, action):
 @require_POST
 @decorators.has_journal
 @decorators.typesetting_user_or_production_user_or_editor_required
-def typesetting_upload_galley(request, article_id):
+def typesetting_upload_galley(request, article_id, assignment_id=None):
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -202,6 +202,21 @@ def typesetting_upload_galley(request, article_id):
                 uploaded_file,
                 'Production Ready File',
             )
+
+    if assignment_id:
+
+        assignment = get_object_or_404(
+            models.TypesettingAssignment,
+            pk=assignment_id,
+            typesetter=request.user,
+        )
+
+        return redirect(
+            reverse(
+                'typesetting_assignment',
+                kwargs={'assignment_id': assignment.pk}
+            )
+        )
 
     return redirect(
         reverse(
@@ -522,6 +537,14 @@ def typesetting_assignment(request, assignment_id):
     form = forms.TypesetterDecision()
 
     if request.POST:
+
+        if 'complete_typesetting' in request.POST:
+            note = request.POST.get('note_from_typesetter', None)
+            assignment.complete(note, galleys)
+            assignment.send_complete_notification(request)
+
+            return redirect(reverse('typesetting_assignments'))
+
         form = forms.TypesetterDecision(request.POST)
 
         if form.is_valid():

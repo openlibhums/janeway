@@ -60,6 +60,21 @@
                     {% include "typesetting/elements/typesetter/galleys.html" %}
                 </div>
             </div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Complete Typesetting</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <p>
+                            <small>Once you are happy with the galleys, you can mark this stage as complete.</small>
+                        </p>
+                        <textarea name="note_from_typesetter" placeholder="If you have a note for the manager you can add it here."></textarea>
+                        <button class="button" name="complete_typesetting">Complete Typesetting</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <div class="large-6 columns">
@@ -75,7 +90,7 @@
     </div>
 
 
-    {% include "typesetting/elements/new_galley.html" %}
+    {% include "typesetting/elements/new_galley.html" with assignment=assignment %}
 {% endblock body %}
 
 
