@@ -30,7 +30,7 @@
                     <td>{{ assignment.assigned }}</td>
                     <td>{{ assignment.due }}</td>
                     <td>{{ assignment.time_to_due }}</td>
-                    <td></td>
+                    <td><a href="{% url 'typesetting_assignment' assignment.pk %}">View Assignment</a></td>
                 </tbody>
                 {% endfor %}
             </table>

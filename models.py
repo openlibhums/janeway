@@ -117,10 +117,11 @@ class TypesettingAssignment(models.Model):
         return False
 
     FRIENDLY_STATUSES = {
-        "assigned": "Awaiting response",
-        "accepted": "Task accepted",
-        "declined": "Task declined",
-        "completed": "Task completed",
+        "assigned": "Awaiting response from the typesetter.",
+        "accepted": "Typesetter has accepted task, awaiting completion.",
+        "declined": "Task has declined this task.",
+        "completed": "The typesetter has completed their task. "
+                     "You should review the uploaded galley files.",
         "closed": "Task closed",
         "unknown": "Task status unknown",
     }

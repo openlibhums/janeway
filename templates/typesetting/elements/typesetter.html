@@ -27,7 +27,11 @@
     </table>
 
     {% if round.typesettingassignment.completed and round.typesettingassignment.accepted %}
-        <p>The typesetter has completed their task. You should review the uploaded galley files.</p>
+        <p><span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}</p>
         <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
+    {% else %}
+        <div class="callout bs-callout-warning">
+        <span class="fa fa-info-circle"></span> {{ round.typesettingassignment.friendly_status }}
+        </div>
     {% endif %}
 </div>

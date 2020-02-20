@@ -502,10 +502,15 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         round__article=article,
     )
 
+    galleys = core_models.Galley.objects.filter(
+        article=assignment.round.article,
+    )
+
     template = 'typesetting/typesetting_review_assignment.html'
     context = {
         'article': article,
         'assignment': assignment,
+        'galleys': galleys,
     }
 
     return render(request, template, context)

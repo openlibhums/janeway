@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load bool_fa %}
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
 
@@ -13,7 +14,38 @@
         <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
-                    <h2>Typesetting Completed by {{ assignment.typesetter.full_name }}</h2>
+                    <h2>Typesetting Completed
+                        by {{ assignment.typesetter.full_name }}</h2>
+                </div>
+                <div class="content">
+                    <table class="table small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Manager</th>
+                            <th>Created</th>
+                            <th>Due</th>
+                            <th>Acccepted</th>
+                            <th>Completed</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr>
+                            <td>{{ assignment.pk }}</td>
+                            <td>{{ assignment.manager.full_name }}</td>
+                            <td>{{ assignment.assigned }}</td>
+                            <td>{{ assignment.due }}</td>
+                            <td>{{ assignment.accepted }}</td>
+                            <td>{% if assignment.completed %}
+                                {{ assignment.completed }}{% else %}
+                                {{ assignment.completed|bool_fa }}{% endif %}</td>
+                            <td>{{ assignment.status|capfirst }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Galley Files</h2>
+                </div>
+                <div class="content">
+                    {% include "typesetting/elements/galleys.html" with galleys=galleys %}
                 </div>
             </div>
         </div>
