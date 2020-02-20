@@ -64,8 +64,10 @@
     {% endfor %}
 </table>
 
+{% if not disable_upload %}
 <div class="float-right"><a class="button success" data-open="uploadbox"><i
         class="fa fa-cloud-upload">
     &nbsp;</i>Upload New Galley</a>
 </div>
+{% endif %}
 <br />

@@ -124,6 +124,9 @@ class TypesettingAssignment(models.Model):
                      "You should review the uploaded galley files.",
         "closed": "Task closed",
         "unknown": "Task status unknown",
+        "Corrections Required": "This article requires corrections.",
+        "Proofing Required": "This article requires proofing.",
+        "Accept": "Typesetting for this article has been accepted."
     }
 
     @property

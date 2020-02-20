@@ -2,6 +2,7 @@
 
 <div class="callout breakdown file">
     <div class="callout-title">
+        <small><a class="pull-right" href="{% url 'admin:typesetting_typesettingassignment_change' round.typesettingassignment.pk %}" target="_blank">Edit in Admin</a></small>
         <h4>Typesetter: {{ round.typesettingassignment.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' round.typesettingassignment.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
     </div>
 
@@ -26,12 +27,15 @@
         </tr>
     </table>
 
-    {% if round.typesettingassignment.completed and round.typesettingassignment.accepted %}
-        <p><span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}</p>
-        <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
-    {% else %}
-        <div class="callout bs-callout-warning">
-        <span class="fa fa-info-circle"></span> {{ round.typesettingassignment.friendly_status }}
-        </div>
-    {% endif %}
+    <div class="callout bs-callout-warning">
+        <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
+        {% if round.typesettingassignment.completed and round.typesettingassignment.accepted and not round.typesettingassignment.reviewed %}
+            <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}"
+               class="success button">Review Typesetting</a>
+        {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
+            <a href="" class="success button">Assign Proofreaders</a>
+        {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
+            <a href="" class="success button">Start New Typesetting Round</a>
+        {% endif %}
+    </div>
 </div>
