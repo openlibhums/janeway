@@ -66,8 +66,8 @@ class TypesettingAssignment(models.Model):
     task = models.TextField(
         null=True,
         verbose_name='Typesetting Task',
-        help_text='Please let the typesetter know what you want them to create '
-                  'and if there are any special circumstances. They will have'
+        help_text='Please let the typesetter know what you want them to create'
+                  ' and if there are any special circumstances. They will have'
                   ' access to the articles metadata.',
     )
     files_to_typeset = models.ManyToManyField(
@@ -83,6 +83,10 @@ class TypesettingAssignment(models.Model):
         blank=True,
         verbose_name='Note to Editor',
     )
+
+    @property
+    def time_to_due(self):
+        return self.due - timezone.now().date()
 
     @property
     def is_active(self):

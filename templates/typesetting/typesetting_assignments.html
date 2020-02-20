@@ -1,0 +1,45 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Articles in Typesetting{% endblock %}
+
+{% block breadcrumbs %}
+{{ block.super }}
+<li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Your Typesetting Assignments</h2>
+         </div>
+        <div class="content">
+            <table class="small scroll" id="tasks">
+                <thead>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Assigned</th>
+                    <th>Due</th>
+                    <th>Time to Due</th>
+                    <th></th>
+                </thead>
+                {% for assignment in assignments %}
+                <tbody>
+                    <td>{{ assignment.pk }}</td>
+                    <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.assigned }}</td>
+                    <td>{{ assignment.due }}</td>
+                    <td>{{ assignment.time_to_due }}</td>
+                    <td></td>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#tasks" %}
+{% endblock js %}
