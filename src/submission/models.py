@@ -245,6 +245,11 @@ STAGE_CHOICES = [
 ]
 
 
+class Funder(models.Model):
+    name = models.CharField(max_length=500, blank=False, null=False)
+    fundref_id = models.CharField(max_length=500, blank=True, null=True)
+
+
 class ArticleStageLog(models.Model):
     article = models.ForeignKey('Article')
     stage_from = models.CharField(max_length=200, blank=False, null=False)
@@ -424,6 +429,9 @@ class Article(models.Model):
     allarticles = AllArticleManager()
     objects = ArticleManager()
     preprints = PreprintManager()
+
+    # funding
+    funders = models.ManyToManyField('Funder', blank=True)
 
     class Meta:
         ordering = ('-date_published', 'title')
