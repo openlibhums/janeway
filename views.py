@@ -488,9 +488,44 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
 
 
 @decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_review_assignment(request, article_id, assignment_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+
+    assignment = get_object_or_404(
+        models.TypesettingAssignment,
+        pk=assignment_id,
+        round__article=article,
+    )
+
+    template = 'typesetting/typesetting_review_assignment.html'
+    context = {
+        'article': article,
+        'assignment': assignment,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
 @decorators.typesetter_user_required
 def typesetting_assignments(request):
-    pass
+    assignments = models.TypesettingAssignment.objects.filter(
+        typesetter=request.user,
+        round__article__journal=request.journal,
+        completed__isnull=True,
+    )
+
+    template = 'typesetting/typesetting_assignments.html'
+    context = {
+        'assignments': assignments,
+    }
+
+    return render(request, template, context)
 
 
 @decorators.has_journal
@@ -501,6 +536,7 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
+        round__article__journal=request.journal,
     )
 
     file = get_object_or_404(
@@ -529,6 +565,7 @@ def typesetting_assignment(request, assignment_id):
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
+        round__article__journal=request.journal
     )
     galleys = core_models.Galley.objects.filter(
         article=assignment.round.article,

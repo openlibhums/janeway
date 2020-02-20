@@ -15,6 +15,10 @@ urlpatterns = [
         views.typesetting_article,
         name='typesetting_article'
         ),
+    url(r'^article/(?P<article_id>\d+)/reviewassignment/(?P<assignment_id>\d+)/$',
+        views.typesetting_review_assignment,
+        name='typesetting_review_assignment'
+        ),
     url(r'^article/(?P<article_id>\d+)/action/(?P<action>claim|unclaim)$',
         views.typesetting_claim_article,
         name='typesetting_claim_article'

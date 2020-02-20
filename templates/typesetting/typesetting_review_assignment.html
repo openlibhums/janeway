@@ -1,0 +1,21 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Reviewing Assignment #{{ assignment.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Typesetting Completed by {{ assignment.typesetter.full_name }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
