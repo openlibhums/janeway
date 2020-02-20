@@ -3,6 +3,7 @@ from datetime import date
 from django.db import models
 from django.utils import timezone
 
+from utils import models as utils_models
 from utils import notify_helpers
 
 
@@ -29,7 +30,8 @@ class TypesettingRound(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-round_number',)
+        ordering = ('-round_number', 'date_created')
+        unique_together = ('round_number', 'article',)
 
     def __str__(self):
         return str(self.round_number)
@@ -90,10 +92,7 @@ class TypesettingAssignment(models.Model):
 
     @property
     def is_active(self):
-        if self.assigned and not self.completed:
-            return True
-        else:
-            return False
+        return self.assigned and not self.completed
 
     @property
     def status(self):
@@ -101,20 +100,49 @@ class TypesettingAssignment(models.Model):
             return "assigned"
         elif self.assigned and self.accepted and not self.completed:
             return "accepted"
-        elif self.assigned and not self.accepted and self.completed:
+        elif self.declined:
             return "declined"
-        elif self.completed and not self.reviewed:
+        elif self.done and not self.reviewed:
             return "completed"
-        elif self.completed and self.reviewed:
+        elif self.done and self.reviewed:
             return self.get_review_decision_display()
         else:
             return "unknown"
 
     @property
+    def done(self):
+        return self.completed and self.accepted
+
+    @property
+    def declined(self):
+        return self.completed and not self.accepted
+
+    @property
     def is_overdue(self):
-        if self.due and self.due < date.today():
-            return True
-        return False
+        return self.due and self.due < date.today()
+
+    def reopen(self, user):
+        self.completed = self.acccepted = self.notified = False
+        utils_models.LogEntry.add_entry(
+            types="Typesetting reopened",
+            description="The typesetting assignment {self.pk} has been "
+            "re-opened by user {user}".format(self=self, user=user),
+            level="INFO",
+            actor=user,
+            target=self.round.article,
+        )
+        self.save()
+
+    def delete(self, user=None):
+        utils_models.LogEntry.add_entry(
+            types="Typesetting deleted",
+            description="The typesetting assignment {self.pk} has been "
+            "deleted by user {user}".format(self=self, user=user),
+            level="INFO",
+            actor=user,
+            target=self.round.article,
+        )
+        super().delete()
 
     FRIENDLY_STATUSES = {
         "assigned": "Awaiting response from the typesetter.",

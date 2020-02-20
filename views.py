@@ -34,6 +34,7 @@ def typesetting_articles(request):
     if article_filter and article_filter == 'me':
         articles_in_typesetting = articles_in_typesetting.filter(
             typesettingclaim__editor=request.user,
+            journal=request.journal,
         )
 
     template = 'typesetting/typesetting_articles.html'
@@ -105,24 +106,17 @@ def typesetting_claim_article(request, article_id, action):
     )
 
     if not hasattr(article, 'typesettingclaim'):
-        if request.user.is_production(request) or request.user.has_an_editor_role(request):
 
-            models.TypesettingClaim.objects.get_or_create(
-                editor=request.user,
-                article=article,
-            )
+        models.TypesettingClaim.objects.get_or_create(
+            editor=request.user,
+            article=article,
+        )
 
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Article claim successful.'
-            )
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                'You must be an Editor or Production Manager.'
-            )
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Article claim successful.'
+        )
 
     elif action == 'unclaim' and article.typesettingclaim.editor == request.user:
         article.typesettingclaim.delete()
@@ -501,16 +495,69 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         pk=assignment_id,
         round__article=article,
     )
+    typesetters = logic.get_typesetters(request.journal)
+    files = logic.production_ready_files(article, file_objects=True)
+    rounds = models.TypesettingRound.objects.filter(article=article)
+    edit_form = forms.AssignTypesetter(
+        typesetters=typesetters,
+        files=files,
+        rounds=rounds,
+        instance=assignment
+    )
 
     galleys = core_models.Galley.objects.filter(
         article=assignment.round.article,
     )
+
+    if request.POST and "edit" in request.POST:
+        edit_form = forms.AssignTypesetter(
+            request.POST,
+            typesetters=typesetters,
+            files=files,
+            rounds=rounds,
+            instance=assignment,
+        )
+
+        if edit_form.is_valid():
+            assignment = edit_form.save()
+
+            assignment.manager = request.user
+            assignment.save()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Assignment updated.'
+            )
+    elif request.POST and "delete" in request.POST:
+        assignment.delete(request.user)
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+    elif request.POST and "reopen" in request.POST:
+        assignment.reopen(request.user)
+        return redirect(
+            reverse(
+                'typesetting_notify_typesetter',
+                kwargs={
+                    'article_id': article.pk,
+                    'assignment_id': assignment.pk
+                }
+            )
+        )
+
 
     template = 'typesetting/typesetting_review_assignment.html'
     context = {
         'article': article,
         'assignment': assignment,
         'galleys': galleys,
+        'form': edit_form,
+        'typesetters': typesetters,
+        'files': logic.production_ready_files(article),
     }
 
     return render(request, template, context)

@@ -12,7 +12,9 @@
     {% for typesetter in typesetters %}
         <tr>
             <td><input type="radio" name="typesetter" value="{{ typesetter.id }}"
-                       {% if form.cleaned_data.typesetter.id == typesetter.id %}checked="checked"{% endif %}></td>
+                       {% if form.cleaned_data.typesetter.id == typesetter.id %}checked="checked"
+                       {% elif form.instance.typesetter == typesetter %}checked="checked"
+                       {% endif %}></td>
             <td>{{ typesetter.full_name }}</td>
             <td>{{ typesetter.email }}</td>
             <td>{{ typesetter.active_typesets|length }}</td>
