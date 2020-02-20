@@ -68,6 +68,14 @@
                             </table>
                         </div>
                     </div>
+                    <div class="large-12 columns">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-check">
+                            &nbsp;</i>{% trans "Save and Continue" %}
+                        </button>
+                    </form>
+                </div>
                 </div>
             </div>
 

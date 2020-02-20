@@ -98,6 +98,12 @@ def submit_funding(request, article_id):
                              journal=request.journal)
 
     if request.POST:
+
+        if 'next_step' in request.POST:
+            article.current_step = 5
+            article.save()
+            return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
+
         funder = models.Funder(name=request.POST.get('funder_name', default=''),
                                fundref_id=request.POST.get('funder_doi', default=''),
                                funding_id=request.POST.get('grant_number', default=''))
