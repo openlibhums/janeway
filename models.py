@@ -211,3 +211,30 @@ class TypesettingAssignment(models.Model):
             log_dict=log_dict,
         )
 
+
+class GalleyProofing(models.Model):
+    round = models.ForeignKey(TypesettingRound)
+    manager = models.ForeignKey('core.Account', related_name='galley_manager')
+    proofreader = models.ForeignKey(
+        'core.Account',
+        null=True,
+        on_delete=models.SET_NULL,
+
+    )
+    assigned = models.DateTimeField(default=timezone.now)
+    notified = models.BooleanField(default=False)
+    due = models.DateTimeField(default=None, verbose_name="Date Due")
+    accepted = models.DateTimeField(blank=True, null=True)
+    completed = models.DateTimeField(blank=True, null=True)
+    cancelled = models.BooleanField(default=False)
+
+    task = models.TextField(verbose_name="Proofing Task")
+    proofed_files = models.ManyToManyField('core.Galley')
+    notes = models.TextField()
+    annotated_files = models.ManyToManyField('core.File')
+
+    def __str__(self):
+        return 'Proofing for Article {0} by {1}'.format(
+            self.round.article.title,
+            self.proofreader.full_name(),
+        )
