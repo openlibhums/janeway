@@ -25,4 +25,9 @@
             <td>{{ round.typesettingassignment.status|capfirst }}</td>
         </tr>
     </table>
+
+    {% if round.typesettingassignment.completed and round.typesettingassignment.accepted %}
+        <p>The typesetter has completed their task. You should review the uploaded galley files.</p>
+        <a href="" class="success button">Review Typesetting</a>
+    {% endif %}
 </div>

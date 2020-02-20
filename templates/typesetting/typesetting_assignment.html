@@ -6,6 +6,7 @@
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
 
 {% block breadcrumbs %}
+    <li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>
     <li>Typesetting {{ assignment.round.article.title|safe }}</li>
 {% endblock breadcrumbs %}
 
