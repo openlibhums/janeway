@@ -41,6 +41,35 @@ class AssignTypesetter(forms.ModelForm):
         return assignment
 
 
+class AssignProofreader(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.proofreaders = kwargs.pop('proofreaders')
+        self.round = kwargs.pop('round')
+        self.manager = kwargs.pop('user')
+        super(AssignProofreader, self).__init__(*args, **kwargs)
+
+        self.fields['proofreader'].queryset = self.proofreaders
+
+    class Meta:
+        model = models.GalleyProofing
+        fields = ('proofreader', 'task', 'due',)
+
+        widgets = {
+            'due': HTMLDateInput(),
+        }
+
+    def save(self, commit=True):
+        assignment = super(AssignProofreader, self).save(commit=False)
+        assignment.round = self.round
+        assignment.manager = self.manager
+
+        if commit:
+            assignment.save()
+
+        return assignment
+
+
 def decision_choices():
     return (
         ('accept', 'Accept'),

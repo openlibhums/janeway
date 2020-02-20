@@ -621,3 +621,109 @@ def typesetting_assignment(request, assignment_id):
     }
 
     return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_assign_proofreader(request, article_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    rounds = models.TypesettingRound.objects.filter(article=article)
+    proofreaders = logic.get_proofreaders(article)
+
+    form = forms.AssignProofreader(
+        proofreaders=proofreaders,
+        round=rounds[0],
+        user=request.user,
+    )
+
+    if request.POST:
+        form = forms.AssignProofreader(
+            request.POST,
+            proofreaders=proofreaders,
+            round=rounds[0],
+            user=request.user,
+        )
+
+        if form.is_valid():
+            assignment = form.save()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Proofing Assignment created.'
+            )
+
+            return redirect(
+                reverse(
+                    'typesetting_notify_proofreader',
+                    kwargs={
+                        'article_id': article.pk,
+                        'assignment_id': assignment.pk,
+                    }
+                )
+            )
+
+    template = 'typesetting/typesetting_assign_proofreader.html'
+    context = {
+        'article': article,
+        'proofreaders': proofreaders,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_notify_proofreader(request, article_id, assignment_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+        completed__isnull=True,
+        notified=False,
+    )
+    message = logic.get_proofreader_notification(
+        assignment,
+        article,
+        request,
+    )
+
+    if request.POST:
+        message = request.POST.get('message')
+        assignment.send_assignment_notification(
+            request,
+            message,
+            skip=True if 'skip' in request.POST else False
+        )
+        
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Assignment created',
+        )
+
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    template = 'typesetting/typesetting_notify_proofreader.html'
+    context = {
+        'article': article,
+        'assignment': assignment,
+        'message': message,
+    }
+
+    return render(request, template, context)
+

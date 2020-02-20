@@ -43,6 +43,21 @@ def get_typesetters(journal):
     return core_models.Account.objects.filter(pk__in=typesetter_pks)
 
 
+def get_proofreaders(article):
+    pks = list()
+
+    for author in article.authors.all():
+        pks.append(author.pk)
+
+    for proofreader in core_models.AccountRole.objects.filter(
+        role__slug='proofreader',
+        journal=article.journal
+    ):
+        pks.append(proofreader.pk)
+
+    return core_models.Account.objects.filter(pk__in=pks)
+
+
 def get_typesetter_notification(assignment, article, request):
     context = {
         'article': article,
@@ -55,4 +70,13 @@ def get_typesetter_notification(assignment, article, request):
     )
 
 
-
+def get_proofreader_notification(assignment, article, request):
+    context = {
+        'article': article,
+        'assignment': assignment,
+    }
+    return render_template.get_message_content(
+        request,
+        context,
+        'typesetting_notify_proofreader',
+    )
