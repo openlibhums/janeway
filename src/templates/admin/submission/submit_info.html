@@ -76,6 +76,8 @@
 
                     <div class="clearfix"></div>
 
+
+
                     {% if additional_fields %}
                         <div class="title-area">
                             <h2>Additional Fields</h2>
@@ -95,6 +97,7 @@
                     </div>
                 </div>
             </form>
+        </div>
     </article>
 
     <!-- License information modal -->
@@ -119,6 +122,8 @@
 
 
 {% block js %}
+    {{ block.super }}
+
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script src="{% static "common/js/tagit.js" %}"></script>
@@ -130,5 +135,6 @@
         });
     </script>
     {% include "elements/jqte.html" %}
+    {% include 'elements/fundref/fundref.html' %}
 
 {% endblock %}
