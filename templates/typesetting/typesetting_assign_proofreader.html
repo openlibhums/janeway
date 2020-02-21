@@ -1,0 +1,64 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Assigning Proofreader to Article #{{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Assign Proofreader</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Assign Proofreader to {{ article.title|safe }}</h2>
+        </div>
+        <div class="content">
+            <p>Select a proofreader from the list below. They will have access to the galley files:</p>
+            <ul>
+                {% for galley in galleys %}
+                <li>{{ galley.id }} - {{ galley.label }} ({{ galley.file.original_filename }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <form method="POST">
+        {% include "elements/forms/errors.html" %}
+        {% csrf_token %}
+        <div class="box">
+
+            <div class="title-area">
+                <h2>1. Select a Proofreader</h2>
+            </div>
+            <div class="content">
+                {% include "typesetting/elements/proofreader_list.html" with proofreader=proofreaders %}
+            </div>
+
+            <div class="title-area">
+                <h2>2. Set a Due Date</h2>
+            </div>
+            <div class="content">
+                {{ form.due|foundation }}
+            </div>
+
+            <div class="title-area">
+                <h2>3. Define a Task</h2>
+            </div>
+            <div class="content">
+                {{ form.task|foundation }}
+            </div>
+
+            <button name="save" class="button">Save</button>
+
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#typesetter" %}
+    {% include "elements/jqte.html" %}
+    <script src="{% static "admin/js/check_all.js" %}"></script>
+{% endblock js %}

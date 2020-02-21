@@ -148,7 +148,7 @@ class TypesettingAssignment(models.Model):
     FRIENDLY_STATUSES = {
         "assigned": "Awaiting response from the typesetter.",
         "accepted": "Typesetter has accepted task, awaiting completion.",
-        "declined": "Task has declined this task.",
+        "declined": "Typesetter has declined this task.",
         "completed": "The typesetter has completed their task. "
                      "You should review the uploaded galley files.",
         "closed": "Task closed",
@@ -261,7 +261,12 @@ class GalleyProofing(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
     cancelled = models.BooleanField(default=False)
 
-    task = models.TextField(verbose_name="Proofing Task")
+    task = models.TextField(
+        verbose_name="Proofing Task",
+        help_text='If there is any additional information or direction you '
+                  'can give the proofreader to complete their task you can '
+                  'add it here.',
+    )
     proofed_files = models.ManyToManyField('core.Galley')
     notes = models.TextField()
     annotated_files = models.ManyToManyField('core.File')
@@ -271,3 +276,33 @@ class GalleyProofing(models.Model):
             self.round.article.title,
             self.proofreader.full_name(),
         )
+
+    def send_assignment_notification(self, request, message, skip=False):
+        description = '{0} has been assigned as a proofreader for {1}'.format(
+            self.proofreader.full_name(),
+            self.round.article.title,
+        )
+
+        if not skip:
+            log_dict = {
+                'level': 'Info',
+                'action_text': description,
+                'types': 'Proofing Assignment',
+                'target': self.round.article,
+            }
+            notify_helpers.send_email_with_body_from_user(
+                request,
+                'Proofing Request',
+                self.proofreader.email,
+                message,
+                log_dict=log_dict,
+            )
+            notify_helpers.send_slack(
+                request,
+                description,
+                ['slack_editors'],
+            )
+
+            self.notified = True
+            self.save()
+

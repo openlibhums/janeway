@@ -31,7 +31,7 @@ urlpatterns = [
         views.typesetting_upload_galley,
         name='typesetting_upload_galley'
         ),
-    url(r'^article/(?P<article_id>\d+)/typesetter/assign/$',
+    url(r'^article/(?P<article_id>\d+)/assign/typesetter/$',
         views.typesetting_assign_typesetter,
         name='typesetting_assign_typesetter'
         ),
@@ -56,5 +56,14 @@ urlpatterns = [
     url(r'^article/(?P<article_id>\d+)/assignment/(?P<assignment_id>\d+)/galley/upload/$',
         views.typesetting_upload_galley,
         name='typesetting_assignment_upload_galley'
+        ),
+
+    url(r'^article/(?P<article_id>\d+)/assign/proofreader/$',
+        views.typesetting_assign_proofreader,
+        name='typesetting_assign_proofreader'
+        ),
+    url(r'^article/(?P<article_id>\d+)/assign/proofreader/(?P<assignment_id>\d+)/notify/$',
+        views.typesetting_notify_proofreader,
+        name='typesetting_notify_proofreader'
         ),
 ]
