@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load foundation %}
 {% load bool_fa %}
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
@@ -14,7 +15,7 @@
         <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
-                    <h2>Typesetting Completed
+                    <h2>Typesetting worked on
                         by {{ assignment.typesetter.full_name }}</h2>
                 </div>
                 <div class="content">
@@ -41,6 +42,55 @@
                         </tr>
                     </table>
                 </div>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+              <div class="title-area">
+                 <h2>Edit Assignment</h2>
+             </div>
+              <div class="content">
+                <form method="POST">
+                   {% csrf_token %}
+                {% if not assignment.accepted and not assignment.declined %}
+                    <div class="title-area">
+                        <p>Typesetter</p>
+                    </div>
+                    <div class="content">
+                        {% include "typesetting/elements/typesetter_list.html" with typesetters=typesetters %}
+                    </div>
+                    <div class="title-area">
+                        <p>Files available for the typesetter</p>
+                    </div>
+                    <div class="content">
+                        {% include "typesetting/elements/file_list.html" with files=files %}
+                    </div>
+                    <div class="content">
+                        {{ form.due|foundation }}
+                    </div>
+                    <div class="content">
+                        {{ form.assignment|foundation }}
+                    </div>
+                  <button class="button success" name="edit">Save Changes</button>
+                  <button class="button alert" name="delete">Delete Assignment</button>
+                {% elif assignment.accepted %}
+                 This assignment can no longer be edited since it has been accepted by the typesetter
+                {% elif assignment.declined %}
+                  <button class="button warning" name="reopen">Reopen Assignment</button>
+                {% endif %}
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
                 <div class="title-area">
                     <h2>Galley Files</h2>
                 </div>
