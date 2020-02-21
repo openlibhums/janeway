@@ -39,6 +39,7 @@
                 <td><a href="{% url 'edit_identifier' article.pk ident.pk %}" class="small button"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
                 <td><button class="small button warning" name="delete" formaction="{% url 'delete_identifier' article.pk ident.pk %}"><i class="fa fa-trash">&nbsp;</i>Delete</button></td>
                 <td>{% if ident.get_id_type_display == 'DOI' %}<button type="submit" class="small success button" formaction="{% url 'issue_doi' article.pk ident.pk %}">Issue DOI</button>{% endif %}</td>
+                <td>{% if ident.get_id_type_display == 'DOI' %}<a class="small success button" href="{% url 'show_doi' article.pk ident.pk %}">Show DOI XML</a>{% endif %}</td>
             </form>
         </tr>
         {% endfor %}
