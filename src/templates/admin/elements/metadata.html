@@ -88,6 +88,33 @@
 
 </table>
 
+<div class="title-area">
+    <h2>Funders</h2>
+
+            <table class="scroll">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>FundRef ID</th>
+                    <th>Grant Number</th>
+                </tr>
+                </thead>
+                <tbody id="sortable">
+                {% for funder in article.funders.all %}
+                    <tr id="funder-{{ funder.pk }}">
+                        <td>{{ funder.name }}</td>
+                        <td>{{ funder.fundref_id }}</td>
+                        <td>{{ funder.funding_id }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No funders added.</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+</div>
+
 {% if article.frozenauthor_set.all %}
     <div class="title-area">
         <h2>Frozen Authors</h2>

@@ -297,6 +297,9 @@ def delete_funder(request, article_id, funder_id):
 
     article.funders.remove(funding)
 
+    if request.GET.get('return'):
+        return redirect(request.GET['return'])
+
     return redirect(reverse('submit_funding', kwargs={'article_id': article_id}))
 
 
@@ -487,6 +490,14 @@ def edit_metadata(request, article_id):
         author_form = forms.EditFrozenAuthor()
 
     if request.POST:
+        if 'add_funder' in request.POST:
+            funder = models.Funder(name=request.POST.get('funder_name', default=''),
+                                   fundref_id=request.POST.get('funder_doi', default=''),
+                                   funding_id=request.POST.get('grant_number', default=''))
+
+            funder.save()
+            article.funders.add(funder)
+            article.save()
 
         if 'metadata' in request.POST:
             info_form = forms.ArticleInfo(request.POST, instance=article, submission_summary=submission_summary)
