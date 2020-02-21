@@ -81,7 +81,54 @@
 
                     </div>
 
-                <div class="title-area">
+                    <div class="large-12 columns">
+                        <button type="submit" name="metadata" class="small success button">Update Metadata</button>
+                    </div>
+                </div>
+            </form>
+            <div class="title-area">
+                <h2>Authors</h2>
+                <a href="#" class="button" data-open="author">Add Author</a>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <table class="small scroll">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Institution</th>
+                            <th>Correspondence Author</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for f_author in article.frozen_authors %}
+                            <tr id="authors-{{ f_author.pk }}">
+                                <td><i class="fa fa-sort"></i></td>
+                                <td>{{ f_author.full_name }}</td>
+                                <td>{{ f_author.author.email }}</td>
+                                <td>{{ f_author.institution }}</td>
+                                <td>{% if f_author.author == article.correspondence_author %}
+                                    <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
+                                <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
+                                        class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                                <td>
+                                    <form method="POST">{% csrf_token %}
+                                        <button type="submit" name="delete" value="{{ f_author.pk }}"><i
+                                                class="fa fa-trash">&nbsp;</i>Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+             <div class="title-area">
                         <h2>Funding</h2>
                     </div>
                     <div class="content submission-content">
@@ -175,54 +222,6 @@
                     </div>
                 </div>
             </div>
-
-                    <div class="large-12 columns">
-                        <button type="submit" name="metadata" class="small success button">Update Metadata</button>
-                    </div>
-                </div>
-            </form>
-            <div class="title-area">
-                <h2>Authors</h2>
-                <a href="#" class="button" data-open="author">Add Author</a>
-            </div>
-            <div class="content">
-                <form method="POST">
-                    {% csrf_token %}
-                    <table class="small scroll">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Institution</th>
-                            <th>Correspondence Author</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody id="sortable">
-                        {% for f_author in article.frozen_authors %}
-                            <tr id="authors-{{ f_author.pk }}">
-                                <td><i class="fa fa-sort"></i></td>
-                                <td>{{ f_author.full_name }}</td>
-                                <td>{{ f_author.author.email }}</td>
-                                <td>{{ f_author.institution }}</td>
-                                <td>{% if f_author.author == article.correspondence_author %}
-                                    <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
-                                <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
-                                        class="fa fa-edit">&nbsp;</i>Edit</a></td>
-                                <td>
-                                    <form method="POST">{% csrf_token %}
-                                        <button type="submit" name="delete" value="{{ f_author.pk }}"><i
-                                                class="fa fa-trash">&nbsp;</i>Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </form>
             </div>
         </div>
     </div>
