@@ -16,9 +16,11 @@
             <h2>Assign Proofreader to {{ article.title|safe }}</h2>
         </div>
         <div class="content">
-            <p>Select a proofreader from the list below. They will have access to:</p>
+            <p>Select a proofreader from the list below. They will have access to the galley files:</p>
             <ul>
-                <li>All Galley files.</li>
+                {% for galley in galleys %}
+                <li>{{ galley.id }} - {{ galley.label }}</li>
+                {% endfor %}
             </ul>
         </div>
     </div>

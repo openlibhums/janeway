@@ -633,6 +633,9 @@ def typesetting_assign_proofreader(request, article_id):
     )
     rounds = models.TypesettingRound.objects.filter(article=article)
     proofreaders = logic.get_proofreaders(article)
+    galleys = core_models.Galley.objects.filter(
+        article=article,
+    )
 
     form = forms.AssignProofreader(
         proofreaders=proofreaders,
@@ -672,6 +675,7 @@ def typesetting_assign_proofreader(request, article_id):
         'article': article,
         'proofreaders': proofreaders,
         'form': form,
+        'galleys': galleys,
     }
 
     return render(request, template, context)
