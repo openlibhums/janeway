@@ -19,7 +19,7 @@
             <p>Select a proofreader from the list below. They will have access to the galley files:</p>
             <ul>
                 {% for galley in galleys %}
-                <li>{{ galley.id }} - {{ galley.label }}</li>
+                <li>{{ galley.id }} - {{ galley.label }} ({{ galley.file.original_filename }})</li>
                 {% endfor %}
             </ul>
         </div>
