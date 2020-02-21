@@ -4,14 +4,24 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.http import HttpResponse
-from django.shortcuts import reverse, get_object_or_404, redirect, render
-from django.contrib import messages
+from django.shortcuts import reverse, get_object_or_404, redirect, render, render_to_response
 from django.views.decorators.http import require_POST
 
 from identifiers import models, forms
 from submission import models as submission_models
-from utils import models as util_models
+
 from security.decorators import production_user_or_editor_required
+
+import datetime
+from uuid import uuid4
+
+
+from django.urls import reverse
+from django.contrib import messages
+from django.utils import timezone
+
+
+from utils import models as util_models
 
 
 def pingback(request):
@@ -103,6 +113,62 @@ def manage_identifier(request, article_id, identifier_id=None):
     }
 
     return render(request, template, context)
+
+
+@production_user_or_editor_required
+def show_doi(request, article_id, identifier_id):
+    """
+    Issues a DOI identifier
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    template_context = {
+        'batch_id': uuid4(),
+        'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
+        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
+                                                      identifier.article.journal).processed_value,
+        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
+                                                       identifier.article.journal).processed_value,
+        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
+                                                  identifier.article.journal).processed_value,
+        'journal_title': identifier.article.journal.name,
+        'journal_issn': identifier.article.journal.issn,
+        'date_published': identifier.article.date_published,
+        'issue': identifier.article.issue,
+        'article_title': '{0}{1}{2}'.format(
+            identifier.article.title,
+            ' ' if identifier.article.subtitle is not None else '',
+            identifier.article.subtitle if identifier.article.subtitle is not None else ''),
+        'authors': identifier.article.authors.all(),
+        'doi': identifier.identifier,
+        'article_url': identifier.article.url,
+        'now': timezone.now(),
+    }
+
+    pdfs = identifier.article.pdfs
+    if len(pdfs) > 0:
+        template_context['pdf_url'] = article.pdf_url
+
+    if article.license:
+        template_context["license"] = article.license.url
+
+    template = 'common/identifiers/crossref.xml'
+    return render_to_response(template, template_context, content_type="application/xml")
 
 
 @require_POST
