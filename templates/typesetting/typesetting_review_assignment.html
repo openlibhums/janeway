@@ -54,9 +54,9 @@
                  <h2>Edit Assignment</h2>
              </div>
               <div class="content">
-                {% if not task.accepted and not task.declined %}
                 <form method="POST">
                    {% csrf_token %}
+                {% if not assignment.accepted and not assignment.declined %}
                     <div class="title-area">
                         <p>Typesetter</p>
                     </div>
@@ -73,18 +73,16 @@
                         {{ form.due|foundation }}
                     </div>
                     <div class="content">
-                        {{ form.task|foundation }}
+                        {{ form.assignment|foundation }}
                     </div>
                   <button class="button success" name="edit">Save Changes</button>
                   <button class="button alert" name="delete">Delete Assignment</button>
-                </form>
-                {% elif task.accepted %}
-                 This task can no longer be edited since it has been accepted by the typesetter
-                {% elif task.declined %}
-                <form method="POST">
+                {% elif assignment.accepted %}
+                 This assignment can no longer be edited since it has been accepted by the typesetter
+                {% elif assignment.declined %}
                   <button class="button warning" name="reopen">Reopen Assignment</button>
-                </form>
                 {% endif %}
+                </form>
               </div>
             </div>
         </div>

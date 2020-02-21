@@ -122,7 +122,8 @@ class TypesettingAssignment(models.Model):
         return self.due and self.due < date.today()
 
     def reopen(self, user):
-        self.completed = self.acccepted = self.notified = False
+        self.completed = self.acccepted = None
+        self.notified = False
         utils_models.LogEntry.add_entry(
             types="Typesetting reopened",
             description="The typesetting assignment {self.pk} has been "
