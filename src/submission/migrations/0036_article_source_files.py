@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='article',
-            name='source_Files',
+            name='source_files',
             field=models.ManyToManyField(blank=True, related_name='source_files', to='core.File'),
         ),
     ]
