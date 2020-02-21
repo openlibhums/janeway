@@ -246,6 +246,9 @@ STAGE_CHOICES = [
 
 
 class Funder(models.Model):
+    class Meta:
+        ordering = ('name',)
+
     name = models.CharField(max_length=500, blank=False, null=False)
     fundref_id = models.CharField(max_length=500, blank=True, null=True)
     funding_id = models.CharField(max_length=500, blank=True, null=True)
