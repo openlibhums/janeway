@@ -80,3 +80,9 @@ def decision_choices():
 class TypesetterDecision(forms.Form):
     decision = forms.ChoiceField(choices=decision_choices(), required=True)
     note = forms.CharField(widget=forms.Textarea, required=False)
+
+
+class ManagerDecision(forms.ModelForm):
+    class Meta:
+        model = models.TypesettingAssignment
+        fields = ('review_decision',)

@@ -509,6 +509,8 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         article=assignment.round.article,
     )
 
+    decision_form = forms.ManagerDecision()
+
     if request.POST and "edit" in request.POST:
         edit_form = forms.AssignTypesetter(
             request.POST,
@@ -548,7 +550,9 @@ def typesetting_review_assignment(request, article_id, assignment_id):
                 }
             )
         )
-
+    
+    elif request.POST and "decision" in request.POST:
+        decision_form = forms.ManagerDecision(request.POST)
 
     template = 'typesetting/typesetting_review_assignment.html'
     context = {
@@ -558,6 +562,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         'form': edit_form,
         'typesetters': typesetters,
         'files': logic.production_ready_files(article),
+        'decision_form': decision_form,
     }
 
     return render(request, template, context)
