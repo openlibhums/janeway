@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext_lazy as _
+
 from production import logic
 from core import models as core_models
 from utils import render_template
@@ -80,3 +82,25 @@ def get_proofreader_notification(assignment, article, request):
         context,
         'typesetting_notify_proofreader',
     )
+
+
+MISSING_GALLEYS = _("Article has no galleys")
+MISSING_IMAGES = _("One or more Galleys are missing images")
+OPEN_TASKS = _("One or more typesetting or proofing tasks haven't been closed")
+
+
+def typesetting_pending_tasks(round):
+    pending_tasks = []
+    galleys = round.article.galley_set.all()
+    if not galleys:
+        pending_tasks.append(MISSING_GALLEYS)
+    else:
+        for galley in galleys:
+            if galley.has_missing_image_files():
+                pending_tasks.append(MISSING_IMAGES)
+                break
+
+    if round.has_open_tasks:
+        pending_tasks.append(OPEN_TASKS)
+
+    return pending_tasks

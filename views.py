@@ -78,14 +78,16 @@ def typesetting_article(request, article_id):
             )
         )
 
+
     template = 'typesetting/typesetting_article.html'
     context = {
         'article': article,
         'rounds': rounds,
         'galleys': galleys,
         'manuscript_files': manuscript_files,
+        'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
     }
-
+    import pdb;pdb.set_trace()
     return render(request, template, context)
 
 
@@ -755,7 +757,7 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
             message,
             skip=True if 'skip' in request.POST else False
         )
-        
+
         messages.add_message(
             request,
             messages.SUCCESS,

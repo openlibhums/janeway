@@ -44,3 +44,18 @@
         </p>
     </div>
 </div>
+<div class="box">
+    <div class="title-area">
+        <h2>Actions</h2>
+    </div>
+    <div class="content">
+        <ul class="menu vertical actions">
+            <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
+            </li>
+            <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
+            <li><a data-open="complete"><i class="fa fa-check action-icon">&nbsp;</i>Complete
+                Typesetting</a></li>
+        </ul>
+    </div>
+</div>
+{% include "typesetting/elements/complete_typesetting.html" %}

@@ -37,6 +37,16 @@ class TypesettingRound(models.Model):
         return str(self.round_number)
 
 
+    @property
+    def has_open_tasks(self):
+        if hasattr(self, 'typesettingassignment'):
+            if not self.typesettingassignment.done:
+                return True
+
+        #TODO: Check proofing tasks as well
+        return False
+
+
 class TypesettingAssignment(models.Model):
     round = models.OneToOneField(TypesettingRound)
     manager = models.ForeignKey(
