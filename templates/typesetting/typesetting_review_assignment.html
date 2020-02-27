@@ -1,6 +1,8 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load bool_fa %}
+{% load static from staticfiles %}
+
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
 
@@ -122,3 +124,7 @@
         </div>
     </div>
 {% endblock body %}
+
+{% block js %}
+<script src="{% static "admin/js/check_all.js" %}"></script>
+{% endblock js %}
