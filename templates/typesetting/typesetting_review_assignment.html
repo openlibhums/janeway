@@ -24,7 +24,7 @@
                       <th>Manager</th>
                       <th>Created</th>
                       <th>Due</th>
-                      <th>Acccepted</th>
+                      <th>Accepted</th>
                       <th>Completed</th>
                       <th>Status</th>
                   </tr>
@@ -49,7 +49,7 @@
         <div class="large-12 columns">
             <div class="box">
               <div class="title-area">
-                 <h2>Edit Assignment</h2>
+                 <h2>Manage Assignment</h2>
              </div>
               <div class="content">
                 <form method="POST">
@@ -75,6 +75,27 @@
                     </div>
                   <button class="button success" name="edit">Save Changes</button>
                   <button class="button alert" name="delete">Delete Assignment</button>
+                {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
+                    <div class="content">
+                        <p><small>Now that the typesetter has completed their task you can review the uploaded Galley files and make a decision about next steps. The galley files for this article are listed below.</small></p>
+                        <div class="row">
+                            <div class="large-6 columns">
+                                {{ decision_form }}
+                                <button name="decision" class="success button">Save Decision</button>
+                            </div>
+                            <div class="large-6 columns">
+                                <small>
+                                    <p>There are three possible decisions to finish a Typesetting assignment.</p>
+                                    <ul>
+                                        <li>Accept - Finishes this typesetting round.</li>
+                                        <li>Corrections Required - Finishes this typesetting round so you can request further typesetting be done.</li>
+                                        <li>Proofing Required - Allows you to assign proofreaders who can provide feedback.</li>
+                                    </ul>
+                                    <p>Please ensure you are ready to go ahead before making a decision.</p>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 {% elif assignment.accepted %}
                  This assignment can no longer be edited since it has been accepted by the typesetter
                 {% elif assignment.declined %}
