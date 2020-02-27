@@ -26,14 +26,47 @@
             <td>{{ round.typesettingassignment.status|capfirst }}</td>
         </tr>
     </table>
+</div>
 
-    <div class="callout bs-callout-warning">
-        <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
-        {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
-            <a href="" class="success button">Assign Proofreaders</a>
-        {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
-            <a href="" class="success button">Start New Typesetting Round</a>
-        {% endif %}
-        <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
+{% for proofing in round.galleyproofing_set.all %}
+    <div class="callout breakdown file">
+        <div class="callout-title">
+            <small><a class="pull-right" href="{% url 'admin:typesetting_galleyproofing_change' proofing.pk %}" target="_blank">Edit in Admin</a></small>
+            <h4>Proofreader #{{ forloop.counter }}: {{ proofing.proofreader.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' proofing.proofreader.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
+        </div>
+        <table class="table small">
+            <tr>
+                <th>ID</th>
+                <td>Created</td>
+                <td>Manager</td>
+                <td>Notified</td>
+                <td>Due</td>
+                <td>Completed</td>
+                <td>Status</td>
+            </tr>
+            <tr>
+                <td>{{ proofing.pk }}</td>
+                <td>{{ proofing.assigned }}</td>
+                <td>{{ proofing.manager.full_name }}</td>
+                <td>{{ proofing.notified|bool_fa }}</td>
+                <td>{{ proofing.due }}</td>
+                <td>{% if proofing.completed %}{{ proofing.completed }}{% else %}{{ proofing.completed|bool_fa }}{% endif %}</td>
+                <td>{{ proofing.status }}</td>
+            </tr>
+        </table>
+    </div>
+{% endfor %}
+
+<div class="callout bs-callout-warning">
+    <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
+    <div class="button-group">
+    {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
+        <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="success button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
+    {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
+        <a href="" class="success button">Start New Typesetting Round</a>
+    {% endif %}
+    <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
+
     </div>
 </div>
+

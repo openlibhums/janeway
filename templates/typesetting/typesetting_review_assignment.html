@@ -96,6 +96,8 @@
                             </div>
                         </div>
                     </div>
+                {% elif assignment.accepted and assignment.completed and assignment.reviewed %}
+                    <p>This assignment has been reviewed and the review decision was: {{ assignment.get_review_decision_display }}</p>
                 {% elif assignment.accepted %}
                  This assignment can no longer be edited since it has been accepted by the typesetter
                 {% elif assignment.declined %}

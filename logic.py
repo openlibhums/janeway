@@ -43,8 +43,11 @@ def get_typesetters(journal):
     return core_models.Account.objects.filter(pk__in=typesetter_pks)
 
 
-def get_proofreaders(article):
+def get_proofreaders(article, round):
     pks = list()
+    current_proofer_pks = [
+        p.proofreader.pk for p in round.galleyproofing_set.all()
+    ]
 
     for author in article.authors.all():
         pks.append(author.pk)
@@ -53,9 +56,13 @@ def get_proofreaders(article):
         role__slug='proofreader',
         journal=article.journal
     ):
-        pks.append(proofreader.pk)
+        pks.append(proofreader.user.pk)
 
-    return core_models.Account.objects.filter(pk__in=pks)
+    return core_models.Account.objects.filter(
+        pk__in=pks,
+    ).exclude(
+        pk__in=current_proofer_pks,
+    )
 
 
 def get_typesetter_notification(assignment, article, request):

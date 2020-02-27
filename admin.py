@@ -18,6 +18,7 @@ class TypesettingAssignmentAdmin(admin.ModelAdmin):
         'article_title',
         'round',
         'typesetter',
+        'manager',
         'friendly_status',
         'pk',
     )
@@ -30,8 +31,39 @@ class TypesettingAssignmentAdmin(admin.ModelAdmin):
         'files_to_typeset',
         'galleys_created',
     )
+    search_fields = (
+        'typesetter',
+        'manager',
+    )
 
-    def article_title(self, obj):
+    @staticmethod
+    def article_title(obj):
+        return obj.round.article.title
+
+
+class GalleyProofingAdmin(admin.ModelAdmin):
+    list_display = (
+        'article_title',
+        'round',
+        'proofreader',
+        'manager',
+        'pk',
+    )
+    raw_id_fields = (
+        'proofreader',
+        'manager',
+        'round'
+    )
+    filter_horizontal = (
+        'annotated_files',
+    )
+    search_fields = (
+        'proofreader',
+        'manager',
+    )
+
+    @staticmethod
+    def article_title(obj):
         return obj.round.article.title
 
 
@@ -39,6 +71,7 @@ admin_list = [
     (models.TypesettingRound, TypesettingRoundAdmin),
     (models.TypesettingClaim, ),
     (models.TypesettingAssignment, TypesettingAssignmentAdmin),
+    (models.GalleyProofing, GalleyProofingAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

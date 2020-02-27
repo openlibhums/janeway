@@ -83,6 +83,16 @@ class TypesetterDecision(forms.Form):
 
 
 class ManagerDecision(forms.ModelForm):
+
     class Meta:
         model = models.TypesettingAssignment
         fields = ('review_decision',)
+
+    def save(self, commit=True):
+        decision = super(ManagerDecision, self).save(commit=False)
+        decision.reviewed = True
+        if commit:
+            decision.save()
+
+        return decision
+

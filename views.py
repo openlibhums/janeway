@@ -552,7 +552,19 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         )
     
     elif request.POST and "decision" in request.POST:
-        decision_form = forms.ManagerDecision(request.POST)
+        decision_form = forms.ManagerDecision(
+            request.POST,
+            instance=assignment
+        )
+
+        if decision_form.is_valid():
+            decision_form.save()
+            return redirect(
+                reverse(
+                    'typesetting_article',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
     template = 'typesetting/typesetting_review_assignment.html'
     context = {
@@ -684,7 +696,7 @@ def typesetting_assign_proofreader(request, article_id):
         journal=request.journal,
     )
     rounds = models.TypesettingRound.objects.filter(article=article)
-    proofreaders = logic.get_proofreaders(article)
+    proofreaders = logic.get_proofreaders(article, rounds[0])
     galleys = core_models.Galley.objects.filter(
         article=article,
     )
