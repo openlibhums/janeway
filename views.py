@@ -61,10 +61,22 @@ def typesetting_article(request, article_id):
     manuscript_files = logic.production_ready_files(article)
 
     if not rounds:
-        models.TypesettingRound.objects.create(
-            article=article,
+        logic.new_typesetting_round(article, rounds, request.user)
+        messages.add_message(
+            request,
+            messages.INFO,
+            'New typesetting round created.',
         )
 
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    if request.POST and "new-round" in request.POST:
+        logic.new_typesetting_round(article, rounds, request.user)
         messages.add_message(
             request,
             messages.INFO,
@@ -87,7 +99,7 @@ def typesetting_article(request, article_id):
         'manuscript_files': manuscript_files,
         'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
     }
-    import pdb;pdb.set_trace()
+
     return render(request, template, context)
 
 
@@ -552,7 +564,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
                 }
             )
         )
-    
+
     elif request.POST and "decision" in request.POST:
         decision_form = forms.ManagerDecision(request.POST)
 

@@ -4,6 +4,8 @@ from production import logic
 from core import models as core_models
 from utils import render_template
 
+from plugins.typesetting import models
+
 
 def production_ready_files(article, file_objects=False):
     """
@@ -82,6 +84,22 @@ def get_proofreader_notification(assignment, article, request):
         context,
         'typesetting_notify_proofreader',
     )
+
+
+def new_typesetting_round(article, rounds, user):
+    if not rounds:
+        new_round = models.TypesettingRound.objects.create(
+            article=article,
+        )
+    else:
+        latest_round = rounds[0]
+        latest_round.close(user)
+        new_round = models.TypesettingRound.objects.create(
+            article=article,
+            round_number = latest_round.round_number + 1,
+        )
+
+    return new_round
 
 
 MISSING_GALLEYS = _("Article has no galleys")
