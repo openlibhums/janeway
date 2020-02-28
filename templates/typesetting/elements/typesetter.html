@@ -37,12 +37,13 @@
         <table class="table small">
             <tr>
                 <th>ID</th>
-                <td>Created</td>
-                <td>Manager</td>
-                <td>Notified</td>
-                <td>Due</td>
-                <td>Completed</td>
-                <td>Status</td>
+                <th>Created</th>
+                <th>Manager</th>
+                <th>Notified</th>
+                <th>Due</th>
+                <th>Completed</th>
+                <th>Status</th>
+                <th></th>
             </tr>
             <tr>
                 <td>{{ proofing.pk }}</td>
@@ -52,6 +53,7 @@
                 <td>{{ proofing.due }}</td>
                 <td>{% if proofing.completed %}{{ proofing.completed }}{% else %}{{ proofing.completed|bool_fa }}{% endif %}</td>
                 <td>{{ proofing.status }}</td>
+                <td><a href="{% url 'typesetting_manage_proofing_assignment' article.pk proofing.pk %}">Manage</a></td>
             </tr>
         </table>
     </div>
