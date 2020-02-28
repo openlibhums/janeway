@@ -1,0 +1,16 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load bool_fa %}
+{% load static from staticfiles %}
+
+
+{% block title %}Proofing Article #{{ article.pk }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+
+    <li>Reviewing Proofing Assignment #{{ assignment.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+{% endblock body %}

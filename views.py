@@ -795,3 +795,25 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
 
     return render(request, template, context)
 
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+        completed__isnull=True,
+    )
+
+    template = 'typesetting/typesetting_manage_proofing_assignment.html'
+    context = {
+        'article': article,
+        'assignment': assignment,
+    }
+
+    return render(request, template, context)

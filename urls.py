@@ -15,7 +15,7 @@ urlpatterns = [
         views.typesetting_article,
         name='typesetting_article'
         ),
-    url(r'^article/(?P<article_id>\d+)/reviewassignment/(?P<assignment_id>\d+)/$',
+    url(r'^article/(?P<article_id>\d+)/typesetter/(?P<assignment_id>\d+)/review/$',
         views.typesetting_review_assignment,
         name='typesetting_review_assignment'
         ),
@@ -65,5 +65,9 @@ urlpatterns = [
     url(r'^article/(?P<article_id>\d+)/assign/proofreader/(?P<assignment_id>\d+)/notify/$',
         views.typesetting_notify_proofreader,
         name='typesetting_notify_proofreader'
+        ),
+    url(r'^article/(?P<article_id>\d+)/proofreader/(?P<assignment_id>\d+)/review/$',
+        views.typesetting_manage_proofing_assignment,
+        name='typesetting_manage_proofing_assignment'
         ),
 ]
