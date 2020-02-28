@@ -323,17 +323,14 @@ def render_xml(file_to_render, article, xsl_file=None):
         )
         return ""
 
-    with open(path, "rb") as xml_file_contents:
-        xml = BeautifulSoup(xml_file_contents, "lxml-xml")
+    return transform_with_xsl(path, xsl_path)
 
-        transform = etree.XSLT(etree.parse(xsl_path))
+def transform_with_xsl(xml_path, xsl_path):
+    xml_dom = etree.parse(xml_path)
+    xsl_transform = etree.XSLT(etree.parse(xsl_path))
+    transformed_dom = xsl_transform(xml_dom)
 
-        # remove the <?xml version="1.0" encoding="utf-8"?> line (or similar) if it exists
-        regex = re.compile(r'<\?xml version="1.0" encoding=".+"\?>')
-        xml_string = str(xml)
-        xml_string = re.sub(regex, '', xml_string, count=1)
-
-        return transform(etree.XML(xml_string))
+    return transformed_dom
 
 
 def serve_any_file(request, file_to_serve, public=False, hide_name=False,
