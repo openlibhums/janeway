@@ -41,6 +41,14 @@
                           {{ assignment.completed|bool_fa }}{% endif %}</td>
                       <td>{{ assignment.status|capfirst }}</td>
                   </tr>
+                  {% if assignment.accepted %}
+                      <tr>
+                          <th colspan="7">Note from Typesetter</th>
+                      </tr>
+                      <tr>
+                          <td colspan="7">{{ assignment.typesetter_note|safe }}</td>
+                      </tr>
+                  {% endif %}
               </table>
           </div>
           </div>
