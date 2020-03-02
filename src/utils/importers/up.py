@@ -449,6 +449,10 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
     soup_user_profile = BeautifulSoup(resp, 'lxml')
     profile_dict = shared.get_user_profile(soup_user_profile)[0]
+    if profile_dict["email"] == "journal@openlibhums.org":
+        dummy_email = shared.generate_dummy_email(profile_dict)
+        logger.debug("Generated email for author: {}".format(dummy_email))
+        profile_dict["email"] = dummy_email
 
     # add an account for this new user
     account = core_models.Account.objects.filter(email=profile_dict['email'])

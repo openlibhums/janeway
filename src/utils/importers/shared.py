@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import hashlib
 from urllib.parse import urlparse
 from uuid import uuid4
 import requests
@@ -449,6 +450,10 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         if fetch_emails:
             email = get_soup(emails[idx], 'content')
+            if email == "journal@openlibhums.org":
+                # Generate Janeway compatible dummy email
+                email = utils_shared.generate_password(16)
+                email = u"{0}@{1}".format(email, settings.DUMMY_EMAIL_DOMAIN)
         else:
             # if there are a bad number of emails, we will automatically generate one
             email = utils_shared.generate_password(16)
@@ -768,3 +773,12 @@ def parse_author_names(author, citation=None):
         "middle_name": middle,
         "last_name": last,
     }
+
+
+SEED_KEYS = [
+    "First Name", "Middle Name", "Last Name", "Affiliation", "Country"
+]
+def generate_dummy_email(profile_dict):
+    seed = sum(profile_dict.get(key, "") for key in SEED_KEYS)
+    hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()
+    return "{0}@{1}".format(hashed, settings.DUMMY_EMAIL_DOMAIN)
