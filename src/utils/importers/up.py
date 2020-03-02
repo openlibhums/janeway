@@ -341,7 +341,7 @@ def import_issue_images(journal, user, url):
                 issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[1]
             except IndexError:
                 logger.error("Can't reconstruct original issue for {} - {}".format(
-                    issue.number, issue.issue_title
+                    issue.issue, issue.issue_title
                 ))
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
@@ -357,7 +357,7 @@ def import_issue_images(journal, user, url):
 
             os.makedirs(path, exist_ok=True)
 
-            path = os.path.join(path, 'volume{0}_issue_{0}.graphic'.format(issue.volume, issue.issue))
+            path = os.path.join(path, 'volume{0}_issue_{0}.graphic'.format(issue.volume, issue_num))
 
             with open(path, 'wb') as f:
                 f.write(resp)
@@ -365,15 +365,15 @@ def import_issue_images(journal, user, url):
             with open(path, 'rb') as f:
                 issue.cover_image.save(path, File(f))
 
-            sequence_pattern = re.compile(r'.*?(\d+)\/volume\/{0}\/issue\/{1}.*'.format(issue.volume, issue.issue))
+            sequence_pattern = re.compile(r'.*?(\d+)\/volume\/{0}\/issue\/{1}.*'.format(issue.volume, issue_num))
 
             issue.order = int(sequence_pattern.match(img_url).group(1))
 
-            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
+            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue_num))
 
             logger.info("Extracting section orders within the issue...")
 
-            new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue.issue)
+            new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue_num)
             resp, mime = utils_models.ImportCacheEntry.fetch(url=base_url + new_url)
 
             soup_issue = BeautifulSoup(resp, 'lxml')
