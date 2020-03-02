@@ -553,7 +553,10 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         new_issue, created = journal_models.Issue.objects.get_or_create(
             journal=article.journal,
             issue_title=issue_title,
-            defaults={"issue": issue, "volume": volume, "issue_type": issue_type},
+            defaults={
+                "issue": issue, "volume": volume, "issue_type": issue_type,
+                "date": date_published
+            },
         )
 
     else:
