@@ -335,14 +335,9 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         issue_num = issue.issue
-        if issue.issue == 0 and issue.issue_title:
+        if issue.issue == 0 and issue.issue_title and issue.issue_type.pretty_name in issue.issue_title:
             # Deconstruct issue title
-            try:
-                issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[1]
-            except IndexError:
-                logger.error("Can't reconstruct original issue for {} - {}".format(
-                    issue.issue, issue.issue_title
-                ))
+            issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[-1]
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
         img_url_suffix = soup.find(src=pattern)
@@ -369,7 +364,7 @@ def import_issue_images(journal, user, url):
 
             issue.order = int(sequence_pattern.match(img_url).group(1))
 
-            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue_num))
+            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue_num, issue.order))
 
             logger.info("Extracting section orders within the issue...")
 
@@ -382,7 +377,12 @@ def import_issue_images(journal, user, url):
             # Find issue title
             try:
                 issue_title = soup_issue.find("div", {"class": "multi-inline"}).find("h1").string
-                issue.issue_title = issue_title.strip(" -\n")
+                issue_title = issue_title.strip(" -\n")
+                if issue.issue_title and issue_title not in issue.issue_title:
+                    issue.issue_title = "{} - {}".format(
+                        issue_title, issue.issue_title)
+                else:
+                    issue.issue_title = issue_title
             except AttributeError as e:
                 logger.debug("Couldn't find an issue title: %s" % e)
 
