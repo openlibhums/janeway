@@ -421,8 +421,16 @@ def public_profile(request, uuid):
     :return: HTTPResponse
     """
 
-    user = get_object_or_404(models.Account, uuid=uuid, is_active=True, enable_public_profile=True)
-    roles = models.AccountRole.objects.filter(journal=request.journal)
+    user = get_object_or_404(
+        models.Account,
+        uuid=uuid,
+        is_active=True,
+        enable_public_profile=True,
+    )
+    roles = models.AccountRole.objects.filter(
+        user=request.user,
+        journal=request.journal,
+    )
 
     template = 'core/accounts/public_profile.html'
     context = {
