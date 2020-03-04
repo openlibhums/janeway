@@ -96,3 +96,12 @@ class ManagerDecision(forms.ModelForm):
 
         return decision
 
+
+class EditProofingAssignment(forms.ModelForm):
+    class Meta:
+        model = models.GalleyProofing
+        fields = ('task', 'due',)
+
+        widgets = {
+            'due': HTMLDateInput(),
+        }

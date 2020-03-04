@@ -11,7 +11,7 @@
     {% for proofreader in proofreaders %}
         <tr>
             <td><input type="radio" name="proofreader" value="{{ proofreader.id }}"
-                       {% if form.cleaned_data.proofreader.id == proofreader.id %}checked="checked"{% endif %}></td>
+                       {% if form.cleaned_data.proofreader.id == proofreader.id or proofreader.id == assignment.proofreader.pk %}checked="checked"{% endif %}></td>
             <td>{{ proofreader.full_name }}</td>
             <td>{{ proofreader.email }}</td>
         </tr>

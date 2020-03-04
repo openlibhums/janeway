@@ -52,7 +52,7 @@
                 <td>{{ proofing.notified|bool_fa }}</td>
                 <td>{{ proofing.due }}</td>
                 <td>{% if proofing.completed %}{{ proofing.completed }}{% else %}{{ proofing.completed|bool_fa }}{% endif %}</td>
-                <td>{{ proofing.status }}</td>
+                <td>{{ proofing.status|capfirst }}</td>
                 <td><a href="{% url 'typesetting_manage_proofing_assignment' article.pk proofing.pk %}">Manage</a></td>
             </tr>
         </table>
@@ -60,10 +60,17 @@
 {% endfor %}
 
 <div class="callout bs-callout-warning">
+    {% if not round.has_completed_proofing %}
     <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
+    {% else %}
+        <span class="fa fa-exclamation-triangle"> {{ round.has_completed_proofing.count }} out of {{ round.galleyproofing_set.count }} proofing tasks completed.<br/><br/></span>
+    {% endif %}
     <div class="button-group">
+    {% if round.has_completed_proofing %}
+        <a href="" class="alert button">Request Corrections</a>
+    {% endif %}
     {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
-        <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="success button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
+        <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="warning button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
     {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
         <a href="" class="success button">Start New Typesetting Round</a>
     {% endif %}

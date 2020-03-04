@@ -43,7 +43,7 @@ def get_typesetters(journal):
     return core_models.Account.objects.filter(pk__in=typesetter_pks)
 
 
-def get_proofreaders(article, round):
+def get_proofreaders(article, round, assignment=None):
     pks = list()
     current_proofer_pks = [
         p.proofreader.pk for p in round.galleyproofing_set.all()
@@ -57,6 +57,10 @@ def get_proofreaders(article, round):
         journal=article.journal
     ):
         pks.append(proofreader.user.pk)
+
+    # If fetching for an assignment we want that user to remain in the list
+    if assignment and assignment.proofreader.pk in pks:
+        current_proofer_pks.remove(assignment.proofreader.pk)
 
     return core_models.Account.objects.filter(
         pk__in=pks,

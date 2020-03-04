@@ -807,13 +807,89 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
     assignment = get_object_or_404(
         models.GalleyProofing,
         pk=assignment_id,
-        completed__isnull=True,
     )
+    rounds = models.TypesettingRound.objects.filter(article=article)
+    proofreaders = logic.get_proofreaders(
+        article,
+        rounds[0],
+        assignment=assignment,
+    )
+
+    form = forms.EditProofingAssignment(
+        instance=assignment,
+    )
+
+    if request.POST:
+
+        if 'action' in request.POST:
+
+            action = request.POST.get('action')
+
+            if action == 'cancel':
+                assignment.cancel()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofing task cancelled.'
+                )
+            elif action == 'reset':
+                assignment.reset()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofing task reset.'
+                )
+
+            return redirect(
+                reverse(
+                    'typesetting_article',
+                    kwargs={'article_id': article.pk}
+                )
+            )
+
+        form = forms.EditProofingAssignment(
+            request.POST,
+            instance=assignment,
+        )
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Assignment updated.'
+            )
+
+            return redirect(
+                reverse(
+                    'typesetting_manage_proofing_assignment',
+                    kwargs={
+                        'article_id': article.pk,
+                        'assignment_id': assignment.pk,
+                    }
+                )
+            )
 
     template = 'typesetting/typesetting_manage_proofing_assignment.html'
     context = {
         'article': article,
         'assignment': assignment,
+        'proofreaders': proofreaders,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.proofreader_user_required
+def typesetting_proofing_assignments(request):
+    proofing_assignments = models.GalleyProofing.objects.filter(
+        proofreader=request.user,
+    )
+
+    template = 'typesetting_proofing_assignments.html'
+    context = {
+        'proofing_assignments': proofing_assignments,
     }
 
     return render(request, template, context)
