@@ -1,5 +1,7 @@
+from django.contrib import messages
+
 from production import logic
-from core import models as core_models
+from core import models as core_models, files
 from utils import render_template
 
 
@@ -91,3 +93,25 @@ def get_proofreader_notification(assignment, article, request):
         context,
         'typesetting_notify_proofreader',
     )
+
+
+def handle_proofreader_file(request, assignment, article):
+    uploaded_files = request.FILES.getlist('file')
+
+    if uploaded_files:
+        for file in uploaded_files:
+            new_file = files.save_file_to_article(
+                file,
+                article,
+                request.user,
+            )
+            new_file.label = 'Proofing File'
+            new_file.save()
+            assignment.annotated_files.add(new_file)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Annotated file uploaded.',
+            )
+
+

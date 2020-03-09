@@ -4,11 +4,12 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 
-from plugins.typesetting import plugin_settings, models, logic, forms
+from plugins.typesetting import plugin_settings, models, logic, forms, security
 from security import decorators
 from submission import models as submission_models
 from core import models as core_models, files
 from production import logic as production_logic
+from journal.views import article_figure
 
 
 @decorators.has_journal
@@ -882,14 +883,147 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
 
 
 @decorators.proofreader_user_required
-def typesetting_proofing_assignments(request):
-    proofing_assignments = models.GalleyProofing.objects.filter(
+def typesetting_proofreading_assignments(request):
+    assignments = models.GalleyProofing.objects.filter(
         proofreader=request.user,
     )
 
-    template = 'typesetting_proofing_assignments.html'
+    template = 'typesetting/typesetting_proofing_assignments.html'
     context = {
-        'proofing_assignments': proofing_assignments,
+        'assignments': assignments,
     }
 
     return render(request, template, context)
+
+
+@decorators.proofreader_user_required
+def typesetting_proofreading_assignment(request, assignment_id):
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+        proofreader=request.user,
+        completed__isnull=True,
+        cancelled=False
+    )
+    galleys = core_models.Galley.objects.filter(
+        article=assignment.round.article,
+    )
+
+    form = forms.ProofingForm(instance=assignment)
+
+    if request.POST:
+        print(request.POST, request.FILES)
+        form = forms.ProofingForm(request.POST, instance=assignment)
+
+        if form.is_valid():
+            form.save()
+
+        if 'proofing_file' in request.POST:
+            logic.handle_proofreader_file(
+                request,
+                assignment,
+                assignment.round.article,
+            )
+
+        return redirect(
+            reverse(
+                'typesetting_proofreading_assignment',
+                kwargs={'assignment_id': assignment.pk},
+            )
+        )
+
+
+    template = 'typesetting/typesetting_proofreading_assignment.html'
+    context = {
+        'assignment': assignment,
+        'galleys': galleys,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.proofreader_user_required
+def typesetting_preview_galley(
+        request,
+        galley_id,
+        assignment_id=None,
+        article_id=None
+):
+    """
+    Displays a preview of a galley object
+    :param request: HttpRequest object
+    :param assignment_id: ProofingTask object PK
+    :param galley_id: Galley object PK
+    :param article_id: Article object PK
+    :return: HttpResponse
+    """
+
+    proofing_task = None
+    article = None
+
+    if assignment_id:
+        proofing_task = get_object_or_404(
+            models.GalleyProofing,
+            pk=assignment_id,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=proofing_task.round.article.pk,
+        )
+        proofing_task.proofed_files.add(galley)
+    elif article_id and request.user.has_an_editor_role(request):
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=article.pk,
+        )
+    else:
+        raise PermissionDenied
+
+    if galley.type == 'xml' or galley.type == 'html':
+        template = 'journal/article.html'
+    elif galley.type == 'epub':
+        template = 'proofing/preview/epub.html'
+    else:
+        template = 'typesetting/preview_embedded.html'
+
+    context = {
+        'proofing_task': proofing_task,
+        'galley': galley,
+        'article': proofing_task.round.article,
+        'identifier_type': 'id',
+        'identifier': article.pk if article else proofing_task.round.article.pk,
+        'article_content': galley.file_content(),
+    }
+
+    return render(request, template, context)
+
+
+@security.proofreader_for_article_required
+def typesetting_proofing_download(request, assignment_id, file_id):
+    """
+    Serves a galley for proofreader
+    """
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+    )
+    file = get_object_or_404(core_models.File, pk=file_id)
+    try:
+        galley = core_models.Galley.objects.get(
+            article_id=assignment.round.article.pk,
+            file=file
+        )
+        assignment.proofed_files.add(galley)
+        return files.serve_file(request, file, assignment.round.article)
+    except core_models.Galley.DoesNotExist:
+        messages.add_message(request, messages.WARNING, 'Requested file is not a galley for proofing')
+        return redirect(request.META.get('HTTP_REFERER'))
+
+
+@security.proofreader_for_article_required
+def preview_figure(request, assignment_id, galley_id, file_name):
+    galley = get_object_or_404(core_models.Galley, pk=galley_id, article__journal=request.journal)
+    return article_figure(request, galley.article.pk, galley_id, file_name)

@@ -45,11 +45,11 @@ urlpatterns = [
         name='typesetting_assignments'
         ),
 
-    url(r'^assignments/(?P<assignment_id>\d+)/$',
+    url(r'^assignments/typesetting/(?P<assignment_id>\d+)/$',
         views.typesetting_assignment,
         name='typesetting_assignment'
         ),
-    url(r'^assignments/(?P<assignment_id>\d+)/download/(?P<file_id>\d+)/$',
+    url(r'^assignments/typesetting/(?P<assignment_id>\d+)/download/(?P<file_id>\d+)/$',
         views.typesetting_typesetter_download_file,
         name='typesetting_typesetter_download_file'
         ),
@@ -70,4 +70,30 @@ urlpatterns = [
         views.typesetting_manage_proofing_assignment,
         name='typesetting_manage_proofing_assignment'
         ),
+    url(r'^assignments/proofreading/$',
+        views.typesetting_proofreading_assignments,
+        name='typesetting_proofreading_assignments'
+        ),
+    url(r'^assignments/proofreading/(?P<assignment_id>\d+)/$',
+        views.typesetting_proofreading_assignment,
+        name='typesetting_proofreading_assignment'
+        ),
+
+    url(r'^preview_galley/(?P<galley_id>\d+)/assignment/(?P<assignment_id>\d+)/$',
+        views.typesetting_preview_galley,
+        name='typesetting_preview_galley'
+        ),
+    url(r'^preview_galley/(?P<galley_id>\d+)/article/(?P<article_id>\d+)/$',
+        views.typesetting_preview_galley,
+        name='editor_preview_galley'
+        ),
+
+    url(r'^preview/assignment/(?P<assignment_id>\d+)/file/(?P<file_id>\d+)/$',
+        views.typesetting_proofing_download,
+        name='typesetting_proofing_download'
+        ),
+    url(r'^preview/assignment/(?P<assignment_id>\d+)/galley/(?P<galley_id>\d+)/(?P<file_name>.*)$',
+        views.preview_figure,
+        name='preview_figure'
+        )
 ]

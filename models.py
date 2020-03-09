@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.db import models
 from django.utils import timezone
@@ -297,6 +297,18 @@ class GalleyProofing(models.Model):
         self.completed = None
         self.accepted = None
         self.save()
+
+    @property
+    def time_to_due(self):
+        due = self.due - timezone.now()
+
+        if due.days == 0:
+            return 'Due Today'
+        
+        if due < timedelta(0):
+            return 'Overdue'
+
+        return '{} days'.format(due.days)
 
     FRIENDLY_STATUSES = {
         "assigned": "Awaiting response from the proofreader.",

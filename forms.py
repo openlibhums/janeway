@@ -1,5 +1,7 @@
 from django import forms
 
+from django_summernote.widgets import SummernoteWidget
+
 from plugins.typesetting import models
 from utils.forms import HTMLDateInput
 
@@ -101,7 +103,21 @@ class EditProofingAssignment(forms.ModelForm):
     class Meta:
         model = models.GalleyProofing
         fields = ('task', 'due',)
-
         widgets = {
             'due': HTMLDateInput(),
+        }
+
+
+class ProofingForm(forms.ModelForm):
+    class Meta:
+        model = models.GalleyProofing
+        fields = ('notes',)
+        summernote_attrs = {
+            'disable_attachment': True,
+            'height': '500px',
+        }
+        widgets = {
+            'notes': SummernoteWidget(
+                attrs={'summernote': summernote_attrs}
+            ),
         }

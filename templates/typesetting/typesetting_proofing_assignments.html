@@ -1,17 +1,17 @@
 {% extends "admin/core/base.html" %}
 
-{% block title %}Typesetting Assignments{% endblock %}
+{% block title %}Proofreading Assignments{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
-<li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>
+<li>Proofreading Assignments</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
 <div class="large-12 columns">
     <div class="box">
         <div class="title-area">
-            <h2>Your Typesetting Assignments</h2>
+            <h2>Your Proofreading Assignments</h2>
          </div>
         <div class="content">
             <table class="small scroll" id="tasks">
@@ -30,7 +30,9 @@
                     <td>{{ assignment.assigned }}</td>
                     <td>{{ assignment.due }}</td>
                     <td>{{ assignment.time_to_due }}</td>
-                    <td><a href="{% url 'typesetting_assignment' assignment.pk %}">View Assignment</a></td>
+                    {% if not assignment.completed %}
+                    <td><a href="{% url 'typesetting_proofreading_assignment' assignment.pk %}">View Assignment</a></td>
+                    {% endif %}
                 </tbody>
                 {% endfor %}
             </table>

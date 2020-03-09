@@ -1,0 +1,24 @@
+<div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-upload">&nbsp;</i>Proofreading File Upload</h4>
+        </div>
+    </div>
+    <div class="card-section">
+        {% if error %}
+            <div class="alert alert-warning" role="alert">{{ error }}</div>
+        {% endif %}
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <p>Select the file you would like to upload.</p>
+        <input type="hidden" name="upload" value="upload">
+
+        <div class="clearfix">
+            <div>
+
+            </div>
+        </div>
+    </div>
+</div>
