@@ -168,12 +168,13 @@ def send_crossref_deposit(test_mode, identifier):
             text=response.text
         )
         logger.error(status)
-        logger.error(response.text)
         error = True
     else:
-        util_models.LogEntry.add_entry('Submission', "Deposited DOI.", 'Info', target=identifier.article)
+        status = "Deposited DOI"
+        util_models.LogEntry.add_entry('Submission', status, 'Info', target=identifier.article)
+        logger.info(status)
 
-    return "Done", error
+    return status, error
 
 
 def create_crossref_doi_identifier(article, doi_suffix=None, suffix_is_whole_doi=False):
