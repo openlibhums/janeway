@@ -298,6 +298,11 @@ class GalleyProofing(models.Model):
         self.accepted = None
         self.save()
 
+    def complete(self):
+        self.completed = timezone.now()
+        self.accepted = timezone.now()
+        self.save()
+
     @property
     def time_to_due(self):
         due = self.due - timezone.now()
