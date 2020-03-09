@@ -144,7 +144,7 @@
                     {% endif %}
                     <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}
                         <i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
-                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
+                    <li>{% trans "License" %} <a rel="license" href="{{ article.license.url }}" data-toggle="tooltip"
                                                  title="{{ article.license.text }}">{{ article.license.name }}</a></li>
                     {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                         <li>
