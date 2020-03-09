@@ -143,8 +143,8 @@
                         <p>
                             Files uploaded by the proofreader.
                         </p>
-                        {% for galley in assignment.annotated_files.all %}
-                            <li>{{ galley }}</li>
+                        {% for file in assignment.annotated_files.all %}
+                            <li><a href="{% url 'article_file_download' 'id' article.pk file.pk %}">{{ file }}</a></li>
                         {% endfor %}
                     </div>
                 {% elif assignment.status == 'cancelled' %}
