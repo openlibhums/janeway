@@ -912,7 +912,6 @@ def typesetting_proofreading_assignment(request, assignment_id):
     form = forms.ProofingForm(instance=assignment)
 
     if request.POST:
-        print(request.POST, request.FILES)
         form = forms.ProofingForm(request.POST, instance=assignment)
 
         if form.is_valid():
@@ -925,13 +924,25 @@ def typesetting_proofreading_assignment(request, assignment_id):
                 assignment.round.article,
             )
 
+        if 'complete' in request.POST:
+            assignment.completed = timezone.now()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Proofreading Assignment complete.'
+            )
+            return redirect(
+                reverse(
+                    'core_dashboard',
+                )
+            )
+
         return redirect(
             reverse(
                 'typesetting_proofreading_assignment',
                 kwargs={'assignment_id': assignment.pk},
             )
         )
-
 
     template = 'typesetting/typesetting_proofreading_assignment.html'
     context = {
@@ -1019,11 +1030,20 @@ def typesetting_proofing_download(request, assignment_id, file_id):
         assignment.proofed_files.add(galley)
         return files.serve_file(request, file, assignment.round.article)
     except core_models.Galley.DoesNotExist:
-        messages.add_message(request, messages.WARNING, 'Requested file is not a galley for proofing')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Requested file is not a galley for proofing',
+        )
         return redirect(request.META.get('HTTP_REFERER'))
 
 
 @security.proofreader_for_article_required
 def preview_figure(request, assignment_id, galley_id, file_name):
-    galley = get_object_or_404(core_models.Galley, pk=galley_id, article__journal=request.journal)
+    # TODO: make this work
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article__journal=request.journal,
+    )
     return article_figure(request, galley.article.pk, galley_id, file_name)
