@@ -926,6 +926,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
 
         if 'complete' in request.POST:
             assignment.completed = timezone.now()
+            assignment.save()
             messages.add_message(
                 request,
                 messages.SUCCESS,
