@@ -303,6 +303,17 @@ class GalleyProofing(models.Model):
         self.accepted = timezone.now()
         self.save()
 
+    def unproofed_galleys(self, galleys):
+        check = []
+        proofed_files = self.proofed_files.all()
+
+        for galley in galleys:
+            if galley not in proofed_files:
+                check.append(galley)
+
+        return check
+
+
     @property
     def time_to_due(self):
         due = self.due - timezone.now()

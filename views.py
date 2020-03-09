@@ -925,17 +925,27 @@ def typesetting_proofreading_assignment(request, assignment_id):
             )
 
         if 'complete' in request.POST:
-            assignment.complete()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Proofreading Assignment complete.'
-            )
-            return redirect(
-                reverse(
-                    'core_dashboard',
+            unproofed_galleys = assignment.unproofed_galleys(galleys)
+            if not unproofed_galleys:
+                assignment.complete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofreading Assignment complete.'
                 )
-            )
+                return redirect(
+                    reverse(
+                        'core_dashboard',
+                    )
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'You must proof {}.'.format(
+                        ", ".join([g.label for g in unproofed_galleys])
+                    )
+                )
 
         return redirect(
             reverse(
