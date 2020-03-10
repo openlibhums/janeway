@@ -843,10 +843,18 @@ class Galley(models.Model):
         return "{0} ({1})".format(self.id, self.label)
 
     def render(self):
-        return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
+        return files.render_xml(
+                self.file, self.article,
+                xsl_path=self.xsl_file.file.path
+        )
 
     def render_crossref(self):
-        return files.render_xml(self.file, self.article, xsl_file=None, crossref=True)
+        xsl_path = os.path.join(
+                settings.BASE_DIR, 'transform', 'xsl',  files.CROSSREF_XSL)
+        return files.render_xml(
+                self.file, self.article,
+                xsl_path=xsl_path
+        )
 
     def has_missing_image_files(self, show_all=False):
         xml_file_contents = self.file.get_file(self.article)
