@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import re
 import sys
 
+import requests
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -14,6 +15,7 @@ from submission import models as submission_models
 from identifiers import logic
 from utils import shared
 
+from src.core import settings
 
 identifier_choices = (
     ('doi', 'DOI'),
@@ -64,6 +66,46 @@ class Identifier(models.Model):
             return True
 
         return False
+
+
+class CrossrefDeposit(models.Model):
+    identifier = models.ForeignKey(Identifier, on_delete=models.CASCADE)
+    has_result = models.BooleanField(default=False)
+    success = models.BooleanField(default=False)
+    citation_success = models.BooleanField(default=False)
+    result_text = models.TextField(blank=True, null=True)
+    file_name = models.CharField(blank=False, null=False, max_length=255)
+
+    def poll(self):
+        from utils import setting_handler
+        test_mode = setting_handler.get_setting('Identifiers',
+                                                'crossref_test',
+                                                self.identifier.article.journal).processed_value or settings.DEBUG
+        username = setting_handler.get_setting('Identifiers', 'crossref_username',
+                                               self.identifier.article.journal).processed_value
+        password = setting_handler.get_setting('Identifiers', 'crossref_password',
+                                               self.identifier.article.journal).processed_value
+
+        if test_mode:
+            test_var = 'test'
+        else:
+            test_var = 'doi'
+
+        url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}&type=result'.format(username, password, self.file_name, test_var)
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            self.has_result = True
+            self.result_text = response.text
+            self.success = 'record_diagnostic status="Success"' in self.result_text
+            self.citation_success = not 'status="error"' in self.result_text
+            self.save()
+        else:
+            self.success = False
+            self.has_result = True
+            self.result_text = 'Error: {0}'.format(response.status_code)
+            self.save()
 
 
 class BrokenDOI(models.Model):
