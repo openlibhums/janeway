@@ -126,9 +126,9 @@ def create_crossref_template(identifier):
     }
 
     # append citations for i4oc compatibility
-    xml = identifier.article.get_render_galley
+    render_galley = identifier.article.get_render_galley
 
-    if xml:
+    if render_galley and render_galley.type == 'xml':
         try:
             # do a transform that mutates the references into Crossref format from the render galley
             logger.debug('Doing crossref citation list transform')
