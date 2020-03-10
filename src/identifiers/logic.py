@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 import datetime
+import time
 from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
@@ -211,6 +212,10 @@ def send_crossref_deposit(test_mode, identifier):
 
         crd = models.CrossrefDeposit(identifier=identifier, file_name=filename)
         crd.save()
+
+        # wait five seconds and poll, just in case
+        time.sleep(5)
+        crd.poll()
 
     return status, error
 
