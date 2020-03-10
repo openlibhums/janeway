@@ -1,16 +1,4 @@
 <?xml version="1.0"?>
-<!-- Originally created by Aptara, Technology Group  -->
-<!-- Revised by CrossRef to accomodate NISO JATS 1.0  -->
-
-<!-- Revision log
-  -  5/1/17 fix issue with article number
-  -  5/6/16 added ORCID (PDF)	
-  -  10/8/15 updated pub-date types, added elocation, udpated to 4.3.6 (PDF) 
-  -  4/26/13 updated pub-date support (PDF) 
-  -  updated to work with NISO JATS 1 (PDF) 
-  -  8/5/2014 (PDF) shortened timestamp value to match web deposit value
-
--->
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsldoc="http://www.bacman.net/XSLdoc"
@@ -27,7 +15,7 @@
         </output>
     </xsl:template>
 
-	<xsl:template match="//ref-list">
+	<xsl:template match="ref-list">
 		<citation_list>
 			<xsl:apply-templates select="ref"/>
 		</citation_list>
@@ -57,6 +45,9 @@
 						<xsl:apply-templates select="source"/>
 					</journal_title>
 				</xsl:if>
+                <xsl:if test="pub-id[@pub-id-type='doi']">
+                    <doi><xsl:apply-templates select="pub-id[@pub-id-type='doi']"/></doi>
+                </xsl:if>
 				<xsl:if test="collab">
 					<xsl:apply-templates select="collab"/>
 				</xsl:if>
@@ -73,6 +64,9 @@
 						<xsl:apply-templates select="issue"/>
 					</issue>
 				</xsl:if>
+                <xsl:if test="string-name">
+                    <author><xsl:apply-templates select="string-name"/></author>
+				</xsl:if>
 				<xsl:if test="fpage">
 					<first_page>
 						<xsl:apply-templates select="fpage"/>
@@ -80,7 +74,7 @@
 				</xsl:if>
 				<xsl:if test="year">
 					<cYear>
-						<xsl:value-of select="replace(year, '[a-zA-Z]', '')"/>
+						<xsl:value-of select="year"/>
 					</cYear>
 				</xsl:if>
 				<xsl:if test="article-title">
@@ -102,6 +96,9 @@
 				<xsl:if test="person-group">
 					<xsl:apply-templates select="person-group/name | person-group/collab"/>
 				</xsl:if>
+                <xsl:if test="string-name">
+                    <author><xsl:apply-templates select="string-name"/></author>
+				</xsl:if>
 				<xsl:if test="edition">
 					<edition_number>
 						<xsl:apply-templates select="edition"/>
@@ -114,7 +111,7 @@
 				</xsl:if>
 				<xsl:if test="year">
 					<cYear>
-						<xsl:value-of select="replace(year, '[a-zA-Z]', '')"/>
+						<xsl:value-of select="year"/>
 					</cYear>
 				</xsl:if>
 				<xsl:if test="article-title">
@@ -131,20 +128,5 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<xsl:template match="back//name">
-		<xsl:if test="position() = 1">
-			<author>
-				<xsl:apply-templates select="surname"/>
-			</author>
-		</xsl:if>
-	</xsl:template>
-
-	<xsl:template match="back//collab">
-		<xsl:if test="position() = 1">
-			<author>
-				<xsl:apply-templates/>
-			</author>
-		</xsl:if>
-	</xsl:template>
 
 </xsl:stylesheet>

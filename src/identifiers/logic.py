@@ -129,19 +129,22 @@ def create_crossref_template(identifier):
     xml = identifier.article.get_render_galley
 
     if xml:
-        # do a transform that mutates the references into Crossref format from the render galley
-        logger.debug('Doing crossref citation list transform')
-        xml_transformed = identifier.article.render_galley.render_crossref()
+        try:
+            # do a transform that mutates the references into Crossref format from the render galley
+            logger.debug('Doing crossref citation list transform')
+            xml_transformed = identifier.article.render_galley.render_crossref()
 
-        logger.debug('output')
-        logger.debug(xml_transformed)
+            logger.debug('output')
+            logger.debug(xml_transformed)
 
-        # extract the citation list
-        souped_xml = BeautifulSoup(xml_transformed, 'lxml')
-        citation_list = souped_xml.find('citation_list')
+            # extract the citation list
+            souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
+            citation_list = souped_xml.find('citation_list')
 
-        if souped_xml:
-            template_context['citation_list'] = citation_list.extract()
+            if souped_xml:
+                template_context['citation_list'] = str(citation_list.extract())
+        except:
+            logger.debug('Error transforming Crossref citations')
     else:
         logger.debug('No XML galleys found for transform')
         logger.debug(xml)
