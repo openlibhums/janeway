@@ -62,6 +62,7 @@ PDF_MIMETYPES = {
 }
 
 MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
+CROSSREF_XSL = "NLM.JATS2Crossref.v3.1.1.xsl"
 
 
 def mkdirs(path):
@@ -293,13 +294,13 @@ def get_file(file_to_get, article):
             return content
 
 
-def render_xml(file_to_render, article, xsl_file=None, crossref=False):
-    """Renders JATS and TEI XML into HTML for inline article display.
+def render_xml(file_to_render, article, xsl_path=None):
+    """Renders XML with the given XSL path or the default XSL.
 
     :param file_to_render: the file object to retrieve and render
     :param article: the associated article
-    :param xsl_file: optional instance of core.models.XSLFile
-    :return: a transform of the file to HTML through the XSLT processor
+    :param xsl_path: optional path to a custom xsl file
+    :return: a transform of the file to through the XSLT processor
     """
 
     path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(file_to_render.uuid_filename))
@@ -311,12 +312,8 @@ def render_xml(file_to_render, article, xsl_file=None, crossref=False):
         logger.debug("Bad/no file for XSLT transform")
         return ""
 
-    if xsl_file:
-        xsl_path = xsl_file.file.path
-        logger.debug('Rendering engine using {}'.format(xsl_file))
-    elif crossref:
-        xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "NLM.JATS2Crossref.v3.1.1.xsl")
-        logger.debug('Rendering engine using crossref {}'.format(xsl_path))
+    if xsl_path is not None:
+        logger.debug('Rendering engine using {}'.format(xsl_path))
     else:
         xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
         logger.debug('Rendering engine using {}'.format(xsl_path))
