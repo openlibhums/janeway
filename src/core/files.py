@@ -329,7 +329,12 @@ def render_xml(file_to_render, article, xsl_path=None):
 def transform_with_xsl(xml_path, xsl_path):
     xml_dom = etree.parse(xml_path)
     xsl_transform = etree.XSLT(etree.parse(xsl_path))
-    transformed_dom = xsl_transform(xml_dom)
+    try:
+        transformed_dom = xsl_transform(xml_dom)
+    except Exception as err:
+        for xsl_error in xsl_transform.error_log:
+            logger.error(xsl_error)
+        raise
 
     return transformed_dom
 
