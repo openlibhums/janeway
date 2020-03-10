@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from uuid import uuid4
 import requests
+from bs4 import BeautifulSoup
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -99,16 +100,8 @@ def register_crossref_component(article, xml, supp_file):
         util_models.LogEntry.add_entry('Submission', "Deposited DOI.", 'Info', target=article)
 
 
-def send_crossref_deposit(test_mode, identifier):
-    # todo: work out whether this is acceptance or publication
-    # if it's acceptance, then we use "0" for volume and issue
-    # if publication, then use real values
-    # the code here is for acceptance
-
+def create_crossref_template(identifier):
     from utils import setting_handler
-    article = identifier.article
-    error = False
-
     template_context = {
         'batch_id': uuid4(),
         'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
@@ -132,15 +125,53 @@ def send_crossref_deposit(test_mode, identifier):
         'now': timezone.now(),
     }
 
+    # append citations for i4oc compatibility
+    xml = identifier.article.get_render_galley
+
+    if xml:
+        # do a transform that mutates the references into Crossref format from the render galley
+        logger.debug('Doing crossref citation list transform')
+        xml_transformed = identifier.article.render_galley.render_crossref()
+
+        logger.debug('output')
+        logger.debug(xml_transformed)
+
+        # extract the citation list
+        souped_xml = BeautifulSoup(xml_transformed, 'lxml')
+        citation_list = souped_xml.find('citation_list')
+
+        if souped_xml:
+            template_context['citation_list'] = citation_list.extract()
+    else:
+        logger.debug('No XML galleys found for transform')
+        logger.debug(xml)
+
+    # append PDFs for similarity check compatibility
+
     pdfs = identifier.article.pdfs
     if len(pdfs) > 0:
-        template_context['pdf_url'] = article.pdf_url
+        template_context['pdf_url'] = identifier.article.pdf_url
 
-    if article.license:
-        template_context["license"] = article.license.url
+    if identifier.article.license:
+        template_context["license"] = identifier.article.license.url
+
+    return template_context
+
+
+def send_crossref_deposit(test_mode, identifier):
+    # todo: work out whether this is acceptance or publication
+    # if it's acceptance, then we use "0" for volume and issue
+    # if publication, then use real values
+    # the code here is for acceptance
+
+    from utils import setting_handler
+    article = identifier.article
+    error = False
 
     template = 'common/identifiers/crossref.xml'
+    template_context = create_crossref_template(identifier)
     crossref_template = render_to_string(template, template_context)
+
     logger.debug(crossref_template)
 
     util_models.LogEntry.add_entry('Submission', "Sending request: {0}".format(crossref_template),

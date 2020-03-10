@@ -845,6 +845,9 @@ class Galley(models.Model):
     def render(self):
         return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
 
+    def render_crossref(self):
+        return files.render_xml(self.file, self.article, xsl_file=None, crossref=True)
+
     def has_missing_image_files(self, show_all=False):
         xml_file_contents = self.file.get_file(self.article)
 
