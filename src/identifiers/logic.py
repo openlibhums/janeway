@@ -143,8 +143,8 @@ def create_crossref_template(identifier):
 
             if souped_xml:
                 template_context['citation_list'] = str(citation_list.extract())
-        except:
-            logger.debug('Error transforming Crossref citations')
+        except Exception as e:
+            logger.error('Error transforming Crossref citations: %s' % e)
     else:
         logger.debug('No XML galleys found for transform')
         logger.debug(xml)
