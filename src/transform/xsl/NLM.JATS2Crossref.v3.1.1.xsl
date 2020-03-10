@@ -73,9 +73,9 @@
 					</first_page>
 				</xsl:if>
 				<xsl:if test="year">
-					<cYear>
+					<xsl:element name="cYear">
 						<xsl:value-of select="year"/>
-					</cYear>
+					</xsl:element>
 				</xsl:if>
 				<xsl:if test="article-title">
 					<article_title>
@@ -110,9 +110,9 @@
 					</first_page>
 				</xsl:if>
 				<xsl:if test="year">
-					<cYear>
+					<xsl:element name="cYear">
 						<xsl:value-of select="year"/>
-					</cYear>
+					</xsl:element>
 				</xsl:if>
 				<xsl:if test="article-title">
 					<article_title>

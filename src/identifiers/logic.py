@@ -133,8 +133,6 @@ def create_crossref_template(identifier):
             # do a transform that mutates the references into Crossref format from the render galley
             logger.debug('Doing crossref citation list transform')
             xml_transformed = identifier.article.render_galley.render_crossref()
-
-            logger.debug('output')
             logger.debug(xml_transformed)
 
             # extract the citation list
@@ -142,7 +140,7 @@ def create_crossref_template(identifier):
             citation_list = souped_xml.find('citation_list')
 
             if souped_xml:
-                template_context['citation_list'] = str(citation_list.extract())
+                template_context['citation_list'] = str(citation_list.extract()).replace("<cyear", "<cYear").replace("</cyear", "</cYear")
         except Exception as e:
             logger.error('Error transforming Crossref citations: %s' % e)
     else:
