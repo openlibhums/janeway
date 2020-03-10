@@ -21,6 +21,7 @@ from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from crossref.restful import Depositor
+from identifiers import models
 
 logger = get_logger(__name__)
 
@@ -183,8 +184,10 @@ def send_crossref_deposit(test_mode, identifier):
     password = setting_handler.get_setting('Identifiers', 'crossref_password',
                                            identifier.article.journal).processed_value
 
+    filename = uuid4()
+
     depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
-    response = depositor.register_doi(submission_id=uuid4(), request_xml=crossref_template)
+    response = depositor.register_doi(submission_id=filename, request_xml=crossref_template)
 
     logger.debug("[CROSSREF:DEPOSIT:{0}] Sending".format(identifier.article.id))
     logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (identifier.article.id, response.status_code))
@@ -205,6 +208,9 @@ def send_crossref_deposit(test_mode, identifier):
         status = "Deposited DOI"
         util_models.LogEntry.add_entry('Submission', status, 'Info', target=identifier.article)
         logger.info(status)
+
+        crd = models.CrossrefDeposit(identifier=identifier, filename=filename)
+        crd.save()
 
     return status, error
 
