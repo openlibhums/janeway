@@ -38,6 +38,49 @@ PUB_ID_RE = re.compile("^{}$".format(PUB_ID_REGEX_PATTERN))
 DOI_RE = re.compile(DOI_REGEX_PATTERN)
 
 
+class CrossrefDeposit(models.Model):
+    identifier = models.ForeignKey("identifiers.Identifier", on_delete=models.CASCADE)
+    has_result = models.BooleanField(default=False)
+    success = models.BooleanField(default=False)
+    queued = models.BooleanField(default=False)
+    citation_success = models.BooleanField(default=False)
+    result_text = models.TextField(blank=True, null=True)
+    file_name = models.CharField(blank=False, null=False, max_length=255)
+    date_time = models.DateTimeField(default=timezone.now)
+
+    def poll(self):
+        from utils import setting_handler
+        test_mode = setting_handler.get_setting('Identifiers',
+                                                'crossref_test',
+                                                self.identifier.article.journal).processed_value or settings.DEBUG
+        username = setting_handler.get_setting('Identifiers', 'crossref_username',
+                                               self.identifier.article.journal).processed_value
+        password = setting_handler.get_setting('Identifiers', 'crossref_password',
+                                               self.identifier.article.journal).processed_value
+
+        if test_mode:
+            test_var = 'test'
+        else:
+            test_var = 'doi'
+
+        url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            self.has_result = True
+            self.queued = 'status="queued"' in self.result_text
+            self.result_text = response.text
+            self.success = 'record_diagnostic status="Success"' in self.result_text and not 'status="queued"' in self.result_text
+            self.citation_success = not 'status="error"' in self.result_text
+            self.save()
+        else:
+            self.success = False
+            self.has_result = True
+            self.result_text = 'Error: {0}'.format(response.status_code)
+            self.save()
+
+
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
     identifier = models.CharField(max_length=300)
@@ -67,46 +110,14 @@ class Identifier(models.Model):
 
         return False
 
+    @property
+    def deposit(self):
+        deposits = CrossrefDeposit.objects.filter(identifier=self).order_by('-date_time')
 
-class CrossrefDeposit(models.Model):
-    identifier = models.ForeignKey("identifiers.Identifier", on_delete=models.CASCADE)
-    has_result = models.BooleanField(default=False)
-    success = models.BooleanField(default=False)
-    citation_success = models.BooleanField(default=False)
-    result_text = models.TextField(blank=True, null=True)
-    file_name = models.CharField(blank=False, null=False, max_length=255)
-    date_time = models.DateTimeField(default=timezone.now)
-
-    def poll(self):
-        from utils import setting_handler
-        test_mode = setting_handler.get_setting('Identifiers',
-                                                'crossref_test',
-                                                self.identifier.article.journal).processed_value or settings.DEBUG
-        username = setting_handler.get_setting('Identifiers', 'crossref_username',
-                                               self.identifier.article.journal).processed_value
-        password = setting_handler.get_setting('Identifiers', 'crossref_password',
-                                               self.identifier.article.journal).processed_value
-
-        if test_mode:
-            test_var = 'test'
+        if len(deposits) > 0:
+            return deposits[0]
         else:
-            test_var = 'doi'
-
-        url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}&type=result'.format(username, password, self.file_name, test_var)
-
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            self.has_result = True
-            self.result_text = response.text
-            self.success = 'record_diagnostic status="Success"' in self.result_text
-            self.citation_success = not 'status="error"' in self.result_text
-            self.save()
-        else:
-            self.success = False
-            self.has_result = True
-            self.result_text = 'Error: {0}'.format(response.status_code)
-            self.save()
+            return None
 
 
 class BrokenDOI(models.Model):

@@ -144,6 +144,71 @@ def show_doi(request, article_id, identifier_id):
     return render_to_response(template, template_context, content_type="application/xml")
 
 
+@production_user_or_editor_required
+def poll_doi(request, article_id, identifier_id):
+    """
+    Polls crossref for DOI info
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    if not identifier.deposit:
+        pass
+    else:
+        identifier.deposit.poll()
+
+    return redirect(
+        reverse(
+            'article_identifiers',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
+
+@production_user_or_editor_required
+def poll_doi_output(request, article_id, identifier_id):
+    """
+    Polls crossref for DOI info
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    if not identifier.deposit:
+        return HttpResponse('Error: no deposit found')
+    else:
+        resp = HttpResponse(identifier.deposit.result_text, content_type="application/xml")
+        resp['Content-Disposition'] = 'inline;'
+        return resp
+
+
 @require_POST
 @production_user_or_editor_required
 def issue_doi(request, article_id, identifier_id):

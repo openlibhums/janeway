@@ -209,7 +209,7 @@ def send_crossref_deposit(test_mode, identifier):
         util_models.LogEntry.add_entry('Submission', status, 'Info', target=identifier.article)
         logger.info(status)
 
-        crd = models.CrossrefDeposit(identifier=identifier, filename=filename)
+        crd = models.CrossrefDeposit(identifier=identifier, file_name=filename)
         crd.save()
 
     return status, error
