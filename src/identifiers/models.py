@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import re
 import sys
+from django.utils import timezone
 
 import requests
 from django.db import models
@@ -74,6 +75,7 @@ class CrossrefDeposit(models.Model):
     citation_success = models.BooleanField(default=False)
     result_text = models.TextField(blank=True, null=True)
     file_name = models.CharField(blank=False, null=False, max_length=255)
+    date_time = models.DateTimeField(default=timezone.now)
 
     def poll(self):
         from utils import setting_handler
