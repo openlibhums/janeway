@@ -69,10 +69,10 @@ class CrossrefDeposit(models.Model):
 
         if response.status_code == 200:
             self.has_result = True
-            self.queued = 'status="queued"' in self.result_text
             self.result_text = response.text
-            self.success = 'record_diagnostic status="Success"' in self.result_text and not 'status="queued"' in self.result_text
-            self.citation_success = not 'status="error"' in self.result_text
+            self.queued = 'status="queued"' in self.result_text
+            self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
+            self.citation_success = not ' status="error"' in self.result_text
             self.save()
         else:
             self.success = False
