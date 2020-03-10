@@ -11,11 +11,10 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from submission import models as submission_models
 from identifiers import logic
 from utils import shared
 
-from src.core import settings
+from django.conf import settings
 
 identifier_choices = (
     ('doi', 'DOI'),
@@ -42,7 +41,7 @@ class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
     identifier = models.CharField(max_length=300)
     enabled = models.BooleanField(default=True)
-    article = models.ForeignKey(submission_models.Article, on_delete=models.CASCADE)
+    article = models.ForeignKey("submission.Article", on_delete=models.CASCADE)
 
     def __str__(self):
         return u'[{0}]: {1}'.format(self.id_type.upper(), self.identifier)
@@ -69,7 +68,7 @@ class Identifier(models.Model):
 
 
 class CrossrefDeposit(models.Model):
-    identifier = models.ForeignKey(Identifier, on_delete=models.CASCADE)
+    identifier = models.ForeignKey("identifiers.Identifier", on_delete=models.CASCADE)
     has_result = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
     citation_success = models.BooleanField(default=False)
