@@ -293,7 +293,7 @@ def get_file(file_to_get, article):
             return content
 
 
-def render_xml(file_to_render, article, xsl_file=None):
+def render_xml(file_to_render, article, xsl_file=None, crossref=False):
     """Renders JATS and TEI XML into HTML for inline article display.
 
     :param file_to_render: the file object to retrieve and render
@@ -308,11 +308,15 @@ def render_xml(file_to_render, article, xsl_file=None):
         util_models.LogEntry.add_entry(types='Error',
                                        description='The required XML file for a transform {0} was not found'.format(path),
                                        level='Error', actor=None, target=article)
+        logger.debug("Bad/no file for XSLT transform")
         return ""
 
     if xsl_file:
         xsl_path = xsl_file.file.path
         logger.debug('Rendering engine using {}'.format(xsl_file))
+    elif crossref:
+        xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "NLM.JATS2Crossref.v3.1.1.xsl")
+        logger.debug('Rendering engine using crossref {}'.format(xsl_path))
     else:
         xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
         logger.debug('Rendering engine using {}'.format(xsl_path))
