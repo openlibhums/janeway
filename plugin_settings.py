@@ -53,5 +53,5 @@ def register_for_events():
     from plugins.typesetting.notifications import emails
     events_logic.Events.register_for_event(
         events_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE,
-        emails.send_typesetting_complete
+        emails.send_typesetting_complete,
     )
