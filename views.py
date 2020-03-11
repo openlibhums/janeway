@@ -91,7 +91,6 @@ def typesetting_article(request, article_id):
         )
 
     elif request.POST and "complete-typesetting" in request.POST:
-        import pdb;pdb.set_trace()
         logic.complete_typesetting(request, article)
 
 
