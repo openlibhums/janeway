@@ -1,3 +1,4 @@
+from events import logic as events_logic
 from utils import plugins
 from utils.install import update_settings
 
@@ -15,6 +16,8 @@ IS_WORKFLOW_PLUGIN = True
 HANDSHAKE_URL = 'typesetting_article'
 ARTICLE_PK_IN_HANDSHAKE_URL = True
 STAGE = 'typesetting_plugin'
+
+ON_TYPESETTING_COMPLETE = "on_typesetting_complete"
 
 
 class TypesettingPlugin(plugins.Plugin):
@@ -44,3 +47,11 @@ def install():
 
 def hook_registry():
     TypesettingPlugin.hook_registry()
+
+def register_for_events():
+    # Plugin modules can't be imported until plugin is loaded
+    from plugins.typesetting.notifications import emails
+    events_logic.Events.register_for_event(
+        events_logic.Events.ON_REVIEWER_REQUESTED_ACKNOWLEDGE,
+        emails.send_typesetting_complete
+    )

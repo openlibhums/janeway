@@ -1,10 +1,15 @@
+from django.db import transaction
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.utils.translation import ugettext_lazy as _
 
-from production import logic
 from core import models as core_models
+from events import logic as event_logic
+from journal import models as journal_models
+from production import logic
+from submission import models as submission_models
 from utils import render_template
 
-from plugins.typesetting import models
+from plugins.typesetting import models, plugin_settings
 
 
 def production_ready_files(article, file_objects=False):
@@ -122,3 +127,31 @@ def typesetting_pending_tasks(round):
         pending_tasks.append(OPEN_TASKS)
 
     return pending_tasks
+
+
+@transaction.atomic
+def complete_typesetting(request, article):
+    article.stage = submission_models.STAGE_READY_FOR_PUBLICATION
+    article.save()
+    journal_models.FixedPubCheckItems.objects.get_or_create(article=article)
+    kwargs = {'request': request, 'article': article}
+
+    event_logic.Events.raise_event(
+        plugin_settings.ON_TYPESETTING_COMPLETE,
+        task_object=article, **kwargs
+    )
+    if request.journal.element_in_workflow(element_name='typesetting'):
+        workflow_kwargs = {
+            'handshake_url': 'typesetting_list',
+            'request': request,
+            'article': article,
+            'switch_stage': True,
+        }
+
+        return event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            task_object=article,
+            **workflow_kwargs)
+    else:
+        return redirect(
+            reverse('publish_article', kwargs={'article_id': article.pk}))

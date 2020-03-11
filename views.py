@@ -90,6 +90,10 @@ def typesetting_article(request, article_id):
             )
         )
 
+    elif request.POST and "complete-typesetting" in request.POST:
+        import pdb;pdb.set_trace()
+        logic.complete_typesetting(request, article)
+
 
     template = 'typesetting/typesetting_article.html'
     context = {
@@ -796,4 +800,3 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
     }
 
     return render(request, template, context)
-

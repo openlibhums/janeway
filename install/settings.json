@@ -73,5 +73,33 @@
     "value": {
       "default": "<p>Dear {{ assignment.proofreader.full_name }},</p><p>This is an notification from {{ request.user.full_name }} that you have been assigned to proofread {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment <a href=\"{% journal_url 'typesetting_assignments' %}\" >here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
     }
+  },
+  {
+    "value": {"default": "Production Complete"},
+    "setting": {
+        "type": "text",
+        "pretty_name": "Production Complete",
+        "is_translatable": true,
+        "description": "Subject for Email sent to Editors when Production is Complete.",
+        "name": "subject_production_complete"
+    },
+    "group": {
+        "name": "email_subject"
+    }
+  },
+  {
+    "group": {
+        "name": "email"
+    },
+    "setting": {
+        "description": "Email sent to Editors when Typesetting is Complete. Used by the typesetting plugin",
+        "is_translatable": true,
+        "name": "typesetting_complete",
+        "pretty_name": "Typesetting Complete (PLUGIN)",
+        "type": "rich-text"
+    },
+    "value": {
+        "default": "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.title}}\".</p><p>This article is now in the <a href=\"{% url 'proofing_list' %}\">Proofing workflow</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
   }
 ]
