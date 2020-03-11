@@ -555,7 +555,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
     elif request.POST and "decision" in request.POST:
         decision_form = forms.ManagerDecision(
             request.POST,
-            instance=assignment
+            instance=assignment,
         )
 
         if decision_form.is_valid():
@@ -831,20 +831,20 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofing task cancelled.'
+                    'Proofing task cancelled.',
                 )
             elif action == 'reset':
                 assignment.reset()
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofing task reset.'
+                    'Proofing task reset.',
                 )
 
             return redirect(
                 reverse(
                     'typesetting_article',
-                    kwargs={'article_id': article.pk}
+                    kwargs={'article_id': article.pk},
                 )
             )
 
@@ -858,7 +858,7 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Assignment updated.'
+                'Assignment updated.',
             )
 
             return redirect(
@@ -903,7 +903,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
         pk=assignment_id,
         proofreader=request.user,
         completed__isnull=True,
-        cancelled=False
+        cancelled=False,
     )
     galleys = core_models.Galley.objects.filter(
         article=assignment.round.article,
@@ -931,7 +931,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofreading Assignment complete.'
+                    'Proofreading Assignment complete.',
                 )
                 return redirect(
                     reverse(
@@ -1040,7 +1040,7 @@ def typesetting_proofing_download(request, assignment_id, file_id):
     try:
         galley = core_models.Galley.objects.get(
             article_id=assignment.round.article.pk,
-            file=file
+            file=file,
         )
         assignment.proofed_files.add(galley)
         return files.serve_file(request, file, assignment.round.article)
