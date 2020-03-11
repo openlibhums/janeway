@@ -995,6 +995,11 @@ def typesetting_preview_galley(
         )
         proofing_task.proofed_files.add(galley)
     elif article_id and request.user.has_an_editor_role(request):
+        article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
         galley = get_object_or_404(
             core_models.Galley,
             pk=galley_id,
@@ -1013,7 +1018,7 @@ def typesetting_preview_galley(
     context = {
         'proofing_task': proofing_task,
         'galley': galley,
-        'article': proofing_task.round.article,
+        'article': article if article else proofing_task.round.article,
         'identifier_type': 'id',
         'identifier': article.pk if article else proofing_task.round.article.pk,
         'article_content': galley.file_content(),
