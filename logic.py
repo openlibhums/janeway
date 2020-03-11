@@ -1,8 +1,16 @@
+from django.db import transaction
+from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from production import logic
 from core import models as core_models, files
+from events import logic as event_logic
+from journal import models as journal_models
+from production import logic
+from submission import models as submission_models
 from utils import render_template
+
+from plugins.typesetting import models, plugin_settings
 
 
 def production_ready_files(article, file_objects=False):
@@ -115,3 +123,67 @@ def handle_proofreader_file(request, assignment, article):
             )
 
 
+def new_typesetting_round(article, rounds, user):
+    if not rounds:
+        new_round = models.TypesettingRound.objects.create(
+            article=article,
+        )
+    else:
+        latest_round = rounds[0]
+        latest_round.close(user)
+        new_round = models.TypesettingRound.objects.create(
+            article=article,
+            round_number = latest_round.round_number + 1,
+        )
+
+    return new_round
+
+
+MISSING_GALLEYS = _("Article has no galleys")
+MISSING_IMAGES = _("One or more Galleys are missing images")
+OPEN_TASKS = _("One or more typesetting or proofing tasks haven't been closed")
+
+
+def typesetting_pending_tasks(round):
+    pending_tasks = []
+    galleys = round.article.galley_set.all()
+    if not galleys:
+        pending_tasks.append(MISSING_GALLEYS)
+    else:
+        for galley in galleys:
+            if galley.has_missing_image_files():
+                pending_tasks.append(MISSING_IMAGES)
+                break
+
+    if round.has_open_tasks:
+        pending_tasks.append(OPEN_TASKS)
+
+    return pending_tasks
+
+
+@transaction.atomic
+def complete_typesetting(request, article):
+    article.stage = submission_models.STAGE_READY_FOR_PUBLICATION
+    article.save()
+    journal_models.FixedPubCheckItems.objects.get_or_create(article=article)
+    kwargs = {'request': request, 'article': article}
+
+    event_logic.Events.raise_event(
+        plugin_settings.ON_TYPESETTING_COMPLETE,
+        task_object=article, **kwargs
+    )
+    if request.journal.element_in_workflow(element_name='typesetting'):
+        workflow_kwargs = {
+            'handshake_url': 'typesetting_list',
+            'request': request,
+            'article': article,
+            'switch_stage': True,
+        }
+
+        return event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            task_object=article,
+            **workflow_kwargs)
+    else:
+        return redirect(
+            reverse('publish_article', kwargs={'article_id': article.pk}))

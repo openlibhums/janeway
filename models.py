@@ -44,6 +44,25 @@ class TypesettingRound(models.Model):
         )
 
 
+    @property
+    def has_open_tasks(self):
+        if hasattr(self, 'typesettingassignment'):
+            if not self.typesettingassignment.done:
+                return True
+
+        #TODO: Check proofing tasks as well
+        return False
+
+
+    def close(self, user=None):
+        """ Method that closes a round by cancelling any open tasks """
+        if hasattr(self, 'typesettingassignment'):
+            if self.typesettingassignment.is_active:
+                self.typesettingassignment.delete(user=user)
+
+        #TODO: Cancel proofing tasks
+
+
 class TypesettingAssignment(models.Model):
     round = models.OneToOneField(TypesettingRound)
     manager = models.ForeignKey(

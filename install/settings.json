@@ -88,5 +88,33 @@
     "value": {
       "default": "<p>The files below have been assigned to you for proofreading. You must check all files before you can mark this task as complete, including both the PDF and XML proofs (XML is the web display version of the article).</p><p>After downloading the files, you can then upload these with any annotations or corrections marked directly on the proofs. If needed, you can also add additional notes to the typesetter in the text box below.</p><p>Please note that proofreading comments will go back to a typesetter, and so should give concise and clear instructions on any minor corrections needed (do not include questions or optional requests – if you are unsure on something, discuss it with the assigning editor first).</p>"
     }
+  },
+  {
+    "value": {"default": "Production Complete"},
+    "setting": {
+        "type": "text",
+        "pretty_name": "Production Complete",
+        "is_translatable": true,
+        "description": "Subject for Email sent to Editors when Production is Complete.",
+        "name": "subject_production_complete"
+    },
+    "group": {
+        "name": "email_subject"
+    }
+  },
+  {
+    "group": {
+        "name": "email"
+    },
+    "setting": {
+        "description": "Email sent to Editors when Typesetting is Complete. Used by the typesetting plugin",
+        "is_translatable": true,
+        "name": "typesetting_complete",
+        "pretty_name": "Typesetting Complete (PLUGIN)",
+        "type": "rich-text"
+    },
+    "value": {
+        "default": "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.title}}\".</p><p>This article is now in the <a href=\"{% url 'proofing_list' %}\">Proofing workflow</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
   }
 ]
