@@ -118,6 +118,6 @@ class ProofingForm(forms.ModelForm):
         }
         widgets = {
             'notes': SummernoteWidget(
-                attrs={'summernote': summernote_attrs}
+                attrs={'summernote': summernote_attrs},
             ),
         }
