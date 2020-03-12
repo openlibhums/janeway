@@ -48,9 +48,6 @@
                 <xsl:if test="pub-id[@pub-id-type='doi']">
                     <doi><xsl:apply-templates select="pub-id[@pub-id-type='doi']"/></doi>
                 </xsl:if>
-				<xsl:if test="collab">
-					<xsl:apply-templates select="collab"/>
-				</xsl:if>
 				<xsl:if test="person-group">
 					<author><xsl:apply-templates select="person-group/name | person-group/collab"/></author>
 				</xsl:if>
@@ -89,9 +86,6 @@
 					<volume_title>
 						<xsl:apply-templates select="source"/>
 					</volume_title>
-				</xsl:if>
-				<xsl:if test="collab">
-					<xsl:apply-templates select="collab"/>
 				</xsl:if>
 				<xsl:if test="person-group">
 					<author><xsl:apply-templates select="person-group/name | person-group/collab"/></author>
