@@ -576,6 +576,11 @@ class Article(models.Model):
     def get_doi(self):
         return self.get_identifier('doi')
 
+    @property
+    def identifiers(self):
+        from identifiers import models as identifier_models
+        return identifier_models.Identifier.objects.filter(article=self)
+
     def get_pubid(self):
         return self.get_identifier('pubid')
 
