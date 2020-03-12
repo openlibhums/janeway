@@ -145,7 +145,6 @@ def create_crossref_template(identifier):
             logger.error('Error transforming Crossref citations: %s' % e)
     else:
         logger.debug('No XML galleys found for transform')
-        logger.debug(xml)
 
     # append PDFs for similarity check compatibility
 
