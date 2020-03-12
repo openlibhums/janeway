@@ -62,10 +62,7 @@ def typesetting_article(request, article_id):
     manuscript_files = logic.production_ready_files(article)
 
     if not rounds:
-        models.TypesettingRound.objects.create(
-            article=article,
-        )
-
+        logic.new_typesetting_round(article, rounds, request.user)
         messages.add_message(
             request,
             messages.INFO,
@@ -79,12 +76,32 @@ def typesetting_article(request, article_id):
             )
         )
 
+    if request.POST and "new-round" in request.POST:
+        logic.new_typesetting_round(article, rounds, request.user)
+        messages.add_message(
+            request,
+            messages.INFO,
+            'New typesetting round created.',
+        )
+
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
+    elif request.POST and "complete-typesetting" in request.POST:
+        logic.complete_typesetting(request, article)
+
+
     template = 'typesetting/typesetting_article.html'
     context = {
         'article': article,
         'rounds': rounds,
         'galleys': galleys,
         'manuscript_files': manuscript_files,
+        'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
     }
 
     return render(request, template, context)
@@ -551,7 +568,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
                 }
             )
         )
-    
+
     elif request.POST and "decision" in request.POST:
         decision_form = forms.ManagerDecision(
             request.POST,
@@ -773,7 +790,7 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
             message,
             skip=True if 'skip' in request.POST else False
         )
-        
+
         messages.add_message(
             request,
             messages.SUCCESS,
