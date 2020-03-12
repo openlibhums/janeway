@@ -199,7 +199,9 @@ elif os.environ.get("DB_VENDOR") in {"mysql", "mariadb"}:
             'HOST': os.environ["DB_HOST"],
             'PORT': os.environ["DB_PORT"],
             'OPTIONS': {
-                'init_command': 'SET default_storage_engine=INNODB',
+                'init_command': 'SET default_storage_engine=INNODB; '
+                'ALTER DATABASE {0} CHARACTER SET utf8mb4 COLLATE '
+                'utf8mb4_general_ci'.format(os.environ["DB_NAME"]),
                 'charset': 'utf8mb4',
             },
         }
