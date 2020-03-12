@@ -36,6 +36,7 @@ class TypesettingRound(models.Model):
     def __str__(self):
         return str(self.round_number)
 
+    
     def has_completed_proofing(self):
         return GalleyProofing.objects.filter(
             round=self,
