@@ -981,12 +981,12 @@ def typesetting_proofreading_assignment(request, assignment_id):
     return render(request, template, context)
 
 
-@decorators.proofreader_user_required
+@security.proofreader_for_article_required
 def typesetting_preview_galley(
         request,
+        article_id,
         galley_id,
         assignment_id=None,
-        article_id=None
 ):
     """
     Displays a preview of a galley object
@@ -996,27 +996,25 @@ def typesetting_preview_galley(
     :param article_id: Article object PK
     :return: HttpResponse
     """
-
     proofing_task = None
-    article = None
-
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
     if assignment_id:
         proofing_task = get_object_or_404(
             models.GalleyProofing,
             pk=assignment_id,
+            round__article=article,
         )
         galley = get_object_or_404(
             core_models.Galley,
             pk=galley_id,
-            article_id=proofing_task.round.article.pk,
+            article_id=article.pk,
         )
         proofing_task.proofed_files.add(galley)
-    elif article_id and request.user.has_an_editor_role(request):
-        article = get_object_or_404(
-            submission_models.Article,
-            pk=article_id,
-            journal=request.journal,
-        )
+    elif request.user.has_an_editor_role(request):
         galley = get_object_or_404(
             core_models.Galley,
             pk=galley_id,
@@ -1045,13 +1043,14 @@ def typesetting_preview_galley(
 
 
 @security.proofreader_for_article_required
-def typesetting_proofing_download(request, assignment_id, file_id):
+def typesetting_proofing_download(request, article_id, assignment_id, file_id):
     """
     Serves a galley for proofreader
     """
     assignment = get_object_or_404(
         models.GalleyProofing,
         pk=assignment_id,
+        round__article__id=article_id,
     )
     file = get_object_or_404(core_models.File, pk=file_id)
     try:

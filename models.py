@@ -53,7 +53,6 @@ class TypesettingRound(models.Model):
         #TODO: Check proofing tasks as well
         return False
 
-
     def close(self, user=None):
         """ Method that closes a round by cancelling any open tasks """
         if hasattr(self, 'typesettingassignment'):

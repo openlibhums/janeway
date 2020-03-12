@@ -48,7 +48,7 @@
     // PDFJS.cMapPacked = true;
 
     {% if proofing_task %}
-    var DEFAULT_URL = '{% url 'typesetting_proofing_download' proofing_task.pk galley.file.pk %}';
+    var DEFAULT_URL = '{% url 'typesetting_proofing_download' galley.article.pk proofing_task.pk galley.file.pk %}';
     {% else %}
     var DEFAULT_URL = '{% url 'article_file_download' 'id' article.pk galley.file.pk %}';
     {% endif %}

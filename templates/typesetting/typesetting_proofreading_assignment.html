@@ -45,10 +45,10 @@
                                 <td>{{ galley.label }}{% if galley in assignment.proofed_files.all %}
                                     <span class="fa fa-check-circle"></span>{% endif %}</td>
                                 <td>{{ galley.file.original_filename }}</td>
-                                <td><a href="{% url 'typesetting_preview_galley' galley.pk assignment.pk %}"
+                                <td><a href="{% url 'typesetting_preview_galley' galley.article.pk galley.pk assignment.pk %}"
                                        target="blank"> <span class="fa fa-eye"></span> View File</a></td>
                                 <td>
-                                    <a href="{% url 'typesetting_proofing_download' assignment.pk galley.file.pk %}"><span
+                                    <a href="{% url 'typesetting_proofing_download' galley.article.pk assignment.pk galley.file.pk %}"><span
                                             class="fa fa-download"></span> Download File</a></td>
                             </tr>
                         {% endfor %}
