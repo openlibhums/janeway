@@ -160,12 +160,13 @@ def extract_citations_for_crossref(article):
             souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
             citation_list = souped_xml.find('citation_list')
 
-            citations = str(citation_list.extract())
-            citations = citations.replace(
-                "<cyear", "<cYear"
-            ).replace(
-                "</cyear", "</cYear"
-            )
+            if citation_list:
+                citations = str(citation_list.extract())
+                citations = citations.replace(
+                    "<cyear", "<cYear"
+                ).replace(
+                    "</cyear", "</cYear"
+                )
         except Exception as e:
             logger.error('Error transforming Crossref citations: %s' % e)
     else:
