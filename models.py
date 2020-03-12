@@ -318,6 +318,7 @@ class GalleyProofing(models.Model):
         self.save()
 
     def complete(self):
+        self.cancelled = False
         self.completed = timezone.now()
         self.accepted = timezone.now()
         self.save()
