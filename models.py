@@ -364,7 +364,7 @@ class GalleyProofing(models.Model):
             return 'accepted'
         elif self.assigned and self.completed and not self.accepted:
             return 'declined'
-        elif self.completed:
+        elif self.assigned and self.completed and self.accepted:
             return 'completed'
         elif self.assigned and not self.accepted and not self.completed:
             return 'assigned'
