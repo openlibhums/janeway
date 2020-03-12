@@ -1078,7 +1078,6 @@ def preview_figure(
         assignment_id=None,
         article_id=None
 ):
-    print(assignment_id)
     if assignment_id:
         assignment = get_object_or_404(
             models.GalleyProofing,
