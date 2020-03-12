@@ -65,8 +65,9 @@
             <div class="content">
                 {{ copyedit.copyeditor_note|safe }}
             </div>
+        </div>
 
-
+        <div class="box">
             {% if copyedit.author_reviews %}
                 <div class="title-area">
                     <h2>Author Reviews</h2>
@@ -115,6 +116,11 @@
                                 </tr>
                             {% endfor %}
                         </table>
+                        <h5>Covering Letter from Author</h5>
+                        <blockquote>{{ review.author_note|safe }}</blockquote>
+                        {% if not forloop.last %}
+                        <hr />
+                        {% endif %}
                     {% endfor %}
                 </div>
 
