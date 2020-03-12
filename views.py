@@ -1054,11 +1054,36 @@ def typesetting_proofing_download(request, assignment_id, file_id):
 
 
 @security.proofreader_for_article_required
-def preview_figure(request, assignment_id, galley_id, file_name):
-    # TODO: make this work
-    galley = get_object_or_404(
-        core_models.Galley,
-        pk=galley_id,
-        article__journal=request.journal,
-    )
-    return article_figure(request, galley.article.pk, galley_id, file_name)
+def preview_figure(
+        request,
+        galley_id,
+        file_name,
+        assignment_id=None,
+        article_id=None
+):
+    print(assignment_id)
+    if assignment_id:
+        assignment = get_object_or_404(
+            models.GalleyProofing,
+            pk=assignment_id,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=assignment.round.article.pk,
+        )
+    elif article_id and request.user.has_an_editor_role(request):
+        article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=article.pk,
+        )
+    else:
+        raise PermissionDenied
+
+    return article_figure(request, galley.article.pk, galley.pk, file_name)

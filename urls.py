@@ -92,8 +92,13 @@ urlpatterns = [
         views.typesetting_proofing_download,
         name='typesetting_proofing_download'
         ),
-    url(r'^preview/assignment/(?P<assignment_id>\d+)/galley/(?P<galley_id>\d+)/(?P<file_name>.*)$',
+    url(r'^preview_galley/(?P<galley_id>\d+)/assignment/(?P<assignment_id>\d+)/figures/(?P<file_name>.*)$',
         views.preview_figure,
-        name='preview_figure'
+        name='proofreader_preview_figure'
+        ),
+
+    url(r'^preview_galley/(?P<galley_id>\d+)/article/(?P<article_id>\d+)/figures/(?P<file_name>.*)$',
+        views.preview_figure,
+        name='typesetter_preview_figure'
         )
 ]
