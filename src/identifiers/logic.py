@@ -128,29 +128,10 @@ def create_crossref_template(identifier):
     }
 
     # append citations for i4oc compatibility
-    render_galley = identifier.article.get_render_galley
-
-    if render_galley and render_galley.type == 'xml':
-        try:
-            # do a transform that mutates the references into Crossref format from the render galley
-            logger.debug('Doing crossref citation list transform')
-            xml_transformed = identifier.article.render_galley.render_crossref()
-            logger.debug(xml_transformed)
-
-            # extract the citation list
-            souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
-            citation_list = souped_xml.find('citation_list')
-
-            if souped_xml:
-                template_context['citation_list'] = str(citation_list.extract()).replace("<cyear", "<cYear").replace("</cyear", "</cYear")
-        except Exception as e:
-            logger.error('Error transforming Crossref citations: %s' % e)
-    else:
-        logger.debug('No XML galleys found for transform')
-        logger.debug(xml)
+    template_context["citation_list"] = extract_citations_for_crossref(
+        identifier.article)
 
     # append PDFs for similarity check compatibility
-
     pdfs = identifier.article.pdfs
     if len(pdfs) > 0:
         template_context['pdf_url'] = identifier.article.pdf_url
@@ -159,6 +140,41 @@ def create_crossref_template(identifier):
         template_context["license"] = identifier.article.license.url
 
     return template_context
+
+
+def extract_citations_for_crossref(article):
+    """ Extracts the citations in a format compatible for crossref deposits
+
+    It can only handle articles with an XML galley using a DTD
+    compatible with the XSL provided by crossref themselves
+    :param Article: A submission.models.Article instance
+    :return: The formatted string containing the references
+    """
+    render_galley = article.get_render_galley
+    citations = None
+    if render_galley and render_galley.type == 'xml':
+        try:
+            logger.debug('Doing crossref citation list transform:')
+            xml_transformed = render_galley.render_crossref()
+            logger.debug(xml_transformed)
+
+            # extract the citation list
+            souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
+            citation_list = souped_xml.find('citation_list')
+
+            if citation_list:
+                citations = str(citation_list.extract())
+                citations = citations.replace(
+                    "<cyear", "<cYear"
+                ).replace(
+                    "</cyear", "</cYear"
+                )
+        except Exception as e:
+            logger.error('Error transforming Crossref citations: %s' % e)
+    else:
+        logger.debug('No XML galleys found for crossref citation extraction')
+
+    return citations
 
 
 def send_crossref_deposit(test_mode, identifier):
