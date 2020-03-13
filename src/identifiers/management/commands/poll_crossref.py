@@ -32,7 +32,7 @@ class Command(BaseCommand):
         :return: None
         """
         print("Polling deposits.")
-        outstanding_deposits = (Q(queued=True) | Q(has_result='False'))
+        outstanding_deposits = (Q(queued=True) | Q(has_result=False))
         filter_args= [outstanding_deposits]
         filter_kwargs={}
         if options.get("journal_code"):
