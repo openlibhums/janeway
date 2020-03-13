@@ -229,8 +229,6 @@ def send_crossref_deposit(test_mode, identifier):
         crd = models.CrossrefDeposit(identifier=identifier, file_name=filename)
         crd.save()
 
-        # wait five seconds and poll, just in case
-        time.sleep(5)
         crd.poll()
 
     return status, error
