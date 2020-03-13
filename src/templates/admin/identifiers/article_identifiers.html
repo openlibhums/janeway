@@ -25,6 +25,8 @@
             <th>Identifier Type</th>
             <th>Identifier</th>
             <th>Enabled</th>
+            <th>Status</th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>
@@ -36,10 +38,16 @@
                 <td>{{ ident.get_id_type_display }}</td>
                 <td>{{ ident.identifier }}</td>
                 <td>{% if ident.enabled %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
+                <td>{% if ident.get_id_type_display == 'DOI' %}
+                    <a href="{% url 'poll_doi_output' article.pk ident.pk %}">{% if ident.deposit %}{% if not ident.deposit.has_result %}No data{% elif ident.deposit.queued %}Queued{% elif ident.deposit.success %}Success{% if not ident.deposit.citation_success %} (but some citations not correctly parsed){% endif %}{% else %}Failure{% endif %}{% else %}No data{% endif %}</a>
+                    {% else %}<i class="fa fa-check"></i>
+                    {% endif %}
+                </td>
                 <td><a href="{% url 'edit_identifier' article.pk ident.pk %}" class="small button"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
                 <td><button class="small button warning" name="delete" formaction="{% url 'delete_identifier' article.pk ident.pk %}"><i class="fa fa-trash">&nbsp;</i>Delete</button></td>
                 <td>{% if ident.get_id_type_display == 'DOI' %}<button type="submit" class="small success button" formaction="{% url 'issue_doi' article.pk ident.pk %}">Issue DOI</button>{% endif %}</td>
                 <td>{% if ident.get_id_type_display == 'DOI' %}<a class="small success button" href="{% url 'show_doi' article.pk ident.pk %}">Show DOI XML</a>{% endif %}</td>
+                <td>{% if ident.get_id_type_display == 'DOI' %}<a class="small success button" href="{% url 'poll_doi' article.pk ident.pk %}">Poll for DOI status</a>{% endif %}</td>
             </form>
         </tr>
         {% endfor %}

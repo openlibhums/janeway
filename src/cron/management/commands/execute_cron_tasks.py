@@ -21,4 +21,5 @@ class Command(BaseCommand):
         print("Executing cron tasks now.")
         call_command('send_digest_emails')
         call_command('send_reminders')
+        call_command('poll_crossref')
         models.CronTask.run_tasks()

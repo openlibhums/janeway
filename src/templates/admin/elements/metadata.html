@@ -175,10 +175,12 @@
         <tr>
             <th>ID Type</th>
             <th>Identifier</th>
+            <th></th>
         </tr>
         <tr>
             <td>ID</td>
             <td>{{ article.pk }}</td>
+            <td>Status</td>
         </tr>
         {% if use_crossref %}
             <tr>
@@ -186,9 +188,25 @@
                 {% if doi %}
                     <td>DOI</td>
                     <td>{{ doi }}</td>
+                    <td>
+                        {% for identifier in article.identifiers %}
+                            {% if identifier.identifier == doi %}
+                                {% if identifier.deposit %}
+                                    <a href="{% url 'poll_doi_output' article.pk identifier.pk %}">
+                                    {% if identifier.deposit.success %}
+                                        <i class="fa fa-check">&nbsp;</i>
+                                    {% else %}
+                                        <i class="fa fa-exclamation-circle">&nbsp;</i>
+                                    {% endif %}
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
                 {% else %}
                     <td>Example DOI Based on Pattern</td>
                     <td>{{ article.render_sample_doi }}</td>
+                    <td></td>
                 {% endif %}
                 {% endwith %}
             </tr>
