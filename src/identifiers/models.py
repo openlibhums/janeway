@@ -14,8 +14,11 @@ from django.db.models.signals import post_save
 
 from identifiers import logic
 from utils import shared
+from utils.logger import get_logger
 
 from django.conf import settings
+
+logger = get_logger(__name__)
 
 identifier_choices = (
     ('doi', 'DOI'),
@@ -74,11 +77,21 @@ class CrossrefDeposit(models.Model):
             self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
             self.citation_success = not ' status="error"' in self.result_text
             self.save()
+            logger.debug(self)
         else:
             self.success = False
             self.has_result = True
             self.result_text = 'Error: {0}'.format(response.status_code)
             self.save()
+            logger.error(self.status_text)
+            logger.error(self)
+    def __str__(self):
+        return ("[Deposit:{self.identifier.identifier}:{self.file_name}]"
+            "[queued:{self.queued}]"
+            "[success:{self.success}]"
+            "[citation_success:{self.citation_success}]".format(self=self)
+        )
+
 
 
 class Identifier(models.Model):
@@ -112,9 +125,9 @@ class Identifier(models.Model):
 
     @property
     def deposit(self):
-        deposits = CrossrefDeposit.objects.filter(identifier=self).order_by('-date_time')
+        deposits = self.crossrefdeposit_set.all().order_by('-date_time')
 
-        if len(deposits) > 0:
+        if deposits.count() > 0:
             return deposits[0]
         else:
             return None
