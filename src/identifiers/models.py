@@ -42,6 +42,14 @@ DOI_RE = re.compile(DOI_REGEX_PATTERN)
 
 
 class CrossrefDeposit(models.Model):
+    """
+    The booleans here have a priority order:
+    1. If queued is True, other flags are meaningless.
+    2. If success is False, then all other flags except queued should be disregarded as non-useful.
+    3. If success is True but citation_success is False, then the deposit succeeded, but Crossref had trouble
+    parsing some references for unknown reasons.
+    """
+
     identifier = models.ForeignKey("identifiers.Identifier", on_delete=models.CASCADE)
     has_result = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
