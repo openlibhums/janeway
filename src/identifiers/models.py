@@ -85,11 +85,16 @@ class CrossrefDeposit(models.Model):
             self.save()
             logger.error(self.status_text)
             logger.error(self)
+
     def __str__(self):
         return ("[Deposit:{self.identifier.identifier}:{self.file_name}]"
             "[queued:{self.queued}]"
             "[success:{self.success}]"
-            "[citation_success:{self.citation_success}]".format(self=self)
+            "[citation_success:{citation_success}]".format(
+                self=self,
+                #Citation success only to be considered for succesful deposits
+                citation_success=self.citation_success if self.success else None,
+            )
         )
 
 
