@@ -10,6 +10,7 @@ from submission import models as submission_models
 from core import models as core_models, files
 from production import logic as production_logic
 from journal.views import article_figure
+from utils import models as utils_models
 
 
 @decorators.has_journal
@@ -845,6 +846,18 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
 
             if action == 'cancel':
                 assignment.cancel()
+
+                utils_models.LogEntry.add_entry(
+                    types='Proofreading Assignment Cancelled',
+                    description='Proofing by {} cancelled by {}'.format(
+                        assignment.proofreader.full_name(),
+                        request.user,
+                    ),
+                    level='Info',
+                    actor=request.user,
+                    target=article,
+                )
+
                 messages.add_message(
                     request,
                     messages.SUCCESS,
@@ -852,6 +865,18 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                 )
             elif action == 'reset':
                 assignment.reset()
+
+                utils_models.LogEntry.add_entry(
+                    types='Proofreading Assignment Reset',
+                    description='Proofing by {} reset by {}'.format(
+                        assignment.proofreader.full_name(),
+                        request.user,
+                    ),
+                    level='Info',
+                    actor=request.user,
+                    target=article,
+                )
+
                 messages.add_message(
                     request,
                     messages.SUCCESS,

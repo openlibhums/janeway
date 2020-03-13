@@ -333,7 +333,6 @@ class GalleyProofing(models.Model):
 
         return check
 
-
     @property
     def time_to_due(self):
         due = self.due - timezone.now()
