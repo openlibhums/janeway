@@ -91,7 +91,7 @@ class CrossrefDeposit(models.Model):
             self.has_result = True
             self.result_text = 'Error: {0}'.format(response.status_code)
             self.save()
-            logger.error(self.status_text)
+            logger.error(self.result_text)
             logger.error(self)
 
     def __str__(self):

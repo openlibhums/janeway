@@ -47,3 +47,11 @@ class Command(BaseCommand):
         for deposit in deposits:
             print("Handling deposit {0}.xml".format(deposit.file_name))
             deposit.poll()
+
+            if deposit.queued:
+                print("[QUEUED]{}".format(deposit))
+            elif deposit.success:
+                print("[SUCCESS]{}".format(deposit))
+            else:
+                print("[FAILURE]{}".format(deposit))
+                self.stderr.write("[FAILURE]{}".format(deposit))
