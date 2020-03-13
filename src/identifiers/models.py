@@ -15,6 +15,7 @@ from django.db.models.signals import post_save
 from identifiers import logic
 from utils import shared
 from utils.logger import get_logger
+from utils import setting_handler
 
 from django.conf import settings
 
@@ -58,9 +59,11 @@ class CrossrefDeposit(models.Model):
     result_text = models.TextField(blank=True, null=True)
     file_name = models.CharField(blank=False, null=False, max_length=255)
     date_time = models.DateTimeField(default=timezone.now)
+    polling_attempts = models.PositiveIntegerField(default=0)
 
     def poll(self):
-        from utils import setting_handler
+        self.polling_attempts += 1
+        self.save()
         test_mode = setting_handler.get_setting('Identifiers',
                                                 'crossref_test',
                                                 self.identifier.article.journal).processed_value or settings.DEBUG
@@ -77,9 +80,12 @@ class CrossrefDeposit(models.Model):
         url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
 
         response = requests.get(url)
-        import pdb;pdb.set_trace()
         if response.status_code == 200:
+            self.result_text = response.text
             self.has_result = ' status="unknown_submission"' not in self.result_text
+            self.queued = 'status="queued"' in self.result_text or 'in_process' in self.result_text
+            self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
+            self.citation_success = not ' status="error"' in self.result_text
             self.save()
             logger.debug(self)
         else:
