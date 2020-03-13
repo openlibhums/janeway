@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 import datetime
-import time
 from uuid import uuid4
 import requests
 from bs4 import BeautifulSoup
