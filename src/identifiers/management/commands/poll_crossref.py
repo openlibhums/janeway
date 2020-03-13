@@ -12,6 +12,18 @@ class Command(BaseCommand):
 
     help = "Poll 20 Crossref tasks that need doing."
 
+    def add_arguments(self, parser):
+        parser.add_argument('tasks',
+            default=20,
+            type=int,
+            nargs='?',
+            help="The maximum number of tasks that will be run"
+        )
+        parser.add_argument('--journal_code',
+            nargs='?',
+            help="Filter tasks by journal"
+        )
+
     def handle(self, *args, **options):
         """Polls all outstanding deposits.
 
@@ -20,13 +32,17 @@ class Command(BaseCommand):
         :return: None
         """
         print("Polling deposits.")
-        ids = models.CrossrefDeposit.objects.filter(Q(queued=True) | Q(has_result='False'))
+        outstanding_deposits = (Q(queued=True) | Q(has_result='False'))
+        filter_args= [outstanding_deposits]
+        filter_kwargs={}
+        if options.get("journal_code"):
+            filter_kwargs["identifier__article__journal__code"] = options["journal_code"]
 
-        if len(ids) > 0:
-            deposits = ids[0:20]
-        else:
+        deposits = models.CrossrefDeposit.objects.filter(
+                *filter_args, **filter_kwargs)[:options["tasks"]]
+
+        if deposits.count() < 1:
             print("No deposits to handle")
-            deposits = []
 
         for deposit in deposits:
             print("Handling deposit {0}.xml".format(deposit.file_name))
