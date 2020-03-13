@@ -737,6 +737,17 @@ def typesetting_assign_proofreader(request, article_id):
         if form.is_valid():
             assignment = form.save()
 
+            utils_models.LogEntry.add_entry(
+                types='Proofreader Assigned',
+                description='{} assigned as a proofreader by {}'.format(
+                    assignment.proofreader.full_name(),
+                    request.user,
+                ),
+                level='Info',
+                actor=request.user,
+                target=article,
+            )
+
             messages.add_message(
                 request,
                 messages.SUCCESS,
