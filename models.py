@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.db import models
 from django.utils import timezone
@@ -36,6 +36,14 @@ class TypesettingRound(models.Model):
     def __str__(self):
         return str(self.round_number)
 
+    @property
+    def has_completed_proofing(self):
+        return GalleyProofing.objects.filter(
+            round=self,
+            accepted__isnull=False,
+            completed__isnull=False,
+        )
+
 
     @property
     def has_open_tasks(self):
@@ -45,7 +53,6 @@ class TypesettingRound(models.Model):
 
         #TODO: Check proofing tasks as well
         return False
-
 
     def close(self, user=None):
         """ Method that closes a round by cancelling any open tasks """
@@ -286,15 +293,86 @@ class GalleyProofing(models.Model):
                   'can give the proofreader to complete their task you can '
                   'add it here.',
     )
-    proofed_files = models.ManyToManyField('core.Galley')
-    notes = models.TextField()
-    annotated_files = models.ManyToManyField('core.File')
+    proofed_files = models.ManyToManyField('core.Galley', blank=True)
+    notes = models.TextField(blank=True)
+    annotated_files = models.ManyToManyField('core.File', blank=True)
+    
+    class Meta:
+        ordering = ('assigned', 'accepted', 'pk')
 
     def __str__(self):
         return 'Proofing for Article {0} by {1}'.format(
             self.round.article.title,
             self.proofreader.full_name(),
         )
+
+    def cancel(self):
+        self.cancelled = True
+        self.completed = timezone.now()
+        self.save()
+
+    def reset(self):
+        self.cancelled = False
+        self.completed = None
+        self.accepted = None
+        self.save()
+
+    def complete(self):
+        self.cancelled = False
+        self.completed = timezone.now()
+        self.accepted = timezone.now()
+        self.save()
+
+    def unproofed_galleys(self, galleys):
+        check = []
+        proofed_files = self.proofed_files.all()
+
+        for galley in galleys:
+            if galley not in proofed_files:
+                check.append(galley)
+
+        return check
+
+    @property
+    def time_to_due(self):
+        due = self.due - timezone.now()
+
+        if due.days == 0:
+            return 'Due Today'
+        
+        if due < timedelta(0):
+            return 'Overdue'
+
+        return '{} days'.format(due.days)
+
+    FRIENDLY_STATUSES = {
+        "assigned": "Awaiting response from the proofreader.",
+        "accepted": "Proofreader has accepted task, awaiting completion.",
+        "declined": "Proofreader has declined this task.",
+        "completed": "The proofreader has completed their task. "
+                     "You should review their response.",
+        "unknown": "Task status unknown.",
+        "cancelled": "Task was cancelled by manager/editor."
+    }
+
+    @property
+    def status(self):
+        if self.cancelled:
+            return 'cancelled'
+        elif self.assigned and self.accepted and not self.completed:
+            return 'accepted'
+        elif self.assigned and self.completed and not self.accepted:
+            return 'declined'
+        elif self.assigned and self.completed and self.accepted:
+            return 'completed'
+        elif self.assigned and not self.accepted and not self.completed:
+            return 'assigned'
+        else:
+            return 'unknown'
+
+    @property
+    def friendly_status(self):
+        return self.FRIENDLY_STATUSES.get(self.status)
 
     def send_assignment_notification(self, request, message, skip=False):
         description = '{0} has been assigned as a proofreader for {1}'.format(

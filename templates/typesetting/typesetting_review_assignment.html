@@ -1,6 +1,8 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load bool_fa %}
+{% load static from staticfiles %}
+
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
 
@@ -39,6 +41,14 @@
                           {{ assignment.completed|bool_fa }}{% endif %}</td>
                       <td>{{ assignment.status|capfirst }}</td>
                   </tr>
+                  {% if assignment.accepted %}
+                      <tr>
+                          <th colspan="7">Note from Typesetter</th>
+                      </tr>
+                      <tr>
+                          <td colspan="7">{{ assignment.typesetter_note|safe }}</td>
+                      </tr>
+                  {% endif %}
               </table>
           </div>
           </div>
@@ -96,6 +106,8 @@
                             </div>
                         </div>
                     </div>
+                {% elif assignment.accepted and assignment.completed and assignment.reviewed %}
+                    <p>This assignment has been reviewed and the review decision was: {{ assignment.get_review_decision_display }}</p>
                 {% elif assignment.accepted %}
                  This assignment can no longer be edited since it has been accepted by the typesetter
                 {% elif assignment.declined %}
@@ -120,3 +132,7 @@
         </div>
     </div>
 {% endblock body %}
+
+{% block js %}
+<script src="{% static "admin/js/check_all.js" %}"></script>
+{% endblock js %}

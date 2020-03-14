@@ -1,8 +1,9 @@
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 
-from core import models as core_models
+from core import models as core_models, files
 from events import logic as event_logic
 from journal import models as journal_models
 from production import logic
@@ -52,8 +53,11 @@ def get_typesetters(journal):
     return core_models.Account.objects.filter(pk__in=typesetter_pks)
 
 
-def get_proofreaders(article):
+def get_proofreaders(article, round, assignment=None):
     pks = list()
+    current_proofer_pks = [
+        p.proofreader.pk for p in round.galleyproofing_set.all()
+    ]
 
     for author in article.authors.all():
         pks.append(author.pk)
@@ -62,9 +66,17 @@ def get_proofreaders(article):
         role__slug='proofreader',
         journal=article.journal
     ):
-        pks.append(proofreader.pk)
+        pks.append(proofreader.user.pk)
 
-    return core_models.Account.objects.filter(pk__in=pks)
+    # If fetching for an assignment we want that user to remain in the list
+    if assignment and assignment.proofreader.pk in pks:
+        current_proofer_pks.remove(assignment.proofreader.pk)
+
+    return core_models.Account.objects.filter(
+        pk__in=pks,
+    ).exclude(
+        pk__in=current_proofer_pks,
+    )
 
 
 def get_typesetter_notification(assignment, article, request):
@@ -89,6 +101,26 @@ def get_proofreader_notification(assignment, article, request):
         context,
         'typesetting_notify_proofreader',
     )
+
+
+def handle_proofreader_file(request, assignment, article):
+    uploaded_files = request.FILES.getlist('file')
+
+    if uploaded_files:
+        for file in uploaded_files:
+            new_file = files.save_file_to_article(
+                file,
+                article,
+                request.user,
+            )
+            new_file.label = 'Proofing File'
+            new_file.save()
+            assignment.annotated_files.add(new_file)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Annotated file uploaded.',
+            )
 
 
 def new_typesetting_round(article, rounds, user):

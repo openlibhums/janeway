@@ -26,14 +26,6 @@
             <td>{{ round.typesettingassignment.status|capfirst }}</td>
         </tr>
     </table>
-
-    <div class="callout bs-callout-warning">
-        <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
-        {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
-            <a href="" class="success button">Assign Proofreaders</a>
-        {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
-            <a href="" class="success button">Start New Typesetting Round</a>
-        {% endif %}
-        <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
-    </div>
 </div>
+
+

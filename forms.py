@@ -1,5 +1,7 @@
 from django import forms
 
+from django_summernote.widgets import SummernoteWidget
+
 from plugins.typesetting import models
 from utils.forms import HTMLDateInput
 
@@ -83,6 +85,39 @@ class TypesetterDecision(forms.Form):
 
 
 class ManagerDecision(forms.ModelForm):
+
     class Meta:
         model = models.TypesettingAssignment
         fields = ('review_decision',)
+
+    def save(self, commit=True):
+        decision = super(ManagerDecision, self).save(commit=False)
+        decision.reviewed = True
+        if commit:
+            decision.save()
+
+        return decision
+
+
+class EditProofingAssignment(forms.ModelForm):
+    class Meta:
+        model = models.GalleyProofing
+        fields = ('task', 'due',)
+        widgets = {
+            'due': HTMLDateInput(),
+        }
+
+
+class ProofingForm(forms.ModelForm):
+    class Meta:
+        model = models.GalleyProofing
+        fields = ('notes',)
+        summernote_attrs = {
+            'disable_attachment': True,
+            'height': '500px',
+        }
+        widgets = {
+            'notes': SummernoteWidget(
+                attrs={'summernote': summernote_attrs},
+            ),
+        }

@@ -4,11 +4,13 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 
-from plugins.typesetting import plugin_settings, models, logic, forms
+from plugins.typesetting import plugin_settings, models, logic, forms, security
 from security import decorators
 from submission import models as submission_models
 from core import models as core_models, files
 from production import logic as production_logic
+from journal.views import article_figure
+from utils import models as utils_models
 
 
 @decorators.has_journal
@@ -569,7 +571,19 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         )
 
     elif request.POST and "decision" in request.POST:
-        decision_form = forms.ManagerDecision(request.POST)
+        decision_form = forms.ManagerDecision(
+            request.POST,
+            instance=assignment,
+        )
+
+        if decision_form.is_valid():
+            decision_form.save()
+            return redirect(
+                reverse(
+                    'typesetting_article',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
     template = 'typesetting/typesetting_review_assignment.html'
     context = {
@@ -701,7 +715,7 @@ def typesetting_assign_proofreader(request, article_id):
         journal=request.journal,
     )
     rounds = models.TypesettingRound.objects.filter(article=article)
-    proofreaders = logic.get_proofreaders(article)
+    proofreaders = logic.get_proofreaders(article, rounds[0])
     galleys = core_models.Galley.objects.filter(
         article=article,
     )
@@ -722,6 +736,17 @@ def typesetting_assign_proofreader(request, article_id):
 
         if form.is_valid():
             assignment = form.save()
+
+            utils_models.LogEntry.add_entry(
+                types='Proofreader Assigned',
+                description='{} assigned as a proofreader by {}'.format(
+                    assignment.proofreader.full_name(),
+                    request.user,
+                ),
+                level='Info',
+                actor=request.user,
+                target=article,
+            )
 
             messages.add_message(
                 request,
@@ -799,3 +824,316 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
     }
 
     return render(request, template, context)
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+    )
+    rounds = models.TypesettingRound.objects.filter(article=article)
+    proofreaders = logic.get_proofreaders(
+        article,
+        rounds[0],
+        assignment=assignment,
+    )
+
+    form = forms.EditProofingAssignment(
+        instance=assignment,
+    )
+
+    if request.POST:
+
+        if 'action' in request.POST:
+
+            action = request.POST.get('action')
+
+            if action == 'cancel':
+                assignment.cancel()
+
+                utils_models.LogEntry.add_entry(
+                    types='Proofreading Assignment Cancelled',
+                    description='Proofing by {} cancelled by {}'.format(
+                        assignment.proofreader.full_name(),
+                        request.user,
+                    ),
+                    level='Info',
+                    actor=request.user,
+                    target=article,
+                )
+
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofing task cancelled.',
+                )
+            elif action == 'reset':
+                assignment.reset()
+
+                utils_models.LogEntry.add_entry(
+                    types='Proofreading Assignment Reset',
+                    description='Proofing by {} reset by {}'.format(
+                        assignment.proofreader.full_name(),
+                        request.user,
+                    ),
+                    level='Info',
+                    actor=request.user,
+                    target=article,
+                )
+
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofing task reset.',
+                )
+
+            return redirect(
+                reverse(
+                    'typesetting_article',
+                    kwargs={'article_id': article.pk},
+                )
+            )
+
+        form = forms.EditProofingAssignment(
+            request.POST,
+            instance=assignment,
+        )
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Assignment updated.',
+            )
+
+            return redirect(
+                reverse(
+                    'typesetting_manage_proofing_assignment',
+                    kwargs={
+                        'article_id': article.pk,
+                        'assignment_id': assignment.pk,
+                    }
+                )
+            )
+
+    template = 'typesetting/typesetting_manage_proofing_assignment.html'
+    context = {
+        'article': article,
+        'assignment': assignment,
+        'proofreaders': proofreaders,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.proofreader_user_required
+def typesetting_proofreading_assignments(request):
+    assignments = models.GalleyProofing.objects.filter(
+        proofreader=request.user,
+    )
+
+    template = 'typesetting/typesetting_proofing_assignments.html'
+    context = {
+        'assignments': assignments,
+    }
+
+    return render(request, template, context)
+
+
+@decorators.proofreader_for_article_required
+def typesetting_proofreading_assignment(request, assignment_id):
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+        completed__isnull=True,
+        cancelled=False,
+    )
+    galleys = core_models.Galley.objects.filter(
+        article=assignment.round.article,
+    )
+
+    form = forms.ProofingForm(instance=assignment)
+
+    if request.POST:
+        form = forms.ProofingForm(request.POST, instance=assignment)
+
+        if form.is_valid():
+            form.save()
+
+        if 'proofing_file' in request.POST:
+            logic.handle_proofreader_file(
+                request,
+                assignment,
+                assignment.round.article,
+            )
+
+        if 'complete' in request.POST:
+            unproofed_galleys = assignment.unproofed_galleys(galleys)
+            if not unproofed_galleys:
+                assignment.complete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofreading Assignment complete.',
+                )
+                return redirect(
+                    reverse(
+                        'core_dashboard',
+                    )
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'You must proof {}.'.format(
+                        ", ".join([g.label for g in unproofed_galleys])
+                    )
+                )
+
+        return redirect(
+            reverse(
+                'typesetting_proofreading_assignment',
+                kwargs={'assignment_id': assignment.pk},
+            )
+        )
+
+    template = 'typesetting/typesetting_proofreading_assignment.html'
+    context = {
+        'assignment': assignment,
+        'galleys': galleys,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@security.proofreader_for_article_required
+def typesetting_preview_galley(
+        request,
+        article_id,
+        galley_id,
+        assignment_id=None,
+):
+    """
+    Displays a preview of a galley object
+    :param request: HttpRequest object
+    :param assignment_id: ProofingTask object PK
+    :param galley_id: Galley object PK
+    :param article_id: Article object PK
+    :return: HttpResponse
+    """
+    proofing_task = None
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    if assignment_id:
+        proofing_task = get_object_or_404(
+            models.GalleyProofing,
+            pk=assignment_id,
+            round__article=article,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=article.pk,
+        )
+        proofing_task.proofed_files.add(galley)
+    elif request.user.has_an_editor_role(request):
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=article.pk,
+        )
+    else:
+        raise PermissionDenied
+
+    if galley.type == 'xml' or galley.type == 'html':
+        template = 'journal/article.html'
+    elif galley.type == 'epub':
+        template = 'proofing/preview/epub.html'
+    else:
+        template = 'typesetting/preview_embedded.html'
+
+    context = {
+        'proofing_task': proofing_task,
+        'galley': galley,
+        'article': article if article else proofing_task.round.article,
+        'identifier_type': 'id',
+        'identifier': article.pk if article else proofing_task.round.article.pk,
+        'article_content': galley.file_content(),
+    }
+
+    return render(request, template, context)
+
+
+@security.proofreader_for_article_required
+def typesetting_proofing_download(request, article_id, assignment_id, file_id):
+    """
+    Serves a galley for proofreader
+    """
+    assignment = get_object_or_404(
+        models.GalleyProofing,
+        pk=assignment_id,
+        round__article__id=article_id,
+    )
+    file = get_object_or_404(core_models.File, pk=file_id)
+    try:
+        galley = core_models.Galley.objects.get(
+            article_id=assignment.round.article.pk,
+            file=file,
+        )
+        assignment.proofed_files.add(galley)
+        return files.serve_file(request, file, assignment.round.article)
+    except core_models.Galley.DoesNotExist:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Requested file is not a galley for proofing',
+        )
+        return redirect(request.META.get('HTTP_REFERER'))
+
+
+@security.proofreader_for_article_required
+def preview_figure(
+        request,
+        galley_id,
+        file_name,
+        assignment_id=None,
+        article_id=None
+):
+    if assignment_id:
+        assignment = get_object_or_404(
+            models.GalleyProofing,
+            pk=assignment_id,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=assignment.round.article.pk,
+        )
+    elif article_id and request.user.has_an_editor_role(request):
+        article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=article.pk,
+        )
+    else:
+        raise PermissionDenied
+
+    return article_figure(request, galley.article.pk, galley.pk, file_name)

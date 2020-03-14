@@ -75,6 +75,21 @@
     }
   },
   {
+    "group": {
+      "name": "general"
+    },
+    "setting": {
+      "description": "Proofreader guidelines",
+      "is_translatable": true,
+      "name": "typesetting_proofreader_guidelines",
+      "pretty_name": "Typesetting Plugin: Proofreader Guide",
+      "type": "rich-text"
+    },
+    "value": {
+      "default": "<p>The files below have been assigned to you for proofreading. You must check all files before you can mark this task as complete, including both the PDF and XML proofs (XML is the web display version of the article).</p><p>After downloading the files, you can then upload these with any annotations or corrections marked directly on the proofs. If needed, you can also add additional notes to the typesetter in the text box below.</p><p>Please note that proofreading comments will go back to a typesetter, and so should give concise and clear instructions on any minor corrections needed (do not include questions or optional requests – if you are unsure on something, discuss it with the assigning editor first).</p>"
+    }
+  },
+  {
     "value": {"default": "Production Complete"},
     "setting": {
         "type": "text",
