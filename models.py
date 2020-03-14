@@ -44,14 +44,15 @@ class TypesettingRound(models.Model):
             completed__isnull=False,
         )
 
-
     @property
     def has_open_tasks(self):
         if hasattr(self, 'typesettingassignment'):
             if not self.typesettingassignment.done:
                 return True
 
-        #TODO: Check proofing tasks as well
+        if self.galleyproofing_set.filter(completed__isnull=True).exists():
+            return True
+
         return False
 
     def close(self, user=None):
@@ -60,7 +61,10 @@ class TypesettingRound(models.Model):
             if self.typesettingassignment.is_active:
                 self.typesettingassignment.delete(user=user)
 
-        #TODO: Cancel proofing tasks
+        for proofing in  self.galleyproofing_set.filter(
+            completed__isnull=True,
+        ):
+            proofing.cancel()
 
 
 class TypesettingAssignment(models.Model):
