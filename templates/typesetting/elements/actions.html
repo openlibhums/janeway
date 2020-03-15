@@ -1,8 +1,11 @@
 <div class="callout bs-callout-warning">
-    {% if not round.has_completed_proofing %}
+    {% if not round.has_completed_proofing and round.typesettingassignment %}
     <span class="fa fa-check-circle"></span> {{ round.typesettingassignment.friendly_status }}<br/><br/>
     {% else %}
         <span class="fa fa-exclamation-triangle"> {{ round.has_completed_proofing.count }} out of {{ round.galleyproofing_set.count }} proofing tasks completed.<br/><br/></span>
+        {% if not round.typesettingassignment %}
+            <br/><span class="fa fa-exclamation-triangle"> This round has not had a typesetter assigned.<br/><br/></span>
+        {% endif %}
     {% endif %}
     <div class="button-group">
     {% if round.has_completed_proofing %}
@@ -13,7 +16,12 @@
     {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
         <a href="" class="success button">Start New Typesetting Round</a>
     {% endif %}
+    {% if round.typesettingassignment %}
     <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>
+    {% else %}
+    <a class="button" href="{% url 'typesetting_assign_typesetter' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
+        Typesetter</a>
+    {% endif %}
 
     </div>
 </div>

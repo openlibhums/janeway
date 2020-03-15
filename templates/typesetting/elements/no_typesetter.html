@@ -2,7 +2,23 @@
     <div class="callout-title">
         <h4>Assign a Typesetter</h4>
     </div>
-    <p>This article has not had a typesetter assigned.</p>
+    <p>This article has not had a typesetter assigned. If you intend to use an external typesetter to generate your Galleys assign one here. If not, you can load the files below and then assign a proofreader to check them.</p>
     <a class="button" href="{% url 'typesetting_assign_typesetter' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
         Typesetter</a>
+</div>
+
+<div class="callout breakdown file">
+    <div class="callout-title">
+        <h4>Assign a Proofreader</h4>
+    </div>
+
+    {% if galleys %}
+        <p>If you do not require to assign a typesetter and have loaded galley files you can move directly to assigning proofreaders.</p>
+    <a class="button success" href="{% url 'typesetting_assign_proofreader' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
+        Proofreader</a>
+    {% else %}
+        <p>You must either request a typesetter upload galley files or upload them yourself below before you can assign a proofreader.</p>
+    <button class="button disabled"><span class="fa fa-user-plus"></span> Assign a
+        Proofreader</button>
+    {% endif %}
 </div>

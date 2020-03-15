@@ -733,6 +733,18 @@ def typesetting_assign_proofreader(request, article_id):
         article=article,
     )
 
+    if not galleys:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot assign a proofreader without Galley Files.',
+        )
+
+        return redirect(reverse(
+            'typesetting_article',
+            kwargs={'article_id': article.pk},
+        ))
+
     form = forms.AssignProofreader(
         proofreaders=proofreaders,
         round=rounds[0],

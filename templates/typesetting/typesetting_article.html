@@ -24,7 +24,7 @@
                 <div class="tabs-content" data-tabs-content="round-tabs">
                     {% for round in rounds %}
                         <div class="tabs-panel{% if forloop.first %} is-active{% endif %}" id="tab{{ round.round_number }}">
-                            {% if not round.typesettingassignment %}
+                            {% if not round.typesettingassignment and not round.galleyproofing_set.exists %}
                                 {% include "typesetting/elements/no_typesetter.html" %}
                             {% else %}
                                 {% include "typesetting/elements/typesetter.html" %}

@@ -1,5 +1,6 @@
 {% load bool_fa %}
 
+{% if round.typesettingassignment %}
 <div class="callout breakdown file">
     <div class="callout-title">
         <small><a class="pull-right" href="{% url 'admin:typesetting_typesettingassignment_change' round.typesettingassignment.pk %}" target="_blank">Edit in Admin</a></small>
@@ -27,5 +28,4 @@
         </tr>
     </table>
 </div>
-
-
+{% endif %}
