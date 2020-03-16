@@ -196,7 +196,7 @@ class TypesettingAssignment(models.Model):
         "declined": "Typesetter has declined this task.",
         "completed": "The typesetter has completed their task. "
                      "You should review the uploaded galley files.",
-        "completed": "The manager has cancelled this typesetting task",
+        "cancelled": "The manager has cancelled this typesetting task",
         "closed": "Task closed",
         "unknown": "Task status unknown",
         "Corrections Required": "This article requires corrections.",
