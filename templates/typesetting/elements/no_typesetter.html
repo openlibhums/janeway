@@ -2,7 +2,7 @@
     <div class="callout-title">
         <h4>Assign a Typesetter</h4>
     </div>
-    <p>This article has not had a typesetter assigned. If you intend to use an external typesetter to generate your Galleys assign one here. If not, you can load the files below and then assign a proofreader to check them.</p>
+    <p>This article does not have an assigned typesetter. If the article needs to be typeset, you can assign an external typesetter here. If your article is already typeset for publication, you can load the typeset files (known as ‘galleys’) here, and if needed, assign a proofreader to check them in the next step.</p>
     <a class="button" href="{% url 'typesetting_assign_typesetter' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
         Typesetter</a>
 </div>
@@ -13,7 +13,7 @@
     </div>
 
     {% if galleys %}
-        <p>If you do not require to assign a typesetter and have loaded galley files you can move directly to assigning proofreaders.</p>
+        <p>If your article doesn’t need a typesetter, and you’ve already loaded in the typeset files below, you can assign a proofreader to check your typeset files (‘galleys’) here.</p>
     <a class="button success" href="{% url 'typesetting_assign_proofreader' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
         Proofreader</a>
     {% else %}
