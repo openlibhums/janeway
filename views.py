@@ -663,6 +663,19 @@ def typesetting_assignment(request, assignment_id):
 
     if request.POST:
 
+        if assignment.cancelled:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'The manager for this article has cancelled this typesetting'
+                'task. No further changes are allowed',
+            )
+            return redirect(reverse(
+                'typesetting_assignment',
+                kwargs={'assignment_id': assignment.pk},
+            ))
+
+
         if 'complete_typesetting' in request.POST:
             note = request.POST.get('note_from_typesetter', None)
             assignment.complete(note, galleys)

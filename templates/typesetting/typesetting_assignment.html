@@ -13,7 +13,7 @@
 {% block body %}
     <div class="row expanded">
 
-        {% if not assignment.completed and not assignment.accepted %}
+        {% if not assignment.completed and not assignment.accepted and not assignment.cancelled %}
         <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
@@ -53,19 +53,25 @@
                     <p><small>The following files have been selected for use in generating the typset articles.</small></p>
                     {% include "typesetting/elements/typesetter/files.html" %}
                 </div>
+                {% if not assignment.cancelled %}
                 <div class="title-area">
                     <h2>Galley Files</h2>
                 </div>
                 <div class="content">
                     <p><small>Any galley files associated with this article will be displayed here. Ensure that any image files are uploaded using the upload images function and not as galleys themselves.</small></p>
                     {% include "typesetting/elements/typesetter/galleys.html" %}
+
                 </div>
+                {% endif %}
             </div>
             <div class="box">
                 <div class="title-area">
                     <h2>Complete Typesetting</h2>
                 </div>
                 <div class="content">
+                    {% if assignment.cancelled %}
+                    <p>The editor has cancelled this typesetting task. No further changes can be made now</p>
+                    {% else %}
                     <form method="POST">
                         {% csrf_token %}
                         <p>
@@ -74,6 +80,7 @@
                         <textarea name="note_from_typesetter" placeholder="If you have a note for the manager you can add it here."></textarea>
                         <button class="button" name="complete_typesetting">Complete Typesetting</button>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
