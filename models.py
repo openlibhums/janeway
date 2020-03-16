@@ -59,7 +59,7 @@ class TypesettingRound(models.Model):
         """ Method that closes a round by cancelling any open tasks """
         if hasattr(self, 'typesettingassignment'):
             if self.typesettingassignment.is_active:
-                self.typesettingassignment.delete(user=user)
+                self.typesettingassignment.cancel(user=user)
 
         for proofing in  self.galleyproofing_set.filter(
             completed__isnull=True,
@@ -88,6 +88,7 @@ class TypesettingAssignment(models.Model):
     accepted = models.DateTimeField(blank=True, null=True)
     due = models.DateField(null=True)
     completed = models.DateTimeField(blank=True, null=True)
+    cancelled = models.DateTimeField(blank=True, null=True)
     reviewed = models.BooleanField(default=False)
     review_decision = models.CharField(
         choices=review_choices(),
@@ -126,6 +127,8 @@ class TypesettingAssignment(models.Model):
 
     @property
     def status(self):
+        if self.cancelled:
+            return "cancelled"
         if self.assigned and not self.accepted and not self.completed:
             return "assigned"
         elif self.assigned and self.accepted and not self.completed:
@@ -175,12 +178,25 @@ class TypesettingAssignment(models.Model):
         )
         super().delete()
 
+    def cancel(self, user=None):
+        utils_models.LogEntry.add_entry(
+            types="Typesetting Task cancelled",
+            description="The typesetting assignment {self.pk} has been "
+            "cancelled by user {user}".format(self=self, user=user),
+            level="INFO",
+            actor=user,
+            target=self.round.article,
+        )
+        self.cancelled = timezone.now()
+        self.save()
+
     FRIENDLY_STATUSES = {
         "assigned": "Awaiting response from the typesetter.",
         "accepted": "Typesetter has accepted task, awaiting completion.",
         "declined": "Typesetter has declined this task.",
         "completed": "The typesetter has completed their task. "
                      "You should review the uploaded galley files.",
+        "completed": "The manager has cancelled this typesetting task",
         "closed": "Task closed",
         "unknown": "Task status unknown",
         "Corrections Required": "This article requires corrections.",
