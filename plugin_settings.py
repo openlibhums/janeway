@@ -48,6 +48,7 @@ def install():
 def hook_registry():
     TypesettingPlugin.hook_registry()
 
+
 def register_for_events():
     # Plugin modules can't be imported until plugin is loaded
     from plugins.typesetting.notifications import emails
