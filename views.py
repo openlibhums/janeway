@@ -95,7 +95,6 @@ def typesetting_article(request, article_id):
     elif request.POST and "complete-typesetting" in request.POST:
         logic.complete_typesetting(request, article)
 
-
     template = 'typesetting/typesetting_article.html'
     context = {
         'article': article,
@@ -674,7 +673,6 @@ def typesetting_assignment(request, assignment_id):
                 'typesetting_assignment',
                 kwargs={'assignment_id': assignment.pk},
             ))
-
 
         if 'complete_typesetting' in request.POST:
             note = request.POST.get('note_from_typesetter', None)
