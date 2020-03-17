@@ -7,7 +7,11 @@
             <h4><i class="fa fa-check">&nbsp;</i>Complete Typesetting</h4>
         </div>
         <div class="card-section">
-            <p>Complete Typesetting stage and move the article into pre-publication.</p>
+            {% if next_element %}
+            <p>Complete Typesetting stage and move the article into {{ next_element|capfirst }}.</p>
+            {% else %}
+            <p>Complete the typesetting stage. This is the final element in your workflow.</p>
+            {% endif %}
             {% if pending_tasks %}
             <p> This action will cancel any open tasks. Assignees will be notified accordingly</p>
             <div class="callout bs-callout-warning">

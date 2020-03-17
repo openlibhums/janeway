@@ -1,13 +1,11 @@
 from django.db import transaction
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import redirect, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from core import models as core_models, files
+from core import models as core_models, files, workflow
 from events import logic as event_logic
-from journal import models as journal_models
 from production import logic
-from submission import models as submission_models
 from utils import render_template
 
 from plugins.typesetting import models, plugin_settings
@@ -163,18 +161,15 @@ def typesetting_pending_tasks(round):
 
 @transaction.atomic
 def complete_typesetting(request, article):
-    article.stage = submission_models.STAGE_READY_FOR_PUBLICATION
-    article.save()
-    journal_models.FixedPubCheckItems.objects.get_or_create(article=article)
     kwargs = {'request': request, 'article': article}
 
     event_logic.Events.raise_event(
         plugin_settings.ON_TYPESETTING_COMPLETE,
         task_object=article, **kwargs
     )
-    if request.journal.element_in_workflow(element_name='typesetting'):
+    if request.journal.element_in_workflow(element_name='Typesetting Plugin'):
         workflow_kwargs = {
-            'handshake_url': 'typesetting_list',
+            'handshake_url': 'typesetting_article',
             'request': request,
             'article': article,
             'switch_stage': True,
@@ -185,5 +180,25 @@ def complete_typesetting(request, article):
             task_object=article,
             **workflow_kwargs)
     else:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'There was an error moving this article to the next stage.'
+        )
         return redirect(
-            reverse('publish_article', kwargs={'article_id': article.pk}))
+            reverse('core_dashboard')
+        )
+
+
+def get_next_element(handshake_url, request):
+    workflow = core_models.Workflow.objects.get(journal=request.journal)
+    workflow_elements = workflow.elements.all()
+
+    current_element = workflow.elements.get(handshake_url=handshake_url)
+
+    try:
+        index = list(workflow_elements).index(current_element) + 1
+        return workflow_elements[index]
+    except IndexError:
+        # An index error will occur here when the workflow is complete
+        return None
