@@ -1,5 +1,4 @@
 {% load securitytags %}
-{% load hooks %}
 <div class="box">
     <div class="title-area">
         <h2>Files for Typesetting</h2>
@@ -34,11 +33,15 @@
                         <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                 class="fa fa-download">&nbsp;</i></a>{% endif %}
                     </td>
-                    <td><a href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
-                            class="fa fa-share-square-o">&nbsp;</i></a>{% hook 'conversion_buttons' %}</td>
+                    <td><a data-open="transform-{{ file.pk }}">Options</a></td>
                 </tr>
                 {% endfor %}
             {% endfor %}
         </table>
     </div>
 </div>
+{% for key, list in manuscript_files.items %}
+    {% for file in list %}
+        {% include "typesetting/elements/transform_modal.html" with article=article file=file request=request %}
+    {% endfor %}
+{% endfor %}

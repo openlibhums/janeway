@@ -54,7 +54,7 @@
             </li>
             <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
             <li><a data-open="add_round"><i class="fa fa-plus-circle action-icon">&nbsp;</i> Start a new typesetting round</a></li>
-            <li><a data-open="complete" {% if pending_tasks %}class="button success"{% endif %}><i class="fa fa-check action-icon">&nbsp;</i>Complete Typesetting</a></li>
+            <li><a data-open="complete" {% if not pending_tasks %}class="button success"{% endif %}><i class="fa fa-check action-icon">&nbsp;</i>Complete Typesetting</a></li>
         </ul>
     </div>
 </div>
