@@ -54,6 +54,11 @@ def cover_images_upload_path(instance, filename):
     return os.path.join(path, filename)
 
 
+def default_xsl():
+    return core_models.XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
+
+
 def issue_large_image_path(instance, filename):
     try:
         filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
@@ -108,7 +113,7 @@ class Journal(AbstractSiteModel):
     # (DEPRECATED)Boolean to determine if this journal has an XSLT file
     has_xslt = models.BooleanField(default=False)
     xsl = models.ForeignKey('core.XSLFile',
-        default=core_models.default_xsl,
+        default=default_xsl,
         on_delete=models.SET_DEFAULT,
     )
 
