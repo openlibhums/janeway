@@ -111,8 +111,9 @@ def resize_and_crop(img_path, size, crop_type='middle'):
         img = img.crop(box)
     else:
         img = img.resize((size[0], size[1]), Image.ANTIALIAS)
-        if img.mode == "CMYK":
-            img = img.convert("RGB")
+
+    if img.mode == "CMYK":
+        img = img.convert("RGB")
 
     img.save(img_path, "png")
 
