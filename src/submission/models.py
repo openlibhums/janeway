@@ -480,8 +480,11 @@ class Article(models.Model):
         if self.render_galley:
             return self.render_galley
 
-        ret = self.galley_set.filter(file__mime_type="application/xml").order_by(
-            "sequence")
+        ret = self.galley_set.filter(
+            file__mime_type__in=files.XML_MIMETYPES
+        ).order_by(
+            "sequence",
+        )
 
         if len(ret) > 0:
             return ret[0]

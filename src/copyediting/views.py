@@ -70,7 +70,7 @@ def article_copyediting(request, article_id):
 
     if request.POST and 'complete' in request.POST:
         event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_COMPLETE, task_object=article, **message_kwargs)
-        workflow_kwargs = {'handshake_url': 'article_copyediting', 'request': request, 'article': article,
+        workflow_kwargs = {'handshake_url': 'copyediting', 'request': request, 'article': article,
                            'switch_stage': True}
         return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
                                               **workflow_kwargs)

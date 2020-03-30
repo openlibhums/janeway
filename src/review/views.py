@@ -1419,7 +1419,7 @@ def review_decision(request, article_id, decision):
             article.snapshot_authors(article)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
-            workflow_kwargs = {'handshake_url': 'review_unassigned_article',
+            workflow_kwargs = {'handshake_url': 'review_home',
                                'request': request,
                                'article': article,
                                'switch_stage': True}

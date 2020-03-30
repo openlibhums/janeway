@@ -1098,12 +1098,12 @@ class DomainAlias(AbstractSiteModel):
 
 BASE_ELEMENTS = [
     {'name': 'review',
-     'handshake_url': 'review_unassigned_article',
+     'handshake_url': 'review_home',
      'jump_url': 'review_in_review',
      'stage': submission_models.STAGE_UNASSIGNED,
      'article_url': True},
     {'name': 'copyediting',
-     'handshake_url': 'article_copyediting',
+     'handshake_url': 'copyediting',
      'jump_url': 'article_copyediting',
      'stage': submission_models.STAGE_EDITOR_COPYEDITING,
      'article_url': True},
@@ -1118,7 +1118,7 @@ BASE_ELEMENTS = [
      'stage': submission_models.STAGE_PROOFING,
      'article_url': False},
     {'name': 'prepublication',
-     'handshake_url': 'publish_article',
+     'handshake_url': 'publish',
      'jump_url': 'publish_article',
      'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
      'article_url': True}

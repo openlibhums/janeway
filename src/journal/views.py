@@ -883,7 +883,7 @@ def publish_article(request, article_id):
             messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
 
             if request.journal.element_in_workflow(element_name='prepublication'):
-                workflow_kwargs = {'handshake_url': 'publish_article',
+                workflow_kwargs = {'handshake_url': 'publish',
                                    'request': request,
                                    'article': article,
                                    'switch_stage': True}

@@ -242,6 +242,12 @@ class Events:
             Events.raise_event('destroy_tasks', **kwargs)
 
         # fire hooked functions
+
+        print('\n\nFiring event: {}\n\n'.format(event_name))
+
+        import time
+        time.sleep(2)
+
         if event_name not in Events._hooks:
             return
         else:
