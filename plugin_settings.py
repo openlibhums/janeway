@@ -13,9 +13,10 @@ JANEWAY_VERSION = "1.3.7"
 
 # Workflow Settings
 IS_WORKFLOW_PLUGIN = True
-HANDSHAKE_URL = 'typesetting_article'
+HANDSHAKE_URL = 'typesetting_articles'
 ARTICLE_PK_IN_HANDSHAKE_URL = True
 STAGE = 'typesetting_plugin'
+KANBAN_CARD = 'typesetting/elements/card.html'
 
 ON_TYPESETTING_COMPLETE = "on_typesetting_complete"
 

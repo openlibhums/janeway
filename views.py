@@ -102,7 +102,7 @@ def typesetting_article(request, article_id):
         'galleys': galleys,
         'manuscript_files': manuscript_files,
         'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
-        'next_element': logic.get_next_element('typesetting_article', request),
+        'next_element': logic.get_next_element('typesetting_articles', request),
     }
 
     return render(request, template, context)
