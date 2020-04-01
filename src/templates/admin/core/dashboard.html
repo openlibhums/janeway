@@ -9,65 +9,8 @@
 {% block body %}
     <section>
         <div class="row expanded" data-equalizer data-equalize-on="medium">
-            {% if is_editor %}
-                <div class="large-8 columns" data-equalizer-watch>
-                    <div class="box">
-                        <div class="title-area">
-                            <h2>Editor</h2>
-                        </div>
-                        <div class="row expanded">
-                            <div class="large-4 columns">
-                                <div class="content">
-                                    <div class="summary">
-                                        <span class="stat">{{ unassigned_articles_count }}</span>
-                                        <span class="title">Unassigned</span>
-                                        <a href="{% url 'review_unassigned' %}" class="box-link"></a>
-                                    </div>
-                                    <div class="summary">
-                                        <span class="stat">{{ assigned_articles_count }}</span>
-                                        <span class="title">Review</span>
-                                        <a href="{% url 'review_home' %}" class="box-link"></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="large-4 columns">
-                                <div class="summary">
-                                    <span class="stat">{{ editing_articles_count }}</span>
-                                    <span class="title">Copyediting</span>
-                                    <a href="{% url 'copyediting' %}" class="box-link"></a>
-                                </div>
-                                <div class="content">
-                                    <div class="summary">
-                                        <span class="stat">{{ production_articles_count }}</span>
-                                        <span class="title">Production</span>
-                                        <a href="{% url 'production_list' %}" class="box-link"></a>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="large-4 columns">
-                                <div class="content">
-                                    <div class="summary">
-                                        <span class="stat">{{ proofing_articles_count }}</span>
-                                        <span class="title">Proofing</span>
-                                        <a href="{% url 'proofing_list' %}" class="box-link"></a>
-                                    </div>
-                                    <div class="summary">
-                                        <span class="stat">{{ prepub_articles_count }}</span>
-                                        <span class="title">Pre Publication</span>
-                                        <a href="{% url 'publish' %}" class="box-link"></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="large-12 columns">
-                                <br />
-                                <a class="success button pull-right" href="{% url 'core_active_submissions' %}">Search all submissions</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-
+            {% include "elements/core/editor_dashboard.html" %}
+        </div>
         {% if is_reviewer %}
             <div class="large-4 columns end" data-equalizer-watch>
                 <div class="box">
@@ -143,7 +86,7 @@
             </div>
         {% endif %}
         {% user_has_role request 'production' as production %}
-        {% if production %}
+        {% if production and 'production' in workflow_elements %}
             <div class="large-4 columns end" data-equalizer-watch>
                 <div class="box">
                     <div class="title-area">
@@ -160,7 +103,8 @@
             </div>
         {% endif %}
         {% user_has_role request 'proofreader' as proofreader %}
-        {% if proofreader or is_author and 'proofing' in workflow_elements %}
+        {% if 'proofing' in workflow_elements %}
+        {% if proofreader or is_author  %}
             <div class="large-4 columns end" data-equalizer-watch>
                 <div class="box">
                     <div class="title-area">
@@ -183,6 +127,7 @@
                     </div>
                 </div>
             </div>
+        {% endif %}
         {% endif %}
 
         {% if typesetter and 'proofing' in workflow_elements %}
