@@ -481,7 +481,7 @@ class Article(models.Model):
             return self.render_galley
 
         ret = self.galley_set.filter(
-            file__mime_type__in=files.XML_MIMETYPES
+            file__mime_type="application/xml"
         ).order_by(
             "sequence",
         )

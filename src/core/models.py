@@ -1135,12 +1135,29 @@ class WorkflowElement(models.Model):
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     jump_url = models.CharField(max_length=255)
-    stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
+    stage = models.CharField(
+        max_length=255,
+        default=submission_models.STAGE_UNASSIGNED,
+    )
     article_url = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=20)
 
     class Meta:
         ordering = ('order', 'element_name')
+
+    @property
+    def stages(self):
+        from core import workflow
+        try:
+            return workflow.ELEMENT_STAGES[self.element_name]
+        except KeyError:
+            return [self.stage]
+
+    @property
+    def articles(self):
+        return submission_models.Article.objects.filter(
+            stage__in=self.stages,
+        )
 
     def __str__(self):
         return self.element_name
