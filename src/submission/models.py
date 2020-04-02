@@ -952,6 +952,8 @@ class Article(models.Model):
             return reverse('proofing_article', kwargs=kwargs)
         elif self.stage == STAGE_READY_FOR_PUBLICATION:
             return reverse('publish_article', kwargs=kwargs)
+        else:
+            return reverse(self.current_stage.jump_url, kwargs=kwargs)
 
     @property
     def custom_fields(self):
@@ -1024,6 +1026,15 @@ class Article(models.Model):
     def workflow_stages(self):
         from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
+
+    @property
+    def current_stage(self):
+        from core import models as core_models
+        logs = core_models.WorkflowLog.objects.filter(
+            article=self,
+        )
+        element = logs.reverse().first().element
+        return element
 
     @cache(600)
     def render_sample_doi(self):

@@ -1155,8 +1155,11 @@ class WorkflowElement(models.Model):
 
     @property
     def articles(self):
+        from core.middleware import GlobalRequestMiddleware
+        request = GlobalRequestMiddleware.get_current_request()
         return submission_models.Article.objects.filter(
             stage__in=self.stages,
+            journal=request.journal,
         )
 
     def __str__(self):

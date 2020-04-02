@@ -15,7 +15,7 @@
                         </div>
                         {% for element in request.journal.workflow.elements.all %}
                             <div class="summary">
-                                <span class="stat">{{ element.articles_in_stage }}</span>
+                                <span class="stat">{{ element.articles.count }}</span>
                                 <span class="title">{{ element|capfirst }}</span>
                                 <a href="{% url element.handshake_url %}" class="box-link"></a>
                             </div>
