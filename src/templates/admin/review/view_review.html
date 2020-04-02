@@ -18,6 +18,8 @@
 
                 <div class="content">
 
+                    <p>You can make this review available for the author to see using the <em>Allow Author to See</em> button below. If you need to make changes to the review you can do so by using the <em>Edit</em> button below each form element. You can also make individual review elements hidden or available.</p>
+
                     {% csrf_token %}
                     <table class="small scroll">
                         <tr>
@@ -78,13 +80,12 @@
                                             <br/>
                                         {% endif %}
                                         <br/>
-                                        {% if review.for_author_consumption %}
                                             <small><input id="{{ answer.pk }}" name="answer_viewable"
                                                           value="{{ answer.pk }}" type="checkbox"
                                                           {% if answer.author_can_see %}checked="checked"{% endif %}><label
                                                     for="{{ answer.pk }}">Allow author to view</label></small>|
                                             <a href="{% url 'review_edit_review_answer' article.pk review.pk answer.pk %}"><i
-                                                    class="fa fa-edit">&nbsp;</i></a>Edit{% endif %}
+                                                    class="fa fa-edit">&nbsp;</i></a>Edit
                                         {% if answer.edited_answer %} |
                                             <form method="POST">{% csrf_token %}
                                                 <button name="reset" type="submit"><input name="pk" type="hidden"

@@ -13,6 +13,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.views.decorators.http import require_POST
@@ -1494,9 +1495,16 @@ def author_view_reviews(request, article_id):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    reviews = models.ReviewAssignment.objects.filter(article=article,
-                                                     is_complete=True,
-                                                     for_author_consumption=True).exclude(decision='withdrawn')
+    reviews = models.ReviewAssignment.objects.filter(
+        article=article,
+        is_complete=True,
+        for_author_consumption=True,
+    ).exclude(decision='withdrawn')
+
+    if not reviews.exists():
+        raise PermissionDenied(
+            'No reviews have been made available by the Editor.',
+        )
 
     template = 'review/author_view_reviews.html'
     context = {
