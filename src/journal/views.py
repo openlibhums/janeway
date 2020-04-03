@@ -427,8 +427,9 @@ def download_galley(request, article_id, galley_id):
     """
     article = get_object_or_404(submission_models.Article.allarticles,
                                 pk=article_id,
+                                journal=request.journal,
                                 date_published__lte=timezone.now(),
-                                stage=submission_models.STAGE_PUBLISHED)
+                                stage__in=submission_models.PUBLISHED_STAGES)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
     embed = request.GET.get('embed', False)
@@ -455,8 +456,9 @@ def view_galley(request, article_id, galley_id):
     article_to_serve = get_object_or_404(
         submission_models.Article.allarticles,
         pk=article_id,
+        journal=request.journal,
         date_published__lte=timezone.now(),
-        stage=submission_models.STAGE_PUBLISHED
+        stage__in=submission_models.PUBLISHED_STAGES
     )
     galley = get_object_or_404(
         core_models.Galley,
