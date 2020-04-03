@@ -15,6 +15,7 @@ class Plugin:
     janeway_version = None
 
     is_workflow_plugin = False
+    jump_url = None
     handshake_url = None
     article_pk_in_handshake_url = False
     press_wide = False
