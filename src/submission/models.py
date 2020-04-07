@@ -936,7 +936,7 @@ class Article(models.Model):
         return author_copyedits
 
     @property
-    def current_stage_url(self):
+    def current_workflow_element_url(self):
 
         kwargs = {'article_id': self.pk}
 
