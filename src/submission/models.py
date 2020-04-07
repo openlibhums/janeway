@@ -940,18 +940,9 @@ class Article(models.Model):
 
         kwargs = {'article_id': self.pk}
 
+        # STAGE_UNASSIGNED isn't a workflow element so is hardcoded here.
         if self.stage == STAGE_UNASSIGNED:
             return reverse('review_unassigned_article', kwargs=kwargs)
-        elif self.stage in REVIEW_STAGES:
-            return reverse('review_in_review', kwargs=kwargs)
-        elif self.stage in COPYEDITING_STAGES:
-            return reverse('article_copyediting', kwargs=kwargs)
-        elif self.stage == STAGE_TYPESETTING:
-            return reverse('production_article', kwargs=kwargs)
-        elif self.stage == STAGE_PROOFING:
-            return reverse('proofing_article', kwargs=kwargs)
-        elif self.stage == STAGE_READY_FOR_PUBLICATION:
-            return reverse('publish_article', kwargs=kwargs)
         else:
             return reverse(self.current_workflow_element.jump_url, kwargs=kwargs)
 
