@@ -4,15 +4,14 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+updates = [
+    {'from': 'review_unassigned_article', 'to': 'review_home'},
+    {'from': 'publish_article', 'to': 'publish'},
+    {'from': 'article_copyediting', 'to': 'copyediting'},
+]
 
 def update_handshake_urls(apps, schema_editor):
     WorkflowElement = apps.get_model("core", "WorkflowElement")
-
-    updates = [
-        {'from': 'review_unassigned_article', 'to': 'review_home'},
-        {'from': 'publish_article', 'to': 'publish'},
-        {'from': 'article_copyediting', 'to': 'copyediting'},
-    ]
 
     for update in updates:
         elements_to_update = WorkflowElement.objects.filter(
@@ -20,6 +19,18 @@ def update_handshake_urls(apps, schema_editor):
         )
         for element_to_update in elements_to_update:
             element_to_update.handshake_url = update.get('to')
+            element_to_update.save()
+
+
+def reverse_handshake_urls(apps, schema_editor):
+    WorkflowElement = apps.get_model("core", "WorkflowElement")
+
+    for update in updates:
+        elements_to_update = WorkflowElement.objects.filter(
+            handshake_url=update.get('to')
+        )
+        for element_to_update in elements_to_update:
+            element_to_update.handshake_url = update.get('from')
             element_to_update.save()
 
 
@@ -32,6 +43,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             update_handshake_urls,
-            reverse_code=migrations.RunPython.noop
+            reverse_code=reverse_handshake_urls,
         ),
     ]
