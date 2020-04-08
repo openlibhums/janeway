@@ -297,8 +297,11 @@ class PreprintManager(models.Manager):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
 
 
-class SomeClass:
-    pass
+class SomeClass(ChoiceField):
+    def valid_value(self):
+        valid = super().valid_value()
+        if valid is False:
+#            check plugin stages
 
 
 class DynamicChoiceField(models.CharField):
@@ -416,15 +419,15 @@ class Article(models.Model):
 
     # Primary issue, allows the Editor to set the Submission's primary Issue
     primary_issue = models.ForeignKey(
-        'journal.Issue', 
+        'journal.Issue',
         blank=True,
-        null=True, 
+        null=True,
         on_delete=models.SET_NULL,
     )
     projected_issue = models.ForeignKey(
-        'journal.Issue', 
-        blank=True, 
-        null=True, 
+        'journal.Issue',
+        blank=True,
+        null=True,
         on_delete=models.SET_NULL,
         related_name='projected_issue',
     )
