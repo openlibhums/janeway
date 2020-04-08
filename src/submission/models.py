@@ -24,7 +24,6 @@ from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
 from review import models as review_models
-from utils import logic
 from utils.function_cache import cache
 
 fs = JanewayFileSystemStorage()
@@ -298,6 +297,16 @@ class PreprintManager(models.Manager):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
 
 
+class SomeClass:
+    pass
+
+
+class DynamicChoiceField(models.CharField):
+    def formfield(self, *args, **kwargs):
+        kwargs["choices_form_class"] = SomeClass
+        super().formfield(**kwargs)
+
+
 class Article(models.Model):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
@@ -367,7 +376,13 @@ class Article(models.Model):
     page_numbers = models.CharField(max_length=20, blank=True, null=True)
 
     # Stage
-    stage = models.CharField(max_length=200, blank=False, null=False, default='Unsubmitted', choices=STAGE_CHOICES)
+    stage = DynamicChoiceField(
+        max_length=200,
+        blank=True,
+        null=False,
+        default=STAGE_UNSUBMITTED,
+        choices=STAGE_CHOICES,
+    )
 
     # Agreements
     publication_fees = models.BooleanField(default=False)
