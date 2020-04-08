@@ -18,6 +18,7 @@ from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.fields import ChoiceField
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
@@ -297,17 +298,38 @@ class PreprintManager(models.Manager):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
 
 
-class SomeClass(ChoiceField):
-    def valid_value(self):
+class DynamicChoiceFormField(ChoiceField):
+    """
+    Allows adding choices dynamically without requiring a migration
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamic_choices = []
+
+    def _get_choices(self):
+        choices = super()._get_choices()
+        return choices + self.dynamic_choices
+
+    def valid_value(self, value):
         valid = super().valid_value()
         if valid is False:
-#            check plugin stages
+            return value in self.dynamic_choices
+        return valid
 
 
 class DynamicChoiceField(models.CharField):
+    def __init__(self, dynamic_choices=(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamic_choices = dynamic_choices
+
     def formfield(self, *args, **kwargs):
-        kwargs["choices_form_class"] = SomeClass
-        super().formfield(**kwargs)
+        kwargs["choices_form_class"] = DynamicChoiceFormField
+        form_element = super().formfield(**kwargs)
+        for choice in self.dynamic_choices:
+            form_element.dynamic_choices.append(choice)
+        return form_element
+
 
 
 class Article(models.Model):
@@ -385,6 +407,7 @@ class Article(models.Model):
         null=False,
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
+        dynamic_choices=(),
     )
 
     # Agreements
