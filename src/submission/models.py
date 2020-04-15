@@ -244,6 +244,8 @@ STAGE_CHOICES = [
     (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
 ]
 
+PLUGIN_WORKFLOW_STAGES = []
+
 
 class ArticleStageLog(models.Model):
     article = models.ForeignKey('Article')
@@ -312,7 +314,8 @@ class DynamicChoiceFormField(TypedChoiceField):
         return choices + self.dynamic_choices
 
     def valid_value(self, value):
-        valid = super().valid_value()
+        valid = super().valid_value(value)
+
         if valid is False:
             return value in self.dynamic_choices
         return valid
@@ -327,9 +330,8 @@ class DynamicChoiceField(models.CharField):
         kwargs["choices_form_class"] = DynamicChoiceFormField
         form_element = super().formfield(**kwargs)
         for choice in self.dynamic_choices:
-            form_element.dynamic_choices.append(choice)
+            form_element.choices.append(choice)
         return form_element
-
 
 
 class Article(models.Model):
@@ -407,7 +409,7 @@ class Article(models.Model):
         null=False,
         default=STAGE_UNSUBMITTED,
         choices=STAGE_CHOICES,
-        dynamic_choices=(),
+        dynamic_choices=PLUGIN_WORKFLOW_STAGES,
     )
 
     # Agreements
