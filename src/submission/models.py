@@ -18,7 +18,7 @@ from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms.fields import ChoiceField
+from django.forms.fields import TypedChoiceField
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
@@ -298,7 +298,7 @@ class PreprintManager(models.Manager):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
 
 
-class DynamicChoiceFormField(ChoiceField):
+class DynamicChoiceFormField(TypedChoiceField):
     """
     Allows adding choices dynamically without requiring a migration
     """
