@@ -155,6 +155,10 @@
             </div>
         {% endif %}
 
+        {% for element in request.journal.workflow_plugin_elements %}
+            {% include element.settings.dashboard_template %}
+        {% endfor %}
+
 
         {% user_has_role request 'section-editor' as sectioneditor %}
         {% if sectioneditor %}

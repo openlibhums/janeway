@@ -299,7 +299,6 @@ class PreprintManager(models.Manager):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
 
 
-
 class DynamicChoiceField(models.CharField):
     def __init__(self, dynamic_choices=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
