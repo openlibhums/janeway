@@ -17,7 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.core.exceptions import ObjectDoesNotExist
+from django.core import exceptions
 from django.forms.fields import TypedChoiceField
 
 from core.file_system import JanewayFileSystemStorage
@@ -332,6 +332,38 @@ class DynamicChoiceField(models.CharField):
         for choice in self.dynamic_choices:
             form_element.choices.append(choice)
         return form_element
+
+    def validate(self, value, model_instance):
+        """
+        Validates value and throws ValidationError.
+        """
+        if not self.editable:
+            # Skip validation for non-editable fields.
+            return
+
+        choices = self.choices + self.dynamic_choices
+
+        if choices and value not in self.empty_values:
+            for option_key, option_value in choices:
+                if isinstance(option_value, (list, tuple)):
+                    # This is an optgroup, so look inside the group for
+                    # options.
+                    for optgroup_key, optgroup_value in option_value:
+                        if value == optgroup_key:
+                            return
+                elif value == option_key:
+                    return
+            raise exceptions.ValidationError(
+                self.error_messages['invalid_choice'],
+                code='invalid_choice',
+                params={'value': value},
+            )
+
+        if value is None and not self.null:
+            raise exceptions.ValidationError(self.error_messages['null'], code='null')
+
+        if not self.blank and value in self.empty_values:
+            raise exceptions.ValidationError(self.error_messages['blank'], code='blank')
 
 
 class Article(models.Model):
@@ -1102,7 +1134,7 @@ class Article(models.Model):
     def production_assignment_or_none(self):
         try:
             return self.productionassignment
-        except ObjectDoesNotExist:
+        except exceptions.ObjectDoesNotExist:
             return None
 
     @property
