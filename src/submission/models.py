@@ -337,33 +337,13 @@ class DynamicChoiceField(models.CharField):
         """
         Validates value and throws ValidationError.
         """
-        if not self.editable:
-            # Skip validation for non-editable fields.
-            return
-
-        choices = self.choices + self.dynamic_choices
-
-        if choices and value not in self.empty_values:
-            for option_key, option_value in choices:
-                if isinstance(option_value, (list, tuple)):
-                    # This is an optgroup, so look inside the group for
-                    # options.
-                    for optgroup_key, optgroup_value in option_value:
-                        if value == optgroup_key:
-                            return
-                elif value == option_key:
-                    return
-            raise exceptions.ValidationError(
-                self.error_messages['invalid_choice'],
-                code='invalid_choice',
-                params={'value': value},
-            )
-
-        if value is None and not self.null:
-            raise exceptions.ValidationError(self.error_messages['null'], code='null')
-
-        if not self.blank and value in self.empty_values:
-            raise exceptions.ValidationError(self.error_messages['blank'], code='blank')
+        try:
+            super().validate(value, model_instance)
+        except exceptions.ValidationError:
+            # Check if the value is in dynamic choices and remove the
+            # error message if it is
+            if 'invalid_choice' in self.error_messages and value in self.dynamic_choices:
+                self.error_messages.pop('invalid_choice')
 
 
 class Article(models.Model):
