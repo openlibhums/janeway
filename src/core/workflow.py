@@ -174,6 +174,10 @@ def articles_in_workflow_stages(request):
     return workflow_list
 
 
+def core_workflow_element_names():
+    return [element.get('name') for element in models.BASE_ELEMENTS]
+
+
 def element_names(elements):
     return [element.element_name for element in elements]
 
@@ -208,3 +212,33 @@ def remove_element(request, journal_workflow, element):
             messages.SUCCESS,
             'Element removed from workflow.'
         )
+
+
+def workflow_plugin_settings(element):
+    """
+    Gets the plugin settings module for a plugin and returns useful settings
+    :param element: a WorkflowElement object
+    :return: dict of useful settings
+    """
+    try:
+        settings_module = import_module(
+            settings.WORKFLOW_PLUGINS[element.element_name],
+        )
+
+        return {
+            'display_name': getattr(settings_module, 'DISPLAY_NAME', ''),
+            'description': getattr(settings_module, 'DESCRIPTION', ''),
+            'kanban_card': getattr(settings_module, 'KANBAN_CARD', ''),
+            'dashboard_template': getattr(
+                settings_module, 'DASHBOARD_TEMPLATE', ''
+            )
+        }
+
+    except (ImportError, KeyError) as e:
+        if settings.DEBUG:
+            print(e)
+        pass
+
+    return {}
+
+

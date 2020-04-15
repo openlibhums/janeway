@@ -1160,6 +1160,11 @@ class WorkflowElement(models.Model):
             journal=self.journal,
         )
 
+    @property
+    def settings(self):
+        from core import workflow
+        return workflow.workflow_plugin_settings(self)
+
     def __str__(self):
         return self.element_name
 
