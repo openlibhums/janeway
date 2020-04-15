@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0042_auto_20200227_1051'),
+        ('submission', '0040_article_projected_issue'),
         ('typesetting', '0005_auto_20200220_1158'),
     ]
 

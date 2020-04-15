@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submission', '0041_auto_20200203_1547'),
+        ('submission', '0040_article_projected_issue'),
         ('typesetting', '0001_initial'),
     ]
 

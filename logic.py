@@ -169,7 +169,7 @@ def complete_typesetting(request, article):
     )
     if request.journal.element_in_workflow(element_name='Typesetting Plugin'):
         workflow_kwargs = {
-            'handshake_url': 'typesetting_article',
+            'handshake_url': 'typesetting_articles',
             'request': request,
             'article': article,
             'switch_stage': True,
