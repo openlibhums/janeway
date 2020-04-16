@@ -49,15 +49,25 @@
             <div class="title-area">
                 <h2>4. Define the Task</h2>
             </div>
+            {% if proofing_assignments %}
+            <a class="button primary" data-open="view_proofing"><i class="fa fa-eye action-icon">&nbsp;</i>View proofreader feedback</a>
+            <p><small><span class="fa fa-bell action-icon"></span> You can consolidate the feedback from the proofreaders in the task below</small></p>
+            {% endif %}
             <div class="content">
                 {{ form.task|foundation }}
             </div>
+            {% if article.galley_set.count > 0 %}
+            <div class="content">
+                {{ form.corrections|foundation }}
+            </div>
+            {% endif %}
 
             <button name="save" class="button">Save Step 1</button>
 
         </div>
     </form>
 
+{% include "typesetting/elements/view_proofreading_comments.html" %}
 {% endblock %}
 
 {% block js %}

@@ -86,6 +86,17 @@
                   <button class="button success" name="edit">Save Changes</button>
                   <button class="button alert" name="delete">Delete Assignment</button>
                 {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
+                    {% if pending_corrections %}
+                    <div class="callout bs-callout-danger">
+                        <h4><span class="fa fa-warning"></span> The typesetter has not made any changes to some galley files</h4>
+                        <ul >
+                            {% for correction in pending_corrections %}
+                            <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <button class="button warning" name="reopen">Reopen Assignment</button>
+                    {% endif %}
                     <div class="content">
                         <p><small>Now that the typesetter has completed their task you can review the uploaded Galley files and make a decision about next steps. The galley files for this article are listed below.</small></p>
                         <div class="row">

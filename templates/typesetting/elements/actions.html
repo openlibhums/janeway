@@ -9,12 +9,12 @@
     {% endif %}
     <div class="button-group">
     {% if round.has_completed_proofing %}
-        <a href="" class="alert button">Request Corrections</a>
+        <a data-open="add_round" class="alert button">Request Corrections</a>
     {% endif %}
     {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
         <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="warning button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
     {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
-        <a href="" class="success button">Start New Typesetting Round</a>
+        <a data-open="add_round" class="success button">Start New Typesetting Round</a>
     {% endif %}
     {% if round.typesettingassignment %}
     <a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}" class="success button">Review Typesetting</a>

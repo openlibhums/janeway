@@ -72,6 +72,17 @@
                     {% if assignment.cancelled %}
                     <p>The editor has cancelled this typesetting task. No further changes can be made now</p>
                     {% else %}
+                    {% if pending_corrections %}
+                    <div class="callout bs-callout-danger">
+                        <h4><span class="fa fa-warning"></span> Some galley files have not been corrected yet</h4>
+                        <ul >
+                            {% for correction in pending_corrections %}
+                            <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
                     <form method="POST">
                         {% csrf_token %}
                         <p>

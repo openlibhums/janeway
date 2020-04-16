@@ -61,7 +61,7 @@ class TypesettingRound(models.Model):
             if self.typesettingassignment.is_active:
                 self.typesettingassignment.cancel(user=user)
 
-        for proofing in  self.galleyproofing_set.filter(
+        for proofing in self.galleyproofing_set.filter(
             completed__isnull=True,
         ):
             proofing.cancel()
@@ -316,7 +316,7 @@ class GalleyProofing(models.Model):
     proofed_files = models.ManyToManyField('core.Galley', blank=True)
     notes = models.TextField(blank=True)
     annotated_files = models.ManyToManyField('core.File', blank=True)
-    
+
     class Meta:
         ordering = ('assigned', 'accepted', 'pk')
 
@@ -359,7 +359,7 @@ class GalleyProofing(models.Model):
 
         if due.days == 0:
             return 'Due Today'
-        
+
         if due < timedelta(0):
             return 'Overdue'
 
@@ -423,3 +423,39 @@ class GalleyProofing(models.Model):
             self.notified = True
             self.save()
 
+
+class TypesettingCorrection(models.Model):
+    task = models.ForeignKey(
+        "typesetting.TypesettingAssignment",
+        related_name="corrections",
+        blank=True,
+    )
+    galley = models.ForeignKey(
+        "core.Galley",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    date_requested = models.DateTimeField(auto_now_add=True)
+    date_completed = models.DateTimeField(blank=True, null=True)
+    date_declined = models.DateTimeField(blank=True, null=True)
+    # A copy of the file checksum to detect changes when requesting corrections
+    file_checksum = models.CharField(max_length=255, blank=True, null=True)
+
+    @property
+    def status(self):
+        _status = "pending"
+        if self.date_completed:
+            _status = "completed"
+        elif self.date_declined:
+            _status = "declined"
+        return _status
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.file_checksum:
+            self.file_checksum = self.galley.file.checksum()
+        super().save(*args, **kwargs)
+
+    @property
+    def corrected(self):
+        return self.file_checksum != self.galley.file.checksum()

@@ -76,7 +76,6 @@ def typesetting_article(request, article_id):
                 kwargs={'article_id': article.pk},
             )
         )
-
     if request.POST and "new-round" in request.POST:
         logic.new_typesetting_round(article, rounds, request.user)
         messages.add_message(
@@ -376,15 +375,24 @@ def typesetting_assign_typesetter(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
+    galleys = article.galley_set.all()
 
     typesetters = logic.get_typesetters(request.journal)
     files = logic.production_ready_files(article, file_objects=True)
     rounds = models.TypesettingRound.objects.filter(article=article)
+    current_round = rounds[0]
+    if rounds.count() > 1:
+        previous_round = rounds[1]
+        proofing_assignments = previous_round.galleyproofing_set.all()
+    else:
+        previous_round = None
+        proofing_assignments = ()
 
     form = forms.AssignTypesetter(
         typesetters=typesetters,
         files=files,
         rounds=rounds,
+        galleys=galleys,
     )
 
     if request.POST:
@@ -393,6 +401,7 @@ def typesetting_assign_typesetter(request, article_id):
             typesetters=typesetters,
             files=files,
             rounds=rounds,
+            galleys=galleys,
         )
 
         if form.is_valid():
@@ -423,6 +432,8 @@ def typesetting_assign_typesetter(request, article_id):
         'typesetters': typesetters,
         'files': logic.production_ready_files(article),
         'form': form,
+        'round': current_round,
+        'proofing_assignments': proofing_assignments,
     }
 
     return render(request, template, context)
@@ -594,6 +605,10 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         'typesetters': typesetters,
         'files': logic.production_ready_files(article),
         'decision_form': decision_form,
+        'pending_corrections': [
+            correction for correction in assignment.corrections.all()
+            if not correction.corrected
+        ],
     }
 
     return render(request, template, context)
@@ -697,6 +712,9 @@ def typesetting_assignment(request, assignment_id):
                 ))
             else:
                 assignment.completed = timezone.now()
+                for correction in assignment.corrections.all():
+                    if correction.corrected and not correction.date_completed:
+                        correction.date_completed = timezone.now()
                 assignment.save()
                 assignment.send_decision_notification(request, note, decision)
                 messages.add_message(
@@ -713,6 +731,10 @@ def typesetting_assignment(request, assignment_id):
         'article': assignment.round.article,
         'form': form,
         'galleys': galleys,
+        'pending_corrections': [
+            correction for correction in assignment.corrections.all()
+            if not correction.corrected
+        ],
     }
 
     return render(request, template, context)
