@@ -54,6 +54,11 @@ def cover_images_upload_path(instance, filename):
     return os.path.join(path, filename)
 
 
+def default_xsl():
+    return core_models.XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
+
+
 def issue_large_image_path(instance, filename):
     try:
         filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
@@ -62,11 +67,6 @@ def issue_large_image_path(instance, filename):
 
     path = "issues/{0}".format(instance.pk)
     return os.path.join(path, filename)
-
-
-def default_xsl():
-    return core_models.XSLFile.objects.get(
-            label=settings.DEFAULT_XSL_FILE_LABEL).pk
 
 
 class Journal(AbstractSiteModel):
@@ -393,6 +393,19 @@ class Journal(AbstractSiteModel):
                 return False
         except core_models.WorkflowElement.DoesNotExist:
             return False
+
+    @property
+    def published_articles(self):
+        return submission_models.Article.objects.filter(
+            journal=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
+
+    def article_keywords(self):
+        return submission_models.Keyword.objects.filter(
+            article__in=self.published_articles
+        ).order_by('word')
 
 
 class PinnedArticle(models.Model):

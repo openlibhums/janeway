@@ -1,0 +1,15 @@
+
+{% with issue_length=article.issues_list|length %}
+<h3>{% if issue_length > 1 %}Issues{% else %}Issue{% endif %}</h3>
+{% endwith %}
+<ul>
+    {% for issue in article.issues_list %}
+        <li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.display_title }}</a></li>
+    {% empty %}
+        {% if article.primary_issue %}
+            <li><a href="{% url 'journal_issue' issue.pk %}">{{ article.primary_issue.display_title }}</a></li>
+        {% else %}
+        <li>This article is not a part of any issues.</li>
+        {% endif %}
+    {% endfor %}
+</ul>

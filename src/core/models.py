@@ -843,7 +843,18 @@ class Galley(models.Model):
         return "{0} ({1})".format(self.id, self.label)
 
     def render(self):
-        return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
+        return files.render_xml(
+                self.file, self.article,
+                xsl_path=self.xsl_file.file.path
+        )
+
+    def render_crossref(self):
+        xsl_path = os.path.join(
+                settings.BASE_DIR, 'transform', 'xsl',  files.CROSSREF_XSL)
+        return files.render_xml(
+                self.file, self.article,
+                xsl_path=xsl_path
+        )
 
     def has_missing_image_files(self, show_all=False):
         xml_file_contents = self.file.get_file(self.article)
@@ -901,8 +912,12 @@ class Galley(models.Model):
         return files.MIMETYPES_WITH_FIGURES
 
     def save(self, *args, **kwargs):
-        if not self.xsl_file:
-            self.xsl_file = self.article.journal.xsl
+        if self.type == 'xml' and not self.xsl_file:
+            if self.article.journal:
+                self.xsl_file = self.article.journal.xsl
+            else:
+                # Articles might not be part of any journals (e.g.: preprints)
+                self.xsl_file = default_xsl()
         super().save(*args, **kwargs)
 
 
@@ -921,6 +936,11 @@ class XSLFile(models.Model):
     def __str__(self):
         return "%s(%s@%s)" % (
             self.__class__.__name__, self.label, self.file.path)
+
+
+def default_xsl():
+    return XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
 
 
 class SupplementaryFile(models.Model):

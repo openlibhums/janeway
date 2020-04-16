@@ -65,8 +65,9 @@
             <div class="content">
                 {{ copyedit.copyeditor_note|safe }}
             </div>
+        </div>
 
-
+        <div class="box">
             {% if copyedit.author_reviews %}
                 <div class="title-area">
                     <h2>Author Reviews</h2>
@@ -79,6 +80,7 @@
                                 <th>Notified</th>
                                 <th>Decision</th>
                                 <th>Decision Date</th>
+                                {% if request.user.is_admin %}<th></th>{% endif %}
                             </tr>
 
                             <tr>
@@ -90,6 +92,7 @@
                                     response{% endif %}</td>
                                 <td>{% if review.date_decided %} {{ review.date_decided|date:"Y-m-d" }} {% else %}
                                     --{% endif %}</td>
+                                {% if request.user.is_admin %}<td><a class="" target="_blank" href="{% url 'admin:copyediting_authorreview_change' review.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>{% endif %}
                             </tr>
                         </table>
                         <table class="scroll small">
@@ -113,6 +116,11 @@
                                 </tr>
                             {% endfor %}
                         </table>
+                        <h5>Covering Letter from Author</h5>
+                        <blockquote>{{ review.author_note|safe }}</blockquote>
+                        {% if not forloop.last %}
+                        <hr />
+                        {% endif %}
                     {% endfor %}
                 </div>
 

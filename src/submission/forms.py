@@ -50,20 +50,18 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('copyright_notice')
         else:
             self.fields['copyright_notice'].required = True
+            copyright_label = setting_handler.get_setting(
+                'general',
+                'copyright_submission_label',
+                journal,
+            ).processed_value
+            self.fields['copyright_notice'].label = copyright_label
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
 
         if not journal.submissionconfiguration.comments_to_the_editor:
             self.fields.pop('comments_editor')
-
-
-        copyright_label = setting_handler.get_setting(
-            'general',
-            'copyright_submission_label',
-            journal,
-        ).processed_value
-        self.fields['copyright_notice'].label = copyright_label
 
 
 class ArticleInfo(KeywordModelForm):
@@ -355,11 +353,19 @@ class ConfiguratorForm(forms.ModelForm):
                 'If language is unset you must select a default language.'
             )
 
-
-
-
     class Meta:
         model = models.SubmissionConfiguration
         exclude = (
             'journal',
         )
+
+
+class ProjectedIssueForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectedIssueForm, self).__init__(*args, **kwargs)
+        self.fields['projected_issue'].queryset = self.instance.journal.issue_set.all()
+
+    class Meta:
+        model = models.Article
+        fields = ('projected_issue',)

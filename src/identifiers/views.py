@@ -4,14 +4,25 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.http import HttpResponse
-from django.shortcuts import reverse, get_object_or_404, redirect, render
-from django.contrib import messages
+from django.shortcuts import reverse, get_object_or_404, redirect, render, render_to_response
 from django.views.decorators.http import require_POST
 
 from identifiers import models, forms
 from submission import models as submission_models
-from utils import models as util_models
+
 from security.decorators import production_user_or_editor_required
+from identifiers import logic
+
+import datetime
+from uuid import uuid4
+
+
+from django.urls import reverse
+from django.contrib import messages
+from django.utils import timezone
+
+
+from utils import models as util_models
 
 
 def pingback(request):
@@ -103,6 +114,99 @@ def manage_identifier(request, article_id, identifier_id=None):
     }
 
     return render(request, template, context)
+
+
+@production_user_or_editor_required
+def show_doi(request, article_id, identifier_id):
+    """
+    Issues a DOI identifier
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    template_context = logic.create_crossref_template(identifier)
+
+    template = 'common/identifiers/crossref.xml'
+    return render_to_response(template, template_context, content_type="application/xml")
+
+
+@production_user_or_editor_required
+def poll_doi(request, article_id, identifier_id):
+    """
+    Polls crossref for DOI info
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    if not identifier.deposit:
+        pass
+    else:
+        identifier.deposit.poll()
+
+    return redirect(
+        reverse(
+            'article_identifiers',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
+
+@production_user_or_editor_required
+def poll_doi_output(request, article_id, identifier_id):
+    """
+    Polls crossref for DOI info
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    if not identifier.deposit:
+        return HttpResponse('Error: no deposit found')
+    else:
+        resp = HttpResponse(identifier.deposit.result_text, content_type="application/xml")
+        resp['Content-Disposition'] = 'inline;'
+        return resp
 
 
 @require_POST

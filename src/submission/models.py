@@ -225,6 +225,11 @@ PREPRINT_STAGES = {
     STAGE_PREPRINT_PUBLISHED
 }
 
+PUBLISHED_STAGES = {
+    STAGE_PUBLISHED,
+    STAGE_PREPRINT_PUBLISHED,
+}
+
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, 'Unsubmitted'),
     (STAGE_UNASSIGNED, 'Unassigned'),
@@ -400,7 +405,19 @@ class Article(models.Model):
     ithenticate_score = models.IntegerField(blank=True, null=True)
 
     # Primary issue, allows the Editor to set the Submission's primary Issue
-    primary_issue = models.ForeignKey('journal.Issue', blank=True, null=True, on_delete=models.SET_NULL)
+    primary_issue = models.ForeignKey(
+        'journal.Issue', 
+        blank=True,
+        null=True, 
+        on_delete=models.SET_NULL,
+    )
+    projected_issue = models.ForeignKey(
+        'journal.Issue', 
+        blank=True, 
+        null=True, 
+        on_delete=models.SET_NULL,
+        related_name='projected_issue',
+    )
 
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
@@ -563,6 +580,11 @@ class Article(models.Model):
 
     def get_doi(self):
         return self.get_identifier('doi')
+
+    @property
+    def identifiers(self):
+        from identifiers import models as identifier_models
+        return identifier_models.Identifier.objects.filter(article=self)
 
     def get_pubid(self):
         return self.get_identifier('pubid')

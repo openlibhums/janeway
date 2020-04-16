@@ -13,6 +13,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.views.decorators.http import require_POST
@@ -27,7 +28,7 @@ from security.decorators import (
     editor_is_not_author, senior_editor_user_required,
     section_editor_draft_decisions, article_stage_review_required
 )
-from submission import models as submission_models
+from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate
 
 
@@ -135,9 +136,60 @@ def unassigned_article(request, article_id):
 
 
 @editor_user_required
+def add_projected_issue(request, article_id):
+    """
+    Allows an editor to add a projected issue to an article.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+    )
+
+    form = submission_forms.ProjectedIssueForm(instance=article)
+
+    if request.POST:
+        form = submission_forms.ProjectedIssueForm(
+            request.POST,
+            instance=article,
+        )
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Projected Issue set.',
+            )
+
+            if request.GET.get('return'):
+                return redirect(
+                    request.GET.get('return'),
+                )
+            else:
+                return redirect(
+                    reverse(
+                        'review_projected_issue',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+
+    template = 'review/projected_issue.html'
+    context = {
+        'article': article,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
 def view_ithenticate_report(request, article_id):
     """Allows editor to view similarity report."""
-    article = get_object_or_404(submission_models.Article, pk=article_id, ithenticate_id__isnull=False)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        ithenticate_id__isnull=False,
+    )
 
     ithenticate_url = ithenticate.fetch_url(article)
 
@@ -953,7 +1005,7 @@ def add_review_assignment(request, article_id):
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
-        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviwers.')
+        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviewers.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1443,9 +1495,16 @@ def author_view_reviews(request, article_id):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    reviews = models.ReviewAssignment.objects.filter(article=article,
-                                                     is_complete=True,
-                                                     for_author_consumption=True).exclude(decision='withdrawn')
+    reviews = models.ReviewAssignment.objects.filter(
+        article=article,
+        is_complete=True,
+        for_author_consumption=True,
+    ).exclude(decision='withdrawn')
+
+    if not reviews.exists():
+        raise PermissionDenied(
+            'No reviews have been made available by the Editor.',
+        )
 
     template = 'review/author_view_reviews.html'
     context = {
@@ -1857,7 +1916,12 @@ def reviewer_article_file(request, assignment_id, file_id):
     if not file_object:
         raise Http404()
 
-    return files.serve_file(request, file_object, article_object)
+    return files.serve_file(
+        request,
+        file_object,
+        article_object,
+        hide_name=True
+    )
 
 
 @reviewer_user_for_assignment_required

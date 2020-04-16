@@ -335,9 +335,14 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         issue_num = issue.issue
-        if issue.issue == 0 and issue.issue_title and issue.issue_type.pretty_name in issue.issue_title:
+        if issue.issue == 0 and issue.issue_title:
             # Deconstruct issue title
-            issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[-1]
+            try:
+                issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[1]
+            except IndexError:
+                logger.error("Can't reconstruct original issue for {} - {}".format(
+                    issue.number, issue.issue_title
+                ))
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
         img_url_suffix = soup.find(src=pattern)

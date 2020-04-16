@@ -489,7 +489,7 @@ msgstr ""
 #: templates/admin/submission/submit_authors.html:89
 msgid ""
 "You are required to select a main author, this author will receive the "
-"communications regarding your articles process through our systems. This "
+"communications regarding your article's process through our systems. This "
 "does not have to be you."
 msgstr ""
 

@@ -39,7 +39,7 @@ from review import forms as review_forms
 from security.decorators import article_stage_accepted_or_later_required, \
     article_stage_accepted_or_later_or_staff_required, article_exists, file_user_required, has_request, has_journal, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
-    editor_user_required
+    editor_user_required, keyword_page_enabled
 from submission import models as submission_models
 from utils import models as utils_models, shared
 from utils.logger import get_logger
@@ -359,6 +359,47 @@ def print_article(request, identifier_type, identifier):
     return render(request, template, context)
 
 
+@has_journal
+@keyword_page_enabled
+def keywords(request):
+    """
+    Renders a list of keywords
+    :param request: HttpRequest object
+    :return: a rendered template
+    """
+    keywords = request.journal.article_keywords()
+
+    template = 'journal/keywords.html'
+    context = {
+        'keywords': keywords,
+    }
+
+    return render(request, template, context)
+
+
+@has_journal
+@keyword_page_enabled
+def keyword(request, keyword_id):
+    """
+    Displays a list of articles that use a given keyword.
+    :param request: HttpRequest object
+    :param keyword_id: Keyword object PK
+    :return: a rendered template
+    """
+    keyword = get_object_or_404(submission_models.Keyword, pk=keyword_id)
+    articles =  request.journal.published_articles.filter(
+        keywords__pk=keyword.pk,
+    )
+
+    template = 'journal/keyword.html'
+    context = {
+        'keyword': keyword,
+        'articles': articles,
+    }
+
+    return render(request, template, context)
+
+
 @staff_member_required
 @has_journal
 @article_exists
@@ -386,8 +427,9 @@ def download_galley(request, article_id, galley_id):
     """
     article = get_object_or_404(submission_models.Article.allarticles,
                                 pk=article_id,
+                                journal=request.journal,
                                 date_published__lte=timezone.now(),
-                                stage=submission_models.STAGE_PUBLISHED)
+                                stage__in=submission_models.PUBLISHED_STAGES)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
     embed = request.GET.get('embed', False)
@@ -414,8 +456,9 @@ def view_galley(request, article_id, galley_id):
     article_to_serve = get_object_or_404(
         submission_models.Article.allarticles,
         pk=article_id,
+        journal=request.journal,
         date_published__lte=timezone.now(),
-        stage=submission_models.STAGE_PUBLISHED
+        stage__in=submission_models.PUBLISHED_STAGES
     )
     galley = get_object_or_404(
         core_models.Galley,
@@ -840,6 +883,9 @@ def publish_article(request, article_id):
                     )
 
             messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
+
+            # clear the cache
+            shared.clear_cache()
 
             if request.journal.element_in_workflow(element_name='prepublication'):
                 workflow_kwargs = {'handshake_url': 'publish_article',
@@ -1346,7 +1392,12 @@ def manage_archive_article(request, article_id):
 
         if 'xml' in request.POST:
             for uploaded_file in request.FILES.getlist('xml-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "XML")
+                try:
+                    production_logic.save_galley(
+                        article, request, uploaded_file, True, "XML")
+                except UnicodeDecodeError:
+                    messages.add_message(request, messages.ERROR,
+                        "Uploaded file is not UTF-8 encoded")
 
         if 'pdf' in request.POST:
             for uploaded_file in request.FILES.getlist('pdf-file'):
@@ -1509,6 +1560,7 @@ def editorial_team(request, group_id=None):
 
     return render(request, template, context)
 
+
 @has_journal
 def author_list(request):
     """
@@ -1523,6 +1575,7 @@ def author_list(request):
         'author_list': author_list,
     }
     return render(request, template, context)
+
 
 def sitemap(request):
     """
@@ -1714,7 +1767,6 @@ def send_user_email(request, user_id, article_id=None):
     }
 
     return render(request, template, context)
-
 
 
 @editor_user_required
