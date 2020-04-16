@@ -357,7 +357,7 @@ def import_issue_images(journal, user, url):
 
             os.makedirs(path, exist_ok=True)
 
-            path = os.path.join(path, 'volume{0}_issue_{0}.graphic'.format(issue.volume, issue.issue))
+            path = os.path.join(path, 'volume{0}_issue_{0}.graphic'.format(issue.volume, issue_num))
 
             with open(path, 'wb') as f:
                 f.write(resp)
@@ -365,15 +365,15 @@ def import_issue_images(journal, user, url):
             with open(path, 'rb') as f:
                 issue.cover_image.save(path, File(f))
 
-            sequence_pattern = re.compile(r'.*?(\d+)\/volume\/{0}\/issue\/{1}.*'.format(issue.volume, issue.issue))
+            sequence_pattern = re.compile(r'.*?(\d+)\/volume\/{0}\/issue\/{1}.*'.format(issue.volume, issue_num))
 
             issue.order = int(sequence_pattern.match(img_url).group(1))
 
-            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue.issue, issue.order))
+            logger.info("Setting Volume {0}, Issue {1} sequence to: {2}".format(issue.volume, issue_num, issue.order))
 
             logger.info("Extracting section orders within the issue...")
 
-            new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue.issue)
+            new_url = '/{0}/volume/{1}/issue/{2}/'.format(issue.order, issue.volume, issue_num)
             resp, mime = utils_models.ImportCacheEntry.fetch(url=base_url + new_url)
 
             soup_issue = BeautifulSoup(resp, 'lxml')
@@ -382,7 +382,12 @@ def import_issue_images(journal, user, url):
             # Find issue title
             try:
                 issue_title = soup_issue.find("div", {"class": "multi-inline"}).find("h1").string
-                issue.issue_title = issue_title.strip(" -\n")
+                issue_title = issue_title.strip(" -\n")
+                if issue.issue_title and issue_title not in issue.issue_title:
+                    issue.issue_title = "{} - {}".format(
+                        issue_title, issue.issue_title)
+                else:
+                    issue.issue_title = issue_title
             except AttributeError as e:
                 logger.debug("Couldn't find an issue title: %s" % e)
 
@@ -449,6 +454,10 @@ def import_jms_user(url, journal, auth_file, base_url, user_id):
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url, up_auth_file=auth_file, up_base_url=base_url)
     soup_user_profile = BeautifulSoup(resp, 'lxml')
     profile_dict = shared.get_user_profile(soup_user_profile)[0]
+    if profile_dict["email"] == "journal@openlibhums.org":
+        dummy_email = shared.generate_dummy_email(profile_dict)
+        logger.debug("Generated email for author: {}".format(dummy_email))
+        profile_dict["email"] = dummy_email
 
     # add an account for this new user
     account = core_models.Account.objects.filter(email=profile_dict['email'])
