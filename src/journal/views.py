@@ -1019,6 +1019,7 @@ def manage_issues(request, issue_id=None, event=None):
         'form': form,
         'modal': modal,
         'galley_form': galley_form,
+        'articles': issue.get_sorted_articles(published_only=False) if issue else None,
     }
 
     return render(request, template, context)

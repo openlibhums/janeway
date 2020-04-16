@@ -588,7 +588,7 @@ class Issue(models.Model):
 
         return structure
 
-    def get_sorted_articles(self):
+    def get_sorted_articles(self, published_only=True):
         """ Returns issue articles sorted by section and article order
 
         Many fields are prefetched and annotated to handle large issues more
@@ -608,11 +608,9 @@ class Issue(models.Model):
             issue=Value(self.pk),
         ).values_list("order")
 
-        issue_articles = self.articles.filter(
-            stage=submission_models.STAGE_PUBLISHED,
-            date_published__lte=timezone.now(),
-        ).prefetch_related(
-            'authors', 'frozenauthor_set',
+        issue_articles = self.articles.prefetch_related(
+            'authors',
+            'frozenauthor_set',
             'manuscript_files',
         ).select_related(
             'section',
@@ -624,6 +622,12 @@ class Issue(models.Model):
             "section__sequence",
             "article_order",
         )
+
+        if published_only:
+            issue_articles = issue_articles.filter(
+                stage=submission_models.STAGE_PUBLISHED,
+                date_published__lte=timezone.now(),
+            )
 
         return issue_articles
 
