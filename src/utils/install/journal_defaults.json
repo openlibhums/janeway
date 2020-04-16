@@ -191,7 +191,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access you revision here: <a href=\"{% journal_url 'do_revisions' article.pk revision.pk  %}\">{% journal_url 'do_revisions' article.pk revision.pk  %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access your revision here: <a href=\"{% journal_url 'do_revisions' article.pk revision.pk  %}\">{% journal_url 'do_revisions' article.pk revision.pk  %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
