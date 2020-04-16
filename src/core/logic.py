@@ -455,12 +455,16 @@ def get_available_elements(workflow):
 def handle_element_post(workflow, element_name, request):
     for element in get_available_elements(workflow):
         if element['name'] == element_name:
+            defaults = {
+                'jump_url': element.get('jump_url', ''),
+                'stage': element['stage'],
+                'handshake_url': element['handshake_url'],
+
+            }
             element_obj, created = models.WorkflowElement.objects.get_or_create(
                 journal=request.journal,
                 element_name=element_name,
-                handshake_url=element['handshake_url'],
-                stage=element['stage'],
-                jump_url=element.get('jump_url', ''),
+                defaults=defaults,
             )
 
             return element_obj
