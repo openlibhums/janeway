@@ -8,7 +8,7 @@
             </div>
         <div class="row">
         {% for current_journal in featured_journals %}
-            <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
+            <div class="medium-4 columns {% if forloop.counter|divisibleby:3 %}end{% endif %}">
                 <div class="box journal-list">
 
                     {% if current_journal.is_remote %}
@@ -32,6 +32,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% if forloop.counter|divisibleby:3 %}</div><div class="row">{% endif %}
         {% endfor %}
         </div>
         </div>
