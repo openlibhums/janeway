@@ -169,7 +169,7 @@ def articles_in_workflow_stages(request):
             workflow_list[element.element_name] = element_dict
         except (KeyError, AttributeError) as e:
             if settings.DEBUG:
-                print(e)
+                logger.error(e)
 
     return workflow_list
 
@@ -236,8 +236,7 @@ def workflow_plugin_settings(element):
 
     except (ImportError, KeyError) as e:
         if settings.DEBUG:
-            print(e)
-        pass
+            logger.error(e)
 
     return {}
 
