@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from django_summernote.widgets import SummernoteWidget
@@ -57,6 +58,11 @@ class AssignTypesetter(forms.ModelForm):
                     )
 
         return assignment
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('files_to_typeset'):
+            raise ValidationError("At least one file must be made picked")
 
 
 class AssignProofreader(forms.ModelForm):
