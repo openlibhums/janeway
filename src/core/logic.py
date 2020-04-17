@@ -441,11 +441,16 @@ def get_available_elements(workflow):
         module_name = "{0}.plugin_settings".format(plugin)
         plugin_settings = import_module(module_name)
 
-        if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(plugin_settings, 'HANDSHAKE_URL'):
+        if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(
+                plugin_settings, 'HANDSHAKE_URL'):
             if plugin_settings.IS_WORKFLOW_PLUGIN:
                 our_elements.append(
-                    {'name': plugin_settings.PLUGIN_NAME, 'handshake_url': plugin_settings.HANDSHAKE_URL,
-                     'stage': plugin_settings.STAGE, 'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL}
+                    {'name': plugin_settings.PLUGIN_NAME,
+                     'handshake_url': plugin_settings.HANDSHAKE_URL,
+                     'stage': plugin_settings.STAGE,
+                     'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL,
+                     'jump_url': plugin_settings.JUMP_URL if hasattr(plugin_settings, 'JUMP_URL') else '',
+                     }
                 )
     return clear_active_elements(our_elements, workflow, plugins)
 
@@ -453,10 +458,17 @@ def get_available_elements(workflow):
 def handle_element_post(workflow, element_name, request):
     for element in get_available_elements(workflow):
         if element['name'] == element_name:
-            element_obj, created = models.WorkflowElement.objects.get_or_create(journal=request.journal,
-                                                                                element_name=element_name,
-                                                                                handshake_url=element['handshake_url'],
-                                                                                stage=element['stage'])
+            defaults = {
+                'jump_url': element.get('jump_url', ''),
+                'stage': element['stage'],
+                'handshake_url': element['handshake_url'],
+
+            }
+            element_obj, created = models.WorkflowElement.objects.get_or_create(
+                journal=request.journal,
+                element_name=element_name,
+                defaults=defaults,
+            )
 
             return element_obj
 

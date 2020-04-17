@@ -890,7 +890,7 @@ def publish_article(request, article_id):
             shared.clear_cache()
 
             if request.journal.element_in_workflow(element_name='prepublication'):
-                workflow_kwargs = {'handshake_url': 'publish_article',
+                workflow_kwargs = {'handshake_url': 'publish',
                                    'request': request,
                                    'article': article,
                                    'switch_stage': True}

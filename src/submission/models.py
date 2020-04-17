@@ -17,14 +17,13 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.core.exceptions import ObjectDoesNotExist
+from django.core import exceptions
 
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
 from review import models as review_models
-from utils import logic
 from utils.function_cache import cache
 
 fs = JanewayFileSystemStorage()
@@ -249,6 +248,8 @@ STAGE_CHOICES = [
     (STAGE_PREPRINT_PUBLISHED, 'Preprint Published')
 ]
 
+PLUGIN_WORKFLOW_STAGES = []
+
 
 class ArticleStageLog(models.Model):
     article = models.ForeignKey('Article')
@@ -301,6 +302,34 @@ class ArticleManager(models.Manager):
 class PreprintManager(models.Manager):
     def get_queryset(self):
         return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+
+
+class DynamicChoiceField(models.CharField):
+    def __init__(self, dynamic_choices=(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamic_choices = dynamic_choices
+
+    def formfield(self, *args, **kwargs):
+        form_element = super().formfield(**kwargs)
+        for choice in self.dynamic_choices:
+            form_element.choices.append(choice)
+        return form_element
+
+    def validate(self, value, model_instance):
+        """
+        Validates value and throws ValidationError.
+        """
+        try:
+            super().validate(value, model_instance)
+        except exceptions.ValidationError as e:
+            # If the raised exception is for invalid choice we check if the
+            # choice is in dynamic choices.
+            if e.code == 'invalid_choice':
+                potential_values = set(
+                    item[0] for item in self.dynamic_choices
+                )
+                if value not in potential_values:
+                    raise
 
 
 class Article(models.Model):
@@ -372,7 +401,14 @@ class Article(models.Model):
     page_numbers = models.CharField(max_length=20, blank=True, null=True)
 
     # Stage
-    stage = models.CharField(max_length=200, blank=False, null=False, default='Unsubmitted', choices=STAGE_CHOICES)
+    stage = DynamicChoiceField(
+        max_length=200,
+        blank=True,
+        null=False,
+        default=STAGE_UNSUBMITTED,
+        choices=STAGE_CHOICES,
+        dynamic_choices=PLUGIN_WORKFLOW_STAGES,
+    )
 
     # Agreements
     publication_fees = models.BooleanField(default=False)
@@ -406,15 +442,15 @@ class Article(models.Model):
 
     # Primary issue, allows the Editor to set the Submission's primary Issue
     primary_issue = models.ForeignKey(
-        'journal.Issue', 
+        'journal.Issue',
         blank=True,
-        null=True, 
+        null=True,
         on_delete=models.SET_NULL,
     )
     projected_issue = models.ForeignKey(
-        'journal.Issue', 
-        blank=True, 
-        null=True, 
+        'journal.Issue',
+        blank=True,
+        null=True,
         on_delete=models.SET_NULL,
         related_name='projected_issue',
     )
@@ -485,8 +521,11 @@ class Article(models.Model):
         if self.render_galley:
             return self.render_galley
 
-        ret = self.galley_set.filter(file__mime_type="application/xml").order_by(
-            "sequence")
+        ret = self.galley_set.filter(
+            file__mime_type="application/xml"
+        ).order_by(
+            "sequence",
+        )
 
         if len(ret) > 0:
             return ret[0]
@@ -943,22 +982,15 @@ class Article(models.Model):
         return author_copyedits
 
     @property
-    def current_stage_url(self):
+    def current_workflow_element_url(self):
 
         kwargs = {'article_id': self.pk}
 
+        # STAGE_UNASSIGNED isn't a workflow element so is hardcoded here.
         if self.stage == STAGE_UNASSIGNED:
             return reverse('review_unassigned_article', kwargs=kwargs)
-        elif self.stage in REVIEW_STAGES:
-            return reverse('review_in_review', kwargs=kwargs)
-        elif self.stage in COPYEDITING_STAGES:
-            return reverse('article_copyediting', kwargs=kwargs)
-        elif self.stage == STAGE_TYPESETTING:
-            return reverse('production_article', kwargs=kwargs)
-        elif self.stage == STAGE_PROOFING:
-            return reverse('proofing_article', kwargs=kwargs)
-        elif self.stage == STAGE_READY_FOR_PUBLICATION:
-            return reverse('publish_article', kwargs=kwargs)
+        else:
+            return reverse(self.current_workflow_element.jump_url, kwargs=kwargs)
 
     @property
     def custom_fields(self):
@@ -1032,6 +1064,15 @@ class Article(models.Model):
         from core import models as core_models
         return core_models.WorkflowLog.objects.filter(article=self)
 
+    @property
+    def current_workflow_element(self):
+        from core import models as core_models
+        logs = core_models.WorkflowLog.objects.filter(
+            article=self,
+        )
+        element = logs.reverse().first().element
+        return element
+
     @cache(600)
     def render_sample_doi(self):
         return id_logic.render_doi_from_pattern(self)
@@ -1064,7 +1105,7 @@ class Article(models.Model):
     def production_assignment_or_none(self):
         try:
             return self.productionassignment
-        except ObjectDoesNotExist:
+        except exceptions.ObjectDoesNotExist:
             return None
 
     @property

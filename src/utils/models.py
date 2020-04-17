@@ -138,9 +138,9 @@ class Plugin(models.Model):
 
     def best_name(self):
         if self.display_name:
-            return self.display_name
+            return self.display_name.lower()
 
-        return self.name
+        return self.name.lower()
 
 
 setting_types = (

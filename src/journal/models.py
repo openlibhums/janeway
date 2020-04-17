@@ -407,6 +407,12 @@ class Journal(AbstractSiteModel):
             article__in=self.published_articles
         ).order_by('word')
 
+    @property
+    def workflow_plugin_elements(self):
+        return self.workflowelement_set.exclude(
+            element_name__in=workflow.core_workflow_element_names()
+        )
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(Journal)

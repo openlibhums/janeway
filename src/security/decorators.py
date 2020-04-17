@@ -930,7 +930,6 @@ def proofreader_for_article_required(func):
         else:
             deny_access(request)
 
-
     return wrapper
 
 
