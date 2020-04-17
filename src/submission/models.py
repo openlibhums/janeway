@@ -317,8 +317,8 @@ class DynamicChoiceField(models.CharField):
         try:
             super().validate(value, model_instance)
         except exceptions.ValidationError as e:
-            # Check if the value is in dynamic choices and remove the
-            # error message if it is
+            # If the raised exception is for invalid choice we check if the
+            # choice is in dynamic choices.
             if e.code == 'invalid_choice':
                 potential_values = set(
                     item[0] for item in self.dynamic_choices
