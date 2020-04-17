@@ -316,11 +316,15 @@ class DynamicChoiceField(models.CharField):
         """
         try:
             super().validate(value, model_instance)
-        except exceptions.ValidationError:
+        except exceptions.ValidationError as e:
             # Check if the value is in dynamic choices and remove the
             # error message if it is
-            if 'invalid_choice' in self.error_messages and value in self.dynamic_choices:
-                self.error_messages.pop('invalid_choice')
+            if e.code == 'invalid_choice':
+                potential_values = set(
+                    item[0] for item in self.dynamic_choices
+                )
+                if value not in potential_values:
+                    raise
 
 
 class Article(models.Model):
