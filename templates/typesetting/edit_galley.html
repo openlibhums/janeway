@@ -86,21 +86,22 @@
             </div>
         </div>
     </div>
-    <div class="title-area">
-        <h2>Galley Label</h2>
-    </div>
-    <div class="content">
-        <p>You can update the label your Galley will have. This is displayed in the download block.</p>
-        <div class="row expanded">
-            <div class="large-6 columns end">
-                <form method="POST">
-                    {% csrf_token %}
-                    <input value="{{ galley.label }}" name="galley_label" type="text">
-                    <button name="galley-label" type="submit" class="button small success">Update Label</button>
-                </form>
+    <div class="box">
+        <div class="title-area">
+            <h2>Galley Label</h2>
+        </div>
+        <div class="content">
+            <p>You can update the label your Galley will have. This is displayed in the download block.</p>
+            <div class="row expanded">
+                <div class="large-6 columns end">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input value="{{ galley.label }}" name="galley_label" type="text">
+                        <button name="galley-label" type="submit" class="button small success">Update Label</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
     </div>
     {% if galley.file.mime_type in galley.mimetypes_with_figures %}
     <div class="box">

@@ -3,12 +3,13 @@ from django.shortcuts import redirect, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from core import models as core_models, files, workflow
+from core import models as core_models, files
 from events import logic as event_logic
 from production import logic
 from utils import render_template
 
 from plugins.typesetting import models, plugin_settings
+from plugins.typesetting.notifications import notify
 
 
 def production_ready_files(article, file_objects=False):
@@ -121,17 +122,23 @@ def handle_proofreader_file(request, assignment, article):
             )
 
 
-def new_typesetting_round(article, rounds, user):
+def new_typesetting_round(article, rounds, request):
     if not rounds:
         new_round = models.TypesettingRound.objects.create(
             article=article,
         )
     else:
         latest_round = rounds[0]
-        latest_round.close(user)
+        latest_round.close(request.user)
+
+        notify.event_typesetting_cancelled(
+            latest_round.typesettingassignment,
+            request,
+        )
+
         new_round = models.TypesettingRound.objects.create(
             article=article,
-            round_number = latest_round.round_number + 1,
+            round_number=latest_round.round_number + 1,
         )
 
     return new_round
@@ -161,7 +168,10 @@ def typesetting_pending_tasks(round):
 
 @transaction.atomic
 def complete_typesetting(request, article):
-    kwargs = {'request': request, 'article': article}
+    kwargs = {
+        'request': request,
+        'article': article,
+    }
 
     event_logic.Events.raise_event(
         plugin_settings.ON_TYPESETTING_COMPLETE,

@@ -3,8 +3,10 @@ from datetime import date, timedelta
 from django.db import models
 from django.utils import timezone
 
+from plugins.typesetting import plugin_settings
 from utils import models as utils_models
 from utils import notify_helpers
+from events import logic as events_logic
 
 
 def review_choices():
@@ -64,7 +66,7 @@ class TypesettingRound(models.Model):
         for proofing in self.galleyproofing_set.filter(
             completed__isnull=True,
         ):
-            proofing.cancel()
+            proofing.cancel(user=user)
 
 
 class TypesettingAssignment(models.Model):
@@ -154,7 +156,7 @@ class TypesettingAssignment(models.Model):
     def is_overdue(self):
         return self.due and self.due < date.today()
 
-    def reopen(self, user):
+    def reopen(self, user=None):
         self.completed = self.acccepted = None
         self.notified = False
         utils_models.LogEntry.add_entry(
@@ -190,6 +192,21 @@ class TypesettingAssignment(models.Model):
         self.cancelled = timezone.now()
         self.save()
 
+    def complete(self, note='', user=None):
+        utils_models.LogEntry.add_entry(
+            types="Typesetting Task Completed",
+            description="The typesetting assignment {self.pk} has been "
+                        "completed by user {user}".format(self=self, user=user),
+            level="INFO",
+            actor=user,
+            target=self.round.article,
+        )
+
+        self.typesetter_note = note
+
+        self.completed = timezone.now()
+        self.save()
+
     FRIENDLY_STATUSES = {
         "assigned": "Awaiting response from the typesetter.",
         "accepted": "Typesetter has accepted task, awaiting completion.",
@@ -207,88 +224,6 @@ class TypesettingAssignment(models.Model):
     @property
     def friendly_status(self):
         return self.FRIENDLY_STATUSES.get(self.status)
-
-    def send_notification(self, message, request, skip=False):
-        description = '{0} has been assigned as a typesetter for {1}'.format(
-            self.typesetter.full_name(),
-            self.round.article.title,
-        )
-
-        if not skip:
-            log_dict = {
-                'level': 'Info',
-                'action_text': description,
-                'types': 'Typesetting Assignment',
-                'target': self.round.article,
-            }
-            notify_helpers.send_email_with_body_from_user(
-                request,
-                'subject_typesetter_notification',
-                self.typesetter.email,
-                message,
-                log_dict=log_dict,
-            )
-            notify_helpers.send_slack(
-                request,
-                description,
-                ['slack_editors'],
-            )
-
-            self.notified = True
-            self.save()
-
-    def send_decision_notification(self, request, note, decision):
-        description = 'Typesetting task {0} decision made by {1}: {2}'.format(
-            self.pk,
-            self.typesetter.full_name(),
-            decision,
-        )
-
-        log_dict = {
-            'level': 'Info',
-            'action_text': description,
-            'types': 'Typesetting Assignment Decision',
-            'target': self.round.article,
-        }
-
-        notify_helpers.send_email_with_body_from_setting_template(
-            request,
-            'typsetting_typesetter_decision_{}'.format(decision),
-            'Typesetting Assignment Decision',
-            self.manager.email,
-            context={'assignment': self, 'note': note},
-            log_dict=log_dict,
-        )
-
-    def complete(self, note, galleys):
-        self.typesetter_note = note
-
-        for galley in galleys:
-            self.galleys_created.add(galley)
-
-        self.completed = timezone.now()
-        self.save()
-
-    def send_complete_notification(self, request):
-        description = 'Typesetting task completed by {0}'.format(
-            self.typesetter.full_name(),
-        )
-
-        log_dict = {
-            'level': 'Info',
-            'action_text': description,
-            'types': 'Typesetting Complete',
-            'target': self.round.article,
-        }
-
-        notify_helpers.send_email_with_body_from_setting_template(
-            request,
-            'typesetting_typesetter_complete',
-            'Typesetting Assignment Complete',
-            self.manager.email,
-            context={'assignment': self},
-            log_dict=log_dict,
-        )
 
 
 class GalleyProofing(models.Model):
@@ -326,22 +261,70 @@ class GalleyProofing(models.Model):
             self.proofreader.full_name(),
         )
 
-    def cancel(self):
+    def assign(self, user=None, skip=False):
+        if not skip:
+            self.notified = True
+            self.save()
+
+        utils_models.LogEntry.add_entry(
+            types='Proofreader Assigned',
+            description='{} assigned as a proofreader by {}'.format(
+                self.proofreader.full_name(),
+                user,
+            ),
+            level='Info',
+            actor=user,
+            target=self.round.article,
+        )
+
+    def cancel(self, user=None):
         self.cancelled = True
         self.completed = timezone.now()
         self.save()
 
-    def reset(self):
+        utils_models.LogEntry.add_entry(
+            types='Proofreading Assignment Cancelled',
+            description='Proofing by {} cancelled by {}'.format(
+                self.proofreader.full_name(),
+                user,
+            ),
+            level='Info',
+            actor=user,
+            target=self.round.article,
+        )
+
+    def reset(self, user=None):
         self.cancelled = False
         self.completed = None
         self.accepted = None
         self.save()
 
-    def complete(self):
+        utils_models.LogEntry.add_entry(
+            types='Proofreading Assignment Reset',
+            description='Proofing by {} reset by {}'.format(
+                self.proofreader.full_name(),
+                user,
+            ),
+            level='Info',
+            actor=user,
+            target=self.round.article,
+        )
+
+    def complete(self, user=None):
         self.cancelled = False
         self.completed = timezone.now()
         self.accepted = timezone.now()
         self.save()
+
+        utils_models.LogEntry.add_entry(
+            types='Proofreading Assignment Complete',
+            description='Proofing by {} completed'.format(
+                user,
+            ),
+            level='Info',
+            actor=user,
+            target=self.round.article,
+        )
 
     def unproofed_galleys(self, galleys):
         check = []
