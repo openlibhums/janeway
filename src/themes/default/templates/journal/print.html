@@ -85,7 +85,7 @@
     {% endif %}
 
     {% for pdf in pdfs %}
-        <meta name="citation_pdf_url" content="{% url 'article_file_download' identifier_type identifier pdf.id %}"/>
+        <meta name="citation_pdf_url" content="{% journal_url 'article_download_galley' article.id pdf.id %}"/>
     {% endfor %}
 </head>
 <body>
