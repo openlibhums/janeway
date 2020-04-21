@@ -203,7 +203,7 @@ class TypesettingAssignment(models.Model):
         )
 
         self.typesetter_note = note
-
+        self.accepted = timezone.now()
         self.completed = timezone.now()
         self.save()
 
