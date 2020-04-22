@@ -977,7 +977,10 @@ def manage_issues(request, issue_id=None, event=None):
         if event == 'remove':
             article_id = request.GET.get('article')
             article = get_object_or_404(submission_models.Article, pk=article_id, pk__in=issue.article_pks)
-            issue.articles.remove(article)
+            models.IssueArticle.objects.filter(
+                issue=issue,
+                article=article,
+            ).delete()
             return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
     if request.POST:
