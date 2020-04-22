@@ -144,8 +144,10 @@ def handle_assign_issue(request, article, issues):
         issue_to_assign = journal_models.Issue.objects.get(pk=request.POST.get('assign_issue', None))
 
         if issue_to_assign in issues:
-            issue_to_assign.articles.add(article)
-            issue_to_assign.save()
+            journal_models.IssueArticle.objects.get_or_create(
+                issue=issue_to_assign,
+                article=article
+            )
             messages.add_message(request, messages.SUCCESS, 'Article assigned to issue.')
         else:
 
@@ -159,9 +161,23 @@ def handle_unassign_issue(request, article, issues):
         issue_to_unassign = journal_models.Issue.objects.get(pk=request.POST.get('unassign_issue', None))
 
         if issue_to_unassign in issues:
-            issue_to_unassign.articles.remove(article)
-            issue_to_unassign.save()
-            messages.add_message(request, messages.SUCCESS, 'Article unassigned from Issue.')
+            try:
+                journal_models.IssueArticle.objects.get(
+                    issue=issue_to_unassign,
+                    article=article,
+                ).delete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Article unassigned from Issue.',
+                )
+            except journal_models.IssueArticle.DoesNotExist:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'This article was not found in the given issue.',
+                )
+
         else:
 
             messages.add_message(request, messages.WARNING, 'Issue not in this journals issue list.')

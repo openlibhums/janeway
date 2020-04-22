@@ -1179,7 +1179,10 @@ def issue_add_article(request, issue_id):
             messages.add_message(request, messages.WARNING, 'Articles without a section cannot be added to an issue.')
             return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
         else:
-            issue.articles.add(article)
+            models.IssueArticle.objects.get_or_create(
+                issue=issue,
+                article=article,
+            )
         return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
     template = 'journal/manage/issue_add_article.html'

@@ -426,6 +426,18 @@ class PinnedArticle(models.Model):
         return '{0}, {1}: {2}'.format(self.sequence, self.journal.code, self.article.title)
 
 
+class IssueArticle(models.Model):
+    issue = models.ForeignKey('Issue')
+    article = models.ForeignKey('submission.Article')
+    is_primary = models.BooleanField(default=False)
+    # TODO: Add article ordering here
+
+    class Meta:
+        unique_together = (
+            ('issue', 'article'),
+        )
+
+
 class Issue(models.Model):
     journal = models.ForeignKey(Journal)
 
@@ -445,7 +457,10 @@ class Issue(models.Model):
     large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
 
     # issue articles
-    articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
+    articles = models.ManyToManyField(
+        'submission.Article',
+        through=IssueArticle,
+    )
 
     # guest editors
     editors = models.ManyToManyField(
