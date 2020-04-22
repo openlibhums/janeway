@@ -5,7 +5,7 @@
         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
  <responseDate>{% now "Y-m-d\TH:i:s\Z" %}</responseDate>
     <request verb="ListRecords" id="{{ journal_settings.general.publisher_name }}" metadataPrefix="oai_dc">{% if request.is_secure %}https://{% else %}http://{% endif %}{{ journal_settings.general.base_url }}/oai</request>
-    <ListRecords>       
+    <ListRecords>
 
                 {% for article in articles %}
         <record>
