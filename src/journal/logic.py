@@ -570,10 +570,15 @@ def merge_issues(destination, to_merge):
         assert destination.journal == issue.journal, "Issues don't belong to "
         "the same journal"
         for article in list(issue.articles.all()):
-            destination.articles.add(article)
-            if article.primary_issue != issue:
-                article.primary_issue = destination
-            article.save()
+            defaults = {
+                'is_primary': True if article.primary_issue == issue else False
+            }
+            journal_models.IssueArticle.objects.get_or_create(
+                issue=destination,
+                article=article,
+                defaults=defaults,
+            )
+
         issue.delete()
 
 
