@@ -20,7 +20,6 @@ urlpatterns = [
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.print_article,
         name='article_print_article'),
-
     url(r'^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figure/(?P<file_name>.*)/$',
         views.article_figure,
         name='article_galley_figure'),
@@ -40,11 +39,13 @@ urlpatterns = [
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.download_table,
         name='article_table'),
-
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w-]+)/(?P<file_name>.+)$'
         ''.format(NON_DOI_PIPE_SEPARATED_IDENTIFIERS),
         views.identifier_figure,
         name='article_figure'),
+    url(r'^article/(?P<identifier_type>id)/(?P<identifier>.+)/download/xml/$',
+        views.serve_article_xml,
+        name='serve_article_xml'),
 
     url(r'^articles/$', views.articles, name='journal_articles'),
 

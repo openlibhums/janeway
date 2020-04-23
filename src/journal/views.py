@@ -1959,3 +1959,25 @@ def doi_redirect(request, identifier_type, identifier):
         raise Http404()
 
     return redirect(article_object.local_url)
+
+
+def serve_article_xml(request, identifier_type, identifier):
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        raise Http404
+
+    galleys = article_object.galley_set.all()
+    xml_galley = get_object_or_404(
+        galleys,
+        file__mime_type__in=files.XML_MIMETYPES,
+    )
+
+    return HttpResponse(
+        xml_galley.file.get_file(article_object),
+        content_type="application/xml",
+    )
