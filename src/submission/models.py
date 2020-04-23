@@ -816,6 +816,15 @@ class Article(models.Model):
         }
 
     @property
+    def issues(self):
+        """
+        Returns the issue_set for an article, this method provides backwards
+        compatibility after we changes the Issue.articles many to many.
+        :return: Queryset of issues
+        """
+        return self.issue_set.all()
+
+    @property
     @cache(300)
     def issue(self):
         """
@@ -1114,6 +1123,17 @@ class Article(models.Model):
         book_link_count = self.booklink_set.all().count()
 
         return article_link_count + book_link_count
+
+    def primary_issue_choices(self, allow_blank=True):
+        choices = [
+            [issue.pk, str(issue)] for issue in self.issue_set.all()
+        ]
+        if not choices:
+            choices.insert(0, ['', 'This article is not in any issues.'])
+        elif allow_blank:
+            choices.insert(0, ['', 'No Primary Issue'])
+
+        return choices
 
 
 class FrozenAuthor(models.Model):

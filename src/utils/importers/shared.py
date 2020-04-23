@@ -566,7 +566,10 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         )
         new_issue.date = date_published
 
-    article.issues.add(new_issue)
+    journal_models.IssueArticle.objects.get_or_create(
+        issue=new_issue,
+        article=article,
+    )
 
     if created:
         new_issue.save()

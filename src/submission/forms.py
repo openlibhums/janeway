@@ -66,10 +66,12 @@ class ArticleStart(forms.ModelForm):
 
 class ArticleInfo(KeywordModelForm):
 
+    primary_issue = forms.ChoiceField(widget=forms.Select, required=False)
+
     class Meta:
         model = models.Article
         fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
-                  'language', 'section', 'license', 'primary_issue',
+                  'language', 'section', 'license',
                   'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
@@ -99,7 +101,7 @@ class ArticleInfo(KeywordModelForm):
             )
             self.fields['section'].required = True
             self.fields['license'].required = True
-            self.fields['primary_issue'].queryset = article.journal.issues()
+            self.fields['primary_issue'].choices = article.primary_issue_choices()
 
             abstracts_required = article.journal.get_setting(
                 'general',
