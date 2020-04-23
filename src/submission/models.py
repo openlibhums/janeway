@@ -446,6 +446,8 @@ class Article(models.Model):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
+        help_text='You can only assign an Issue that this Article is part of.'
+                  'You can add this article to and Issue from the Issue Manager.'
     )
     projected_issue = models.ForeignKey(
         'journal.Issue',
