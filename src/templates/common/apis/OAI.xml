@@ -22,6 +22,7 @@
                     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
                     http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
                     <dc:articleTitle>{{article.title|striptags}}</dc:articleTitle>
+                    <dc:title>{{article.title|striptags}}</dc:title>
                     {% for author in article.authors.all %}
                     <dc:creator>{{author.last_name}}, {{author.first_name}}</dc:creator>
                     {% endfor %}
