@@ -1959,3 +1959,33 @@ def doi_redirect(request, identifier_type, identifier):
         raise Http404()
 
     return redirect(article_object.local_url)
+
+
+def serve_article_xml(request, identifier_type, identifier):
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        raise Http404
+
+    xml_galleys = article_object.galley_set.filter(
+        file__mime_type__in=files.XML_MIMETYPES,
+    )
+
+    if xml_galleys.exists():
+
+        if xml_galleys.count() > 1:
+            logger.error("Found multiple XML galleys for article {id}, "
+                         "returning first match".format(id=article_object.pk))
+
+        xml_galley = xml_galleys[0]
+    else:
+        raise Http404
+
+    return HttpResponse(
+        xml_galley.file.get_file(article_object),
+        content_type=xml_galley.file.mime_type,
+    )
