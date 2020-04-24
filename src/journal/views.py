@@ -1976,6 +1976,11 @@ def serve_article_xml(request, identifier_type, identifier):
     )
 
     if xml_galleys.exists():
+
+        if xml_galleys.count() > 1:
+            logger.error("Found multiple XML galleys for article {id}, "
+                         "returning first match".format(id=article_object.pk))
+
         xml_galley = xml_galleys[0]
     else:
         raise Http404
