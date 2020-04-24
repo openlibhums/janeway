@@ -1971,13 +1971,16 @@ def serve_article_xml(request, identifier_type, identifier):
     if not article_object:
         raise Http404
 
-    galleys = article_object.galley_set.all()
-    xml_galley = get_object_or_404(
-        galleys,
+    xml_galleys = article_object.galley_set.filter(
         file__mime_type__in=files.XML_MIMETYPES,
     )
 
+    if xml_galleys.exists():
+        xml_galley = xml_galleys[0]
+    else:
+        raise Http404
+
     return HttpResponse(
         xml_galley.file.get_file(article_object),
-        content_type="application/xml",
+        content_type=xml_galley.file.mime_type,
     )
