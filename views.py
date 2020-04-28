@@ -30,13 +30,13 @@ def typesetting_articles(request):
     article_filter = request.GET.get('filter', None)
 
     articles_in_typesetting = submission_models.Article.objects.filter(
+        journal=request.journal,
         stage=plugin_settings.STAGE,
     )
 
     if article_filter and article_filter == 'me':
         articles_in_typesetting = articles_in_typesetting.filter(
             typesettingclaim__editor=request.user,
-            journal=request.journal,
         )
 
     template = 'typesetting/typesetting_articles.html'
