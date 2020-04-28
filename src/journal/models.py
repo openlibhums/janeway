@@ -115,6 +115,7 @@ class Journal(AbstractSiteModel):
     xsl = models.ForeignKey('core.XSLFile',
         default=default_xsl,
         on_delete=models.SET_DEFAULT,
+        related_name="default_xsl",
     )
 
     # Boolean to determine if this journal should be hidden from the press
