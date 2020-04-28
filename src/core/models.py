@@ -925,6 +925,7 @@ class Galley(models.Model):
 
 
 def upload_to_journal(instance, filename):
+    instance.original_filename = filename
     if instance.journal:
         return "journals/%d/%s" % (instance.journal.pk, filename)
     else:
