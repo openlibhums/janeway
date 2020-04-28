@@ -21,6 +21,7 @@ class AssignTypesetter(forms.ModelForm):
         self.fields['typesetter'].queryset = typesetters
         self.fields['files_to_typeset'].queryset = files
         self.fields['corrections'] = forms.MultipleChoiceField(
+            required=False,
             choices=[(g.pk, g.label) for g in galleys],
             help_text='Select which galleys require corrections '
                       '(Click and drag to select multiple)',
@@ -51,7 +52,7 @@ class AssignTypesetter(forms.ModelForm):
                 for file in self.cleaned_data.get('files_to_typeset'):
                     assignment.files_to_typeset.add(file)
 
-                for galley_id in self.cleaned_data.get("corrections"):
+                for galley_id in self.cleaned_data.get("corrections", []):
                     correction, _ = assignment.corrections.get_or_create(
                         task=assignment,
                         galley=core_models.Galley.objects.get(pk=galley_id),
