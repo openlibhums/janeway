@@ -924,14 +924,25 @@ class Galley(models.Model):
         super().save(*args, **kwargs)
 
 
+def upload_to_journal(instance, filename):
+    if instance.journal:
+        return "journals/%d/%s" % (instance.journal.pk, filename)
+    else:
+        return filename
+
 class XSLFile(models.Model):
-    file = models.FileField(storage=JanewayFileSystemStorage('transform/xsl'))
+    file = models.FileField(
+        upload_to=upload_to_journal,
+        storage=JanewayFileSystemStorage('files/xsl'))
+    journal = models.ForeignKey("journal.Journal", on_delete=models.CASCADE,
+                                blank=True, null=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
     label = models.CharField(max_length=255,
         help_text="A label to help recognise this stylesheet",
         unique=True,
     )
     comments = models.TextField(blank=True, null=True)
+    original_filename = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
