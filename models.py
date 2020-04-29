@@ -157,7 +157,7 @@ class TypesettingAssignment(models.Model):
         return self.due and self.due < date.today()
 
     def reopen(self, user=None):
-        self.completed = self.acccepted = None
+        self.completed = self.accepted = None
         self.notified = False
         utils_models.LogEntry.add_entry(
             types="Typesetting reopened",
@@ -204,7 +204,7 @@ class TypesettingAssignment(models.Model):
 
         self.typesetter_note = note
 
-        if not self.acccepted:
+        if not self.accepted:
             self.accepted = timezone.now()
 
         self.completed = timezone.now()
