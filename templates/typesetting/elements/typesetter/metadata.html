@@ -25,12 +25,12 @@
         <td>{{ article.get_language_display }}</td>
     </tr>
     <tr>
-        <th colspan="2">Started</th>
         <th colspan="2">Submitted</th>
+        <th colspan="2">Accepted</th>
     </tr>
     <tr>
-        <td colspan="2">{{ article.date_started }}</td>
         <td colspan="2">{{ article.date_submitted }}</td>
+        <td colspan="2">{{ article.date_accepted }}</td>
     </tr>
     <tr>
         <th colspan="4">Abstract</th>
@@ -66,6 +66,19 @@
                 {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
         </tr>
     {% endif %}
+    <tr>
+        <th colspan="4">Peer Reviewed?</th>
+    </tr>
+    <tr>
+        <td colspan="4">
+            This article has {{ article.completed_reviews_with_decision.count }} completed reviews.
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            {% if article.peer_reviewed %}This article has been marked as having been reviewed in the metadata{% else %}This article has not been marked as having been reviewed. If this article has completed reviews above this may be incorrect.{% endif %}
+        </td>
+    </tr>
     {% for field_answer in article.fieldanswer_set.all %}
         <tr>
             <th colspan="4">{{ field_answer.field.name }}</th>
@@ -139,7 +152,6 @@
             <th>Volume</th>
             <th>Number</th>
             <th>Published</th>
-            <th></th>
         </tr>
 
         <tr>
@@ -148,7 +160,6 @@
             <td>{{ article.projected_issue.volume }}</td>
             <td>{{ article.projected_issue.issue }}</td>
             <td>{{ article.projected_issue.date }}</td>
-            <td><a href="{% url 'manage_issues_id' article.projected_issue.pk %}">Issue Manager</a></td>
         </tr>
     </table>
     {% else %}
