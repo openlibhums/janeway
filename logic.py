@@ -58,6 +58,9 @@ def get_proofreaders(article, round, assignment=None):
         p.proofreader.pk for p in round.galleyproofing_set.all()
     ]
 
+    for editor in article.editor_list:
+        pks.append(editor.pk)
+
     for author in article.authors.all():
         pks.append(author.pk)
 
