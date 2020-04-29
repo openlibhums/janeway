@@ -2,6 +2,7 @@
 {% user_has_role request 'typesetter' as typesetter %}
 {% user_has_role request 'proofreader' as proofreader %}
 {% user_has_role request 'editor' as editor %}
+{% user_has_role request 'production' as production %}
 
 <div class="large-4 columns end" data-equalizer-watch>
     <div class="box">
@@ -9,13 +10,19 @@
             <h2>Typesetting Plugin</h2>
         </div>
         <div class="content">
+            {% if production or editor %}
             <p>
                 There are currently {{ element.articles.count }} articles in the Typesetting stage.
             </p>
+            {% elif not typesetter %}
+                <p>
+                    Any proofreading tasks you are assigned can be accessed using the button below.
+                </p>
+            {% endif %}
             <div class="button-group stacked">
                 {% if typesetter %}<a href="{% url 'typesetting_assignments' %}" class="button alert">View Typesetting Tasks</a>{% endif %}
                 {% if proofreader or is_author %}<a href="{% url 'typesetting_proofreading_assignments' %}" class="button warning">View Proofreading Tasks</a>{% endif %}
-                {% if editor %}<a href="{% url 'typesetting_articles' %}" class="button success">View Articles in Stage</a>{% endif %}
+                {% if editor or production %}<a href="{% url 'typesetting_articles' %}" class="button success">View Articles in Stage</a>{% endif %}
             </div>
         </div>
     </div>
