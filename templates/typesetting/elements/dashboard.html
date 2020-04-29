@@ -14,7 +14,7 @@
             <p>
                 There are currently {{ element.articles.count }} articles in the Typesetting stage.
             </p>
-            {% elif not typesetter %}
+            {% elif is_author or proofreader %}
                 <p>
                     Any proofreading tasks you are assigned can be accessed using the button below.
                 </p>
