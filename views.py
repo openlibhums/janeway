@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
 from plugins.typesetting.notifications import notify
@@ -980,7 +981,7 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
     return render(request, template, context)
 
 
-@decorators.proofreader_user_required
+@login_required
 def typesetting_proofreading_assignments(request):
     assignments = models.GalleyProofing.objects.filter(
         proofreader=request.user,
