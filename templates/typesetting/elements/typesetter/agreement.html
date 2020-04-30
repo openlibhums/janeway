@@ -1,0 +1,12 @@
+{% load foundation %}
+
+<p>Below you can accept or decline this task and write a note to the manager.</p>
+
+{% include "admin/elements/forms/errors.html" with form=form %}
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.note|foundation }}
+    <button class="success button" name="decision" value="accept">Accept Assignment</button>
+    <button class="alert button" name="decision" value="decline">Decline Assignment</button>
+</form>

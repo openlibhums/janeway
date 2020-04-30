@@ -13,30 +13,6 @@
 {% block body %}
     <div class="row expanded">
 
-        {% if not assignment.completed and not assignment.accepted and not assignment.cancelled %}
-        <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Typesetting Assignment</h2>
-                </div>
-                <div class="content">
-                    <p>
-                        {{ assignment.manager.full_name }} has requested that you typeset the paper {{ article.title|safe }}. This task is due on {{ assignment.due }}. Below you can accept or decline this task and write a note to the manager.
-                    </p>
-
-                    {% include "admin/elements/forms/errors.html" with form=form %}
-
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form.note|foundation }}
-                        <button class="success button" name="decision" value="accept">Accept Assignment</button>
-                        <button class="alert button" name="decision" value="decline">Decline Assignment</button>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-        {% endif %}
 
         <div class="large-6 columns">
             <div class="box">
@@ -46,6 +22,11 @@
                 <div class="content">
                     {% include "typesetting/elements/typesetter/info.html" %}
                 </div>
+                {% if not assignment.completed and not assignment.accepted and not assignment.cancelled %}
+                <div class="content">
+                    {% include "typesetting/elements/typesetter/agreement.html" %}
+                </div>
+                {% endif %}
                 <div class="title-area">
                     <h2>Files to Typeset</h2>
                 </div>
