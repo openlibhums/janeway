@@ -2,7 +2,7 @@
 import os
 from django.db import migrations
 from django.conf import settings
-from django.core.files import File as DjangoFile
+from django.core.files.base import ContentFile
 
 
 def install_xsl_files(apps, schema_editor):
@@ -21,7 +21,9 @@ def install_xsl_file(apps, label, path=None, file_=None):
     xsl_file = XSLFile(label=label)
     if path:
         with open(path, 'r', encoding="utf-8") as f:
-            xsl_file.file = DjangoFile(f)
+            file_ = ContentFile(f.read())
+            file_.name = "default.xsl"
+            xsl_file.file = file_
             xsl_file.save()
     elif file_:
         xsl_file = file_
