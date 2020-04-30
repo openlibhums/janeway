@@ -4,8 +4,9 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
 from security.decorators import editor_user_required
@@ -29,7 +30,9 @@ def index(request):
                                                          top_level_nav__isnull=True)
     collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
     xsl_form = XSLFileForm()
-    xsl_files = core_models.XSLFile.objects.all()
+    xsl_files = core_models.XSLFile.objects.filter(
+        Q(journal=request.journal)|Q(journal__isnull=True)
+    )
 
     if request.POST and 'delete' in request.POST:
         page_id = request.POST.get('delete')

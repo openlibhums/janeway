@@ -10,6 +10,7 @@ from zipfile import BadZipFile
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
@@ -832,7 +833,9 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         article=article,
     )
     if galley.label == 'XML':
-        xsl_files = core_models.XSLFile.objects.all()
+        xsl_files = core_models.XSLFile.objects.filter(
+            Q(journal=request.journal)|Q(journal__isnull=True)
+        )
     else:
         xsl_files = None
 
