@@ -817,7 +817,7 @@
                     <xsl:value-of select="concat('section ', ./@sec-type)"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:apply-templates select="@*[name()!='sec-type'] | node()"/>
+            <xsl:apply-templates select="*[name()!='sec'] | node()"/>
         </div>
     </xsl:template>
 
