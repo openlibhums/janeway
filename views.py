@@ -625,15 +625,24 @@ def typesetting_review_assignment(request, article_id, assignment_id):
 @decorators.has_journal
 @decorators.typesetter_user_required
 def typesetting_assignments(request):
+
     assignments = models.TypesettingAssignment.objects.filter(
         typesetter=request.user,
         round__article__journal=request.journal,
+    )
+
+    active_assignments = assignments.filter(
         completed__isnull=True,
+    )
+
+    completed_assignments = assignments.filter(
+        completed__isnull=False,
     )
 
     template = 'typesetting/typesetting_assignments.html'
     context = {
-        'assignments': assignments,
+        'active_assignments': active_assignments,
+        'completed_assignments': completed_assignments,
     }
 
     return render(request, template, context)
@@ -985,11 +994,23 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
 def typesetting_proofreading_assignments(request):
     assignments = models.GalleyProofing.objects.filter(
         proofreader=request.user,
+        round__article__journal=request.journal,
+    )
+
+    print(assignments)
+
+    active_assignments = assignments.filter(
+        completed__isnull=True,
+    )
+
+    completed_assignments = assignments.filter(
+        completed__isnull=False,
     )
 
     template = 'typesetting/typesetting_proofing_assignments.html'
     context = {
-        'assignments': assignments,
+        'active_assignments': active_assignments,
+        'completed_assignments': completed_assignments,
     }
 
     return render(request, template, context)
