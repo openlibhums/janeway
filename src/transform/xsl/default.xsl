@@ -1477,7 +1477,10 @@
     </xsl:template>
 
     <xsl:template match="ref-list">
-        <h2>References</h2>
+        <!-- We inject the references heading only when there is no title block -->
+        <xsl:if test="name(*[1]) != 'title'">
+          <h2>References</h2>
+        </xsl:if>
         <div id="reflist">
             <xsl:apply-templates/>
         </div>
