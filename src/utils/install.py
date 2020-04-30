@@ -146,7 +146,7 @@ def update_xsl_files(journal_object=None, management_command=False):
 
         for item in default_data:
             file_path = os.path.join(
-                settings.BASE_DIR, 'files/xsl/', item["fields"]["file"])
+                settings.BASE_DIR, 'transform/xsl/', item["fields"]["file"])
             with open(file_path, 'rb') as f:
                 xsl_file = ContentFile(f.read())
                 xsl_file.name = item["fields"]["file"]
