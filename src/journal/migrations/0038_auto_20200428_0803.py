@@ -10,6 +10,7 @@ import journal.models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('core', '0037_journal_xsl_files'),
         ('journal', '0037_auto_20200116_1201'),
     ]
 

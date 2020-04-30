@@ -19,7 +19,9 @@ def move_xsl_files(apps, schema_editor, from_, to):
     XSLFile = apps.get_model("core", "XSLFile")
     xsl_files = XSLFile.objects.all()
     for filename in (os.path.basename(xsl.file.name) for xsl in xsl_files):
-        if filename == "default.xsl":
+        if not filename:
+            continue
+        elif filename == "default.xsl":
             shutil.copyfile(
                 os.path.join(from_, filename),
                 os.path.join(to, filename)
@@ -53,7 +55,6 @@ def move_xsl_to_old(apps, schema_editor, *args, **kwargs):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0038_auto_20200428_0803'),
         ('core', '0036_merge_20200420_1333'),
     ]
 
