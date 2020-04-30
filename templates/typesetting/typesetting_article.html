@@ -29,7 +29,7 @@
                             {% else %}
                                 {% include "typesetting/elements/typesetter.html" %}
                                 {% include "typesetting/elements/proofing.html" %}
-                                {% include "typesetting/elements/actions.html" %}
+                                {% if forloop.first %}{% include "typesetting/elements/actions.html" %}{% endif %}
                             {% endif %}
                         </div>
                     {% endfor %}
