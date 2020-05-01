@@ -819,6 +819,7 @@ def galley_type_choices():
         ('odt', 'OpenDocument Text Document'),
         ('tex', 'LaTeX'),
         ('rtf', 'RTF'),
+        ('other', 'Other'),
     )
 
 
