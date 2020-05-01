@@ -208,15 +208,20 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
             )
 
     if assignment and galley:
-
-        if galley:
-            assignment.galleys_created.add(galley)
+        assignment.galleys_created.add(galley)
 
         return redirect(
             reverse(
                 'typesetting_assignment',
                 kwargs={'assignment_id': assignment.pk}
             )
+        )
+
+    if not galley:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No galley file uploaded',
         )
 
     return redirect(
