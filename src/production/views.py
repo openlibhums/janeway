@@ -291,41 +291,23 @@ def production_article(request, article_id):
     galleys = logic.get_all_galleys(production_assignment.article)
 
     if request.POST:
-
+        print(request.FILES)
         try:
-            if 'xml' in request.POST:
-                for uploaded_file in request.FILES.getlist('xml-file'):
+            if 'file' in request.FILES:
+                label = request.POST.get('label', None)
+                for uploaded_file in request.FILES.getlist('file'):
                     logic.save_galley(
                         article,
                         request,
                         uploaded_file,
                         True,
+                        label=label,
                     )
         except TypeError as exc:
             messages.add_message(request, messages.ERROR, str(exc))
         except UnicodeDecodeError:
             messages.add_message(request, messages.ERROR,
                 "Uploaded file is not UTF-8 encoded")
-
-        if 'pdf' in request.POST:
-            for uploaded_file in request.FILES.getlist('pdf-file'):
-                logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "PDF",
-                )
-
-        if 'other' in request.POST:
-            for uploaded_file in request.FILES.getlist('other-file'):
-                logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "Other",
-                )
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
@@ -724,39 +706,20 @@ def do_typeset_task(request, typeset_id):
                 return redirect(reverse('typesetter_requests'))
 
         new_galley = None
-        if 'xml' in request.POST:
-            for uploaded_file in request.FILES.getlist('xml-file'):
+        if 'file' in request.FILES:
+            label = request.POST.get('label')
+            for uploaded_file in request.FILES.getlist('file'):
                 try:
                     new_galley = logic.save_galley(
                         article,
                         request,
                         uploaded_file,
                         True,
-                        "XML",
+                        label=label,
                     )
                 except UnicodeDecodeError:
                     messages.add_message(request, messages.ERROR,
                         "Uploaded file is not UTF-8 encoded")
-
-        if 'pdf' in request.POST:
-            for uploaded_file in request.FILES.getlist('pdf-file'):
-                new_galley = logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "PDF",
-                )
-
-        if 'other' in request.POST:
-            for uploaded_file in request.FILES.getlist('other-file'):
-                new_galley = logic.save_galley(
-                    article,
-                    request,
-                    uploaded_file,
-                    True,
-                    "Other",
-                )
 
         if 'source' in request.POST:
             for uploaded_file in request.FILES.getlist('source-file'):
