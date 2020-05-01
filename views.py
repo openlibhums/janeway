@@ -185,7 +185,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         if 'file' in request.FILES:
             label = request.POST.get('label', None)
             for uploaded_file in request.FILES.getlist('file'):
-                galley = logic.save_galley(
+                galley = production_logic.save_galley(
                     article,
                     request,
                     uploaded_file,
