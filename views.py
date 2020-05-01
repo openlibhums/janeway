@@ -172,6 +172,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         journal=request.journal,
     )
     assignment = None
+    galley = None
 
     if assignment_id:
         assignment = get_object_or_404(
@@ -181,39 +182,21 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         )
 
     try:
-        if 'xml' in request.POST:
-            for uploaded_file in request.FILES.getlist('xml-file'):
-                galley = production_logic.save_galley(
+        if 'file' in request.FILES:
+            label = request.POST.get('label', None)
+            for uploaded_file in request.FILES.getlist('file'):
+                galley = logic.save_galley(
                     article,
                     request,
                     uploaded_file,
                     True,
+                    label=label
                 )
     except TypeError as exc:
         messages.add_message(request, messages.ERROR, str(exc))
     except UnicodeDecodeError:
         messages.add_message(request, messages.ERROR,
                              "Uploaded file is not UTF-8 encoded")
-
-    if 'pdf' in request.POST:
-        for uploaded_file in request.FILES.getlist('pdf-file'):
-            galley = production_logic.save_galley(
-                article,
-                request,
-                uploaded_file,
-                True,
-                "PDF",
-            )
-
-    if 'other' in request.POST:
-        for uploaded_file in request.FILES.getlist('other-file'):
-            galley = production_logic.save_galley(
-                article,
-                request,
-                uploaded_file,
-                True,
-                "Other",
-            )
 
     if 'prod' in request.POST:
         for uploaded_file in request.FILES.getlist('prod-file'):
@@ -224,7 +207,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
                 'Production Ready File',
             )
 
-    if assignment:
+    if assignment and galley:
 
         if galley:
             assignment.galleys_created.add(galley)
