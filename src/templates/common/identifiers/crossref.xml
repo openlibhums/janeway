@@ -25,6 +25,11 @@
             </journal_metadata>
             {% if issue and issue.date %}
             <journal_issue>
+                {% if issue.issue_title %}
+                <titles>
+                    <title>{{ issue.issue_title }}</title>
+                </titles>
+                {% endif %}
                 <publication_date media_type="online">
                     <month>{{ issue.date.month }}</month>
                     <day>{{ issue.date.day }}</day>
