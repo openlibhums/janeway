@@ -1393,18 +1393,23 @@ def manage_archive_article(request, article_id):
 
     if request.POST:
 
-        if 'xml' in request.POST:
-            for uploaded_file in request.FILES.getlist('xml-file'):
+        if 'file' in request.FILES:
+            label = request.POST.get('label')
+            for uploaded_file in request.FILES.getlist('file'):
                 try:
                     production_logic.save_galley(
-                        article, request, uploaded_file, True, "XML")
+                        article,
+                        request,
+                        uploaded_file,
+                        True,
+                        label=label,
+                    )
                 except UnicodeDecodeError:
-                    messages.add_message(request, messages.ERROR,
-                        "Uploaded file is not UTF-8 encoded")
-
-        if 'pdf' in request.POST:
-            for uploaded_file in request.FILES.getlist('pdf-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "PDF")
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "Uploaded file is not UTF-8 encoded",
+                    )
 
         if 'delete_note' in request.POST:
             note_id = int(request.POST['delete_note'])
@@ -1426,10 +1431,6 @@ def manage_archive_article(request, article_id):
             pn = submission_models.PublisherNote.objects.get(pk=note_id)
             pn_form = submission_forms.PublisherNoteForm(data=request.POST, instance=pn)
             pn_form.save()
-
-        if 'other' in request.POST:
-            for uploaded_file in request.FILES.getlist('other-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "Other")
 
         return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
 
