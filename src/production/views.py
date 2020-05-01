@@ -291,7 +291,6 @@ def production_article(request, article_id):
     galleys = logic.get_all_galleys(production_assignment.article)
 
     if request.POST:
-        print(request.FILES)
         try:
             if 'file' in request.FILES:
                 label = request.POST.get('label', None)

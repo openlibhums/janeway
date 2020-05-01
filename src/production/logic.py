@@ -117,8 +117,6 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
         sequence=article.get_next_galley_sequence(),
     )
 
-    print(new_galley)
-
     return new_galley
 
 
