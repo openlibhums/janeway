@@ -57,7 +57,6 @@ def upgrade(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journal', '0038_auto_20200428_0803'),
         ('core', '0037_journal_xsl_files'),
     ]
 
