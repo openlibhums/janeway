@@ -21,7 +21,7 @@
             <td>{{ round.typesettingassignment.pk }}</td>
             <td>{{ round.typesettingassignment.assigned }}</td>
             <td>{{ round.typesettingassignment.manager.full_name }}</td>
-            <td>{{ round.typesettingassignment.notified|bool_fa }}</td>
+            <td>{{ round.typesettingassignment.notified|bool_fa }} {% if not round.typesettingassignment.notified %}&nbsp;&nbsp;<a href="{% url 'typesetting_notify_typesetter' round.article.pk round.typesettingassignment.pk %}"><span class="fa fa-send"></span></a>{% endif %}</td>
             <td>{{ round.typesettingassignment.due }}</td>
             <td>{% if round.typesettingassignment.completed %}{{ round.typesettingassignment.completed }}{% else %}{{ round.typesettingassignment.completed|bool_fa }}{% endif %}</td>
             <td>{{ round.typesettingassignment.status|capfirst }}</td>

@@ -20,7 +20,7 @@
                 <td>{{ proofing.pk }}</td>
                 <td>{{ proofing.assigned }}</td>
                 <td>{{ proofing.manager.full_name }}</td>
-                <td>{{ proofing.notified|bool_fa }}</td>
+                <td>{{ proofing.notified|bool_fa }} {% if not proofing.notified %}&nbsp;&nbsp;<a href="{% url 'typesetting_notify_proofreader' round.article.pk proofing.pk %}"><span class="fa fa-send"></span></a>{% endif %}</td>
                 <td>{{ proofing.due }}</td>
                 <td>{% if proofing.completed %}{{ proofing.completed }}{% else %}{{ proofing.completed|bool_fa }}{% endif %}</td>
                 <td>{{ proofing.status|capfirst }}</td>
