@@ -11,9 +11,7 @@
     {% if round.has_completed_proofing %}
         <a data-open="add_round" class="alert button">Request Corrections</a>
     {% endif %}
-    {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'proofing' %}
-        <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="warning button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
-    {% elif round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
+    {% if round.typesettingassignment.reviewed and round.typesettingassignment.review_decision == 'corrections' %}
         <a data-open="add_round" class="alert button">Request Corrections</a>
     {% endif %}
     {% if round.typesettingassignment %}
@@ -22,6 +20,7 @@
     <a class="button" href="{% url 'typesetting_assign_typesetter' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
         Typesetter</a>
     {% endif %}
+    <a href="{% url 'typesetting_assign_proofreader' article.pk %}" class="warning button">Assign{% if round.galleyproofing_set.all %} More{% endif %} Proofreaders</a>
 
     </div>
 </div>
