@@ -377,7 +377,10 @@ def typesetting_assign_typesetter(request, article_id):
     current_round = rounds[0]
     if rounds.count() > 1:
         previous_round = rounds[1]
-        proofing_assignments = previous_round.galleyproofing_set.all()
+        proofing_assignments = previous_round.galleyproofing_set.filter(
+            completed__isnull=False,
+            cancelled__isnull=True,
+        )
     else:
         previous_round = None
         proofing_assignments = ()

@@ -50,8 +50,15 @@
                 <h2>4. Define the Task</h2>
             </div>
             {% if proofing_assignments %}
-            <a class="button primary" data-open="view_proofing"><i class="fa fa-eye action-icon">&nbsp;</i>View proofreader feedback</a>
-            <p><small><span class="fa fa-bell action-icon"></span> You can consolidate the feedback from the proofreaders in the task below</small></p>
+                <div class="callout callout-success">
+                    <a class="button primary" data-open="view_proofing"><i class="fa fa-eye action-icon">&nbsp;</i>View
+                        proofreader feedback</a>
+                    <p>
+                        <small><span class="fa fa-bell action-icon"></span> You can consolidate the feedback from the
+                            proofreaders in the task below
+                        </small>
+                    </p>
+                </div>
             {% endif %}
             <div class="content">
                 {{ form.task|foundation }}
