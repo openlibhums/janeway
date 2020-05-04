@@ -379,7 +379,7 @@ def typesetting_assign_typesetter(request, article_id):
         previous_round = rounds[1]
         proofing_assignments = previous_round.galleyproofing_set.filter(
             completed__isnull=False,
-            cancelled__isnull=True,
+            cancelled=False,
         )
     else:
         previous_round = None
