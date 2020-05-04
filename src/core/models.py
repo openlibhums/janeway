@@ -636,6 +636,8 @@ class SettingValue(TranslatableModel):
 class File(models.Model):
     article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
 
+    parent = models.ForeignKey('File', blank=True, null=True)
+
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
