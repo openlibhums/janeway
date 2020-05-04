@@ -1009,7 +1009,7 @@ def typesetting_proofreading_assignments(request):
     return render(request, template, context)
 
 
-@decorators.proofreader_for_article_required
+@security.proofreader_for_article_required
 def typesetting_proofreading_assignment(request, assignment_id):
     assignment = get_object_or_404(
         models.GalleyProofing,
