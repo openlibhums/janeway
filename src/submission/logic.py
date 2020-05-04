@@ -212,3 +212,19 @@ def order_fields(request, fields):
         order = ids.index(field.pk)
         field.order = order
         field.save()
+
+
+def save_author_order(request, article):
+    author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+    print(author_pks)
+    for author in article.authors.all():
+        order = author_pks.index(author.pk)
+        author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
+            article=article,
+            author=author,
+            defaults={'order': order}
+        )
+
+        if not c:
+            author_order.order = order
+            author_order.save()

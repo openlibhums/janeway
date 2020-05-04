@@ -165,7 +165,11 @@ def submit_authors(request, article_id):
         author_exists = logic.check_author_exists(request.POST.get('email'))
         if author_exists:
             article.authors.add(author_exists)
-            models.ArticleAuthorOrder.objects.get_or_create(article=article, author=author_exists)
+            models.ArticleAuthorOrder.objects.get_or_create(
+                article=article,
+                author=author_exists,
+                defaults={'order': article.next_author_sort()},
+            )
             messages.add_message(request, messages.SUCCESS, '%s added to the article' % author_exists.full_name())
             return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
         else:
@@ -176,7 +180,11 @@ def submit_authors(request, article_id):
                 new_author.save()
                 new_author.add_account_role(role_slug='author', journal=request.journal)
                 article.authors.add(new_author)
-                models.ArticleAuthorOrder.objects.get_or_create(article=article, author=new_author)
+                models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=new_author,
+                    defaults={'order': article.next_author_sort()},
+                )
                 messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
 
                 return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
@@ -194,7 +202,11 @@ def submit_authors(request, article_id):
             try:
                 search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
                 article.authors.add(search_author)
-                models.ArticleAuthorOrder.objects.get_or_create(article=article, author=search_author)
+                models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=search_author,
+                    defaults={'order': article.next_author_sort()},
+                )
                 messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
             except core_models.Account.DoesNotExist:
                 messages.add_message(request, messages.WARNING, 'No author found with those details.')
@@ -213,18 +225,7 @@ def submit_authors(request, article_id):
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
 
     elif request.POST and 'authors[]' in request.POST:
-        author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
-        for author in article.authors.all():
-            order = author_pks.index(author.pk)
-            author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
-                article=article,
-                author=author,
-                defaults={'order': order}
-            )
-
-            if not c:
-                author_order.order = order
-                author_order.save()
+        logic.save_author_order(request, article)
 
         return HttpResponse('Complete')
 
