@@ -97,6 +97,12 @@ class SubmissionConfigAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class ArticleAuthorOrderAdmin(admin.ModelAdmin):
+    list_display = ('order', 'article', 'author',)
+    list_filter = ('article',)
+    search_fields = ('article__pk', 'article__title',)
+
+
 admin_list = [
     (models.Article, ArticleAdmin),
     (models.Licence, LicenseAdmin),
@@ -108,7 +114,8 @@ admin_list = [
     (models.Field, FieldAdmin),
     (models.FieldAnswer,),
     (models.Keyword, KeywordAdmin),
-    (models.SubmissionConfiguration, SubmissionConfigAdmin)
+    (models.SubmissionConfiguration, SubmissionConfigAdmin),
+    (models.ArticleAuthorOrder, ArticleAuthorOrderAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

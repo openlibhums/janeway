@@ -1002,8 +1002,8 @@ class Article(models.Model):
             return False
 
     def snapshot_authors(self, article):
-        for author in self.authors.all():
-            author.snapshot_self(article)
+        for order in self.articleauthororder_set.all():
+            order.author.snapshot_self(article)
 
     def frozen_authors(self):
         return FrozenAuthor.objects.filter(article=self)
@@ -1225,7 +1225,7 @@ class FrozenAuthor(models.Model):
     )
 
     class Meta:
-        ordering = ('order',)
+        ordering = ('order', 'pk')
 
     def __str__(self):
         return self.full_name()
