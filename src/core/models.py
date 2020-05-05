@@ -636,8 +636,6 @@ class SettingValue(TranslatableModel):
 class File(models.Model):
     article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="Article PK")
 
-    parent = models.ForeignKey('File', blank=True, null=True)
-
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
@@ -725,12 +723,6 @@ class File(models.Model):
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
-
-    def get_tree(self):
-        return files.file_parents(self)
-
-    def get_children(self):
-        return files.file_children(self)
 
     def next_history_seq(self):
         try:

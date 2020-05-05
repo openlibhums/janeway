@@ -145,13 +145,12 @@ def remove_css_from_html(source_html):
 
 def replace_galley_file(article, request, galley, uploaded_file):
     if uploaded_file:
-        new_file = files.save_file_to_article(uploaded_file, article, request.user)
-        new_file.is_galley = True
-        new_file.label = galley.file.label
-        new_file.parent = galley.file
-        new_file.save()
-        galley.file = new_file
-        galley.save()
+
+        files.overwrite_file(
+            uploaded_file,
+            galley.file,
+            ('articles', article.pk),
+        )
     else:
         messages.add_message(request, messages.WARNING, 'No file was selected.')
 

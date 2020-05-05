@@ -86,10 +86,6 @@
                     <td>Current</td>
                     {% if request.user.is_admin %}<td><a href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs"> </span></a></td>{% endif %}
                 </tr>
-
-                {% for child in file.get_children %}
-                {{ child }}
-                {% endfor %}
             </table>
         </div>
 
