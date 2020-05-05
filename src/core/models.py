@@ -724,12 +724,6 @@ class File(models.Model):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
 
-    def get_tree(self):
-        return files.file_parents(self)
-
-    def get_children(self):
-        return files.file_children(self)
-
     def next_history_seq(self):
         try:
             last_history_item = self.history.all().reverse()[0]
