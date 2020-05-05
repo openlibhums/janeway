@@ -3058,6 +3058,26 @@ class TestSecurity(TestCase):
         test = decorators.can_view_file(request, self.regular_user, self.third_file)
         self.assertFalse(test)
 
+    def test_production_manager_can_view_file(self):
+        request = self.prepare_request_with_user(self.production, self.journal_one)
+        test = decorators.can_view_file(request, self.production, self.production_file)
+        self.assertTrue(test)
+
+    def test_bad_user_cant_download_production_file(self):
+        request = self.prepare_request_with_user(self.proofing_manager, self.journal_one)
+        test = decorators.can_view_file(request, self.proofing_manager, self.production_file)
+        self.assertFalse(test)
+
+    def test_bad_typesetter_cant_download_file(self):
+        request = self.prepare_request_with_user(self.other_typesetter, self.journal_one)
+        test = decorators.can_view_file(request, self.other_typesetter, self.production_file)
+        self.assertTrue(test)
+
+    def test_bad_typesetter_cant_download_file(self):
+        request = self.prepare_request_with_user(self.typesetter, self.journal_one)
+        test = decorators.can_view_file(request, self.typesetter, self.production_file)
+        self.assertFalse(test)
+
     def test_editor_is_author(self):
         func = Mock()
         decorated_func = decorators.editor_is_not_author(func)
@@ -3770,6 +3790,19 @@ class TestSecurity(TestCase):
         self.subject.save()
 
         self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
+
+
+        self.production_file = core_models.File.objects.create(
+            mime_type="A/FILE",
+            original_filename="blah.txt",
+            uuid_filename="UUID.txt",
+            label="A file that is private",
+            description="Oh yes, it's a file",
+            owner=self.author,
+            is_galley=False,
+            privacy="owner",
+            article_id=self.article_in_production.pk,
+        )
 
         call_command('load_default_settings')
 

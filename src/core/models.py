@@ -368,6 +368,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_proofing_manager(self, request):
         return self.check_role(request.journal, 'proofing_manager')
 
+    def has_role(self, request, roles=[]):
+        """
+        Takes a list of role strings and checks if the user
+        has one of them.
+        """
+        return any(self.check_role(request.journal, role) for role in roles)
+
     def is_preprint_editor(self, request):
         if self in request.press.preprint_editors():
             return True

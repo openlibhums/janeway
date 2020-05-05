@@ -2,6 +2,11 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+from importlib import import_module
+
+from django.conf import settings
+
 from production import models as production_models
 from proofing import models as proofing_models
 from submission import models as submission_models
@@ -20,7 +25,7 @@ def can_edit_file(request, user, file_object, article):
         production_assigned = production_models.ProductionAssignment.objects.get(article=article,)
 
         if (user.is_production(request) and production_assigned.production_manager.pk == user.pk) and \
-                article.stage == submission_models.STAGE_TYPESETTING and file_object.is_galley:
+                article.stage == submission_models.STAGE_TYPESETTING:
             return True
     except production_models.ProductionAssignment.DoesNotExist:
         pass
@@ -76,20 +81,29 @@ def can_view_file(request, user, file_object):
     if user.is_staff or user.is_editor(request) or file_object.owner == user:
         return True
 
-    # allow file editing when the user is the proofing manager for this article
-    try:
-        proofing_models.ProofingAssignment.objects.get(proofing_manager=user,
-                                                       article__pk=file_object.article_id,
-                                                       completed__isnull=True)
-        return True
-    except proofing_models.ProofingAssignment.DoesNotExist:
-        pass
+    # allow file editing when the user is the proofing/production manager 
+    # or typesetter for this article
 
     if file_object.article_id:
+
+        if proofing_models.ProofingAssignment.objects.filter(
+            proofing_manager=user,
+            article__pk=file_object.article_id,
+            article__stage=submission_models.STAGE_PROOFING,
+        ).exists():
+            return True
+
+        if production_models.ProductionAssignment.objects.filter(
+            production_manager=user,
+            article__pk=file_object.article_id,
+            article__stage=submission_models.STAGE_TYPESETTING,
+        ).exists():
+            return True
+
         if proofing_models.TypesetterProofingTask.objects.filter(
                 proofing_task__round__assignment__article__pk=file_object.article_id,
                 typesetter=request.user,
-                completed__isnull=True
+                completed__isnull=True,
         ).exists():
             return True
 
