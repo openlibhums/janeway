@@ -1,5 +1,5 @@
 {% load files %}
-{% load securitytags %}
+{% load typesetting_file_permissions %}
 {% load static from staticfiles %}
 {% load render_string %}
 
@@ -18,9 +18,6 @@
             <th></th>{% endif %}
     </tr>
     {% for galley in galleys %}
-        {% can_view_file galley.file as can_view_file_flag %}
-        {% can_edit_file galley.file article as can_edit_file_flag %}
-        {% can_view_file_history galley.file article as can_view_file_history_flag %}
         <tr>
             <td>{{ galley.pk }}</td>
             <td>{{ galley.label }}</td>
@@ -29,14 +26,14 @@
             <td>
                 <a href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_article' article.pk %}"
                    class="fa fa-edit"></a></td>
-            <td>{% if can_view_file_flag %}
-                <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
-                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+            <td>
+                <a href="{% url 'typesetting_download_file' article.pk galley.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
             </td>
-            <td>{% if can_view_file_history_flag %}
+            <td>
                 <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                         class="fa fa-history">
-                    &nbsp;</i></a>{% endif %}
+                    &nbsp;</i></a>
             </td>
             <td>
                 <a href="{% url 'editor_preview_galley' article.pk  galley.pk %}"

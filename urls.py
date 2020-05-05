@@ -100,5 +100,10 @@ urlpatterns = [
     url(r'^preview_galley/article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figures/(?P<file_name>.*)$',
         views.preview_figure,
         name='typesetter_preview_figure'
-        )
+        ),
+
+    url(r'^article/(?P<article_id>\d+)/file/(?P<file_id>\d+)/download/$',
+        views.typesetting_download_file,
+        name='typesetting_download_file'
+        ),
 ]

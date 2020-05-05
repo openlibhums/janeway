@@ -668,6 +668,24 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
             'You do not have permission to view this file.',
         )
 
+@decorators.has_journal
+@security.user_can_manage_file
+def typesetting_download_file(request, article_id, file_id):
+    """
+    A view that serves up a file for a given article.
+    """
+    file = get_object_or_404(
+        core_models.File,
+        pk=file_id,
+        article_id=article_id,
+    )
+
+    return files.serve_any_file(
+        request,
+        file,
+        path_parts=('articles', article_id)
+    )
+
 
 @decorators.has_journal
 @decorators.typesetter_user_required
@@ -1103,6 +1121,9 @@ def typesetting_preview_galley(
         pk=article_id,
         journal=request.journal,
     )
+    allowed_roles = ['editor', 'section-editor', 'production']
+    print(request.user.has_role(request, allowed_roles))
+
     if assignment_id:
         proofing_task = get_object_or_404(
             models.GalleyProofing,
@@ -1115,7 +1136,7 @@ def typesetting_preview_galley(
             article_id=article.pk,
         )
         proofing_task.proofed_files.add(galley)
-    elif request.user.has_an_editor_role(request):
+    elif request.user.has_role(request, allowed_roles):
         galley = get_object_or_404(
             core_models.Galley,
             pk=galley_id,
