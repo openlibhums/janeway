@@ -106,4 +106,9 @@ urlpatterns = [
         views.typesetting_download_file,
         name='typesetting_download_file'
         ),
+
+    url(r'^file/(?P<file_id>\d+)/delete/$',
+        views.typesetting_delete_file,
+        name='typesetting_delete_file'
+        ),
 ]

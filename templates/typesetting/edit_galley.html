@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load securitytags %}
+{% load typesetting_file_permissions %}
 {% load files %}
 
 {% block title %}Edit Galley - {{ galley.pk }}{% endblock title %}
@@ -30,7 +31,7 @@
                     <th>History</th>
                     <th>Delete</th>
                 </tr>
-                {% can_view_file galley.file as can_view_file_flag %}
+                {% can_manage_file galley.file as can_view_file_flag %}
                 {% can_edit_file galley.file article as can_edit_file_flag %}
                 {% can_view_file_history galley.file article as can_view_file_history_flag %}
                 <tr>
@@ -39,16 +40,16 @@
                     <td>Galley</td>
                     <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                     <td>{% if can_view_file_flag %}
-                        <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
-                                class="fa fa-download">&nbsp;</i></a>{% endif %}
+                        <a href="{% url 'typesetting_download_file' article.pk galley.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>{% endif %}
                     </td>
                     <td>{% if can_view_file_history_flag %}
                         <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                                 class="fa fa-history">
                             &nbsp;</i></a>{% endif %}
                     </td>
-                    <td>{% if can_edit_file_flag %}
-                        <form method="POST">
+                    <td>{% if can_view_file_flag %}
+                        <form method="POST" action="{% url 'typesetting_delete_file' galley.file.pk %}">
                         {% csrf_token %}
 
                         <button type="submit" name="delete" value="{{ galley.file.pk }}"><i

@@ -86,7 +86,7 @@ def user_can_manage_file(func):
             pk=file_object_id,
         )
 
-        if can_manage_file(request, request.user, file_object):
+        if can_manage_file(request, file_object):
             return func(request, *args, **kwargs)
 
         return deny_access(request)
@@ -95,7 +95,7 @@ def user_can_manage_file(func):
 
 
 
-def can_manage_file(request, user, file_object):
+def can_manage_file(request, file_object):
     """
     Determines if a user can view and download a file in the Typesetting Plugin.
     """

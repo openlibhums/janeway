@@ -688,6 +688,45 @@ def typesetting_download_file(request, article_id, file_id):
 
 
 @decorators.has_journal
+@security.user_can_manage_file
+def typesetting_delete_file(request, file_id):
+    """
+    Allows users with permission to delete files
+    """
+    file = get_object_or_404(
+        core_models.File,
+        pk=file_id,
+    )
+
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=file.article_id,
+    )
+
+
+    # Check how many galleys there are before deleting them.
+    galley_count = file.galley_set.all().count()
+    file.galley_set.all()
+    file.delete()
+
+    message = 'File deleted. {count} galley(s) also deleted.'.format(
+        count=galley_count,
+    )
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        message,
+    )
+
+    return redirect(
+        reverse(
+            'typesetting_article',
+            kwargs = {'article_id': article.pk},
+        )
+    )
+
+@decorators.has_journal
 @decorators.typesetter_user_required
 def typesetting_assignment(request, assignment_id):
     assignment = get_object_or_404(
