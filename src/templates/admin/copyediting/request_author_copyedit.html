@@ -16,15 +16,15 @@
 
     <div class="box">
         <div class="title-area">
-            <h2>3. Notify the Copyeditor</h2>
+            <h2>3. Notify the Author</h2>
         </div>
         <div class="content">
-            <p>You can send a message to the copyeditor or skip it.</p>
+            <p>You can send a message to the author or skip it.</p>
             <div class="card">
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="card-divider">
-                        <h4>To {{ copyedit.copyeditor.full_name }}</h4>
+                        <h4>To {{ copyedit.article.correspondence_author.full_name }}</h4>
                         <h5>From {{ request.user.full_name }}</h5>
                     </div>
                     <div class="card-section">
