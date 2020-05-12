@@ -85,7 +85,7 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-                    {% if article.is_published %}
+                    {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                         <h2>{% trans "How to Cite" %}</h2>
                         {% include "elements/journal/how_to_cite.html" with article=article %}
 

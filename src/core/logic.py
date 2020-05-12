@@ -127,15 +127,19 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ['general', 'crosscheck']
+    setting_groups = ['general', 'crosscheck', 'article']
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
         settings = models.Setting.objects.filter(group__name=group)
 
         for setting in settings:
-            _dict[group][setting.name] = setting_handler.get_setting(group, setting.name, journal,
-                                                                     fallback=True).value
+            _dict[group][setting.name] = setting_handler.get_setting(
+                group,
+                setting.name,
+                journal,
+                fallback=True,
+            ).processed_value
 
     return _dict
 
@@ -301,6 +305,12 @@ def get_settings_to_edit(group, journal):
         ]
         settings = process_setting_list(proofing_settings, 'general', journal)
         setting_group = 'general'
+    elif group == 'article':
+        article_settings = [
+            'suppress_how_to_cite',
+        ]
+        settings = process_setting_list(article_settings, 'article', journal)
+        setting_group = 'article'
     else:
         settings = []
         setting_group = None
