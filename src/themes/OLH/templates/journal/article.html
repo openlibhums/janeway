@@ -254,12 +254,14 @@
                             </div>
                         {% endif %}
 
+                        {% if article_content %}
                         <div class="section hide-for-small-only">
                             <h3>{% trans "Jump to" %}</h3>
                             <ul id="toc">
 
                             </ul>
                         </div>
+                        {% endif %}
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">
