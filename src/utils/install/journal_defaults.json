@@ -2638,5 +2638,20 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled this will suppress the how to cite block on the article page.",
+            "is_translatable": false,
+            "name": "suppress_how_to_cite",
+            "pretty_name": "Suppress How to Cite",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

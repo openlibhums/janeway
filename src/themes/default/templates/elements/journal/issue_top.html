@@ -12,6 +12,6 @@
     </div>
 {% else %}
     <h2 class="em">{{ issue.display_title }}</h2>
-    <p>{{ issue.issue_description|safe }}</p>
+    {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
 {% endif %}
 <br/>
