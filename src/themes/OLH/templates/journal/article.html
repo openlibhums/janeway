@@ -207,7 +207,7 @@
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
-                                            <li>{{ author.full_name }}</li>
+                                            <li>{{ author.full_name }} ({{ author.affiliation }})</li>
                                         {% endfor %}
                                     </ul>
                                 {% endif %}
