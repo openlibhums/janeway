@@ -105,7 +105,7 @@
                     <ul>
                     {% for author in article.frozen_authors.all %}
                         <li>
-                            {{ author.full_name }}
+                            {{ author.full_name }} ({{ author.affiliation }})
                         </li>
                     {% endfor %}
                      </ul>
