@@ -441,7 +441,7 @@ def download_galley(request, article_id, galley_id):
             request,
             article,
             'download',
-            galley_type=galley.file.label
+            galley_type=galley.type,
         )
     return files.serve_file(request, galley.file, article, public=True)
 
@@ -473,7 +473,7 @@ def view_galley(request, article_id, galley_id):
         request,
         article_to_serve,
         'view',
-        galley_type=galley.file.label
+        galley_type=galley.type
     )
 
     return files.serve_pdf_galley_to_browser(
@@ -1932,7 +1932,12 @@ def download_issue(request, issue_id):
 
     for article in articles:
         for galley in article.galley_set.all():
-            store_article_access(request, article, 'download', galley_type=galley.file.label)
+            store_article_access(
+                request,
+                article,
+                'download',
+                galley_type=galley.type,
+            )
             galley_files.append(galley.file)
 
     zip_file, file_name = files.zip_files(galley_files, article_specific=True)
