@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
+from django.db import IntegrityError
 from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -768,8 +769,10 @@ def publish(request):
     :param request: django request object
     :return: contextualised django object
     """
-    articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_READY_FOR_PUBLICATION,
-                                                        journal=request.journal)
+    articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_READY_FOR_PUBLICATION,
+        journal=request.journal,
+    )
 
     template = 'journal/publish.html'
     context = {
@@ -787,11 +790,13 @@ def publish_article(request, article_id):
     :param article_id: Article PK
     :return: contextualised django template
     """
-    article = get_object_or_404(submission_models.Article,
-                                Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
-                                Q(stage=submission_models.STAGE_PUBLISHED),
-                                pk=article_id,
-                                journal=request.journal)
+    article = get_object_or_404(
+        submission_models.Article,
+        Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
+        Q(stage=submission_models.STAGE_PUBLISHED),
+        pk=article_id,
+        journal=request.journal,
+    )
     models.FixedPubCheckItems.objects.get_or_create(article=article)
 
     doi_data, doi = logic.get_doi_data(article)
@@ -802,43 +807,96 @@ def publish_article(request, article_id):
 
     if request.POST:
         if 'assign_issue' in request.POST:
-            logic.handle_assign_issue(request, article, issues)
-            return redirect('{0}?m=issue'.format(reverse('publish_article', kwargs={'article_id': article.pk})))
+            try:
+                logic.handle_assign_issue(request, article, issues)
+            except IntegrityError:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Your article must have a section assigned.',
+                )
+            return redirect(
+                '{0}?m=issue'.format(
+                    reverse(
+                        'publish_article', 
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            )
 
         if 'unassign_issue' in request.POST:
             logic.handle_unassign_issue(request, article, issues)
-            return redirect('{0}?m=issue'.format(reverse('publish_article', kwargs={'article_id': article.pk})))
+            return redirect(
+                '{0}?m=issue'.format(
+                    reverse(
+                        'publish_article', 
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            )
 
         if 'new_issue' in request.POST:
             new_issue_form, modal, new_issue = logic.handle_new_issue(request)
             if new_issue:
-                return redirect('{0}?m=issue'.format(reverse('publish_article', kwargs={'article_id': article.pk})))
+                return redirect(
+                    '{0}?m=issue'.format(
+                        reverse(
+                            'publish_article',
+                             kwargs={'article_id': article.pk},
+                        )
+                    )
+                )
 
         if 'pubdate' in request.POST:
-            date_set, pubdate_errors = logic.handle_set_pubdate(request, article)
+            date_set, pubdate_errors = logic.handle_set_pubdate(
+                request, 
+                article,
+            )
             if not pubdate_errors:
-                return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+                return redirect(
+                    reverse(
+                        'publish_article',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
             else:
                 modal = 'pubdate'
 
         if 'author' in request.POST:
             logic.notify_author(request, article)
-            return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'publish_article',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
         if 'galley' in request.POST:
             logic.set_render_galley(request, article)
-            return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'publish_article', 
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
         if 'image' in request.POST or 'delete_image' in request.POST:
             logic.set_article_image(request, article)
             shared.clear_cache()
-            return redirect("{0}{1}".format(reverse('publish_article', kwargs={'article_id': article.pk}),
-                                            "?m=article_image"))
+            return redirect(
+                "{0}{1}".format(
+                    reverse(
+                        'publish_article', 
+                        kwargs={'article_id': article.pk},
+                    ),
+                    "?m=article_image",
+                )
+            )
 
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(article)
-            article.close_core_workflow_objects()  # TODO: handle plugin elements?
+            article.close_core_workflow_objects()
 
             if not article.date_published:
                 article.date_published = timezone.now()
@@ -848,9 +906,11 @@ def publish_article(request, article_id):
             # Fire publication event
             kwargs = {'article': article,
                       'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_PUBLISHED,
-                                            task_object=article,
-                                            **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_PUBLISHED,
+                task_object=article,
+                **kwargs,
+            )
 
             # Attempt to register xref DOI
             for identifier in article.identifier_set.all():
@@ -862,21 +922,34 @@ def publish_article(request, article_id):
                         status
                     )
 
-            messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Article set for publication.',
+            )
 
             # clear the cache
             shared.clear_cache()
 
-            if request.journal.element_in_workflow(element_name='prepublication'):
+            if request.journal.element_in_workflow(
+                element_name='prepublication',
+            ):
                 workflow_kwargs = {'handshake_url': 'publish',
                                    'request': request,
                                    'article': article,
                                    'switch_stage': True}
-                return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                                                      task_object=article,
-                                                      **workflow_kwargs)
+                return event_logic.Events.raise_event(
+                    event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                    task_object=article,
+                    **workflow_kwargs,
+                )
 
-        return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'publish_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     template = 'journal/publish_article.html'
     context = {
