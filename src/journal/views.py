@@ -809,12 +809,16 @@ def publish_article(request, article_id):
         if 'assign_issue' in request.POST:
             try:
                 logic.handle_assign_issue(request, article, issues)
-            except IntegrityError:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    'Your article must have a section assigned.',
-                )
+            except IntegrityError as integrity_error:
+                if not article.section:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'Your article must have a section assigned.',
+                    )
+                else:
+                    raise integrity_error
+
             return redirect(
                 '{0}?m=issue'.format(
                     reverse(
