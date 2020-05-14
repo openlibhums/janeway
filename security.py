@@ -4,7 +4,7 @@ from django.shortcuts import reverse, redirect, get_object_or_404, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
-from plugins.typesetting import models
+from plugins.typesetting import models, plugin_settings
 from security.decorators import base_check, deny_access
 from submission import models as submission_models
 from core import models as core_models
@@ -55,6 +55,8 @@ def require_not_notified(object_model):
         def inner(request, *args, **kwargs):
             assignment_id = kwargs.get('assignment_id')
 
+            print(assignment_id)
+
             if not assignment_id:
                 raise Http404
 
@@ -64,7 +66,9 @@ def require_not_notified(object_model):
             )
 
             if object_to_check.notified:
-                raise PermissionDenied("Notification for this assignment has already been sent.")
+                raise PermissionDenied(
+                    "Notification for this assignment has already been sent.",
+                )
 
             return func(request, *args, **kwargs)
         return inner
@@ -100,6 +104,17 @@ def can_manage_file(request, file_object):
     Determines if a user can view and download a file in the Typesetting Plugin.
     """
     if request.user.is_anonymous():
+        return False
+
+    if file_object.article_id:
+        # Check if there is a workflow log entry for the typesetting plugin.
+        if not core_models.WorkflowLog.objects.filter(
+            article__pk=file_object.article_id, 
+            element__element_name=plugin_settings.PLUGIN_NAME,
+        ).exists():
+            return False
+    else:
+        # Files without article ids should not be downloadable here.
         return False
 
     if (
