@@ -1158,7 +1158,6 @@ def typesetting_preview_galley(
         journal=request.journal,
     )
     allowed_roles = ['editor', 'section-editor', 'production']
-    print(request.user.has_role(request, allowed_roles))
 
     if assignment_id:
         proofing_task = get_object_or_404(
