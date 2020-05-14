@@ -165,7 +165,8 @@ class TestTypesetting(TestCase):
             )
             
             with self.assertRaises(PermissionDenied):
-                # test that editor_user_required raises a PermissionDenied exception
+                # test that editor_user_required raises a PermissionDenied 
+                # exception
                 decorated_func(request, **kwargs)
 
             self.assertFalse(
