@@ -55,8 +55,6 @@ def require_not_notified(object_model):
         def inner(request, *args, **kwargs):
             assignment_id = kwargs.get('assignment_id')
 
-            print(assignment_id)
-
             if not assignment_id:
                 raise Http404
 
