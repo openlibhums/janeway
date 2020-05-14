@@ -116,7 +116,12 @@ def get_plugin(module_name, permissive):
     try:
         plugin = models.Plugin.objects.get(name=module_name, enabled=True)
         return plugin
-    except (models.Plugin.DoesNotExist, ProgrammingError, OperationalError) as e:
+    except (
+            models.Plugin.DoesNotExist,
+            models.Plugin.MultipleObjectsReturned,
+            ProgrammingError, 
+            OperationalError,
+        ) as e:
         if settings.DEBUG:
             print('Error loading plugin {0} {1}'.format(module_name, e))
         return False
