@@ -172,6 +172,16 @@
             {% else %}
             <p>This article is already marked as published. It will be available on {{ article.date_published|date:"Y-m-d @ H:i" }}</p>
             {% endif %}
+
+            <div class="bs-callout bs-callout-danger">
+                <p><strong><span class="fa fa-warning"> </span> Warnings</strong></p>
+                <ul>
+                    <li>This article has been marked as {% if not article.peer_reviewed %}not {% endif %}peer reviewed.
+                    {% if not article.get_doi %}<li>No DOI has been asigned.</li>{% endif %}
+                    {% if not article.keywords.count > 0 %}<li>No keywords have been set.</li>{% endif %}
+                    {% if not article.issues_list.count > 0 %}<li>This article has not been assigned to an Issue yet.{% if article.projected_issue %} It was projected to be in {{ article.projected_issue }}{% endif %}</li>{% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
