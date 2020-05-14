@@ -943,10 +943,15 @@ class Article(models.Model):
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
         self.date_declined = None
+
         if stage:
             self.stage = stage
         else:
             self.stage = STAGE_ACCEPTED
+
+        if self.completed_reviews_with_decision.count() > 0:
+            self.peer_reviewed = True
+
         self.save()
 
         if self.journal.use_crossref:
