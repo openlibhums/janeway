@@ -703,14 +703,11 @@ def typesetting_delete_file(request, file_id):
         pk=file.article_id,
     )
 
-
-    # Check how many galleys there are before deleting them.
-    galley_count = file.galley_set.all().count()
-    file.galley_set.all()
+    deleted_galley_count = file.galley_set.all().delete()
     file.delete()
 
     message = 'File deleted. {count} galley(s) also deleted.'.format(
-        count=galley_count,
+        count=deleted_galley_count[0],
     )
 
     messages.add_message(
