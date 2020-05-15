@@ -5,8 +5,14 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import reverse
 
-from utils import notify_helpers, models as util_models, setting_handler, render_template
+from utils import (
+    notify_helpers,
+    models as util_models,
+    setting_handler,
+    render_template,
+)
 from core import models as core_models
+from review import logic as review_logic
 
 
 def send_reviewer_withdrawl_notice(**kwargs):
@@ -238,10 +244,16 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
                                    description=description, level='Info', actor=request.user, target=article,
                                    request=request)
 
+    review_url = review_logic.get_review_url(
+        request,
+        review_assignment,
+    )
+
     context = {
         'article': article,
         'request': request,
-        'review_assignment': review_assignment
+        'review_assignment': review_assignment,
+        'review_url': review_url,
     }
 
     # send to slack
@@ -249,9 +261,13 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
 
     # send to reviewer
     if accepted:
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_accept_acknowledgement',
-                                                                  'subject_review_accept_acknowledgement',
-                                                                  review_assignment.reviewer.email, context)
+        notify_helpers.send_email_with_body_from_setting_template(
+            request, 
+            'review_accept_acknowledgement',
+            'subject_review_accept_acknowledgement',
+            review_assignment.reviewer.email, 
+            context,
+        )
 
         # send to editor
         notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',

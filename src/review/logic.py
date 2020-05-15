@@ -53,15 +53,28 @@ def get_assignment_content(request, article, editor, assignment):
     return render_template.get_message_content(request, email_context, 'editor_assignment')
 
 
-def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
+def get_review_url(request, review_assignment):
     review_url = request.journal.site_url(path=reverse(
             'do_review', kwargs={'assignment_id': review_assignment.id}
     ))
 
-    access_codes = setting_handler.get_setting('general', 'enable_one_click_access', request.journal).value
+    access_codes = setting_handler.get_setting(
+        'general',
+        'enable_one_click_access',
+        request.journal,
+    ).value
 
     if access_codes:
-        review_url = "{0}?access_code={1}".format(review_url, review_assignment.access_code)
+        review_url = "{0}?access_code={1}".format(
+            review_url,
+            review_assignment.access_code,
+        )
+
+    return review_url
+
+
+def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
+    review_url = get_review_url(request, review_assignment)
 
     email_context = {
         'article': article,
