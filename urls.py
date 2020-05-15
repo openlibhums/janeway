@@ -107,8 +107,8 @@ urlpatterns = [
         name='typesetting_download_file'
         ),
 
-    url(r'^file/(?P<file_id>\d+)/delete/$',
-        views.typesetting_delete_file,
-        name='typesetting_delete_file'
+    url(r'^galley/(?P<galley_id>\d+)/delete/$',
+        views.typesetting_delete_galley,
+        name='typesetting_delete_galley'
         ),
 ]

@@ -674,6 +674,7 @@ def typesetting_download_file(request, article_id, file_id):
     """
     A view that serves up a file for a given article.
     """
+    print('do we get here?')
     file = get_object_or_404(
         core_models.File,
         pk=file_id,
@@ -688,32 +689,25 @@ def typesetting_download_file(request, article_id, file_id):
 
 
 @decorators.has_journal
-@security.user_can_manage_file
-def typesetting_delete_file(request, file_id):
+@decorators.production_user_or_editor_required
+def typesetting_delete_galley(request, galley_id):
     """
     Allows users with permission to delete files
     """
-    file = get_object_or_404(
-        core_models.File,
-        pk=file_id,
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article__journal=request.journal,
     )
 
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=file.article_id,
-    )
-
-    deleted_galley_count = file.galley_set.all().delete()
-    file.delete()
-
-    message = 'File deleted. {count} galley(s) also deleted.'.format(
-        count=deleted_galley_count[0],
-    )
+    # Grab the article and delete the Galley but retain the file.
+    article = galley.article
+    galley.delete()
 
     messages.add_message(
         request,
         messages.SUCCESS,
-        message,
+        'Galley deleted.',
     )
 
     return redirect(

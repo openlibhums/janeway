@@ -14,6 +14,7 @@
         <th>History</th>
         <th>Preview</th>
         <th>Galley Figures</th>
+        <th>Delete</th>
         {% if request.user.is_admin %}
             <th></th>{% endif %}
     </tr>
@@ -48,6 +49,16 @@
                 {% else %}
                     N/a
                 {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="{% url 'typesetting_delete_galley' galley.pk %}">
+                    {% csrf_token %}
+
+                    <button type="submit" name="delete" value="{{ galley.file.pk }}"><i
+                            class="fa fa-trash">
+                        &nbsp;</i>
+                    </button>
+                </form>
             </td>
             {% if request.user.is_admin %}
                 <td><a target="_blank"
