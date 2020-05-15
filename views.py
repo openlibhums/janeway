@@ -674,7 +674,6 @@ def typesetting_download_file(request, article_id, file_id):
     """
     A view that serves up a file for a given article.
     """
-    print('do we get here?')
     file = get_object_or_404(
         core_models.File,
         pk=file_id,
