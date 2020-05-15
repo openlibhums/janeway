@@ -11,6 +11,8 @@ urlpatterns = [
         views.typesetting_articles,
         name='typesetting_articles'
         ),
+    url(r'^article/(?P<article_id>\d+)/makegalley/file/(?P<file_id>\d+)/$', views.article_file_make_galley,
+        name='typesetting_article_file_make_galley'),
     url(r'^article/(?P<article_id>\d+)/$',
         views.typesetting_article,
         name='typesetting_article'

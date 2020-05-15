@@ -112,7 +112,7 @@ def can_manage_file(request, file_object):
     if file_object.article_id:
         # Check if there is a workflow log entry for the typesetting plugin.
         if not core_models.WorkflowLog.objects.filter(
-            article__pk=file_object.article_id, 
+            article__pk=file_object.article_id,
             element__element_name=plugin_settings.PLUGIN_NAME,
         ).exists():
             return False
@@ -121,9 +121,9 @@ def can_manage_file(request, file_object):
         return False
 
     if (
-        request.user.is_staff or 
+        request.user.is_staff or
         request.user.is_editor(request) or
-        request.user.is_production(request) or 
+        request.user.is_production(request) or
         file_object.owner == request.user
     ):
         return True

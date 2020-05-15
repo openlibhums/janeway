@@ -15,7 +15,7 @@
                 <tr>
                     <td> ----- </td>
                     <td> Converts this file into a galley as-is, preserving its label. e.g.: If used on the Manuscript, a link for "Dowloand Manuscript" will be provided on the article page</td>
-                    <td><a class="button success small" name="make_galley" href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}">Make Galley</a>
+                    <td><a class="button success small" name="make_galley" href="{% url 'typesetting_article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}">Make Galley</a>
                 {% hook 'conversion_row' file article %} 
             </table>
         </div>

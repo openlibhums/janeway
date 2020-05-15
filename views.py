@@ -12,6 +12,7 @@ from submission import models as submission_models
 from core import models as core_models, files
 from production import logic as production_logic
 from journal.views import article_figure
+from journal import logic as journal_logic
 
 
 @decorators.has_journal
@@ -1252,3 +1253,23 @@ def preview_figure(
         raise PermissionDenied
 
     return article_figure(request, galley.article.pk, galley.pk, file_name)
+
+
+@security.user_can_manage_file
+def article_file_make_galley(request, article_id, file_id):
+    """ Copies a file to be a publicly available galley
+
+    :param request: the request associated with this call
+    :param article_id: the ID of the associated articled
+    :param file_id: the file ID for which to view the history
+    :return: a redirect to the URL at the GET parameter 'return'
+    """
+    article_object = get_object_or_404(
+        submission_models.Article.allarticles, pk=article_id)
+    file_object = get_object_or_404(
+        core_models.File, pk=file_id)
+
+    journal_logic.create_galley_from_file(
+        file_object, article_object, owner=request.user)
+
+    return redirect(request.GET['return'])
