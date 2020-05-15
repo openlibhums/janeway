@@ -4,9 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
-import os
-from shutil import copyfile
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -713,34 +710,7 @@ def article_file_make_galley(request, article_id, file_id):
     article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
-    # we copy the file here so that the user submitting has no control over the typeset files
-    # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
-    new_filename = str(uuid4()) + str(os.path.splitext(file_object.uuid_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article_object.id))
-
-    old_path = os.path.join(folder_structure, str(file_object.uuid_filename))
-    new_path = os.path.join(folder_structure, str(new_filename))
-
-    copyfile(old_path, new_path)
-
-    # clone the file model object to a new galley
-    new_file = core_models.File(
-        mime_type=file_object.mime_type,
-        original_filename=file_object.original_filename,
-        uuid_filename=new_filename,
-        label=file_object.label,
-        description=file_object.description,
-        owner=request.user,
-        is_galley=True
-    )
-
-    new_file.save()
-
-    core_models.Galley.objects.create(
-        article=article_object,
-        file=new_file,
-        label=new_file.label,
-    )
+    logic.create_galley_from_file(file_object, article_object, owner=request.user)
 
     return redirect(request.GET['return'])
 

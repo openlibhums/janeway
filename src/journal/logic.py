@@ -6,10 +6,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from bs4 import BeautifulSoup
 import csv
 from dateutil import parser as dateparser
+import os
 from os import listdir, makedirs
 from os.path import isfile, join
 import requests
+from shutil import copyfile
 from urllib.parse import urlencode
+from uuid import uuid4
 
 from django.contrib import messages
 from django.conf import settings
@@ -75,6 +78,36 @@ def list_scss(journal):
 
     return file_paths
 
+
+def create_galley_from_file(file_object, article_object, owner=None):
+    # we copy the file here so that the user submitting has no control over the typeset files
+    # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
+    new_filename = str(uuid4()) + str(os.path.splitext(file_object.uuid_filename)[1])
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article_object.id))
+
+    old_path = os.path.join(folder_structure, str(file_object.uuid_filename))
+    new_path = os.path.join(folder_structure, str(new_filename))
+
+    copyfile(old_path, new_path)
+
+    # clone the file model object to a new galley
+    new_file = core_models.File(
+        mime_type=file_object.mime_type,
+        original_filename=file_object.original_filename,
+        uuid_filename=new_filename,
+        label=file_object.label,
+        description=file_object.description,
+        owner=owner,
+        is_galley=True
+    )
+
+    new_file.save()
+
+    core_models.Galley.objects.create(
+        article=article_object,
+        file=new_file,
+        label=new_file.label,
+    )
 
 def get_best_galley(article, galleys):
     """
