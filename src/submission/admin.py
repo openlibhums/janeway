@@ -29,7 +29,7 @@ class ArticleAdmin(admin.ModelAdmin):
     raw_id_fields = ('section',)
 
     def get_queryset(self, request):
-        return self.model.allarticles.get_queryset()
+        return self.model.objects.get_queryset()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'license':

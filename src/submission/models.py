@@ -476,13 +476,7 @@ class Article(models.Model):
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
-    is_preprint = models.BooleanField(default=False)
-    preprint_decision_notification = models.BooleanField(default=False)
     preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
-
-    allarticles = AllArticleManager()
-    objects = ArticleManager()
-    preprints = PreprintManager()
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
@@ -699,7 +693,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(id=identifier, journal=journal)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -727,7 +721,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier)[0]
+                article = Article.objects.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -808,7 +802,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            current_object = Article.allarticles.get(pk=self.pk)
+            current_object = Article.objects.get(pk=self.pk)
             if current_object.stage != self.stage:
                 ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
                                                stage_to=self.stage)

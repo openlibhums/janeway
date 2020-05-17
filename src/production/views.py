@@ -795,7 +795,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
     else:
         typeset_task = None
         article = get_object_or_404(
-            submission_models.Article.allarticles,
+            submission_models.Article,
             pk=article_id,
             journal=request.journal
         )
@@ -952,7 +952,7 @@ def upload_image_zip(request, galley_id, typeset_id=None, article_id=None):
     else:
         typeset_task = None
         article = get_object_or_404(
-            submission_models.Article.allarticles,
+            submission_models.Article,
             pk=article_id,
             journal=request.journal
         )
