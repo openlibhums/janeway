@@ -217,7 +217,7 @@ class Author(models.Model):
 
 class PreprintVersion(models.Model):
     preprint = models.ForeignKey(Preprint)
-    galley = models.ForeignKey('core.Galley')
+    file = models.ForeignKey(PreprintFile)
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
 
