@@ -113,12 +113,33 @@ class Preprint(models.Model):
             preprint=self.curent_version,
         )
 
+    @property
+    def views(self):
+        return self.PreprintAccess.objects.filter(
+            preprint=self,
+            file__isnull=True
+        )
+
+    @property
+    def downloads(self):
+        return self.PreprintAccess.objects.filter(
+            preprint=self,
+            file__isnull=False,
+        )
+
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
     file = models.FileField(
         upload_to=preprint_file_upload,
         storage=preprint_file_store,
     )
+
+class PreprintAccess(models.Model):
+    preprint = models.ForeignKey(Preprint)
+    file = models.ForeignKey(PreprintFile, blank=True, null=True)
+    dt = models.DateTimeField(auto_now_add=True)
+    location = models.CharField(max_length=10)
+    
 
 class Author(models.Model):
     preprint = models.ForeignKey(Preprint)
