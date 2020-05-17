@@ -7,17 +7,24 @@ from django.contrib import admin
 from preprint import models
 
 
+class RepositoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'pk', 'live')
+    list_filter = ('live',)
+    search_fields = ('name',)
+    filter_horizontal = ('managers',)
+
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'enabled')
     list_filter = ('enabled',)
     search_fields = ('name', 'slug')
-    filter_horizontal = ('editors', 'preprints')
+    filter_horizontal = ('editors',)
 
 
 class PreprintAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'doi', 'curent_version')
-    list_filter = ('article',)
-    raw_id_fields = ('article',)
+    list_display = ('title', 'pk', 'repository', 'doi', 'curent_version')
+    list_filter = ('repository',)
+    raw_id_fields = ('repository',)
+    filter_horizontal = ('keywords',)
 
 
 class VersionAdmin(admin.ModelAdmin):
@@ -27,15 +34,15 @@ class VersionAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'author', 'date_time', 'is_reviewed', 'is_public')
-    list_filter = ('article', 'author', 'is_reviewed', 'is_public')
-    raw_id_fields = ('article', 'author', 'reply_to',)
+    list_display = ('pk', 'preprint', 'author', 'date_time', 'is_reviewed', 'is_public')
+    list_filter = ('preprint', 'author', 'is_reviewed', 'is_public')
+    raw_id_fields = ('preprint', 'author', 'reply_to',)
 
 
 class QueueAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'galley', 'update_type', 'date_submitted', 'approved', 'date_decision')
-    list_filter = ('article', 'update_type', 'approved')
-    raw_id_fields = ('article', 'galley', 'file')
+    list_display = ('pk', 'preprint', 'file', 'update_type', 'date_submitted', 'approved', 'date_decision')
+    list_filter = ('preprint', 'update_type', 'approved')
+    raw_id_fields = ('preprint', 'file',)
 
 
 admin_list = [
