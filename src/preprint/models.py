@@ -13,6 +13,16 @@ from django.utils.translation import ugettext_lazy as _
 from core.file_system import JanewayFileSystemStorage
 
 
+def html_input_types():
+    return (
+        'text', 'Text',
+        'select', 'Dropdown',
+        'checkbox', 'Checkbox',
+        'number', 'Number',
+        'date', 'Date',
+    )
+
+
 fs_path = os.path.join(settings.BASE_DIR, 'files')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path )
 preprint_media_store = JanewayFileSystemStorage()
@@ -42,6 +52,22 @@ class Repository(models.Model):
     )
     live = models.BooleanField(default=False)
 
+
+class RepositoryFields(models.Model):
+    name = models.CharField(max_length=255)
+    input_type = models.CharField(
+        max_length=255,
+        choices=html_input_types(),
+    )
+    width = models.CharField(
+        max_length=2,
+        choices=(
+            (3, '3'),
+            (6, '6'),
+            (9, '9'),
+            (12, '12'),
+        ),
+    )
 
 
 class Preprint(models.Model):
