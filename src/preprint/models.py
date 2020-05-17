@@ -15,11 +15,19 @@ from core.file_system import JanewayFileSystemStorage
 
 def html_input_types():
     return (
-        'text', 'Text',
-        'select', 'Dropdown',
-        'checkbox', 'Checkbox',
-        'number', 'Number',
-        'date', 'Date',
+        ('text', 'Text'),
+        ('select', 'Dropdown'),
+        ('checkbox', 'Checkbox'),
+        ('number', 'Number'),
+        ('date', 'Date'),
+    )
+
+def width_choices():
+    return (
+        (3, '3'),
+        (6, '6'),
+        (9, '9'),
+        (12, '12'),
     )
 
 
@@ -54,6 +62,7 @@ class Repository(models.Model):
 
 
 class RepositoryFields(models.Model):
+    repository = models.ForeignKey(Repository)
     name = models.CharField(max_length=255)
     input_type = models.CharField(
         max_length=255,
@@ -61,11 +70,13 @@ class RepositoryFields(models.Model):
     )
     width = models.CharField(
         max_length=2,
-        choices=(
-            (3, '3'),
-            (6, '6'),
-            (9, '9'),
-            (12, '12'),
+        choices=width_choices(),
+    )
+    dc_metadata_type = models.CharField(
+        max_length=255,
+        help_text=_(
+            'If this field is to be output as a dc metadata field you can add'
+            'the type here.'
         ),
     )
 
@@ -236,7 +247,7 @@ class Comment(models.Model):
 
 
 class Subject(models.Model):
-    repository = models>ForeignKey(Repository)
+    repository = models.ForeignKey(Repository)
     name = models.CharField(max_length=255)
     slug = models.SlugField(blank=True)
     editors = models.ManyToManyField('core.Account')
