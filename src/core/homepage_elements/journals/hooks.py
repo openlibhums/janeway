@@ -27,6 +27,6 @@ def yield_homepage_element_context(request, homepage_elements):
         else:
             featured_journals = request.press.featured_journals.all()
 
-        return {'featured_journals': featured_journals}
+        return {'featured_journals': sorted(featured_journals, key=str)}
     else:
         return {}
