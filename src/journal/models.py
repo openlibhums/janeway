@@ -252,7 +252,12 @@ class Journal(AbstractSiteModel):
         return core_models.Account.objects.filter(pk__in=pks)
 
     def users_with_role(self, role):
-        pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug=role, journal=self)]
+        pks = [
+            role.user.pk for role in core_models.AccountRole.objects.filter(
+                role__slug=role,
+                journal=self,
+            ).prefetch_related('user')
+        ]
         return core_models.Account.objects.filter(pk__in=pks)
 
     def editor_pks(self):

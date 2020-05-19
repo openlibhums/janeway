@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.conf import settings
+
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
@@ -26,18 +27,27 @@ def get_reviewers(article, request=None):
     reviewers = [review.reviewer.pk for review in review_assignments]
     reviewers.append(request.user.pk)
 
-    return core_models.AccountRole.objects.filter(role__slug='reviewer', journal=request.journal).exclude(
-        user__pk__in=reviewers)
+    reviewers = article.journal.users_with_role('reviewer').exclude(
+        pk__in=reviewers,
+    ).prefetch_related(
+        'reviewer',
+        'interest',
+    )
+
+    for reviewer in reviewers:
+        reviewer.reviewer.order_by('-date_complete')
+
+    return reviewers
 
 
 def get_suggested_reviewers(article, reviewers):
     suggested_reviewers = []
     keywords = [keyword.word for keyword in article.keywords.all()]
-    for reviewer_role in reviewers:
-        interests = [interest.name for interest in reviewer_role.user.interest.all()]
+    for reviewer in reviewers:
+        interests = [interest.name for interest in reviewer.interest.all()]
         for interest in interests:
             if interest in keywords:
-                suggested_reviewers.append(reviewer_role)
+                suggested_reviewers.append(reviewer)
                 break
 
     return suggested_reviewers
@@ -300,9 +310,18 @@ def handle_reviewer_form(request, new_reviewer_form):
 
 
 def get_enrollable_users(request):
-    account_roles = core_models.AccountRole.objects.filter(journal=request.journal, role__slug='reviewer')
+    account_roles = core_models.AccountRole.objects.filter(
+        journal=request.journal,
+        role__slug='reviewer',
+    ).prefetch_related(
+        'user',
+    )
     users_with_role = [assignment.user.pk for assignment in account_roles]
-    return core_models.Account.objects.all().order_by('last_name').exclude(pk__in=users_with_role)
+    return core_models.Account.objects.all().order_by(
+        'last_name',
+    ).exclude(
+        pk__in=users_with_role,
+    )
 
 
 def generate_access_code_url(url_name, assignment, access_code):
