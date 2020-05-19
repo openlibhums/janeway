@@ -3,7 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
