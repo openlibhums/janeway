@@ -27,10 +27,18 @@ logger = get_logger(__name__)
 # General role-based security decorators
 
 def base_check(request, login_redirect=False):
-    if request is None or request.user is None:
-        return False
+    """Janeway equivalent to Django's login_required logic
 
-    if request.user.is_anonymous() or not request.user.is_active:
+    It also considers request being None and request.user not being
+    active
+    """
+
+    if (
+        request is None
+        or request.user is None
+        or request.user.is_anonymous()
+        or not request.user.is_active
+    ):
         if login_redirect is True:
             params = urlencode({"next": request.path})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
@@ -44,6 +52,10 @@ def base_check(request, login_redirect=False):
 
 
 def base_check_required(func):
+    """ Decorator similar to django login_required
+
+    Validates the request user against base_check instead
+    """
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         check = base_check(request, login_redirect=True)
