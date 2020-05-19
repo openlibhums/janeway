@@ -35,34 +35,37 @@
                             <th>Active Reviews</th>
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
+                            <th>Last Review Completed</th>
                             <th width="15%">Quick Assign</th>
                         </tr>
                         </thead>
 
                         <tbody>
-                        {% for reviewer_role in suggested_reviewers %}
+                        {% for reviewer in suggested_reviewers %}
                             <tr style="color: forestgreen">
-                                <td><input type="radio" name="reviewer" value="{{ reviewer_role.user.id }}"></td>
-                                <td>{{ reviewer_role.user.full_name }}</td>
-                                <td>{{ reviewer_role.user.email }}</td>
-                                <td>{{ reviewer_role.user.active_reviews|length }}</td>
-                                <td>{% for interest in reviewer_role.user.interest.all %}{{ interest.name }}
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
+                                <td>{{ reviewer.full_name }}</td>
+                                <td>{{ reviewer.email }}</td>
+                                <td>{{ reviewer.active_reviews|length }}</td>
+                                <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer_role.user.average_reviewer_score }}</td>
-                                <td><button type="submit" name="quick_assign" value="{{ reviewer_role.user.id }}" class="small success button">Assign with Defaults</button></td>
+                                <td>{{ reviewer.average_reviewer_score }}</td>
+                                <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
+                                <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Assign with Defaults</button></td>
                             </tr>
                         {% endfor %}
-                        {% for reviewer_role in reviewers %}
-                            {% if not reviewer_role in suggested_reviewers %}
+                        {% for reviewer in reviewers %}
+                            {% if not reviewer in suggested_reviewers %}
                             <tr>
-                                <td><input type="radio" name="reviewer" value="{{ reviewer_role.user.id }}"></td>
-                                <td>{{ reviewer_role.user.full_name }}</td>
-                                <td>{{ reviewer_role.user.email }}</td>
-                                <td>{{ reviewer_role.user.active_reviews|length }}</td>
-                                <td>{% for interest in reviewer_role.user.interest.all %}{{ interest.name }}
+                                <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
+                                <td>{{ reviewer.full_name }}</td>
+                                <td>{{ reviewer.email }}</td>
+                                <td>{{ reviewer.active_reviews|length }}</td>
+                                <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer_role.user.average_reviewer_score }}</td>
-                                <td><button type="submit" name="quick_assign" value="{{ reviewer_role.user.id }}" class="small success button">Assign with Defaults</button></td>
+                                <td>{{ reviewer.average_reviewer_score }}</td>
+                                <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
+                                <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Assign with Defaults</button></td>
                             </tr>
                             {% endif %}
                         {% empty %}
