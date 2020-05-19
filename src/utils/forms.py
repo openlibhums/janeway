@@ -46,7 +46,8 @@ class KeywordModelForm(ModelForm):
         for keyword in posted_keywords:
             if keyword != '':
                 obj, _ = submission_models.Keyword.objects.get_or_create(
-                        word=keyword)
+                        word__exact=keyword,
+                )
                 instance.keywords.add(obj)
 
         for keyword in instance.keywords.all():
