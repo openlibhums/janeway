@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from functools import wraps
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.http.response import Http404
@@ -24,14 +26,33 @@ logger = get_logger(__name__)
 
 # General role-based security decorators
 
-def base_check(request):
+def base_check(request, login_redirect=False):
+    import pdb;pdb.set_trace()
     if request is None or request.user is None:
         return False
 
     if request.user.is_anonymous() or not request.user.is_active:
-        return False
+        if login_redirect is True:
+            params = urlencode({"next": request.path})
+            return redirect('{0}?{1}'.format(reverse('core_login'), params))
+        elif isinstance(login_redirect, str):
+            params = urlencode({"next": redirect})
+            return redirect('{0}?{1}'.format(reverse('core_login'), params))
+        else:
+            return False
 
     return True
+
+
+def base_check_required(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        check = base_check(request, login_redirect=True)
+        if check is True:
+            return func(request, *args, **kwargs)
+        else:
+            return check
+    return wrapper
 
 
 def editor_is_not_author(func):
@@ -68,8 +89,7 @@ def senior_editor_user_required(func):
 
     def wrapper(request, *args, **kwargs):
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -89,8 +109,7 @@ def production_manager_roles(func):
 
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_section_editor(request) or request.user.is_production(request):
             return func(request, *args, **kwargs)
@@ -110,8 +129,7 @@ def proofing_manager_roles(func):
 
     def wrapper(request, *args, **kwargs):
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_section_editor(
                 request) or request.user.is_proofing_manager(request):
@@ -135,8 +153,7 @@ def editor_user_required(func):
 
         article_id = kwargs.get('article_id', None)
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -189,8 +206,7 @@ def reviewer_user_required(func):
 
     def wrapper(request, *args, **kwargs):
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_reviewer(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -208,8 +224,7 @@ def author_user_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_author(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -230,8 +245,7 @@ def article_author_required(func):
         article_id = kwargs['article_id']
         article = models.Article.get_article(request.journal, 'id', article_id)
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_author(request) and article.user_is_author(request.user):
             return func(request, *args, **kwargs)
@@ -249,8 +263,7 @@ def proofreader_user_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_proofreader(request) or request.user.is_proofreader(request):
             return func(request, *args, **kwargs)
@@ -268,8 +281,7 @@ def copyeditor_user_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_copyeditor(request) or request.user.is_copyeditor(request):
             return func(request, *args, **kwargs)
@@ -287,8 +299,7 @@ def copyeditor_for_copyedit_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         copyedit_id = kwargs['copyedit_id']
         copyedit = get_object_or_404(copyediting_models.CopyeditAssignment, pk=copyedit_id)
@@ -309,8 +320,7 @@ def typesetting_user_or_production_user_or_editor_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_typesetter(request) or request.user.is_production(request) or \
                 request.user.is_editor(request) or request.user.is_staff:
@@ -332,8 +342,7 @@ def production_user_or_editor_required(func):
         article_id = kwargs.get('article_id', None)
         typeset_id = kwargs.get('typeset_id', None)
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_production(request) or request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -374,8 +383,8 @@ def reviewer_user_for_assignment_required(func):
         access_code = reviewer_logic.get_access_code(request)
         assignment_id = kwargs['assignment_id']
 
-        if not access_code and not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        if not access_code:
+            base_check(request, login_redirect=True)
 
         if access_code is not None:
             try:
@@ -432,8 +441,7 @@ def article_production_user_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         article_id = kwargs['article_id']
 
@@ -743,8 +751,7 @@ def typesetter_user_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_typesetter(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -767,8 +774,7 @@ def typesetter_or_editor_required(func):
         article_id = kwargs.get('article_id', None)
         typeset_id = kwargs.get('typeset_id', None)
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -807,8 +813,7 @@ def proofing_manager_or_editor_required(func):
     def wrapper(request, *args, **kwargs):
         article_id = kwargs.get('article_id', None)
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_staff or request.user.is_proofing_manager(request):
             return func(request, *args, **kwargs)
@@ -834,8 +839,7 @@ def proofing_manager_for_article_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         article = get_object_or_404(models.Article, pk=kwargs['article_id'])
 
@@ -873,8 +877,7 @@ def proofreader_or_typesetter_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -904,10 +907,9 @@ def proofreader_for_article_required(func):
         else:
             article = None
 
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
-        elif request.user.is_editor(request) or request.user.is_staff:
+        if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
         #proofing manager
@@ -941,8 +943,7 @@ def typesetter_for_corrections_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -968,8 +969,7 @@ def press_only(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
         if request.journal:
             messages.add_message(request, messages.INFO, 'This is a press only page.')
             return redirect(reverse('core_manager_index'))
@@ -987,8 +987,7 @@ def preprint_editor_or_author_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
 
@@ -1011,8 +1010,7 @@ def is_article_preprint_editor(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
 
@@ -1032,8 +1030,7 @@ def is_preprint_editor(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+        base_check(request, login_redirect=True)
 
         if request.user in request.press.preprint_editors() or request.user.is_staff:
             return func(request, *args, **kwargs)
