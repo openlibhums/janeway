@@ -69,6 +69,20 @@ a:hover .article-title {
     word-break: break-all;
 }
 
+.article-body ul:not(.browser-default) {
+    display: block !important;
+    list-style-type: disc !important;
+    margin-block-start: 1em !important;
+    margin-block-end: 1em !important;
+    margin-inline-start: 0px !important;
+    margin-inline-end: 0px !important;
+    padding-inline-start: 40px !important;
+}
+
+.article-body ul:not(.browser-default)>li {
+    list-style-type: disc;
+}
+
 .toc-card {
     position: fixed !important;
     top: 1%;
