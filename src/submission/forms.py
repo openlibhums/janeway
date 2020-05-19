@@ -70,7 +70,8 @@ class ArticleInfo(KeywordModelForm):
         model = models.Article
         fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
                   'language', 'section', 'license', 'primary_issue',
-                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
+                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed',
+                  'custom_how_to_cite',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
