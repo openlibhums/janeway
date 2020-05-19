@@ -1434,7 +1434,7 @@ class SubmissionConfiguration(models.Model):
     competing_interests = models.BooleanField(default=True)
     comments_to_the_editor = models.BooleanField(default=True)
 
-    subtitle = models.BooleanField(default=True)
+    subtitle = models.BooleanField(default=False)
     abstract = models.BooleanField(default=True)
     language = models.BooleanField(default=True)
     license = models.BooleanField(default=True)
