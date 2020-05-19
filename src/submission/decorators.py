@@ -20,7 +20,7 @@ def submission_is_enabled(func):
         if request.journal.get_setting(
                 'general',
                 'disable_journal_submission',
-        ):
+        ) and not request.user.is_staff:
             raise PermissionDenied(
                 _('Submission is disabled for this journal.'),
             )
