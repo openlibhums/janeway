@@ -1085,22 +1085,61 @@ class Article(models.Model):
         from production import models as prod_models
         from proofing import models as proof_models
 
-        review_models.ReviewAssignment.objects.filter(article=self).update(date_complete=timezone.now(),
-                                                                           is_complete=True)
+        review_models.ReviewAssignment.objects.filter(
+            article=self,
+            date_complete__isnull=True,
+        ).update(
+            date_declined=timezone.now(),
+            date_complete=timezone.now(),
+            is_complete=True,
+        )
 
-        copyedit_models.CopyeditAssignment.objects.filter(article=self).update(copyeditor_completed=timezone.now(),
-                                                                               copyedit_acknowledged=True,
-                                                                               copyedit_accepted=timezone.now(),
-                                                                               date_decided=timezone.now(),
-                                                                               decision='cancelled')
-        copyedit_models.AuthorReview.objects.filter(assignment__article=self).update(date_decided=timezone.now())
+        copyedit_models.CopyeditAssignment.objects.filter(
+            article=self,
+            copyedit_accepted__isnull=True
+        ).update(
+            copyeditor_completed=timezone.now(),
+            copyedit_acknowledged=True,
+            copyedit_accepted=timezone.now(),
+            date_decided=timezone.now(),
+            decision='cancelled',
+        )
+        copyedit_models.AuthorReview.objects.filter(
+            assignment__article=self,
+            date_decided__isnull=True,
+        ).update(
+            decision='accept',
+            date_decided=timezone.now(),
+        )
 
-        prod_models.ProductionAssignment.objects.filter(article=self).update(closed=timezone.now())
-        prod_models.TypesetTask.objects.filter(assignment__article=self).update(completed=timezone.now())
+        prod_models.ProductionAssignment.objects.filter(
+            article=self,
+            closed__isnull=True,
+        ).update(
+            closed=timezone.now(),
+        )
+        prod_models.TypesetTask.objects.filter(
+            assignment__article=self,
+            completed__isnull=True
+        ).update(
+            completed=timezone.now(),
+        )
 
-        proof_models.ProofingAssignment.objects.filter(article=self).update(completed=timezone.now())
-        proof_models.ProofingTask.objects.filter(round__assignment__article=self).update(cancelled=True)
-        proof_models.TypesetterProofingTask.objects.filter(proofing_task__round__assignment__article=self).update(
+        proof_models.ProofingAssignment.objects.filter(
+            article=self,
+            completed__isnull=True
+        ).update(completed=timezone.now())
+
+        proof_models.ProofingTask.objects.filter(
+            round__assignment__article=self,
+            completed__isnull=True,
+        ).update(
+            cancelled=True,
+        )
+        proof_models.TypesetterProofingTask.objects.filter(
+            proofing_task__round__assignment__article=self,
+            completed__isnull=True,
+        ).update(
             cancelled=True
         )
 
