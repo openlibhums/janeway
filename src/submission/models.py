@@ -1096,7 +1096,7 @@ class Article(models.Model):
 
         copyedit_models.CopyeditAssignment.objects.filter(
             article=self,
-            copyedit_accepted__isnull=True
+            copyedit_accepted__isnull=True,
         ).update(
             copyeditor_completed=timezone.now(),
             copyedit_acknowledged=True,
@@ -1120,15 +1120,17 @@ class Article(models.Model):
         )
         prod_models.TypesetTask.objects.filter(
             assignment__article=self,
-            completed__isnull=True
+            completed__isnull=True,
         ).update(
             completed=timezone.now(),
         )
 
         proof_models.ProofingAssignment.objects.filter(
             article=self,
-            completed__isnull=True
-        ).update(completed=timezone.now())
+            completed__isnull=True,
+        ).update(
+            completed=timezone.now(),
+        )
 
         proof_models.ProofingTask.objects.filter(
             round__assignment__article=self,
@@ -1140,7 +1142,7 @@ class Article(models.Model):
             proofing_task__round__assignment__article=self,
             completed__isnull=True,
         ).update(
-            cancelled=True
+            cancelled=True,
         )
 
     def production_assignment_or_none(self):
