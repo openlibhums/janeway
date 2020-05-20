@@ -22,7 +22,7 @@
                              alt="{{ issue.title }}">
 
                         <div class="info-bar">
-                            <p>{{ issue.display_title }}<br />{{ issue.articles.all.count }} {% trans "items" %}
+                            <p>{{ issue.display_title }}<br />{{ issue.get_sorted_articles.count }} {% trans "items" %}
                             </p>
                         </div>
                     </div>
