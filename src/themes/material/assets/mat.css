@@ -174,3 +174,7 @@ h5 {
     text-decoration-color: #5a5a5a;
     text-decoration-style: solid;
 }
+
+.small-caps {
+    font-variant: small-caps
+}
