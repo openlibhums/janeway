@@ -1966,14 +1966,12 @@ def document_management(request, article_id):
 
 
 def download_issue(request, issue_id):
-    issue_object = get_object_or_404(models.Issue,
-                                     pk=issue_id,
-                                     journal=request.journal,
+    issue_object = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
     )
-    articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors',
-                                                                                     'frozenauthor_set',
-                                                                                     'manuscript_files')
+    articles = issue_object.get_sorted_articles()
 
     galley_files = []
 
