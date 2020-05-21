@@ -17,7 +17,7 @@ from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -146,16 +146,24 @@ class Country(models.Model):
         return self.name
 
 
+class AccountQuerySet(models.query.QuerySet):
+    def create(self, *args, **kwargs):
+        # Ensure cleaned fields on create and get_or_create
+        with transaction.atomic():
+            obj = super().create(*args, **kwargs)
+            obj.clean()
+            obj.save()
+            return obj
+
+
 class AccountManager(BaseUserManager):
     def create_user(self, email, password=None, **kwargs):
         if not email:
             raise ValueError('Users must have a valid email address.')
 
-        if not kwargs.get('username', None):
-            raise ValueError('Users must have a valid username.')
-
         account = self.model(
-            email=self.normalize_email(email), username=kwargs.get('username')
+            email=self.normalize_email(email),
+            username=email.lower(),
         )
 
         account.set_password(password)
@@ -173,6 +181,9 @@ class AccountManager(BaseUserManager):
         account.save()
 
         return account
+
+    def get_queryset(self):
+        return AccountQuerySet(self.model)
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
@@ -224,10 +235,16 @@ class Account(AbstractBaseUser, PermissionsMixin):
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
 
-    def save(self, *args, **kwargs):
+
+    def clean(self, *args, **kwargs):
+        """ Normalizes the email address
+
+        The username is lowercased instead, to cope with a bug present for
+        accounts imported/registered prior to v.1.3.8
+        """
+        self.email = self.__class__.objects.normalize_email(self.email)
         self.username = self.email.lower()
-        self.email = self.email.lower()
-        super(Account, self).save(*args, **kwargs)
+        super().clean(*args, **kwargs)
 
     def __str__(self):
         return self.full_name()
