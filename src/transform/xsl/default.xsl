@@ -3252,6 +3252,12 @@
         </span>
     </xsl:template>
 
+    <xsl:template match="sc">
+        <span class="small-caps">
+            <xsl:apply-templates/>
+        </span>
+    </xsl:template>
+
     <xsl:template match="styled-content">
         <span class="styled-content">
             <xsl:if test="@style">
