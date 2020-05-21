@@ -234,6 +234,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
+        unique_together = ('email', 'username')
 
 
     def clean(self, *args, **kwargs):
@@ -241,6 +242,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         The username is lowercased instead, to cope with a bug present for
         accounts imported/registered prior to v.1.3.8
+        https://github.com/BirkbeckCTP/janeway/issues/1497
+        The username being unique and lowercase at clean time avoids
+        the creation of duplicate email addresses where the casing might
+        be different.
         """
         self.email = self.__class__.objects.normalize_email(self.email)
         self.username = self.email.lower()
