@@ -751,12 +751,15 @@ def zip_files(files, article_specific=False):
     os.makedirs(_dir, 0o775)
 
     for file in files:
-        if article_specific and file.article_id:
-            folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
-            article_dir = os.path.join(_dir, folder_name)
-            if not os.path.exists(article_dir):
-                os.makedirs(article_dir, 0o775)
-            shutil.copy(file.self_article_path(), article_dir)
+        if file.article_id:
+            if article_specific:
+                folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
+                article_dir = os.path.join(_dir, folder_name)
+                if not os.path.exists(article_dir):
+                    os.makedirs(article_dir, 0o775)
+                shutil.copy(file.self_article_path(), article_dir)
+            else:
+                shutil.copy(file.self_article_path(), _dir)
 
     zip_path = '{dir}.zip'.format(dir=_dir)
 
