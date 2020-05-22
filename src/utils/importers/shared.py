@@ -475,14 +475,23 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
             print("Didn't find account for {0}. Creating.".format(email))
             parsed_name = parse_author_names(author_name, citation)
             logger.debug("%s\t\t-> %s" % (author_name, parsed_name))
-            account = core_models.Account.objects.create(email=email, username=uuid4(), institution=institution,
-                                                         first_name=parsed_name["first_name"],
-                                                         last_name=parsed_name["last_name"],
-                                                         middle_name=parsed_name["middle_name"])
+            account = core_models.Account.objects.create(
+                email=email,
+                username=uuid4(),
+                institution=institution,
+                first_name=parsed_name["first_name"],
+                last_name=parsed_name["last_name"],
+                middle_name=parsed_name["middle_name"],
+            )
             account.save()
 
         if account:
             article.authors.add(account)
+            submission_models.ArticleAuthorOrder.objects.get_or_create(
+                article=article,
+                author=account,
+                defaults={'order': article.next_author_sort()},
+            )
             account.snapshot_self(article)
 
 
