@@ -743,7 +743,14 @@ def file_children(file):
     return children
 
 
-def zip_files(files, article_specific=False):
+def zip_article_files(files, article_folders=False):
+    """
+    Zips up files that are related to an article.
+    :param files: A list or queryset of File objects that have article_ids
+    :param article_folders: Boolean, if true splits files into folders with
+    article name.
+    :return: strings path of the zip file, zip file name
+    """
     file_name = '{0}.zip'.format(uuid4())
 
     # Copy files into a temp dir
@@ -752,7 +759,7 @@ def zip_files(files, article_specific=False):
 
     for file in files:
         if file.article_id:
-            if article_specific:
+            if article_folders:
                 folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
                 article_dir = os.path.join(_dir, folder_name)
                 if not os.path.exists(article_dir):
