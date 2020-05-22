@@ -7,12 +7,11 @@ from datetime import timedelta
 from uuid import uuid4
 import os
 
-
+from django.conf import settings
+from django.contrib import messages
+from django.db.models import Avg, Prefetch
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import messages
-from django.conf import settings
-
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
@@ -26,16 +25,21 @@ def get_reviewers(article, request=None):
     review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
     reviewers = [review.reviewer.pk for review in review_assignments]
     reviewers.append(request.user.pk)
+    prefetch_review_assignment = Prefetch(
+        'reviewer',
+        queryset=models.ReviewAssignment.objects.filter(
+            article__journal=article.journal
+        ).order_by("-date_complete")
+    )
 
     reviewers = article.journal.users_with_role('reviewer').exclude(
         pk__in=reviewers,
     ).prefetch_related(
-        'reviewer',
+        prefetch_review_assignment,
         'interest',
+    ).annotate(
+        rating_average=Avg('reviewer__reviewerrating__rating'),
     )
-
-    for reviewer in reviewers:
-        reviewer.reviewer.order_by('-date_complete')
 
     return reviewers
 
