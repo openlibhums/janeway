@@ -1908,7 +1908,10 @@ def download_issue(request, issue_id):
             )
             galley_files.append(galley.file)
 
-    zip_file, file_name = files.zip_files(galley_files, article_specific=True)
+    zip_file, file_name = files.zip_article_files(
+        galley_files,
+        article_folders=True,
+    )
     return files.serve_temp_file(zip_file, file_name)
 
 

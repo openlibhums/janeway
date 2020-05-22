@@ -1928,7 +1928,9 @@ def reviewer_article_file(request, assignment_id, file_id):
 def review_download_all_files(request, assignment_id):
     review_assignment = models.ReviewAssignment.objects.get(pk=assignment_id)
 
-    zip_file, file_name = files.zip_files(review_assignment.review_round.review_files.all())
+    zip_file, file_name = files.zip_article_files(
+        review_assignment.review_round.review_files.all(),
+    )
 
     return files.serve_temp_file(zip_file, file_name)
 
