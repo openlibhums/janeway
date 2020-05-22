@@ -312,7 +312,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.institution
 
     def active_reviews(self):
-        return review_models.ReviewAssignment.objects.filter(reviewer=self, is_complete=False)
+        return review_models.ReviewAssignment.objects.filter(
+            reviewer=self,
+            is_complete=False,
+        )
 
     def active_copyedits(self):
         return copyediting_models.CopyeditAssignment.objects.filter(copyeditor=self, copyedit_acknowledged=False)
