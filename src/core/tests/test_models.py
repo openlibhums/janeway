@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.test import TestCase
 
 from core import models
@@ -45,3 +46,13 @@ class TestAccount(TestCase):
         }
         obj = models.Account.objects.create(**data)
         self.assertEquals(obj.email, expected)
+
+    def test_no_duplicates(self):
+        email_a = "TEST@TEST.com"
+        email_b = "test@TEST.com"
+        models.Account.objects.create(email=email_a)
+        with self.assertRaises(
+            IntegrityError,
+            msg="Managed to register account with duplicate email",
+        ):
+            models.Account.objects.create(email=email_b)
