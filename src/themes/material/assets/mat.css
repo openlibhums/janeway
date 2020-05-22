@@ -71,7 +71,7 @@ a:hover .article-title {
 
 .toc-card {
     position: fixed !important;
-    bottom: 40%;
+    top: 1%;
 }
 
 .wide-button {
@@ -173,4 +173,9 @@ h5 {
     text-decoration: underline;
     text-decoration-color: #5a5a5a;
     text-decoration-style: solid;
+}
+
+.table-of-contents li {
+    padding: 3px 0;
+    font-size: 14px;
 }

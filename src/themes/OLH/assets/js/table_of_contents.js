@@ -12,7 +12,7 @@ $( document ).ready(function() {
     $("#main_article :header").each(function () {
 
         link = $(this);
-        title = link.html();
+        title = link.text();
 
         if (!link.attr("id")) {
             link.attr('id', 'heading' + iter.toString());
