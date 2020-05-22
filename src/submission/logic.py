@@ -19,10 +19,6 @@ from submission import models
 def add_self_as_author(user, article):
     new_author = user
     article.authors.add(new_author)
-    models.ArticleAuthorOrder.objects.create(
-        article=article,
-        author=new_author,
-    )
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
         author=new_author,
