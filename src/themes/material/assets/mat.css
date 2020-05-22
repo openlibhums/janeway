@@ -179,3 +179,8 @@ h5 {
     padding: 3px 0;
     font-size: 14px;
 }
+
+.small-caps {
+    font-variant: small-caps
+}
+
