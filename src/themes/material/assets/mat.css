@@ -71,7 +71,7 @@ a:hover .article-title {
 
 .toc-card {
     position: fixed !important;
-    bottom: 40%;
+    top: 1%;
 }
 
 .wide-button {
@@ -175,6 +175,12 @@ h5 {
     text-decoration-style: solid;
 }
 
+.table-of-contents li {
+    padding: 3px 0;
+    font-size: 14px;
+}
+
 .small-caps {
     font-variant: small-caps
 }
+
