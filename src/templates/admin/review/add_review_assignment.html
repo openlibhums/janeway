@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load journal %}
 
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
@@ -46,7 +47,7 @@
                                 <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
-                                <td>{{ reviewer.active_reviews|length }}</td>
+                                <td>{{ reviewer.active_reviews|current_journal }}</td>
                                 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
                                 <td>{{ reviewer.average_reviewer_score }}</td>
