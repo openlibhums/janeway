@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import uuid
 
 from django.db import models
 from django.utils import timezone
@@ -22,6 +23,7 @@ def html_input_types():
         ('date', 'Date'),
     )
 
+
 def width_choices():
     return (
         (3, '3'),
@@ -34,6 +36,7 @@ def width_choices():
 fs_path = os.path.join(settings.BASE_DIR, 'files')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path )
 preprint_media_store = JanewayFileSystemStorage()
+
 
 def preprint_file_upload(instance, filename):
     try:
@@ -152,17 +155,18 @@ class Preprint(models.Model):
 
     @property
     def views(self):
-        return self.PreprintAccess.objects.filter(
+        return PreprintAccess.objects.filter(
             preprint=self,
             file__isnull=True
         )
 
     @property
     def downloads(self):
-        return self.PreprintAccess.objects.filter(
+        return PreprintAccess.objects.filter(
             preprint=self,
             file__isnull=False,
         )
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -170,6 +174,7 @@ class PreprintFile(models.Model):
         upload_to=preprint_file_upload,
         storage=preprint_file_store,
     )
+
 
 class PreprintAccess(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -242,7 +247,7 @@ class Comment(models.Model):
     def __str__(self):
         return 'Comment by {author} on {article}'.format(
             author=self.author.full_name(),
-            article=self.article.title,
+            article=self.preprint.title,
         )
 
 
