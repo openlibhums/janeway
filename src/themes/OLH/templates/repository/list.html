@@ -3,7 +3,7 @@
 {% load i18n %}
 
 
-{% block title %}{% if subject %}{{ subject.name }} {% trans "Preprints" %}{% else %}{% trans "All Preprints" %}
+{% block title %}{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}
 {% endif %}{% endblock %}
 
 
@@ -12,23 +12,23 @@
     <section id="content">
         <div class="row">
             <div class="large-8 columns border-right">
-                <h4>{% if subject %}{{ subject.name }} Preprints{% else %}{% trans "All Preprints" %}{% endif %}</h4>
-                {% for article in articles %}
+                <h4>{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}{% endif %}</h4>
+                {% for preprint in preprints %}
                     <div class="box article">
-                        <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'preprints_article' article.pk %}{% endif %}"
+                        <a href="{% url 'preprints_preprint' preprint.pk %}"
                            class="box-link"></a>
                         <div class="clearfix">
                             <div class="large-12s columns end">
-                                <h2>{{ article.title|safe }}</h2>
-                                <p>{% for author in article.authors.all %}{% if forloop.last %}
-                                    {% if article.authors.all|length > 1 %} and
+                                <h2>{{ preprint.title|safe }}</h2>
+                                <p>{% for author in preprint.authors.all %}{% if forloop.last %}
+                                    {% if preprint.authors.all|length > 1 %} and
                                     {% endif %}{% endif %}{{ author.full_name }}
                                     {% if not forloop.last %}
-                                        {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                                        {% if not forloop.counter == preprint.authors.all|length|add:-1 %},
                                         {% endif %}{% endif %}{% endfor %}</p>
                                 <p><span class="date"><i
-                                        class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}&nbsp;&nbsp;<i
-                                        class="fa fa-paperclip"></i> {{ article.get_subject_area }}</span></p>
+                                        class="fa fa-calendar"></i> {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;<i
+                                        class="fa fa-paperclip"></i> {{ preprint.get_subject_area }}</span></p>
                             </div>
                         </div>
                     <hr />
@@ -36,16 +36,16 @@
                 {% endfor %}
                 <div class="pagination-block">
                     <ul class="pagination">
-                        {% if articles.has_previous %}
-                            <li class="arrow"><a href="?page={{ articles.previous_page_number }}">&laquo;</a>
+                        {% if preprints.has_previous %}
+                            <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a>
                             </li>{% endif %}
-                        {{ articles.page.page_range }}
-                        {% for page in articles.paginator.page_range %}
-                            <li class="{% if articles.number == page %}current{% endif %}"><a
+                        {{ preprints.page.page_range }}
+                        {% for page in preprints.paginator.page_range %}
+                            <li class="{% if preprints.number == page %}current{% endif %}"><a
                                     href="?page={{ page }}">{{ page }}</a></li>
                         {% endfor %}
-                        {% if articles.has_next %}
-                            <li class="arrow"><a href="?page={{ articles.next_page_number }}">&raquo;</a>
+                        {% if preprints.has_next %}
+                            <li class="arrow"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
                             </li>{% endif %}
                     </ul>
                 </div>

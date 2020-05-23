@@ -6,13 +6,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.conf.urls import url
 
-from preprint import views
+from repository import views
 
 urlpatterns = [
 
-    url(r'^$',
-        views.preprints_home,
-        name='preprints_home'),
+    url(r'^(?P<repository_short_name>[-\w]+)/$',
+        views.repository_home,
+        name='repository_home'),
 
     url(r'^dashboard/$',
         views.preprints_dashboard,
@@ -22,9 +22,9 @@ urlpatterns = [
         views.preprints_author_article,
         name='preprints_author_article'),
 
-    url(r'^about/$',
-        views.preprints_about,
-        name='preprints_about'),
+    url(r'^(?P<repository_short_name>[-\w]+)/about/$',
+        views.repository_about,
+        name='repository_about'),
 
     url(r'^search/$',
         views.preprints_search,
@@ -42,13 +42,13 @@ urlpatterns = [
         views.preprints_pdf,
         name='preprints_pdf'),
 
-    url(r'^list/$',
-        views.preprints_list,
-        name='preprints_list'),
+    url(r'^(?P<repository_short_name>[-\w]+)/list/$',
+        views.repository_list,
+        name='repository_list'),
 
-    url(r'^list/(?P<subject_slug>[-\w]+)/$',
-        views.preprints_list,
-        name='preprints_list_subject'),
+    url(r'^(?P<repository_short_name>[-\w]+)/list/(?P<subject_slug>[-\w]+)/$',
+        views.repository_list,
+        name='repository_list'),
 
     url(r'^editors/$',
         views.preprints_editors,

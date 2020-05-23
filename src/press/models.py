@@ -299,10 +299,17 @@ class Press(AbstractSiteModel):
         return self.journals(is_conference=False).count() > 0
 
     @cache(600)
+    def live_repositories(self):
+        from repository import models as repository_models
+        return repository_models.Repository.objects.filter(
+            live=True,
+        )
+
+    @cache(600)
     def preprint_editors(self):
-        from preprint import models as pp_models
+        from repository import models as repository_models
         editors = list()
-        subjects = pp_models.Subject.objects.all()
+        subjects = repository_models.Subject.objects.all()
 
         for subject in subjects:
             for editor in subject.editors.all():

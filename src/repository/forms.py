@@ -3,31 +3,46 @@ from django.utils.translation import ugettext_lazy as _
 from django_summernote.widgets import SummernoteWidget
 
 from submission import models as submission_models
-from preprint import models
+from repository import models
 from press import models as press_models
 from review.forms import render_choices
 
 
 class PreprintInfo(forms.ModelForm):
     keywords = forms.CharField(required=False)
-    subject = forms.ModelChoiceField(required=True, queryset=models.Subject.objects.filter(enabled=True))
+    subject = forms.ModelChoiceField(
+        required=True,
+        queryset=models.Subject.objects.filter(enabled=True),
+    )
 
     class Meta:
         model = submission_models.Article
-        fields = ('title', 'subtitle', 'abstract', 'language', 'license', 'comments_editor')
+        fields = (
+            'title',
+            'subtitle',
+            'abstract',
+            'language',
+            'license',
+            'comments_editor',
+        )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
             'abstract': forms.Textarea(
-                attrs={'placeholder': _('Enter your article\'s abstract here')}),
+                attrs={
+                    'placeholder': _('Enter your article\'s abstract here')
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         elements = kwargs.pop('additional_fields', None)
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
-        self.fields['license'].queryset = submission_models.Licence.objects.filter(press__isnull=False,
-                                                                                   available_for_submission=True)
+        self.fields['license'].queryset = submission_models.Licence.objects.filter(
+            press__isnull=False,
+            available_for_submission=True,
+        )
         self.fields['license'].required = True
 
         # If there is an instance, we want to try to set the default subject area
@@ -40,26 +55,42 @@ class PreprintInfo(forms.ModelForm):
             for element in elements:
                 if element.kind == 'text':
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.TextInput(attrs={'div_class': element.width}),
+                        widget=forms.TextInput(
+                            attrs={'div_class': element.width},
+                        ),
                         required=element.required)
                 elif element.kind == 'textarea':
-                    self.fields[element.name] = forms.CharField(widget=forms.Textarea,
-                                                                required=element.required)
+                    self.fields[element.name] = forms.CharField(
+                        widget=forms.Textarea,
+                        required=element.required,
+                    )
                 elif element.kind == 'date':
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
+                        widget=forms.DateInput(
+                            attrs={
+                                'class': 'datepicker',
+                                'div_class': element.width,
+                            }
+                        ),
                         required=element.required)
 
                 elif element.kind == 'select':
                     choices = render_choices(element.choices)
                     self.fields[element.name] = forms.ChoiceField(
-                        widget=forms.Select(attrs={'div_class': element.width}), choices=choices,
-                        required=element.required)
+                        widget=forms.Select(
+                            attrs={'div_class': element.width},
+                        ),
+                        choices=choices,
+                        required=element.required,
+                    )
 
                 elif element.kind == 'email':
                     self.fields[element.name] = forms.EmailField(
-                        widget=forms.TextInput(attrs={'div_class': element.width}),
-                        required=element.required)
+                        widget=forms.TextInput(
+                            attrs={'div_class': element.width}
+                        ),
+                        required=element.required,
+                    )
                 elif element.kind == 'check':
                     self.fields[element.name] = forms.BooleanField(
                         widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
@@ -98,13 +129,18 @@ class PreprintInfo(forms.ModelForm):
 
                 if answer:
                     try:
-                        field_answer = submission_models.FieldAnswer.objects.get(article=article, field=field)
+                        field_answer = submission_models.FieldAnswer.objects.get(
+                            article=article,
+                            field=field,
+                        )
                         field_answer.answer = answer
                         field_answer.save()
                     except submission_models.FieldAnswer.DoesNotExist:
-                        field_answer = submission_models.FieldAnswer.objects.create(article=article,
-                                                                                    field=field,
-                                                                                    answer=answer)
+                        field_answer = submission_models.FieldAnswer.objects.create(
+                            article=article,
+                            field=field,
+                            answer=answer,
+                        )
 
         return article
 
@@ -118,8 +154,14 @@ class CommentForm(forms.ModelForm):
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = press_models.Press
-        fields = ('preprints_about', 'preprint_start', 'preprint_submission', 'preprint_publication',
-                  'preprint_decline', 'preprint_pdf_only')
+        fields = (
+            'preprints_about',
+            'preprint_start',
+            'preprint_submission',
+            'preprint_publication',
+            'preprint_decline',
+            'preprint_pdf_only',
+        )
         widgets = {
             'preprints_about': SummernoteWidget,
             'preprint_start': SummernoteWidget,
@@ -136,9 +178,15 @@ class SettingsForm(forms.ModelForm):
 
             for setting in settings:
                 if setting.is_boolean:
-                    self.fields[setting.name] = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
+                    self.fields[setting.name] = forms.BooleanField(
+                        widget=forms.CheckboxInput(),
+                        required=False,
+                    )
                 else:
-                    self.fields[setting.name] = forms.CharField(widget=forms.TextInput(), required=False)
+                    self.fields[setting.name] = forms.CharField(
+                        widget=forms.TextInput(),
+                        required=False,
+                    )
                 self.fields[setting.name].initial = setting.value
 
     def save(self, commit=True):
@@ -154,7 +202,6 @@ class SettingsForm(forms.ModelForm):
 
 
 class SubjectForm(forms.ModelForm):
-
     class Meta:
         model = models.Subject
         exclude = ('preprints',)

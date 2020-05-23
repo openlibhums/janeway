@@ -23,7 +23,7 @@ from django.core import exceptions
 from core.file_system import JanewayFileSystemStorage
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
-from preprint import models as preprint_models
+from repository import models as repository_models
 from review import models as review_models
 from utils.function_cache import cache
 
@@ -1081,7 +1081,7 @@ class Article(models.Model):
             return max(current_orders) + 1
 
     def next_preprint_version(self):
-        versions = [version.version for version in preprint_models.PreprintVersion.objects.filter(preprint=self)]
+        versions = [version.version for version in repository_models.PreprintVersion.objects.filter(preprint=self)]
         if not versions:
             return 1
         else:

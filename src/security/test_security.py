@@ -23,7 +23,7 @@ from review import models as review_models
 from submission import models as submission_models
 from copyediting import models as copyediting_models
 from proofing import models as proofing_models
-from preprint import models as preprint_models
+from repository import models as repository_models
 from press import models as press_models
 from utils.install import update_xsl_files
 from utils import setting_handler

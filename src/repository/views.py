@@ -16,7 +16,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.core.cache import cache
 
-from preprint import forms, logic as preprint_logic, models
+from repository import forms, logic as preprint_logic, models
 from submission import models as submission_models, forms as submission_forms, logic
 from core import models as core_models, files
 from metrics.logic import store_article_access
@@ -26,18 +26,22 @@ from identifiers import logic as ident_logic
 from security.decorators import preprint_editor_or_author_required, is_article_preprint_editor, is_preprint_editor
 
 
-def preprints_home(request):
+def repository_home(request):
     """
     Displays the preprints home page with search box and 6 latest preprints publications
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    preprints = submission_models.Article.preprints.filter(
-        date_published__lte=timezone.now()).order_by('-date_published')[:3]
+    preprints = models.Preprint.objects.filter(
+        repository=request.repository,
+    )
+    subjects = models.Subject.objects.filter(
+        repository=request.repository,
+    ).prefetch_related(
+        'preprints',
+    )
 
-    subjects = models.Subject.objects.all().prefetch_related('preprints')
-
-    template = 'preprints/home.html'
+    template = 'repository/home.html'
     context = {
         'preprints': preprints,
         'subjects': subjects,
@@ -97,13 +101,13 @@ def preprints_author_article(request, article_id):
     return render(request, template, context)
 
 
-def preprints_about(request):
+def repository_about(request):
     """
     Displays the about page with text about preprints
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    template = 'preprints/about.html'
+    template = 'repository/about.html'
     context = {
 
     }
@@ -111,7 +115,7 @@ def preprints_about(request):
     return render(request, template, context)
 
 
-def preprints_list(request, subject_slug=None):
+def repository_list(request, subject_slug=None):
     """
     Displays a list of all published preprints.
     :param request: HttpRequest
@@ -119,24 +123,29 @@ def preprints_list(request, subject_slug=None):
     """
     if subject_slug:
         subject = get_object_or_404(models.Subject, slug=subject_slug)
-        articles = preprint_logic.get_subject_articles(subject)
+        preprints = subject.preprint_set.filter(
+            repository=request.repository,
+        )
     else:
         subject = None
-        articles = submission_models.Article.preprints.filter(date_published__lte=timezone.now())
+        preprints = models.Preprint.objects.filter(
+            date_published__lte=timezone.now(),
+            repository=request.repository,
+        )
 
-    paginator = Paginator(articles, 15)
+    paginator = Paginator(preprints, 15)
     page = request.GET.get('page', 1)
 
     try:
-        articles = paginator.page(page)
+        preprints = paginator.page(page)
     except PageNotAnInteger:
-        articles = paginator.page(1)
+        preprints = paginator.page(1)
     except EmptyPage:
-        articles = paginator.page(paginator.num_pages)
+        preprints = paginator.page(paginator.num_pages)
 
-    template = 'preprints/list.html'
+    template = 'repository/list.html'
     context = {
-        'articles': articles,
+        'preprints': preprints,
         'subject': subject,
         'subjects': models.Subject.objects.filter(enabled=True)
     }

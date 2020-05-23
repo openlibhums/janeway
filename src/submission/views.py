@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -14,7 +13,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from core import files, models as core_models
-from preprint import models as preprint_models
+from repository import models as preprint_models
 from security.decorators import (
     article_edit_user_required,
     production_user_or_editor_required,
@@ -30,7 +29,8 @@ from utils import shared as utils_shared
 @decorators.submission_is_enabled
 def start(request, type=None):
     """
-    Starts the submission process, presents various checkboxes and then creates a new article.
+    Starts the submission process, presents various checkboxes
+    and then creates a new article.
     :param request: HttpRequest object
     :param type: string, None or 'preprint'
     :return: HttpRedirect or HttpResponse

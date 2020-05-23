@@ -67,11 +67,11 @@ INSTALLED_APPS = [
     'journal',
     'metrics',
     'comms',
-    'preprint',
     'press',
     'production',
     'proofing',
     'review',
+    'repository',
     'reports',
     'security',
     'submission',
@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'utils',
     'install',
     'workflow',
+
 
     # 3rd Party
     'django_summernote',
@@ -94,6 +95,9 @@ INSTALLED_APPS = [
 
     # Forms
     'django.forms',
+
+    # Deprecated - preprints app will be removed in 1.3.9
+    # 'preprint',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
@@ -118,6 +122,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'repository.middleware.PreprintRepositoryMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'

@@ -25,14 +25,12 @@
         <li><a href="{% url 'press_conferences' %}">Conferences</a></li>
         {% endif %}
         {% if request.press.enable_preprints %}
-            <li class=".is-dropdown-submenu-parent"><a href="{% url 'preprints_home' %}"
-                                                       data-options="is_hover:true; hover_timeout:5000">Preprints</a>
+            <li class=".is-dropdown-submenu-parent"><a href="#"
+                                                       data-options="is_hover:true; hover_timeout:5000">Repositories</a>
                 <ul class="menu vertical medium-horizontal">
-                    <li><a href="{% url 'preprints_home' %}">Preprints Home</a></li>
-                    <li><a href="{% url 'preprints_list' %}">All Preprints</a></li>
-                    <li><a href="{% url 'preprints_about' %}">About Preprints</a></li>
-                    {% if display_preprint_editors == 'On' %}<li><a href="{% url 'preprints_editors' %}">Preprint Editors</a></li>{% endif %}
-                    <li><a href="{% url 'preprints_submit' %}">Submit a Preprint</a></li>
+                    {% for repo in request.press.live_repositories %}
+                        <li><a href="{% url 'repository_home' repo.short_name %}">{{ repo.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </li>
         {% endif %}

@@ -442,8 +442,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def preprint_subjects(self):
         "Returns a list of preprint subjects this user is an editor for"
-        from preprint import models as preprint_models
-        subjects = preprint_models.Subject.objects.filter(editors__exact=self)
+        from repository import models as repository_models
+        subjects = repository_models.Subject.objects.filter(
+            editors__exact=self,
+        )
         return subjects
 
     @property

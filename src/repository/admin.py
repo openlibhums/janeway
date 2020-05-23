@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
-from preprint import models
+from repository import models
 
 
 class RepositoryAdmin(admin.ModelAdmin):
@@ -12,6 +12,7 @@ class RepositoryAdmin(admin.ModelAdmin):
     list_filter = ('live',)
     search_fields = ('name',)
     filter_horizontal = ('managers',)
+
 
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'enabled')
@@ -23,7 +24,7 @@ class SubjectAdmin(admin.ModelAdmin):
 class PreprintAdmin(admin.ModelAdmin):
     list_display = ('title', 'pk', 'repository', 'doi', 'curent_version')
     list_filter = ('repository',)
-    raw_id_fields = ('repository',)
+    raw_id_fields = ('repository', 'owner', 'subject', )
     filter_horizontal = ('keywords',)
 
 
@@ -45,12 +46,20 @@ class QueueAdmin(admin.ModelAdmin):
     raw_id_fields = ('preprint', 'file',)
 
 
+class PreprintFileAdmin(admin.ModelAdmin):
+    list_display = ('preprint', 'file')
+    list_filter = ('preprint',)
+    raw_id_fields = ('preprint',)
+
+
 admin_list = [
+    (models.Repository, RepositoryAdmin),
     (models.PreprintVersion, VersionAdmin),
     (models.Comment, CommentAdmin),
     (models.Subject, SubjectAdmin),
     (models.VersionQueue, QueueAdmin),
     (models.Preprint, PreprintAdmin),
+    (models.PreprintFile, PreprintFileAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

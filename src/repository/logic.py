@@ -11,7 +11,7 @@ from core import models as core_models, files
 from utils import render_template
 from utils.function_cache import cache
 from events import logic as event_logic
-from preprint import models
+from repository import models
 from submission import models as submission_models
 
 

@@ -38,8 +38,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^news/', include('comms.urls')),
     url(r'^reports/', include('reports.urls')),
-    url(r'^preprints/', include('preprint.urls')),
-    url(r'^repository/', include('preprint.urls')),
+    url(r'^repository/', include('repository.urls')),
     url(r'^utils/', include('utils.urls')),
     url(r'^workflow/', include('workflow.urls')),
 

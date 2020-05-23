@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 
-{% block title %}{{ request.press.name }} Preprints{% endblock %}
+{% block title %}{{ request.repository.name }}{% endblock %}
 
 {% block navbar %}
     {% include "press/nav.html" %}
@@ -12,7 +12,7 @@
     <section id="content">
         <div class="row column">
             <div class="large-12 columns">
-                <h2 class="text-center">{{ request.press.name }} {% trans "Preprints" %}</h2>
+                <h2 class="text-center">{{ request.repository.name }}</h2>
             </div>
             <div class="large-6 columns end large-offset-3">
                 <div class="input-group">
@@ -21,13 +21,13 @@
                         <div class="input-group">
                             <span class="input-group-label"><i class="fa fa-search"></i></span>
                             <input class="input-group-field" type="search" name="search_term"
-                                   placeholder="Search preprints">
+                                   placeholder="Search {{ request.repository.object_name_plural }}...">
                         </div>
                         <input type="submit" style="visibility: hidden;"/>
                     </form>
                 </div>
-                <p class="text-center">{% trans "Read about" %} {{ request.press.name }} <a href="{% url 'preprints_about' %}">{% trans "preprints" %}</a>
-                    {% trans "or view list of" %} <a href="{% url 'preprints_list' %}">{% trans "all preprints" %}</a>.
+                <p class="text-center">{% trans "Read about" %} <a href="{% url 'repository_about' request.repository.short_name %}">{{ request.repository.name }}</a>
+                    {% trans "or view list of" %} <a href="{% url 'repository_list' request.repository.short_name %}">{{ request.repository.object_name_plural }}</a>.
                 </p>
             </div>
 
