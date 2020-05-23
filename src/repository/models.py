@@ -122,6 +122,13 @@ class Preprint(models.Model):
         )
 
     )
+    submission_file = models.ForeignKey(
+        'PreprintFile',
+        related_name='submission_file',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     meta_image = models.ImageField(
         blank=True,
         null=True,

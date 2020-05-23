@@ -36,7 +36,7 @@ urlpatterns = [
 
     url(r'^view/(?P<article_id>\d+)/$',
         views.preprints_article,
-        name='preprints_article'),
+        name='preprints_preprint'),
 
     url(r'^view/(?P<article_id>\d+)/pdf/$',
         views.preprints_pdf,
@@ -48,7 +48,7 @@ urlpatterns = [
 
     url(r'^(?P<repository_short_name>[-\w]+)/list/(?P<subject_slug>[-\w]+)/$',
         views.repository_list,
-        name='repository_list'),
+        name='preprints_list_subject'),
 
     url(r'^editors/$',
         views.preprints_editors,
