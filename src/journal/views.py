@@ -109,6 +109,55 @@ def serve_journal_cover(request):
 
     return response
 
+@has_journal
+def funder_articles(request, funder_id):
+    """ Renders the list of articles in the journal.
+
+        :param request: the request associated with this call
+        :return: a rendered template of all articles
+        """
+    if request.POST and 'clear' in request.POST:
+        return logic.unset_article_session_variables(request)
+
+    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
+                                                                                   is_filterable=True)
+    page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
+
+    if redirect:
+        return redirect
+
+    pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
+        journal=request.journal)]
+    pinned_article_pks = [article.pk for article in pinned_articles]
+
+    article_objects = submission_models.Article.objects.filter(journal=request.journal,
+                                                               funders__fundref_id=funder_id,
+                                                               date_published__lte=timezone.now(),
+                                                               section__pk__in=filters).prefetch_related(
+        'frozenauthor_set').order_by(sort).exclude(
+        pk__in=pinned_article_pks)
+
+    paginator = Paginator(article_objects, show)
+
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    template = 'journal/articles.html'
+    context = {
+        'pinned_articles': pinned_articles,
+        'articles': articles,
+        'sections': sections,
+        'filters': filters,
+        'sort': sort,
+        'show': show,
+        'active_filters': active_filters,
+        'search_form': forms.SearchForm(),
+    }
+    return render(request, template, context)
 
 @has_journal
 def articles(request):
@@ -130,13 +179,17 @@ def articles(request):
     pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
         journal=request.journal)]
     pinned_article_pks = [article.pk for article in pinned_articles]
+
     article_objects = submission_models.Article.objects.filter(
         journal=request.journal,
         stage=submission_models.STAGE_PUBLISHED,
         date_published__lte=timezone.now(),
-        section__pk__in=filters).prefetch_related(
-        'frozenauthor_set').order_by(sort).exclude(
-        pk__in=pinned_article_pks)
+        section__pk__in=filters,
+    ).prefetch_related(
+        'frozenauthor_set',
+    ).order_by(sort).exclude(
+        pk__in=pinned_article_pks,
+    )
 
     paginator = Paginator(article_objects, show)
 

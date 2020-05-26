@@ -1,0 +1,135 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load i18n %}
+{% load field %}
+
+{% block title-section %}{% trans "Article Info" %}{% endblock %}
+{% block css %}
+    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
+
+{% block body %}
+    <article>
+        <div class="box">
+        {% include "submission/timeline.html" with data=article %}
+             <div class="title-area">
+                        <h2>{% trans "Funding" %}</h2>
+                    </div>
+                    <div class="content submission-content">
+                        <div class="title-area">
+                            <h2>{% trans "Add Funding Source" %}</h2>
+                        </div>
+                        <div class="row expanded">
+                                <div class="large-8 columns">
+                                    <input type="text" name="funder_text" id="funder_text" />
+                                </div>
+                                <div class="large-2 columns">
+                                    <button class="button pull-right" onclick="javascript:search_fundref($('#funder_text').val())">Search for funder</button>
+                                </div>
+                                <div class="large-2 columns">
+                                    <input id="funder_name" type="hidden" value="use_raw"/><input id="funder_doi" type="hidden" value=""/>
+                                    <a class="warning button pull-right" data-open="add_funder_blank"><i class="fa fa-plus">&nbsp;</i>Add funder manually</a>
+                                </div>
+                        </div>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <span name="funder_list" id="funder_list"></span>
+                        </div>
+                    </div>
+
+                    <div class="title-area">
+                        <h2>{% trans 'Current Funders' %}</h2>
+                    </div>
+
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <table class="scroll">
+                                <thead>
+                                <tr>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Grant Number" %}</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="sortable">
+                                {% for funder in article.funders.all %}
+                                    <tr id="funder-{{ funder.pk }}">
+                                        <td>{{ funder.name }}</td>
+                                        <td>{{ funder.funding_id }}</td>
+                                        <td><a href="{% url 'delete_funder' article.pk funder.pk %}"><i
+                                                class="fa fa-trash">
+                                            &nbsp;</i></a></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="2">{% trans "No funders added." %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                    <div class="large-12 columns">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-check">
+                            &nbsp;</i>{% trans "Save and Continue" %}
+                        </button>
+                    </form>
+                </div>
+                </div>
+            </div>
+
+            <div class="small reveal" id="add_funder_blank" data-reveal>
+                <div class="card">
+                    <div class="card-divider">
+                        <h5>Add funder</h5>
+                    </div>
+                    <div class="card-section">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <input type="text" id="funder_name" name="funder_name"/>
+                                    <p class="help-text">Funder</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <input type="text" id="funder_doi" name="funder_doi"/>
+                                    <p class="help-text">Funder DOI (optional)</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <input type="text" name="grant_number" id="grant_number"/>
+                                    <p class="help-text">Funder grant number (optional)</p>
+                                </div>
+                            </div>
+                            <button type="submit" name="add_funder" class="success button">Add funder</button>
+                            <button type="button" data-close="" class="close-button">&times;</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </article>
+{% endblock body %}
+
+
+
+{% block js %}
+    {{ block.super }}
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+    {% include "elements/jqte.html" %}
+    {% include 'elements/fundref/fundref.html' %}
+
+{% endblock %}

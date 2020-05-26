@@ -140,6 +140,17 @@
                                 </div>
                             {% endif %}
 
+                            {% if article.funders.all %}
+                                <div class="callout primary">
+                                    <h2>{% trans "Funding" %}</h2>
+                                    <ul>
+                                        {% for funder in article.funders.all %}
+                                            <li>{% if funder.fundref_id %}<a href="{% url "funder_articles" funder.fundref_id %}">{% endif %}{{ funder.name }}{% if funder.fundref_id %}</a>{% endif %}{% if funder.funding_id %} (grant {{ funder.funding_id }}){% endif %}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+
                             <div class="summary">
                                 {% if article.is_published %}
                                     {% if not request.journal.disable_metrics_display %}

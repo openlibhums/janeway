@@ -85,6 +85,49 @@ def submit_submissions(request):
 @login_required
 @decorators.submission_is_enabled
 @article_edit_user_required
+def submit_funding(request, article_id):
+    """
+    Presents a form for the user to complete with article information
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse or HttpRedirect
+    """
+    article = get_object_or_404(models.Article, pk=article_id)
+    additional_fields = models.Field.objects.filter(journal=request.journal)
+    submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
+    form = forms.ArticleInfo(instance=article,
+                             additional_fields=additional_fields,
+                             submission_summary=submission_summary,
+                             journal=request.journal)
+
+    if request.POST:
+
+        if 'next_step' in request.POST:
+            article.current_step = 5
+            article.save()
+            return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
+
+        funder = models.Funder(name=request.POST.get('funder_name', default=''),
+                               fundref_id=request.POST.get('funder_doi', default=''),
+                               funding_id=request.POST.get('grant_number', default=''))
+
+        funder.save()
+        article.funders.add(funder)
+        article.save()
+
+
+    template = 'admin/submission//submit_funding.html'
+    context = {
+        'article': article,
+        'form': form,
+        'additional_fields': additional_fields,
+    }
+
+    return render(request, template, context)
+
+@login_required
+@decorators.submission_is_enabled
+@article_edit_user_required
 def submit_info(request, article_id):
     """
     Presents a form for the user to complete with article information
@@ -105,7 +148,6 @@ def submit_info(request, article_id):
                                  additional_fields=additional_fields,
                                  submission_summary=submission_summary,
                                  journal=request.journal)
-
         if form.is_valid():
             form.save(request=request)
             article.current_step = 2
@@ -245,6 +287,29 @@ def submit_authors(request, article_id):
 
 @login_required
 @article_edit_user_required
+def delete_funder(request, article_id, funder_id):
+    """Allows submitting author to delete a funding object."""
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+    funding = get_object_or_404(
+        models.Funder,
+        pk=funder_id
+    )
+
+    article.funders.remove(funding)
+
+    if request.GET.get('return'):
+        return redirect(request.GET['return'])
+
+    return redirect(reverse('submit_funding', kwargs={'article_id': article_id}))
+
+
+
+@login_required
+@article_edit_user_required
 def delete_author(request, article_id, author_id):
     """Allows submitting author to delete an author object."""
     article = get_object_or_404(
@@ -333,7 +398,7 @@ def submit_files(request, article_id):
             if article.manuscript_files.all().count() >= 1:
                 article.current_step = 4
                 article.save()
-                return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
+                return redirect(reverse('submit_funding', kwargs={'article_id': article_id}))
             else:
                 error = "You must upload a manuscript file."
 
@@ -429,6 +494,14 @@ def edit_metadata(request, article_id):
         author_form = forms.EditFrozenAuthor()
 
     if request.POST:
+        if 'add_funder' in request.POST:
+            funder = models.Funder(name=request.POST.get('funder_name', default=''),
+                                   fundref_id=request.POST.get('funder_doi', default=''),
+                                   funding_id=request.POST.get('grant_number', default=''))
+
+            funder.save()
+            article.funders.add(funder)
+            article.save()
 
         if 'metadata' in request.POST:
             info_form = forms.ArticleInfo(request.POST, instance=article, submission_summary=submission_summary)

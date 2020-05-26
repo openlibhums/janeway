@@ -49,6 +49,8 @@ urlpatterns = [
 
     url(r'^articles/$', views.articles, name='journal_articles'),
 
+    url(r'^funder_articles/(?P<funder_id>.+)$', views.funder_articles, name='funder_articles'),
+
     # Issues/Collections
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
