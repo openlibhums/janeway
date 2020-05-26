@@ -74,17 +74,16 @@ def metrics_summary(published_preprints):
 
 
 def handle_file_upload(request, preprint):
-    if 'xml' in request.POST:
-        for uploaded_file in request.FILES.getlist('xml-file'):
-            new_galley = save_galley(preprint, request, uploaded_file, True, "XML")
-
-    if 'pdf' in request.POST:
-        for uploaded_file in request.FILES.getlist('pdf-file'):
-            new_galley = save_galley(preprint, request, uploaded_file, True, "PDF")
-
-    if 'other' in request.POST:
-        for uploaded_file in request.FILES.getlist('other-file'):
-            new_galley = save_galley(preprint, request, uploaded_file, True, "Other")
+    if 'file' in request.FILES:
+        label = request.POST.get('label')
+        for uploaded_file in request.FILES.getlist('file'):
+             save_galley(
+                preprint,
+                request,
+                uploaded_file,
+                True,
+                label=label,
+            )
 
 
 def determie_action(preprint):

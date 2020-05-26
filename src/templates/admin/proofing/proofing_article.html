@@ -86,7 +86,7 @@
                                                     Awaiting<br/>proofreader
                                                 {% endif %}
                                                 {% if request.user.is_admin %}
-                                                        <a class="button expanded" target="_blank" href="{% url 'admin:proofing_proofingassignment_change' task.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a>
+                                                        <a class="button expanded" target="_blank" href="{% url 'admin:proofing_proofingtask_change' task.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a>
                                                 {% endif %}
                                             </div>
                                         </td>

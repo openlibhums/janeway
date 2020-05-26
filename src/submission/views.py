@@ -15,10 +15,13 @@ from django.utils import timezone
 
 from core import files, models as core_models
 from preprint import models as preprint_models
-from security.decorators import article_edit_user_required, production_user_or_editor_required, editor_user_required
+from security.decorators import (
+    article_edit_user_required,
+    production_user_or_editor_required,
+    editor_user_required,
+)
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
-from identifiers import models as identifier_models
 from utils import setting_handler
 from utils import shared as utils_shared
 

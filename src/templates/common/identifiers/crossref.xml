@@ -19,19 +19,22 @@
         <journal>
             <journal_metadata>
                 <full_title>{{ journal_title }}</full_title>
-		{% if journal_issn and journal_issn != '0000-0000' %}
+                {% if journal_issn and journal_issn != '0000-0000' %}
                 <issn media_type="electronic">{{ journal_issn }}</issn>
-		{% endif %}
-            </journal_metadata>
-            {% if issue %}
-            <journal_issue>
-                {% if date_published %}
-                <publication_date media_type="online">
-                    <month>{{ date_published.month }}</month>
-                    <day>{{ date_published.day }}</day>
-                    <year>{{ date_published.year }}</year>
-                </publication_date>
                 {% endif %}
+            </journal_metadata>
+            {% if issue and issue.date %}
+            <journal_issue>
+                {% if issue.issue_title %}
+                <titles>
+                    <title>{{ issue.issue_title }}</title>
+                </titles>
+                {% endif %}
+                <publication_date media_type="online">
+                    <month>{{ issue.date.month }}</month>
+                    <day>{{ issue.date.day }}</day>
+                    <year>{{ issue.date.year }}</year>
+                </publication_date>
 
                 <journal_volume>
                     <volume>{{ issue.volume }}</volume>
@@ -77,6 +80,9 @@
                         </item>
                     </collection>
                 </doi_data>
+                {% if citation_list %}
+                    {{ citation_list|safe }}
+                {% endif %}
             </journal_article>
      </journal>
     </body>

@@ -18,17 +18,43 @@
 
     <div class="box">
         <div class="title-area">
-            <h2>Guidelines</h2>
+            <h2>Information</h2>
         </div>
         <div class="content">
-            {{ journal_settings.general.copyediting_guidelines|safe }}
+            <table class="table">
+                <tr>
+                    <th>Assigned by</th>
+                    <th>Due</th>
+                </tr>
+                <tr>
+                    <td>{{ copyedit.editor.full_name }}</td>
+                    <td>{{ copyedit.due }}</td>
+                <tr>
+                    <th colspan="2">
+                        Note from Editor
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        {{ copyedit.editor_note }}
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2">
+                        General Copyediting Guidelines
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="2">{{ journal_settings.general.copyediting_guidelines|safe }}</td>
+                </tr>
+            </table>
         </div>
 
         <div class="title-area">
             <h2>Article Files</h2>
         </div>
         <div class="content">
-            <table class="scroll small">
+            <table class="scroll">
                 <tr>
                     <th>Label</th>
                     <th>Filename</th>
@@ -49,7 +75,7 @@
             <a href="{% url 'do_copyedit_add_file' copyedit.pk %}" class="button"><i class="fa fa-upload">&nbsp</i>Upload File</a>
         </div>
         <div class="content">
-            <table class="scroll small">
+            <table class="scroll">
                 <tr>
                     <th>Label</th>
                     <th>Filename</th>

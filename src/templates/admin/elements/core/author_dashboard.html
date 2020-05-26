@@ -1,0 +1,76 @@
+<div class="row expanded">
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Incomplete Articles</h2>
+                <a class="tiny button" href="{% url 'submission_start' %}">Submit New Article</a>
+            </div>
+            <div class="content">
+                <table class="scroll">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Current Step</th>
+                        <th>Date Started</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for article in progress_submissions %}
+                        <tr>
+                            <td>{% if article.title %}{{ article.title }}{% else %}No Title
+                                Assigned{% endif %}</td>
+                            <td>{{ article.step_name }}</td>
+                            <td>{{ article.date_started }}</td>
+                            <td><a class="small button" href="{{ article.step_to_url }}">Continue</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Submitted Articles</h2>
+            </div>
+            <div class="content">
+                <table class="table scroll">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Current Stage</th>
+                        <th>Date Started</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for article in active_submissions %}
+                        <tr>
+                            <td>{% if article.title %}{{ article.title }}{% else %}No Title
+                                Assigned{% endif %}</td>
+                            <td>{{ article.get_stage_display }}</td>
+                            <td>{{ article.date_started }}</td>
+                            <td>
+                                <a class="small button" href="{% url 'core_dashboard_article' article.pk %}">View Status</a>
+                                {% for revision in article.active_revision_requests %}
+                                    {% if not revision.date_completed %}
+                                        <a class="small button" href="{% url 'do_revisions' article.pk revision.pk %}">Revision
+                                            Request</a>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% for review in article.active_author_copyedits %}
+                                    <a class="small button" href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting
+                                        Review </a>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

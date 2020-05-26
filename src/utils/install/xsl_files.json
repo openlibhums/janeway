@@ -3,8 +3,8 @@
       "fields" : {
          "comments" : null,
          "date_uploaded" : "2019-11-04T10:59:37.247Z",
-         "file" : "src/transform/xsl/default.xsl",
-         "label" : "Janeway default"
+         "file" : "default.xsl",
+         "label" : ""
       },
       "model" : "core.xslfile"
    }

@@ -69,6 +69,7 @@ src/core/settings.py
 /src/files/temp
 /src/files/import_cache
 /src/files/data_backup
+/src/files/xsl
 /src/media/django-summernote
 /src/media/*
 /src/collected-static
@@ -98,8 +99,6 @@ src/utils/management/commands/redirects\.py
 src/static/mater
 ial/
 src/texture/**
-src/transform/xsl/*
-!src/transform/xsl/default.xsl
 /src/static/material/**
 /src/static/admin/hypothesis/**
 
@@ -121,3 +120,9 @@ src/test\.txt
 venv/**
 src/.DS_Store
 .DS_Store
+
+src/static/superhero/
+
+src/themes/clean
+
+src/themes/superhero

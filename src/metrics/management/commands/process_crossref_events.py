@@ -19,29 +19,29 @@ def process_events():
             crossref_prefix = journal.get_setting('Identifiers', 'crossref_prefix')
 
             file_path = os.path.join(settings.BASE_DIR, 'files', 'temp', '{prefix}.json'.format(prefix=crossref_prefix))
-            json_file = open(file_path, encoding='utf-8')
-            json_data = json.loads(json_file.read())
-            for event in json_data['message']['events']:
-                obj_id_parts = event['obj_id'].split('/')
-                doi = '{0}/{1}'.format(obj_id_parts[3], obj_id_parts[4])
-
-                try:
-                    identifier = ident_models.Identifier.objects.get(id_type='doi', identifier=doi)
-                    print('{0} found.'.format(doi))
-                    print(event['subj']['pid'])
+            with open(file_path, encoding='utf-8') as json_file:
+                json_data = json.loads(json_file.read())
+                for event in json_data['message']['events']:
+                    obj_id_parts = event['obj_id'].split('/')
+                    doi = '{0}/{1}'.format(obj_id_parts[3], obj_id_parts[4])
 
                     try:
-                        models.AltMetric.objects.get_or_create(
-                            article=identifier.article,
-                            source=event['source_id'],
-                            pid=event['subj']['pid'],
-                            timestamp=event['timestamp'],
-                        )
-                    except IntegrityError:
-                        print('Duplicate found, skipping.')
-                except ident_models.Identifier.DoesNotExist:
-                    # This doi isn't found
-                    pass  # print('{0} not found.'.format(doi))
+                        identifier = ident_models.Identifier.objects.get(id_type='doi', identifier=doi)
+                        print('{0} found.'.format(doi))
+                        print(event['subj']['pid'])
+
+                        try:
+                            models.AltMetric.objects.get_or_create(
+                                article=identifier.article,
+                                source=event['source_id'],
+                                pid=event['subj']['pid'],
+                                timestamp=event['timestamp'],
+                            )
+                        except IntegrityError:
+                            print('Duplicate found, skipping.')
+                    except ident_models.Identifier.DoesNotExist:
+                        # This doi isn't found
+                        pass  # print('{0} not found.'.format(doi))
 
 
 def fetch_crossref_data():

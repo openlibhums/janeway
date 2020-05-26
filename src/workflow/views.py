@@ -52,6 +52,3 @@ def manage_article_workflow(request, article_id):
     }
 
     return render(request, template, context)
-
-
-

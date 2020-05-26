@@ -10,6 +10,7 @@ from user_agents import parse as parse_ua_string
 import geoip2.database
 from geoip2.errors import AddressNotFoundError
 
+from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
 
@@ -247,21 +248,25 @@ def store_article_access(request, article, access_type, galley_type='view'):
 
         else:
             # get the most recent access attempt and reset its accessed to now.
-            access = models.ArticleAccess.objects.filter(
-                identifier=identifier,
-                accessed__gte=time_to_check,
-                type=access_type,
-                galley_type=galley_type,
-            ).order_by('-accessed')[0]
+            with transaction.atomic():
+                access = models.ArticleAccess.objects.select_for_update(
+                    # Avoid concurrent writes
+                    skip_locked=True,
+                ).filter(
+                    identifier=identifier,
+                    accessed__gte=time_to_check,
+                    type=access_type,
+                    galley_type=galley_type,
+                ).order_by('-accessed')[0]
 
-            if access:
-                access.accessed = timezone.now()
-                access.save()
+                if access:
+                    access.accessed = timezone.now()
+                    access.save()
 
-                return access
+                    return access
 
-            else:
-                return None
+                else:
+                    return None
 
     else:
 

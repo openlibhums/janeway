@@ -69,17 +69,26 @@ def save_source_file(article, request, uploaded_file):
 
 
 def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True):
-    new_file = files.save_file_to_article(uploaded_file, article, request.user, save=save_to_disk)
+    new_file = files.save_file_to_article(
+        uploaded_file,
+        article,
+        request.user,
+        save=save_to_disk,
+    )
     new_file.is_galley = is_galley
     new_file.label = label
 
     new_file.save()
     article.save()
 
+    type_ = None
+
     if new_file.mime_type in files.HTML_MIMETYPES:
-        type = 'html'
-        label = 'HTML'
-        with open(new_file.self_article_path(), 'r+') as f:
+        type_ = 'html'
+        if not label:
+            label = 'HTML'
+
+        with open(new_file.self_article_path(), 'r+', encoding="utf-8") as f:
             html_contents = f.read()
             f.seek(0)
             cleaned_html = remove_css_from_html(html_contents)
@@ -87,15 +96,25 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
             f.truncate()
 
     elif new_file.mime_type in files.XML_MIMETYPES:
-        type = 'xml'
-        label = 'XML'
-    elif label is None:
-        raise TypeError("Invalid file %s" % (new_file.mime_type))
-    else:
-        type = label.lower()
+        type_ = 'xml'
+        if not label:
+            label = 'XML'
+    elif new_file.mime_type in files.PDF_MIMETYPES:
+        type_ = 'pdf'
+        if not label:
+            label = 'PDF'
+
+    if not label:
+        label = 'Other'
+    if not type_:
+        type_ = 'other'
 
     new_galley = core_models.Galley.objects.create(
-        article=article, file=new_file, label=label, type=type, sequence=article.get_next_galley_sequence()
+        article=article,
+        file=new_file,
+        label=label,
+        type=type_,
+        sequence=article.get_next_galley_sequence(),
     )
 
     return new_galley
@@ -124,16 +143,14 @@ def remove_css_from_html(source_html):
     return soup.prettify()
 
 
-
 def replace_galley_file(article, request, galley, uploaded_file):
     if uploaded_file:
-        new_file = files.save_file_to_article(uploaded_file, article, request.user)
-        new_file.is_galley = True
-        new_file.label = galley.file.label
-        new_file.parent = galley.file
-        new_file.save()
-        galley.file = new_file
-        galley.save()
+
+        files.overwrite_file(
+            uploaded_file,
+            galley.file,
+            ('articles', article.pk),
+        )
     else:
         messages.add_message(request, messages.WARNING, 'No file was selected.')
 

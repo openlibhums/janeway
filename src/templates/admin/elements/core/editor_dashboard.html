@@ -1,0 +1,44 @@
+{% if is_editor %}
+    <div class="large-8 columns" data-equalizer-watch>
+        <div class="box">
+            <div class="title-area">
+                <h2>Editor</h2>
+            </div>
+
+            <div class="row expanded">
+                <div class="large-4 columns">
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat">{{ unassigned_articles_count }}</span>
+                            <span class="title">Unassigned</span>
+                            <a href="{% url 'review_unassigned' %}" class="box-link"></a>
+                        </div>
+                        {% for element in request.journal.workflow.elements.all %}
+                            <div class="summary">
+                                <span class="stat">{{ element.articles.count }}</span>
+                                <span class="title">{{ element|capfirst }}</span>
+                                <a href="{% url element.handshake_url %}" class="box-link"></a>
+                            </div>
+                            {% if forloop.counter == 1 or forloop.counter|divisibleby:3 and not forloop.last %}
+                                </div>
+                                </div>
+                                <div class="large-4 columns end">
+                                    <div class="content">
+                                        {% elif forloop.last %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+            </div>
+
+            <div class="row expanded">
+                <div class="large-12 columns">
+                    <br/>
+                    <a class="success button pull-right" href="{% url 'core_active_submissions' %}">Search all
+                        submissions</a>
+                </div>
+            </div>
+        </div>
+
+
+{% endif %}

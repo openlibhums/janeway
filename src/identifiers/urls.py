@@ -26,4 +26,13 @@ urlpatterns = [
     url(r'^(?P<article_id>\d+)/issue/(?P<identifier_id>\d+)/$',
         views.issue_doi,
         name='issue_doi'),
+    url(r'^(?P<article_id>\d+)/show/(?P<identifier_id>\d+)/$',
+        views.show_doi,
+        name='show_doi'),
+    url(r'^(?P<article_id>\d+)/poll/(?P<identifier_id>\d+)/$',
+        views.poll_doi,
+        name='poll_doi'),
+    url(r'^(?P<article_id>\d+)/poll/output/(?P<identifier_id>\d+)/$',
+        views.poll_doi_output,
+        name='poll_doi_output')
 ]

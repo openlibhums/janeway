@@ -3,11 +3,7 @@
 
 <section>
     <div class="row column text-center">
-        {% if most_downloaded %}
         <h2 class="title">{% trans 'Most Popular Articles' %}</h2>
-        {% else %}
-        <h2 class="title">{% trans 'Featured Articles' %}</h2>
-        {% endif %}
     </div>
     <div class="row" data-equalizer data-equalize-on="medium">
         {% for article in popular_articles %}

@@ -4,8 +4,10 @@
             <h2>Table of Contents</h2>
             <a href="{% url 'issue_add_article' issue.pk %}" class="button">Add Article</a>
         </div>
-        {% for section, articles in issue.structure.items %}
-            {% if not section == 'structure' %}
+        {% regroup articles by section as grouped_articles %}
+
+
+        {% for section, articles in grouped_articles %}
                 <div class="title-area">
                     {{ section.name }} (ID: {{ section.pk }})
                     <form method="POST" action="{% url 'manage_sort_issue_sections' issue.pk %}">
@@ -52,7 +54,6 @@
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
         {% endfor %}
     </div>
 </div>

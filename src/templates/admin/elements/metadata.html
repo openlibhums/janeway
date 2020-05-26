@@ -187,7 +187,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="6">This article does not have a projected issue. You can <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">assign one</a>.</td>
+            <td colspan="6">This article does not have a projected issue.{% if user_is_editor or request.user.is_staff %} You can <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">assign one</a>.{% endif %}</td>
         </tr>
         {% endif %}
     </table>
@@ -202,10 +202,12 @@
         <tr>
             <th>ID Type</th>
             <th>Identifier</th>
+            <th>Status</th>
         </tr>
         <tr>
             <td>ID</td>
             <td>{{ article.pk }}</td>
+            <td>Assigned</td>
         </tr>
         {% if use_crossref %}
             <tr>
@@ -213,9 +215,25 @@
                 {% if doi %}
                     <td>DOI</td>
                     <td>{{ doi }}</td>
+                    <td>
+                        {% for identifier in article.identifiers %}
+                            {% if identifier.identifier == doi %}
+                                {% if identifier.deposit %}
+                                    <a href="{% url 'poll_doi_output' article.pk identifier.pk %}">
+                                    {% if identifier.deposit.success %}
+                                        <i class="fa fa-check">&nbsp;</i>
+                                    {% else %}
+                                        <i class="fa fa-exclamation-circle">&nbsp;</i>
+                                    {% endif %}
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
                 {% else %}
                     <td>Example DOI Based on Pattern</td>
                     <td>{{ article.render_sample_doi }}</td>
+                    <td></td>
                 {% endif %}
                 {% endwith %}
             </tr>

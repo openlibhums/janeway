@@ -46,12 +46,8 @@
     <meta name="citation_abstract_html_url" content="{{ article.url }}"/>
     {% if article.language %}<meta name="citation_language" content="{{ article.language }}"/>{% endif %}
 
-    {% if article.keywords %}
-        <meta name="citation_keywords" xml:lang="en" content="
-
-
-
-                {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
+    {% if article.keywords.count > 0 %}
+        <meta name="citation_keywords" xml:lang="en" content="{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
     {% endif %}
 
     {% for pdf in article.pdfs %}

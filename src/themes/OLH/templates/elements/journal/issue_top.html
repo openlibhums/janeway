@@ -15,9 +15,9 @@
             </ul>
         </div>
         <br/>
-        <p>{{ issue.issue_description|safe }}</p>
+        {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% else %}
         <h1 class="em">{{ issue.display_title }}</h1>
-        <p>{{ issue.issue_description|safe }}</p>
+        {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% endif %}
 </div>

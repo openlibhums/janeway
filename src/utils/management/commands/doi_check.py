@@ -50,7 +50,7 @@ class Command(BaseCommand):
                 if doi and doi.is_doi:
                     print('Article {0} with DOI {1} processing.'.format(article.pk, doi))
 
-                    should_resolve_to = "{0}{1}".format(journal.full_url(request), article.local_url)
+                    should_resolve_to = article.url
                     resolves_to = requests.get(doi.get_doi_url())
 
                     if not should_resolve_to == resolves_to.url:

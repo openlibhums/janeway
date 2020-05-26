@@ -8,7 +8,7 @@
                     {% for editor in article.editors %}{% if forloop.first %}Editors: {% endif %}{{ editor.editor.full_name }} (
                         {% if editor.editor_type == 'section-editor' %}SE{% else %}E
                         {% endif %}){% if not forloop.last %}, {% endif %}{% endfor %}
-                        <a href="{{ article.current_stage_url }}">
+                        <a href="{{ article.current_workflow_element_url }}">
                             View Article <i class="fa fa-arrow-circle-o-right"></i>
                         </a>
                 </small>

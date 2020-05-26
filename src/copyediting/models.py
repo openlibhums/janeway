@@ -108,8 +108,8 @@ class AuthorReview(models.Model):
     notified = models.BooleanField(default=False)
 
     decision = models.CharField(max_length=20, choices=author_decisions(), null=True, blank=True,
-                                help_text='Select a decision that reflects your actions. If you\'ve uploaded a new'
-                                          'version of the file, select Corrects Required, if you\'re happy with the'
+                                help_text='Select a decision that reflects your actions. If you\'ve uploaded a new '
+                                          'version of the file, select Corrections Required, if you\'re happy with the '
                                           'copyedit, select Accept.',
                                 verbose_name='Your Decision')
     date_decided = models.DateTimeField(null=True, blank=True)

@@ -62,6 +62,7 @@ PDF_MIMETYPES = {
 }
 
 MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
+CROSSREF_XSL = "NLM.JATS2Crossref.v3.1.1.xsl"
 
 
 def mkdirs(path):
@@ -87,7 +88,7 @@ def create_temp_file(content, filename):
     mkdirs(TEMP_DIR)
     filepath = os.path.join(TEMP_DIR, filename)
 
-    temp_file = open(filepath, 'w')
+    temp_file = open(filepath, 'w', encoding="utf-8")
     temp_file.write(content)
     temp_file.flush()
     temp_file.close()
@@ -293,13 +294,13 @@ def get_file(file_to_get, article):
             return content
 
 
-def render_xml(file_to_render, article, xsl_file=None):
-    """Renders JATS and TEI XML into HTML for inline article display.
+def render_xml(file_to_render, article, xsl_path=None):
+    """Renders XML with the given XSL path or the default XSL.
 
     :param file_to_render: the file object to retrieve and render
     :param article: the associated article
-    :param xsl_file: optional instance of core.models.XSLFile
-    :return: a transform of the file to HTML through the XSLT processor
+    :param xsl_path: optional path to a custom xsl file
+    :return: a transform of the file to through the XSLT processor
     """
 
     path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(file_to_render.uuid_filename))
@@ -308,11 +309,11 @@ def render_xml(file_to_render, article, xsl_file=None):
         util_models.LogEntry.add_entry(types='Error',
                                        description='The required XML file for a transform {0} was not found'.format(path),
                                        level='Error', actor=None, target=article)
+        logger.debug("Bad/no file for XSLT transform")
         return ""
 
-    if xsl_file:
-        xsl_path = xsl_file.file.path
-        logger.debug('Rendering engine using {}'.format(xsl_file))
+    if xsl_path is not None:
+        logger.debug('Rendering engine using {}'.format(xsl_path))
     else:
         xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
         logger.debug('Rendering engine using {}'.format(xsl_path))
@@ -742,7 +743,14 @@ def file_children(file):
     return children
 
 
-def zip_files(files, article_specific=False):
+def zip_article_files(files, article_folders=False):
+    """
+    Zips up files that are related to an article.
+    :param files: A list or queryset of File objects that have article_ids
+    :param article_folders: Boolean, if true splits files into folders with
+    article name.
+    :return: strings path of the zip file, zip file name
+    """
     file_name = '{0}.zip'.format(uuid4())
 
     # Copy files into a temp dir
@@ -750,15 +758,15 @@ def zip_files(files, article_specific=False):
     os.makedirs(_dir, 0o775)
 
     for file in files:
-
-        if article_specific and file.article_id:
-            folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
-            article_dir = os.path.join(_dir, folder_name)
-            if not os.path.exists(article_dir):
-                os.makedirs(article_dir, 0o775)
-            shutil.copy(file.self_article_path(), article_dir)
-        else:
-            shutil.copy(file.self_article_path(), _dir)
+        if file.article_id:
+            if article_folders:
+                folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
+                article_dir = os.path.join(_dir, folder_name)
+                if not os.path.exists(article_dir):
+                    os.makedirs(article_dir, 0o775)
+                shutil.copy(file.self_article_path(), article_dir)
+            else:
+                shutil.copy(file.self_article_path(), _dir)
 
     zip_path = '{dir}.zip'.format(dir=_dir)
 

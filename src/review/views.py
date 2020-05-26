@@ -13,6 +13,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.views.decorators.http import require_POST
@@ -1004,7 +1005,7 @@ def add_review_assignment(request, article_id):
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
-        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviwers.')
+        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviewers.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1419,7 +1420,7 @@ def review_decision(request, article_id, decision):
             article.snapshot_authors(article)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
-            workflow_kwargs = {'handshake_url': 'review_unassigned_article',
+            workflow_kwargs = {'handshake_url': 'review_home',
                                'request': request,
                                'article': article,
                                'switch_stage': True}
@@ -1494,9 +1495,16 @@ def author_view_reviews(request, article_id):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    reviews = models.ReviewAssignment.objects.filter(article=article,
-                                                     is_complete=True,
-                                                     for_author_consumption=True).exclude(decision='withdrawn')
+    reviews = models.ReviewAssignment.objects.filter(
+        article=article,
+        is_complete=True,
+        for_author_consumption=True,
+    ).exclude(decision='withdrawn')
+
+    if not reviews.exists():
+        raise PermissionDenied(
+            'No reviews have been made available by the Editor.',
+        )
 
     template = 'review/author_view_reviews.html'
     context = {
@@ -1920,7 +1928,9 @@ def reviewer_article_file(request, assignment_id, file_id):
 def review_download_all_files(request, assignment_id):
     review_assignment = models.ReviewAssignment.objects.get(pk=assignment_id)
 
-    zip_file, file_name = files.zip_files(review_assignment.review_round.review_files.all())
+    zip_file, file_name = files.zip_article_files(
+        review_assignment.review_round.review_files.all(),
+    )
 
     return files.serve_temp_file(zip_file, file_name)
 

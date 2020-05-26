@@ -11,7 +11,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
 
 from core.workflow import ELEMENT_STAGES
-from submission.models import STAGE_CHOICES
+from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
 from utils.logic import get_janeway_version
 
@@ -49,7 +49,7 @@ def load(directory="plugins", prefix="plugins", permissive=False):
             workflow_check = check_plugin_workflow(plugin_settings)
             if workflow_check:
                 settings.WORKFLOW_PLUGINS[workflow_check] = module_name
-                STAGE_CHOICES.append(
+                PLUGIN_WORKFLOW_STAGES.append(
                     (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
                 )
                 ELEMENT_STAGES[
@@ -116,7 +116,12 @@ def get_plugin(module_name, permissive):
     try:
         plugin = models.Plugin.objects.get(name=module_name, enabled=True)
         return plugin
-    except (models.Plugin.DoesNotExist, ProgrammingError, OperationalError) as e:
+    except (
+            models.Plugin.DoesNotExist,
+            models.Plugin.MultipleObjectsReturned,
+            ProgrammingError, 
+            OperationalError,
+        ) as e:
         if settings.DEBUG:
             print('Error loading plugin {0} {1}'.format(module_name, e))
         return False
