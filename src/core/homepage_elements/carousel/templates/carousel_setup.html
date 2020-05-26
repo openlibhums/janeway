@@ -37,14 +37,13 @@
 {% block js %}
 {% include "elements/datatables.html" with target="#article_table" sort=3 order='desc' page_length=5 %}
 
-    <script type="text/javascript" src="/static/admin/js/core.js"></script>
-    <script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
-    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
-    <script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
-    <script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
-    <script type="text/javascript" src="{% static "common/js/jsi18n.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/SelectBox.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/SelectFilter2.js" %}"></script>
 
-    <link rel="stylesheet" type="text/css" href="{% static "common/css/admin_forms.css" %}" >
-    <link rel="stylesheet" type="text/css" href="{% static "common/css/admin_widgets.css" %}" >
+    <link rel="stylesheet" type="text/css" href="{% static "admin/js/forms.css" %}" >
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}" >
 
 {% endblock js %}
