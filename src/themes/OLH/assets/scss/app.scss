@@ -627,6 +627,8 @@ div.caption span.label {
 
       li {
         position: relative;
+        margin-bottom: 10px;
+        line-height: 1.3em;
 
         &:before {
           content: '';
@@ -1166,4 +1168,8 @@ button.list-group-item-danger.active:focus {
 .alignleft {
   float: left;
   padding: 5px;
+}
+
+.small-caps {
+    font-variant: small-caps
 }

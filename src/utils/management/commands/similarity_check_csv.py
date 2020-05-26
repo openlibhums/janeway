@@ -25,9 +25,11 @@ class Command(BaseCommand):
         :param options: Dictionary containing 'input_file', which should contain a list of DOIs
         :return: None
         """
-        dict = csv.DictReader(open(options['input_file'], 'r'))
+        dict = csv.DictReader(
+            open(options['input_file'], 'r', encoding="utf-8"),
+        )
 
-        with open(options['output_file'], 'w') as out_file:
+        with open(options['output_file'], 'w', encoding="utf-8") as out_file:
             out = csv.writer(out_file)
 
             out.writerow(['DOI', '<item crawler="iParadigms">'])

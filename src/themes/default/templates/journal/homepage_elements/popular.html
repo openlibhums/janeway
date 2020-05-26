@@ -3,11 +3,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        {% if most_downloaded %}
         <h2 class="index-header">{% trans 'Most Popular Articles' %}</h2>
-        {% else %}
-        <h2 class="index-header">{% trans 'Featured Articles' %}</h2>
-        {% endif %}
     </div>
     {% for article in popular_articles %}
         <div class="col-md-4 row-eq-height">

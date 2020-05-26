@@ -39,7 +39,8 @@ class Command(BaseCommand):
             path = os.path.join(settings.BASE_DIR, 'files', 'data_backup', date_to_tidy.strftime('%Y-%m-%d %H:%M'))
             if not os.path.exists(path):
                 os.makedirs(path)
-            with open(os.path.join(path, 'article_accesses.json'), 'w+') as f:
+            write_path = os.path.join(path, 'article_accesses.json')
+            with open(write_path, 'w+', encoding="utf-8") as f:
                 data = serializers.serialize("json", article_accesses, indent=4)
                 f.write(data)
 

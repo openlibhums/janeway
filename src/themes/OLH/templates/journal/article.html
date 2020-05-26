@@ -5,7 +5,7 @@
 
 {% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
 
-{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
@@ -124,8 +124,8 @@
                                 <h2>{% trans "Abstract" %}</h2>
                                 <p>{{ article.abstract | safe }}</p>
                             {% endif %}
-                            {% if article.keywords.all %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-                            {% if article.is_published %}
+                            {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                             <p><strong>{% trans "How to Cite" %}:</strong>
                             {% include "elements/journal/how_to_cite.html" with article=article %}
                             {% endif %}
@@ -182,7 +182,7 @@
                                         </div>
                                         <div class="large-4 columns" data-equalizer-watch>
                                             <h5>{% trans "License" %}</h5>
-                                            <a class="has-tip scroll-link" rel="footnote" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
+                                            <a class="has-tip scroll-link" rel="license" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
                                         </div>
                                     </div>
                                 </div>
@@ -207,7 +207,7 @@
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
-                                            <li>{{ author.full_name }}</li>
+                                            <li>{{ author.full_name }} ({{ author.affiliation }})</li>
                                         {% endfor %}
                                     </ul>
                                 {% endif %}
@@ -254,12 +254,14 @@
                             </div>
                         {% endif %}
 
+                        {% if article_content %}
                         <div class="section hide-for-small-only">
                             <h3>{% trans "Jump to" %}</h3>
                             <ul id="toc">
 
                             </ul>
                         </div>
+                        {% endif %}
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">

@@ -45,14 +45,16 @@ def copyediting(request):
 @editor_user_required
 def article_copyediting(request, article_id):
     """
-    View allows Editor to view and assign copyeditors and author reviews of articles.
+    View allows Editor to view and assign copyeditors and author reviews.
     :param request: django request object
     :param article_id: PK of an Article
     :return: a contextualised template
     """
 
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    copyeditor_assignments = models.CopyeditAssignment.objects.filter(article=article)
+    copyeditor_assignments = models.CopyeditAssignment.objects.filter(
+        article=article,
+    )
 
     message_kwargs = {'request': request, 'article': article}
 
@@ -63,17 +65,37 @@ def article_copyediting(request, article_id):
                                        pk=assignment_id,
                                        decision__isnull=True)
         message_kwargs['copyedit_assignment'] = assignment
-        messages.add_message(request, messages.SUCCESS, 'Assignment #{0} delete'.format(assignment_id))
-        event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_DELETED, **message_kwargs)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Assignment #{0} delete'.format(assignment_id),
+        )
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_COPYEDIT_DELETED,
+            **message_kwargs,
+        )
         assignment.delete()
-        return redirect(reverse('article_copyediting', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse('article_copyediting', kwargs={'article_id': article.pk})
+        )
 
     if request.POST and 'complete' in request.POST:
-        event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_COMPLETE, task_object=article, **message_kwargs)
-        workflow_kwargs = {'handshake_url': 'article_copyediting', 'request': request, 'article': article,
-                           'switch_stage': True}
-        return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE, task_object=article,
-                                              **workflow_kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_COPYEDIT_COMPLETE,
+            task_object=article,
+            **message_kwargs,
+        )
+        workflow_kwargs = {
+            'handshake_url': 'copyediting',
+            'request': request,
+            'article': article,
+            'switch_stage': True,
+        }
+        return event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            task_object=article,
+            **workflow_kwargs,
+        )
 
     template = 'copyediting/article_copyediting.html'
     context = {

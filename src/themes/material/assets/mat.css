@@ -69,9 +69,23 @@ a:hover .article-title {
     word-break: break-all;
 }
 
+.article-body ul:not(.browser-default) {
+    display: block !important;
+    list-style-type: disc !important;
+    margin-block-start: 1em !important;
+    margin-block-end: 1em !important;
+    margin-inline-start: 0px !important;
+    margin-inline-end: 0px !important;
+    padding-inline-start: 40px !important;
+}
+
+.article-body ul:not(.browser-default)>li {
+    list-style-type: disc;
+}
+
 .toc-card {
     position: fixed !important;
-    bottom: 40%;
+    top: 1%;
 }
 
 .wide-button {
@@ -174,3 +188,13 @@ h5 {
     text-decoration-color: #5a5a5a;
     text-decoration-style: solid;
 }
+
+.table-of-contents li {
+    padding: 3px 0;
+    font-size: 14px;
+}
+
+.small-caps {
+    font-variant: small-caps
+}
+

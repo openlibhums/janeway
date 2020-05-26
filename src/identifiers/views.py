@@ -11,6 +11,18 @@ from identifiers import models, forms
 from submission import models as submission_models
 
 from security.decorators import production_user_or_editor_required
+from identifiers import logic
+
+import datetime
+from uuid import uuid4
+
+
+from django.urls import reverse
+from django.contrib import messages
+from django.utils import timezone
+
+
+from utils import models as util_models
 
 import datetime
 from uuid import uuid4
@@ -137,38 +149,74 @@ def show_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    template_context = {
-        'batch_id': uuid4(),
-        'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
-        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
-                                                      identifier.article.journal).processed_value,
-        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
-                                                       identifier.article.journal).processed_value,
-        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
-                                                  identifier.article.journal).processed_value,
-        'journal_title': identifier.article.journal.name,
-        'journal_issn': identifier.article.journal.issn,
-        'date_published': identifier.article.date_published,
-        'issue': identifier.article.issue,
-        'article_title': '{0}{1}{2}'.format(
-            identifier.article.title,
-            ' ' if identifier.article.subtitle is not None else '',
-            identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
-        'doi': identifier.identifier,
-        'article_url': identifier.article.url,
-        'now': timezone.now(),
-    }
-
-    pdfs = identifier.article.pdfs
-    if len(pdfs) > 0:
-        template_context['pdf_url'] = article.pdf_url
-
-    if article.license:
-        template_context["license"] = article.license.url
-
+    template_context = logic.create_crossref_template(identifier)
     template = 'common/identifiers/crossref.xml'
     return render_to_response(template, template_context, content_type="application/xml")
+
+
+@production_user_or_editor_required
+def poll_doi(request, article_id, identifier_id):
+    """
+    Polls crossref for DOI info
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    if not identifier.deposit:
+        pass
+    else:
+        identifier.deposit.poll()
+
+    return redirect(
+        reverse(
+            'article_identifiers',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
+
+@production_user_or_editor_required
+def poll_doi_output(request, article_id, identifier_id):
+    """
+    Polls crossref for DOI info
+    :param request: HttpRequest
+    :param article_id: Article object PK
+    :param identifier_id: Identifier object PK
+    :return: HttpRedirect
+    """
+    from utils import setting_handler
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    identifier = get_object_or_404(
+        models.Identifier,
+        pk=identifier_id,
+        article=article,
+        id_type='doi',
+    )
+
+    if not identifier.deposit:
+        return HttpResponse('Error: no deposit found')
+    else:
+        resp = HttpResponse(identifier.deposit.result_text, content_type="application/xml")
+        resp['Content-Disposition'] = 'inline;'
+        return resp
 
 
 @require_POST

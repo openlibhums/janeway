@@ -11,8 +11,10 @@ from utils import notify
 
 SANITIZE_FROM_RE = re.compile("\r|\n|\t|\"|<|>|,")
 
+
 def sanitize_from(from_):
     return re.sub(SANITIZE_FROM_RE, "", from_)
+
 
 def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
 
@@ -32,7 +34,7 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     elif isinstance(to, Iterable):
         to = [email for email in to if not settings.DUMMY_EMAIL_DOMAIN in email]
 
-    if request and request.user and not request.user.is_anonymous():
+    if request and request.user and not request.user.is_anonymous() and request.user.email not in to:
         reply_to = [request.user.email]
         full_from_string = "{0} <{1}>".format(request.user.full_name(), from_email)
     else:

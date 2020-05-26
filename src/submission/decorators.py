@@ -1,6 +1,5 @@
-from django.http import Http404
-
-from utils import setting_handler
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
 
 
 def submission_is_enabled(func):
@@ -12,13 +11,21 @@ def submission_is_enabled(func):
     :return: either the function call or raises an Http404
     """
 
-    def wrapper(request, *args, **kwargs):
+    def submission_is_enabled_wrapper(request, *args, **kwargs):
+        if not request.journal:
+            raise PermissionDenied(
+                _('This page can only be accessed on Journals.'),
+            )
 
-        submission_disabled = setting_handler.get_setting('general', 'disable_journal_submission', request.journal)
+        if request.journal.get_setting(
+                'general',
+                'disable_journal_submission',
+        ) and not request.user.is_staff:
+            raise PermissionDenied(
+                _('Submission is disabled for this journal.'),
+            )
 
-        if submission_disabled.processed_value and not request.user.is_staff:
-            raise Http404()
-        else:
-            return func(request, *args, **kwargs)
+        return func(request, *args, **kwargs)
 
-    return wrapper
+    return submission_is_enabled_wrapper
+

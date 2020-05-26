@@ -42,6 +42,30 @@ class CoreTests(TestCase):
         except models.Account.DoesNotExist:
             self.fail('User account has not been saved.')
 
+    @override_settings(URL_CONFIG="domain")
+    def test_create_user_form_normalise_email(self):
+
+        data = {
+            'email': 'Test@TEST.com',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': 235,
+        }
+
+        self.client.force_login(self.admin_user)
+        response = self.client.post(reverse('core_add_user'), data)
+
+        try:
+            models.Account.objects.get(email='Test@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('User account has not been saved.')
+
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()

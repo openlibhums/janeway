@@ -4,9 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
-import os
-from shutil import copyfile
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -16,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
+from django.db import IntegrityError
 from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -132,9 +130,11 @@ def articles(request):
     pinned_articles = [pin.article for pin in models.PinnedArticle.objects.filter(
         journal=request.journal)]
     pinned_article_pks = [article.pk for article in pinned_articles]
-    article_objects = submission_models.Article.objects.filter(journal=request.journal,
-                                                               date_published__lte=timezone.now(),
-                                                               section__pk__in=filters).prefetch_related(
+    article_objects = submission_models.Article.objects.filter(
+        journal=request.journal,
+        stage=submission_models.STAGE_PUBLISHED,
+        date_published__lte=timezone.now(),
+        section__pk__in=filters).prefetch_related(
         'frozenauthor_set').order_by(sort).exclude(
         pk__in=pinned_article_pks)
 
@@ -427,8 +427,9 @@ def download_galley(request, article_id, galley_id):
     """
     article = get_object_or_404(submission_models.Article.allarticles,
                                 pk=article_id,
+                                journal=request.journal,
                                 date_published__lte=timezone.now(),
-                                stage=submission_models.STAGE_PUBLISHED)
+                                stage__in=submission_models.PUBLISHED_STAGES)
     galley = get_object_or_404(core_models.Galley, pk=galley_id)
 
     embed = request.GET.get('embed', False)
@@ -438,7 +439,7 @@ def download_galley(request, article_id, galley_id):
             request,
             article,
             'download',
-            galley_type=galley.file.label
+            galley_type=galley.type,
         )
     return files.serve_file(request, galley.file, article, public=True)
 
@@ -455,8 +456,9 @@ def view_galley(request, article_id, galley_id):
     article_to_serve = get_object_or_404(
         submission_models.Article.allarticles,
         pk=article_id,
+        journal=request.journal,
         date_published__lte=timezone.now(),
-        stage=submission_models.STAGE_PUBLISHED
+        stage__in=submission_models.PUBLISHED_STAGES
     )
     galley = get_object_or_404(
         core_models.Galley,
@@ -469,7 +471,7 @@ def view_galley(request, article_id, galley_id):
         request,
         article_to_serve,
         'view',
-        galley_type=galley.file.label
+        galley_type=galley.type
     )
 
     return files.serve_pdf_galley_to_browser(
@@ -493,9 +495,17 @@ def serve_article_file(request, identifier_type, identifier, file_id):
     """
 
     if not request.journal and request.site_type.code == 'press':
-        article_object = submission_models.Article.get_press_article(request.press, identifier_type, identifier)
+        article_object = submission_models.Article.get_press_article(
+            request.press,
+            identifier_type,
+            identifier,
+        )
     else:
-        article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
+        article_object = submission_models.Article.get_article(
+            request.journal,
+            identifier_type,
+            identifier,
+        )
 
     try:
         if file_id != "None":
@@ -701,34 +711,7 @@ def article_file_make_galley(request, article_id, file_id):
     article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
-    # we copy the file here so that the user submitting has no control over the typeset files
-    # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
-    new_filename = str(uuid4()) + str(os.path.splitext(file_object.uuid_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article_object.id))
-
-    old_path = os.path.join(folder_structure, str(file_object.uuid_filename))
-    new_path = os.path.join(folder_structure, str(new_filename))
-
-    copyfile(old_path, new_path)
-
-    # clone the file model object to a new galley
-    new_file = core_models.File(
-        mime_type=file_object.mime_type,
-        original_filename=file_object.original_filename,
-        uuid_filename=new_filename,
-        label=file_object.label,
-        description=file_object.description,
-        owner=request.user,
-        is_galley=True
-    )
-
-    new_file.save()
-
-    core_models.Galley.objects.create(
-        article=article_object,
-        file=new_file,
-        label=new_file.label,
-    )
+    logic.create_galley_from_file(file_object, article_object, owner=request.user)
 
     return redirect(request.GET['return'])
 
@@ -786,8 +769,10 @@ def publish(request):
     :param request: django request object
     :return: contextualised django object
     """
-    articles = submission_models.Article.objects.filter(stage=submission_models.STAGE_READY_FOR_PUBLICATION,
-                                                        journal=request.journal)
+    articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_READY_FOR_PUBLICATION,
+        journal=request.journal,
+    )
 
     template = 'journal/publish.html'
     context = {
@@ -805,11 +790,13 @@ def publish_article(request, article_id):
     :param article_id: Article PK
     :return: contextualised django template
     """
-    article = get_object_or_404(submission_models.Article,
-                                Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
-                                Q(stage=submission_models.STAGE_PUBLISHED),
-                                pk=article_id,
-                                journal=request.journal)
+    article = get_object_or_404(
+        submission_models.Article,
+        Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION) |
+        Q(stage=submission_models.STAGE_PUBLISHED),
+        pk=article_id,
+        journal=request.journal,
+    )
     models.FixedPubCheckItems.objects.get_or_create(article=article)
 
     doi_data, doi = logic.get_doi_data(article)
@@ -820,43 +807,100 @@ def publish_article(request, article_id):
 
     if request.POST:
         if 'assign_issue' in request.POST:
-            logic.handle_assign_issue(request, article, issues)
-            return redirect('{0}?m=issue'.format(reverse('publish_article', kwargs={'article_id': article.pk})))
+            try:
+                logic.handle_assign_issue(request, article, issues)
+            except IntegrityError as integrity_error:
+                if not article.section:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'Your article must have a section assigned.',
+                    )
+                else:
+                    raise integrity_error
+
+            return redirect(
+                '{0}?m=issue'.format(
+                    reverse(
+                        'publish_article', 
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            )
 
         if 'unassign_issue' in request.POST:
             logic.handle_unassign_issue(request, article, issues)
-            return redirect('{0}?m=issue'.format(reverse('publish_article', kwargs={'article_id': article.pk})))
+            return redirect(
+                '{0}?m=issue'.format(
+                    reverse(
+                        'publish_article', 
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+            )
 
         if 'new_issue' in request.POST:
             new_issue_form, modal, new_issue = logic.handle_new_issue(request)
             if new_issue:
-                return redirect('{0}?m=issue'.format(reverse('publish_article', kwargs={'article_id': article.pk})))
+                return redirect(
+                    '{0}?m=issue'.format(
+                        reverse(
+                            'publish_article',
+                             kwargs={'article_id': article.pk},
+                        )
+                    )
+                )
 
         if 'pubdate' in request.POST:
-            date_set, pubdate_errors = logic.handle_set_pubdate(request, article)
+            date_set, pubdate_errors = logic.handle_set_pubdate(
+                request, 
+                article,
+            )
             if not pubdate_errors:
-                return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+                return redirect(
+                    reverse(
+                        'publish_article',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
             else:
                 modal = 'pubdate'
 
         if 'author' in request.POST:
             logic.notify_author(request, article)
-            return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'publish_article',
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
         if 'galley' in request.POST:
             logic.set_render_galley(request, article)
-            return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'publish_article', 
+                    kwargs={'article_id': article.pk},
+                )
+            )
 
         if 'image' in request.POST or 'delete_image' in request.POST:
             logic.set_article_image(request, article)
             shared.clear_cache()
-            return redirect("{0}{1}".format(reverse('publish_article', kwargs={'article_id': article.pk}),
-                                            "?m=article_image"))
+            return redirect(
+                "{0}{1}".format(
+                    reverse(
+                        'publish_article', 
+                        kwargs={'article_id': article.pk},
+                    ),
+                    "?m=article_image",
+                )
+            )
 
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(article)
-            article.close_core_workflow_objects()  # TODO: handle plugin elements?
+            article.close_core_workflow_objects()
 
             if not article.date_published:
                 article.date_published = timezone.now()
@@ -866,9 +910,11 @@ def publish_article(request, article_id):
             # Fire publication event
             kwargs = {'article': article,
                       'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_PUBLISHED,
-                                            task_object=article,
-                                            **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_ARTICLE_PUBLISHED,
+                task_object=article,
+                **kwargs,
+            )
 
             # Attempt to register xref DOI
             for identifier in article.identifier_set.all():
@@ -880,18 +926,34 @@ def publish_article(request, article_id):
                         status
                     )
 
-            messages.add_message(request, messages.SUCCESS, 'Article set for publication.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Article set for publication.',
+            )
 
-            if request.journal.element_in_workflow(element_name='prepublication'):
-                workflow_kwargs = {'handshake_url': 'publish_article',
+            # clear the cache
+            shared.clear_cache()
+
+            if request.journal.element_in_workflow(
+                element_name='prepublication',
+            ):
+                workflow_kwargs = {'handshake_url': 'publish',
                                    'request': request,
                                    'article': article,
                                    'switch_stage': True}
-                return event_logic.Events.raise_event(event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-                                                      task_object=article,
-                                                      **workflow_kwargs)
+                return event_logic.Events.raise_event(
+                    event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+                    task_object=article,
+                    **workflow_kwargs,
+                )
 
-        return redirect(reverse('publish_article', kwargs={'article_id': article.pk}))
+        return redirect(
+            reverse(
+                'publish_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
 
     template = 'journal/publish_article.html'
     context = {
@@ -1014,6 +1076,7 @@ def manage_issues(request, issue_id=None, event=None):
         'form': form,
         'modal': modal,
         'galley_form': galley_form,
+        'articles': issue.get_sorted_articles(published_only=False) if issue else None,
     }
 
     return render(request, template, context)
@@ -1385,18 +1448,23 @@ def manage_archive_article(request, article_id):
 
     if request.POST:
 
-        if 'xml' in request.POST:
-            for uploaded_file in request.FILES.getlist('xml-file'):
+        if 'file' in request.FILES:
+            label = request.POST.get('label')
+            for uploaded_file in request.FILES.getlist('file'):
                 try:
                     production_logic.save_galley(
-                        article, request, uploaded_file, True, "XML")
+                        article,
+                        request,
+                        uploaded_file,
+                        True,
+                        label=label,
+                    )
                 except UnicodeDecodeError:
-                    messages.add_message(request, messages.ERROR,
-                        "Uploaded file is not UTF-8 encoded")
-
-        if 'pdf' in request.POST:
-            for uploaded_file in request.FILES.getlist('pdf-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "PDF")
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "Uploaded file is not UTF-8 encoded",
+                    )
 
         if 'delete_note' in request.POST:
             note_id = int(request.POST['delete_note'])
@@ -1418,10 +1486,6 @@ def manage_archive_article(request, article_id):
             pn = submission_models.PublisherNote.objects.get(pk=note_id)
             pn_form = submission_forms.PublisherNoteForm(data=request.POST, instance=pn)
             pn_form.save()
-
-        if 'other' in request.POST:
-            for uploaded_file in request.FILES.getlist('other-file'):
-                production_logic.save_galley(article, request, uploaded_file, True, "Other")
 
         return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
 
@@ -1902,23 +1966,29 @@ def document_management(request, article_id):
 
 
 def download_issue(request, issue_id):
-    issue_object = get_object_or_404(models.Issue,
-                                     pk=issue_id,
-                                     journal=request.journal,
+    issue_object = get_object_or_404(
+        models.Issue,
+        pk=issue_id,
+        journal=request.journal,
     )
-    articles = issue_object.articles.all().order_by('section',
-                                                    'page_numbers').prefetch_related('authors',
-                                                                                     'frozenauthor_set',
-                                                                                     'manuscript_files')
+    articles = issue_object.get_sorted_articles()
 
     galley_files = []
 
     for article in articles:
         for galley in article.galley_set.all():
-            store_article_access(request, article, 'download', galley_type=galley.file.label)
+            store_article_access(
+                request,
+                article,
+                'download',
+                galley_type=galley.type,
+            )
             galley_files.append(galley.file)
 
-    zip_file, file_name = files.zip_files(galley_files, article_specific=True)
+    zip_file, file_name = files.zip_article_files(
+        galley_files,
+        article_folders=True,
+    )
     return files.serve_temp_file(zip_file, file_name)
 
 
@@ -1951,3 +2021,33 @@ def doi_redirect(request, identifier_type, identifier):
         raise Http404()
 
     return redirect(article_object.local_url)
+
+
+def serve_article_xml(request, identifier_type, identifier):
+    article_object = submission_models.Article.get_article(
+        request.journal,
+        identifier_type,
+        identifier,
+    )
+
+    if not article_object:
+        raise Http404
+
+    xml_galleys = article_object.galley_set.filter(
+        file__mime_type__in=files.XML_MIMETYPES,
+    )
+
+    if xml_galleys.exists():
+
+        if xml_galleys.count() > 1:
+            logger.error("Found multiple XML galleys for article {id}, "
+                         "returning first match".format(id=article_object.pk))
+
+        xml_galley = xml_galleys[0]
+    else:
+        raise Http404
+
+    return HttpResponse(
+        xml_galley.file.get_file(article_object),
+        content_type=xml_galley.file.mime_type,
+    )

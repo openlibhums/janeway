@@ -15,6 +15,12 @@
                 <p><strong>{% trans "Country" %}:</strong><br>{{ user.country }}</p>
             </div>
             <div class="large-9 columns">
+                {% if user.biography %}
+                    <h3>{% trans "Biography" %}</h3>
+                    <hr />
+                    {{ user.biography|safe }}
+                    <br/><br/>
+                {% endif %}
                 <h3>{% trans "Publications" %}</h3>
                 <hr />
                 {% for article in user.articles %}

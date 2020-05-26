@@ -8,13 +8,13 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def hook(context, hook_name):
+def hook(context, hook_name, *args, **kwargs):
     try:
         html = ''
         for hook in settings.PLUGIN_HOOKS.get(hook_name, []):
             hook_module = import_module(hook.get('module'))
             function = getattr(hook_module, hook.get('function'))
-            html = html + function(context)
+            html = html + function(context, *args, **kwargs)
 
         return mark_safe(html)
     except BaseException as e:

@@ -12,6 +12,14 @@ class Command(BaseCommand):
 
     help = "Checks for new plugins and installs them."
 
+    def add_arguments(self, parser):
+        """ Adds arguments to Django's management command-line parser.
+
+        :param parser: the parser to which the required arguments will be added
+        :return: None
+        """
+        parser.add_argument('plugin_name', nargs='?', default=None)
+
     def handle(self, *args, **options):
         """ Checks for new plugins and installs them.
 
@@ -19,8 +27,17 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        plugin_dirs = plugin_loader.get_dirs('plugins')
-        homepage_dirs = plugin_loader.get_dirs(os.path.join('core', 'homepage_elements'))
+
+        plugin_name = options.get('plugin_name', None)
+
+        if plugin_name:
+            plugin_dirs = [plugin_name]
+            homepage_dirs = []
+        else:
+            plugin_dirs = plugin_loader.get_dirs('plugins')
+            homepage_dirs = plugin_loader.get_dirs(
+                os.path.join('core', 'homepage_elements'),
+            )
 
         for plugin in plugin_dirs:
             print('Checking plugin {0}'.format(plugin))

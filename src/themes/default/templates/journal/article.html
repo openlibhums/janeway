@@ -3,7 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block title %}{{ article.authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
+{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
 
 {% block head %}
@@ -74,7 +74,7 @@
                 {% if article.keywords and article.keywords|length > 0 %}<p><strong>{% trans "Keywords" %}:</strong>
                     {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},
                     {% endif %}{% endfor %}</p>{% endif %}
-                {% if article.is_published %}
+                {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
                     {% include "elements/journal/how_to_cite.html" with article=article %}
                 {% endif %}
@@ -105,7 +105,7 @@
                     <ul>
                     {% for author in article.frozen_authors.all %}
                         <li>
-                            {{ author.full_name }}
+                            {{ author.full_name }} ({{ author.affiliation }})
                         </li>
                     {% endfor %}
                      </ul>
@@ -144,7 +144,7 @@
                     {% endif %}
                     <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}
                         <i class="fa fa-check-circle"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %}</li>
-                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
+                    <li>{% trans "License" %} <a rel="license" href="{{ article.license.url }}" data-toggle="tooltip"
                                                  title="{{ article.license.text }}">{{ article.license.name }}</a></li>
                     {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                         <li>

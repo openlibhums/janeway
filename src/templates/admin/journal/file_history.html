@@ -2,6 +2,7 @@
 {% load static from staticfiles %}
 
 {% load securitytags %}
+{% load files %}
 
 {% block title %}File History and Metadata{% endblock title %}
 {% block title-section %}File History and Metadata{% endblock %}
@@ -11,16 +12,39 @@
     <div class="row expanded box">
         <div class="large-12 columns">
         <div class="title-area">
-            {{ file }}
+            <table class="table small">
+                <tr>
+                    <th  width="20%">UUID Filename</th>
+                    <td>{{ file.uuid_filename }}</td>
+                </tr>
+                <tr>
+                    <th>Original Filename</th>
+                    <td>{{ file.original_filename }}</td>
+                </tr>
+                <tr>
+                    <th>File Size</th>
+                    <td>{% file_size file article %}</td>
+                </tr>
+                <tr>
+                    <th>Owner</th>
+                    <td>{{ file.owner.full_name }}</td>
+                </tr>
+                <tr>
+                    <th>Privacy</th>
+                    <td>{{ file.get_privacy_display }}</td>
+                </tr>
+            </table>
         </div>
             <table class="scroll">
                 <tr>
+                    <th>ID</th>
                     <th>Label</th>
                     <th>Filename</th>
                     <th>Download</th>
                     <th>Replace</th>
                     <th>Delete</th>
                     <th>Re-instate</th>
+                    {% if request.user.is_admin %}<th><span class="fa fa-cogs"> </span>Admin</th>{% endif %}
                 </tr>
 
                 {% can_edit_file file article as can_edit_file_flag %}
@@ -28,6 +52,7 @@
                 {% for file_history in file.history.all %}
                     {% can_view_file file_history as can_view_historic_file_flag %}
                     <tr>
+                        <td>{{ file_history.pk }}</td>
                         <td>{{ file_history.label }} ({{ file_history.history_seq }})</td>
                         <td>{{ file_history.original_filename }}</td>
                         <td>{% if can_view_historic_file_flag %}
@@ -38,14 +63,16 @@
                         <td>{% if can_edit_file_flag %}
                         <a href="{% url 'file_reinstate' article.pk file.pk file_history.pk %}?return={% url 'file_history' article.pk file.pk %}%3Freturn%3D{{ request.GET.return|urlencode }}"><i class="fa fa-recycle">
                             &nbsp;</i></a>{% endif %}</td>
+                        {% if request.user.is_admin %}<td><a href="{% url 'admin:core_file_change' file_history.pk %}"><span class="fa fa-cogs"> </span></a></td>{% endif %}
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="6">No younger versions of this file</td>
+                        <td colspan="9">No older versions of this file</td>
                     </tr>
                 {% endfor %}
 
                 <tr class="active">
+                    <td>{{ file.pk }}</td>
                     <td>{{ file.label }}</td>
                     <td>{{ file }}</td>
                     <td>{% if can_view_file_flag %}
@@ -56,7 +83,8 @@
                     <td>{% if can_edit_file_flag %}
                         <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.GET.return|urlencode }}"><i class="fa fa-trash">
                             &nbsp;</i></a>{% endif %}</td>
-                    <td>Current File</td>
+                    <td>Current</td>
+                    {% if request.user.is_admin %}<td><a href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs"> </span></a></td>{% endif %}
                 </tr>
             </table>
         </div>

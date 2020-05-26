@@ -74,15 +74,15 @@
         <div class="content">
             {% for revision in article.active_revision_requests %}
                 {% if not revision.date_completed %}
-                    <a href="{% url 'do_revisions' article.pk revision.pk %}">Revision Request</a>
+                    <a class="small button" href="{% url 'do_revisions' article.pk revision.pk %}">Revision Request due on {{ revision.date_due|date:"Y-m-d" }}</a>
                 {% endif %}
             {% endfor %}
 
             {% for review in article.active_author_copyedits %}
-                <a href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting Review</a>
+                <a class="small button" href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting Review assigned on {{ review.assigned|date:"Y-m-d" }}</a>
             {% endfor %}
 
-            {% if not article.active_revision_requests or not article.active_copyedits %}
+            {% if not article.active_revision_requests and not article.active_author_copyedits %}
             <p>There are no active tasks</p>
             {% endif %}
         </div>

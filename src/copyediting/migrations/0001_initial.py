@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('assigned', models.DateTimeField(default=django.utils.timezone.now)),
                 ('notified', models.BooleanField(default=False)),
-                ('decision', models.CharField(blank=True, choices=[('accept', 'Accept'), ('corrections', 'Corrections Required')], help_text="Select a decision that reflects your actions. If you've uploaded a newversion of the file, select Corrects Required, if you're happy with thecopyedit, select Accept.", max_length=20, null=True, verbose_name='Your Decision')),
+                ('decision', models.CharField(blank=True, choices=[('accept', 'Accept'), ('corrections', 'Corrections Required')], help_text="Select a decision that reflects your actions. If you've uploaded a new version of the file, select Corrections Required, if you're happy with the copyedit, select Accept.", max_length=20, null=True, verbose_name='Your Decision')),
                 ('date_decided', models.DateTimeField(blank=True, null=True)),
                 ('author_note', models.TextField(blank=True, null=True, verbose_name='Note to the Editor')),
             ],

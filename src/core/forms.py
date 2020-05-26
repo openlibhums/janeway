@@ -19,6 +19,7 @@ from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
 
 from core import models, validators
+from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
 from utils.forms import KeywordModelForm
@@ -448,4 +449,16 @@ class XSLFileForm(forms.ModelForm):
 
     class Meta:
         model = models.XSLFile
-        exclude = ["date_uploaded"]
+        exclude = ["date_uploaded", "journal", "original_filename"]
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        request = get_current_request()
+
+        if request:
+            instance.journal = request.journal
+
+        if commit:
+            instance.save()
+
+        return instance
