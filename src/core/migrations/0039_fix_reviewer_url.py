@@ -13,8 +13,9 @@ def replace_template(apps, schema_editor):
     settings = SettingValueTranslation.objects.all()
 
     for setting in settings:
-        setting.value = re.sub(REGEX, OUTPUT, setting.value)
-        setting.save()
+        if isinstance(setting.value, str):
+            setting.value = re.sub(REGEX, OUTPUT, setting.value)
+            setting.save()
 
 
 class Migration(migrations.Migration):
