@@ -56,18 +56,18 @@ class SubmissionTests(TestCase):
         author = models.FrozenAuthor.objects.create(
             article=article,
             first_name="Mauro",
-            middle_name="M",
+            middle_name="Middle",
             last_name="Sanchez",
         )
         id_logic.generate_crossref_doi_with_pattern(article)
 
         expected = """
         <p>
-         Sanchez, M,
+         Sanchez M. M.,
         (2020) “Test article: a test article”,
         <i>Janeway JS</i> 1(1).
-        doi: <a href="https://doi.org//TST.1">https://doi.org//TST.1</a></p>
-        """
+        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
+        """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
 
     def test_custom_article_how_to_cite(self):
