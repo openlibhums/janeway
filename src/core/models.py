@@ -147,12 +147,11 @@ class Country(models.Model):
 
 
 class AccountQuerySet(models.query.QuerySet):
-    def create(self, *args, **kwargs):
-        # Ensure cleaned fields on create and get_or_create
-        with transaction.atomic():
-            obj = super().create(*args, **kwargs)
+    def create(self, **kwargs):
+            obj = self.model(**kwargs)
             obj.clean()
-            obj.save()
+            self._for_write = True
+            obj.save(force_insert=True, using=self.db)
             return obj
 
 
