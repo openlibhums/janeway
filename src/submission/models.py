@@ -1457,6 +1457,7 @@ class SubmissionConfiguration(models.Model):
     license = models.BooleanField(default=True)
     keywords = models.BooleanField(default=True)
     section = models.BooleanField(default=True)
+    funding = models.BooleanField(default=False)
 
     figures_data = models.BooleanField(
         default=True,

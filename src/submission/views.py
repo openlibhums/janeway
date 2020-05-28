@@ -84,6 +84,7 @@ def submit_submissions(request):
 
 @login_required
 @decorators.submission_is_enabled
+@decorators.funding_is_enabled
 @article_edit_user_required
 def submit_funding(request, article_id):
     """
@@ -236,11 +237,11 @@ def submit_authors(request, article_id):
 
     elif request.POST and 'search_authors' in request.POST:
         search = request.POST.get('author_search_text', None)
-        
+
         if not search:
             messages.add_message(
-                request, 
-                messages.WARNING, 
+                request,
+                messages.WARNING,
                 'An empty search is not allowed.'
             )
         else:
@@ -286,6 +287,7 @@ def submit_authors(request, article_id):
 
 
 @login_required
+@decorators.funding_is_enabled
 @article_edit_user_required
 def delete_funder(request, article_id, funder_id):
     """Allows submitting author to delete a funding object."""
@@ -350,6 +352,7 @@ def submit_files(request, article_id):
     """
     article = get_object_or_404(models.Article, pk=article_id)
     form = forms.FileDetails()
+    configuration = request.journal.submissionconfiguration
 
     if article.current_step < 3 and not request.user.is_staff:
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
@@ -398,7 +401,12 @@ def submit_files(request, article_id):
             if article.manuscript_files.all().count() >= 1:
                 article.current_step = 4
                 article.save()
-                return redirect(reverse('submit_funding', kwargs={'article_id': article_id}))
+                if configuration.funding:
+                    return redirect(reverse(
+                        'submit_funding', kwargs={'article_id': article_id}))
+                else:
+                    return redirect(reverse(
+                        'submit_review', kwargs={'article_id': article_id}))
             else:
                 error = "You must upload a manuscript file."
 
