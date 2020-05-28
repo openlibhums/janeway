@@ -1,4 +1,7 @@
+from functools import wraps
+
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -29,3 +32,19 @@ def submission_is_enabled(func):
 
     return submission_is_enabled_wrapper
 
+
+def funding_is_enabled(func):
+    """ Test if funding is enabled before returning the wrapped view
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+    @wraps(func)
+    def funding_is_enabled(request, *args, **kwargs):
+        configuration = request.journal.submissionconfiguration
+        if not configuration.funding:
+            raise Http404
+
+        return func(request, *args, **kwargs)
+
+    return funding_is_enabled
