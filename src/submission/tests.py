@@ -3,13 +3,15 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from dateutil import parser as dateparser
+from mock import Mock
 
+from django.http import Http404
 from django.test import TestCase
 
 from identifiers import logic as id_logic
 from identifiers import logic as id_logic
 from journal import models as journal_models
-from submission import models
+from submission import decorators, models
 from utils.install import update_xsl_files, update_settings
 
 
@@ -89,3 +91,27 @@ class SubmissionTests(TestCase):
 
         expected = "Banana"
         self.assertHTMLEqual(expected, article.how_to_cite)
+
+    def test_funding_is_enabled_decorator_enabled(self):
+        request = Mock()
+        journal = self.journal_one
+        journal.submissionconfiguration.funding = True
+        request.journal = journal
+        func = Mock()
+        decorated = decorators.funding_is_enabled(func)
+        decorated(request)
+        self.assertTrue(func.called,
+            "Funding pages not available when they should be")
+
+
+    def test_funding_is_enabled_decorator_disabled(self):
+        request = Mock()
+        journal = self.journal_one
+        journal.submissionconfiguration.funding = False
+        request.journal = journal
+        func = Mock()
+        decorated = decorators.funding_is_enabled(func)
+        with self.assertRaises(
+            Http404, msg="Funding pages available when they shouldn't"
+        ):
+            decorated(request)
