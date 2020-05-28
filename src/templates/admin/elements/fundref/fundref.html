@@ -2,7 +2,7 @@
 <!-- Note: this is transcluded as templated HTML because we need to pass: 1. translation templates; and 2. CSRF tokens-->
 <script language="JavaScript">
         function search_fundref(query) {
-                query_url = 'http://api.crossref.org/funders?query=' + query;
+                query_url = '//api.crossref.org/funders?query=' + query;
                 console.log('Fetching ' + query_url);
                 fetch(query_url)
                     .then(function(response) {
