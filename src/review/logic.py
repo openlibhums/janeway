@@ -42,10 +42,10 @@ def get_reviewer_candidates(article, user=None):
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
-    ).annotate(
-        rating_average=Avg('reviewer__reviewerrating__rating'),
     ).filter(
         reviewer__reviewerrating__assignment__article__journal=article.journal,
+    ).annotate(
+        rating_average=Avg('reviewer__reviewerrating__rating'),
     )
 
     return reviewers
