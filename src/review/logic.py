@@ -44,6 +44,8 @@ def get_reviewer_candidates(article, user=None):
         'interest',
     ).annotate(
         rating_average=Avg('reviewer__reviewerrating__rating'),
+    ).filter(
+        reviewer__reviewerrating__assignment__article__journal=article.journal,
     )
 
     return reviewers
