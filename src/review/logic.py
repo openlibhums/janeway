@@ -21,10 +21,15 @@ from events import logic as event_logic
 from submission import models as submission_models
 
 
-def get_reviewers(article, request=None):
+def get_reviewer_candidates(article, user=None):
+    """ Builds a queryset of candidates for peer review for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    """
     review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
     reviewers = [review.reviewer.pk for review in review_assignments]
-    reviewers.append(request.user.pk)
+    if user:
+        reviewers.append(user.pk)
     prefetch_review_assignment = Prefetch(
         'reviewer',
         queryset=models.ReviewAssignment.objects.filter(
