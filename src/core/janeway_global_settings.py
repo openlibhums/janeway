@@ -470,7 +470,7 @@ SILENT_IMPORT_CACHE = False
 DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.3.8)'
 
 # Testing Overrides
-if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
+if IN_TEST_RUNNER and COMMAND[1:2] != ["--keepdb"]:
     from collections.abc import Mapping
 
 
