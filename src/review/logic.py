@@ -9,7 +9,15 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Avg, Count, Prefetch
+from django.db.models import (
+    Avg,
+    Count,
+    IntegerField,
+    OuterRef,
+    Prefetch,
+    Subquery,
+)
+
 from django.urls import reverse
 from django.utils import timezone
 from docx import Document
@@ -36,18 +44,27 @@ def get_reviewer_candidates(article, user=None):
             article__journal=article.journal
         ).order_by("-date_complete")
     )
+    active_reviews_count = models.ReviewAssignment.objects.filter(
+        is_complete=False,
+        reviewer=OuterRef("id"),
+    ).annotate(
+        rev_count=Count("pk"),
+    ).values("rev_count")
 
     reviewers = article.journal.users_with_role('reviewer').exclude(
         pk__in=reviewers,
     ).prefetch_related(
         prefetch_review_assignment,
         'interest',
+    ).annotate(
+        active_reviews_count=Subquery(
+            active_reviews_count,
+            output_field=IntegerField(),
+        )
     ).filter(
         reviewer__reviewerrating__assignment__article__journal=article.journal,
     ).annotate(
         rating_average=Avg('reviewer__reviewerrating__rating'),
-    ).annotate(
-        active_reviews_count=Count('reviewer'),
     )
 
     return reviewers
