@@ -38,7 +38,7 @@ def repository_home(request):
     """
     preprints = models.Preprint.objects.filter(
         repository=request.repository,
-        date_published__gte=timezone.now(),
+        date_published__lte=timezone.now(),
     )
     subjects = models.Subject.objects.filter(
         repository=request.repository,
@@ -130,6 +130,7 @@ def repository_list(request, subject_slug=None):
         subject = get_object_or_404(models.Subject, slug=subject_slug)
         preprints = subject.preprint_set.filter(
             repository=request.repository,
+            date_published__lte=timezone.now(),
         )
     else:
         subject = None
