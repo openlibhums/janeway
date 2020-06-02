@@ -12,7 +12,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% else %}{{ request.press.name }}
+    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}
     {% endif %}{% endblock title %}</title>
 
     {% block head %}{% endblock head %}

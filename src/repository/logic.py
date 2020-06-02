@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
+from django.db.models import Q
 
 from metrics import models as metrics_models
 from production.logic import save_galley
@@ -355,21 +356,6 @@ def get_preprint_article_if_id(request, article_id):
     return article
 
 
-def save_preprint_submit_form(request, form, article, additional_fields):
-    article = form.save(request=request)
-    article.owner = request.user
-    article.is_preprint = True
-    article.current_step = 1
-    article.authors.add(request.user)
-    article.correspondence_author = request.user
-    article.save()
-
-    submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
-                                                               author=request.user,
-                                                               defaults={'order': article.next_author_sort()})
-    return article
-
-
 @cache(300)
 def list_articles_without_subjects():
     articles = submission_models.Article.preprints.filter(date_submitted__isnull=False)
@@ -483,3 +469,32 @@ def handle_preprint_submission(request, preprint):
 
 def check_duplicates(version_queue):
     return [version_request.article for version_request in version_queue]
+
+
+def search_for_authors(request, preprint):
+    search_term = request.POST.get('search')
+    try:
+        search_author = models.Author.objects.get(
+            Q(email_address=search_term) | Q(orcid=search_term)
+        )
+        pa, created = models.PreprintAuthor.objects.get_or_create(
+            author=search_author,
+            preprint=preprint,
+            defaults={'order': preprint.next_author_order()},
+        )
+
+        if not created:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This author is already associated with this {}'.format(
+                    request.repository.object_name,
+                )
+            )
+    except models.Author.DoesNotExist:
+        messages.add_message(
+            request,
+            messages.INFO,
+            'No author found.'
+        )
+

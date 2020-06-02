@@ -14,9 +14,9 @@ urlpatterns = [
         views.repository_home,
         name='repository_home'),
 
-    url(r'^dashboard/$',
-        views.preprints_dashboard,
-        name='preprints_dashboard'),
+    url(r'^(?P<repository_short_name>[-\w]+)/dashboard/$',
+        views.repository_dashboard,
+        name='repository_dashboard'),
 
     url(r'^dashboard/(?P<article_id>\d+)/$',
         views.preprints_author_article,
@@ -54,15 +54,15 @@ urlpatterns = [
         views.preprints_editors,
         name='preprints_editors'),
 
-    url(r'^submit/start/$',
-        views.preprints_submit,
-        name='preprints_submit'),
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/start/$',
+        views.repository_submit,
+        name='repository_submit'),
 
-    url(r'^submit/(?P<article_id>\d+)/$',
-        views.preprints_submit,
-        name='preprints_submit_with_id'),
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<article_id>\d+)/$',
+        views.repository_submit,
+        name='repository_submit_with_id'),
 
-    url(r'^submit/(?P<article_id>\d+)/authors/$',
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<article_id>\d+)/authors/$',
         views.preprints_authors,
         name='preprints_authors'),
 

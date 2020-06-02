@@ -1,0 +1,6 @@
+<div class="top-bar" id="main-menu" style="display: block;">
+    <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
+        <li><a href="{% url 'repository_home' request.repository.short_name %}">{{ request.repository.name }} Home</a></li>
+        <li><a href="{% url 'repository_submit' request.repository.short_name %}">Submit {{ request.repository.object_name }}</a></li>
+    </ul>
+</div>

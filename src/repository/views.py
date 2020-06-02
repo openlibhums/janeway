@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import operator
 from functools import reduce
 
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import Q
 from django.urls import reverse
@@ -16,14 +16,18 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.core.cache import cache
 
-from repository import forms, logic as preprint_logic, models
+from repository import forms, logic as repository_logic, models
 from submission import models as submission_models, forms as submission_forms, logic
 from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
 from events import logic as event_logic
 from identifiers import logic as ident_logic
-from security.decorators import preprint_editor_or_author_required, is_article_preprint_editor, is_preprint_editor
+from security.decorators import (
+    preprint_editor_or_author_required,
+    is_article_preprint_editor,
+    is_preprint_editor,
+)
 
 
 def repository_home(request):
@@ -38,7 +42,7 @@ def repository_home(request):
     subjects = models.Subject.objects.filter(
         repository=request.repository,
     ).prefetch_related(
-        'preprints',
+        'preprint_set',
     )
 
     template = 'repository/home.html'
@@ -51,7 +55,7 @@ def repository_home(request):
 
 
 @login_required
-def preprints_dashboard(request):
+def repository_dashboard(request):
     """
     Displays a list of an author's preprints.
     :param request: HttpRequest object
@@ -81,20 +85,20 @@ def preprints_author_article(request, article_id):
     :return: HttpRedirect if POST or HttpResponse
     """
     preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
-    metrics_summary = preprint_logic.metrics_summary([preprint])
+    metrics_summary = repository_logic.metrics_summary([preprint])
 
     if request.POST:
         if 'submit' in request.POST:
-            return preprint_logic.handle_preprint_submission(request, preprint)
+            return repository_logic.handle_preprint_submission(request, preprint)
         else:
-            preprint_logic.handle_author_post(request, preprint)
+            repository_logic.handle_author_post(request, preprint)
             return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
 
     template = 'admin/preprints/author_article.html'
     context = {
         'preprint': preprint,
         'metrics_summary': metrics_summary,
-        'preprint_journals': preprint_logic.get_list_of_preprint_journals(),
+        'preprint_journals': repository_logic.get_list_of_preprint_journals(),
         'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
     }
 
@@ -225,11 +229,11 @@ def preprints_article(request, article_id):
 
         if form.is_valid():
             comment = form.save(commit=False)
-            preprint_logic.handle_comment_post(request, article, comment)
+            repository_logic.handle_comment_post(request, article, comment)
             return redirect(reverse('preprints_article', kwargs={'article_id': article_id}))
 
-    pdf = preprint_logic.get_pdf(article)
-    html = preprint_logic.get_html(article)
+    pdf = repository_logic.get_pdf(article)
+    html = repository_logic.get_html(article)
     store_article_access(request, article, 'view')
 
     template = 'preprints/article.html'
@@ -273,24 +277,45 @@ def preprints_editors(request):
 
 
 @login_required
-def preprints_submit(request, article_id=None):
+def repository_submit(request, preprint_id=None):
     """
     Handles initial steps of generating a preprints submission.
     :param request: HttpRequest
     :return: HttpResponse or HttpRedirect
     """
-    article = preprint_logic.get_preprint_article_if_id(request, article_id)
-    additional_fields = submission_models.Field.objects.filter(press=request.press)
-    form = forms.PreprintInfo(instance=article, additional_fields=additional_fields)
+    article = repository_logic.get_preprint_article_if_id(request, preprint_id)
+
+    # TODO: FIX THIS
+    additional_fields = submission_models.Field.objects.filter(
+        press=request.press,
+    )
+    form = forms.PreprintInfo(
+        instance=article,
+        additional_fields=additional_fields,
+        request=request,
+    )
 
     if request.POST:
-        form = forms.PreprintInfo(request.POST, instance=article, additional_fields=additional_fields)
+        form = forms.PreprintInfo(
+            request.POST,
+            instance=article,
+            additional_fields=additional_fields,
+            request=request,
+        )
 
         if form.is_valid():
-            article = preprint_logic.save_preprint_submit_form(request, form, article, additional_fields)
-            return redirect(reverse('preprints_authors', kwargs={'article_id': article.pk}))
+            article = form.save()
+            return redirect(
+                reverse(
+                    'preprints_authors',
+                    kwargs={
+                        'repository_short_name': request.repository.short_name,
+                        'article_id': article.pk,
+                    },
+                ),
+            )
 
-    template = 'preprints/submit_start.html'
+    template = 'admin/preprints/submit/start.html'
     context = {
         'form': form,
         'article': article,
@@ -303,100 +328,37 @@ def preprints_submit(request, article_id=None):
 @login_required
 def preprints_authors(request, article_id):
     """
-    Handles submission of new authors. Allows users to search for existing authors or add new ones.
+    Handles submission of new authors. Allows users to search
+    for existing authors or add new ones.
     :param request: HttpRequest
     :param article_id: Article object PK
     :return: HttpRedirect or HttpResponse
     """
-    article = get_object_or_404(submission_models.Article.preprints,
-                                pk=article_id,
-                                owner=request.user,
-                                date_submitted__isnull=True)
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=article_id,
+        repository=request.repository,
+    )
 
-    form = submission_forms.AuthorForm()
-    error, modal = None, None
+    form = forms.AuthorForm()
 
-    # If someone is attempting to add a new author
-    if request.POST and 'add_author' in request.POST:
-        form = submission_forms.AuthorForm(request.POST)
-        modal = 'author'
+    if request.POST:
 
-        # Check if the author exists, if they do, add them without creating a new account
-        author_exists = logic.check_author_exists(request.POST.get('email'))
-        if author_exists:
-            article.authors.add(author_exists)
-            submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
-                                                                       author=author_exists,
-                                                                       defaults={'order': article.next_author_sort()})
-            messages.add_message(request, messages.SUCCESS, '%s added to the article' % author_exists.full_name())
-            return redirect(reverse('preprints_authors', kwargs={'article_id': article_id}))
-        else:
-            # Of the author isn't in the db, create a dummy account for them
+        if 'self' in request.POST:
+            preprint.add_user_as_author(request.user)
+
+        if 'search' in request.POST:
+            repository_logic.search_for_authors(request, preprint)
+
+        if 'form' in request.POST:
+            form = forms.AuthorForm(request.POST)
             if form.is_valid():
-                new_author = form.save(commit=False)
-                new_author.username = new_author.email
-                new_author.set_password(utils_shared.generate_password())
-                new_author.save()
-                article.authors.add(new_author)
-                submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
-                                                                           author=new_author,
-                                                                           defaults={
-                                                                               'order': article.next_author_sort()})
-                messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
+                form.save()
 
-                return redirect(reverse('preprints_authors', kwargs={'article_id': article_id}))
-
-    # If a user is trying to search for author without using the modal
-    elif request.POST and 'search_authors' in request.POST:
-        search = request.POST.get('author_search_text')
-
-        try:
-            search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
-            article.authors.add(search_author)
-            submission_models.ArticleAuthorOrder.objects.get_or_create(article=article,
-                                                                       author=search_author,
-                                                                       defaults={'order': article.next_author_sort()})
-            messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
-        except core_models.Account.DoesNotExist:
-            messages.add_message(request, messages.WARNING, 'No author found with those details.')
-
-    # Handles posting from drag and drop.
-    elif request.POST and 'authors[]' in request.POST:
-        author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
-        for author in article.authors.all():
-            order = author_pks.index(author.pk)
-            author_order, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
-                article=article,
-                author=author,
-                defaults={'order': order}
-            )
-
-            if not c:
-                author_order.order = order
-                author_order.save()
-
-        return HttpResponse('Complete')
-
-    # Handle deleting an author
-    elif request.POST and 'delete_author' in request.POST:
-        author_id = request.POST.get('delete_author')
-        author_to_delete = get_object_or_404(core_models.Account, pk=author_id)
-        # Delete the author-article ordering
-        submission_models.ArticleAuthorOrder.objects.filter(article=article, author=author_to_delete).delete()
-        # Remove the author from the article
-        article.authors.remove(author_to_delete)
-        # Add message and redirect
-        messages.add_message(request, messages.SUCCESS, 'Author removed from article.')
-        return redirect(reverse('preprints_authors', kwargs={'article_id': article_id}))
-
-    elif request.POST and 'save_continue' in request.POST:
-        return redirect(reverse('preprints_files', kwargs={'article_id': article.pk}))
-
-    template = 'preprints/authors.html'
+    template = 'admin/preprints/submit/authors.html'
     context = {
-        'article': article,
+        'preprint': preprint,
         'form': form,
-        'modal': modal,
     }
 
     return render(request, template, context)
@@ -457,7 +419,7 @@ def preprints_files(request, article_id):
 
         # Handle displaying modals in event of an error:
         else:
-            modal = preprint_logic.get_display_modal(request)
+            modal = repository_logic.get_display_modal(request)
 
     elif request.POST and 'next_step' in request.POST:
         return redirect(reverse('preprints_review', kwargs={'article_id': article.pk}))
@@ -495,7 +457,7 @@ def preprints_review(request, article_id):
         event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_SUBMISSION, **kwargs)
 
         messages.add_message(request, messages.SUCCESS, 'Article {0} submitted'.format(article.title))
-        return redirect(reverse('preprints_dashboard'))
+        return redirect(reverse('repository_dashboard'))
 
     template = 'preprints/review.html'
     context = {
@@ -512,15 +474,15 @@ def preprints_manager(request):
     :param request: HttpRequest
     :return: HttpResponse or HttpRedirect
     """
-    unpublished_preprints = preprint_logic.get_unpublished_preprints(request)
+    unpublished_preprints = repository_logic.get_unpublished_preprints(request)
 
-    published_preprints = preprint_logic.get_published_preprints(request)
+    published_preprints = repository_logic.get_published_preprints(request)
 
     incomplete_preprints = submission_models.Article.preprints.filter(date_published__isnull=True,
                                                                       date_submitted__isnull=True)
     rejected_preprints = submission_models.Article.preprints.filter(date_declined__isnull=False)
 
-    metrics_summary = preprint_logic.metrics_summary(published_preprints)
+    metrics_summary = repository_logic.metrics_summary(published_preprints)
 
     version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
 
@@ -578,20 +540,20 @@ def preprints_manager_article(request, article_id):
             return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'upload' in request.POST:
-            preprint_logic.handle_file_upload(request, preprint)
+            repository_logic.handle_file_upload(request, preprint)
             return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
         if 'delete' in request.POST:
-            preprint_logic.handle_delete_version(request, preprint)
+            repository_logic.handle_delete_version(request, preprint)
             return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
         if 'save_subject' in request.POST:
-            preprint_logic.handle_updating_subject(request, preprint)
+            repository_logic.handle_updating_subject(request, preprint)
             return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
         if 'unpublish' in request.POST:
             if preprint.date_published or request.user.is_staff:
-                preprint_logic.unpublish_preprint(request, preprint)
+                repository_logic.unpublish_preprint(request, preprint)
                 return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
     template = 'admin/preprints/article.html'
@@ -599,7 +561,7 @@ def preprints_manager_article(request, article_id):
         'preprint': preprint,
         'subjects': models.Subject.objects.filter(enabled=True),
         'crossref_enabled': crossref_enabled,
-        'doi': preprint_logic.get_doi(request, preprint)
+        'doi': repository_logic.get_doi(request, preprint)
     }
 
     return render(request, template, context)
@@ -615,8 +577,8 @@ def preprints_notification(request, article_id):
     """
     preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id,
                                  preprint_decision_notification=False)
-    action = preprint_logic.determie_action(preprint)
-    email_content = preprint_logic.get_publication_text(request, preprint, action)
+    action = repository_logic.determie_action(preprint)
+    email_content = repository_logic.get_publication_text(request, preprint, action)
 
     if request.POST:
         email_content = request.POST.get('email_content', '')
@@ -645,7 +607,7 @@ def preprints_comments(request, article_id):
     preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
 
     if request.POST:
-        preprint_logic.comment_manager_post(request, preprint)
+        repository_logic.comment_manager_post(request, preprint)
         return redirect(reverse('preprints_comments', kwargs={'article_id': preprint.pk}))
 
     template = 'admin/preprints/comments.html'
@@ -696,7 +658,7 @@ def preprints_subjects(request, subject_id=None):
 
         if 'delete' in request.POST:
             utils_shared.clear_cache()
-            return preprint_logic.handle_delete_subject(request)
+            return repository_logic.handle_delete_subject(request)
 
         form = forms.SubjectForm(request.POST, instance=subject)
 
@@ -741,7 +703,7 @@ def orphaned_preprints(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    orphaned_preprints = preprint_logic.list_articles_without_subjects()
+    orphaned_preprints = repository_logic.list_articles_without_subjects()
 
     template = 'admin/preprints/orphaned_preprints.html'
     context = {
@@ -759,13 +721,13 @@ def version_queue(request):
     :return: HttpResponse or HttpRedirect
     """
     version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
-    duplicates = preprint_logic.check_duplicates(version_queue)
+    duplicates = repository_logic.check_duplicates(version_queue)
 
     if request.POST:
         if 'approve' in request.POST:
-            return preprint_logic.approve_pending_update(request)
+            return repository_logic.approve_pending_update(request)
         elif 'deny' in request.POST:
-            return preprint_logic.deny_pending_update(request)
+            return repository_logic.deny_pending_update(request)
 
     template = 'admin/preprints/version_queue.html'
     context = {

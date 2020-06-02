@@ -12,33 +12,37 @@ class PreprintInfo(forms.ModelForm):
     keywords = forms.CharField(required=False)
     subject = forms.ModelChoiceField(
         required=True,
-        queryset=models.Subject.objects.filter(enabled=True),
+        queryset=models.Subject.objects.none(),
+        widget=forms.HiddenInput(),
     )
 
     class Meta:
-        model = submission_models.Article
+        model = models.Preprint
         fields = (
             'title',
-            'subtitle',
             'abstract',
-            'language',
             'license',
             'comments_editor',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
-            'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
             'abstract': forms.Textarea(
                 attrs={
                     'placeholder': _('Enter your article\'s abstract here')
                 }
             ),
+            'subject': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         elements = kwargs.pop('additional_fields', None)
+        self.request = kwargs.pop('request')
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
+        self.fields['subject'].queryset = models.Subject.objects.filter(
+            enabled=True,
+            repository=self.request.repository,
+        )
         self.fields['license'].queryset = submission_models.Licence.objects.filter(
             press__isnull=False,
             available_for_submission=True,
@@ -106,21 +110,23 @@ class PreprintInfo(forms.ModelForm):
                     except submission_models.FieldAnswer.DoesNotExist:
                         pass
 
-    def save(self, commit=True, request=None):
-        article = super(PreprintInfo, self).save()
+    def save(self, commit=True):
+        preprint = super(PreprintInfo, self).save()
+
+        preprint.owner = self.request.user
+        preprint.repository = self.request.repository
 
         posted_keywords = self.cleaned_data['keywords'].split(',')
         for keyword in posted_keywords:
             new_keyword, c = submission_models.Keyword.objects.get_or_create(word=keyword)
-            article.keywords.add(new_keyword)
+            preprint.keywords.add(new_keyword)
 
-        for keyword in article.keywords.all():
+        for keyword in preprint.keywords.all():
             if keyword.word not in posted_keywords:
-                article.keywords.remove(keyword)
+                preprint.keywords.remove(keyword)
 
-        if self.cleaned_data.get('subject', None):
-            article.set_preprint_subject(self.cleaned_data['subject'])
-
+        # TODO: FIX THIS SHIT
+        """
         if request:
             additional_fields = submission_models.Field.objects.filter(press=request.press)
 
@@ -130,19 +136,35 @@ class PreprintInfo(forms.ModelForm):
                 if answer:
                     try:
                         field_answer = submission_models.FieldAnswer.objects.get(
-                            article=article,
+                            article=preprint,
                             field=field,
                         )
                         field_answer.answer = answer
                         field_answer.save()
                     except submission_models.FieldAnswer.DoesNotExist:
                         field_answer = submission_models.FieldAnswer.objects.create(
-                            article=article,
+                            article=preprint,
                             field=field,
                             answer=answer,
                         )
+        """
 
-        return article
+        if commit:
+            preprint.save()
+
+        return preprint
+
+
+class AuthorForm(forms.ModelForm):
+    class Meta:
+        model = models.Author
+        fields = (
+            'email_address',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'affiliation',
+        )
 
 
 class CommentForm(forms.ModelForm):

@@ -70,13 +70,33 @@ class Repository(models.Model):
         max_length=255,
         help_text=_('Used for outputs including DC and Citation metadata'),
     )
+    custom_js_code = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_('The contents of this field are output into the JS area'
+                    'at the foot of every Repository page.')
+    )
     live = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'repositories'
 
+    def __str__(self):
+        return '[{}] {}'.format(
+            'live' if self.live else 'disabled',
+            self.name,
+        )
 
-class RepositoryFields(models.Model):
+    def top_level_subjects(self):
+        return Subject.objects.filter(
+            repository=self,
+            parent=None,
+        ).prefetch_related(
+            'children'
+        )
+
+
+class RepositoryField(models.Model):
     repository = models.ForeignKey(Repository)
     name = models.CharField(max_length=255)
     input_type = models.CharField(
@@ -87,6 +107,18 @@ class RepositoryFields(models.Model):
         max_length=2,
         choices=width_choices(),
     )
+    choices = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text='Separate choices with the bar | character.',
+    )
+    required = models.BooleanField(default=True)
+    order = models.IntegerField()
+    display = models.BooleanField(
+        default=False,
+        help_text='Whether or not display this field in the article page',
+    )
     dc_metadata_type = models.CharField(
         max_length=255,
         help_text=_(
@@ -94,6 +126,17 @@ class RepositoryFields(models.Model):
             'the type here.'
         ),
     )
+
+
+class RepositoryFieldAnswer(models.Model):
+    field = models.ForeignKey(
+        RepositoryField,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    preprint = models.ForeignKey('Preprint')
+    answer = models.TextField()
 
 
 class Preprint(models.Model):
@@ -151,6 +194,12 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    comments_editor = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Comments to the Editor",
+        help_text="Add any comments you'd like the editor to consider here.",
+    )
     doi = models.CharField(
         max_length=100,
         blank=True,
@@ -194,6 +243,38 @@ class Preprint(models.Model):
             file__isnull=False,
         )
 
+    def next_author_order(self):
+        try:
+            last_author = self.preprintauthor_set.all().reverse()[0]
+            return last_author.order + 1
+        except IndexError:
+            return 0
+
+    @property
+    def authors(self):
+        preprint_authors = PreprintAuthor.objects.filter(
+            preprint=self,
+        ).select_related('author')
+
+        return [pa.author for pa in preprint_authors]
+
+    def add_user_as_author(self, user):
+        author_dict = {
+            'first_name': user.first_name,
+            'middle_name': user.middle_name,
+            'last_name': user.last_name,
+            'affiliation': user.affiliation(),
+        }
+        author, c = Author.objects.get_or_create(
+            email_address=user.email,
+            defaults=author_dict,
+        )
+        PreprintAuthor.objects.get_or_create(
+            author=author,
+            preprint=self,
+            order=self.next_author_order(),
+        )
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -208,14 +289,27 @@ class PreprintAccess(models.Model):
     file = models.ForeignKey(PreprintFile, blank=True, null=True)
     dt = models.DateTimeField(auto_now_add=True)
     location = models.CharField(max_length=10)
-    
+
+
+class PreprintAuthor(models.Model):
+    preprint = models.ForeignKey('Preprint')
+    author = models.ForeignKey('Author')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('order',)
+
 
 class Author(models.Model):
-    preprint = models.ForeignKey(Preprint)
+    email_address = models.EmailField()
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
     affiliation = models.TextField(blank=True, null=True)
+    orcid = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        ordering = ('last_name',)
 
     def __str__(self):
         return self.full_name
@@ -293,7 +387,7 @@ class Subject(models.Model):
     repository = models.ForeignKey(Repository)
     name = models.CharField(max_length=255)
     slug = models.SlugField(blank=True)
-    editors = models.ManyToManyField('core.Account')
+    editors = models.ManyToManyField('core.Account', blank=True)
     enabled = models.BooleanField(
         default=True,
         help_text='If disabled, this subject will not appear publicly.',

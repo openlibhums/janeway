@@ -1,0 +1,127 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+{% load field %}
+
+{% block title-section %}
+    Submit {{ request.repository.object_name }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' request.repository.short_name %}">{{ request.repository.name }}
+        Dashboard</a></li>
+    <li>Start Submission</li>
+{% endblock %}
+
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="large-6 columns end">
+                    <div class="row">
+                        {% include "elements/forms/errors.html" with form=form %}
+                        <div class="large-12 columns">
+                            {{ form.title|foundation }}
+                        </div>
+                        <div class="large-12 columns">
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    {{ form.abstract.label }}
+                                    <textarea class="form-control" cols="40" id="id_abstract" name="abstract"
+                                              placeholder="{% trans "If you have any additional information you'd like to supply to the preprints editor, do so here" %}."
+                                              rows="10" title=""></textarea></div>
+                            </div>
+                        </div>
+                        <div class="large-12 columns error">
+                            {{ form.license|foundation }}
+                        </div>
+
+                        <div class="large-12 columns">
+                            {{ form.subject|foundation }}
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <ul class="tree">
+                                        {% include "admin/elements/repository/tree.html" with subjects=request.repository.top_level_subjects %}
+                                    </ul>
+                                    <p class="help-text">
+                                        Press the Caret (>) to view child subjects.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="large-12 columns">
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <label for="id_keywords">Keywords</label>
+                                    <input type="text" id="id_keywords" name="keywords" value="
+
+
+
+                                            {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                                    {% trans "Hit Enter to add a new keyword." %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if additional_fields %}
+                            <div class="large-12 columns">
+                                <p></p>
+                                <h4>{% trans "Additional Fields" %}</h4>
+                            </div>
+                            {% for additional_field in additional_fields %}
+                                {% get_form_field form additional_field.name as field %}
+                                <div class="{{ field.field.widget.attrs.div_class }} columns">
+                                    {{ field|foundation }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="large-12 columns">
+                            {{ form.comments_editor|foundation }}
+                        </div>
+
+                        <div class="large-12 columns">
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <button class="success button pull-right" type="submit" name="start_submission"><i
+                                            class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+
+    <script type="text/javascript">
+        var toggler = document.getElementsByClassName("caret");
+        var i;
+
+        for (i = 0; i < toggler.length; i++) {
+            toggler[i].addEventListener("click", function () {
+                this.parentElement.querySelector(".nested").classList.toggle("active");
+                this.classList.toggle("caret-down");
+            });
+        }
+
+    </script>
+{% endblock %}

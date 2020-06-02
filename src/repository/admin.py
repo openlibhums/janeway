@@ -15,7 +15,7 @@ class RepositoryAdmin(admin.ModelAdmin):
 
 
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'enabled')
+    list_display = ('name', 'repository', 'enabled', 'parent')
     list_filter = ('enabled',)
     search_fields = ('name', 'slug')
     filter_horizontal = ('editors',)
@@ -60,6 +60,7 @@ admin_list = [
     (models.VersionQueue, QueueAdmin),
     (models.Preprint, PreprintAdmin),
     (models.PreprintFile, PreprintFileAdmin),
+    (models.Author,),
 ]
 
 [admin.site.register(*t) for t in admin_list]
