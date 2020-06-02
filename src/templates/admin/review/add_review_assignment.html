@@ -59,10 +59,10 @@
                                 <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
-                                <td>{{ reviewer.active_reviews_count }}</td>
+                                <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
                                 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer.rating_average }}</td>
+                                <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
                                 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
                                 <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Assign with Defaults</button></td>
                             </tr>
