@@ -823,6 +823,9 @@ def do_review(request, assignment_id):
         return logic.serve_review_file(assignment)
 
     if request.POST:
+        if request.FILES:
+            assignment = upload_review_file(
+                request, assignment_id=assignment_id)
         if 'decline' in request.POST:
             return redirect(
                 logic.generate_access_code_url(
@@ -910,7 +913,7 @@ def upload_review_file(request, assignment_id):
             & Q(reviewer=request.user)
         )
 
-    if 'review_file' in request.POST:
+    if 'review_file' in request.FILES:
         uploaded_file = request.FILES.get('review_file', None)
 
         old_file = assignment.review_file
@@ -941,13 +944,7 @@ def upload_review_file(request, assignment_id):
                 'Please select a file to upload.',
             )
 
-    return redirect(
-        logic.generate_access_code_url(
-            'do_review',
-            assignment,
-            access_code,
-        )
-    )
+    return assignment
 
 
 @reviewer_user_for_assignment_required

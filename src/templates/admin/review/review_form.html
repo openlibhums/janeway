@@ -115,6 +115,8 @@
             {% endif %}
 
             <div class="box">
+              <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
                 <div class="title-area">
                         <h2>File Upload</h2>
                     </div>
@@ -122,16 +124,12 @@
                         <div class="large-12 columns">
                             <p>You may upload a file in lieu of completing the review form. Please
                                 ensure you've covered all of the required fields below.</p>
-                            <form method="POST" enctype="multipart/form-data" action="{% url 'upload_review_file' assignment.pk %}{% if access_code %}?access_code={{ access_code }}{% endif %}">
                                 {% csrf_token %}
                                 {% if assignment.review_file %}Current file: {{ assignment.review_file }}{% endif %}
                                 <input type="file" id="review_file"
                                        name="review_file" class="">
-                                <button name="review_file" class="success button"> Upload File</button>
-                            </form>
                         </div>
                     </div>
-                <form method="POST">
                     <div class="title-area">
                         <h2>Review Form</h2>
                         {% if journal_settings.general.reviewer_form_download %}<a class="button" href="{% url 'do_review' assignment.pk %}{% if access_code %}?access_code={{ access_code }}&review_file=True{% else %}?review_file=True{% endif %}">Download Review File (Docx)</a>{% endif %}
@@ -144,7 +142,6 @@
                                     uploaded.
                                 </div>
                             {% endif %}
-                            {% csrf_token %}
                             {% include "elements/generate_form.html" with form=form %}
                         </div>
                     </div>
@@ -156,9 +153,9 @@
                             {{ decision_form.decision|foundation }}
                             {{ decision_form.comments_for_editor|foundation }}
                         </div>
-                        <button class="button success" type="submit">Submit Review</button>
                     </div>
-                </form>
+                <button class="button success" type="submit">Submit Review</button>
+              </form>
             </div>
         </div>
 
