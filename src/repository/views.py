@@ -38,6 +38,7 @@ def repository_home(request):
     """
     preprints = models.Preprint.objects.filter(
         repository=request.repository,
+        date_published__gte=timezone.now(),
     )
     subjects = models.Subject.objects.filter(
         repository=request.repository,
