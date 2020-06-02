@@ -297,23 +297,6 @@ class Keyword(models.Model):
         return self.word
 
 
-class AllArticleManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return super(AllArticleManager, self).get_queryset().all()
-
-
-class ArticleManager(models.Manager):
-    def get_queryset(self):
-        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
-
-
-class PreprintManager(models.Manager):
-    def get_queryset(self):
-        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
-
-
 class DynamicChoiceField(models.CharField):
     def __init__(self, dynamic_choices=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
