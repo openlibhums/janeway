@@ -9,7 +9,7 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Avg, Prefetch
+from django.db.models import Avg, Count, Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from docx import Document
@@ -46,6 +46,8 @@ def get_reviewer_candidates(article, user=None):
         reviewer__reviewerrating__assignment__article__journal=article.journal,
     ).annotate(
         rating_average=Avg('reviewer__reviewerrating__rating'),
+    ).annotate(
+        active_reviews_count=Count('reviewer'),
     )
 
     return reviewers
