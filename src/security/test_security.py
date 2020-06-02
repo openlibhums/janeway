@@ -3100,70 +3100,6 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
-    def test_preprint_editor_or_author_required_editor(self):
-        func = Mock()
-        decorated_func = decorators.preprint_editor_or_author_required(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.preprint_manager, None)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "editor wrongly blocked from accessing preprint article")
-
-    def test_preprint_editor_or_author_required_author(self):
-        func = Mock()
-        decorated_func = decorators.preprint_editor_or_author_required(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.regular_user, None)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "author wrongly blocked from accessing preprint article")
-
-    def test_preprint_editor_or_author_required_other_user(self):
-        func = Mock()
-        decorated_func = decorators.preprint_editor_or_author_required(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.copyeditor, None)
-
-        with self.assertRaises(PermissionDenied):
-            decorated_func(request, **kwargs)
-
-    def test_is_article_preprint_editor(self):
-        func = Mock()
-        decorated_func = decorators.is_article_preprint_editor(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.preprint_manager, None)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "author wrongly blocked from accessing preprint article")
-
-    def test_is_article_preprint_editor_other_user(self):
-        func = Mock()
-        decorated_func = decorators.is_article_preprint_editor(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.copyeditor, None)
-
-        with self.assertRaises(PermissionDenied):
-            decorated_func(request, **kwargs)
-
-    def test_is_preprint_editor(self):
-        func = Mock()
-        decorated_func = decorators.is_preprint_editor(func)
-        kwargs = {}
-
-        request = self.prepare_request_with_user(self.preprint_manager, None, self.press)
-        decorated_func(request, **kwargs)
-
-        self.assertTrue(func.called,
-                        "author wrongly blocked from accessing preprint article")
-
     def test_article_stage_review_required_with_review_article(self):
         func = Mock()
         decorated_func = decorators.article_stage_review_required(func)
@@ -3195,16 +3131,6 @@ class TestSecurity(TestCase):
         request = self.prepare_request_with_user(self.editor, None)
 
         with self.assertRaises(Http404):
-            decorated_func(request, **kwargs)
-
-    def test_isnt_preprint_editor(self):
-        func = Mock()
-        decorated_func = decorators.is_preprint_editor(func)
-        kwargs = {'article_id': self.preprint_article.pk}
-
-        request = self.prepare_request_with_user(self.copyeditor, None, self.press)
-
-        with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
     def test_production_manager_roles(self):
@@ -3752,22 +3678,6 @@ class TestSecurity(TestCase):
                                                                       accepted=timezone.now(),
                                                                       task='fsddsff')
         self.correction_task.save()
-
-        self.preprint_article = submission_models.Article(owner=self.regular_user, title="A Test Preprint",
-                                                          abstract="An abstract",
-                                                          stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-                                                          is_preprint=True)
-        self.preprint_article.save()
-        self.preprint_article.authors.add(self.regular_user)
-
-        self.preprint_manager = self.create_user("preprint_manager@martineve.com")
-        self.preprint_manager.is_active = True
-        self.preprint_manager.save()
-
-        self.subject = preprint_models.Subject.objects.create(name='Test', slug='test')
-        self.subject.editors.add(self.preprint_manager)
-        self.subject.preprints.add(self.preprint_article)
-        self.subject.save()
 
         self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
 
