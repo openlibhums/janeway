@@ -347,7 +347,18 @@ def preprints_authors(request, article_id):
     if request.POST:
 
         if 'self' in request.POST:
-            preprint.add_user_as_author(request.user)
+            author_preprint_created = preprint.add_user_as_author(
+                request.user,
+            )
+
+            if not author_preprint_created:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'This author is already associated with this {}'.format(
+                        request.repository.object_name,
+                    )
+                )
 
         if 'search' in request.POST:
             repository_logic.search_for_authors(request, preprint)
@@ -355,12 +366,24 @@ def preprints_authors(request, article_id):
         if 'form' in request.POST:
             form = forms.AuthorForm(request.POST)
             if form.is_valid():
-                form.save()
+                new_author = form.save()
+                preprint_author, created = preprint.add_author(new_author)
+
+                if not created:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        '{} is already associated with this {}'.format(
+                            preprint_author.author.full_name,
+                            request.repository.object_name,
+                        )
+                    )
 
     template = 'admin/preprints/submit/authors.html'
     context = {
         'preprint': preprint,
         'form': form,
+        'user_is_author': preprint.user_is_author(request.user),
     }
 
     return render(request, template, context)

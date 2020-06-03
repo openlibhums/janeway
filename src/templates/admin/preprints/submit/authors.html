@@ -29,7 +29,7 @@
                         <li>{% trans 'You can create a new record for an author using the form below.' %}</li>
                     </ol>
                 </div>
-                {% if request.user not in authors %}
+                {% if not user_is_author %}
                 <div class="title-area">
                     <h2>{% trans 'Add Self as Author' %}</h2>
                 </div>
@@ -105,6 +105,7 @@
                 <h4><i class="fa fa-plus">&nbsp;</i>{% trans 'Add New Author' %}</h4>
             </div>
             <div class="card-section">
+                {% include "admin/elements/forms/errors.html" %}
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}

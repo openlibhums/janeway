@@ -5120,7 +5120,7 @@ ul.actions li a {
 }
 
 /* Remove default bullets */
-ul, .tree {
+.tree {
   list-style-type: none !important;
 }
 

@@ -497,4 +497,3 @@ def search_for_authors(request, preprint):
             messages.INFO,
             'No author found.'
         )
-

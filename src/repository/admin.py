@@ -61,6 +61,7 @@ admin_list = [
     (models.Preprint, PreprintAdmin),
     (models.PreprintFile, PreprintFileAdmin),
     (models.Author,),
+    (models.PreprintAuthor,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

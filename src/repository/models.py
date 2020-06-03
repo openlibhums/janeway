@@ -265,15 +265,32 @@ class Preprint(models.Model):
             'last_name': user.last_name,
             'affiliation': user.affiliation(),
         }
-        author, c = Author.objects.get_or_create(
+        author, a_created = Author.objects.get_or_create(
             email_address=user.email,
             defaults=author_dict,
         )
-        PreprintAuthor.objects.get_or_create(
+        preprint_author, created = PreprintAuthor.objects.get_or_create(
+            author=author,
+            preprint=self,
+            defaults={'order': self.next_author_order()},
+        )
+
+        return created
+
+    def add_author(self, author):
+        preprint_author, created = PreprintAuthor.objects.get_or_create(
             author=author,
             preprint=self,
             order=self.next_author_order(),
         )
+
+        return preprint_author, created
+
+    def user_is_author(self, user):
+        if user.email in [author.email_address for author in self.authors]:
+            return True
+
+        return False
 
 
 class PreprintFile(models.Model):
@@ -298,10 +315,17 @@ class PreprintAuthor(models.Model):
 
     class Meta:
         ordering = ('order',)
+        unique_together = ('author', 'preprint')
+
+    def __str__(self):
+        return '{author} linked to {preprint}'.format(
+            author=self.author.full_name,
+            preprint=self.preprint.title,
+        )
 
 
 class Author(models.Model):
-    email_address = models.EmailField()
+    email_address = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
