@@ -52,6 +52,11 @@
                 {{ journal_settings.general.submission_checklist|safe }}
                 <hr />
                 {% endif %}
+                {% if not journal_settings.general.acceptance_criteria == '' %}
+                <h3>{% trans 'Submission Checklist' %}</h3>
+                {{ journal_settings.general.acceptance_criteria|safe }}
+                <hr />
+                {% endif %}
                 {% if journal_settings.general.copyright_notice %}
                 <h2>{% trans 'Copyright Notice' %}</h2>
                 {{ journal_settings.general.copyright_notice|safe }}
