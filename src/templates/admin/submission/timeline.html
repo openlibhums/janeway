@@ -29,7 +29,7 @@
                     {% trans "Article Files" %}{% endif %}{% else %}{% trans "Article Files" %}{% endif %} </h4>
             </div>
         </li>
-        {% if article.journal.submissionconfiguration.funding %}
+        {% if request.journal.submissionconfiguration.funding %}
         <li class="li {% if article.current_step >= 4 %}complete{% endif %}">
             <div class="status">
                 <h4>{% if article %}{% if article.current_step >= 4 %}
