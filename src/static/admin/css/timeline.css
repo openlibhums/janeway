@@ -6,7 +6,7 @@
 
 .li {
   transition: all 200ms ease-in;
-  min-width: 16%; }
+  flex-basis: 100%; }
 
 .timestamp {
   margin-bottom: 20px;
