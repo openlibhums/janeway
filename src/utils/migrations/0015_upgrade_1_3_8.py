@@ -18,8 +18,8 @@ def upgrade(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0013_upgrade_1_3_6'),
-        ('core', '0033_set_default_xml_galley_xsl'),
+        ('utils', '0014_upgrade_1_3_7'),
+        ('core', '0040_auto_20200529_1415'),
     ]
 
     operations = [
