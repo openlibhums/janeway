@@ -164,6 +164,7 @@ class AuthorForm(forms.ModelForm):
             'middle_name',
             'last_name',
             'affiliation',
+            'orcid',
         )
 
 
@@ -227,3 +228,22 @@ class SubjectForm(forms.ModelForm):
     class Meta:
         model = models.Subject
         exclude = ('preprints',)
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.PreprintFile
+        fields = ('file',)
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        super(FileForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        file = super(FileForm, self).save(commit=False)
+        file.preprint = self.preprint
+
+        if commit:
+            file.save()
+
+        return file

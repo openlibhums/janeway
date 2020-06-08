@@ -122,7 +122,6 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    'repository.middleware.PreprintRepositoryMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'

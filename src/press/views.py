@@ -18,12 +18,17 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
-from journal import models as journal_models, views as journal_views, forms as journal_forms
+from journal import (
+    models as journal_models,
+    views as journal_views,
+    forms as journal_forms,
+)
 from press import models as press_models, forms
 from security.decorators import press_only
 from submission import models as submission_models
 from utils import install
 from utils.logic import get_janeway_version
+from repository import views as repository_views
 
 
 def index(request):
@@ -35,6 +40,11 @@ def index(request):
     if request.journal is not None:
         # if there's a journal, then we render the _journal_ homepage, not the press
         return journal_views.home(request)
+
+    if request.repository is not None:
+        # if there is a repository we return the repository homepage.
+        print('test')
+        return repository_views.repository_home(request)
 
     homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
         request,

@@ -12,6 +12,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from core.file_system import JanewayFileSystemStorage
+from core import model_utils
 
 
 def html_input_types():
@@ -33,9 +34,10 @@ def width_choices():
     )
 
 
-fs_path = os.path.join(settings.BASE_DIR, 'files')
+fs_path = os.path.join('files')
+media_path = settings.MEDIA_ROOT  # TODO: @mauro to make this relative?
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
-preprint_media_store = JanewayFileSystemStorage()
+preprint_media_store = JanewayFileSystemStorage(location=media_path)
 
 
 def preprint_file_upload(instance, filename):
@@ -44,11 +46,22 @@ def preprint_file_upload(instance, filename):
     except IndexError:
         filename = str(uuid.uuid4())
 
-    path = "preprints/{0}/".format(instance.preprint.pk)
+    path = "repos/{0}/".format(instance.preprint.pk)
     return os.path.join(path, filename)
 
 
-class Repository(models.Model):
+def repo_media_upload(instance, filename):
+    try:
+        filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+    except IndexError:
+        filename = str(uuid.uuid4())
+
+    path = "repos/{0}/".format(instance.pk)
+    return os.path.join(path, filename)
+
+
+class Repository(model_utils.AbstractSiteModel):
+    press = models.ForeignKey('press.Press')
     name = models.CharField(max_length=255)
     short_name = models.CharField(max_length=15)
     object_name = models.CharField(
@@ -63,8 +76,8 @@ class Repository(models.Model):
     logo = models.ImageField(
         blank=True,
         null=True,
-        upload_to=preprint_media_store,
         storage=preprint_media_store,
+        upload_to=repo_media_upload,
     )
     publisher = models.CharField(
         max_length=255,
@@ -77,6 +90,11 @@ class Repository(models.Model):
                     'at the foot of every Repository page.')
     )
     live = models.BooleanField(default=False)
+    limit_upload_to_pdf = models.BooleanField(
+        default=False,
+        help_text=_('If set to True, this will require all file uploads from'
+                    'authors to be PDF files.')
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -292,6 +310,11 @@ class Preprint(models.Model):
 
         return False
 
+    def set_file(self, file, original_filename):
+        self.submission_file.original_filename = original_filename
+        self.submission_file.file = file
+        self.submission_file.save()
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -299,6 +322,10 @@ class PreprintFile(models.Model):
         upload_to=preprint_file_upload,
         storage=preprint_file_store,
     )
+    original_filename = models.TextField()
+
+    def filename(self):
+        return os.path.basename(self.file.name)
 
 
 class PreprintAccess(models.Model):
@@ -330,7 +357,12 @@ class Author(models.Model):
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
     affiliation = models.TextField(blank=True, null=True)
-    orcid = models.CharField(max_length=255, blank=True, null=True)
+    orcid = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name=_('ORCID')
+    )
 
     class Meta:
         ordering = ('last_name',)

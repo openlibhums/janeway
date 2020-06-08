@@ -1,0 +1,18 @@
+<div class="section">
+    <div class="row">
+        {% for preprint in preprints %}
+            <div class="col m4">
+                <div class="card preprint-home-card">
+                    <div class="card-content">
+                        <p>
+                            <a href="{% url 'repository_preprint' preprint.pk %}">
+                                <strong>{{ preprint.title|safe }}</strong>
+                            </a>
+                        </p>
+                        <p class="card-text">Author Names Here</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

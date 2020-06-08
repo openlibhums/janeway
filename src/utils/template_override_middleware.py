@@ -44,12 +44,17 @@ class Loader(BaseLoader):
 
         if hasattr(_local, 'request'):
 
+            print(_local.request.path, _local.request.repository)
+
             if _local.request.journal:
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
                     theme_setting = self.query_theme_dirs(_local.request.journal)
                 except BaseException:
                     theme_setting = 'default'
+
+            elif _local.request.repository:
+                theme_setting = 'material'
             else:
                 # this is the press site
                 theme_setting = _local.request.press.theme

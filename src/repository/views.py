@@ -15,6 +15,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.core.cache import cache
+from django.views.decorators.http import require_POST
+from django.http import HttpResponse
 
 from repository import forms, logic as repository_logic, models
 from submission import models as submission_models, forms as submission_forms, logic
@@ -283,6 +285,7 @@ def repository_submit(request, preprint_id=None):
     """
     Handles initial steps of generating a preprints submission.
     :param request: HttpRequest
+    :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
     article = repository_logic.get_preprint_article_if_id(request, preprint_id)
@@ -328,21 +331,22 @@ def repository_submit(request, preprint_id=None):
 
 
 @login_required
-def preprints_authors(request, article_id):
+def preprints_authors(request, preprint_id):
     """
     Handles submission of new authors. Allows users to search
     for existing authors or add new ones.
     :param request: HttpRequest
-    :param article_id: Article object PK
+    :param preprint_id: Preprint object PK
     :return: HttpRedirect or HttpResponse
     """
     preprint = get_object_or_404(
         models.Preprint,
-        pk=article_id,
+        pk=preprint_id,
         repository=request.repository,
+        owner=request.user,
     )
-
     form = forms.AuthorForm()
+    modal, fire_redirect = None, False
 
     if request.POST:
 
@@ -360,8 +364,11 @@ def preprints_authors(request, article_id):
                     )
                 )
 
+            fire_redirect = True
+
         if 'search' in request.POST:
             repository_logic.search_for_authors(request, preprint)
+            fire_redirect = True
 
         if 'form' in request.POST:
             form = forms.AuthorForm(request.POST)
@@ -378,82 +385,96 @@ def preprints_authors(request, article_id):
                             request.repository.object_name,
                         )
                     )
+                fire_redirect = True
+            else:
+                modal = 'newauthor'
+
+        if 'complete' in request.POST:
+            return redirect(
+                reverse(
+                    'preprints_files',
+                    kwargs={
+                        'repository_short_name': request.repository.short_name,
+                        'preprint_id': preprint.pk,
+                    }
+                )
+            )
+
+        if fire_redirect:
+            return redirect(
+                reverse(
+                    'preprints_authors',
+                    kwargs={
+                        'repository_short_name': request.repository.short_name,
+                        'preprint_id': preprint.pk,
+                    }
+                )
+            )
 
     template = 'admin/preprints/submit/authors.html'
     context = {
         'preprint': preprint,
         'form': form,
         'user_is_author': preprint.user_is_author(request.user),
+        'modal': modal,
     }
 
     return render(request, template, context)
 
 
 @login_required
-def preprints_files(request, article_id):
+def preprints_files(request, preprint_id):
     """
-    Allows authors to upload files to their preprint. Files are stored against the press in /files/preprints/
+    Allows authors to upload files to their preprint.
+    Files are stored against the press in /files/preprints/
     File submission can be limited to PDF only.
     :param request: HttpRequest
-    :param article_id: Article object PK
+    :param preprint_id: Preprint object PK
     :return: HttpRedirect or HttpResponse
     """
-    article = get_object_or_404(submission_models.Article.preprints,
-                                pk=article_id,
-                                owner=request.user,
-                                date_submitted__isnull=True)
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+        owner=request.user,
+    )
 
-    error, modal, form = None, None, submission_forms.FileDetails()
-
-    if request.POST and 'delete' in request.POST:
-        file_id = request.POST.get('delete')
-        file = get_object_or_404(core_models.File, pk=file_id)
-        file.unlink_file(journal=None)
-        file.delete()
-        messages.add_message(request, messages.WARNING, 'File deleted')
-        return redirect(reverse('preprints_files', kwargs={'article_id': article_id}))
+    form = forms.FileForm(preprint=preprint)
 
     if request.POST and request.FILES:
 
-        form = submission_forms.FileDetails(request.POST)
+        form = forms.FileForm(request.POST, request.FILES, preprint=preprint)
         uploaded_file = request.FILES.get('file')
 
         # If required, check if the file is a PDF:
-        if request.press.preprint_pdf_only and 'manuscript' in request.POST:
-            if not files.check_in_memory_mime(in_memory_file=uploaded_file) == 'application/pdf':
+        if request.repository.limit_upload_to_pdf:
+            if not files.check_in_memory_mime(
+                    in_memory_file=uploaded_file,
+            ) == 'application/pdf':
                 form.add_error(None, 'You must upload a PDF for your manuscript')
-                modal = 'manuscript'
 
         # Check if the form is valid
         if form.is_valid():
-
-            file = files.save_file_to_article(uploaded_file,
-                                              article,
-                                              request.user,
-                                              form.cleaned_data['label'],
-                                              form.cleaned_data['description'])
-
-            if 'manuscript' in request.POST:
-                article.manuscript_files.add(file)
-
-            elif 'data' in request.POST:
-                article.data_figure_files.add(file)
+            file = form.save()
+            preprint.submission_file = file
+            preprint.submission_file.original_filename = request.FILES['file'].name
+            preprint.save()
 
             messages.add_message(request, messages.INFO, 'File saved.')
-            return redirect(reverse('preprints_files', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'preprints_files',
+                    kwargs={
+                        'repository_short_name': request.repository.short_name,
+                        'preprint_id': preprint.pk,
+                    },
+                )
+            )
 
-        # Handle displaying modals in event of an error:
-        else:
-            modal = repository_logic.get_display_modal(request)
-
-    elif request.POST and 'next_step' in request.POST:
-        return redirect(reverse('preprints_review', kwargs={'article_id': article.pk}))
-
-    template = 'preprints/submit_files.html'
+    template = 'admin/preprints/submit/files.html'
     context = {
-        'article': article,
+        'preprint': preprint,
         'form': form,
-        'modal': modal,
     }
 
     return render(request, template, context)
@@ -761,3 +782,84 @@ def version_queue(request):
     }
 
     return render(request, template, context)
+
+
+@login_required
+@require_POST
+def preprints_author_order(request, preprint_id):
+    """
+    Reorders preprint authors, used in AJAX calls.
+    :param request: HttpRequest
+    :param preprint_id: PK of a Preprint object
+    :return: JSON OK
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+        owner=request.user,
+    )
+    posted_author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+    preprint_authors = models.PreprintAuthor.objects.filter(
+        preprint=preprint,
+    )
+
+    for preprint_author in preprint_authors:
+        order = posted_author_pks.index(preprint_author.author.pk)
+        author_order, c = models.PreprintAuthor.objects.get_or_create(
+            preprint=preprint,
+            author=preprint_author.author,
+            defaults={'order': order}
+        )
+
+        if not c:
+            author_order.order = order
+            author_order.save()
+
+    return HttpResponse('Complete')
+
+
+@login_required
+@require_POST
+def preprints_delete_author(request, preprint_id, redirect_string):
+    """
+    Removes author-preprint link.
+    :param request: HttpRequest object
+    :param preprint_id: int, Preprint PK
+    :return: HttpRedirect
+    """
+    author_id = request.POST.get('author_id')
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+        owner=request.user,
+    )
+
+    preprint_author = get_object_or_404(
+        models.PreprintAuthor,
+        author__id=author_id,
+        preprint=preprint,
+    )
+
+    preprint_author.delete()
+
+    messages.add_message(
+        request,
+        messages.INFO,
+        'Author removed from {}'.format(
+            request.repository.object_name,
+        )
+    )
+
+    if redirect_string == 'submission':
+        return redirect(
+            reverse(
+                'preprints_authors',
+                kwargs={
+                    'repository_short_name': request.repository.short_name,
+                    'preprint_id': preprint_id,
+                }
+            )
+        )
+

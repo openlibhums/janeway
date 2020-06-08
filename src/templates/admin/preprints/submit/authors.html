@@ -20,7 +20,7 @@
         <div class="row expanded">
             <div class="large-6 columns">
                 <div class="title-area">
-                    <h2>{% trans 'Authors' %}</h2>
+                    <h2>{% trans 'Information' %}</h2>
                 </div>
                 <div class="content">
                     <ol>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="content">
                     <p>{% trans 'If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details.' %}</p>
-                    <a href="#" data-open="new-author" class="button" aria-controls="new-author" aria-haspopup="true" tabindex="0">{% trans 'Add New Author' %}</a>
+                    <a href="#" data-open="newauthor" class="button" aria-controls="new-author" aria-haspopup="true" tabindex="0">{% trans 'Add New Author' %}</a>
                 </div>
             </div>
             <div class="large-6 columns">
@@ -70,36 +70,47 @@
                     <h2>{% trans 'Authors' %}</h2>
                 </div>
                 <div class="content">
-                    <table class="small">
-                        <thead>
-                            <tr>
-                                <th>{% trans 'Name' %}</th>
-                                <th>{% trans 'Email' %}</th>
-                                <th>{% trans 'Affiliation' %}</th>
-                                <th>{% trans 'Delete' %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for author in preprint.authors %}
-                            <tr>
-                                <td>{{ author.full_name }}</td>
-                                <td>{{ author.email_address }}</td>
-                                <td>{{ author.affiliation }}</td>
-                                <td><span class="fa fa-trash"></span></td>
-                            </tr>
-                            {% empty %}
+                    <p>{% trans 'You can reorder the authors by dragging and dropping rows in the table below.' %}</p>
+                    <form method="POST" action="{% url 'preprints_delete_author' request.repository.short_name preprint.pk 'submission'  %}">
+                        {% csrf_token %}
+                        <table class="small">
+                            <thead>
                                 <tr>
-                                    <td colspan="3">{% trans 'No authors added.' %}</td>
+                                    <th>{% trans 'Name' %}</th>
+                                    <th>{% trans 'Email' %}</th>
+                                    <th>{% trans 'Affiliation' %}</th>
+                                    <th>{% trans 'Delete' %}</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="sortable">
+                                {% for author in preprint.authors %}
+                                <tr id="authors-{{ author.pk }}">
+                                    <td><span class="fa fa-sort"></span> {{ author.full_name }}</td>
+                                    <td>{{ author.email_address }}</td>
+                                    <td>{{ author.affiliation }}</td>
+                                    <td>
+                                        <button name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span></button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3">{% trans 'No authors added.' %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </form>
+                    <p>{% trans 'Once you have added all of your authors you can complete this stage.' %}</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="complete" class="button">{% trans 'Complete Step 2 of 3' %}</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="reveal small" id="new-author" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+    <div class="reveal small" id="newauthor" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
         <div class="card">
             <div class="card-divider">
                 <h4><i class="fa fa-plus">&nbsp;</i>{% trans 'Add New Author' %}</h4>
@@ -117,4 +128,28 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+{% endblock %}
+
+{% block js %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+        <script src="{% static "admin/js/csrf.js" %}"></script>
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'preprints_author_order' request.repository.short_name preprint.pk %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+        </script>
 {% endblock %}

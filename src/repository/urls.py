@@ -36,7 +36,7 @@ urlpatterns = [
 
     url(r'^view/(?P<article_id>\d+)/$',
         views.preprints_article,
-        name='preprints_preprint'),
+        name='repository_preprint'),
 
     url(r'^view/(?P<article_id>\d+)/pdf/$',
         views.preprints_pdf,
@@ -58,15 +58,23 @@ urlpatterns = [
         views.repository_submit,
         name='repository_submit'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<article_id>\d+)/$',
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/$',
         views.repository_submit,
         name='repository_submit_with_id'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<article_id>\d+)/authors/$',
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/authors/$',
         views.preprints_authors,
         name='preprints_authors'),
 
-    url(r'^submit/(?P<article_id>\d+)/files/$',
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/authors/delete/(?P<redirect_string>[-\w]+)/$',
+        views.preprints_delete_author,
+        name='preprints_delete_author'),
+
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/authors/order/$',
+        views.preprints_author_order,
+        name='preprints_author_order'),
+
+    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/files/$',
         views.preprints_files,
         name='preprints_files'),
 

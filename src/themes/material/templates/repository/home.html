@@ -1,0 +1,35 @@
+{% extends "repository/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ request.repository.name }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col m12 spacer">
+            <h1 class="center">{{ request.repository.name }}</h1>
+        </div>
+
+
+        <div class="input-field col s12 m6 offset-m3 spacer">
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <i class="material-icons prefix">search</i>
+                <input id="icon_prefix" type="text" class="validate">
+                <label for="icon_prefix">Search {{ request.repository.object_name_plural }}</label>
+            </form>
+
+            <p class="center">{% trans "Read about" %} <a href="{% url 'repository_about' request.repository.short_name %}">{{ request.repository.name }}</a>
+                {% trans "or view list of" %} <a href="{% url 'repository_list' request.repository.short_name %}">{{ request.repository.object_name_plural }}</a>.
+            </p>
+        </div>
+
+        <div class="col m12 spacer">
+            <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
+        </div>
+
+        {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+
+    </div>
+{% endblock %}

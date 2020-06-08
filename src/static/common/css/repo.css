@@ -1,0 +1,74 @@
+.header-overrides {
+    background-color: #fafafa;
+    color: #616161 !important;
+    height: 90px !important;
+}
+
+.page-footer {
+    background-color: #fafafa;
+    color: #616161;
+}
+
+.footer-copyright p {
+    color: #616161;
+}
+
+.brand-logo {
+    color: #616161 !important;
+}
+
+nav ul a {
+    color: #616161 !important;
+}
+
+nav ul li {
+    line-height: 90px !important;
+}
+
+nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
+    line-height: 90px;
+}
+
+.header-override-image {
+    padding: 5px;
+    max-height: 90px;
+}
+
+.card .card-content p {
+    padding-bottom: 15px !important;
+}
+
+.carousel-text-wrapper {
+    opacity: 0.9 !important;
+}
+
+.carousel-text-wrapper a {
+    color: white;
+}
+
+.button-collapse {
+    color: #616161;
+}
+
+.card .card-image img {
+    height: 260px;
+    object-fit: cover;
+}
+
+.card .card-content p {
+    padding-bottom: 15px !important;
+}
+
+.small-card-title {
+    font-size: 18px !important;
+}
+
+#logo-container img {
+    max-height: 70px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.preprint-home-card {
+    min-height: 180px;
+}

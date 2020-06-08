@@ -1,0 +1,64 @@
+{% load static from staticfiles %}
+{% load press_url from press_url %}
+{% load svg from press_url %}
+{% load i18n %}
+{% load roles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ request.repository.name }}{% endblock title %}</title>
+    {% block head %}{% endblock head %}
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    {% block css %}{% endblock %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link rel="stylesheet" href="{% static "material/mat.css" %}">
+    <link href="{% static "common/css/common.css" %}" rel="stylesheet">
+    <link href="{% static "common/css/repo.css" %}" rel="stylesheet">
+
+
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{% url 'rss_articles' %}"/>
+</head>
+<body>
+
+{% block navbar %}
+    {% include "repository/nav.html" %}
+{% endblock navbar %}
+
+<div class="container">
+    <div class="section">
+        {% block body %}{% endblock %}
+    </div>
+</div>
+<footer class="page-footer">
+    <div class="footer-copyright">
+        <div class="container">
+            <p>{{ request.repository.name }}</p>
+        </div>
+    </div>
+</footer>
+
+
+<!--  Scripts-->
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script src="{% static 'material/material.js' %}"></script>
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script src="{% static "common/js/timezone-setter.js" %}"></script>
+{% if  not request.timezone %}<script>setTimezone();</script>{% endif %}
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Materialize.toast('{{ message|linebreaksbr }}', 4000);
+        {% endfor %}
+    {% endif %}
+</script>
+
+{% block js %}{% endblock %}
+
+</body>
+</html>
