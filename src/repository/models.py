@@ -19,6 +19,11 @@ STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
+SUBMITTED_STAGES = {
+    STAGE_PREPRINT_REVIEW,
+    STAGE_PREPRINT_PUBLISHED,
+}
+
 
 def html_input_types():
     return (
@@ -335,6 +340,9 @@ class Preprint(models.Model):
         self.current_step = 5
         self.save()
 
+    def subject_editors(self):
+        return self.subject.editors.all()
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -351,7 +359,7 @@ class PreprintFile(models.Model):
 class PreprintAccess(models.Model):
     preprint = models.ForeignKey(Preprint)
     file = models.ForeignKey(PreprintFile, blank=True, null=True)
-    dt = models.DateTimeField(auto_now_add=True)
+    accessed = models.DateTimeField(auto_now_add=True)
     location = models.CharField(max_length=10)
 
 
