@@ -44,8 +44,6 @@ class Loader(BaseLoader):
 
         if hasattr(_local, 'request'):
 
-            print(_local.request.path, _local.request.repository)
-
             if _local.request.journal:
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
