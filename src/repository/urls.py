@@ -9,7 +9,7 @@ from django.conf.urls import url
 from repository import views
 
 urlpatterns = [
-    url(r'^(?P<repository_short_name>[-\w]+)/dashboard/$',
+    url(r'^dashboard/$',
         views.repository_dashboard,
         name='repository_dashboard'),
 
@@ -81,9 +81,9 @@ urlpatterns = [
         views.preprints_manager,
         name='preprints_manager'),
 
-    url(r'^manager/(?P<article_id>\d+)/$',
-        views.preprints_manager_article,
-        name='preprints_manager_article'),
+    url(r'^manager/(?P<preprint_id>\d+)/$',
+        views.repository_manager_article,
+        name='repository_manager_article'),
 
     url(r'^manager/(?P<article_id>\d+)/notification/$',
         views.preprints_notification,

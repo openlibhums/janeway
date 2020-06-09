@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'repository_dashboard' request.repository.short_name %}">{{ request.repository.name }}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
         Dashboard</a></li>
     <li>Start Submission</li>
     <li>Add Authors</li>

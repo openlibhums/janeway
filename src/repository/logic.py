@@ -345,10 +345,10 @@ def unpublish_preprint(request, preprint):
     messages.add_message(request, messages.INFO, 'This preprint has been unpublished')
 
 
-def get_preprint_article_if_id(request, article_id):
-    if article_id:
-        article = get_object_or_404(submission_models.Article.preprints,
-                                    pk=article_id,
+def get_preprint_if_id(preprint_id):
+    if preprint_id:
+        article = get_object_or_404(models.Preprint,
+                                    pk=preprint_id,
                                     date_submitted__isnull=True)
     else:
         article = None

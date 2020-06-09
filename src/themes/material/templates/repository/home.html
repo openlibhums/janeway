@@ -30,11 +30,12 @@
             </p>
         </div>
 
+        {% if preprints %}
         <div class="col m12 spacer">
             <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
         </div>
 
         {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
-
+        {% endif %}
     </div>
 {% endblock %}

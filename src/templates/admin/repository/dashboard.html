@@ -50,6 +50,7 @@
     <div class="box">
         <div class="title-area">
             <h2>Incomplete Submissions</h2>
+            <a class="button" href="{% url 'repository_submit' %}">Start New Submission</a>
         </div>
         <div class="content">
             <table class="scroll">
@@ -61,6 +62,7 @@
                         <th>Date Published</th>
                         <th>Views</th>
                         <th>Downloads</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,7 +74,7 @@
                         <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
                         <td>{{ preprint.metrics.views }}</td>
                         <td>{{ preprint.metrics.downloads }}</td>
-                        <td><a href="{% url 'preprints_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
+                        <td><a class="small button" href="{% url 'repository_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
                     </tr>
                 {% empty %}
                 {% endfor %}

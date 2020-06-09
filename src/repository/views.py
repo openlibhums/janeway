@@ -19,7 +19,7 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 
 from repository import forms, logic as repository_logic, models
-from submission import models as submission_models, forms as submission_forms, logic
+from submission import models as submission_model
 from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared
@@ -64,13 +64,15 @@ def repository_dashboard(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
-                                                           date_submitted__isnull=False).distinct()
-
-    incomplete_preprints = submission_models.Article.preprints.filter(Q(authors=request.user) | Q(owner=request.user),
-                                                                      date_submitted__isnull=True)
-
-    template = 'admin/preprints/dashboard.html'
+    preprints = models.Preprint.objects.filter(
+        owner=request.user,
+        date_submitted__isnull=False,
+    )
+    incomplete_preprints = models.Preprint.objects.filter(
+        owner=request.user,
+        date_submitted__isnull=True,
+    )
+    template = 'admin/repository/dashboard.html'
     context = {
         'preprints': preprints,
         'incomplete_preprints': incomplete_preprints,
@@ -288,14 +290,14 @@ def repository_submit(request, preprint_id=None):
     :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
-    article = repository_logic.get_preprint_article_if_id(request, preprint_id)
+    preprint = repository_logic.get_preprint_if_id(preprint_id)
 
     # TODO: FIX THIS
     additional_fields = models.RepositoryField.objects.filter(
         repository=request.repository,
     )
     form = forms.PreprintInfo(
-        instance=article,
+        instance=preprint,
         additional_fields=additional_fields,
         request=request,
     )
@@ -303,7 +305,7 @@ def repository_submit(request, preprint_id=None):
     if request.POST:
         form = forms.PreprintInfo(
             request.POST,
-            instance=article,
+            instance=preprint,
             additional_fields=additional_fields,
             request=request,
         )
@@ -317,10 +319,10 @@ def repository_submit(request, preprint_id=None):
                 ),
             )
 
-    template = 'admin/preprints/submit/start.html'
+    template = 'admin/repository/submit/start.html'
     context = {
         'form': form,
-        'article': article,
+        'preprint': preprint,
         'additional_fields': additional_fields,
     }
 
@@ -405,7 +407,7 @@ def repository_authors(request, preprint_id):
                 )
             )
 
-    template = 'admin/preprints/submit/authors.html'
+    template = 'admin/repository/submit/authors.html'
     context = {
         'preprint': preprint,
         'form': form,
@@ -482,7 +484,7 @@ def repository_files(request, preprint_id):
                     'You cannot complete this step without uploading a file.'
                 )
 
-    template = 'admin/preprints/submit/files.html'
+    template = 'admin/repository/submit/files.html'
     context = {
         'preprint': preprint,
         'form': form,
@@ -525,7 +527,7 @@ def repository_review(request, preprint_id):
         )
         return redirect(reverse('repository_dashboard'))
 
-    template = 'admin/preprints/submit/review.html'
+    template = 'admin/repository/submit/review.html'
     context = {
         'preprint': preprint,
     }
@@ -569,7 +571,7 @@ def preprints_manager(request):
 
 
 @is_article_preprint_editor
-def preprints_manager_article(request, article_id):
+def repository_manager_article(request, article_id):
     """
     Displays the metadata associated with the article and presents options for the editor to accept or decline the
     preprint, replace its files and set a publication date.

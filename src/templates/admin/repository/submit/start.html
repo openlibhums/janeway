@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'repository_dashboard' request.repository.short_name %}">{{ request.repository.name }}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
         Dashboard</a></li>
     <li>Start Submission</li>
 {% endblock %}
@@ -23,20 +23,15 @@
                 <div class="large-6 columns end">
                     <div class="row">
                         <div class="title-area">
-                                <h2>{% trans "Metadata" %}</h2>
-                            </div>
+                            <h2>{% trans "Metadata" %}</h2>
+                        </div>
                         {% include "elements/forms/errors.html" with form=form %}
                         <div class="large-12 columns">
                             {{ form.title|foundation }}
                         </div>
                         <div class="large-12 columns">
-                            <div class="row expanded">
-                                <div class="large-12 columns">
-                                    {{ form.abstract.label }}
-                                    <textarea class="form-control" cols="40" id="id_abstract" name="abstract"
-                                              placeholder="{% trans "If you have any additional information you'd like to supply to the preprints editor, do so here" %}."
-                                              rows="10" title=""></textarea></div>
-                            </div>
+                            {{ form.abstract|foundation }}
+
                         </div>
                         <div class="large-12 columns error">
                             {{ form.license|foundation }}
@@ -60,11 +55,7 @@
                             <div class="row expanded">
                                 <div class="large-12 columns">
                                     <label for="id_keywords">Keywords</label>
-                                    <input type="text" id="id_keywords" name="keywords" value="
-
-
-
-                                            {% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                                    <input type="text" id="id_keywords" name="keywords" value="{% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
                                     {% trans "Hit Enter to add a new keyword." %}
                                 </div>
                             </div>

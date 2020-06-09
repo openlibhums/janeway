@@ -6,7 +6,7 @@
     of the preprint.{% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a></li>
+    <li><a href="{% url 'repository_dashboard' %}">Preprints Dashboard</a></li>
     <li>Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}</li>
 {% endblock %}
 

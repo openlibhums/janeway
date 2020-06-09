@@ -42,6 +42,7 @@
 {% if request.user.is_authenticated %}
     {% user_has_role request 'editor' as user_is_editor %}
     <ul id="dropdown1" class="dropdown-content">
+         <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if request.user.is_staff %}
             <li><a class="dropdown-item" href="/admin/repository/">{% trans "Admin" %}</a></li>
         {% endif %}
@@ -49,6 +50,7 @@
     </ul>
 
     <ul id="account" class="dropdown-content">
+        <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if request.user.is_staff %}
             <li><a class="dropdown-item" href="/admin/repository/">{% trans "Admin" %}</a></li>
         {% endif %}
