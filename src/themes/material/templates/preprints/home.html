@@ -21,8 +21,8 @@
             </form>
         </div>
         <div class="col m12 s12">
-            <p class="center">{% trans "Read about " %}{{ request.press.name }} <a
-                    href="{% url 'preprints_about' %}">{% trans "preprints" %}</a> {% trans "or view list of" %} <a
+            <p class="center">{% trans "Read about " %}{{ request.repository.name }} <a
+                    href="{% url 'preprints_about' %}">{{ request.repository.object_name }}</a> {% trans "or view list of" %} <a
                     href="{% url 'preprints_list' %}">{% trans "all preprints" %}</a>.</p>
         </div>
     </div>

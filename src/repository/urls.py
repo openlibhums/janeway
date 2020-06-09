@@ -17,7 +17,7 @@ urlpatterns = [
         views.preprints_author_article,
         name='preprints_author_article'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/about/$',
+    url(r'^about/$',
         views.repository_about,
         name='repository_about'),
 
@@ -37,11 +37,11 @@ urlpatterns = [
         views.preprints_pdf,
         name='preprints_pdf'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/list/$',
+    url(r'^list/$',
         views.repository_list,
         name='repository_list'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/list/(?P<subject_slug>[-\w]+)/$',
+    url(r'^list/(?P<subject_slug>[-\w]+)/$',
         views.repository_list,
         name='preprints_list_subject'),
 

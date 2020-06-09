@@ -105,6 +105,7 @@ class Repository(model_utils.AbstractSiteModel):
         help_text=_('If set to True, this will require all file uploads from'
                     'authors to be PDF files.')
     )
+    about = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'repositories'
