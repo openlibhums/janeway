@@ -15,6 +15,11 @@ from core.file_system import JanewayFileSystemStorage
 from core import model_utils
 
 
+STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
+STAGE_PREPRINT_REVIEW = 'preprint_review'
+STAGE_PREPRINT_PUBLISHED = 'preprint_published'
+
+
 def html_input_types():
     return (
         ('text', 'Text'),
@@ -121,10 +126,6 @@ class RepositoryField(models.Model):
         max_length=255,
         choices=html_input_types(),
     )
-    width = models.CharField(
-        max_length=2,
-        choices=width_choices(),
-    )
     choices = models.CharField(
         max_length=1000,
         null=True,
@@ -133,6 +134,7 @@ class RepositoryField(models.Model):
     )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
+    help_text = models.TextField(blank=True, null=True)
     display = models.BooleanField(
         default=False,
         help_text='Whether or not display this field in the article page',
@@ -145,6 +147,9 @@ class RepositoryField(models.Model):
         ),
     )
 
+    def __str__(self):
+        return '{}: {}'.format(self.repository.name, self.name)
+
 
 class RepositoryFieldAnswer(models.Model):
     field = models.ForeignKey(
@@ -155,6 +160,9 @@ class RepositoryFieldAnswer(models.Model):
     )
     preprint = models.ForeignKey('Preprint')
     answer = models.TextField()
+
+    def __str__(self):
+        return '{}: {}'.format(self.preprint, self.answer)
 
 
 class Preprint(models.Model):
@@ -168,6 +176,7 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    stage = models.CharField(max_length=25, default=STAGE_PREPRINT_UNSUBMITTED)
     title = models.CharField(
         max_length=300,
         help_text=_('Your article title'),
@@ -239,6 +248,11 @@ class Preprint(models.Model):
     date_published = models.DateTimeField(blank=True, null=True)
     date_updated = models.DateTimeField(blank=True, null=True)
     current_step = models.IntegerField(default=1)
+
+    def __str__(self):
+        return '{}'.format(
+            self.title,
+        )
 
     def old_versions(self):
         return PreprintVersion.objects.filter(
@@ -314,6 +328,12 @@ class Preprint(models.Model):
         self.submission_file.original_filename = original_filename
         self.submission_file.file = file
         self.submission_file.save()
+
+    def submit_preprint(self):
+        self.date_submitted = timezone.now()
+        self.stage = STAGE_PREPRINT_REVIEW
+        self.current_step = 5
+        self.save()
 
 
 class PreprintFile(models.Model):

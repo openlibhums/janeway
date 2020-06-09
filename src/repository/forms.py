@@ -23,6 +23,7 @@ class PreprintInfo(forms.ModelForm):
             'abstract',
             'license',
             'comments_editor',
+            'subject',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
@@ -31,7 +32,6 @@ class PreprintInfo(forms.ModelForm):
                     'placeholder': _('Enter your article\'s abstract here')
                 }
             ),
-            'subject': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -49,53 +49,40 @@ class PreprintInfo(forms.ModelForm):
         )
         self.fields['license'].required = True
 
-        # If there is an instance, we want to try to set the default subject area
-        if 'instance' in kwargs:
-            article = kwargs['instance']
-            if article:
-                self.fields['subject'].initial = article.get_subject_area()
-
         if elements:
             for element in elements:
-                if element.kind == 'text':
+                if element.input_type == 'text':
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.TextInput(
-                            attrs={'div_class': element.width},
-                        ),
+                        widget=forms.TextInput(),
                         required=element.required)
-                elif element.kind == 'textarea':
+                elif element.input_type == 'textarea':
                     self.fields[element.name] = forms.CharField(
                         widget=forms.Textarea,
                         required=element.required,
                     )
-                elif element.kind == 'date':
+                elif element.input_type == 'date':
                     self.fields[element.name] = forms.CharField(
                         widget=forms.DateInput(
                             attrs={
                                 'class': 'datepicker',
-                                'div_class': element.width,
                             }
                         ),
                         required=element.required)
 
-                elif element.kind == 'select':
+                elif element.input_type == 'select':
                     choices = render_choices(element.choices)
                     self.fields[element.name] = forms.ChoiceField(
-                        widget=forms.Select(
-                            attrs={'div_class': element.width},
-                        ),
+                        widget=forms.Select(),
                         choices=choices,
                         required=element.required,
                     )
 
-                elif element.kind == 'email':
+                elif element.input_type == 'email':
                     self.fields[element.name] = forms.EmailField(
-                        widget=forms.TextInput(
-                            attrs={'div_class': element.width}
-                        ),
+                        widget=forms.TextInput(),
                         required=element.required,
                     )
-                elif element.kind == 'check':
+                elif element.input_type == 'check':
                     self.fields[element.name] = forms.BooleanField(
                         widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                         required=element.required)
@@ -103,9 +90,13 @@ class PreprintInfo(forms.ModelForm):
                 self.fields[element.name].help_text = element.help_text
                 self.fields[element.name].label = element.name
 
-                if article:
+                preprint = kwargs['instance']
+                if preprint:
                     try:
-                        check_for_answer = submission_models.FieldAnswer.objects.get(field=element, article=article)
+                        check_for_answer = models.RepositoryFieldAnswer.objects.get(
+                            field=element,
+                            preprint=preprint,
+                        )
                         self.fields[element.name].initial = check_for_answer.answer
                     except submission_models.FieldAnswer.DoesNotExist:
                         pass
@@ -125,29 +116,27 @@ class PreprintInfo(forms.ModelForm):
             if keyword.word not in posted_keywords:
                 preprint.keywords.remove(keyword)
 
-        # TODO: FIX THIS SHIT
-        """
-        if request:
-            additional_fields = submission_models.Field.objects.filter(press=request.press)
-
+        if self.request:
+            additional_fields = models.RepositoryField.objects.filter(
+                repository=self.request.repository,
+            )
             for field in additional_fields:
-                answer = request.POST.get(field.name, None)
+                answer = self.request.POST.get(field.name, None)
 
                 if answer:
                     try:
-                        field_answer = submission_models.FieldAnswer.objects.get(
-                            article=preprint,
+                        field_answer = models.RepositoryFieldAnswer.objects.get(
+                            preprint=preprint,
                             field=field,
                         )
                         field_answer.answer = answer
                         field_answer.save()
-                    except submission_models.FieldAnswer.DoesNotExist:
-                        field_answer = submission_models.FieldAnswer.objects.create(
-                            article=preprint,
+                    except models.RepositoryFieldAnswer.DoesNotExist:
+                        models.RepositoryFieldAnswer.objects.create(
+                            preprint=preprint,
                             field=field,
                             answer=answer,
                         )
-        """
 
         if commit:
             preprint.save()

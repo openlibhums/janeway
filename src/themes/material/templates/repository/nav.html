@@ -12,6 +12,7 @@
         </a>
         <ul class="right hide-on-med-and-down">
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
+            <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}

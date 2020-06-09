@@ -1012,30 +1012,51 @@ def preprint_submission(**kwargs):
     :return: None
     """
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
 
-    description = '{author} has submitted a new preprint titled {title}.'.format(author=request.user.full_name(),
-                                                                                 title=article.title)
+    description = '{author} has submitted a new preprint titled {title}.'.format(
+        author=request.user.full_name(),
+        title=preprint.title,
+    )
     log_dict = {'level': 'Info', 'action_text': description, 'types': 'Submission',
-                'target': article}
+                'target': preprint}
 
     # Send an email to the user
-    context = {'article': article}
+    context = {'preprint': preprint}
     template = request.press.preprint_submission
-    email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text,
-                                                  log_dict=log_dict)
+    email_text = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Submission'.format(request.repository.object_name),
+        request.user.email,
+        email_text,
+        log_dict=log_dict,
+    )
 
     # Send an email to the preprint editor
-    url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
-    editor_email_text = 'A new preprint has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
+    url = request.repository.site_url() + reverse(
+        'preprints_manager_article',
+        kwargs={'preprint_id': preprint.pk},
+    )
+    editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
+        object=request.repository.object_name,
         press=request.press.name,
         url=url,
-        title=article.title
+        title=preprint.title
     )
     for editor in request.press.preprint_editors():
-        notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
-                                                      editor_email_text, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Submission'.format(request.repository.object_name),
+            editor.email,
+            editor_email_text,
+            log_dict=log_dict,
+        )
 
 
 def preprint_publication(**kwargs):

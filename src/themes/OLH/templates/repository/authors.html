@@ -107,7 +107,7 @@
                 $.ajax({
                     data: data,
                     type: 'POST',
-                    url: '{% url 'preprints_authors' article.pk %}'
+                    url: '{% url 'repository_authors' article.pk %}'
                 });
             }
         });

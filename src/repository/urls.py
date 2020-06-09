@@ -9,11 +9,6 @@ from django.conf.urls import url
 from repository import views
 
 urlpatterns = [
-
-    url(r'^(?P<repository_short_name>[-\w]+)/$',
-        views.repository_home,
-        name='repository_home'),
-
     url(r'^(?P<repository_short_name>[-\w]+)/dashboard/$',
         views.repository_dashboard,
         name='repository_dashboard'),
@@ -54,33 +49,33 @@ urlpatterns = [
         views.preprints_editors,
         name='preprints_editors'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/start/$',
+    url(r'^submit/start/$',
         views.repository_submit,
         name='repository_submit'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/$',
+    url(r'^submit/(?P<preprint_id>\d+)/$',
         views.repository_submit,
         name='repository_submit_with_id'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/authors/$',
-        views.preprints_authors,
-        name='preprints_authors'),
+    url(r'^submit/(?P<preprint_id>\d+)/authors/$',
+        views.repository_authors,
+        name='repository_authors'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/authors/delete/(?P<redirect_string>[-\w]+)/$',
+    url(r'^submit/(?P<preprint_id>\d+)/authors/delete/(?P<redirect_string>[-\w]+)/$',
         views.preprints_delete_author,
         name='preprints_delete_author'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/authors/order/$',
+    url(r'^submit/(?P<preprint_id>\d+)/authors/order/$',
         views.preprints_author_order,
         name='preprints_author_order'),
 
-    url(r'^(?P<repository_short_name>[-\w]+)/submit/(?P<preprint_id>\d+)/files/$',
-        views.preprints_files,
-        name='preprints_files'),
+    url(r'^submit/(?P<preprint_id>\d+)/files/$',
+        views.repository_files,
+        name='repository_files'),
 
-    url(r'^submit/(?P<article_id>\d+)/review/$',
-        views.preprints_review,
-        name='preprints_review'),
+    url(r'^submit/(?P<preprint_id>\d+)/review/$',
+        views.repository_review,
+        name='repository_review'),
 
     url(r'^manager/$',
         views.preprints_manager,

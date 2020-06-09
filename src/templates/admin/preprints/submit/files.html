@@ -43,20 +43,32 @@
             </div>
             <div class="large-6 columns">
                 <div class="title-area">
-                    <h2>Upload</h2>
+                    <h2>Uploaded File</h2>
                 </div>
                 <div class="content">
+                    {% if preprint.submission_file %}
+                        <p>{% trans 'If you want to change this file you can upload a new one and it will be overwritten.' %}</p>
+                    {% endif %}
                     <table class="table">
                         <tr>
                             <th>Original Filename</th>
                             <th>Size</th>
                         </tr>
-                        <tr>
-                            <td>{{ preprint.submission_file.original_filename }}</td>
-                            <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
-
-                        </tr>
+                        {% if preprint.submission_file %}
+                            <tr>
+                                <td>{{ preprint.submission_file.original_filename }}</td>
+                                <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="2">No file uploaded.</td>
+                            </tr>
+                        {% endif %}
                     </table>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="complete" class="button">{% trans 'Complete Step 3 of 3' %}</button>
+                    </form>
                 </div>
             </div>
         </div>

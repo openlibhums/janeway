@@ -22,6 +22,9 @@
                 {% csrf_token %}
                 <div class="large-6 columns end">
                     <div class="row">
+                        <div class="title-area">
+                                <h2>{% trans "Metadata" %}</h2>
+                            </div>
                         {% include "elements/forms/errors.html" with form=form %}
                         <div class="large-12 columns">
                             {{ form.title|foundation }}
@@ -40,9 +43,9 @@
                         </div>
 
                         <div class="large-12 columns">
-                            {{ form.subject|foundation }}
                             <div class="row expanded">
                                 <div class="large-12 columns">
+                                    <label for="id_subject">{{ form.subject.label }}<span class="red">*</span></label>
                                     <ul class="tree">
                                         {% include "admin/elements/repository/tree.html" with subjects=request.repository.top_level_subjects %}
                                     </ul>
@@ -67,10 +70,13 @@
                             </div>
                         </div>
 
+                        <div class="large-12 columns">
+                            {{ form.comments_editor|foundation }}
+                        </div>
+
                         {% if additional_fields %}
-                            <div class="large-12 columns">
-                                <p></p>
-                                <h4>{% trans "Additional Fields" %}</h4>
+                            <div class="title-area">
+                                <h2>{% trans "Additional Fields" %}</h2>
                             </div>
                             {% for additional_field in additional_fields %}
                                 {% get_form_field form additional_field.name as field %}
@@ -79,10 +85,6 @@
                                 </div>
                             {% endfor %}
                         {% endif %}
-
-                        <div class="large-12 columns">
-                            {{ form.comments_editor|foundation }}
-                        </div>
 
                         <div class="large-12 columns">
                             <div class="row">

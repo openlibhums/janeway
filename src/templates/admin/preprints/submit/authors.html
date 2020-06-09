@@ -71,7 +71,7 @@
                 </div>
                 <div class="content">
                     <p>{% trans 'You can reorder the authors by dragging and dropping rows in the table below.' %}</p>
-                    <form method="POST" action="{% url 'preprints_delete_author' request.repository.short_name preprint.pk 'submission'  %}">
+                    <form method="POST" action="{% url 'preprints_delete_author' preprint.pk 'submission'  %}">
                         {% csrf_token %}
                         <table class="small">
                             <thead>
@@ -146,7 +146,7 @@
                 $.ajax({
                     data: data,
                     type: 'POST',
-                    url: '{% url 'preprints_author_order' request.repository.short_name preprint.pk %}'
+                    url: '{% url 'preprints_author_order' preprint.pk %}'
                 });
             }
         });

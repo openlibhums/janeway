@@ -1,0 +1,106 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+{% load field %}
+
+{% block title-section %}
+    {% trans 'Review' %} {{ preprint.title }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' request.repository.short_name %}">{{ request.repository.name }}
+        Dashboard</a></li>
+    <li>Start Submission</li>
+    <li>Add Authors</li>
+    <li>Upload Files</li>
+    <li>Review {{ request.repository.object_name }}</li>
+{% endblock %}
+
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <div class="title-area">
+                    <h2>Metadata</h2>
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th colspan="2">Title</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ preprint.title }}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Keywords</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Abstract</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><small>{{ preprint.abstract }}</small></td>
+                        </tr>
+                        <tr>
+                            <th>Subject</th>
+                            <th>License</th>
+                        </tr>
+                        <tr>
+                            <td>{{ preprint.subject }}</td>
+                            <td>{{ preprint.license }}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Comments to the Editor</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><small>{{ preprint.comments_editor }}</small></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Authors</h2>
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
+                            <th>{% trans 'Affiliation' %}</th>
+                        </tr>
+                        {% for author in preprint.authors %}
+                            <tr id="authors-{{ author.pk }}">
+                                <td>{{ author.full_name }}</td>
+                                <td>{{ author.email_address }}</td>
+                                <td>{{ author.affiliation }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Files</h2>
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th>Original Filename</th>
+                            <th>Size</th>
+                        </tr>
+                        <tr>
+                            <td>{{ preprint.submission_file.original_filename }}</td>
+                            <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
+                        </tr>
+                    </table>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="complete" class="button">Complete Submission</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
