@@ -17,8 +17,8 @@
                         <li>{{ editor }} <a href="mailto:{{ editor.email }}?subject={{ review_request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
                     {% endfor %}
                 {% elif review_request.article.editors %}
-                    {% for editor in review_request.article.editors %}
-                        <li>{{ editor }} <a href="mailto:{{ editor.email }}?subject={{ review_request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
+                    {% for editor_dict in review_request.article.editors %}
+                        <li>{{ editor_dict.editor }} <a href="mailto:{{ editor_dict.editor.email }}?subject={{ review_request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
                     {% endfor %}
                 {% else %}
                     <li>This article has no editors.</li>
