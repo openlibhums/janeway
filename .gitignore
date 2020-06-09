@@ -71,6 +71,7 @@ src/core/settings.py
 /src/files/data_backup
 /src/files/xsl
 /src/files/preprints
+/src/files/repos
 /src/media/django-summernote
 /src/media/*
 /src/collected-static
