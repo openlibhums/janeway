@@ -13,7 +13,7 @@ urlpatterns = [
         views.repository_dashboard,
         name='repository_dashboard'),
 
-    url(r'^dashboard/(?P<article_id>\d+)/$',
+    url(r'^dashboard/(?P<preprint_id>\d+)/$',
         views.preprints_author_article,
         name='preprints_author_article'),
 

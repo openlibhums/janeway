@@ -82,14 +82,19 @@ def repository_dashboard(request):
 
 
 @preprint_editor_or_author_required
-def preprints_author_article(request, article_id):
+def preprints_author_article(request, preprint_id):
     """
     Allows authors to view the metadata and replace galley files for their articles.
     :param request: HttpRequest
     :param article_id: Article PK
     :return: HttpRedirect if POST or HttpResponse
     """
-    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        stage__in=models.SUBMITTED_STAGES,
+    )
+    # TODO: Fix
     metrics_summary = repository_logic.metrics_summary([preprint])
 
     if request.POST:
@@ -97,14 +102,19 @@ def preprints_author_article(request, article_id):
             return repository_logic.handle_preprint_submission(request, preprint)
         else:
             repository_logic.handle_author_post(request, preprint)
-            return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
+            return redirect(
+                reverse(
+                    'preprints_author_article',
+                    kwargs={'article_id': preprint.pk},
+                )
+            )
 
-    template = 'admin/preprints/author_article.html'
+    template = 'admin/repository/author_article.html'
     context = {
         'preprint': preprint,
         'metrics_summary': metrics_summary,
         'preprint_journals': repository_logic.get_list_of_preprint_journals(),
-        'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
+        # 'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
     }
 
     return render(request, template, context)

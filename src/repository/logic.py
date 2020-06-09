@@ -41,37 +41,28 @@ def metrics_summary(published_preprints):
     """
     Fetches view counts for a month and year.
     :param published_preprints: preprint queryset
-    :param month: month
-    :param year: year
-    :return: view count, integer
+    :return: dictionary with access results
     """
     first_this_month, last_this_month = get_month_day_range(timezone.now())
-
     last_month_date = timezone.now() - relativedelta(months=1)
     first_last_month, last_last_month = get_month_day_range(last_month_date)
 
-    views = metrics_models.ArticleAccess.objects.filter(accessed__gte=first_this_month,
-                                                        accessed__lte=last_this_month,
-                                                        article__in=published_preprints,
-                                                        type='view').count()
+    accesses_this_month = models.PreprintAccess.objects.filter(
+        accessed__gte=first_this_month,
+        accessed__lte=last_this_month,
+        preprint__in=published_preprints
+    ).count()
 
-    downloads = metrics_models.ArticleAccess.objects.filter(accessed__gte=first_this_month,
-                                                            accessed__lte=last_this_month,
-                                                            article__in=published_preprints,
-                                                            type='download').count()
+    accesses_last_month = models.PreprintAccess.objects.filter(
+        accessed__gte=first_last_month,
+        accessed__lte=last_last_month,
+        preprint__in=published_preprints
+    ).count()
 
-    last_views = metrics_models.ArticleAccess.objects.filter(accessed__gte=first_last_month,
-                                                             accessed__lte=last_last_month,
-                                                             article__in=published_preprints,
-                                                             type='view').count()
-
-    last_downloads = metrics_models.ArticleAccess.objects.filter(accessed__gte=first_last_month,
-                                                                 accessed__lte=last_last_month,
-                                                                 article__in=published_preprints,
-                                                                 type='download').count()
-
-    return {'views': views, 'downloads': downloads,
-            'last_views': last_views, 'last_downloads': last_downloads}
+    return {
+        'accesses_this_month': accesses_this_month,
+        'accesses_last_month': accesses_last_month,
+    }
 
 
 def handle_file_upload(request, preprint):

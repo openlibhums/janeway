@@ -280,10 +280,10 @@
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ["Views this Month", "Downloads this Month", "Views Last Month", "Downloads Last Month"],
+                labels: ["Accesses this Month", "Accesses Last Month"],
                 datasets: [{
                     label: 'Preprint Metrics',
-                    data: [{{ metrics_summary.views }}, {{ metrics_summary.downloads }}, {{ metrics_summary.last_views }}, {{ metrics_summary.last_downloads }}],
+                    data: [{{ metrics_summary.accesses_this_month }}, {{ metrics_summary.accesses_last_month }}],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
                         'rgba(75, 192, 192, 0.2)',
