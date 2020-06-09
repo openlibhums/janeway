@@ -1503,6 +1503,13 @@ def author_view_reviews(request, article_id):
             'No reviews have been made available by the Editor.',
         )
 
+    if request.GET.get('file_id', None):
+        viewable_files = logic.group_files(article, reviews)
+        file_id = request.GET.get('file_id')
+        file = get_object_or_404(core_models.File, pk=file_id)
+        if file in viewable_files:
+            return files.serve_file(request, file, article)
+
     template = 'review/author_view_reviews.html'
     context = {
         'article': article,
