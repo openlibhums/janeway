@@ -34,7 +34,8 @@ from security.decorators import (
 
 def repository_home(request):
     """
-    Displays the preprints home page with search box and 6 latest preprints publications
+    Displays the preprints home page with search box and 6 latest
+    preprints publications
     :param request: HttpRequest object
     :return: HttpResponse
     """
@@ -86,7 +87,7 @@ def preprints_author_article(request, preprint_id):
     """
     Allows authors to view the metadata and replace galley files for their articles.
     :param request: HttpRequest
-    :param article_id: Article PK
+    :param preprint_id: Preprint PK
     :return: HttpRedirect if POST or HttpResponse
     """
     preprint = get_object_or_404(
@@ -94,7 +95,6 @@ def preprints_author_article(request, preprint_id):
         pk=preprint_id,
         stage__in=models.SUBMITTED_STAGES,
     )
-    # TODO: Fix
     metrics_summary = repository_logic.metrics_summary([preprint])
 
     if request.POST:
@@ -114,6 +114,7 @@ def preprints_author_article(request, preprint_id):
         'preprint': preprint,
         'metrics_summary': metrics_summary,
         'preprint_journals': repository_logic.get_list_of_preprint_journals(),
+        # TODO: FIX
         # 'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
     }
 
@@ -302,7 +303,6 @@ def repository_submit(request, preprint_id=None):
     """
     preprint = repository_logic.get_preprint_if_id(preprint_id)
 
-    # TODO: FIX THIS
     additional_fields = models.RepositoryField.objects.filter(
         repository=request.repository,
     )
@@ -553,20 +553,19 @@ def preprints_manager(request):
     :return: HttpResponse or HttpRedirect
     """
     unpublished_preprints = repository_logic.get_unpublished_preprints(request)
-
     published_preprints = repository_logic.get_published_preprints(request)
-
-    incomplete_preprints = submission_models.Article.preprints.filter(date_published__isnull=True,
-                                                                      date_submitted__isnull=True)
-    rejected_preprints = submission_models.Article.preprints.filter(date_declined__isnull=False)
-
+    incomplete_preprints = models.Preprint.objects.filter(
+        date_published__isnull=True,
+        date_submitted__isnull=True,
+    )
+    rejected_preprints = models.Preprint.objects.filter(
+        date_declined__isnull=False,
+    )
     metrics_summary = repository_logic.metrics_summary(published_preprints)
-
     version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
-
     subjects = models.Subject.objects.filter(enabled=True)
 
-    template = 'admin/preprints/manager.html'
+    template = 'admin/repository/manager.html'
     context = {
         'unpublished_preprints': unpublished_preprints,
         'published_preprints': published_preprints,

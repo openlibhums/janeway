@@ -288,22 +288,22 @@ def handle_updating_subject(request, preprint):
 
 
 def subject_article_pks(request):
-    article_pks = []
+    prepint_pks = []
     for subject in request.user.preprint_subjects():
-        for article in subject.preprints.all():
-            article_pks.append(article.pk)
+        for preprint in subject.preprints.all():
+            prepint_pks.append(preprint.pk)
 
-    return article_pks
+    return prepint_pks
 
 
 def get_unpublished_preprints(request):
-    unpublished_preprints = submission_models.Article.preprints.filter(
+    unpublished_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=False,
         date_declined__isnull=True,
         date_accepted__isnull=True,
     ).prefetch_related(
-        'articleauthororder_set'
+        'preprintauthor_set'
     )
 
     if request.user.is_staff:
@@ -313,10 +313,10 @@ def get_unpublished_preprints(request):
 
 
 def get_published_preprints(request):
-    published_preprints = submission_models.Article.preprints.filter(
+    published_preprints = models.Preprint.objects.filter(
         date_published__isnull=False,
         date_submitted__isnull=False).prefetch_related(
-        'articleauthororder_set'
+        'preprintauthor_set'
     )
 
     if request.user.is_staff:
