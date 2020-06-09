@@ -20,6 +20,7 @@ from proofing import models as proofing_models
 from security.logic import can_edit_file, can_view_file_history, can_view_file, is_data_figure_file
 from utils import setting_handler
 from utils.logger import get_logger
+from repository import models as preprint_models
 
 logger = get_logger(__name__)
 
@@ -994,12 +995,15 @@ def preprint_editor_or_author_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
 
-        article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
+        preprint = get_object_or_404(
+            preprint_models.Preprint,
+            pk=kwargs['preprint_id'],
+        )
 
-        if request.user in article.authors.all() or request.user.is_staff:
+        if request.user in preprint.authors or request.user.is_staff:
             return func(request, *args, **kwargs)
 
-        if request.user in article.subject_editors():
+        if request.user in preprint.subject_editors():
             return func(request, *args, **kwargs)
 
         deny_access(request)
