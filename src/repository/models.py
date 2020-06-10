@@ -12,7 +12,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from core.file_system import JanewayFileSystemStorage
-from core import model_utils
+from core import model_utils, files
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -293,6 +293,13 @@ class Preprint(models.Model):
         except IndexError:
             return 0
 
+    def next_version_number(self):
+        try:
+            last_version = self.preprintversion_set.all().reverse()[0]
+            return last_version.version + 1
+        except IndexError:
+            return 1
+
     @property
     def authors(self):
         preprint_authors = PreprintAuthor.objects.filter(
@@ -359,6 +366,13 @@ class Preprint(models.Model):
     def additional_field_answers(self):
         return self.repositoryfieldanswer_set.all()
 
+    def make_new_version(self, file):
+        PreprintVersion.objects.create(
+            preprint=self,
+            file=file,
+            version=self.next_version_number(),
+        )
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -367,9 +381,22 @@ class PreprintFile(models.Model):
         storage=preprint_file_store,
     )
     original_filename = models.TextField()
+    uploaded = models.DateTimeField(default=timezone.now)
 
     def filename(self):
         return os.path.basename(self.file.name)
+
+    @property
+    def uuid_filename(self):
+        return self.filename()
+
+    @property
+    def mime_type(self):
+        return files.file_path_mime(self.file.path)
+
+    def path_parts(self):
+        path = os.path.dirname(os.path.abspath(self.file.path))
+        return path
 
 
 class PreprintAccess(models.Model):
@@ -448,7 +475,7 @@ class PreprintVersion(models.Model):
     date_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ('-date_time', '-id')
+        ordering = ('-version', '-date_time', '-id')
 
 
 class Comment(models.Model):

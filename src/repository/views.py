@@ -623,26 +623,35 @@ def repository_manager_article(request, preprint_id):
                     )
                     cache.clear()
 
+        # TODO: Implement
         if 'decline' in request.POST:
             preprint.decline_article()
 
+        # TODO: Implement
         if 'upload' in request.POST:
             repository_logic.handle_file_upload(request, preprint)
 
+        # TODO: Implement
         if 'delete' in request.POST:
             repository_logic.handle_delete_version(request, preprint)
 
-        if 'save_subject' in request.POST:
-            repository_logic.handle_updating_subject(request, preprint)
-
+        # TODO: Implement
         if 'unpublish' in request.POST:
             if preprint.date_published or request.user.is_staff:
                 repository_logic.unpublish_preprint(request, preprint)
 
+        if 'make_version' in request.POST:
+            file = get_object_or_404(
+                models.PreprintFile,
+                pk=request.POST.get('make_version'),
+                preprint=preprint,
+            )
+            preprint.make_new_version(file)
+
         return redirect(
             reverse(
                 'repository_manager_article',
-                kwargs={'article_id': preprint.pk},
+                kwargs={'preprint_id': preprint.pk},
             )
         )
 
@@ -727,6 +736,32 @@ def repository_edit_metadata(request, preprint_id):
     return render(request, template, context)
 
 
+@is_article_preprint_editor
+def repository_download_file(request, preprint_id, file_id):
+    """
+    Serves files to preprint editors.
+    :param request: HttpRequest
+    :param preprint_id: Preprint PK int
+    :param file_id: PreprintFile PK int
+    :return: StreamingHttpReponse
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+
+    file = get_object_or_404(
+        models.PreprintFile,
+        pk=file_id,
+        preprint=preprint,
+    )
+
+    return files.serve_any_file(
+        request,
+        file,
+        path_parts=(file.path_parts(),)
+    )
 
 
 @is_article_preprint_editor

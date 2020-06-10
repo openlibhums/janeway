@@ -4,7 +4,7 @@
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint Manager{% endblock %}
-{% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}: {{ preprint.subtitle|safe }}{% endblock %}
+{% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
@@ -22,6 +22,12 @@
             </div>
             <div class="content">
                 <table class="scroll">
+                    <tr>
+                        <th colspan="3">Title</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">{{ preprint.title }}</td>
+                    </tr>
                     <tr>
                         <th colspan="2">Owner</th>
                         <th>Licence</th>
@@ -109,101 +115,38 @@
             <div class="content">
                 <table class="small scroll">
                     <tr>
-                        <th>Label</th>
                         <th>Filename</th>
                         <th>Type</th>
+                        <th>Size</th>
                         <th>Uploaded</th>
                         <th>Download</th>
-                        <th>Replace</th>
-                        <th>File History</th>
-                        <th>Make Galley</th>
+                        <th></th>
                     </tr>
                     <form method="POST">
                         {% csrf_token %}
-                        {% for file in preprint.manuscript_files.all %}
+                        {% for file in preprint.preprintfile_set.all %}
                             <tr>
-                                <td>{{ file.label }}</td>
                                 <td>{{ file.original_filename }}</td>
-                                <td>Manuscript</td>
-                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'article_file_download' 'id' preprint.pk file.pk %}"><i
-                                        class="fa fa-download">&nbsp;</i></a></td>
+                                <td>{{ file.mime_type }}</td>
+                                <td>{{ file.file.size|filesizeformat }}</td>
+                                <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>
+                                </td>
                                 <td>
-                                    <a href="{% url 'article_file_replace' 'id' preprint.pk file.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
-                                            class="fa fa-cloud-upload">&nbsp;</i></a></td>
-                                <td>
-                                    <a href="{% url 'file_history' preprint.pk file.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
-                                            class="fa fa-history">&nbsp;</i></a></td>
-                                <td><a
-                                        href="{% url 'article_file_make_galley' preprint.pk file.pk %}?return={{ request.path|urlencode }}"><i
-                                        class="fa fa-share-square-o">&nbsp;</i></a>
+                                    <button name="make_version" value="{{ file.pk }}" class="small button">
+                                        Create Version with this File
+                                    </button>
                                 </td>
                             </tr>
                         {% endfor %}
                     </form>
-                    {% for file in preprint.data_figure_files.all %}
-                        <tr>
-                            <td>{{ file.label }}</td>
-                            <td>{{ file.original_filename }}</td>
-                            <td>Data/Figure</td>
-                            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
-                            <td><a href="{% url 'article_file_download' 'id' preprint.pk file.pk %}"><i
-                                    class="fa fa-download">&nbsp;</i></a></td>
-                            <td>n/a</td>
-                        </tr>
-                    {% endfor %}
                 </table>
             </div>
         </div>
         <div class="box">
             <div class="title-area">
-                <h2>Current galleys and data/figure files</h2>
-            </div>
-            <div class="content">
-                <table class="small scroll">
-                    <tr style="text-align: left">
-                        <th>Label</th>
-                        <th width="25%">Filename</th>
-                        <th>Type</th>
-                        <th>Uploaded</th>
-                        <th>Edit</th>
-                        <th>Download</th>
-                        <th>History</th>
-                    </tr>
-                    {% for galley in preprint.galley_set.all %}
-                        <tr>
-                            <td>{{ galley.label }}</td>
-                            <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
-                            <td>Galley</td>
-                            <td>{{ galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
-                            <td>
-                                <a href="{% url 'pm_edit_galley' preprint.pk galley.pk %}?return={{ request.path|urlencode }}"
-                                   class="fa fa-edit"></a></td>
-                            <td>
-                                <a href="{% url 'article_file_download' 'id' preprint.pk galley.file.pk %}"><i
-                                        class="fa fa-download">&nbsp;</i></a>
-                            </td>
-                            <td>
-                                <a href="{% url 'file_history' preprint.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
-                                        class="fa fa-history">
-                                    &nbsp;</i></a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="9">No galleys have been uploaded.</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-                <div class="float-right"><a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">
-                    &nbsp;</i>Upload a new galley</a>
-                </div>
-                <br/>
-            </div>
-        </div>
-        <div class="box">
-            <div class="title-area">
-                <h2>Old Versions</h2>
+                <h2>Versions</h2>
             </div>
             <div class="content">
                 <table class="scroll">
@@ -212,7 +155,6 @@
                             <th>Version</th>
                             <th>Date</th>
                             <th>Filename</th>
-                            <th>Label</th>
                             <th>Uploaded</th>
                             <th>Download</th>
                             <th>Delete</th>
@@ -223,10 +165,9 @@
                             <tr>
                                 <td>{{ version.version }}</td>
                                 <td>{{ version.date_time }}</td>
-                                <td>{{ version.galley.file.original_filename|truncatechars:40 }}</td>
-                                <td>{{ version.galley.label }}</td>
-                                <td>{{ version.galley.file.date_uploaded|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'article_download_galley' preprint.id version.galley.id %}"><i class="fa fa-download"></i></a></td>
+                                <td>{{ version.file.original_filename|truncatechars:40 }}</td>
+                                <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}"><i class="fa fa-download"></i></a></td>
                                 <td><form method="POST">{% csrf_token %}<button type="submit" value="{{ version.pk }}" name="delete" class="control-button"><i class="fa fa-trash"></i></button></form></td>
                             </tr>
                         {% endfor %}

@@ -263,30 +263,6 @@ def handle_delete_subject(request):
     return redirect(reverse('preprints_subjects'))
 
 
-def get_subject_articles(subject):
-    subject_article_pks = [article.pk for article in subject.preprints.all()]
-    return submission_models.Article.preprints.filter(pk__in=subject_article_pks,
-                                                      date_published__lte=timezone.now())
-
-
-def handle_updating_subject(request, preprint):
-    """
-    Pulls a subject pk from POST, checks it exists and assigns the article to the subject.
-    :param request: HttpRequest
-    :param preprint: Preprint Object
-    :return: Function does not return anything
-    """
-
-    subject_pk = request.POST.get('subject')
-
-    if not subject_pk:
-        messages.add_message(request, messages.WARNING, 'No subject selected')
-    else:
-        subject = get_object_or_404(models.Subject, pk=subject_pk, enabled=True)
-        preprint.set_preprint_subject(subject)
-        messages.add_message(request, messages.INFO, ('Subject Area updated.'))
-
-
 def subject_article_pks(request):
     prepint_pks = []
     for subject in request.user.preprint_subjects():
