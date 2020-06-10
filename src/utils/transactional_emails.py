@@ -1040,7 +1040,7 @@ def preprint_submission(**kwargs):
 
     # Send an email to the preprint editor
     url = request.repository.site_url() + reverse(
-        'preprints_manager_article',
+        'repository_manager_article',
         kwargs={'preprint_id': preprint.pk},
     )
     editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
