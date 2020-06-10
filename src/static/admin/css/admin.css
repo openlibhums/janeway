@@ -463,3 +463,7 @@ th {
 .file p {
     word-break: break-all;
 }
+
+.formset-form>.columns {
+    padding-bottom: 25px;
+}
