@@ -30,7 +30,7 @@
                     {% for preprint in rejected_preprints %}
                         <tr>
                             <td>
-                                <a href="{% url 'preprints_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
+                                <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                             </td>
                             <td>{{ preprint.date_submitted }}</td>
                             <td>{{ preprint.date_declined }}</td>

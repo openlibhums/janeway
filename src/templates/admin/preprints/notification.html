@@ -8,7 +8,7 @@
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
     <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
-    <li><a href="{% url 'preprints_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
     <li>Notification</li>
 {% endblock %}
 
@@ -39,7 +39,7 @@
                                     <button type="submit" class="button success" name="send"><i
                                             class="fa fa-envelope-o">&nbsp;</i>Send
                                     </button>
-                                    <a href="{% url 'preprints_manager_article' preprint.pk %}" name="skip" class="warning button"><i class="fa fa-step-forward">&nbsp;</i>Skip</a>
+                                    <a href="{% url 'repository_manager_article' preprint.pk %}" name="skip" class="warning button"><i class="fa fa-step-forward">&nbsp;</i>Skip</a>
                                 </div>
                             </div>
                         </form>
