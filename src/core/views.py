@@ -428,7 +428,7 @@ def public_profile(request, uuid):
         enable_public_profile=True,
     )
     roles = models.AccountRole.objects.filter(
-        user=request.user,
+        user=user,
         journal=request.journal,
     )
 
