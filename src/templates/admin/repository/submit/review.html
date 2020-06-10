@@ -59,6 +59,14 @@
                         <tr>
                             <td colspan="2"><small>{{ preprint.comments_editor }}</small></td>
                         </tr>
+                        {% for field_answer in preprint.additional_field_answers %}
+                        <tr>
+                            <th colspan="2">{{ field_answer.field.name }}</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ field_answer.answer }}</td>
+                        </tr>
+                    {% endfor %}
                     </table>
                 </div>
                 <div class="title-area">

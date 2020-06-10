@@ -38,7 +38,7 @@
                     <tr>
                         <td>{{ preprint.date_started }}</td>
                         <td>{{ preprint.date_submitted }}</td>
-                        <td>{% for subject in preprint.subject_set.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %} <a href="#" data-open="subjectmodal"><i class="fa fa-pencil-square"</a></td>
+                        <td>{{ preprint.subject }}</td>
                     </tr>
                     <tr>
                         <th colspan="4">Abstract</th>
@@ -53,17 +53,7 @@
                         <td colspan="4">{% if preprint.comments_editor %}{{ preprint.comments_editor }}{% else %}No
                             comments{% endif %}</td>
                     </tr>
-                    {% if journal_settings.general.submission_competing_interests %}
-                        <tr>
-                            <th colspan="4">Competing Interests</th>
-                        </tr>
-                        <tr>
-                            <td colspan="4">
-                                {% if preprint.competing_interests %}{{ preprint.competing_interests }}{% else %}No
-                                    CI{% endif %}</td>
-                        </tr>
-                    {% endif %}
-                    {% for field_answer in preprint.fieldanswer_set.all %}
+                    {% for field_answer in preprint.additional_field_answers %}
                         <tr>
                             <th colspan="4">{{ field_answer.field.name }}</th>
                         </tr>
@@ -125,10 +115,10 @@
                                 <td><a href="{% url 'article_file_download' 'id' preprint.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
-                                    <a href="{% url 'article_file_replace' 'id' preprint.pk file.pk %}?return={% url 'preprints_manager_article' preprint.pk %}"><i
+                                    <a href="{% url 'article_file_replace' 'id' preprint.pk file.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
                                             class="fa fa-cloud-upload">&nbsp;</i></a></td>
                                 <td>
-                                    <a href="{% url 'file_history' preprint.pk file.pk %}?return={% url 'preprints_manager_article' preprint.pk %}"><i
+                                    <a href="{% url 'file_history' preprint.pk file.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
                                             class="fa fa-history">&nbsp;</i></a></td>
                                 <td><a
                                         href="{% url 'article_file_make_galley' preprint.pk file.pk %}?return={{ request.path|urlencode }}"><i
@@ -241,7 +231,7 @@
                 <ul class="menu vertical actions">
                     <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
                         Contact the Author</a></li>
-                    <li><a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'preprints_manager_article' preprint.pk %}"><i class="fa fa-clipboard">&nbsp;</i>Log</a></li>
+                    <li><a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i class="fa fa-clipboard">&nbsp;</i>Log</a></li>
                     <li><a href="{% url 'preprints_comments' preprint.pk %}"><i class="fa fa-comments" aria-hidden="true">&nbsp;</i>Comments ({{ preprint.comment_set.all|length }})</a></li>
                     {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_galley %}
                         <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept

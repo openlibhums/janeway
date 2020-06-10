@@ -344,6 +344,12 @@ class Preprint(models.Model):
     def subject_editors(self):
         return self.subject.editors.all()
 
+    def has_version(self):
+        return self.preprintversion_set.all()
+
+    def additional_field_answers(self):
+        return self.repositoryfieldanswer_set.all()
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
