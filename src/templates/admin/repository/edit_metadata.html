@@ -41,6 +41,14 @@
                     <h2>Authors</h2>
                 </div>
                 <div class="content">
+                    <p>
+                        <small>
+                            {% blocktrans %}
+                                Below you can edit each of the authors of this {{ request.repository.object_name }}.
+                                Alternatively use the blank form at the bottom to add more authors.
+                            {% endblocktrans %}
+                        </small>
+                    </p>
                     <form method="POST">
                         {% csrf_token %}
                         {{ author_formset|foundationinline }}
