@@ -1,4 +1,6 @@
 {% extends "admin/core/base.html" %}
+{% load i18n %}c
+{% load static from staticfiles %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint Manager{% endblock %}
@@ -21,19 +23,17 @@
             <div class="content">
                 <table class="scroll">
                     <tr>
-                        <th>Owner</th>
+                        <th colspan="2">Owner</th>
                         <th>Licence</th>
-                        <th>Language</th>
                     </tr>
                     <tr>
-                        <td>{{ preprint.owner.full_name }}</td>
+                        <td colspan="2">{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
-                        <td>{{ preprint.get_language_display }}</td>
                     </tr>
                     <tr>
                         <th colspan="1">Started</th>
                         <th colspan="1">Submitted</th>
-                        <th>Subject Area</th>
+                        <th>Subject</th>
                     </tr>
                     <tr>
                         <td>{{ preprint.date_started }}</td>
@@ -69,22 +69,36 @@
                 <h2>Authors</h2>
             </div>
             <div class="content">
-                <table class="scroll" id="unassigned">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Primary?</th>
-                    </tr>
-                    {% for order in preprint.articleauthororder_set.all %}
+                <form method="POST" action="{% url 'preprints_delete_author' preprint.pk 'manager' %}">
+                    {% csrf_token %}
+                    <table class="small">
+                        <thead>
                         <tr>
-                            <td><a href="#" data-open="author-{{ order.author.pk }}">{{ order.author.full_name }}</a></td>
-                            <td>{{ order.author.email }}</td>
-                            <td>{% if order.author == preprint.correspondence_author %}
-                                <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
-                                <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
+                            <th>{% trans 'Affiliation' %}</th>
+                            <th>{% trans 'Delete' %}</th>
                         </tr>
-                    {% endfor %}
-                </table>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for author in preprint.authors %}
+                            <tr id="authors-{{ author.pk }}">
+                                <td><span class="fa fa-sort"></span> {{ author.full_name }}</td>
+                                <td>{{ author.email_address }}</td>
+                                <td>{{ author.affiliation }}</td>
+                                <td>
+                                    <button name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">{% trans 'No authors added.' %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
             </div>
         </div>
 
@@ -229,6 +243,7 @@
 
             <div class="content">
                 <ul class="menu vertical actions">
+                    <li><a href="{% url 'repository_edit_metadata' preprint.pk %}"><span class="fa fa-edit" aria-hidden="true">&nbsp;</span>Edit Metadata</a></li>
                     <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
                         Contact the Author</a></li>
                     <li><a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i class="fa fa-clipboard">&nbsp;</i>Log</a></li>
@@ -291,7 +306,28 @@
 
 {% endblock %}
 
+
 {% block js %}
-    {% include "elements/datepicker.html" with target="#date" %}
-    {% include "elements/timepicker.html" with target="#time" %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+        <script src="{% static "admin/js/csrf.js" %}"></script>
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'preprints_author_order' preprint.pk %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+        </script>
 {% endblock %}
+

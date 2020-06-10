@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 from django_summernote.widgets import SummernoteWidget
 
@@ -35,8 +36,8 @@ class PreprintInfo(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        elements = kwargs.pop('additional_fields', None)
         self.request = kwargs.pop('request')
+        elements = self.request.repository.additional_submission_fields()
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
         self.fields['subject'].queryset = models.Subject.objects.filter(
@@ -155,6 +156,19 @@ class AuthorForm(forms.ModelForm):
             'affiliation',
             'orcid',
         )
+
+
+AuthorFormSet = modelformset_factory(
+    models.Author,
+    fields=(
+        'email_address',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'affiliation',
+        'orcid',
+    )
+)
 
 
 class CommentForm(forms.ModelForm):

@@ -124,6 +124,11 @@ class Repository(model_utils.AbstractSiteModel):
             'children'
         )
 
+    def additional_submission_fields(self):
+        return RepositoryField.objects.filter(
+            repository=self,
+        )
+
 
 class RepositoryField(models.Model):
     repository = models.ForeignKey(Repository)
@@ -295,6 +300,10 @@ class Preprint(models.Model):
         ).select_related('author')
 
         return [pa.author for pa in preprint_authors]
+
+    def author_objects(self):
+        pks = [author.pk for author in self.authors]
+        return Author.objects.filter(pk__in=pks)
 
     def add_user_as_author(self, user):
         author_dict = {

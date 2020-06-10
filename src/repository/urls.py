@@ -85,6 +85,10 @@ urlpatterns = [
         views.repository_manager_article,
         name='repository_manager_article'),
 
+url(r'^manager/(?P<preprint_id>\d+)/edit/$',
+        views.repository_edit_metadata,
+        name='repository_edit_metadata'),
+
     url(r'^manager/(?P<article_id>\d+)/notification/$',
         views.preprints_notification,
         name='preprints_notification'),

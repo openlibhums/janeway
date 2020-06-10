@@ -303,12 +303,8 @@ def repository_submit(request, preprint_id=None):
     """
     preprint = repository_logic.get_preprint_if_id(preprint_id)
 
-    additional_fields = models.RepositoryField.objects.filter(
-        repository=request.repository,
-    )
     form = forms.PreprintInfo(
         instance=preprint,
-        additional_fields=additional_fields,
         request=request,
     )
 
@@ -316,16 +312,15 @@ def repository_submit(request, preprint_id=None):
         form = forms.PreprintInfo(
             request.POST,
             instance=preprint,
-            additional_fields=additional_fields,
             request=request,
         )
 
         if form.is_valid():
-            article = form.save()
+            preprint = form.save()
             return redirect(
                 reverse(
                     'repository_authors',
-                    kwargs={'preprint_id': article.pk},
+                    kwargs={'preprint_id': preprint.pk},
                 ),
             )
 
@@ -333,7 +328,7 @@ def repository_submit(request, preprint_id=None):
     context = {
         'form': form,
         'preprint': preprint,
-        'additional_fields': additional_fields,
+        'additional_fields': request.repository.additional_submission_fields(),
     }
 
     return render(request, template, context)
@@ -562,7 +557,9 @@ def preprints_manager(request):
         date_declined__isnull=False,
     )
     metrics_summary = repository_logic.metrics_summary(published_preprints)
-    version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+    versisons = models.VersionQueue.objects.filter(
+        date_decision__isnull=True,
+    )
     subjects = models.Subject.objects.filter(enabled=True)
 
     template = 'admin/repository/manager.html'
@@ -571,7 +568,7 @@ def preprints_manager(request):
         'published_preprints': published_preprints,
         'incomplete_preprints': incomplete_preprints,
         'rejected_preprints': rejected_preprints,
-        'version_queue': version_queue,
+        'version_queue': versisons,
         'metrics_summary': metrics_summary,
         'subjects': subjects,
     }
@@ -580,68 +577,156 @@ def preprints_manager(request):
 
 
 @is_article_preprint_editor
-def repository_manager_article(request, article_id):
+def repository_manager_article(request, preprint_id):
     """
-    Displays the metadata associated with the article and presents options for the editor to accept or decline the
+    Displays the metadata associated with the article and presents
+    options for the editor to accept or decline the
     preprint, replace its files and set a publication date.
     :param request: HttpRequest object
-    :param article_id: int, Article object PK
+    :param preprint_id: int, Preprint object PK
     :return: HttpResponse or HttpRedirect if successful POST.
     """
-    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
     crossref_enabled = request.press.preprint_dois_enabled()
 
     if request.POST:
 
         if 'accept' in request.POST:
-            if not preprint.has_galley:
-                messages.add_message(request, messages.WARNING, 'You must assign at least one galley file.')
-                return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+            if not preprint.has_version():
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'You must assign at least one galley file.',
+                )
             else:
-                date = request.POST.get('date', timezone.now().date())
-                time = request.POST.get('time', timezone.now().time())
+
+                preprint.accept_preprint(
+                    date=request.POST.get('date', timezone.now().date()),
+                    time=request.POST.get('time', timezone.now().time()),
+                )
+
                 doi = request.POST.get('doi', None)
-                preprint.accept_preprint(date, time)
-
                 if crossref_enabled and doi:
-                    doi_obj = ident_logic.create_crossref_doi_identifier(article=preprint,
-                                                                         doi_suffix=doi,
-                                                                         suffix_is_whole_doi=True)
-                    ident_logic.register_preprint_doi(request, crossref_enabled, doi_obj)
+                    doi_obj = ident_logic.create_crossref_doi_identifier(
+                        article=preprint,
+                        doi_suffix=doi,
+                        suffix_is_whole_doi=True,
+                    )
+                    ident_logic.register_preprint_doi(
+                        request,
+                        crossref_enabled,
+                        doi_obj,
+                    )
                     cache.clear()
-
-                return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'decline' in request.POST:
             preprint.decline_article()
-            return redirect(reverse('preprints_notification', kwargs={'article_id': preprint.pk}))
 
         if 'upload' in request.POST:
             repository_logic.handle_file_upload(request, preprint)
-            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
         if 'delete' in request.POST:
             repository_logic.handle_delete_version(request, preprint)
-            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
         if 'save_subject' in request.POST:
             repository_logic.handle_updating_subject(request, preprint)
-            return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
         if 'unpublish' in request.POST:
             if preprint.date_published or request.user.is_staff:
                 repository_logic.unpublish_preprint(request, preprint)
-                return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
 
-    template = 'admin/preprints/article.html'
+        return redirect(
+            reverse(
+                'repository_manager_article',
+                kwargs={'article_id': preprint.pk},
+            )
+        )
+
+    template = 'admin/repository/article.html'
     context = {
         'preprint': preprint,
         'subjects': models.Subject.objects.filter(enabled=True),
         'crossref_enabled': crossref_enabled,
-        'doi': repository_logic.get_doi(request, preprint)
+        # 'doi': repository_logic.get_doi(request, preprint)
     }
 
     return render(request, template, context)
+
+
+@is_article_preprint_editor
+def repository_edit_metadata(request, preprint_id):
+    """
+    Presents an interface to edit a Preprint and related objects metadata
+    :param request: HttpRequest
+    :param preprint_id: Preprint PK
+    :return: HttpReponse or HttpRedirtect
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository
+    )
+
+    metadata_form = forms.PreprintInfo(
+        instance=preprint,
+        request=request,
+    )
+
+    author_formset = forms.AuthorFormSet(
+        queryset=preprint.author_objects(),
+    )
+
+    fire_redirect = False
+
+    if request.POST:
+        if 'authors' in request.POST:
+            author_formset = forms.AuthorFormSet(request.POST)
+            if author_formset.is_valid():
+                authors = author_formset.save()
+                for author in authors:
+                    models.PreprintAuthor.objects.get_or_create(
+                        preprint=preprint,
+                        author=author,
+                        defaults={
+                            'order': preprint.next_author_order(),
+                        }
+                    )
+                fire_redirect = True
+
+        if 'metadata' in request.POST:
+            metadata_form = forms.PreprintInfo(
+                request.POST,
+                instance=preprint,
+                request=request,
+            )
+
+            if metadata_form.is_valid():
+                metadata_form.save()
+                fire_redirect = True
+
+        if fire_redirect:
+            return redirect(
+                reverse(
+                    'repository_edit_metadata',
+                    kwargs={'preprint_id': preprint.pk},
+                )
+            )
+
+    template = 'admin/repository/edit_metadata.html'
+    context = {
+        'preprint': preprint,
+        'metadata_form': metadata_form,
+        'author_formset': author_formset,
+        'additional_fields': request.repository.additional_submission_fields(),
+    }
+
+    return render(request, template, context)
+
+
 
 
 @is_article_preprint_editor
@@ -661,7 +746,7 @@ def preprints_notification(request, article_id):
         email_content = request.POST.get('email_content', '')
         kwargs = {'request': request, 'article': preprint, 'email_content': email_content}
         event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_PUBLICATION, **kwargs)
-        return redirect(reverse('preprints_manager_article', kwargs={'article_id': preprint.pk}))
+        return redirect(reverse('repository_manager_article', kwargs={'article_id': preprint.pk}))
 
     template = 'preprints/notification.html'
     context = {
@@ -890,6 +975,13 @@ def preprints_delete_author(request, preprint_id, redirect_string):
                 kwargs={
                     'preprint_id': preprint_id,
                 }
+            )
+        )
+    elif redirect_string == 'manager':
+        return redirect(
+            reverse(
+                'repository_manager_article',
+                kwargs={'preprint_id': preprint.pk},
             )
         )
 
