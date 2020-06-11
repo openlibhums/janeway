@@ -28,7 +28,7 @@ def move_xsl_files(apps, schema_editor, from_, to):
             )
         else:
             try:
-                os.rename(
+                shutil.move(
                     os.path.join(from_, filename),
                     os.path.join(to, filename)
                 )
