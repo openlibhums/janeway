@@ -16,18 +16,6 @@ from repository import models
 from submission import models as submission_models
 
 
-def get_display_modal(request):
-    """
-    Determins which file modal should be displayed when there is a form error.
-    :param request: HttpRequest
-    :return: string
-    """
-    if 'manuscript' in request.POST:
-        return 'manuscript'
-    elif 'data' in request.POST:
-        return 'data'
-
-
 def get_month_day_range(date):
     """
     For a date 'date' returns the start and end date for the month of 'date'.
@@ -154,6 +142,7 @@ def comment_manager_post(request, preprint):
     comment.save()
 
 
+# TODO: Update this implementation
 def handle_author_post(request, preprint):
     file = request.FILES.get('file')
     update_type = request.POST.get('upload_type')
@@ -171,6 +160,7 @@ def handle_author_post(request, preprint):
     messages.add_message(request, messages.INFO, 'This update has been added to the moderation queue.')
 
 
+# TODO: Update this implementation
 def get_pending_update_from_post(request):
     """
     Gets a VersionQueue object from a post value
@@ -192,6 +182,7 @@ def get_pending_update_from_post(request):
         return None
 
 
+# TODO: Update this implementation
 def approve_pending_update(request):
     """
     Approves a pending versioning request and updates files/galleys.
@@ -265,17 +256,38 @@ def handle_delete_version(request, preprint):
         )
 
 
-def handle_delete_subject(request):
-    subject_id = request.POST.get('delete')
+def delete_file(request, preprint):
+    """
+    Fetches the file to be deleted, checks that it belongs to a preprint
+    and deletes it.
+    :param request: HttpRequest object
+    :param preprint: Preprint object
+    :return: None
+    """
+    file_id = request.POST.get('delete_file')
 
-    subject = get_object_or_404(models.Subject, pk=subject_id)
-    messages.add_message(request, messages.INFO, 'Subject "{subject}" deleted.'.format(subject=subject.name))
-    subject.delete()
-    return redirect(reverse('preprints_subjects'))
+    if not file_id:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No File ID supplied.'
+        )
+    try:
+        models.PreprintFile.objects.get(
+            pk=file_id,
+            preprint=preprint,
+        ).delete()
+    except models.PreprintFile.DoesNotExist:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No matching File found.'
+        )
 
 
 def subject_article_pks(request):
     prepint_pks = []
+    # TODO: Update this implementation
     for subject in request.user.preprint_subjects():
         for preprint in subject.preprints.all():
             prepint_pks.append(preprint.pk)
@@ -312,28 +324,20 @@ def get_published_preprints(request):
         return published_preprints.filter(pk__in=subject_article_pks(request))
 
 
-def unpublish_preprint(request, preprint):
-    "Marks a preprint as unpublished."
-    preprint.date_accepted = None
-    preprint.date_declined = None
-    preprint.date_published = None
-    preprint.preprint_decision_notification = False
-    preprint.stage = submission_models.STAGE_PREPRINT_REVIEW
-    preprint.save()
-    messages.add_message(request, messages.INFO, 'This preprint has been unpublished')
-
-
 def get_preprint_if_id(preprint_id):
     if preprint_id:
-        article = get_object_or_404(models.Preprint,
-                                    pk=preprint_id,
-                                    date_submitted__isnull=True)
+        article = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            date_submitted__isnull=True,
+        )
     else:
         article = None
 
     return article
 
 
+# TODO: Update this
 @cache(300)
 def list_articles_without_subjects():
     articles = submission_models.Article.preprints.filter(date_submitted__isnull=False)
@@ -360,17 +364,18 @@ def get_doi(request, preprint):
         return doi
 
     else:
-        doi = render_template.get_message_content(request,
-                                                  {'preprint': preprint},
-                                                  request.press.get_setting_value('Crossref Pattern'),
-                                                  template_is_setting=True)
+        doi = render_template.get_message_content(
+            request,
+            {'preprint': preprint},
+            request.press.get_setting_value('Crossref Pattern'),
+            template_is_setting=True,
+        )
         return doi
 
 
 def get_list_of_preprint_journals():
     """
     Returns a list of journals who allow preprints to be submitted to them.
-    :param request: HttpRequest
     :return: Queryset of Journal objects
     """
     from journal import models as journal_models
@@ -378,71 +383,14 @@ def get_list_of_preprint_journals():
     journals_accepting_preprints = list()
 
     for journal in journals:
-        setting = journal.get_setting('general', 'accepts_preprint_submissions')
+        setting = journal.get_setting(
+            'general',
+            'accepts_preprint_submissions',
+        )
         if setting:
             journals_accepting_preprints.append(journal)
 
     return journals_accepting_preprints
-
-
-def handle_preprint_submission(request, preprint):
-    """
-    Handles post action for submitting a preprint to a journal.
-    :param request: HttpRequest object
-    :param preprint: Article.pk
-    :return: HttpRedirect
-    """
-    from journal import models as journal_models
-    journal_id = request.POST.get('submit_to_journal')
-    journal = get_object_or_404(journal_models.Journal, pk=journal_id)
-
-    if not preprint.date_accepted:
-        messages.add_message(request, messages.WARNING, 'Only preprints that have been accepted can be submitted to'
-                                                        'journals for publication.')
-        return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
-
-    if journal.get_setting('general', 'accepts_preprint_submissions') and not preprint.preprint_journal_article:
-        # Submit
-        old_preprint_pk = preprint.pk
-        preprint.pk = None
-        preprint.is_preprint = False
-        preprint.journal = journal
-        preprint.stage = submission_models.STAGE_UNSUBMITTED
-        preprint.current_step = 1
-        preprint.date_accepted = None
-        preprint.date_declined = None
-        preprint.date_published = None
-        preprint.date_submitted = None
-        preprint.save()
-
-        original_preprint = submission_models.Article.preprints.get(pk=old_preprint_pk)
-        original_preprint.preprint_journal_article = preprint
-        original_preprint.save()
-
-        for author in original_preprint.authors.all():
-            preprint.authors.add(author)
-            submission_models.ArticleAuthorOrder.objects.create(article=preprint,
-                                                                author=author,
-                                                                order=preprint.next_author_sort())
-
-        for galley in original_preprint.galley_set.all():
-            new_file = core_models.File.objects.create(
-                label='Manuscript',
-                article_id=preprint.pk,
-                mime_type=galley.file.mime_type,
-                original_filename=galley.file.original_filename,
-                uuid_filename=galley.file.uuid_filename,
-                owner=preprint.owner,
-                date_uploaded=galley.file.date_uploaded,
-            )
-            preprint.manuscript_files.add(new_file)
-            files.copy_article_file(original_preprint, galley.file, preprint)
-
-        return redirect(journal.full_reverse(request=request, url_name='submit_info', kwargs={'article_id': preprint.pk}))
-    else:
-        messages.add_message(request, messages.WARNING, 'This journal does not accept preprint submissions.')
-
-        return redirect(reverse('preprints_author_article', kwargs={'article_id': preprint.pk}))
 
 
 def check_duplicates(version_queue):

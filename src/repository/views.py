@@ -604,29 +604,24 @@ def repository_manager_article(request, preprint_id):
                     'You must assign at least one galley file.',
                 )
             else:
-
-                preprint.accept_preprint(
+                # TODO: Handle DOIs
+                preprint.accept(
                     date=request.POST.get('date', timezone.now().date()),
                     time=request.POST.get('time', timezone.now().time()),
                 )
+                repository_logic.raise_event(
+                    'accept',
+                    request,
+                    preprint,
+                )
 
-                doi = request.POST.get('doi', None)
-                if crossref_enabled and doi:
-                    doi_obj = ident_logic.create_crossref_doi_identifier(
-                        article=preprint,
-                        doi_suffix=doi,
-                        suffix_is_whole_doi=True,
-                    )
-                    ident_logic.register_preprint_doi(
-                        request,
-                        crossref_enabled,
-                        doi_obj,
-                    )
-                    cache.clear()
-
-        # TODO: Implement
         if 'decline' in request.POST:
-            preprint.decline_article()
+            preprint.decline()
+            repository_logic.raise_event(
+                'decline',
+                request,
+                preprint,
+            )
 
         if 'upload' in request.POST and request.FILES:
             file_form = forms.FileForm(
@@ -640,17 +635,20 @@ def repository_manager_article(request, preprint_id):
                 file.original_filename = request.FILES['file'].name
                 file.save()
 
-        # TODO: Implement
         if 'delete_file' in request.POST:
             repository_logic.delete_file(request, preprint)
 
         if 'delete_version' in request.POST:
             repository_logic.handle_delete_version(request, preprint)
 
-        # TODO: Implement
-        if 'unpublish' in request.POST:
-            if preprint.date_published or request.user.is_staff:
-                repository_logic.unpublish_preprint(request, preprint)
+        if 'reset' in request.POST:
+            if preprint.date_published or preprint.date_declined:
+                preprint.reset()
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    'This preprint has been reset',
+                )
 
         if 'make_version' in request.POST:
             file = get_object_or_404(

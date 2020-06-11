@@ -90,30 +90,30 @@
                     <li><a href="{% url 'preprints_comments' preprint.pk %}"><i class="fa fa-comments"
                                                                                 aria-hidden="true">&nbsp;</i>Comments
                         ({{ preprint.comment_set.all|length }})</a></li>
-                    {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_galley %}
+                    {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_version %}
                         <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept
-                            Article</a></li>
+                            {{ request.repository.object_name }}</a></li>
                     {% endif %}
-                    <form method="POST">
+                    {% if not preprint.date_accepted and not preprint.date_declined %}
+                        <li>
+                            <a href="#" data-open="decline_preprint"><i class="fa fa-times-circle action-icon">&nbsp;</i>Decline
+                                {{ request.repository.object_name }}
+                            </a>
+                        </li>
+                    {% endif %}
+                     <form method="POST">
                         {% csrf_token %}
-                        {% if not preprint.date_accepted and not preprint.date_declined %}
-                            <li>
-                                <button name="decline" class="control-button"><i class="fa fa-check-circle action-icon">&nbsp;</i>Decline
-                                    Article
-                                </button>
-                            </li>
-                        {% endif %}
                         {% if preprint.date_accepted and preprint.date_published %}
                             <li>
-                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unpublish
-                                    this Preprint
+                                <button name="reset" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Un-publish
+                                    this {{ request.repository.object_name }}
                                 </button>
                             </li>
                         {% endif %}
                         {% if request.user.is_staff and preprint.date_declined and not preprint.date_published %}
                             <li>
-                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unreject
-                                    this Preprint
+                                <button name="reset" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Un-reject
+                                    this {{ request.repository.object_name }}
                                 </button>
                             </li>
                         {% endif %}
@@ -165,7 +165,7 @@
                                 <td>{{ author.email_address }}</td>
                                 <td>{{ author.affiliation }}</td>
                                 <td>
-                                    <button name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span>
+                                    <button class="del" name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span>
                                     </button>
                                 </td>
                             </tr>
@@ -208,7 +208,7 @@
                                         class="fa fa-download">&nbsp;</i></a>
                                 </td>
                                 <td>
-                                    <button name="delete_file" value="{{ file.pk }}">
+                                    <button class="del" name="delete_file" value="{{ file.pk }}">
                                         <span class="fa fa-trash"></span>
                                     </button>
                                 </td>
@@ -264,8 +264,8 @@
 
 
     {% include "elements/repository/new_file.html" %}
-
-    {% include "elements/preprints/accept_preprint.html" %}
+    {% include "elements/repository/accept_preprint.html" %}
+    {% include "elements/repository/decline_preprint.html" %}
 
 {% endblock %}
 
@@ -292,5 +292,6 @@
         });
         $("#sortable").disableSelection();
     </script>
+    <script src="{% static "common/js/confirm.js" %}"></script>
 {% endblock %}
 
