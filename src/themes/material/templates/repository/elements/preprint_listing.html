@@ -5,11 +5,14 @@
                 <div class="card preprint-home-card">
                     <div class="card-content">
                         <p>
+                            <small>{{ preprint.subject }}</small>
+                            <br />
+
                             <a href="{% url 'repository_preprint' preprint.pk %}">
                                 <strong>{{ preprint.title|safe }}</strong>
                             </a>
                         </p>
-                        <p class="card-text">Author Names Here</p>
+                        <p class="card-text">Authors: {{ preprint.display_authors }}</p>
                     </div>
                 </div>
             </div>

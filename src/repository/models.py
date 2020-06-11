@@ -318,6 +318,9 @@ class Preprint(models.Model):
         pks = [author.pk for author in self.authors]
         return Author.objects.filter(pk__in=pks)
 
+    def display_authors(self):
+        return ", ".join([author.full_name for author in self.authors])
+
     def add_user_as_author(self, user):
         author_dict = {
             'first_name': user.first_name,

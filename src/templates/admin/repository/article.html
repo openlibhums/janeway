@@ -128,14 +128,14 @@
                     {% else %}
                         <small>This preprint is currently awaiting review.</small>
                     {% endif %}
-                    {% if not preprint.has_versuib and not preprint.date_declined %}
-                        <small> This preprint requires at least one galley file. You can either turn an existing file
-                            into a galley in the table below, or upload a new file to be a galley.
+                    {% if not preprint.has_version and not preprint.date_declined %}
+                        <small> This preprint requires at least one version. You can either turn an existing file
+                            into a version in the table below, or upload a new file to be a version.
                         </small>
                     {% endif %}
                 </div>
                 <div class="callout">
-                    <small>Primary identifier for this article {{ preprint.identifier }}</small>
+                    <small>Primary identifier for this article {% if not preprint.identifier %}[ID] {{ preprint.pk }}{% endif %}</small>
                 </div>
             </div>
         </div>
