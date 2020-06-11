@@ -70,6 +70,78 @@
                 </table>
             </div>
         </div>
+    </div>
+    <div class="large-4 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Controls</h2>
+            </div>
+
+            <div class="content">
+                <ul class="menu vertical actions">
+                    <li><a href="{% url 'repository_edit_metadata' preprint.pk %}"><span class="fa fa-edit"
+                                                                                         aria-hidden="true">&nbsp;</span>Edit
+                        Metadata</a></li>
+                    <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
+                        Contact the Author</a></li>
+                    <li>
+                        <a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
+                                class="fa fa-clipboard">&nbsp;</i>Log</a></li>
+                    <li><a href="{% url 'preprints_comments' preprint.pk %}"><i class="fa fa-comments"
+                                                                                aria-hidden="true">&nbsp;</i>Comments
+                        ({{ preprint.comment_set.all|length }})</a></li>
+                    {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_galley %}
+                        <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept
+                            Article</a></li>
+                    {% endif %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if not preprint.date_accepted and not preprint.date_declined %}
+                            <li>
+                                <button name="decline" class="control-button"><i class="fa fa-check-circle action-icon">&nbsp;</i>Decline
+                                    Article
+                                </button>
+                            </li>
+                        {% endif %}
+                        {% if preprint.date_accepted and preprint.date_published %}
+                            <li>
+                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unpublish
+                                    this Preprint
+                                </button>
+                            </li>
+                        {% endif %}
+                        {% if request.user.is_staff and preprint.date_declined and not preprint.date_published %}
+                            <li>
+                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unreject
+                                    this Preprint
+                                </button>
+                            </li>
+                        {% endif %}
+                    </form>
+                </ul>
+
+                <div class="callout {% if not preprint.has_galley %}alert{% else %}info{% endif %}">
+                    {% if preprint.date_accepted %}
+                        <small>This preprint was accepted on {{ preprint.date_accepted }}</small>
+                    {% elif preprint.date_declined %}
+                        <small>This preprint was rejected on {{ preprint.date_declined }}</small>
+                    {% else %}
+                        <small>This preprint is currently awaiting review.</small>
+                    {% endif %}
+                    {% if not preprint.has_versuib and not preprint.date_declined %}
+                        <small> This preprint requires at least one galley file. You can either turn an existing file
+                            into a galley in the table below, or upload a new file to be a galley.
+                        </small>
+                    {% endif %}
+                </div>
+                <div class="callout">
+                    <small>Primary identifier for this article {{ preprint.identifier }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Authors</h2>
@@ -111,6 +183,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Files</h2>
+                <a href="#" class="button" data-open="new_file"><span class="fa fa-upload">&nbsp;</span> Upload File</a>
             </div>
             <div class="content">
                 <table class="small scroll">
@@ -120,6 +193,7 @@
                         <th>Size</th>
                         <th>Uploaded</th>
                         <th>Download</th>
+                        <th>Delete</th>
                         <th></th>
                     </tr>
                     <form method="POST">
@@ -132,6 +206,11 @@
                                 <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>
+                                </td>
+                                <td>
+                                    <button name="delete_file" value="{{ file.pk }}">
+                                        <span class="fa fa-trash"></span>
+                                    </button>
                                 </td>
                                 <td>
                                     <button name="make_version" value="{{ file.pk }}" class="small button">
@@ -149,101 +228,44 @@
                 <h2>Versions</h2>
             </div>
             <div class="content">
-                <table class="scroll">
+                <table class="scroll small">
                     <thead>
-                        <tr>
-                            <th>Version</th>
-                            <th>Date</th>
-                            <th>Filename</th>
-                            <th>Uploaded</th>
-                            <th>Download</th>
-                            <th>Delete</th>
-                        </tr>
+                    <tr>
+                        <th>Version</th>
+                        <th>Date</th>
+                        <th>Filename</th>
+                        <th>Uploaded</th>
+                        <th>Download</th>
+                        <th>Delete</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for version in preprint.preprintversion_set.all %}
-                            <tr>
-                                <td>{{ version.version }}</td>
-                                <td>{{ version.date_time }}</td>
-                                <td>{{ version.file.original_filename|truncatechars:40 }}</td>
-                                <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}"><i class="fa fa-download"></i></a></td>
-                                <td><form method="POST">{% csrf_token %}<button type="submit" value="{{ version.pk }}" name="delete" class="control-button"><i class="fa fa-trash"></i></button></form></td>
-                            </tr>
-                        {% endfor %}
+                    {% for version in preprint.preprintversion_set.all %}
+                        <tr>
+                            <td>{{ version.version }}</td>
+                            <td>{{ version.date_time }}</td>
+                            <td>{{ version.file.original_filename|truncatechars:40 }}</td>
+                            <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
+                            <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}"><i
+                                    class="fa fa-download"></i></a></td>
+                            <td>
+                                <form method="POST">{% csrf_token %}
+                                    <button type="submit" value="{{ version.pk }}" name="delete_version" class="control-button">
+                                        <i class="fa fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    <div class="large-4 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Controls</h2>
-            </div>
 
-            <div class="content">
-                <ul class="menu vertical actions">
-                    <li><a href="{% url 'repository_edit_metadata' preprint.pk %}"><span class="fa fa-edit" aria-hidden="true">&nbsp;</span>Edit Metadata</a></li>
-                    <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
-                        Contact the Author</a></li>
-                    <li><a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i class="fa fa-clipboard">&nbsp;</i>Log</a></li>
-                    <li><a href="{% url 'preprints_comments' preprint.pk %}"><i class="fa fa-comments" aria-hidden="true">&nbsp;</i>Comments ({{ preprint.comment_set.all|length }})</a></li>
-                    {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_galley %}
-                        <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept
-                            Article</a></li>
-                    {% endif %}
-                    <form method="POST">
-                        {% csrf_token %}
-                        {% if not preprint.date_accepted and not preprint.date_declined %}
-                            <li>
-                                <button name="decline" class="control-button"><i class="fa fa-check-circle action-icon">&nbsp;</i>Decline
-                                    Article
-                                </button>
-                            </li>
-                        {% endif %}
-                        {% if preprint.date_accepted and preprint.date_published %}
-                            <li>
-                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unpublish this Preprint</button>
-                            </li>
-                        {% endif %}
-                        {% if request.user.is_staff and preprint.date_declined and not preprint.date_published %}
-                            <li>
-                                <button name="unpublish" class="control-button"><i class="fa fa-recycle">&nbsp;</i>Unreject this Preprint</button>
-                            </li>
-                        {% endif %}
-                    </form>
-                </ul>
 
-                <div class="callout {% if not preprint.has_galley %}alert{% else %}info{% endif %}">
-                    {% if preprint.date_accepted %}
-                        <small>This preprint was accepted on {{ preprint.date_accepted }}</small>
-                    {% elif preprint.date_declined %}
-                        <small>This preprint was rejected on {{ preprint.date_declined }}</small>
-                    {% else %}
-                        <small>This preprint is currently awaiting review.</small>
-                    {% endif %}
-                    {% if not preprint.has_galley and not preprint.date_declined %}
-                        <small> This preprint requires at least one galley file. You can either turn an existing file
-                            into a galley in the table below, or upload a new file to be a galley.
-                        </small>
-                    {% endif %}
-                </div>
-                <div class="callout">
-                    <small>Primary identifier for this article {{ preprint.identifier }}</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    {% include "elements/repository/new_file.html" %}
 
     {% include "elements/preprints/accept_preprint.html" %}
-    {% include "elements/production/new_galley.html" %}
-    {% include "elements/preprints/subject_modal.html" %}
-
-    {% for order in preprint.articleauthororder_set.all %}
-        {% include "elements/preprints/author_meta.html" with author=order.author %}
-    {% endfor %}
 
 {% endblock %}
 
@@ -252,7 +274,7 @@
     {% if modal %}
         {% include "elements/open_modal.html" with target=modal %}
     {% endif %}
-        <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script src="{% static "admin/js/csrf.js" %}"></script>
     <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script>
@@ -269,6 +291,6 @@
             }
         });
         $("#sortable").disableSelection();
-        </script>
+    </script>
 {% endblock %}
 

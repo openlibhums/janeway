@@ -244,14 +244,25 @@ def deny_pending_update(request):
 
 
 def handle_delete_version(request, preprint):
-    version_id = request.POST.get('delete')
+    version_id = request.POST.get('delete_version')
 
     if not version_id:
-        messages.add_message(request, messages.WARNING, 'No version id supplied')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No version id supplied')
     else:
-        version = get_object_or_404(models.PreprintVersion, pk=version_id, preprint=preprint)
+        version = get_object_or_404(
+            models.PreprintVersion,
+            pk=version_id,
+            preprint=preprint,
+        )
         version.delete()
-        messages.add_message(request, messages.INFO, 'Version deleted.')
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Version deleted.',
+        )
 
 
 def handle_delete_subject(request):

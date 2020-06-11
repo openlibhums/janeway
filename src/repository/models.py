@@ -44,9 +44,10 @@ def width_choices():
     )
 
 
-fs_path = os.path.join('files')
-media_path = settings.MEDIA_ROOT  # TODO: @mauro to make this relative?
+fs_path = os.path.join('files/')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
+
+media_path = settings.MEDIA_ROOT  # TODO: @mauro to make this relative?
 preprint_media_store = JanewayFileSystemStorage(location=media_path)
 
 
@@ -56,8 +57,9 @@ def preprint_file_upload(instance, filename):
     except IndexError:
         filename = str(uuid.uuid4())
 
-    path = "repos/{0}/".format(instance.preprint.pk)
-    return os.path.join(path, filename)
+    path = os.path.join('repos', str(instance.preprint.pk), filename)
+    instance.original_filename = filename
+    return path
 
 
 def repo_media_upload(instance, filename):
@@ -382,6 +384,11 @@ class PreprintFile(models.Model):
     )
     original_filename = models.TextField()
     uploaded = models.DateTimeField(default=timezone.now)
+    mime_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     def filename(self):
         return os.path.basename(self.file.name)
@@ -390,8 +397,7 @@ class PreprintFile(models.Model):
     def uuid_filename(self):
         return self.filename()
 
-    @property
-    def mime_type(self):
+    def get_file_mime_type(self):
         return files.file_path_mime(self.file.path)
 
     def path_parts(self):

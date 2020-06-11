@@ -592,6 +592,7 @@ def repository_manager_article(request, preprint_id):
         repository=request.repository,
     )
     crossref_enabled = request.press.preprint_dois_enabled()
+    file_form = forms.FileForm(preprint=preprint)
 
     if request.POST:
 
@@ -627,12 +628,23 @@ def repository_manager_article(request, preprint_id):
         if 'decline' in request.POST:
             preprint.decline_article()
 
-        # TODO: Implement
-        if 'upload' in request.POST:
-            repository_logic.handle_file_upload(request, preprint)
+        if 'upload' in request.POST and request.FILES:
+            file_form = forms.FileForm(
+                request.POST,
+                request.FILES,
+                preprint=preprint,
+            )
+
+            if file_form.is_valid():
+                file = file_form.save()
+                file.original_filename = request.FILES['file'].name
+                file.save()
 
         # TODO: Implement
-        if 'delete' in request.POST:
+        if 'delete_file' in request.POST:
+            repository_logic.delete_file(request, preprint)
+
+        if 'delete_version' in request.POST:
             repository_logic.handle_delete_version(request, preprint)
 
         # TODO: Implement
@@ -661,6 +673,7 @@ def repository_manager_article(request, preprint_id):
         'subjects': models.Subject.objects.filter(enabled=True),
         'crossref_enabled': crossref_enabled,
         # 'doi': repository_logic.get_doi(request, preprint)
+        'file_form': file_form,
     }
 
     return render(request, template, context)
