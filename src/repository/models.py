@@ -5,11 +5,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
 import uuid
+from dateutil import parser as dateparser
 
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.dispatch import receiver
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files
@@ -18,10 +20,12 @@ from core import model_utils, files
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
+STAGE_PREPRINT_REJECTED = 'preprint_rejected'
 
 SUBMITTED_STAGES = {
     STAGE_PREPRINT_REVIEW,
     STAGE_PREPRINT_PUBLISHED,
+    STAGE_PREPRINT_REJECTED
 }
 
 
@@ -375,6 +379,32 @@ class Preprint(models.Model):
             version=self.next_version_number(),
         )
 
+    def accept(self, date, time):
+        self.date_accepted = timezone.now()
+        self.date_declined = None
+        self.stage = STAGE_PREPRINT_PUBLISHED
+        self.date_published = dateparser.parse(
+            '{date} {time}'.format(
+                date=date,
+                time=time,
+            )
+        )
+        self.save()
+
+    def decline(self):
+        self.date_declined = timezone.now()
+        self.date_accepted = None
+        self.stage = STAGE_PREPRINT_REJECTED
+        self.save()
+
+    def reset(self):
+        self.date_accepted = None
+        self.date_declined = None
+        self.date_published = None
+        self.preprint_decision_notification = False
+        self.stage = STAGE_PREPRINT_REVIEW
+        self.save()
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -561,3 +591,35 @@ class VersionQueue(models.Model):
             return True
         elif self.date_decision:
             return False
+
+
+@receiver(models.signals.post_delete, sender=PreprintFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `PreprintFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=PreprintFile)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `PreprintFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = PreprintFile.objects.get(pk=instance.pk).file
+    except PreprintFile.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
