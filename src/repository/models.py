@@ -389,6 +389,7 @@ class PreprintFile(models.Model):
         blank=True,
         null=True,
     )
+    size = models.PositiveIntegerField(default=0)
 
     def filename(self):
         return os.path.basename(self.file.name)

@@ -249,6 +249,7 @@ class FileForm(forms.ModelForm):
         if commit:
             file.save()
             file.mime_type = file.get_file_mime_type()
+            file.size = file.file.size
             file.save()
 
         return file

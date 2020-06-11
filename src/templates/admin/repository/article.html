@@ -202,7 +202,7 @@
                             <tr>
                                 <td>{{ file.original_filename }}</td>
                                 <td>{{ file.mime_type }}</td>
-                                <td>{{ file.file.size|filesizeformat }}</td>
+                                <td>{{ file.size|filesizeformat }}</td>
                                 <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
                                         class="fa fa-download">&nbsp;</i></a>
