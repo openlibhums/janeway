@@ -383,8 +383,18 @@ def preview_galley(request, article_id, galley_id):
         article=article,
     )
 
+    article_content = ""
     if galley.type == 'xml' or galley.type == 'html':
         template = 'proofing/preview/rendered.html'
+        try:
+            article_content = galley.file_content()
+        except Exception as e:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Errors found rendering this galley',
+            )
+            article_content  = "Errors found rendering this galley: \n%s" % e
     elif galley.type == 'epub':
         template = 'proofing/preview/epub.html'
     else:
@@ -392,7 +402,8 @@ def preview_galley(request, article_id, galley_id):
 
     context = {
         'galley': galley,
-        'article': article
+        'article': article,
+        'article_content': article_content,
     }
 
     return render(request, template, context)
