@@ -1,0 +1,60 @@
+---
+name: janeway
+
+# CAREFUL with this env file, Docker env files don't support interpolation!
+env_file:
+  - defaults.env
+  - local.env
+
+services:
+  appserver:
+    type: python:3.5.9
+    command: python /app/src/manage.py runserver 0.0.0.0:8000 -v 3
+    build_as_root:
+      - grep '^deb ' /etc/apt/sources.list | perl -pe 's/deb /deb-src /' >> /etc/apt/sources.list
+      - apt-get update -qq && apt-get install -y python3-lxml pylint libxml2-dev libxslt1-dev python3-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev && apt-get build-dep -y lxml
+    build:
+      - cd /app && pip install --upgrade pip && pip install Cython && pip install -r requirements.txt &&  pip install -r dev-requirements.txt
+    scanner: true
+    overrides:
+      ports:
+        - '8000:8000'
+      environment:
+        PYTHONPATH: "/app/src"
+        DJANGO_SETTINGS_MODULE: "core.settings" # this is the path to the settings file, which is in src/core/settings.py
+    moreHttpPorts:
+      - '8000'
+  db:
+    type: postgres:10
+    portforward: true
+    creds:
+      user: postgres
+      password: 
+      database: janeway
+
+tooling:
+  django-admin:
+    service: appserver
+    cmd: django-admin
+  python:
+    service: appserver
+    cmd: python
+  manage:
+    service: appserver
+    cmd: cd /app/src && python manage.py
+  psql:
+    service: db
+    cmd: psql -U postgres
+  'db-import <file>':
+    service: :host
+    description: Imports a dump file into a database service
+    cmd: /helpers/sql-import.sh
+    options:
+      host:
+        description: The database service to use
+        default: db
+        alias:
+          - h
+      no-wipe:
+        description: Do not destroy the existing database before an import
+        boolean: true
