@@ -28,7 +28,9 @@ def index(request):
     top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
-    collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
+    collection_nav_items = None
+    if request.journal:
+        collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
     xsl_form = XSLFileForm()
     xsl_files = core_models.XSLFile.objects.filter(
         Q(journal=request.journal)|Q(journal__isnull=True)
@@ -162,7 +164,9 @@ def nav(request, nav_id=None):
     top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
                                                          object_id=request.site_type.pk,
                                                          top_level_nav__isnull=True)
-    collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
+    collection_nav_items = None
+    if request.journal:
+        collection_nav_items = models.NavigationItem.get_content_nav_for_journal(request.journal)
 
     if request.POST.get('nav'):
         attr = request.POST.get('nav')
