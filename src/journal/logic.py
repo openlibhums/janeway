@@ -137,7 +137,7 @@ def get_best_galley(article, galleys):
     return None
 
 
-def get_galley_content(article, galleys):
+def get_galley_content(article, galleys, recover=False):
     """
     Gets the best galley and returns its content
     :param article: Article object
@@ -146,7 +146,7 @@ def get_galley_content(article, galleys):
     """
     galley = get_best_galley(article, galleys)
     if galley:
-        return galley.file_content()
+        return galley.file_content(recover=recover)
     else:
         return ''
 

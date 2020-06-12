@@ -294,7 +294,7 @@ def get_file(file_to_get, article):
             return content
 
 
-def render_xml(file_to_render, article, xsl_path=None):
+def render_xml(file_to_render, article, xsl_path=None, recover=False):
     """Renders XML with the given XSL path or the default XSL.
 
     :param file_to_render: the file object to retrieve and render
@@ -324,17 +324,27 @@ def render_xml(file_to_render, article, xsl_path=None):
         )
         return ""
 
-    return transform_with_xsl(path, xsl_path)
+    return transform_with_xsl(path, xsl_path, recover=recover)
 
-def transform_with_xsl(xml_path, xsl_path):
-    xml_dom = etree.parse(xml_path)
+def transform_with_xsl(xml_path, xsl_path, recover=False):
+    try:
+        xml_dom = etree.parse(xml_path)
+    except etree.XMLSyntaxError as e:
+        if recover:
+            logger.error(e)
+            parser = etree.XMLParser(recover=True)
+            xml_dom = etree.parse(xml_path, parser=parser)
+        else:
+            raise
     xsl_transform = etree.XSLT(etree.parse(xsl_path))
     try:
         transformed_dom = xsl_transform(xml_dom)
     except Exception as err:
+        logger.error(err)
         for xsl_error in xsl_transform.error_log:
             logger.error(xsl_error)
-        raise
+        if not recover:
+            raise
 
     return transformed_dom
 
