@@ -128,3 +128,7 @@ src/static/superhero/
 src/themes/clean
 
 src/themes/superhero
+
+# Lando
+local.env
+.lando.local.yml
