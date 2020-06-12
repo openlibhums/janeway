@@ -861,10 +861,11 @@ class Galley(models.Model):
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
 
-    def render(self):
+    def render(self, recover=False):
         return files.render_xml(
-                self.file, self.article,
-                xsl_path=self.xsl_file.file.path
+            self.file, self.article,
+            xsl_path=self.xsl_file.file.path,
+            recover=recover,
         )
 
     def render_crossref(self):
@@ -917,11 +918,11 @@ class Galley(models.Model):
         """
         return self.has_missing_image_files(show_all=True)
 
-    def file_content(self, dont_render=False):
+    def file_content(self, dont_render=False, recover=False):
         if self.file.mime_type == "text/html" or dont_render:
             return self.file.get_file(self.article)
         elif self.file.mime_type in files.XML_MIMETYPES:
-            return self.render()
+            return self.render(recover=recover)
 
     def path(self):
         url = reverse('article_download_galley',

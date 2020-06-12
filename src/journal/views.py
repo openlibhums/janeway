@@ -343,7 +343,7 @@ def article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = get_galley_content(article_object, galleys)
+        content = get_galley_content(article_object, galleys, recover=True)
     else:
         article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
                                   "that is not yet published.</strong></p>" + article_object.abstract
@@ -875,7 +875,7 @@ def publish_article(request, article_id):
             return redirect(
                 '{0}?m=issue'.format(
                     reverse(
-                        'publish_article', 
+                        'publish_article',
                         kwargs={'article_id': article.pk},
                     )
                 )
@@ -886,7 +886,7 @@ def publish_article(request, article_id):
             return redirect(
                 '{0}?m=issue'.format(
                     reverse(
-                        'publish_article', 
+                        'publish_article',
                         kwargs={'article_id': article.pk},
                     )
                 )
@@ -906,7 +906,7 @@ def publish_article(request, article_id):
 
         if 'pubdate' in request.POST:
             date_set, pubdate_errors = logic.handle_set_pubdate(
-                request, 
+                request,
                 article,
             )
             if not pubdate_errors:
@@ -932,7 +932,7 @@ def publish_article(request, article_id):
             logic.set_render_galley(request, article)
             return redirect(
                 reverse(
-                    'publish_article', 
+                    'publish_article',
                     kwargs={'article_id': article.pk},
                 )
             )
@@ -943,7 +943,7 @@ def publish_article(request, article_id):
             return redirect(
                 "{0}{1}".format(
                     reverse(
-                        'publish_article', 
+                        'publish_article',
                         kwargs={'article_id': article.pk},
                     ),
                     "?m=article_image",
