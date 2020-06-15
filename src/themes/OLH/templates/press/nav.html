@@ -29,7 +29,7 @@
                                                        data-options="is_hover:true; hover_timeout:5000">Repositories</a>
                 <ul class="menu vertical medium-horizontal">
                     {% for repo in request.press.live_repositories %}
-                        <li><a href="{% url 'repository_home' repo.short_name %}">{{ repo.name }}</a></li>
+                        <li><a href="{{ repo.site_url }}">{{ repo.name }}</a></li>
                     {% endfor %}
                 </ul>
             </li>
