@@ -822,7 +822,7 @@ def repository_notification(request, preprint_id):
             )
         )
 
-    template = 'preprints/notification.html'
+    template = 'repository/notification.html'
     context = {
         'action': action,
         'preprint': preprint,
