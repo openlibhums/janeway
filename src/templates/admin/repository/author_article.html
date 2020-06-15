@@ -172,14 +172,18 @@
                     <table class="small">
                         <tr>
                             <th>ID</th>
+                            <th>Type</th>
                             <th>Date Submitted</th>
                             <th>Filename</th>
+                            <th>Status</th>
                         </tr>
                         {% for update in pending_updates %}
                             <tr>
                                 <td>{{ update.pk }}</td>
+                                <td>{{ update.get_update_type_display }}</td>
                                 <td>{{ update.date_submitted }}</td>
                                 <td>{{ update.file.original_filename|truncatechars:40 }}</td>
+                                <td>{{ update.status }}</td>
                             </tr>
                         {% empty %}
                             <tr>
@@ -258,7 +262,7 @@
                         </small>
                     </p>
                     <div>
-                        {% inl %}
+                        {% include "admin/elements/forms/errors.html" with form=file_form %}
                         {{ version_form|foundation }}
                         {{ file_form|foundation }}
                         <button type="submit" class="button success float-right" name="galley_id"
@@ -319,6 +323,6 @@
         });
     </script>
     {% if modal %}
-        {% include "elements/open_modal.html" with target=modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
 {% endblock %}

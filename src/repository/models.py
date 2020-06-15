@@ -643,6 +643,14 @@ class VersionQueue(models.Model):
         elif self.date_decision:
             return False
 
+    def status(self):
+        if self.date_decision and self.approved:
+            return _('Approved')
+        elif not self.date_decision:
+            return _('Under Review')
+        else:
+            return _('Declined')
+
 
 @receiver(models.signals.post_delete, sender=PreprintFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):

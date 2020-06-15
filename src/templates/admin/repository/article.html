@@ -232,6 +232,7 @@
                     <thead>
                     <tr>
                         <th>Version</th>
+                        <th>Type</th>
                         <th>Date</th>
                         <th>Filename</th>
                         <th>Uploaded</th>
@@ -243,6 +244,7 @@
                     {% for version in preprint.preprintversion_set.all %}
                         <tr>
                             <td>{{ version.version }}</td>
+                            <td>{{ version.get_update_type_display }}</td>
                             <td>{{ version.date_time }}</td>
                             <td>{{ version.file.original_filename|truncatechars:40 }}</td>
                             <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
