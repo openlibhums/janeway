@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
+from django.shortcuts import reverse
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files
@@ -472,6 +473,18 @@ class PreprintFile(models.Model):
     def path_parts(self):
         path = os.path.dirname(os.path.abspath(self.file.path))
         return path
+
+    def reverse_kwargs(self):
+        return {
+            'preprint_id': self.preprint.pk,
+            'file_id': self.pk,
+        }
+
+    def download_url(self):
+        return reverse(
+            'repository_download_file',
+            kwargs=self.reverse_kwargs(),
+        )
 
 
 class PreprintAccess(models.Model):
