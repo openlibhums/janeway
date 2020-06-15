@@ -61,11 +61,11 @@ preprint_media_store = JanewayFileSystemStorage(location=media_path)
 
 def preprint_file_upload(instance, filename):
     try:
-        filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+        uuid_filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
     except IndexError:
-        filename = str(uuid.uuid4())
+        uuid_filename = str(uuid.uuid4())
 
-    path = os.path.join('repos', str(instance.preprint.pk), filename)
+    path = os.path.join('repos', str(instance.preprint.pk), uuid_filename)
     instance.original_filename = filename
     return path
 
