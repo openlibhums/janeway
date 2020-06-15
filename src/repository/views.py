@@ -752,14 +752,14 @@ def repository_edit_metadata(request, preprint_id):
     return render(request, template, context)
 
 
-@is_article_preprint_editor
+@preprint_editor_or_author_required
 def repository_download_file(request, preprint_id, file_id):
     """
     Serves files to preprint editors.
     :param request: HttpRequest
     :param preprint_id: Preprint PK int
     :param file_id: PreprintFile PK int
-    :return: StreamingHttpReponse
+    :return: StreamingHttpResponse
     """
     preprint = get_object_or_404(
         models.Preprint,
