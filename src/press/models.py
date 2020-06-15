@@ -161,6 +161,25 @@ class Press(AbstractSiteModel):
             path=_path,
         )
 
+    def repository_path_url(self, repository, path=None):
+        """ Returns a Repo's path mode url relative to its press """
+
+        _path = repository.short_name
+        request = logic.get_current_request()
+        if settings.DEBUG and request:
+            port = request.get_port()
+        else:
+            port = None
+        if path is not None:
+            _path += path
+
+        return logic.build_url(
+            netloc=self.domain,
+            scheme=self.SCHEMES[self.is_secure],
+            port=port,
+            path=_path,
+        )
+
     @staticmethod
     def press_cover(request, absolute=True):
         if request.press.thumbnail_image:
