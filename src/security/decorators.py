@@ -1001,7 +1001,7 @@ def preprint_editor_or_author_required(func):
             repository=request.repository
         )
 
-        if request.user in preprint.authors or request.user.is_staff:
+        if request.user == preprint.owner or request.user.is_staff:
             return func(request, *args, **kwargs)
 
         if request.user in preprint.subject_editors():
