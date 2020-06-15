@@ -1062,30 +1062,45 @@ def preprint_submission(**kwargs):
 def preprint_publication(**kwargs):
     """
     Called by events.Event.ON_PREPRINT_PUBLICATIONS handles logging and emails.
-    :param kwargs: Dictionary containing article and request objects
+    :param kwargs: Dict with preprint, content and request objects
     :return: None
     """
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
+    content = kwargs.get('email_content')
 
-    description = '{editor} has published a preprint titled {title}.'.format(editor=request.user.full_name(),
-                                                                             title=article.title)
+    description = '{editor} has published a preprint titled {title}.'.format(
+        editor=request.user.full_name(),
+        title=preprint.title,
+    )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Publication',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Publication',
+        'target': preprint,
+    }
 
-    util_models.LogEntry.add_entry('Publication', description, 'Info', request.user, request, article)
+    util_models.LogEntry.add_entry(
+        'Publication',
+        description,
+        'Info',
+        request.user,
+        request,
+        preprint,
+    )
 
-    # Send an email to the article owner.
-    context = {'article': article}
-    template = request.press.preprint_publication
-    email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, ' Preprint Submission Decision', article.owner.email,
-                                                  email_text, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Submission Decision',
+        preprint.owner.email,
+        content,
+        log_dict=log_dict,
+    )
 
     # Stops this notification being sent multiple times.c
-    article.preprint_decision_notification = True
-    article.save()
+    preprint.preprint_decision_notification = True
+    preprint.save()
 
 
 def preprint_comment(**kwargs):

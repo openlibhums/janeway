@@ -659,7 +659,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
 
 @receiver(models.signals.pre_save, sender=Repository)
-def add_email_setting_defaults(sender, instance, **kwrgs):
+def add_email_setting_defaults(sender, instance, **kwargs):
     """
     When a new Repository is added we insert the email settings onto the
     instance before it is saved.

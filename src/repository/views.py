@@ -808,7 +808,7 @@ def repository_notification(request, preprint_id):
         email_content = request.POST.get('email_content', '')
         kwargs = {
             'request': request,
-            'article': preprint,
+            'preprint': preprint,
             'email_content': email_content,
         }
         event_logic.Events.raise_event(
@@ -818,7 +818,7 @@ def repository_notification(request, preprint_id):
         return redirect(
             reverse(
                 'repository_manager_article',
-                kwargs={'article_id': preprint.pk},
+                kwargs={'preprint_id': preprint.pk},
             )
         )
 
