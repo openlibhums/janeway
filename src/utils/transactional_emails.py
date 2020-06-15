@@ -1007,19 +1007,25 @@ def send_author_copyedit_complete(**kwargs):
 
 def preprint_submission(**kwargs):
     """
-    Called by events.Event.ON_PRePINT_SUBMISSIONS, logs and emails the author and preprint editor.
+    Called by events.Event.ON_PRePINT_SUBMISSIONS, logs and emails the author
+    and preprint editor.
     :param kwargs: Dictionary containing article and request objects
     :return: None
     """
     request = kwargs.get('request')
     preprint = kwargs.get('preprint')
 
-    description = '{author} has submitted a new preprint titled {title}.'.format(
+    description = '{author} has submitted a new {obj} titled {title}.'.format(
         author=request.user.full_name(),
+        obj=request.repository.object_name,
         title=preprint.title,
     )
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Submission',
-                'target': preprint}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Submission',
+        'target': preprint,
+    }
 
     # Send an email to the user
     context = {'preprint': preprint}

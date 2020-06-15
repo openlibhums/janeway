@@ -97,6 +97,10 @@ urlpatterns = [
         views.repository_notification,
         name='repository_notification'),
 
+    url(r'^manager/(?P<preprint_id>\d+)/log/$',
+        views.repository_preprint_log,
+        name='repository_preprint_log'),
+
     url(r'^manager/(?P<article_id>\d+)/comments/$',
         views.preprints_comments,
         name='preprints_comments'),

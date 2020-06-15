@@ -4,8 +4,8 @@
 {% load foundation %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
-{% block title-section %}Preprint Manager{% endblock %}
-{% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}

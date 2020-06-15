@@ -14,17 +14,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.core.cache import cache
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 
 from repository import forms, logic as repository_logic, models
-from submission import models as submission_model
 from core import models as core_models, files
 from metrics.logic import store_article_access
-from utils import shared as utils_shared
+from utils import shared as utils_shared, logic as utils_logic
 from events import logic as event_logic
-from identifiers import logic as ident_logic
 from security.decorators import (
     preprint_editor_or_author_required,
     is_article_preprint_editor,
@@ -822,11 +819,36 @@ def repository_notification(request, preprint_id):
             )
         )
 
-    template = 'repository/notification.html'
+    template = 'admin/repository/notification.html'
     context = {
         'action': action,
         'preprint': preprint,
         'email_content': email_content,
+    }
+
+    return render(request, template, context)
+
+
+@is_article_preprint_editor
+def repository_preprint_log(request, preprint_id):
+    """
+    Displays log entries for a Preprint object.
+    :param request: HttpRequest
+    :param preprint_id: Preprint object PK
+    :return: HttpResponse
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository
+    )
+    log_entries = utils_logic.get_log_entries(preprint)
+    print(log_entries)
+
+    template = 'admin/repository/log.html'
+    context = {
+        'preprint': preprint,
+        'log_entries': log_entries,
     }
 
     return render(request, template, context)
