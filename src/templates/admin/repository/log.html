@@ -55,30 +55,7 @@
             </table>
         </div>
     </div>
-
-    <div class="box">
-        <div class="title-area">
-            <h2>Article Stage log</h2>
-        </div>
-        <div class="box">
-            <table class="scroll">
-                <thead>
-                    <tr>
-                        <th>Entered Stage</th>
-                        <th>Date/Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in article.articlestagelog_set.all %}
-                        <tr>
-                            <td>{{ entry.stage_to }}</td>
-                            <td>{{ entry.date_time }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    
 
     {% for entry in log_entries %}
     {% include "elements/journal/log_description.html" with entry=entry %}
