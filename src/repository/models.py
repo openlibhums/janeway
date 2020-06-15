@@ -6,6 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import os
 import uuid
 from dateutil import parser as dateparser
+import json
+import codecs
 
 from django.db import models
 from django.utils import timezone
@@ -15,6 +17,7 @@ from django.dispatch import receiver
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files
+from utils import logic
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -88,7 +91,7 @@ class Repository(model_utils.AbstractSiteModel):
         max_length=255,
         help_text='eg. preprints or articles',
     )
-    managers = models.ManyToManyField('core.Account')
+    managers = models.ManyToManyField('core.Account', blank=True)
     logo = models.ImageField(
         blank=True,
         null=True,
@@ -118,7 +121,7 @@ class Repository(model_utils.AbstractSiteModel):
     decline = models.TextField(blank=True, null=True)
 
     random_homepage_preprints = models.BooleanField(default=False)
-    homepage_preprints = models.ManyToManyField('submission.Article')
+    homepage_preprints = models.ManyToManyField('submission.Article', blank=True)
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -141,6 +144,26 @@ class Repository(model_utils.AbstractSiteModel):
         return RepositoryField.objects.filter(
             repository=self,
         )
+
+    def site_url(self, path=""):
+        if settings.URL_CONFIG == "path":
+            return self._site_path_url(path)
+
+        return logic.build_url(
+                netloc=self.domain,
+                scheme=self.SCHEMES[self.is_secure],
+                port=None,
+                path=path,
+        )
+
+    def _site_path_url(self, path=None):
+        request = logic.get_current_request()
+        if request and request.repository == self:
+            if not path:
+                path = "/{}".format(self.short_name)
+            return request.build_absolute_uri(path)
+        else:
+            return request.press.repository_path_url(self, path)
 
 
 class RepositoryField(models.Model):
@@ -633,3 +656,26 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+@receiver(models.signals.pre_save, sender=Repository)
+def add_email_setting_defaults(sender, instance, **kwrgs):
+    """
+    When a new Repository is added we insert the email settings onto the
+    instance before it is saved.
+    """
+    if instance._state.adding:
+        path = os.path.join(
+            settings.BASE_DIR,
+            'utils/install/repository_settings.json',
+        )
+        with codecs.open(
+                os.path.join(path),
+                'r+',
+                encoding='utf-8',
+        ) as json_data:
+            repo_settings = json.load(json_data)
+
+            instance.submission = repo_settings[0]['submission']
+            instance.publication = repo_settings[0]['publication']
+            instance.decline = repo_settings[0]['decline']
