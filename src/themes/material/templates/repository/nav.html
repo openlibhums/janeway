@@ -8,7 +8,11 @@
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper{% if not request.journal.full_width_navbar %} container{% endif %}">
         <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo">
+            {% if request.repository.logo %}
             <img src="{{ request.repository.logo.url }}" class="responsive-img" />
+            {% else %}
+            {{ request.repository.name }}
+            {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
