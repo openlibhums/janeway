@@ -82,8 +82,8 @@
                     <li><a href="{% url 'repository_edit_metadata' preprint.pk %}"><span class="fa fa-edit"
                                                                                          aria-hidden="true">&nbsp;</span>Edit
                         Metadata</a></li>
-                    <li><a href="mailto:{{ preprint.correspondence_author.email }}"><i class="fa fa-envelope"></i>
-                        Contact the Author</a></li>
+                    <li><a href="mailto:{{ preprint.owner.email }}"><i class="fa fa-envelope"></i>
+                        Contact the Owner</a></li>
                     <li>
                         <a href="{% url 'manage_article_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
                                 class="fa fa-clipboard">&nbsp;</i>Log</a></li>
