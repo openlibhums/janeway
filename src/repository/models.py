@@ -438,6 +438,11 @@ class Preprint(models.Model):
         self.stage = STAGE_PREPRINT_REVIEW
         self.save()
 
+    def is_published(self):
+        if self.stage == STAGE_PREPRINT_PUBLISHED and self.date_published:
+            return True
+        return False
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
