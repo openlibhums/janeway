@@ -253,3 +253,22 @@ class FileForm(forms.ModelForm):
             file.save()
 
         return file
+
+
+class VersionForm(forms.ModelForm):
+    class Meta:
+        model = models.VersionQueue
+        fields = ('update_type',)
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        super(VersionForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        version = super(VersionForm, self).save(commit=False)
+        version.preprint = self.preprint
+
+        if commit:
+            version.save()
+
+        return version

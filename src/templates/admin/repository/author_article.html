@@ -1,4 +1,6 @@
 {% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load foundation %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
@@ -17,58 +19,68 @@
                 <div class="title-area">
                     <h2>Metadata</h2>
                     {% if preprint.is_published %}
-                        <a href="{% url 'preprints_article' preprint.pk %}" class="button">View Live
+                        <a href="{% url 'repository_preprint' preprint.pk %}" class="button">View Live
                             Article</a>{% endif %}
                 </div>
                 <div class="content">
-                    <table class="scroll">
+                    <table class="table">
                         <tr>
-                            <th>Owner</th>
-                            <th>Licence</th>
-                            <th>Language</th>
+                            <th colspan="2">Title</th>
                         </tr>
                         <tr>
-                            <td>{{ preprint.owner.full_name }}</td>
-                            <td>{{ preprint.license.short_name }}</td>
-                            <td>{{ preprint.get_language_display }}</td>
+                            <td colspan="2">{{ preprint.title }}</td>
                         </tr>
                         <tr>
-                            <th colspan="2">Started</th>
-                            <th colspan="2">Submitted</th>
+                            <th colspan="2">Keywords</th>
                         </tr>
                         <tr>
-                            <td colspan="2">{{ preprint.date_started }}</td>
-                            <td colspan="2">{{ preprint.date_submitted }}</td>
+                            <td colspan="2">{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                         </tr>
                         <tr>
-                            <th colspan="4">Abstract</th>
+                            <th colspan="2">Abstract</th>
                         </tr>
                         <tr>
-                            <td colspan="4">{{ preprint.abstract|safe }}</td>
+                            <td colspan="2"><small>{{ preprint.abstract }}</small></td>
                         </tr>
                         <tr>
-                            <th colspan="4">Comments to Editor</th>
+                            <th>Subject</th>
+                            <th>License</th>
                         </tr>
                         <tr>
-                            <td colspan="4">{% if preprint.comments_editor %}{{ preprint.comments_editor }}{% else %}No
-                                comments{% endif %}</td>
+                            <td>{{ preprint.subject }}</td>
+                            <td>{{ preprint.license }}</td>
                         </tr>
-                        {% if journal_settings.general.submission_competing_interests %}
-                            <tr>
-                                <th colspan="4">Competing Interests</th>
-                            </tr>
-                            <tr>
-                                <td colspan="4">
-                                    {% if preprint.competing_interests %}{{ preprint.competing_interests }}{% else %}No
-                                        CI{% endif %}</td>
-                            </tr>
-                        {% endif %}
-                        {% for field_answer in preprint.fieldanswer_set.all %}
-                            <tr>
-                                <th colspan="4">{{ field_answer.field.name }}</th>
-                            </tr>
-                            <tr>
-                                <td colspan="4">{{ field_answer.answer }}</td>
+                        <tr>
+                            <th colspan="2">Comments to the Editor</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><small>{{ preprint.comments_editor }}</small></td>
+                        </tr>
+                        {% for field_answer in preprint.additional_field_answers %}
+                        <tr>
+                            <th colspan="2">{{ field_answer.field.name }}</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ field_answer.answer }}</td>
+                        </tr>
+                    {% endfor %}
+                    </table>
+                </div>
+                 <div class="title-area">
+                    <h2>Authors</h2>
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
+                            <th>{% trans 'Affiliation' %}</th>
+                        </tr>
+                        {% for author in preprint.authors %}
+                            <tr id="authors-{{ author.pk }}">
+                                <td>{{ author.full_name }}</td>
+                                <td>{{ author.email_address }}</td>
+                                <td>{{ author.affiliation }}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -102,11 +114,10 @@
                         {% for version in preprint.preprintversion_set.all %}
                             <tr>
                                 <th>Version #{{ version.version }} (<a
-                                        href="{% url 'article_download_galley' preprint.id version.galley.id %}"><i
+                                        href="{{ version.file.download_url }}"><i
                                         class="fa fa-download"></i></a>)
                                 </th>
                                 <td>{{ version.date_time }}</td>
-                                <td></td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -117,6 +128,9 @@
                 <div class="content">
                     <a href="{% url 'preprints_comments' preprint.pk %}" class="success button"><i
                             class="fa fa-comment"></i> Manage Comments</a>
+                    <a class="button" href="#" data-open="uploadbox">
+                        <span class="fa fa-upload">&nbsp;</span>Upload New Version
+                    </a>
                 </div>
             </div>
         </div>
@@ -130,33 +144,29 @@
                 </div>
                 <div class="content">
                     <table class="small scroll">
-                        <tr style="text-align: left">
-                            <th>Label</th>
-                            <th width="25%">Filename</th>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Uploaded</th>
                             <th>Download</th>
-                            <td></td>
                         </tr>
-                        {% for galley in preprint.galley_set.all %}
+                        {% for file in preprint.preprintfile_set.all %}
                             <tr>
-                                <td>{{ galley.label }}</td>
-                                <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
-                                <td>
-                                    <a href="{% url 'article_file_download' 'id' preprint.pk galley.file.pk %}"><i
-                                            class="fa fa-download">&nbsp;</i></a>
+                                <td>{{ file.original_filename }}</td>
+                                <td>{{ file.mime_type }}</td>
+                                <td>{{ file.size|filesizeformat }}</td>
+                                <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>
                                 </td>
-                                <td><a href="#" data-open="uploadbox-{{ galley.pk }}"><i class="fa fa-upload">&nbsp;</i>Upload
-                                    New
-                                    Version</a></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="9">No galleys have been uploaded.</td>
                             </tr>
                         {% endfor %}
                     </table>
                 </div>
                 <div class="title-area">
                     <h2>Pending Updates</h2>
+                    <a href="#" class="button" data-open="uploadbox">Upload New Version</a>
                 </div>
                 <div class="content">
                     <table class="small">
@@ -219,55 +229,49 @@
         </div>
     </div>
 
-    {% for galley in preprint.galley_set.all %}
-        <div class="reveal" id="uploadbox-{{ galley.pk }}" data-reveal data-animation-in="slide-in-up"
-             data-animation-out="slide-out-down">
-            <div class="card">
-                <div class="card-divider">
-                    <h4><i class="fa fa-upload">&nbsp;</i>Galley {{ galley.pk }}</h4>
-                </div>
-            </div>
-            <div class="card-section">
-                {% if error %}
-                    <div class="alert alert-warning" role="alert">{{ error }}</div>
-                {% endif %}
-                <button class="close-button" data-close aria-label="Close modal" type="button">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="upload" value="upload">
-                    <h5>Upload File</h5>
-                    <div class="clearfix">
-                        <p>
-                            <small>You can upload a new file here, if this is just a minor correction select the correct
-                                option and upload the file, it will replace the existing file. If this is a completely
-                                new
-                                version of this manuscript, upload it and a new version will be generated and the older
-                                version retained for posterity.
-                            </small>
-                        </p>
-                        <div>
-                            <select name="upload_type">
-                                <option value="correction">Minor Correction</option>
-                                <option value="version">New Version</option>
-                            </select>
-                            <input name="file" type="file" class="float-left" style="width:50%;"
-                                   data-placeholder="No file"
-                                   data-buttonName="btn-primary">
-                            <button type="submit" class="button success float-right" name="galley_id"
-                                    value="{{ galley.pk }}"><i
-                                    class="fa fa-upload">
-                                &nbsp;</i>Upload
-                            </button>
-                        </div>
-                    </div>
-
-                </form>
+    <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Galley {{ galley.pk }}</h4>
             </div>
         </div>
-    {% endfor %}
+        <div class="card-section">
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="upload" value="upload">
+                <h5>Upload File</h5>
+                <div class="clearfix">
+                    <p>
+                        <small>You can upload a new file here, if this is just a minor correction select the correct
+                            option and upload the file, it will replace the existing file. If this is a completely
+                            new
+                            version of this manuscript, upload it and a new version will be generated and the older
+                            version retained for posterity.
+                        </small>
+                    </p>
+                    <div>
+                        {% inl %}
+                        {{ version_form|foundation }}
+                        {{ file_form|foundation }}
+                        <button type="submit" class="button success float-right" name="galley_id"
+                                value="{{ galley.pk }}"><i
+                                class="fa fa-upload">
+                            &nbsp;</i>Upload
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
 
 
 {% endblock %}
@@ -314,4 +318,7 @@
             }
         });
     </script>
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
 {% endblock %}

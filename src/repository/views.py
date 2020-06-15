@@ -94,27 +94,61 @@ def preprints_author_article(request, preprint_id):
         stage__in=models.SUBMITTED_STAGES,
     )
     metrics_summary = repository_logic.metrics_summary([preprint])
+    file_form = forms.FileForm(preprint=preprint)
+    version_form = forms.VersionForm(preprint=preprint)
+    modal = None
 
-    # TODO: Reimplement this
+    # TODO: Re-implement this
     if request.POST:
-        if 'submit' in request.POST:
-            return repository_logic.handle_preprint_submission(request, preprint)
-        else:
-            repository_logic.handle_author_post(request, preprint)
-            return redirect(
-                reverse(
-                    'preprints_author_article',
-                    kwargs={'article_id': preprint.pk},
-                )
+
+        if request.FILES:
+
+            file_form = forms.FileForm(
+                request.POST,
+                request.FILES,
+                preprint=preprint,
             )
+            version_form = forms.VersionForm(
+                request.POST,
+                preprint=preprint,
+            )
+
+            # If required, check if the file is a PDF:
+            if request.repository.limit_upload_to_pdf:
+                if not files.check_in_memory_mime(
+                        in_memory_file=request.FILES.get('file'),
+                ) == 'application/pdf':
+                    file_form.add_error(
+                        None,
+                        'You must upload a PDF for your manuscript',
+                    )
+
+            if file_form.is_valid() and version_form.is_valid():
+                new_file = file_form.save()
+                new_version = version_form.save(commit=False)
+                new_version.file = new_file
+                new_version.save()
+
+                return redirect(
+                    reverse(
+                        'preprints_author_article',
+                        kwargs={'preprint_id': preprint.pk},
+                    )
+                )
+            modal = 'uploadbox'
 
     template = 'admin/repository/author_article.html'
     context = {
         'preprint': preprint,
         'metrics_summary': metrics_summary,
         'preprint_journals': repository_logic.get_list_of_preprint_journals(),
-        # TODO: FIX
-        # 'pending_updates': models.VersionQueue.objects.filter(article=preprint, date_decision__isnull=True)
+        'pending_updates': models.VersionQueue.objects.filter(
+            preprint=preprint,
+            date_decision__isnull=True,
+        ),
+        'file_form': file_form,
+        'version_form': version_form,
+        'modal': modal,
     }
 
     return render(request, template, context)
