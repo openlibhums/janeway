@@ -30,7 +30,7 @@ urlpatterns = [
         name='preprints_search_with_term'),
 
     url(r'^view/(?P<article_id>\d+)/$',
-        views.preprints_article,
+        views.repository_preprint,
         name='repository_preprint'),
 
     url(r'^view/(?P<article_id>\d+)/pdf/$',
@@ -93,9 +93,9 @@ urlpatterns = [
         views.repository_download_file,
         name='repository_download_file'),
 
-    url(r'^manager/(?P<article_id>\d+)/notification/$',
-        views.preprints_notification,
-        name='preprints_notification'),
+    url(r'^manager/(?P<preprint_id>\d+)/notification/$',
+        views.repository_notification,
+        name='repository_notification'),
 
     url(r'^manager/(?P<article_id>\d+)/comments/$',
         views.preprints_comments,

@@ -676,6 +676,8 @@ def add_email_setting_defaults(sender, instance, **kwrgs):
         ) as json_data:
             repo_settings = json.load(json_data)
 
+            # As we are using pre_save there is no need to call save so we
+            # avoid recursion here.
             instance.submission = repo_settings[0]['submission']
             instance.publication = repo_settings[0]['publication']
             instance.decline = repo_settings[0]['decline']

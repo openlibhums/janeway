@@ -42,6 +42,7 @@ def repository_home(request):
     preprints = models.Preprint.objects.filter(
         repository=request.repository,
         date_published__lte=timezone.now(),
+        stage=models.STAGE_PREPRINT_PUBLISHED
     )
     subjects = models.Subject.objects.filter(
         repository=request.repository,
@@ -97,6 +98,7 @@ def preprints_author_article(request, preprint_id):
     )
     metrics_summary = repository_logic.metrics_summary([preprint])
 
+    # TODO: Reimplement this
     if request.POST:
         if 'submit' in request.POST:
             return repository_logic.handle_preprint_submission(request, preprint)
@@ -174,6 +176,7 @@ def repository_list(request, subject_slug=None):
     return render(request, template, context)
 
 
+# TODO: Re-implement
 def preprints_search(request, search_term=None):
     """
     Searches through preprints based on their titles and authors
@@ -223,7 +226,8 @@ def preprints_search(request, search_term=None):
     return render(request, template, context)
 
 
-def preprints_article(request, article_id):
+# TODO: Re-implement
+def repository_preprint(request, article_id):
     """
     Fetches a single article and displays its metadata
     :param request: HttpRequest
@@ -247,7 +251,7 @@ def preprints_article(request, article_id):
         if form.is_valid():
             comment = form.save(commit=False)
             repository_logic.handle_comment_post(request, article, comment)
-            return redirect(reverse('preprints_article', kwargs={'article_id': article_id}))
+            return redirect(reverse('repository_preprint', kwargs={'article_id': article_id}))
 
     pdf = repository_logic.get_pdf(article)
     html = repository_logic.get_html(article)
@@ -266,6 +270,7 @@ def preprints_article(request, article_id):
     return render(request, template, context)
 
 
+# TODO: Re-implement
 def preprints_pdf(request, article_id):
 
     pdf_url = request.GET.get('file')
@@ -277,6 +282,7 @@ def preprints_pdf(request, article_id):
     return render(request, template, context)
 
 
+# TODO: Re-implement
 def preprints_editors(request):
     """
     Displays lists of preprint editors by their subject group.
@@ -609,18 +615,20 @@ def repository_manager_article(request, preprint_id):
                     date=request.POST.get('date', timezone.now().date()),
                     time=request.POST.get('time', timezone.now().time()),
                 )
-                repository_logic.raise_event(
-                    'accept',
-                    request,
-                    preprint,
+                return redirect(
+                    reverse(
+                        'repository_notification',
+                        kwargs={'preprint_id': preprint.pk},
+                    )
                 )
 
         if 'decline' in request.POST:
             preprint.decline()
-            repository_logic.raise_event(
-                'decline',
-                request,
-                preprint,
+            return redirect(
+                reverse(
+                    'repository_notification',
+                    kwargs={'preprint_id': preprint.pk},
+                )
             )
 
         if 'upload' in request.POST and request.FILES:
@@ -776,23 +784,43 @@ def repository_download_file(request, preprint_id, file_id):
 
 
 @is_article_preprint_editor
-def preprints_notification(request, article_id):
+def repository_notification(request, preprint_id):
     """
     Presents an interface for the preprint editor to notify an author of a decision.
     :param request: HttpRequest object
-    :param article_id: int, Article object PK
+    :param preprint_id: int, Preprint object PK
     :return: HttpResponse or HttpRedirect
     """
-    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id,
-                                 preprint_decision_notification=False)
-    action = repository_logic.determie_action(preprint)
-    email_content = repository_logic.get_publication_text(request, preprint, action)
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+        preprint_decision_notification=False,
+    )
+    action = repository_logic.determine_action(preprint)
+    email_content = repository_logic.get_publication_text(
+        request,
+        preprint,
+        action,
+    )
 
     if request.POST:
         email_content = request.POST.get('email_content', '')
-        kwargs = {'request': request, 'article': preprint, 'email_content': email_content}
-        event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_PUBLICATION, **kwargs)
-        return redirect(reverse('repository_manager_article', kwargs={'article_id': preprint.pk}))
+        kwargs = {
+            'request': request,
+            'article': preprint,
+            'email_content': email_content,
+        }
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_PUBLICATION,
+            **kwargs,
+        )
+        return redirect(
+            reverse(
+                'repository_manager_article',
+                kwargs={'article_id': preprint.pk},
+            )
+        )
 
     template = 'preprints/notification.html'
     context = {

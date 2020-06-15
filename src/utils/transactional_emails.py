@@ -1007,7 +1007,7 @@ def send_author_copyedit_complete(**kwargs):
 
 def preprint_submission(**kwargs):
     """
-    Called by events.Event.ON_PRPINT_SUBMISSIONS, logs and emails the author and preprint editor.
+    Called by events.Event.ON_PRePINT_SUBMISSIONS, logs and emails the author and preprint editor.
     :param kwargs: Dictionary containing article and request objects
     :return: None
     """
@@ -1023,7 +1023,7 @@ def preprint_submission(**kwargs):
 
     # Send an email to the user
     context = {'preprint': preprint}
-    template = request.press.preprint_submission
+    template = request.repository.submission
     email_text = render_template.get_message_content(
         request,
         context,

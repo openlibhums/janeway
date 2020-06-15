@@ -57,7 +57,7 @@ def handle_file_upload(request, preprint):
     if 'file' in request.FILES:
         label = request.POST.get('label')
         for uploaded_file in request.FILES.getlist('file'):
-             save_galley(
+            save_galley(
                 preprint,
                 request,
                 uploaded_file,
@@ -66,7 +66,7 @@ def handle_file_upload(request, preprint):
             )
 
 
-def determie_action(preprint):
+def determine_action(preprint):
     if preprint.date_accepted and not preprint.date_declined:
         return 'accept'
     else:
@@ -95,18 +95,24 @@ def get_html(article):
     return html
 
 
-def get_publication_text(request, article, action):
+# TODO: Re-implenment to get settings from Repository
+def get_publication_text(request, preprint, action):
     context = {
-        'article': article,
+        'preprint': preprint,
         'request': request,
         'action': action,
     }
 
-    if article.date_declined and not article.date_published:
-        template = request.press.preprint_decline
+    if preprint.date_declined and not preprint.date_published:
+        template = request.repository.decline
     else:
-        template = request.press.preprint_publication
-    email_content = render_template.get_message_content(request, context, template, template_is_setting=True)
+        template = request.repository.publication
+    email_content = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
     return email_content
 
 
@@ -422,4 +428,17 @@ def search_for_authors(request, preprint):
             request,
             messages.INFO,
             'No author found.'
+        )
+
+
+def raise_event(event_type, request, preprint):
+    kwargs = {
+        'request': request,
+        'preprint': preprint,
+    }
+
+    if event_type == 'accept':
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_PUBLICATION,
+            **kwargs,
         )
