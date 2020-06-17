@@ -11,10 +11,5 @@ class Migration(migrations.Migration):
         ('submission', '0036_article_source_files'),
     ]
 
-    operations = [
-        migrations.RenameField(
-            model_name='article',
-            old_name='source_Files',
-            new_name='source_files',
-        ),
-    ]
+    # Empty migration for backwards compatibility
+    operations = []

@@ -100,7 +100,7 @@ class ReviewAssignment(models.Model):
 
     suggested_reviewers = models.TextField(blank=True, null=True)
     comments_for_editor = models.TextField(blank=True, null=True,
-                                           help_text="If you have any comments for the Editor you can add them here, \
+                                           help_text="If you have any comments for the Editor you can add them here; \
                                            these will not be shared with the Author.",
                                            verbose_name="Comments for the Editor")
     review_file = models.ForeignKey('core.File', blank=True, null=True)

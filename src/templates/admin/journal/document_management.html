@@ -26,6 +26,9 @@
                     <th>Replace</th>
                     <th>Delete</th>
                     <th>Type</th>
+                    {% if request.user.is_admin %}
+                    <th>Admin</th>
+                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>
@@ -50,6 +53,11 @@
                                     class="fa fa-trash">
                                 &nbsp;</i></a>{% endif %}</td>
                         <td>{% file_type article file %}</td>
+                        {% if request.user.is_admin %}
+                        <td>
+                            <a target="_blank" href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit</a>
+                        </td>
+                        {% endif %}
                     </tr>
                     </tbody>
                 {% endfor %}

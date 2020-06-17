@@ -15,10 +15,13 @@ from django.utils import timezone
 
 from core import files, models as core_models
 from preprint import models as preprint_models
-from security.decorators import article_edit_user_required, production_user_or_editor_required, editor_user_required
+from security.decorators import (
+    article_edit_user_required,
+    production_user_or_editor_required,
+    editor_user_required,
+)
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
-from identifiers import models as identifier_models
 from utils import setting_handler
 from utils import shared as utils_shared
 
@@ -81,6 +84,50 @@ def submit_submissions(request):
 
 @login_required
 @decorators.submission_is_enabled
+@decorators.funding_is_enabled
+@article_edit_user_required
+def submit_funding(request, article_id):
+    """
+    Presents a form for the user to complete with article information
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpResponse or HttpRedirect
+    """
+    article = get_object_or_404(models.Article, pk=article_id)
+    additional_fields = models.Field.objects.filter(journal=request.journal)
+    submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
+    form = forms.ArticleInfo(instance=article,
+                             additional_fields=additional_fields,
+                             submission_summary=submission_summary,
+                             journal=request.journal)
+
+    if request.POST:
+
+        if 'next_step' in request.POST:
+            article.current_step = 5
+            article.save()
+            return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
+
+        funder = models.Funder(name=request.POST.get('funder_name', default=''),
+                               fundref_id=request.POST.get('funder_doi', default=''),
+                               funding_id=request.POST.get('grant_number', default=''))
+
+        funder.save()
+        article.funders.add(funder)
+        article.save()
+
+
+    template = 'admin/submission//submit_funding.html'
+    context = {
+        'article': article,
+        'form': form,
+        'additional_fields': additional_fields,
+    }
+
+    return render(request, template, context)
+
+@login_required
+@decorators.submission_is_enabled
 @article_edit_user_required
 def submit_info(request, article_id):
     """
@@ -102,7 +149,6 @@ def submit_info(request, article_id):
                                  additional_fields=additional_fields,
                                  submission_summary=submission_summary,
                                  journal=request.journal)
-
         if form.is_valid():
             form.save(request=request)
             article.current_step = 2
@@ -165,7 +211,11 @@ def submit_authors(request, article_id):
         author_exists = logic.check_author_exists(request.POST.get('email'))
         if author_exists:
             article.authors.add(author_exists)
-            models.ArticleAuthorOrder.objects.get_or_create(article=article, author=author_exists)
+            models.ArticleAuthorOrder.objects.get_or_create(
+                article=article,
+                author=author_exists,
+                defaults={'order': article.next_author_sort()},
+            )
             messages.add_message(request, messages.SUCCESS, '%s added to the article' % author_exists.full_name())
             return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
         else:
@@ -176,25 +226,33 @@ def submit_authors(request, article_id):
                 new_author.save()
                 new_author.add_account_role(role_slug='author', journal=request.journal)
                 article.authors.add(new_author)
-                models.ArticleAuthorOrder.objects.get_or_create(article=article, author=new_author)
+                models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=new_author,
+                    defaults={'order': article.next_author_sort()},
+                )
                 messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
 
                 return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
 
     elif request.POST and 'search_authors' in request.POST:
         search = request.POST.get('author_search_text', None)
-        
+
         if not search:
             messages.add_message(
-                request, 
-                messages.WARNING, 
+                request,
+                messages.WARNING,
                 'An empty search is not allowed.'
             )
         else:
             try:
                 search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
                 article.authors.add(search_author)
-                models.ArticleAuthorOrder.objects.get_or_create(article=article, author=search_author)
+                models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=search_author,
+                    defaults={'order': article.next_author_sort()},
+                )
                 messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
             except core_models.Account.DoesNotExist:
                 messages.add_message(request, messages.WARNING, 'No author found with those details.')
@@ -213,18 +271,7 @@ def submit_authors(request, article_id):
             return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
 
     elif request.POST and 'authors[]' in request.POST:
-        author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
-        for author in article.authors.all():
-            order = author_pks.index(author.pk)
-            author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
-                article=article,
-                author=author,
-                defaults={'order': order}
-            )
-
-            if not c:
-                author_order.order = order
-                author_order.save()
+        logic.save_author_order(request, article)
 
         return HttpResponse('Complete')
 
@@ -237,6 +284,30 @@ def submit_authors(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@login_required
+@decorators.funding_is_enabled
+@article_edit_user_required
+def delete_funder(request, article_id, funder_id):
+    """Allows submitting author to delete a funding object."""
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal
+    )
+    funding = get_object_or_404(
+        models.Funder,
+        pk=funder_id
+    )
+
+    article.funders.remove(funding)
+
+    if request.GET.get('return'):
+        return redirect(request.GET['return'])
+
+    return redirect(reverse('submit_funding', kwargs={'article_id': article_id}))
+
 
 
 @login_required
@@ -281,6 +352,7 @@ def submit_files(request, article_id):
     """
     article = get_object_or_404(models.Article, pk=article_id)
     form = forms.FileDetails()
+    configuration = request.journal.submissionconfiguration
 
     if article.current_step < 3 and not request.user.is_staff:
         return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
@@ -329,7 +401,12 @@ def submit_files(request, article_id):
             if article.manuscript_files.all().count() >= 1:
                 article.current_step = 4
                 article.save()
-                return redirect(reverse('submit_review', kwargs={'article_id': article_id}))
+                if configuration.funding:
+                    return redirect(reverse(
+                        'submit_funding', kwargs={'article_id': article_id}))
+                else:
+                    return redirect(reverse(
+                        'submit_review', kwargs={'article_id': article_id}))
             else:
                 error = "You must upload a manuscript file."
 
@@ -425,6 +502,14 @@ def edit_metadata(request, article_id):
         author_form = forms.EditFrozenAuthor()
 
     if request.POST:
+        if 'add_funder' in request.POST:
+            funder = models.Funder(name=request.POST.get('funder_name', default=''),
+                                   fundref_id=request.POST.get('funder_doi', default=''),
+                                   funding_id=request.POST.get('grant_number', default=''))
+
+            funder.save()
+            article.funders.add(funder)
+            article.save()
 
         if 'metadata' in request.POST:
             info_form = forms.ArticleInfo(request.POST, instance=article, submission_summary=submission_summary)

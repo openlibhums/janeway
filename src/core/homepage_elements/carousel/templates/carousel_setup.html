@@ -1,4 +1,6 @@
 {% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
 
 {% block title %}Journal Homepage Settings{% endblock title %}
 {% block admin-header %}Carousel Settings{% endblock admin-header %}
@@ -15,7 +17,12 @@
 		<form action="" method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			
-			{{ home_form.as_p }}
+			{{ home_form.carousel_mode|foundation }}
+            {{ home_form.carousel_article_limit|foundation }}
+            {{ home_form.carousel_news_limit|foundation }}
+            {{ home_form.carousel_exclude|foundation }}
+            {{ home_form.carousel_articles|foundation }}
+            {{ home_form.carousel_news|foundation }}
 
             <button type="submit" class="button alert float-right" name="cancel" value="cancel">
                      Cancel
@@ -26,3 +33,17 @@
         </form>
     </div>
 {% endblock body %}
+
+{% block js %}
+{% include "elements/datatables.html" with target="#article_table" sort=3 order='desc' page_length=5 %}
+
+    <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/SelectBox.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/SelectFilter2.js" %}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static "admin/js/forms.css" %}" >
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}" >
+
+{% endblock js %}

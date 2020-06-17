@@ -50,6 +50,12 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('copyright_notice')
         else:
             self.fields['copyright_notice'].required = True
+            copyright_label = setting_handler.get_setting(
+                'general',
+                'copyright_submission_label',
+                journal,
+            ).processed_value
+            self.fields['copyright_notice'].label = copyright_label
 
         if not journal.submissionconfiguration.competing_interests:
             self.fields.pop('competing_interests')
@@ -58,21 +64,14 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('comments_editor')
 
 
-        copyright_label = setting_handler.get_setting(
-            'general',
-            'copyright_submission_label',
-            journal,
-        ).processed_value
-        self.fields['copyright_notice'].label = copyright_label
-
-
 class ArticleInfo(KeywordModelForm):
 
     class Meta:
         model = models.Article
         fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
                   'language', 'section', 'license', 'primary_issue',
-                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed')
+                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed',
+                  'custom_how_to_cite',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
             'subtitle': forms.TextInput(attrs={'placeholder': _('Subtitle')}),
@@ -101,7 +100,7 @@ class ArticleInfo(KeywordModelForm):
             )
             self.fields['section'].required = True
             self.fields['license'].required = True
-            self.fields['primary_issue'].queryset = article.journal.issues()
+            self.fields['primary_issue'].queryset = article.issues.all()
 
             abstracts_required = article.journal.get_setting(
                 'general',
@@ -355,11 +354,19 @@ class ConfiguratorForm(forms.ModelForm):
                 'If language is unset you must select a default language.'
             )
 
-
-
-
     class Meta:
         model = models.SubmissionConfiguration
         exclude = (
             'journal',
         )
+
+
+class ProjectedIssueForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectedIssueForm, self).__init__(*args, **kwargs)
+        self.fields['projected_issue'].queryset = self.instance.journal.issue_set.all()
+
+    class Meta:
+        model = models.Article
+        fields = ('projected_issue',)

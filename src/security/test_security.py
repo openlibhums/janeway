@@ -12,6 +12,7 @@ from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
+from django.core.management import call_command
 from mock import Mock
 
 from core import models as core_models
@@ -25,6 +26,7 @@ from proofing import models as proofing_models
 from preprint import models as preprint_models
 from press import models as press_models
 from utils.install import update_xsl_files
+from utils import setting_handler
 
 class TestSecurity(TestCase):
     # Tests for editor role checks
@@ -3317,6 +3319,50 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **bad_kwargs)
 
+    def test_loading_keyword_page_fail(self):
+        func = Mock()
+        decorated_func = decorators.keyword_page_enabled(func)
+
+        request = self.prepare_request_with_user(
+            self.admin_user,
+            self.journal_one,
+            self.press,
+        )
+
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+    def test_loading_keyword_page_success(self):
+        func = Mock()
+        decorated_func = decorators.keyword_page_enabled(func)
+
+        setting_handler.save_setting(
+            'general', 
+            'keyword_list_page', 
+            self.journal_one,
+            'on',
+        )
+
+        request = self.prepare_request_with_user(
+            self.admin_user,
+            self.journal_one,
+            self.press,
+        )
+
+        decorated_func(request)
+
+        # Negate any database changes on keepdb input
+        setting_handler.save_setting(
+            'general', 
+            'keyword_list_page', 
+            self.journal_one, 
+            '',
+        )
+
+        self.assertTrue(
+            func.called,
+            "keyword_page_enabled wrongly blocks this page from rendering.",
+        )
+
     # General helper functions
 
     @staticmethod
@@ -3724,6 +3770,8 @@ class TestSecurity(TestCase):
         self.subject.save()
 
         self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
+
+        call_command('load_default_settings')
 
     @staticmethod
     def mock_messages_add(level, message, extra_tags):

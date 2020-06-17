@@ -34,8 +34,8 @@ class Command(BaseCommand):
                                  options.get('file'),
                                  'article_accesses.json')
 
-        with open(file_path) as file:
-            data = file.read()
+        with open(file_path, encoding="utf-8") as f:
+            data = f.read()
 
         for obj in serializers.deserialize("json", data):
             obj.save()

@@ -112,6 +112,9 @@ def resize_and_crop(img_path, size, crop_type='middle'):
     else:
         img = img.resize((size[0], size[1]), Image.ANTIALIAS)
 
+    if img.mode == "CMYK":
+        img = img.convert("RGB")
+
     img.save(img_path, "png")
 
 
@@ -124,15 +127,19 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ['general', 'crosscheck']
+    setting_groups = ['general', 'crosscheck', 'article']
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
         settings = models.Setting.objects.filter(group__name=group)
 
         for setting in settings:
-            _dict[group][setting.name] = setting_handler.get_setting(group, setting.name, journal,
-                                                                     fallback=True).value
+            _dict[group][setting.name] = setting_handler.get_setting(
+                group,
+                setting.name,
+                journal,
+                fallback=True,
+            ).processed_value
 
     return _dict
 
@@ -281,7 +288,7 @@ def get_settings_to_edit(group, journal):
             'enable_editorial_display', 'multi_page_editorial', 'enable_editorial_images', 'main_contact',
             'publisher_name', 'publisher_url',
             'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
-            'twitter_handle', 'switch_language', 'google_analytics_code'
+            'twitter_handle', 'switch_language', 'google_analytics_code', 'keyword_list_page',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
@@ -298,6 +305,12 @@ def get_settings_to_edit(group, journal):
         ]
         settings = process_setting_list(proofing_settings, 'general', journal)
         setting_group = 'general'
+    elif group == 'article':
+        article_settings = [
+            'suppress_how_to_cite',
+        ]
+        settings = process_setting_list(article_settings, 'article', journal)
+        setting_group = 'article'
     else:
         settings = []
         setting_group = None
@@ -438,11 +451,16 @@ def get_available_elements(workflow):
         module_name = "{0}.plugin_settings".format(plugin)
         plugin_settings = import_module(module_name)
 
-        if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(plugin_settings, 'HANDSHAKE_URL'):
+        if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(
+                plugin_settings, 'HANDSHAKE_URL'):
             if plugin_settings.IS_WORKFLOW_PLUGIN:
                 our_elements.append(
-                    {'name': plugin_settings.PLUGIN_NAME, 'handshake_url': plugin_settings.HANDSHAKE_URL,
-                     'stage': plugin_settings.STAGE, 'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL}
+                    {'name': plugin_settings.PLUGIN_NAME,
+                     'handshake_url': plugin_settings.HANDSHAKE_URL,
+                     'stage': plugin_settings.STAGE,
+                     'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL,
+                     'jump_url': plugin_settings.JUMP_URL if hasattr(plugin_settings, 'JUMP_URL') else '',
+                     }
                 )
     return clear_active_elements(our_elements, workflow, plugins)
 
@@ -450,10 +468,17 @@ def get_available_elements(workflow):
 def handle_element_post(workflow, element_name, request):
     for element in get_available_elements(workflow):
         if element['name'] == element_name:
-            element_obj, created = models.WorkflowElement.objects.get_or_create(journal=request.journal,
-                                                                                element_name=element_name,
-                                                                                handshake_url=element['handshake_url'],
-                                                                                stage=element['stage'])
+            defaults = {
+                'jump_url': element.get('jump_url', ''),
+                'stage': element['stage'],
+                'handshake_url': element['handshake_url'],
+
+            }
+            element_obj, created = models.WorkflowElement.objects.get_or_create(
+                journal=request.journal,
+                element_name=element_name,
+                defaults=defaults,
+            )
 
             return element_obj
 
@@ -502,8 +527,8 @@ def sort_mixed(article_objects, news_objects):
 
     for news_item in news_objects:
         for article in article_objects:
-            if article.date_published > news_item.posted:
-                carousel_objects.append(article)
+            if article.date_published > news_item.posted and article not in carousel_objects:
+                    carousel_objects.append(article)
         carousel_objects.append(news_item)
 
     # add any articles that were not inserted during the above sort procedure

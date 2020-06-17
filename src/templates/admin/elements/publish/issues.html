@@ -8,6 +8,10 @@
         <div class="card-section">
             <form method="POST">
                 {% csrf_token %}
+
+                {% if article.projected_issue %}
+                This article was projected to be published in {{ article.projected_issue.display_title }}
+                {% endif  %}
                 <p><strong>In an Issue: </strong>
                     {% if article.issues_list %}
                     <i class="fa fa-check-circle-o" style="color: green;"></i>
@@ -25,7 +29,7 @@
                         <th></th>
                     </tr>
                 {% for issue in issues %}
-                    <tr>
+                    <tr{% if issue.pk == article.projected_issue.pk %} style="background-color: darkseagreen;"{% endif %}>
                         <td>{{ issue.issue_title }}</td>
                         <td>{{ issue.volume }}</td>
                         <td>{{ issue.issue }}</td>

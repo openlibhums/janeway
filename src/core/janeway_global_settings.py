@@ -170,6 +170,7 @@ SETTINGS_EXPORT = [
     'ENABLE_ENHANCED_MAILGUN_FEATURES',
     'ENABLE_ORCID',
     'DEBUG',
+    'LANGUAGE_CODE',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -199,7 +200,9 @@ elif os.environ.get("DB_VENDOR") in {"mysql", "mariadb"}:
             'HOST': os.environ["DB_HOST"],
             'PORT': os.environ["DB_PORT"],
             'OPTIONS': {
-                'init_command': 'SET default_storage_engine=INNODB',
+                'init_command': 'SET default_storage_engine=INNODB; '
+                'ALTER DATABASE {0} CHARACTER SET utf8mb4 COLLATE '
+                'utf8mb4_general_ci'.format(os.environ["DB_NAME"]),
                 'charset': 'utf8mb4',
             },
         }
@@ -464,10 +467,10 @@ SILENT_IMPORT_CACHE = False
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default'
+DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.3.8)'
 
 # Testing Overrides
-if IN_TEST_RUNNER and COMMAND[1:2] != ["--keep-db"]:
+if IN_TEST_RUNNER and COMMAND[1:2] != ["--keepdb"]:
     from collections.abc import Mapping
 
 

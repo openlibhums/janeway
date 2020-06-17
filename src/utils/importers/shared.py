@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import hashlib
 from urllib.parse import urlparse
 from uuid import uuid4
 import requests
@@ -449,6 +450,10 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         if fetch_emails:
             email = get_soup(emails[idx], 'content')
+            if email == "journal@openlibhums.org":
+                # Generate Janeway compatible dummy email
+                email = utils_shared.generate_password(16)
+                email = u"{0}@{1}".format(email, settings.DUMMY_EMAIL_DOMAIN)
         else:
             # if there are a bad number of emails, we will automatically generate one
             email = utils_shared.generate_password(16)
@@ -470,14 +475,23 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
             print("Didn't find account for {0}. Creating.".format(email))
             parsed_name = parse_author_names(author_name, citation)
             logger.debug("%s\t\t-> %s" % (author_name, parsed_name))
-            account = core_models.Account.objects.create(email=email, username=uuid4(), institution=institution,
-                                                         first_name=parsed_name["first_name"],
-                                                         last_name=parsed_name["last_name"],
-                                                         middle_name=parsed_name["middle_name"])
+            account = core_models.Account.objects.create(
+                email=email,
+                username=uuid4(),
+                institution=institution,
+                first_name=parsed_name["first_name"],
+                last_name=parsed_name["last_name"],
+                middle_name=parsed_name["middle_name"],
+            )
             account.save()
 
         if account:
             article.authors.add(account)
+            submission_models.ArticleAuthorOrder.objects.get_or_create(
+                article=article,
+                author=account,
+                defaults={'order': article.next_author_sort()},
+            )
             account.snapshot_self(article)
 
 
@@ -522,22 +536,54 @@ def set_article_issue_and_volume(article, soup_object, date_published):
     :param date_published: the date the article was published
     :return: None
     """
+    issue_type = journal_models.IssueType.objects.get(
+        journal=article.journal,
+        code="issue",
+    )
+    issue_title = ""
     issue = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_issue'}), 'content', 0))
     volume = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_volume'}), 'content', 0))
 
+    # Try DC tags
     if issue == 0:
-        issue = int(get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Issue'}), 'content', 0))
+        dc_issue = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Issue'}), 'content', "")
+        if dc_issue.isdigit():
+            issue = int(dc_issue)
+        else:
+            issue_title = "{}: {}".format(issue_type.pretty_name, dc_issue)
     if volume == 0:
-        volume = int(get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Volume'}), 'content', 0))
+        dc_volume = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Volume'}), 'content', "")
+        if dc_volume.isdigit():
+            volume = int(dc_volume)
 
-    new_issue, created = journal_models.Issue.objects.get_or_create(journal=article.journal, issue=issue, volume=volume)
-    new_issue.date = date_published
+    if issue == volume == 0 and issue_title:
+        # If no issue and volume information, create issue with title
+        # identifier
+        new_issue, created = journal_models.Issue.objects.get_or_create(
+            journal=article.journal,
+            issue_title=issue_title,
+            defaults={
+                "issue": issue, "volume": volume, "issue_type": issue_type,
+                "date": date_published
+            },
+        )
+
+    else:
+        new_issue, created = journal_models.Issue.objects.get_or_create(
+            journal=article.journal, issue=issue, volume=volume,
+            defaults={"issue_type": issue_type},
+        )
+        new_issue.date = date_published
 
     article.issues.add(new_issue)
 
     if created:
         new_issue.save()
-        print("Created a new issue ({0}:{1}, {2})".format(volume, issue, date_published))
+        log_string = "Created a new issue ({0}:{1}, {2})".format(
+            volume, issue, date_published)
+        if issue_title:
+            log_string = "{0} - {1}".format(log_string, issue_title)
+        logger.info(log_string)
 
 
 def set_article_keywords(article, soup_object):
@@ -739,3 +785,12 @@ def parse_author_names(author, citation=None):
         "middle_name": middle,
         "last_name": last,
     }
+
+
+SEED_KEYS = [
+    "First Name", "Middle Name", "Last Name", "Affiliation", "Country"
+]
+def generate_dummy_email(profile_dict):
+    seed = sum(profile_dict.get(key, "") for key in SEED_KEYS)
+    hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()
+    return "{0}@{1}".format(hashed, settings.DUMMY_EMAIL_DOMAIN)

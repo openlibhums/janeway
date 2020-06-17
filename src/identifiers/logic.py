@@ -7,10 +7,12 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from uuid import uuid4
 import requests
+from bs4 import BeautifulSoup
 
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
+from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 
@@ -18,11 +20,10 @@ import sys
 from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
+from crossref.restful import Depositor
+from identifiers import models
 
 logger = get_logger(__name__)
-
-CROSSREF_TEST_URL = 'https://api.crossref.org/deposits?test=true'
-CROSSREF_LIVE_URL = 'https://api.crossref.org/deposits'
 
 
 def register_crossref_doi(identifier):
@@ -31,9 +32,6 @@ def register_crossref_doi(identifier):
     domain = identifier.article.journal.domain
     pingback_url = urlencode({'pingback': 'http://{0}{1}'.format(domain, reverse('crossref_pingback'))})
 
-    test_url = '{0}&{1}'.format(CROSSREF_TEST_URL, pingback_url)
-    live_url = '{0}?{1}'.format(CROSSREF_LIVE_URL, pingback_url)
-
     use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
                                                identifier.article.journal).processed_value
 
@@ -41,7 +39,9 @@ def register_crossref_doi(identifier):
         logger.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return 'Crossref Disabled', 'Disabled'
 
-    test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', identifier.article.journal).processed_value
+    test_mode = setting_handler.get_setting(
+            'Identifiers', 'crossref_test', identifier.article.journal
+    ).processed_value or settings.DEBUG
 
     if test_mode:
         util_models.LogEntry.add_entry('Submission', "DOI registration running in test mode", 'Info',
@@ -50,14 +50,11 @@ def register_crossref_doi(identifier):
         util_models.LogEntry.add_entry('Submission', "DOI registration running in live mode", 'Info',
                                        target=identifier.article)
 
-    return send_crossref_deposit(test_url if test_mode else live_url, identifier)
+    return send_crossref_deposit(test_mode, identifier)
 
 
 def register_crossref_component(article, xml, supp_file):
     from utils import setting_handler
-
-    test_url = CROSSREF_TEST_URL
-    live_url = CROSSREF_LIVE_URL
 
     use_crossref = setting_handler.get_setting('Identifiers', 'use_crossref',
                                                article.journal).processed_value
@@ -66,9 +63,9 @@ def register_crossref_component(article, xml, supp_file):
         logger.info("[DOI] Not using Crossref DOIs on this journal. Aborting registration.")
         return
 
-    test_mode = setting_handler.get_setting('Identifiers', 'crossref_test', article.journal).processed_value
-
-    server = test_url if test_mode else live_url
+    test_mode = setting_handler.get_setting(
+            'Identifiers', 'crossref_test', article.journal
+    ).processed_value or settings.DEBUG
 
     if test_mode:
         util_models.LogEntry.add_entry('Submission', "DOI component registration running in test mode", 'Info',
@@ -77,39 +74,35 @@ def register_crossref_component(article, xml, supp_file):
         util_models.LogEntry.add_entry('Submission', "DOI component registration running in live mode", 'Info',
                                        target=article)
 
-    response = requests.post(server, data=xml.encode('utf-8'),
-                             auth=(setting_handler.get_setting('Identifiers',
-                                                               'crossref_username',
-                                                               article.journal).processed_value,
-                                   setting_handler.get_setting('Identifiers', 'crossref_password',
-                                                               article.journal).processed_value),
-                             headers={"Content-Type": "application/vnd.crossref.deposit+xml"})
+    doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal)
+    username = setting_handler.get_setting('Identifiers', 'crossref_username', article.journal).processed_value
+    password = setting_handler.get_setting('Identifiers', 'crossref_password', article.journal).processed_value
+
+    depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
+    response = depositor.register_doi(submission_id='component{0}.xml'.format(uuid4()), request_xml=xml)
+
+    logger.debug("[CROSSREF:DEPOSIT:{0}] Sending".format(article.id))
+    logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (article.id, response.status_code))
 
     if response.status_code != 200:
         util_models.LogEntry.add_entry('Error',
                                        "Error depositing: {0}. {1}".format(response.status_code, response.text),
                                        'Debug',
                                        target=article)
-        logger.error("Error depositing: {}".format(response.status_code))
-        logger.error(response.text, file=sys.stderr)
+
+        status = "Error depositing: {code}, {text}".format(
+            code=response.status_code,
+            text=response.text
+        )
+        logger.error(status)
+        logger.error(response.text)
+        error = True
     else:
-        token = response.json()['message']['batch-id']
-        status = response.json()['message']['status']
-        util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
-                                       target=article)
-        logger.info("Status of {} in {}: {}".format(token, '{0}.{1}'.format(article.get_doi(), supp_file.pk), status))
+        util_models.LogEntry.add_entry('Submission', "Deposited DOI.", 'Info', target=article)
 
 
-def send_crossref_deposit(server, identifier):
-    # todo: work out whether this is acceptance or publication
-    # if it's acceptance, then we use "0" for volume and issue
-    # if publication, then use real values
-    # the code here is for acceptance
-
+def create_crossref_template(identifier):
     from utils import setting_handler
-    article = identifier.article
-    error = False
-
     template_context = {
         'batch_id': uuid4(),
         'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
@@ -133,28 +126,87 @@ def send_crossref_deposit(server, identifier):
         'now': timezone.now(),
     }
 
+    # append citations for i4oc compatibility
+    template_context["citation_list"] = extract_citations_for_crossref(
+        identifier.article)
+
+    # append PDFs for similarity check compatibility
     pdfs = identifier.article.pdfs
     if len(pdfs) > 0:
-        template_context['pdf_url'] = article.pdf_url
+        template_context['pdf_url'] = identifier.article.pdf_url
 
-    if article.license:
-        template_context["license"] = article.license.url
+    if identifier.article.license:
+        template_context["license"] = identifier.article.license.url
+
+    return template_context
+
+
+def extract_citations_for_crossref(article):
+    """ Extracts the citations in a format compatible for crossref deposits
+
+    It can only handle articles with an XML galley using a DTD
+    compatible with the XSL provided by crossref themselves
+    :param Article: A submission.models.Article instance
+    :return: The formatted string containing the references
+    """
+    render_galley = article.get_render_galley
+    citations = None
+    if render_galley and render_galley.type == 'xml':
+        try:
+            logger.debug('Doing crossref citation list transform:')
+            xml_transformed = render_galley.render_crossref()
+            logger.debug(xml_transformed)
+
+            # extract the citation list
+            souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
+            citation_list = souped_xml.find('citation_list')
+
+            if citation_list:
+                citations = str(citation_list.extract())
+                citations = citations.replace(
+                    "<cyear", "<cYear"
+                ).replace(
+                    "</cyear", "</cYear"
+                )
+        except Exception as e:
+            logger.error('Error transforming Crossref citations: %s' % e)
+    else:
+        logger.debug('No XML galleys found for crossref citation extraction')
+
+    return citations
+
+
+def send_crossref_deposit(test_mode, identifier):
+    # todo: work out whether this is acceptance or publication
+    # if it's acceptance, then we use "0" for volume and issue
+    # if publication, then use real values
+    # the code here is for acceptance
+
+    from utils import setting_handler
+    article = identifier.article
+    error = False
 
     template = 'common/identifiers/crossref.xml'
+    template_context = create_crossref_template(identifier)
     crossref_template = render_to_string(template, template_context)
+
     logger.debug(crossref_template)
 
-    util_models.LogEntry.add_entry('Submission', "Sending request to {1}: {0}".format(crossref_template, server),
+    util_models.LogEntry.add_entry('Submission', "Sending request: {0}".format(crossref_template),
                                    'Info',
                                    target=identifier.article)
+    doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal)
+    username = setting_handler.get_setting('Identifiers', 'crossref_username', identifier.article.journal).processed_value
+    password = setting_handler.get_setting('Identifiers', 'crossref_password',
+                                           identifier.article.journal).processed_value
 
-    response = requests.post(server, data=crossref_template.encode('utf-8'),
-                             auth=(setting_handler.get_setting('Identifiers',
-                                                               'crossref_username',
-                                                               identifier.article.journal).processed_value,
-                                   setting_handler.get_setting('Identifiers', 'crossref_password',
-                                                               identifier.article.journal).processed_value),
-                             headers={"Content-Type": "application/vnd.crossref.deposit+xml"})
+    filename = uuid4()
+
+    depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
+    response = depositor.register_doi(submission_id=filename, request_xml=crossref_template)
+
+    logger.debug("[CROSSREF:DEPOSIT:{0}] Sending".format(identifier.article.id))
+    logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (identifier.article.id, response.status_code))
 
     if response.status_code != 200:
         util_models.LogEntry.add_entry('Error',
@@ -167,15 +219,16 @@ def send_crossref_deposit(server, identifier):
             text=response.text
         )
         logger.error(status)
-        logger.error(response.text)
         error = True
     else:
-        token = response.json()['message']['batch-id']
-        status = response.json()['message']['status']
-        util_models.LogEntry.add_entry('Submission', "Deposited {0}. Status: {1}".format(token, status), 'Info',
-                                       target=identifier.article)
-        status = "Status of {} in {}: {}".format(token, identifier.identifier, status)
+        status = "Deposited DOI"
+        util_models.LogEntry.add_entry('Submission', status, 'Info', target=identifier.article)
         logger.info(status)
+
+        crd = models.CrossrefDeposit(identifier=identifier, file_name=filename)
+        crd.save()
+
+        crd.poll()
 
     return status, error
 

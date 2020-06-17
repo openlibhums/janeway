@@ -17,7 +17,7 @@ from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -146,16 +146,23 @@ class Country(models.Model):
         return self.name
 
 
+class AccountQuerySet(models.query.QuerySet):
+    def create(self, **kwargs):
+            obj = self.model(**kwargs)
+            obj.clean()
+            self._for_write = True
+            obj.save(force_insert=True, using=self.db)
+            return obj
+
+
 class AccountManager(BaseUserManager):
     def create_user(self, email, password=None, **kwargs):
         if not email:
             raise ValueError('Users must have a valid email address.')
 
-        if not kwargs.get('username', None):
-            raise ValueError('Users must have a valid username.')
-
         account = self.model(
-            email=self.normalize_email(email), username=kwargs.get('username')
+            email=self.normalize_email(email),
+            username=email.lower(),
         )
 
         account.set_password(password)
@@ -173,6 +180,9 @@ class AccountManager(BaseUserManager):
         account.save()
 
         return account
+
+    def get_queryset(self):
+        return AccountQuerySet(self.model)
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
@@ -223,11 +233,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
+        unique_together = ('email', 'username')
 
-    def save(self, *args, **kwargs):
+
+    def clean(self, *args, **kwargs):
+        """ Normalizes the email address
+
+        The username is lowercased instead, to cope with a bug present for
+        accounts imported/registered prior to v.1.3.8
+        https://github.com/BirkbeckCTP/janeway/issues/1497
+        The username being unique and lowercase at clean time avoids
+        the creation of duplicate email addresses where the casing might
+        be different.
+        """
+        self.email = self.__class__.objects.normalize_email(self.email)
         self.username = self.email.lower()
-        self.email = self.email.lower()
-        super(Account, self).save(*args, **kwargs)
+        super().clean(*args, **kwargs)
 
     def __str__(self):
         return self.full_name()
@@ -290,7 +311,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.institution
 
     def active_reviews(self):
-        return review_models.ReviewAssignment.objects.filter(reviewer=self, is_complete=False)
+        return review_models.ReviewAssignment.objects.filter(
+            reviewer=self,
+            is_complete=False,
+        )
 
     def active_copyedits(self):
         return copyediting_models.CopyeditAssignment.objects.filter(copyeditor=self, copyedit_acknowledged=False)
@@ -724,12 +748,6 @@ class File(models.Model):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
 
-    def get_tree(self):
-        return files.file_parents(self)
-
-    def get_children(self):
-        return files.file_children(self)
-
     def next_history_seq(self):
         try:
             last_history_item = self.history.all().reverse()[0]
@@ -819,6 +837,7 @@ def galley_type_choices():
         ('odt', 'OpenDocument Text Document'),
         ('tex', 'LaTeX'),
         ('rtf', 'RTF'),
+        ('other', 'Other'),
     )
 
 
@@ -842,10 +861,25 @@ class Galley(models.Model):
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
 
-    def render(self):
-        return files.render_xml(self.file, self.article, xsl_file=self.xsl_file)
+    def render(self, recover=False):
+        return files.render_xml(
+            self.file, self.article,
+            xsl_path=self.xsl_file.file.path,
+            recover=recover,
+        )
+
+    def render_crossref(self):
+        xsl_path = os.path.join(
+                settings.BASE_DIR, 'transform', 'xsl',  files.CROSSREF_XSL)
+        return files.render_xml(
+                self.file, self.article,
+                xsl_path=xsl_path
+        )
 
     def has_missing_image_files(self, show_all=False):
+        if not self.file.mime_type in files.MIMETYPES_WITH_FIGURES:
+            return []
+
         xml_file_contents = self.file.get_file(self.article)
 
         souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
@@ -884,11 +918,11 @@ class Galley(models.Model):
         """
         return self.has_missing_image_files(show_all=True)
 
-    def file_content(self, dont_render=False):
+    def file_content(self, dont_render=False, recover=False):
         if self.file.mime_type == "text/html" or dont_render:
             return self.file.get_file(self.article)
         elif self.file.mime_type in files.XML_MIMETYPES:
-            return self.render()
+            return self.render(recover=recover)
 
     def path(self):
         url = reverse('article_download_galley',
@@ -901,19 +935,35 @@ class Galley(models.Model):
         return files.MIMETYPES_WITH_FIGURES
 
     def save(self, *args, **kwargs):
-        if not self.xsl_file:
-            self.xsl_file = self.article.journal.xsl
+        if self.type == 'xml' and not self.xsl_file:
+            if self.article.journal:
+                self.xsl_file = self.article.journal.xsl
+            else:
+                # Articles might not be part of any journals (e.g.: preprints)
+                self.xsl_file = default_xsl()
         super().save(*args, **kwargs)
 
 
+def upload_to_journal(instance, filename):
+    instance.original_filename = filename
+    if instance.journal:
+        return "journals/%d/%s" % (instance.journal.pk, filename)
+    else:
+        return filename
+
 class XSLFile(models.Model):
-    file = models.FileField(storage=JanewayFileSystemStorage('transform/xsl'))
+    file = models.FileField(
+        upload_to=upload_to_journal,
+        storage=JanewayFileSystemStorage('files/xsl'))
+    journal = models.ForeignKey("journal.Journal", on_delete=models.CASCADE,
+                                blank=True, null=True)
     date_uploaded = models.DateTimeField(default=timezone.now)
     label = models.CharField(max_length=255,
         help_text="A label to help recognise this stylesheet",
         unique=True,
     )
     comments = models.TextField(blank=True, null=True)
+    original_filename = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -921,6 +971,11 @@ class XSLFile(models.Model):
     def __str__(self):
         return "%s(%s@%s)" % (
             self.__class__.__name__, self.label, self.file.path)
+
+
+def default_xsl():
+    return XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
 
 
 class SupplementaryFile(models.Model):
@@ -1095,12 +1150,12 @@ class DomainAlias(AbstractSiteModel):
 
 BASE_ELEMENTS = [
     {'name': 'review',
-     'handshake_url': 'review_unassigned_article',
+     'handshake_url': 'review_home',
      'jump_url': 'review_in_review',
      'stage': submission_models.STAGE_UNASSIGNED,
      'article_url': True},
     {'name': 'copyediting',
-     'handshake_url': 'article_copyediting',
+     'handshake_url': 'copyediting',
      'jump_url': 'article_copyediting',
      'stage': submission_models.STAGE_EDITOR_COPYEDITING,
      'article_url': True},
@@ -1115,7 +1170,7 @@ BASE_ELEMENTS = [
      'stage': submission_models.STAGE_PROOFING,
      'article_url': False},
     {'name': 'prepublication',
-     'handshake_url': 'publish_article',
+     'handshake_url': 'publish',
      'jump_url': 'publish_article',
      'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
      'article_url': True}
@@ -1132,12 +1187,35 @@ class WorkflowElement(models.Model):
     element_name = models.CharField(max_length=255)
     handshake_url = models.CharField(max_length=255)
     jump_url = models.CharField(max_length=255)
-    stage = models.CharField(max_length=255, default=submission_models.STAGE_UNASSIGNED)
+    stage = models.CharField(
+        max_length=255,
+        default=submission_models.STAGE_UNASSIGNED,
+    )
     article_url = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=20)
 
     class Meta:
         ordering = ('order', 'element_name')
+
+    @property
+    def stages(self):
+        from core import workflow
+        try:
+            return workflow.ELEMENT_STAGES[self.element_name]
+        except KeyError:
+            return [self.stage]
+
+    @property
+    def articles(self):
+        return submission_models.Article.objects.filter(
+            stage__in=self.stages,
+            journal=self.journal,
+        )
+
+    @property
+    def settings(self):
+        from core import workflow
+        return workflow.workflow_plugin_settings(self)
 
     def __str__(self):
         return self.element_name

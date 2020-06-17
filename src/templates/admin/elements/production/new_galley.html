@@ -16,36 +16,11 @@
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="upload" value="upload">
-            <h5>XML/HTML Files</h5>
+            <input type="text" name="label" placeholder="Enter a label for your galley">
+            <p class="help-text">Galley labels are displayed in download links and have the format "Download Label" eg. if you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for you, leave it blank.</p>
             <div class="clearfix">
                 <div>
-                    <input name="xml-file" type="file" class="float-left" style="width:50%;"
-                           data-placeholder="No file"
-                           data-buttonName="btn-primary">
-                    <button type="submit" class="button success float-right" name="xml"><i
-                            class="fa fa-upload">
-                        &nbsp;</i>Upload
-                    </button>
-                </div>
-            </div>
-
-            <h5>PDF Files</h5>
-            <div class="clearfix">
-                <div>
-                    <input name="pdf-file" type="file" class="float-left" style="width:50%;"
-                           data-placeholder="No file"
-                           data-buttonName="btn-primary">
-                    <button type="submit" class="button success float-right" name="pdf"><i
-                            class="fa fa-upload">
-                        &nbsp;</i>Upload
-                    </button>
-                </div>
-            </div>
-
-            <h5>Other Galley Types</h5>
-            <div class="clearfix">
-                <div>
-                    <input name="other-file" type="file" class="float-left" style="width:50%;"
+                    <input name="file" type="file" class="float-left" style="width:50%;"
                            data-placeholder="No file"
                            data-buttonName="btn-primary">
                     <button type="submit" class="button success float-right" name="other"><i

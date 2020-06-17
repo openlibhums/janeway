@@ -191,7 +191,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access you revision here: <a href=\"{% journal_url 'do_revisions' article.pk revision.pk  %}\">{% journal_url 'do_revisions' article.pk revision.pk  %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }},<br><br>We are requesting that you make some changes to your paper. Details of the changes required are below:<br><br>{{ revision.editor_note }}<br><br>You can access your revision here: <a href=\"{% journal_url 'do_revisions' article.pk revision.pk  %}\">{% journal_url 'do_revisions' article.pk revision.pk  %}</a><br><br>Your revisions are due on {{ revision.date_due }}.<br><br>Regards, <br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -206,7 +206,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{% journal_url 'do_review' review_assignment.id  %}\">{% journal_url 'do_review' review_assignment.id  %}</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br><br>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br><br>You can now access the manuscript and the review process at: <a href=\"{{ review_url }}\">{{review_url}}</a>. <br><br>Regards, <br>{{ review_assignment.editor.signature|safe }}"
         }
     },
     {
@@ -281,7 +281,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision making processes.<br><br>You can let us know your decision or decline to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br><br>You can let us know your decision or decline to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -296,7 +296,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>We recently sent you an email requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision making processes.<br><br>We would appreciate it if you could let us know your decision or decline to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>We recently sent you an email requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br><br>We would appreciate it if you could let us know your decision or decline to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -311,7 +311,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>You recently agreed undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision making processes.<br><br>Check our site to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br><br>You recently agreed undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br><br>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br><br>Check our site to <a href=\"{{ review_url }}\">undertake the review</a>.<br><br>Regards,<br>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -1091,7 +1091,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<ol><li>Select˙proofreaders˙for˙this proofing˙round.</li><li>Once˙proofing˙is˙completed˙decide:<ul><li>Request changes (sends the article back to the typesetter)</li><li>Acknowledge the task</li></ul></li><li>(optional) If changes have been completed, you may want to start a new round of Proofing and move to 1.</li><li>Finally, click \"Complete proofing\"</li></ol>"
+            "default": "<ol><li>Select proofreaders for this proofing round.</li><li>Once proofing is completed decide:<ul><li>Request changes (sends the article back to the typesetter)</li><li>Acknowledge the task</li></ul></li><li>(optional) If changes have been completed, you may want to start a new round of Proofing and move to 1.</li><li>Finally, click \"Complete proofing\"</li></ol>"
         }
     },
     {
@@ -2622,6 +2622,36 @@
         },
         "value": {
             "default": "0"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Lists all of the keywords used by a journal and for each keyword a list of articles that use it.",
+            "is_translatable": false,
+            "name": "keyword_list_page",
+            "pretty_name": "Enable the Keyword list page",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled this will suppress the how to cite block on the article page.",
+            "is_translatable": false,
+            "name": "suppress_how_to_cite",
+            "pretty_name": "Suppress How to Cite",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         }
     }
 ]

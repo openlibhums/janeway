@@ -85,7 +85,7 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-                    {% if article.is_published %}
+                    {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                         <h2>{% trans "How to Cite" %}</h2>
                         {% include "elements/journal/how_to_cite.html" with article=article %}
 
@@ -101,6 +101,17 @@
                                 <li>{{ note.text }}</li>
                             {% endfor %}
                         </ul>
+                    {% endif %}
+
+                    {% if article.funders.all %}
+                        <div class="callout primary">
+                            <h2>{% trans "Funding" %}</h2>
+                            <ul>
+                                {% for funder in article.funders.all %}
+                                    <li>{% if funder.fundref_id %}<a href="{% url "funder_articles" funder.fundref_id %}">{% endif %}{{ funder.name }}{% if funder.fundref_id %}</a>{% endif %}{% if funder.funding_id %} (grant {{ funder.funding_id }}){% endif %}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -221,6 +232,11 @@
                     {% endif %}
                     {% endwith %}
 
+                    {% include "elements/journal/article_issue_list.html" %}
+                     <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
                     {% if article.supplementary_files.all %}
                         <h4>{% trans "Supplementary Files" %}</h4>
 
@@ -272,7 +288,7 @@
                         {% trans "Licence" %}
                     </h4>
                     <p>{{ article.license.name }} {% if article.license.url %}
-                        <a href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
+                        <a rel="license" href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
 
                     <div class="spacer">
                         <div class="divider"></div>
@@ -316,6 +332,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% if article_content %}
             <div class="card toc-card hide-on-small-only" id="toc-card" style="display: none;">
                 <div class="card-content">
                     <h4>
@@ -325,6 +342,7 @@
                     </ul>
                 </div>
             </div>
+            {% endif %}
         </div>
 
     </div>

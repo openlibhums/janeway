@@ -13,6 +13,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.views.decorators.http import require_POST
@@ -27,7 +28,7 @@ from security.decorators import (
     editor_is_not_author, senior_editor_user_required,
     section_editor_draft_decisions, article_stage_review_required
 )
-from submission import models as submission_models
+from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate
 
 
@@ -135,9 +136,60 @@ def unassigned_article(request, article_id):
 
 
 @editor_user_required
+def add_projected_issue(request, article_id):
+    """
+    Allows an editor to add a projected issue to an article.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+    )
+
+    form = submission_forms.ProjectedIssueForm(instance=article)
+
+    if request.POST:
+        form = submission_forms.ProjectedIssueForm(
+            request.POST,
+            instance=article,
+        )
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Projected Issue set.',
+            )
+
+            if request.GET.get('return'):
+                return redirect(
+                    request.GET.get('return'),
+                )
+            else:
+                return redirect(
+                    reverse(
+                        'review_projected_issue',
+                        kwargs={'article_id': article.pk},
+                    )
+                )
+
+    template = 'review/projected_issue.html'
+    context = {
+        'article': article,
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
 def view_ithenticate_report(request, article_id):
     """Allows editor to view similarity report."""
-    article = get_object_or_404(submission_models.Article, pk=article_id, ithenticate_id__isnull=False)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        ithenticate_id__isnull=False,
+    )
 
     ithenticate_url = ithenticate.fetch_url(article)
 
@@ -771,6 +823,9 @@ def do_review(request, assignment_id):
         return logic.serve_review_file(assignment)
 
     if request.POST:
+        if request.FILES:
+            assignment = upload_review_file(
+                request, assignment_id=assignment_id)
         if 'decline' in request.POST:
             return redirect(
                 logic.generate_access_code_url(
@@ -858,7 +913,7 @@ def upload_review_file(request, assignment_id):
             & Q(reviewer=request.user)
         )
 
-    if 'review_file' in request.POST:
+    if 'review_file' in request.FILES:
         uploaded_file = request.FILES.get('review_file', None)
 
         old_file = assignment.review_file
@@ -889,13 +944,7 @@ def upload_review_file(request, assignment_id):
                 'Please select a file to upload.',
             )
 
-    return redirect(
-        logic.generate_access_code_url(
-            'do_review',
-            assignment,
-            access_code,
-        )
-    )
+    return assignment
 
 
 @reviewer_user_for_assignment_required
@@ -945,7 +994,7 @@ def add_review_assignment(request, article_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     form = forms.ReviewAssignmentForm(journal=request.journal)
     new_reviewer_form = core_forms.QuickUserForm()
-    reviewers = logic.get_reviewers(article, request)
+    reviewers = logic.get_reviewer_candidates(article, request.user)
     suggested_reviewers = logic.get_suggested_reviewers(article, reviewers)
     user_list = logic.get_enrollable_users(request)
 
@@ -953,7 +1002,7 @@ def add_review_assignment(request, article_id):
 
     # Check if this review round has files
     if not article.current_review_round_object().review_files.all():
-        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviwers.')
+        messages.add_message(request, messages.WARNING, 'You should select files for review before adding reviewers.')
         return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
 
     if request.POST:
@@ -1368,7 +1417,7 @@ def review_decision(request, article_id, decision):
             article.snapshot_authors(article)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
-            workflow_kwargs = {'handshake_url': 'review_unassigned_article',
+            workflow_kwargs = {'handshake_url': 'review_home',
                                'request': request,
                                'article': article,
                                'switch_stage': True}
@@ -1443,9 +1492,23 @@ def author_view_reviews(request, article_id):
     :return: a contextualised django template
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
-    reviews = models.ReviewAssignment.objects.filter(article=article,
-                                                     is_complete=True,
-                                                     for_author_consumption=True).exclude(decision='withdrawn')
+    reviews = models.ReviewAssignment.objects.filter(
+        article=article,
+        is_complete=True,
+        for_author_consumption=True,
+    ).exclude(decision='withdrawn')
+
+    if not reviews.exists():
+        raise PermissionDenied(
+            'No reviews have been made available by the Editor.',
+        )
+
+    if request.GET.get('file_id', None):
+        viewable_files = logic.group_files(article, reviews)
+        file_id = request.GET.get('file_id')
+        file = get_object_or_404(core_models.File, pk=file_id)
+        if file in viewable_files:
+            return files.serve_file(request, file, article)
 
     template = 'review/author_view_reviews.html'
     context = {
@@ -1743,11 +1806,12 @@ def upload_new_file(request, article_id, revision_id):
                                          date_completed__isnull=True)
     article = revision_request.article
 
-    if request.POST:
+    if request.POST and request.FILES:
         file_type = request.POST.get('file_type')
         uploaded_file = request.FILES.get('file')
         label = request.POST.get('label')
-        new_file = files.save_file_to_article(uploaded_file, article, request.user, label=label)
+        new_file = files.save_file_to_article(
+            uploaded_file, article, request.user, label=label)
 
         if file_type == 'manuscript':
             article.manuscript_files.add(new_file)
@@ -1755,10 +1819,15 @@ def upload_new_file(request, article_id, revision_id):
         if file_type == 'data':
             article.data_figure_files.add(new_file)
 
-        logic.log_revision_event('New file {0} ({1}) uploaded'.format(new_file.label, new_file.original_filename),
-                                 request.user, revision_request)
+        logic.log_revision_event(
+            'New file {0} ({1}) uploaded'.format(
+                new_file.label, new_file.original_filename),
+            request.user, revision_request)
 
-        return redirect(reverse('do_revisions', kwargs={'article_id': article_id, 'revision_id': revision_id}))
+        return redirect(reverse(
+            'do_revisions',
+            kwargs={'article_id': article_id, 'revision_id': revision_id})
+        )
 
     template = 'review/revision/upload_file.html'
     context = {
@@ -1857,14 +1926,21 @@ def reviewer_article_file(request, assignment_id, file_id):
     if not file_object:
         raise Http404()
 
-    return files.serve_file(request, file_object, article_object)
+    return files.serve_file(
+        request,
+        file_object,
+        article_object,
+        hide_name=True
+    )
 
 
 @reviewer_user_for_assignment_required
 def review_download_all_files(request, assignment_id):
     review_assignment = models.ReviewAssignment.objects.get(pk=assignment_id)
 
-    zip_file, file_name = files.zip_files(review_assignment.review_round.review_files.all())
+    zip_file, file_name = files.zip_article_files(
+        review_assignment.review_round.review_files.all(),
+    )
 
     return files.serve_temp_file(zip_file, file_name)
 

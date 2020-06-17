@@ -138,9 +138,9 @@ class Plugin(models.Model):
 
     def best_name(self):
         if self.display_name:
-            return self.display_name
+            return self.display_name.lower()
 
-        return self.name
+        return self.name.lower()
 
 
 setting_types = (
@@ -270,7 +270,7 @@ class ImportCacheEntry(models.Model):
 
             # first, check whether there's an auth file
             if up_auth_file != '':
-                with open(up_auth_file, 'r') as auth_in:
+                with open(up_auth_file, 'r', encoding="utf-8") as auth_in:
                     auth_dict = jason.loads(auth_in.read())
                     do_auth = True
                     username = auth_dict['username']

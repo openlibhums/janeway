@@ -20,18 +20,16 @@
         <li><a href="{% url 'core_active_submissions' %}"><i class="fa fa-list-ol" aria-hidden="true"></i> Search Submissions</a>
         </li>
         <li class="subtitle"><a href="#">Workflow</a></li>
-        <li><a href="{% url 'review_unassigned' %}"><i class="fa fa-user">&nbsp;</i> Unassigned</a>
-        </li>
-        <li><a href="{% url 'review_home' %}"><i class="fa fa-check">&nbsp;</i> Review</a>
-        </li>
-        <li><a href="{% url 'copyediting' %}"><i class="fa fa-pencil">&nbsp;</i> Editing</a>
-        </li>
-        <li><a href="{% url 'production_list' %}"><i class="fa fa-bookmark">&nbsp;</i>
-            Production</a></li>
-        <li><a href="{% url 'proofing_list' %}"><i class="fa fa-search">&nbsp;</i>
-            Proofing</a></li>
-        <li><a href="{% url 'publish' %}"><i class="fa fa-archive">&nbsp;</i>
-            Pre Publication</a></li>
+            <li>
+                <a href="{% url 'review_unassigned' %}"><i class="fa fa-angle-right">&nbsp;</i>  Unassigned</a>
+            </li>
+
+            {% for element in request.journal.workflow.elements.all %}
+                <li>
+                    <a href="{% url element.handshake_url %}"><i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}</a>
+                </li>
+            {% endfor %}
+
         <li class="subtitle"><a href="#">Back Content</a></li>
         <li><a href="{% url 'manage_issues' %}"><i class="fa fa-folder-open">&nbsp;</i>
             Issues</a></li>
@@ -44,10 +42,10 @@
             <li class="subtitle"><a href="#">Staff</a></li>
             <li><a href="{% url 'core_manager_index' %}"><i class="fa fa-lock">&nbsp;</i>
             Manager</a></li>
-        {% endif %}
-        {% if request.user.is_staff %}
             <li><a href="{% url 'core_plugin_list' %}"><i class="fa fa-plug">&nbsp;</i>
             Plugins</a></li>
+        {% endif %}
+        {% if request.user.is_staff %}
             <li><a href="{% url 'core_journal_workflow' %}"><i class="fa fa-code-fork">&nbsp;</i>
             Workflow</a></li>
             {% hook 'journal_admin_nav_block' %}

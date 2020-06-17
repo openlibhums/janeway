@@ -11,7 +11,16 @@ from review import views
 urlpatterns = [
     url(r'^$', views.home, name='review_home'),
     url(r'^unassigned/$', views.unassigned, name='review_unassigned'),
-    url(r'^unassigned/article/(?P<article_id>\d+)/$', views.unassigned_article, name='review_unassigned_article'),
+    url(
+        r'^unassigned/article/(?P<article_id>\d+)/$',
+        views.unassigned_article,
+        name='review_unassigned_article',
+    ),
+    url(
+        r'^unassigned/article/(?P<article_id>\d+)/projected_issue/$',
+        views.add_projected_issue,
+        name='review_projected_issue',
+    ),
     url(r'^unassigned/article/(?P<article_id>\d+)/assign/(?P<editor_id>\d+)/type/(?P<assignment_type>[-\w.]+)/$',
         views.assign_editor, name='review_assign_editor'),
     url(r'^unassigned/article/(?P<article_id>\d+)/assign/(?P<editor_id>\d+)/type/(?P<assignment_type>[-\w.]+)/'

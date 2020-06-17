@@ -5,15 +5,21 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import re
 import sys
+from django.utils import timezone
 
+import requests
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from submission import models as submission_models
 from identifiers import logic
 from utils import shared
+from utils.logger import get_logger
+from utils import setting_handler
 
+from django.conf import settings
+
+logger = get_logger(__name__)
 
 identifier_choices = (
     ('doi', 'DOI'),
@@ -36,11 +42,78 @@ PUB_ID_RE = re.compile("^{}$".format(PUB_ID_REGEX_PATTERN))
 DOI_RE = re.compile(DOI_REGEX_PATTERN)
 
 
+class CrossrefDeposit(models.Model):
+    """
+    The booleans here have a priority order:
+    1. If queued is True, other flags are meaningless.
+    2. If success is False, then all other flags except queued should be disregarded as non-useful.
+    3. If success is True but citation_success is False, then the deposit succeeded, but Crossref had trouble
+    parsing some references for unknown reasons.
+    """
+
+    identifier = models.ForeignKey("identifiers.Identifier", on_delete=models.CASCADE)
+    has_result = models.BooleanField(default=False)
+    success = models.BooleanField(default=False)
+    queued = models.BooleanField(default=False)
+    citation_success = models.BooleanField(default=False)
+    result_text = models.TextField(blank=True, null=True)
+    file_name = models.CharField(blank=False, null=False, max_length=255)
+    date_time = models.DateTimeField(default=timezone.now)
+    polling_attempts = models.PositiveIntegerField(default=0)
+
+    def poll(self):
+        self.polling_attempts += 1
+        self.save()
+        test_mode = setting_handler.get_setting('Identifiers',
+                                                'crossref_test',
+                                                self.identifier.article.journal).processed_value or settings.DEBUG
+        username = setting_handler.get_setting('Identifiers', 'crossref_username',
+                                               self.identifier.article.journal).processed_value
+        password = setting_handler.get_setting('Identifiers', 'crossref_password',
+                                               self.identifier.article.journal).processed_value
+
+        if test_mode:
+            test_var = 'test'
+        else:
+            test_var = 'doi'
+
+        url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            self.result_text = response.text
+            self.has_result = ' status="unknown_submission"' not in self.result_text
+            self.queued = 'status="queued"' in self.result_text or 'in_process' in self.result_text
+            self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
+            self.citation_success = not ' status="error"' in self.result_text
+            self.save()
+            logger.debug(self)
+        else:
+            self.success = False
+            self.has_result = True
+            self.result_text = 'Error: {0}'.format(response.status_code)
+            self.save()
+            logger.error(self.result_text)
+            logger.error(self)
+
+    def __str__(self):
+        return ("[Deposit:{self.identifier.identifier}:{self.file_name}]"
+            "[queued:{self.queued}]"
+            "[success:{self.success}]"
+            "[citation_success:{citation_success}]".format(
+                self=self,
+                #Citation success only to be considered for succesful deposits
+                citation_success=self.citation_success if self.success else None,
+            )
+        )
+
+
+
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
     identifier = models.CharField(max_length=300)
     enabled = models.BooleanField(default=True)
-    article = models.ForeignKey(submission_models.Article, on_delete=models.CASCADE)
+    article = models.ForeignKey("submission.Article", on_delete=models.CASCADE)
 
     def __str__(self):
         return u'[{0}]: {1}'.format(self.id_type.upper(), self.identifier)
@@ -64,6 +137,15 @@ class Identifier(models.Model):
             return True
 
         return False
+
+    @property
+    def deposit(self):
+        deposits = self.crossrefdeposit_set.all().order_by('-date_time')
+
+        if deposits.count() > 0:
+            return deposits[0]
+        else:
+            return None
 
 
 class BrokenDOI(models.Model):

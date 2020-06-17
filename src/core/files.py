@@ -62,6 +62,7 @@ PDF_MIMETYPES = {
 }
 
 MIMETYPES_WITH_FIGURES = XML_MIMETYPES + HTML_MIMETYPES
+CROSSREF_XSL = "NLM.JATS2Crossref.v3.1.1.xsl"
 
 
 def mkdirs(path):
@@ -87,7 +88,7 @@ def create_temp_file(content, filename):
     mkdirs(TEMP_DIR)
     filepath = os.path.join(TEMP_DIR, filename)
 
-    temp_file = open(filepath, 'w')
+    temp_file = open(filepath, 'w', encoding="utf-8")
     temp_file.write(content)
     temp_file.flush()
     temp_file.close()
@@ -293,13 +294,13 @@ def get_file(file_to_get, article):
             return content
 
 
-def render_xml(file_to_render, article, xsl_file=None):
-    """Renders JATS and TEI XML into HTML for inline article display.
+def render_xml(file_to_render, article, xsl_path=None, recover=False):
+    """Renders XML with the given XSL path or the default XSL.
 
     :param file_to_render: the file object to retrieve and render
     :param article: the associated article
-    :param xsl_file: optional instance of core.models.XSLFile
-    :return: a transform of the file to HTML through the XSLT processor
+    :param xsl_path: optional path to a custom xsl file
+    :return: a transform of the file to through the XSLT processor
     """
 
     path = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(file_to_render.uuid_filename))
@@ -308,11 +309,11 @@ def render_xml(file_to_render, article, xsl_file=None):
         util_models.LogEntry.add_entry(types='Error',
                                        description='The required XML file for a transform {0} was not found'.format(path),
                                        level='Error', actor=None, target=article)
+        logger.debug("Bad/no file for XSLT transform")
         return ""
 
-    if xsl_file:
-        xsl_path = xsl_file.file.path
-        logger.debug('Rendering engine using {}'.format(xsl_file))
+    if xsl_path is not None:
+        logger.debug('Rendering engine using {}'.format(xsl_path))
     else:
         xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
         logger.debug('Rendering engine using {}'.format(xsl_path))
@@ -323,20 +324,33 @@ def render_xml(file_to_render, article, xsl_file=None):
         )
         return ""
 
-    with open(path, "rb") as xml_file_contents:
-        xml = BeautifulSoup(xml_file_contents, "lxml-xml")
+    return transform_with_xsl(path, xsl_path, recover=recover)
 
-        transform = etree.XSLT(etree.parse(xsl_path))
+def transform_with_xsl(xml_path, xsl_path, recover=False):
+    try:
+        xml_dom = etree.parse(xml_path)
+    except etree.XMLSyntaxError as e:
+        if recover:
+            logger.error(e)
+            parser = etree.XMLParser(recover=True)
+            xml_dom = etree.parse(xml_path, parser=parser)
+        else:
+            raise
+    xsl_transform = etree.XSLT(etree.parse(xsl_path))
+    try:
+        transformed_dom = xsl_transform(xml_dom)
+    except Exception as err:
+        logger.error(err)
+        for xsl_error in xsl_transform.error_log:
+            logger.error(xsl_error)
+        if not recover:
+            raise
 
-        # remove the <?xml version="1.0" encoding="utf-8"?> line (or similar) if it exists
-        regex = re.compile(r'<\?xml version="1.0" encoding=".+"\?>')
-        xml_string = str(xml)
-        xml_string = re.sub(regex, '', xml_string, count=1)
-
-        return transform(etree.XML(xml_string))
+    return transformed_dom
 
 
-def serve_any_file(request, file_to_serve, public=False, path_parts=()):
+def serve_any_file(request, file_to_serve, public=False, hide_name=False,
+                   path_parts=()):
     # TODO: should rename to serve_file and the latter to serve_article_file
     # Or removed
     file_path = os.path.join(
@@ -346,19 +360,25 @@ def serve_any_file(request, file_to_serve, public=False, path_parts=()):
             str(file_to_serve.uuid_filename),
     )
     try:
-        return serve_file_to_browser(file_path, file_to_serve, public=public)
+        return serve_file_to_browser(
+            file_path,
+            file_to_serve,
+            public=public,
+            hide_name=hide_name,
+        )
     except IOError:
         messages.add_message(request, messages.ERROR, 'File not found. {0}'.format(file_path))
         raise Http404
 
 
-def serve_file(request, file_to_serve, article, public=False):
+def serve_file(request, file_to_serve, article, public=False, hide_name=False):
     """Serve a file to the user using a StreamingHttpResponse.
 
     :param request: the active request
     :param file_to_serve: the file object to retrieve and serve
     :param article: the associated article
     :param public: boolean
+    :param hide_name: boolean
     :return: a StreamingHttpResponse object with the requested file or an HttpResponseRedirect if there is an IO or
     permission error
     """
@@ -367,17 +387,20 @@ def serve_file(request, file_to_serve, article, public=False):
         request,
         file_to_serve,
         public,
+        hide_name=hide_name,
         path_parts=path_parts
     )
 
 
 @cache_control(max_age=600)
-def serve_file_to_browser(file_path, file_to_serve, public=False):
+def serve_file_to_browser(file_path, file_to_serve, public=False,
+                          hide_name=False):
     """ Stream a file to the browser in a safe way
 
     :param file_path: the path on disk to the file
     :param file_to_serve: the core.models.File object to serve
     :param public: boolean
+    :param hide_name: boolean
     :return: HttpStreamingResponse object
     """
     # stream the response to the browser
@@ -393,6 +416,10 @@ def serve_file_to_browser(file_path, file_to_serve, public=False):
     response['Content-Length'] = os.path.getsize(file_path)
     if public:
         response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_to_serve.public_download_name())
+    elif hide_name:
+        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+            file_to_serve.uuid_filename,
+        )
     else:
         response['Content-Disposition'] = 'attachment; filename="{0}{1}"'.format(slugify(filename), extension)
 
@@ -728,7 +755,14 @@ def file_children(file):
     return children
 
 
-def zip_files(files, article_specific=False):
+def zip_article_files(files, article_folders=False):
+    """
+    Zips up files that are related to an article.
+    :param files: A list or queryset of File objects that have article_ids
+    :param article_folders: Boolean, if true splits files into folders with
+    article name.
+    :return: strings path of the zip file, zip file name
+    """
     file_name = '{0}.zip'.format(uuid4())
 
     # Copy files into a temp dir
@@ -736,15 +770,15 @@ def zip_files(files, article_specific=False):
     os.makedirs(_dir, 0o775)
 
     for file in files:
-
-        if article_specific and file.article_id:
-            folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
-            article_dir = os.path.join(_dir, folder_name)
-            if not os.path.exists(article_dir):
-                os.makedirs(article_dir, 0o775)
-            shutil.copy(file.self_article_path(), article_dir)
-        else:
-            shutil.copy(file.self_article_path(), _dir)
+        if file.article_id:
+            if article_folders:
+                folder_name = '{id} - {title}'.format(id=file.article_id, title=strip_tags(file.article.title))
+                article_dir = os.path.join(_dir, folder_name)
+                if not os.path.exists(article_dir):
+                    os.makedirs(article_dir, 0o775)
+                shutil.copy(file.self_article_path(), article_dir)
+            else:
+                shutil.copy(file.self_article_path(), _dir)
 
     zip_path = '{dir}.zip'.format(dir=_dir)
 

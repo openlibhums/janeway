@@ -19,8 +19,11 @@ from submission import models
 def add_self_as_author(user, article):
     new_author = user
     article.authors.add(new_author)
-    models.ArticleAuthorOrder.objects.create(article=article, author=new_author)
-
+    models.ArticleAuthorOrder.objects.get_or_create(
+        article=article,
+        author=new_author,
+        defaults={'order': article.next_author_sort()},
+    )
     return new_author
 
 
@@ -212,3 +215,18 @@ def order_fields(request, fields):
         order = ids.index(field.pk)
         field.order = order
         field.save()
+
+
+def save_author_order(request, article):
+    author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+    for author in article.authors.all():
+        order = author_pks.index(author.pk)
+        author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
+            article=article,
+            author=author,
+            defaults={'order': order}
+        )
+
+        if not c:
+            author_order.order = order
+            author_order.save()

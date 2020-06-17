@@ -138,7 +138,8 @@ class Command(BaseCommand):
             json_out = StringIO()
             call_command('dumpdata', '--indent=4', '--natural-foreign', '--exclude=contenttypes', stdout=json_out)
 
-            with open(os.path.join(settings.BASE_DIR, 'files', 'temp', 'janeway.json'), 'w') as write:
+            write_path = os.path.join(settings.BASE_DIR, 'files', 'temp', 'janeway.json')
+            with open(write_path, 'w', encoding="utf-8") as write:
                 json_out.seek(0)
                 shutil.copyfileobj(json_out, write)
 

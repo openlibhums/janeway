@@ -10,7 +10,6 @@ import journal.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0032_install_xsl_files'),
         ('journal', '0034_migrate_issue_types'),
     ]
 

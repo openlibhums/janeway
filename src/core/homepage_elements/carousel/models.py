@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 CAROUSEL_MODES = [
     ('off', _('Off')),
     ('latest', _('Latest Articles')),
-    ('news', _('News')),
+    ('news', _('Latest News')),
     ('selected-articles', _('Selected Articles')),
     ('mixed', _('Latest Articles and News')),
     ('mixed-selected', _('Selected Articles and News')),
@@ -16,17 +16,40 @@ CAROUSEL_MODES = [
 
 
 class Carousel(models.Model):
-    mode = models.CharField(max_length=200, blank=False, null=False, default='Latest', choices=CAROUSEL_MODES)
+    mode = models.CharField(
+        max_length=200,
+        blank=False,
+        null=False,
+        default='Latest',
+        choices=CAROUSEL_MODES,
+    )
 
     # if exclude is true and mode is Latest then articles marked as "excluded" will not be included
     exclude = models.BooleanField(default=False)
 
     # these fields contains a custom list of articles and article-like carousel objects for Mixed and News modes
-    articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='articles')
+    articles = models.ManyToManyField(
+        'submission.Article',
+        blank=True,
+        null=True,
+        related_name='articles',
+    )
+
+    # a selected news field
+    news_articles = models.ManyToManyField(
+        'comms.NewsItem',
+        blank=True,
+    )
 
     # article and news limits
-    article_limit = models.IntegerField(verbose_name='Maximum Number of Articles to Show', default=3)
-    news_limit = models.IntegerField(verbose_name='Maximum Number of News Items to Show', default=0)
+    article_limit = models.IntegerField(
+        verbose_name='Maximum Number of Articles to Show',
+        default=3,
+    )
+    news_limit = models.IntegerField(
+        verbose_name='Maximum Number of News Items to Show',
+        default=0,
+    )
 
     @staticmethod
     def get_carousel_modes():

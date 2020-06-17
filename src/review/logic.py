@@ -7,11 +7,19 @@ from datetime import timedelta
 from uuid import uuid4
 import os
 
+from django.conf import settings
+from django.contrib import messages
+from django.db.models import (
+    Avg,
+    Count,
+    IntegerField,
+    OuterRef,
+    Prefetch,
+    Subquery,
+)
 
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import messages
-from django.conf import settings
 from docx import Document
 
 from utils import render_template, setting_handler, notify_helpers
@@ -21,23 +29,61 @@ from events import logic as event_logic
 from submission import models as submission_models
 
 
-def get_reviewers(article, request=None):
+def get_reviewer_candidates(article, user=None):
+    """ Builds a queryset of candidates for peer review for the given article
+    :param article: an instance of submission.models.Article
+    :param user: The user requesting candidates who would be filtered out
+    """
     review_assignments = article.reviewassignment_set.filter(review_round=article.current_review_round_object())
     reviewers = [review.reviewer.pk for review in review_assignments]
-    reviewers.append(request.user.pk)
+    if user:
+        reviewers.append(user.pk)
+    prefetch_review_assignment = Prefetch(
+        'reviewer',
+        queryset=models.ReviewAssignment.objects.filter(
+            article__journal=article.journal
+        ).order_by("-date_complete")
+    )
+    # TODO swap the below subqueries with filtered annotations on Django 2.0+
+    active_reviews_count = models.ReviewAssignment.objects.filter(
+        is_complete=False,
+        reviewer=OuterRef("id"),
+    ).annotate(
+        rev_count=Count("pk"),
+    ).values("rev_count")
 
-    return core_models.AccountRole.objects.filter(role__slug='reviewer', journal=request.journal).exclude(
-        user__pk__in=reviewers)
+    rating_average = models.ReviewerRating.objects.filter(
+        assignment__article__journal=article.journal,
+        assignment__reviewer=OuterRef("id"),
+    ).annotate(
+        rating_average=Avg("rating"),
+    ).values("rating_average")
+
+    reviewers = article.journal.users_with_role('reviewer').exclude(
+        pk__in=reviewers,
+    ).prefetch_related(
+        prefetch_review_assignment,
+        'interest',
+    ).annotate(
+        active_reviews_count=Subquery(
+            active_reviews_count,
+            output_field=IntegerField(),
+        )
+    ).annotate(
+        rating_average=Subquery(rating_average, output_field=IntegerField()),
+    )
+
+    return reviewers
 
 
 def get_suggested_reviewers(article, reviewers):
     suggested_reviewers = []
     keywords = [keyword.word for keyword in article.keywords.all()]
-    for reviewer_role in reviewers:
-        interests = [interest.name for interest in reviewer_role.user.interest.all()]
+    for reviewer in reviewers:
+        interests = [interest.name for interest in reviewer.interest.all()]
         for interest in interests:
             if interest in keywords:
-                suggested_reviewers.append(reviewer_role)
+                suggested_reviewers.append(reviewer)
                 break
 
     return suggested_reviewers
@@ -53,15 +99,28 @@ def get_assignment_content(request, article, editor, assignment):
     return render_template.get_message_content(request, email_context, 'editor_assignment')
 
 
-def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
+def get_review_url(request, review_assignment):
     review_url = request.journal.site_url(path=reverse(
             'do_review', kwargs={'assignment_id': review_assignment.id}
     ))
 
-    access_codes = setting_handler.get_setting('general', 'enable_one_click_access', request.journal).value
+    access_codes = setting_handler.get_setting(
+        'general',
+        'enable_one_click_access',
+        request.journal,
+    ).value
 
     if access_codes:
-        review_url = "{0}?access_code={1}".format(review_url, review_assignment.access_code)
+        review_url = "{0}?access_code={1}".format(
+            review_url,
+            review_assignment.access_code,
+        )
+
+    return review_url
+
+
+def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
+    review_url = get_review_url(request, review_assignment)
 
     email_context = {
         'article': article,
@@ -300,9 +359,18 @@ def handle_reviewer_form(request, new_reviewer_form):
 
 
 def get_enrollable_users(request):
-    account_roles = core_models.AccountRole.objects.filter(journal=request.journal, role__slug='reviewer')
+    account_roles = core_models.AccountRole.objects.filter(
+        journal=request.journal,
+        role__slug='reviewer',
+    ).prefetch_related(
+        'user',
+    )
     users_with_role = [assignment.user.pk for assignment in account_roles]
-    return core_models.Account.objects.all().order_by('last_name').exclude(pk__in=users_with_role)
+    return core_models.Account.objects.all().order_by(
+        'last_name',
+    ).exclude(
+        pk__in=users_with_role,
+    )
 
 
 def generate_access_code_url(url_name, assignment, access_code):

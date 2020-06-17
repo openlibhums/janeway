@@ -54,6 +54,11 @@ def cover_images_upload_path(instance, filename):
     return os.path.join(path, filename)
 
 
+def default_xsl():
+    return core_models.XSLFile.objects.get(
+            label=settings.DEFAULT_XSL_FILE_LABEL).pk
+
+
 def issue_large_image_path(instance, filename):
     try:
         filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
@@ -62,11 +67,6 @@ def issue_large_image_path(instance, filename):
 
     path = "issues/{0}".format(instance.pk)
     return os.path.join(path, filename)
-
-
-def default_xsl():
-    return core_models.XSLFile.objects.get(
-            label=settings.DEFAULT_XSL_FILE_LABEL).pk
 
 
 class Journal(AbstractSiteModel):
@@ -115,6 +115,7 @@ class Journal(AbstractSiteModel):
     xsl = models.ForeignKey('core.XSLFile',
         default=default_xsl,
         on_delete=models.SET_DEFAULT,
+        related_name="default_xsl",
     )
 
     # Boolean to determine if this journal should be hidden from the press
@@ -251,7 +252,12 @@ class Journal(AbstractSiteModel):
         return core_models.Account.objects.filter(pk__in=pks)
 
     def users_with_role(self, role):
-        pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug=role, journal=self)]
+        pks = [
+            role.user.pk for role in core_models.AccountRole.objects.filter(
+                role__slug=role,
+                journal=self,
+            ).prefetch_related('user')
+        ]
         return core_models.Account.objects.filter(pk__in=pks)
 
     def editor_pks(self):
@@ -331,7 +337,7 @@ class Journal(AbstractSiteModel):
 
         elif self.carousel.mode == "mixed-selected":
             # news items and latest articles
-            news_objects = core_logic.news_items(self.carousel, 'journal')
+            news_objects = self.carousel.news_articles.all()
             article_objects = core_logic.selected_articles(self.carousel)
 
         # run the exclusion routine
@@ -393,6 +399,25 @@ class Journal(AbstractSiteModel):
                 return False
         except core_models.WorkflowElement.DoesNotExist:
             return False
+
+    @property
+    def published_articles(self):
+        return submission_models.Article.objects.filter(
+            journal=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
+
+    def article_keywords(self):
+        return submission_models.Keyword.objects.filter(
+            article__in=self.published_articles
+        ).order_by('word')
+
+    @property
+    def workflow_plugin_elements(self):
+        return self.workflowelement_set.exclude(
+            element_name__in=workflow.core_workflow_element_names()
+        )
 
 
 class PinnedArticle(models.Model):
@@ -575,7 +600,7 @@ class Issue(models.Model):
 
         return structure
 
-    def get_sorted_articles(self):
+    def get_sorted_articles(self, published_only=True):
         """ Returns issue articles sorted by section and article order
 
         Many fields are prefetched and annotated to handle large issues more
@@ -595,11 +620,9 @@ class Issue(models.Model):
             issue=Value(self.pk),
         ).values_list("order")
 
-        issue_articles = self.articles.filter(
-            stage=submission_models.STAGE_PUBLISHED,
-            date_published__lte=timezone.now(),
-        ).prefetch_related(
-            'authors', 'frozenauthor_set',
+        issue_articles = self.articles.prefetch_related(
+            'authors',
+            'frozenauthor_set',
             'manuscript_files',
         ).select_related(
             'section',
@@ -609,8 +632,15 @@ class Issue(models.Model):
         ).order_by(
             "section_order",
             "section__sequence",
+            "section__pk",
             "article_order",
         )
+
+        if published_only:
+            issue_articles = issue_articles.filter(
+                stage=submission_models.STAGE_PUBLISHED,
+                date_published__lte=timezone.now(),
+            )
 
         return issue_articles
 

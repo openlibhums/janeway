@@ -7,6 +7,7 @@ import os
 import codecs
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 
 from core import models as core_models
 from journal import models
@@ -15,7 +16,9 @@ from utils import setting_handler
 from submission import models as submission_models
 
 
-def update_settings(journal_object=None, management_command=False, overwrite_with_defaults=False):
+def update_settings(journal_object=None, management_command=False,
+                    overwrite_with_defaults=False,
+                    file_path='utils/install/journal_defaults.json'):
     """ Updates or creates the settings for a journal from journal_defaults.json.
 
     :param journal_object: the journal object to update or None to set the
@@ -23,7 +26,7 @@ def update_settings(journal_object=None, management_command=False, overwrite_wit
     :param management_command: whether or not to print output to the console
     :return: None
     """
-    with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), encoding='utf-8') as json_data:
+    with codecs.open(os.path.join(settings.BASE_DIR, file_path), encoding='utf-8') as json_data:
 
         default_data = json.load(json_data)
 
@@ -142,12 +145,18 @@ def update_xsl_files(journal_object=None, management_command=False):
         default_data = json.load(json_data)
 
         for item in default_data:
+            file_path = os.path.join(
+                settings.BASE_DIR, 'transform/xsl/', item["fields"]["file"])
+            with open(file_path, 'rb') as f:
+                xsl_file = ContentFile(f.read())
+                xsl_file.name = item["fields"]["file"]
+
             default_dict = {
-                'file': item["fields"]["file"],
+                'file': xsl_file,
                 'comments': item["fields"].get("commments"),
             }
             xsl, created = core_models.XSLFile.objects.get_or_create(
-                label=item["fields"]["label"],
+                label=item["fields"]["label"] or settings.DEFAULT_XSL_FILE_LABEL,
                 defaults=default_dict,
             )
 

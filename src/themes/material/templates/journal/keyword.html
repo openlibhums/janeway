@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
+{% block title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
+
+{% block body %}
+    <h1>Keyword: {{ keyword.word }}</h1>
+    <p><small><a href="{% url 'keywords' %}">{% trans 'Back to Keywords List' %}</a></small></p>
+    <p>{% trans "Articles that use this keyword are listed below." %}</p>
+
+    {% for article in articles %}
+        {% include "elements/article_listing.html" with article=article %}
+    {% endfor %}
+{% endblock %}
