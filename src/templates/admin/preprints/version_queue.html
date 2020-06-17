@@ -42,7 +42,7 @@
                             <td>{{ version.get_update_type_display }}</td>
                             <td><a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a></td>
                             <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
-                            <td><button class="button alert" name="deny" value="{{ version.pk }}"><i class="fa fa-times"> </i></button></td>
+                            <td><a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> </a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -50,6 +50,9 @@
             </form>
         </div>
     </div>
+    {% for version in version_queue %}
+    {% include "admin/elements/repository/decline_update.html" %}
+    {% endfor %}
 {% endblock %}
 
 {% block js %}

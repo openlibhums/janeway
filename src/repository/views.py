@@ -1020,8 +1020,8 @@ def version_queue(request):
     if request.POST:
         if 'approve' in request.POST:
             return repository_logic.approve_pending_update(request)
-        elif 'deny' in request.POST:
-            return repository_logic.deny_pending_update(request)
+        elif 'decline' in request.POST:
+            return repository_logic.decline_pending_update(request)
 
     template = 'admin/preprints/version_queue.html'
     context = {

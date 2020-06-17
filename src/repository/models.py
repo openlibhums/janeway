@@ -561,6 +561,11 @@ class PreprintVersion(models.Model):
     file = models.ForeignKey(PreprintFile)
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
+    moderated_version = models.ForeignKey(
+        'VersionQueue',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         ordering = ('-version', '-date_time', '-id')
@@ -636,6 +641,16 @@ class VersionQueue(models.Model):
     date_submitted = models.DateTimeField(default=timezone.now)
     date_decision = models.DateTimeField(blank=True, null=True)
     approved = models.BooleanField(default=False)
+
+    def approve(self):
+        self.date_decision = timezone.now()
+        self.approved = True
+        self.save()
+
+    def decline(self):
+        self.date_decision = timezone.now()
+        self.approved = False
+        self.save()
 
     def decision(self):
         if self.date_decision and self.approved:

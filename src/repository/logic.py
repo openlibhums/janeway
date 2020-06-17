@@ -177,14 +177,18 @@ def get_pending_update_from_post(request):
 
     if 'approve' in request.POST:
         update_id = request.POST.get('approve')
-    elif 'deny' in request.POST:
-        update_id = request.POST.get('deny')
+    elif 'decline' in request.POST:
+        update_id = request.POST.get('decline')
 
     if update_id:
-        pending_update = get_object_or_404(models.VersionQueue, pk=update_id, date_decision__isnull=True)
+        pending_update = get_object_or_404(
+            models.VersionQueue,
+            pk=update_id,
+            date_decision__isnull=True,
+            preprint__repository=request.repository,
+        )
         return pending_update
     else:
-        messages.add_message(request, messages.WARNING, 'No valid version id provided.')
         return None
 
 
@@ -195,48 +199,47 @@ def approve_pending_update(request):
     :param request: HttpRequest object
     :return: None
     """
-    from core import models as core_models
     pending_update = get_pending_update_from_post(request)
 
     if pending_update:
-        if pending_update.update_type == 'correction':
-            pending_update.galley.file = pending_update.file
-            pending_update.galley.save()
-            messages.add_message(request, messages.SUCCESS, 'Correction approved.')
-        elif pending_update.update_type == 'version':
-            models.PreprintVersion.objects.create(
-                preprint=pending_update.article,
-                galley=pending_update.galley,
-                version=pending_update.article.next_preprint_version()
-            )
-            pending_update.galley.article = None
-            pending_update.galley.save()
-
-            core_models.Galley.objects.create(article=pending_update.article, file=pending_update.file,
-                                              label=pending_update.galley.label,
-                                              type=pending_update.galley.type)
-            messages.add_message(request, messages.SUCCESS, 'New version created.')
-
-        pending_update.date_decision = timezone.now()
-        pending_update.approved = True
-        pending_update.save()
-
+        models.PreprintVersion.objects.create(
+            preprint=pending_update.preprint,
+            file=pending_update.file,
+            version=pending_update.preprint.next_version_number(),
+            moderated_version=pending_update,
+        )
+        pending_update.approve()
+        messages.add_message(
+            request,
+            messages.INFO,
+            'New version created.',
+        )
     else:
-        messages.add_message(request, messages.WARNING, 'No valid pending update found.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No valid pending update found.',
+        )
 
     return redirect(reverse('version_queue'))
 
 
-def deny_pending_update(request):
+def decline_pending_update(request):
     pending_update = get_pending_update_from_post(request)
 
     if pending_update:
-        pending_update.date_decision = timezone.now()
-        pending_update.approved = False
-        pending_update.save()
-
+        pending_update.decline()
+        messages.add_message(
+            request,
+            messages.INFO,
+            'New version declined.',
+        )
     else:
-        messages.add_message(request, messages.WARNING, 'No valid pending update found.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No valid pending update found.',
+        )
     return redirect(reverse('version_queue'))
 
 
