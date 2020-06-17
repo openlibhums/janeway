@@ -182,49 +182,6 @@
 
         <div class="box">
             <div class="title-area">
-                <h2>Files</h2>
-                <a href="#" class="button" data-open="new_file"><span class="fa fa-upload">&nbsp;</span> Upload File</a>
-            </div>
-            <div class="content">
-                <table class="small scroll">
-                    <tr>
-                        <th>Filename</th>
-                        <th>Type</th>
-                        <th>Size</th>
-                        <th>Uploaded</th>
-                        <th>Download</th>
-                        <th>Delete</th>
-                        <th></th>
-                    </tr>
-                    <form method="POST">
-                        {% csrf_token %}
-                        {% for file in preprint.preprintfile_set.all %}
-                            <tr>
-                                <td>{{ file.original_filename }}</td>
-                                <td>{{ file.mime_type }}</td>
-                                <td>{{ file.size|filesizeformat }}</td>
-                                <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
-                                        class="fa fa-download">&nbsp;</i></a>
-                                </td>
-                                <td>
-                                    <button class="del" name="delete_file" value="{{ file.pk }}">
-                                        <span class="fa fa-trash"></span>
-                                    </button>
-                                </td>
-                                <td>
-                                    <button name="make_version" value="{{ file.pk }}" class="small button">
-                                        Create Version with this File
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </form>
-                </table>
-            </div>
-        </div>
-        <div class="box">
-            <div class="title-area">
                 <h2>Versions</h2>
             </div>
             <div class="content">
@@ -293,6 +250,50 @@
                         </tr>
                     {% endfor %}
                     </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Files</h2>
+                <a href="#" class="button" data-open="new_file"><span class="fa fa-upload">&nbsp;</span> Upload File</a>
+            </div>
+            <div class="content">
+                <table class="small scroll">
+                    <tr>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                        <th>Uploaded</th>
+                        <th>Download</th>
+                        <th>Delete</th>
+                        <th></th>
+                    </tr>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for file in preprint.preprintfile_set.all %}
+                            <tr>
+                                <td>{{ file.original_filename }}</td>
+                                <td>{{ file.mime_type }}</td>
+                                <td>{{ file.size|filesizeformat }}</td>
+                                <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>
+                                </td>
+                                <td>
+                                    <button class="del" name="delete_file" value="{{ file.pk }}">
+                                        <span class="fa fa-trash"></span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button name="make_version" value="{{ file.pk }}" class="small button">
+                                        Create Version with this File
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </form>
                 </table>
             </div>
         </div>

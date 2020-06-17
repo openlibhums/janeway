@@ -214,6 +214,15 @@ def approve_pending_update(request):
             messages.INFO,
             'New version created.',
         )
+        kwargs = {
+            'pending_update': pending_update,
+            'request': request,
+            'action': 'accept',
+        }
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_VERSION_UPDATE,
+            **kwargs,
+        )
     else:
         messages.add_message(
             request,
@@ -233,6 +242,16 @@ def decline_pending_update(request):
             request,
             messages.INFO,
             'New version declined.',
+        )
+        kwargs = {
+            'pending_update': pending_update,
+            'request': request,
+            'action': 'decline',
+            'reason': request.POST.get('reason', 'No reason supplied.')
+        }
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_PREPRINT_VERSION_UPDATE,
+            **kwargs,
         )
     else:
         messages.add_message(

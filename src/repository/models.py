@@ -120,6 +120,8 @@ class Repository(model_utils.AbstractSiteModel):
     submission = models.TextField(blank=True, null=True)
     publication = models.TextField(blank=True, null=True)
     decline = models.TextField(blank=True, null=True)
+    accept_version = models.TextField(blank=True, null=True)
+    decline_version = models.TextField(blank=True, null=True)
 
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField('submission.Article', blank=True)
@@ -332,7 +334,7 @@ class Preprint(models.Model):
 
     def next_version_number(self):
         try:
-            last_version = self.preprintversion_set.all().reverse()[0]
+            last_version = self.preprintversion_set.all()[0]
             return last_version.version + 1
         except IndexError:
             return 1
@@ -722,3 +724,5 @@ def add_email_setting_defaults(sender, instance, **kwargs):
             instance.submission = repo_settings[0]['submission']
             instance.publication = repo_settings[0]['publication']
             instance.decline = repo_settings[0]['decline']
+            instance.accept_version = repo_settings[0]['accept_version']
+            instance.decline_version = repo_settings[0]['decline_version']

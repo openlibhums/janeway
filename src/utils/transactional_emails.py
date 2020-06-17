@@ -1126,6 +1126,57 @@ def preprint_comment(**kwargs):
                                                   email_text, log_dict=log_dict)
 
 
+def preprint_version_update(**kwargs):
+    request = kwargs.get('request')
+    pending_update = kwargs.get('pending_update')
+    action = kwargs.get('action')
+    reason = kwargs.get('reason')
+
+    description = '{object} Pending Version {pk}: Decision: {decision}'.format(
+        object=request.repository.object_name,
+        pk=pending_update.pk,
+        decision=action,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Publication',
+        'target': pending_update.preprint,
+    }
+
+    context = {
+        'pending_update': pending_update,
+        'reason': reason,
+    }
+
+    if action == 'accept':
+        template = request.repository.accept_version
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            template,
+            template_is_setting=True,
+
+        )
+    else:
+        template = request.repository.decline_version
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            template,
+            template_is_setting=True,
+
+        )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Version Update'.format(pending_update.preprint.title),
+        request.user.email,
+        email_text,
+        log_dict=log_dict,
+    )
+
+
 def send_cancel_corrections(**kwargs):
     request = kwargs.get('request')
     article = kwargs.get('article')

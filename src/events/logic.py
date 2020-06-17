@@ -219,6 +219,10 @@ class Events:
     # raised when a new comment is submitted for a preprint
     ON_PREPRINT_COMMENT = 'on_preprint_comment'
 
+    # kwargs: request, pending_update, action, reason (optional)
+    # raised when an PreprintVersion is approved or declined
+    ON_PREPRINT_VERSION_UPDATE = 'on_preprint_version_update'
+
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'

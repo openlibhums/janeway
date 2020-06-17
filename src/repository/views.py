@@ -877,7 +877,6 @@ def repository_preprint_log(request, preprint_id):
         repository=request.repository
     )
     log_entries = utils_logic.get_log_entries(preprint)
-    print(log_entries)
 
     template = 'admin/repository/log.html'
     context = {
@@ -1023,7 +1022,7 @@ def version_queue(request):
         elif 'decline' in request.POST:
             return repository_logic.decline_pending_update(request)
 
-    template = 'admin/preprints/version_queue.html'
+    template = 'admin/repository/version_queue.html'
     context = {
         'version_queue': version_queue,
         'duplicates': duplicates,
