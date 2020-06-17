@@ -261,6 +261,40 @@
                     </tbody>
                 </table>
             </div>
+            <div class="title-area">
+                <h2>Pending Updates</h2>
+            </div>
+            <div class="content">
+                <table class="scroll small">
+                    <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Filename</th>
+                        <th>Uploaded</th>
+                        <th>Download</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for update in pending_updates %}
+                        <tr>
+                            <td>Update ID: {{ update.pk }}</td>
+                            <td>{{ update.get_update_type_display }} (Pending)</td>
+                            <td>{{ update.date_submitted }}</td>
+                            <td>{{ update.file.original_filename }}</td>
+                            <td>{{ update.file.uploaded }}</td>
+                            <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}"><i
+                                    class="fa fa-download"></i></a></td>
+                            <td>
+                                <a href="{% url 'version_queue' %}">Manage</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

@@ -98,7 +98,6 @@ def preprints_author_article(request, preprint_id):
     version_form = forms.VersionForm(preprint=preprint)
     modal = None
 
-    # TODO: Re-implement this
     if request.POST:
 
         if request.FILES:
@@ -628,7 +627,6 @@ def repository_manager_article(request, preprint_id):
         pk=preprint_id,
         repository=request.repository,
     )
-    crossref_enabled = request.press.preprint_dois_enabled()
     file_form = forms.FileForm(preprint=preprint)
 
     if request.POST:
@@ -708,9 +706,11 @@ def repository_manager_article(request, preprint_id):
     context = {
         'preprint': preprint,
         'subjects': models.Subject.objects.filter(enabled=True),
-        'crossref_enabled': crossref_enabled,
-        # 'doi': repository_logic.get_doi(request, preprint)
         'file_form': file_form,
+        'pending_updates': models.VersionQueue.objects.filter(
+            preprint=preprint,
+            date_decision__isnull=True,
+        ),
     }
 
     return render(request, template, context)
@@ -1012,7 +1012,9 @@ def version_queue(request):
     :param request: HttpRequest
     :return: HttpResponse or HttpRedirect
     """
-    version_queue = models.VersionQueue.objects.filter(date_decision__isnull=True)
+    version_queue = models.VersionQueue.objects.filter(
+        date_decision__isnull=True,
+    )
     duplicates = repository_logic.check_duplicates(version_queue)
 
     if request.POST:

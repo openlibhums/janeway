@@ -400,7 +400,7 @@ def get_list_of_preprint_journals():
 
 
 def check_duplicates(version_queue):
-    return [version_request.article for version_request in version_queue]
+    return [version_request.preprint for version_request in version_queue]
 
 
 def search_for_authors(request, preprint):
