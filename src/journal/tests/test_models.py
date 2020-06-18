@@ -49,11 +49,11 @@ class TestJournalSite(TestCase):
     @override_settings(URL_CONFIG="path")
     def test_path_mode_site_url_for_other_site(self):
         other_journal = make_test_journal(
-            code="otherjournalwithpath",
-            domain="otherjournalwithpath.org",
+            code="ojwithpath",
+            domain="ojwithpath.org",
         )
         response = self.client.get(
-            "/otherjournalwithpath/banana", SERVER_NAME="sitetest.org")
+            "/ojwithpath/banana", SERVER_NAME="sitetest.org")
         result = self.journal.site_url()
 
         expected = "http://{}/{}".format(
@@ -87,11 +87,11 @@ class TestJournalSite(TestCase):
     @override_settings(URL_CONFIG="domain")
     def test_domain_mode_site_url_for_other_site(self):
         other_journal = make_test_journal(
-            code="otherjournalwithdomain",
-            domain="otherjournalwithdomain.org",
+            code="ojwithdomain",
+            domain="ojwithdomain.org",
         )
         response = self.client.get(
-            "/banana", SERVER_NAME="otherjournalwithdomain.org")
+            "/banana", SERVER_NAME="ojwithdomain.org")
         result = self.journal.site_url()
 
         expected = "http://" + self.journal.domain
