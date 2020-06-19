@@ -1,7 +1,7 @@
 Installation Guide
 ==================
 
-Janeway includes and environment setup script that will install virtual
+Janeway includes an environment setup script that will install virtual
 environment, its apt requirements and pip requirements. Please read the
 script to ensure it wont cause any issues with your current install. The
 command can be called directly from the command line:
@@ -16,6 +16,48 @@ This command has been tested in 14.04, 15.04 and 16.04
 
 You should now proceed to “Database Setup and Final Installation”,
 below.
+
+Using Lando for a development environment (optional)
+-----------------------------------------------------------------
+
+`Lando <https://lando.dev/>`_ can be used to construct and manage a local a 
+development environment. Here are the steps required to get Janeway running on 
+your local machine, using Lando:
+
+.. note:: Lando comes bundled with Docker Desktop, if you already have Docker 
+  Desktop installed, don't re-install it. You should instead ensure you have the 
+  same (or newer) version as what is bundled with Lando.
+
+1. Make sure `Lando <https://lando.dev/>`_ is installed
+2. Optionally, copy ``local.env.example`` to ``local.env`` and customize as appropriate (the 
+   database configuration is done with environment variables, so pay attention to 
+   ``local.env`` if it's important to you)
+3. ``lando poweroff`` (defensively ensure no other Lando environments are running, probably not necessary, but a good habit)
+4. ``lando rebuild``
+5. When you see the big "Boomshakala" message from Lando, you're ready to proceed
+6. ``lando django-admin check`` will confirm the installation is working, and notify you of any misconfigurations
+7. Revise your src/core/settings.py file as directed in the `Database Setup and Final Installation`_ instructions below
+8. ``lando logs -f`` will show you the log output from Django, though when you're getting started, `lando django-admin check` will help you find configuration errors much faster than sifting through log file output
+9. ``lando manage <command>`` will send commands to the src/core/manage.py script, run `lando manage -h` to see more info
+10. ``lando manage install_janeway`` will continue your installation of Janeway
+11. ``lando manage test`` will run the Janeway unit test suite
+12. ``lando python <command>`` will send Python commands to the appserver
+13. Browse to `http://localhost:8000` to see the site in action
+14. run ``lando`` to see what other Lando tooling commands are available.
+
+Lando Tooling
+-------------
+
+* ``lando psql`` Drops into the PostgreSQL client running on the database service
+* ``lando db-import <file>`` Imports a dump file into the database service
+* ``lando ssh`` Drops into a shell on the application service, runs commands
+* ``lando start`` Starts the Janeway app
+* ``lando stop`` Stops the Janeway app
+* ``lando rebuild`` Rebuilds the Janeway app
+* ``lando restart`` Starts and stops the Janeway app, useful for forcing the app to use new configurations
+* ``lando destroy`` Removes all traces of the Janeway dev environment's containers, useful if you need to ensure a fresh start
+
+More Lando `tooling <https://docs.lando.dev/config/tooling.html>`_ can be added, if you need it.
 
 Manual Install
 --------------
