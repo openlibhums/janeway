@@ -34,8 +34,8 @@
                             </td>
                             <td>{{ preprint.date_submitted }}</td>
                             <td>{{ preprint.date_declined }}</td>
-                            <td>{{ preprint.get_subject_area }}</td>
-                            <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
+                            <td>{{ preprint.subject }}</td>
+                            <td>{{ preprint.authors.0.full_name }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -46,5 +46,5 @@
 {% endblock %}
 
 {% block js %}
-    {% include "elements/datatables.html" with target="#rejected_preprints" page_length=25 sort=1 order='desc' %}
+    {% include "elements/datatables.html" with target="#rejected_preprints" page_length=25 sort=2 order='desc' %}
 {% endblock %}

@@ -976,10 +976,12 @@ def preprints_rejected_submissions(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    rejected_preprints = submission_models.Article.preprints.filter(date_declined__isnull=False,
-                                                                    date_published__isnull=True)
+    rejected_preprints = models.Preprint.objects.filter(
+        date_declined__isnull=False,
+        date_published__isnull=True,
+    )
 
-    template = 'admin/preprints/rejected_submissions.html'
+    template = 'admin/repository/rejected_submissions.html'
     context = {
         'rejected_preprints': rejected_preprints,
     }
