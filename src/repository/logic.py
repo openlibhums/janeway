@@ -133,19 +133,16 @@ def comment_manager_post(request, preprint):
     else:
         comment_id = request.POST.get('comment_reviewed')
 
-    comment = get_object_or_404(models.Comment, pk=comment_id, article=preprint)
+    comment = get_object_or_404(
+        models.Comment,
+        pk=comment_id,preprint=preprint,
+    )
 
     if 'comment_public' in request.POST:
-        if comment.is_public:
-            comment.is_public = False
-        else:
-            comment.is_public = True
+        comment.mark_public()
 
-        comment.is_reviewed = True
     else:
-        comment.is_reviewed = True
-
-    comment.save()
+        comment.mark_reviewed()
 
 
 # TODO: Update this implementation

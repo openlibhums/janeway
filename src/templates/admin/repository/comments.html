@@ -5,7 +5,9 @@
 {% block title-sub %}Management interface for {{ article.title|safe }} comments{% endblock %}
 
 {% block breadcrumbs %}
-    <li>{{ preprint.title|safe }} Comments</li>
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>
+    <li><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title }}</a></li>
+    <li>Comments</li>
 {% endblock %}
 
 {% block body %}
@@ -51,7 +53,7 @@
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button class="small success button" name="comment_public" value="{{ comment.pk }}">{% if comment.is_public %}Mark as Private{% else %}Mark Public{% endif %}</button>
-                                    <a href="{% url 'preprints_article' preprint.pk %}#comment-{{ comment.pk }}" class="small button">View Comment</a>
+                                    <a href="{% url 'repository_preprint' preprint.pk %}#comment-{{ comment.pk }}" class="small button">View Comment</a>
                                 </form>
                             </div>
                         </li>

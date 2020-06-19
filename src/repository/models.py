@@ -603,6 +603,19 @@ class Comment(models.Model):
             author=self.author.full_name(),
             article=self.preprint.title,
         )
+    
+    def mark_public(self):
+        if self.is_public:
+            self.is_public = False
+        else:
+            self.is_public = True
+
+        self.is_reviewed = True
+        self.save()
+
+    def mark_reviewed(self):
+        self.is_reviewed = True
+        self.save()
 
 
 class Subject(models.Model):

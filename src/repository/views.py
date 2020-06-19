@@ -81,7 +81,7 @@ def repository_dashboard(request):
 
 
 @preprint_editor_or_author_required
-def preprints_author_article(request, preprint_id):
+def repository_author_article(request, preprint_id):
     """
     Allows authors to view the metadata and replace galley files for their articles.
     :param request: HttpRequest
@@ -888,20 +888,24 @@ def repository_preprint_log(request, preprint_id):
 
 
 @preprint_editor_or_author_required
-def preprints_comments(request, article_id):
+def preprints_comments(request, preprint_id):
     """
     Presents an interface for authors and editors to mark comments as publicly readable.
     :param request: HttpRequest object
-    :param article_id: PK of an Article object
+    :param preprint_id: PK of an Preprint object
     :return: HttpRedirect if POST, HttpResponse otherwise
     """
-    preprint = get_object_or_404(submission_models.Article.preprints, pk=article_id)
+    preprint = get_object_or_404(models.Preprint.objects, pk=preprint_id)
 
     if request.POST:
         repository_logic.comment_manager_post(request, preprint)
-        return redirect(reverse('preprints_comments', kwargs={'article_id': preprint.pk}))
+        return redirect(
+            reverse(
+                'preprints_comments', kwargs={'preprint_id': preprint.pk},
+            )
+        )
 
-    template = 'admin/preprints/comments.html'
+    template = 'admin/repository/comments.html'
     context = {
         'preprint': preprint,
         'new_comments': preprint.comment_set.filter(is_reviewed=False),
@@ -970,9 +974,10 @@ def preprints_subjects(request, subject_id=None):
 
 
 @staff_member_required
-def preprints_rejected_submissions(request):
+def repository_rejected_submissions(request):
     """
-    A staff only view that displays a list of preprints that have been rejected.
+    A staff only view that displays a list of preprints that have been
+    rejected.
     :param request: HttpRequest object
     :return: HttpResponse
     """

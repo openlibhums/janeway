@@ -3,13 +3,13 @@
 {% load foundation %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
-{% block title-section %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% block title-sub %}You can view the metadata of your article, its recent views and downloads and upload new versions
     of the preprint.{% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'repository_dashboard' %}">Preprints Dashboard</a></li>
-    <li>Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}</li>
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>
+    <li>{{ preprint.title|safe }}</li>
 {% endblock %}
 
 {% block body %}

@@ -14,8 +14,8 @@ urlpatterns = [
         name='repository_dashboard'),
 
     url(r'^dashboard/(?P<preprint_id>\d+)/$',
-        views.preprints_author_article,
-        name='preprints_author_article'),
+        views.repository_author_article,
+        name='repository_author_article'),
 
     url(r'^about/$',
         views.repository_about,
@@ -101,7 +101,7 @@ urlpatterns = [
         views.repository_preprint_log,
         name='repository_preprint_log'),
 
-    url(r'^manager/(?P<article_id>\d+)/comments/$',
+    url(r'^manager/(?P<preprint_id>\d+)/comments/$',
         views.preprints_comments,
         name='preprints_comments'),
 
@@ -118,8 +118,8 @@ urlpatterns = [
         name='preprints_subjects_with_id'),
 
     url(r'^manager/rejected/$',
-        views.preprints_rejected_submissions,
-        name='preprints_rejected_submissions'),
+        views.repository_rejected_submissions,
+        name='repository_rejected_submissions'),
 
     url(r'^manager/orphans/$',
         views.orphaned_preprints,
