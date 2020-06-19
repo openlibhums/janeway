@@ -1,8 +1,8 @@
 Image guidelines
 ================
 .. _imageguidelines:
-This section describes the different images that can be uploaded in Janeway to customise the look and feel of your journal,
-as well as the recommended sizes/aspec ratios for each of theme.
+    This section describes the different images that can be uploaded in Janeway to customise the look and feel of your journal,
+    as well as the recommended sizes/aspec ratios for each of theme.
 
 Header Image
 -------------------
