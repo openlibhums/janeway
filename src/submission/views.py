@@ -489,11 +489,25 @@ def edit_metadata(request, article_id):
     :return: contextualised django template
     """
     article = get_object_or_404(models.Article, pk=article_id)
-    submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
-    info_form = forms.ArticleInfo(instance=article, submission_summary=submission_summary)
+    submission_summary = setting_handler.get_setting(
+        'general',
+        'submission_summary',
+        request.journal,
+    ).processed_value
+    info_form = forms.ArticleInfo(
+        instance=article,
+        submission_summary=submission_summary,
+        backend=True,
+    )
     frozen_author, modal = None, None
     return_param = request.GET.get('return')
-    reverse_url = '{0}?return={1}'.format(reverse('edit_metadata', kwargs={'article_id': article.pk}), return_param)
+    reverse_url = '{0}?return={1}'.format(
+        reverse(
+            'edit_metadata',
+            kwargs={'article_id': article.pk}
+        ),
+        return_param,
+    )
 
     if request.GET.get('author'):
         frozen_author, modal = logic.get_author(request, article)
@@ -503,30 +517,48 @@ def edit_metadata(request, article_id):
 
     if request.POST:
         if 'add_funder' in request.POST:
-            funder = models.Funder(name=request.POST.get('funder_name', default=''),
-                                   fundref_id=request.POST.get('funder_doi', default=''),
-                                   funding_id=request.POST.get('grant_number', default=''))
+            funder = models.Funder(
+                name=request.POST.get('funder_name', default=''),
+                fundref_id=request.POST.get('funder_doi', default=''),
+                funding_id=request.POST.get('grant_number', default='')
+            )
 
             funder.save()
             article.funders.add(funder)
             article.save()
 
         if 'metadata' in request.POST:
-            info_form = forms.ArticleInfo(request.POST, instance=article, submission_summary=submission_summary)
+            info_form = forms.ArticleInfo(
+                request.POST,
+                instance=article,
+                submission_summary=submission_summary,
+                backend=True,
+            )
 
             if info_form.is_valid():
                 info_form.save(request=request)
-                messages.add_message(request, messages.SUCCESS, 'Metadata updated.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Metadata updated.',
+                )
                 return redirect(reverse_url)
 
         if 'author' in request.POST:
-            author_form = forms.EditFrozenAuthor(request.POST, instance=frozen_author)
+            author_form = forms.EditFrozenAuthor(
+                request.POST,
+                instance=frozen_author,
+            )
 
             if author_form.is_valid():
                 saved_author = author_form.save()
                 saved_author.article = article
                 saved_author.save()
-                messages.add_message(request, messages.SUCCESS, 'Author {0} updated.'.format(saved_author.full_name()))
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Author {0} updated.'.format(saved_author.full_name()),
+                )
                 return redirect(reverse_url)
 
         if 'delete' in request.POST:
@@ -536,7 +568,11 @@ def edit_metadata(request, article_id):
                                               article=article,
                                               article__journal=request.journal)
             frozen_author.delete()
-            messages.add_message(request, messages.SUCCESS, 'Frozen Author deleted.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Frozen Author deleted.',
+            )
             return redirect(reverse_url)
 
     template = 'submission/edit/metadata.html'
