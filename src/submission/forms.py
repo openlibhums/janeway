@@ -86,6 +86,7 @@ class ArticleInfo(KeywordModelForm):
         elements = kwargs.pop('additional_fields', None)
         submission_summary = kwargs.pop('submission_summary', None)
         journal = kwargs.pop('journal', None)
+        self.backend = kwargs.pop('backend', False)
 
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
@@ -114,7 +115,7 @@ class ArticleInfo(KeywordModelForm):
                 self.fields['non_specialist_summary'].required = True
 
             # Pop fields based on journal.submissionconfiguration
-            if journal:
+            if journal and not self.backend:
                 if not journal.submissionconfiguration.subtitle:
                     self.fields.pop('subtitle')
 
@@ -189,7 +190,8 @@ class ArticleInfo(KeywordModelForm):
                     except models.FieldAnswer.DoesNotExist:
                         field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
 
-            request.journal.submissionconfiguration.handle_defaults(article)
+            if not self.backend:
+                request.journal.submissionconfiguration.handle_defaults(article)
 
         if commit:
             article.save()
@@ -316,8 +318,7 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields[
-            'default_section'].queryset = models.Section.objects.filter(
+        self.fields['default_section'].queryset = models.Section.objects.language().fallbacks('en').filter(
             journal=self.instance.journal,
         )
         self.fields[
