@@ -55,7 +55,7 @@
                                 {% endfor %}
 
                             {% else %}
-                                {% tag_get articles_in_workflow_stages element.element_name as element_dict %}
+                                {% tag_get articles_in_workflow_plugins element.element_name as element_dict %}
 
                                 {% for article in element_dict.articles %}
                                     {% include element_dict.template %}

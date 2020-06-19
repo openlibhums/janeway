@@ -146,7 +146,7 @@ def create_default_workflow(journal):
     return workflow
 
 
-def articles_in_workflow_stages(request):
+def articles_in_workflow_plugins(request):
     """
     Returns an ordered dict {'stage': [articles]}
     :param request: HttpRequest object
@@ -157,18 +157,20 @@ def articles_in_workflow_stages(request):
     workflow_list = {}
 
     for element in workflow.elements.all():
-        element_dict = {}
+        if element.element_name in settings.WORKFLOW_PLUGINS:
+            try:
+                settings_module = import_module(settings.WORKFLOW_PLUGINS[element.element_name])
 
-        try:
-            settings_module = import_module(settings.WORKFLOW_PLUGINS[element.element_name])
+                element_dict = {
+                    'articles':submission_models.Article.objects.filter(
+                        stage=element.stage),
+                    'name': element.element_name,
+                    'template': settings_module.KANBAN_CARD,
+                }
 
-            element_dict['articles'] = submission_models.Article.objects.filter(stage=element.stage)
-            element_dict['name'] = element.element_name
-            element_dict['template'] = settings_module.KANBAN_CARD
-
-            workflow_list[element.element_name] = element_dict
-        except (KeyError, AttributeError) as e:
-            logger.error(e)
+                workflow_list[element.element_name] = element_dict
+            except (KeyError, AttributeError) as e:
+                logger.error(e)
 
     return workflow_list
 
