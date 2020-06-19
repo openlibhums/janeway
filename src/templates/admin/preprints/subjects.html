@@ -34,7 +34,7 @@
                         {% for subject in subjects %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'preprints_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
+                                    <a href="{% url 'repository_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
                                 </td>
                                 <td>{{ subject.slug }}</td>
                                 <td>{{ subject.enabled|bool_fa }}</td>
@@ -58,7 +58,7 @@
                 <div class="title-area">
                     <h2>Form</h2>
                     {% if subject %}
-                        <a href="{% url 'preprints_subjects' %}" class="button"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>{% endif %}
+                        <a href="{% url 'repository_subjects' %}" class="button"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>{% endif %}
                 </div>
                 <div class="content">
                     <form method="POST">

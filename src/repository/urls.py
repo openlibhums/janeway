@@ -110,12 +110,12 @@ urlpatterns = [
         name='preprints_settings'),
 
     url(r'^manager/subjects/$',
-        views.preprints_subjects,
-        name='preprints_subjects'),
+        views.repository_subjects,
+        name='repository_subjects'),
 
     url(r'^manager/subjects/(?P<subject_id>\d+)/$',
-        views.preprints_subjects,
-        name='preprints_subjects_with_id'),
+        views.repository_subjects,
+        name='repository_subjects_with_id'),
 
     url(r'^manager/rejected/$',
         views.repository_rejected_submissions,

@@ -940,7 +940,7 @@ def preprints_settings(request):
 
 
 @staff_member_required
-def preprints_subjects(request, subject_id=None):
+def repository_subjects(request, subject_id=None):
 
     if subject_id:
         subject = get_object_or_404(models.Subject, pk=subject_id)
@@ -960,7 +960,7 @@ def preprints_subjects(request, subject_id=None):
         if form.is_valid():
             form.save()
             utils_shared.clear_cache()
-            return redirect(reverse('preprints_subjects'))
+            return redirect(reverse('repository_subjects'))
 
     template = 'admin/preprints/subjects.html'
     context = {
