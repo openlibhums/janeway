@@ -3,8 +3,8 @@ name: janeway
 
 # CAREFUL with this env file, Docker env files don't support interpolation!
 env_file:
-  - etc/defaults.env
-  - etc/local.env
+  - dockerfiles/lando_defaults.env
+  - dockerfiles/lando_local.env
 
 services:
   appserver:
@@ -21,7 +21,7 @@ services:
         - '8000:8000'
       environment:
         PYTHONPATH: "/app/src"
-        DJANGO_SETTINGS_MODULE: "core.settings" # this is the path to the settings file, which is in src/core/settings.py
+        JANEWAY_SETTINGS_MODULE: "core.settings" # this is the path to the Janeway settings file, which is in src/core/settings.py
     moreHttpPorts:
       - '8000'
   db:
@@ -33,9 +33,6 @@ services:
       database: janeway
 
 tooling:
-  django-admin:
-    service: appserver
-    cmd: django-admin
   python:
     service: appserver
     cmd: python

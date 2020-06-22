@@ -29,15 +29,15 @@ your local machine, using Lando:
   same (or newer) version as what is bundled with Lando.
 
 1. Make sure `Lando <https://lando.dev/>`_ is installed
-2. Optionally, copy ``local.env.example`` to ``local.env`` and customize as appropriate (the 
+2. Optionally, copy ``dockerfiles/lando_local.env.example`` to ``dockerfiles/lando_local.env`` and customize as appropriate (the
    database configuration is done with environment variables, so pay attention to 
-   ``local.env`` if it's important to you)
+   ``dockerfiles/lando_local.env`` if it's important to you)
 3. ``lando poweroff`` (defensively ensure no other Lando environments are running, probably not necessary, but a good habit)
 4. ``lando rebuild``
 5. When you see the big "Boomshakala" message from Lando, you're ready to proceed
-6. ``lando django-admin check`` will confirm the installation is working, and notify you of any misconfigurations
+6. ``lando manage check`` will confirm the installation is working, and notify you of any misconfigurations
 7. Revise your src/core/settings.py file as directed in the `Database Setup and Final Installation`_ instructions below
-8. ``lando logs -f`` will show you the log output from Django, though when you're getting started, `lando django-admin check` will help you find configuration errors much faster than sifting through log file output
+8. ``lando logs -f`` will show you the log output from Janeway, though when you're getting started, `lando manage check` will help you find configuration errors much faster than sifting through log file output
 9. ``lando manage <command>`` will send commands to the src/core/manage.py script, run `lando manage -h` to see more info
 10. ``lando manage install_janeway`` will continue your installation of Janeway
 11. ``lando manage test`` will run the Janeway unit test suite
