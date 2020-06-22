@@ -86,7 +86,7 @@ class ArticleInfo(KeywordModelForm):
         elements = kwargs.pop('additional_fields', None)
         submission_summary = kwargs.pop('submission_summary', None)
         journal = kwargs.pop('journal', None)
-        self.backend = kwargs.pop('backend', False)
+        self.pop_disabled_fields = kwargs.pop('pop_disabled_fields', True)
 
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
@@ -115,7 +115,7 @@ class ArticleInfo(KeywordModelForm):
                 self.fields['non_specialist_summary'].required = True
 
             # Pop fields based on journal.submissionconfiguration
-            if journal and not self.backend:
+            if journal and self.pop_disabled_fields:
                 if not journal.submissionconfiguration.subtitle:
                     self.fields.pop('subtitle')
 
@@ -190,7 +190,7 @@ class ArticleInfo(KeywordModelForm):
                     except models.FieldAnswer.DoesNotExist:
                         field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
 
-            if not self.backend:
+            if self.pop_disabled_fields:
                 request.journal.submissionconfiguration.handle_defaults(article)
 
         if commit:
