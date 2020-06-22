@@ -83,6 +83,16 @@ class ArticleInfo(KeywordModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialises the ArticleInfo form.
+        :param kwargs:  elements: queryest of Field objects.
+                        submission_sumary: boolean, detmines if this field
+                        is on or off.
+                        journal: Journal object.
+                        pop_disabled_fields: boolean, if False we do not pop
+                        fields that are disabled by SubmissionConfiguration
+                        or overwrite their saving.
+        """
         elements = kwargs.pop('additional_fields', None)
         submission_summary = kwargs.pop('submission_summary', None)
         journal = kwargs.pop('journal', None)
