@@ -129,4 +129,11 @@ urlpatterns = [
         views.version_queue,
         name='version_queue'),
 
+    url(r'^wizard/$',
+        views.repository_wizard,
+        name='repository_wizard'),
+
+    url(r'^wizard/repository/(?P<repository_id>\d+)/$',
+        views.repository_wizard,
+        name='repository_wizard_with_id'),
 ]

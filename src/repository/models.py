@@ -83,7 +83,10 @@ def repo_media_upload(instance, filename):
 class Repository(model_utils.AbstractSiteModel):
     press = models.ForeignKey('press.Press')
     name = models.CharField(max_length=255)
-    short_name = models.CharField(max_length=15)
+    short_name = models.CharField(
+        max_length=15,
+        help_text='Shortened version of the name eg. olh. Max 15 chars.'
+    )
     object_name = models.CharField(
         max_length=255,
         help_text='eg. preprint or article',

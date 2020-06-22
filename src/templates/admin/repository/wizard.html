@@ -1,0 +1,46 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Create New Repository{% endblock %}
+{% block title-section %}Repository Creation Wizard &#x1F9D9; {% endblock %}
+
+{% block nav %}
+    {% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+    <section>
+        <div class="row expanded" data-equalizer>
+            <div class="large-6 columns end">
+                <div class="box" data-equalizer-watch>
+                    <div class="title-area">
+                        <h2>Form</h2>
+                    </div>
+                    <div class="content">
+                        {% include "elements/forms/errors.html" with form=form %}
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <button type="submit" name="save_press" class="success button">{% if step == 1 %}
+                                        Create{% else %}Save{% endif %} Repository
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="large-6 columns end">
+                <div class="box" data-equalizer-watch>
+                    <div class="title-area">
+                        <h2>Help</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

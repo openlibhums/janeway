@@ -272,3 +272,47 @@ class VersionForm(forms.ModelForm):
             version.save()
 
         return version
+
+
+class RepositoryInitial(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = (
+            'name',
+            'short_name',
+            'object_name',
+            'object_name_plural',
+            'publisher',
+        )
+
+
+class RepositorySite(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = (
+            'about',
+            'logo',
+            'custom_js_code',
+        )
+
+
+class RepositorySubmission(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = (
+            'start',
+            'limit_upload_to_pdf',
+            'managers',
+        )
+
+
+class RepositoryEmails(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = (
+            'submission',
+            'publication',
+            'decline',
+            'accept_version',
+            'decline_version',
+        )

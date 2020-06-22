@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files
@@ -1122,4 +1122,59 @@ def preprints_delete_author(request, preprint_id, redirect_string):
                 kwargs={'preprint_id': preprint.pk},
             )
         )
+
+
+@staff_member_required
+def repository_wizard(request, repository_id=None, step=1):
+    """
+    Presents a Wizard for setting up new Repositories.
+    :param request: HttpRequest
+    :param repository_id: int Repository object PK
+    :param step: Integer from 1-3
+    :return: HttpResponse or HttpRedirect on POST
+    """
+    if repository_id:
+        repository = get_object_or_404(
+            models.Repository,
+            pk=repository_id,
+        )
+    else:
+        repository = None
+
+    if step == 1:
+        form_type = forms.RepositoryInitial
+    elif step == 2:
+        form_type = forms.RepositorySubmission
+    elif step == 3:
+        form_type = forms.RepositorySite
+    elif step == 4:
+        form_type = forms.RepositoryEmails
+    else:
+        raise Http404
+
+    form = form_type(instance=repository)
+
+    if request.POST:
+        form = form_type(request.POST, instance=repository)
+
+        if form.is_valid():
+            form.save()
+            kwargs = {}
+            if repository:
+                kwargs = {'repository_id': repository.pk}
+            return redirect(
+                reverse(
+                    'repository_create',
+                    kwargs=kwargs,
+                )
+            )
+
+    template = 'admin/repository/wizard.html'
+    context = {
+        'repository': repository,
+        'form': form,
+        'step': step,
+    }
+
+    return render(request, template, context)
 
