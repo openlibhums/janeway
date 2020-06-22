@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from submission import models
@@ -12,7 +13,6 @@ from identifiers import models as ident_models
 from review.forms import render_choices
 from utils.forms import KeywordModelForm
 from utils import setting_handler
-
 
 
 class PublisherNoteForm(forms.ModelForm):
@@ -318,7 +318,9 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields['default_section'].queryset = models.Section.objects.language().fallbacks('en').filter(
+        self.fields['default_section'].queryset = models.Section.objects.language().fallbacks(
+            settings.LANGUAGE_CODE,
+        ).filter(
             journal=self.instance.journal,
         )
         self.fields[
