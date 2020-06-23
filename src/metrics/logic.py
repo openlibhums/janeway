@@ -10,12 +10,13 @@ from user_agents import parse as parse_ua_string
 import geoip2.database
 from geoip2.errors import AddressNotFoundError
 
-from django.db import transaction
+from django.db import transaction, OperationalError
 from django.utils import timezone
 from django.conf import settings
 
 from metrics import models
 from utils import shared
+from utils.decorators import retry
 from utils.function_cache import cache
 from core import models as core_models
 
@@ -209,7 +210,7 @@ class ArticleMetrics:
         self.downloads = get_article_downloads(article)
         self.alm = get_altmetrics(article)
 
-
+@retry(exc=OperationalError)
 def store_article_access(request, article, access_type, galley_type='view'):
 
     try:
@@ -226,51 +227,39 @@ def store_article_access(request, article, access_type, galley_type='view'):
     if user_agent and not user_agent.is_bot:
 
         # check if the current IP has accessed this article recently.
-        time_to_check = timezone.now() - timedelta(seconds=30)
-        check = models.ArticleAccess.objects.filter(
-            identifier=identifier,
-            accessed__gte=time_to_check,
-            type=access_type,
-            galley_type=galley_type,
-        ).count()
-
-        if not check:
-
-            new_access = models.ArticleAccess.objects.create(
-                article=article,
-                type=access_type,
+        with transaction.atomic():
+            time_to_check = timezone.now() - timedelta(seconds=30)
+            exists = models.ArticleAccess.objects.filter(
                 identifier=identifier,
+                accessed__gte=time_to_check,
+                type=access_type,
                 galley_type=galley_type,
-                country=country,
-            )
+            ).exists()
 
-            return new_access
-
-        else:
-            # get the most recent access attempt and reset its accessed to now.
-            with transaction.atomic():
-                access = models.ArticleAccess.objects.select_for_update(
-                    # Avoid concurrent writes
-                    skip_locked=True,
-                ).filter(
+            if exists:
+                # get the most recent access attempt and reset its accessed to now.
+                access = models.ArticleAccess.objects.filter(
                     identifier=identifier,
                     accessed__gte=time_to_check,
                     type=access_type,
                     galley_type=galley_type,
                 ).order_by('-accessed')[0]
 
-                if access:
-                    access.accessed = timezone.now()
-                    access.save()
+                access.accessed = timezone.now()
+                access.save()
 
-                    return access
+            else:
 
-                else:
-                    return None
+                access = models.ArticleAccess.objects.create(
+                    article=article,
+                    type=access_type,
+                    identifier=identifier,
+                    galley_type=galley_type,
+                    country=country,
+                )
 
-    else:
-
-        return None
+            return access
+    return None
 
 
 @cache(300)
