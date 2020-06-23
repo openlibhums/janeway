@@ -48,8 +48,10 @@ def get_reviewer_candidates(article, user=None):
     active_reviews_count = models.ReviewAssignment.objects.filter(
         is_complete=False,
         reviewer=OuterRef("id"),
+    ).values(
+        "reviewer_id",
     ).annotate(
-        rev_count=Count("pk"),
+        rev_count=Count("reviewer_id"),
     ).values("rev_count")
 
     rating_average = models.ReviewerRating.objects.filter(
