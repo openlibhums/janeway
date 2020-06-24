@@ -1438,18 +1438,34 @@ def issue_article_order(request, issue_id=None):
     if request.POST:
         ids = request.POST.getlist('articles[]')
         ids = [int(_id) for _id in ids]
-        section = get_object_or_404(submission_models.Article, pk=ids[0], journal=request.journal).section
+        articles = submission_models.Article.objects.filter(
+            id__in=ids, journal=request.journal)
+        section = None
 
-        for article in issue.structure().get(section):
-            order = ids.index(article.id)
-            article_issue_order, created = models.ArticleOrdering.objects.get_or_create(issue=issue,
-                                                                                        article=article,
-                                                                                        defaults={'order': order,
-                                                                                                  'section': section})
-            if not created:
-                article_issue_order.order = order
-                article_issue_order.section = section
-                article_issue_order.save()
+        for order, article in enumerate(sorted(
+            articles, key=lambda x: ids.index(x.pk)
+        )):
+            section = article.section
+            if not issue.articles.filter(id=article.id).exists():
+                logger.error(
+                    "Attempted to set order for article %d within issue %s"
+                    "" % (article.pk, issue)
+                )
+                continue
+            elif section is not None and section != article.section:
+                logger.error(
+                    "Attempted to order articles from mixed sections"
+                    " %s" % ids
+                )
+                continue
+            order_obj, c = models.ArticleOrdering.objects.get_or_create(
+                issue=issue,
+                article=article,
+            )
+
+            order_obj.order = order
+            order_obj.section = article.section
+            order_obj.save()
 
     return HttpResponse('Thanks')
 
