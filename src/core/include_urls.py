@@ -17,11 +17,6 @@ from cms import views as cms_views
 from submission import views as submission_views
 from journal import views as journal_views
 
-js_info_dict = {
-    'domain': 'djangojs',
-    'packages': ('project',),
-}
-
 urlpatterns = [
     url(r'^submit/', include('submission.urls')),
     url(r'^', include(journal_urls)),
