@@ -8,6 +8,7 @@ import os
 from django.conf.urls import include, url
 from django.conf import settings
 from django.views.i18n import JavaScriptCatalog
+from django.views.decorators.cache import cache_page
 
 from journal import urls as journal_urls
 from core import views as core_views, plugin_loader
@@ -191,7 +192,7 @@ urlpatterns = [
 
     url(r'^set-timezone/$', core_views.set_session_timezone, name='set_timezone'),
 
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    url(r'^jsi18n/$', cache_page(60 * 60, key_prefix='jsi18n_catalog')(JavaScriptCatalog.as_view()), name='javascript-catalog'),
 ]
 
 # Journal homepage block loading
