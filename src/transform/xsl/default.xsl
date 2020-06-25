@@ -2098,6 +2098,26 @@
     </em>
   </xsl:template>
 
+  <xsl:template match="ext-link" mode="nscitation">
+    <a>
+      <xsl:attribute name="href">
+        <xsl:choose>
+            <xsl:when test="starts-with(@xlink:href, 'www.')">
+              <xsl:value-of select="concat('http://', @xlink:href)"/>
+            </xsl:when>
+            <xsl:when test="starts-with(@xlink:href, 'doi:')">
+              <xsl:value-of select="concat('http://dx.doi.org/', substring-after(@xlink:href, 'doi:'))"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="@xlink:href"/>
+            </xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:attribute name="target"><xsl:value-of select="'_blank'"/></xsl:attribute>
+      <xsl:apply-templates/>
+    </a>
+  </xsl:template>
+
   <xsl:template match="source" mode="book">
     <xsl:choose>
 
