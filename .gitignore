@@ -128,5 +128,5 @@ src/themes/clean
 src/themes/superhero
 
 # Lando
-local.env
+dockerfiles/lando_local.env
 .lando.local.yml
