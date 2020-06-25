@@ -15,6 +15,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
+from django.http.request import split_domain_port
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files
@@ -131,6 +132,24 @@ class Repository(model_utils.AbstractSiteModel):
 
     class Meta:
         verbose_name_plural = 'repositories'
+
+    @classmethod
+    def get_by_request(cls, request):
+        domain = request.get_host()
+        # Lookup by domain with/without port
+        try:
+            obj = cls.objects.get(
+                domain=domain,
+                live=True,
+            )
+        except cls.DoesNotExist:
+            # Lookup without port
+            domain, _port = split_domain_port(domain)
+            obj = cls.objects.get(
+                domain=domain,
+                live=True
+            )
+        return obj
 
     def __str__(self):
         return '[{}] {}'.format(

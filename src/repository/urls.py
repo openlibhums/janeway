@@ -133,7 +133,7 @@ urlpatterns = [
         views.repository_wizard,
         name='repository_wizard'),
 
-    url(r'^wizard/repository/(?P<repository_id>\d+)/$',
+    url(r'^wizard/repository/(?P<short_name>[-\w]+)/step/(?P<step>\d+)/$',
         views.repository_wizard,
         name='repository_wizard_with_id'),
 ]

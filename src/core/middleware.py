@@ -55,7 +55,8 @@ def get_site_resources(request):
             if settings.URL_CONFIG == 'path':
                 short_name = request.path.split('/')[1]
                 repository = repository_models.Repository.objects.get(
-                    short_name=short_name
+                    short_name=short_name,
+                    live=True,
                 )
                 press = repository.press
             elif settings.URL_CONFIG == 'domain':

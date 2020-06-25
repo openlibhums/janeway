@@ -1125,46 +1125,61 @@ def preprints_delete_author(request, preprint_id, redirect_string):
 
 
 @staff_member_required
-def repository_wizard(request, repository_id=None, step=1):
+def repository_wizard(request, short_name=None, step='1'):
     """
     Presents a Wizard for setting up new Repositories.
     :param request: HttpRequest
-    :param repository_id: int Repository object PK
-    :param step: Integer from 1-3
+    :param short_name: str Repository object short_name
+    :param step: String Number from 1-4
     :return: HttpResponse or HttpRedirect on POST
     """
-    if repository_id:
+    if short_name:
         repository = get_object_or_404(
             models.Repository,
-            pk=repository_id,
+            short_name=short_name,
         )
     else:
         repository = None
 
-    if step == 1:
+    if step == '1':
         form_type = forms.RepositoryInitial
-    elif step == 2:
-        form_type = forms.RepositorySubmission
-    elif step == 3:
+    elif step == '2':
         form_type = forms.RepositorySite
-    elif step == 4:
+    elif step == '3':
+        form_type = forms.RepositorySubmission
+    elif step == '4':
         form_type = forms.RepositoryEmails
     else:
+        print('are we here')
         raise Http404
 
-    form = form_type(instance=repository)
+    form = form_type(instance=repository, press=request.press)
 
     if request.POST:
-        form = form_type(request.POST, instance=repository)
+        form = form_type(
+            request.POST,
+            instance=repository,
+            press=request.press,
+        )
 
         if form.is_valid():
-            form.save()
-            kwargs = {}
-            if repository:
-                kwargs = {'repository_id': repository.pk}
+            updated_repository = form.save()
+
+            # If we reach step 4, redirect to the Repo home page.
+            if step == 4:
+                return redirect(
+                    reverse(
+                        repository.site_url()
+                    )
+                )
+
+            # Bump the step by 1
+            kwargs = {'step': int(step) + 1}
+            if updated_repository:
+                kwargs['short_name'] = updated_repository.short_name
             return redirect(
                 reverse(
-                    'repository_create',
+                    'repository_wizard_with_id',
                     kwargs=kwargs,
                 )
             )
@@ -1174,6 +1189,9 @@ def repository_wizard(request, repository_id=None, step=1):
         'repository': repository,
         'form': form,
         'step': step,
+        'help_template': 'admin/elements/repository/{step}_help.html'.format(
+            step=step,
+        )
     }
 
     return render(request, template, context)

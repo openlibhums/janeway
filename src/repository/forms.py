@@ -2,6 +2,7 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 from django_summernote.widgets import SummernoteWidget
+from django.conf import settings
 
 from submission import models as submission_models
 from repository import models
@@ -274,19 +275,46 @@ class VersionForm(forms.ModelForm):
         return version
 
 
-class RepositoryInitial(forms.ModelForm):
+class RepositoryBaseClass(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.press = kwargs.pop('press')
+        super(RepositoryBaseClass, self).__init__(*args, **kwargs)
+
+
+class RepositoryInitial(RepositoryBaseClass):
     class Meta:
         model = models.Repository
         fields = (
             'name',
             'short_name',
+            'domain',
             'object_name',
             'object_name_plural',
             'publisher',
         )
 
+    def __init__(self, *args, **kwargs):
+        super(RepositoryInitial, self).__init__(*args, **kwargs)
 
-class RepositorySite(forms.ModelForm):
+        if settings.URL_CONFIG == 'path':
+            del(self.fields['domain'])
+
+    def save(self, commit=True):
+        repository = super(RepositoryInitial, self).save(commit=False)
+        repository.press = self.press
+
+        if settings.URL_CONFIG:
+            repository.domain = '{short_name}.domain.com'.format(
+                short_name=repository.short_name,
+            )
+
+        if commit:
+            repository.save()
+
+        return repository
+
+
+class RepositorySite(RepositoryBaseClass):
     class Meta:
         model = models.Repository
         fields = (
@@ -294,9 +322,12 @@ class RepositorySite(forms.ModelForm):
             'logo',
             'custom_js_code',
         )
+        widgets = {
+            'about': SummernoteWidget,
+        }
 
 
-class RepositorySubmission(forms.ModelForm):
+class RepositorySubmission(RepositoryBaseClass):
     class Meta:
         model = models.Repository
         fields = (
@@ -305,8 +336,12 @@ class RepositorySubmission(forms.ModelForm):
             'managers',
         )
 
+        widgets = {
+            'start': SummernoteWidget,
+        }
 
-class RepositoryEmails(forms.ModelForm):
+
+class RepositoryEmails(RepositoryBaseClass):
     class Meta:
         model = models.Repository
         fields = (
