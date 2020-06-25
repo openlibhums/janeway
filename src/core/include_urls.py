@@ -7,6 +7,7 @@ import os
 
 from django.conf.urls import include, url
 from django.conf import settings
+from django.views.i18n import JavaScriptCatalog
 
 from journal import urls as journal_urls
 from core import views as core_views, plugin_loader
@@ -15,6 +16,11 @@ from press import views as press_views
 from cms import views as cms_views
 from submission import views as submission_views
 from journal import views as journal_views
+
+js_info_dict = {
+    'domain': 'djangojs',
+    'packages': ('project',),
+}
 
 urlpatterns = [
     url(r'^submit/', include('submission.urls')),
@@ -189,6 +195,8 @@ urlpatterns = [
     url(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
 
     url(r'^set-timezone/$', core_views.set_session_timezone, name='set_timezone'),
+
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 # Journal homepage block loading
