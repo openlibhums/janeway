@@ -276,17 +276,19 @@ class VersionForm(forms.ModelForm):
         return version
 
 
-class RepositoryBaseClass(forms.ModelForm):
+class RepositoryBase(forms.ModelForm):
     class Meta:
         model = models.Repository
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         self.press = kwargs.pop('press')
-        super(RepositoryBaseClass, self).__init__(*args, **kwargs)
+        super(RepositoryBase, self).__init__(*args, **kwargs)
 
 
-class RepositoryInitial(RepositoryBaseClass):
+class RepositoryInitial(RepositoryBase):
     class Meta:
+        model = models.Repository
         fields = (
             'name',
             'short_name',
@@ -317,8 +319,9 @@ class RepositoryInitial(RepositoryBaseClass):
         return repository
 
 
-class RepositorySite(RepositoryBaseClass):
+class RepositorySite(RepositoryBase):
     class Meta:
+        model = models.Repository
         fields = (
             'about',
             'logo',
@@ -329,8 +332,9 @@ class RepositorySite(RepositoryBaseClass):
         }
 
 
-class RepositorySubmission(RepositoryBaseClass):
+class RepositorySubmission(RepositoryBase):
     class Meta:
+        model = models.Repository
         fields = (
             'start',
             'limit_upload_to_pdf',
@@ -347,8 +351,9 @@ class RepositorySubmission(RepositoryBaseClass):
         }
 
 
-class RepositoryEmails(RepositoryBaseClass):
+class RepositoryEmails(RepositoryBase):
     class Meta:
+        model = models.Repository
         fields = (
             'submission',
             'publication',
@@ -366,8 +371,9 @@ class RepositoryEmails(RepositoryBaseClass):
         }
 
 
-class RepositoryLiveForm(RepositoryBaseClass):
+class RepositoryLiveForm(RepositoryBase):
     class Meta:
+        model = models.Repository
         fields = (
             'live',
         )
