@@ -14,11 +14,11 @@
         <div class="row expanded" data-equalizer>
             <div class="large-12 columns">
                 <div class="expanded button-group">
-                    <a href="{% url 'repository_wizard_with_id' repository.short_name '1' %}" class="secondary button">Repository Details 1</a>
-                    <a href="{% url 'repository_wizard_with_id' repository.short_name '2' %}" class="secondary button">Repository Details 2</a>
-                    <a href="{% url 'repository_wizard_with_id' repository.short_name '3' %}" class="secondary button">Submission Details</a>
-                    <a href="{% url 'repository_wizard_with_id' repository.short_name '4' %}" class="secondary button">Email Templates</a>
-                    <a href="{% url 'repository_wizard_with_id' repository.short_name '5' %}" class="secondary button">Live</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '1' %}" class="{% if not step == '1' %}hollow{% endif %} secondary button">Repository Details 1</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '2' %}" class="{% if not step == '2' %}hollow{% endif %} secondary button">Repository Details 2</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '3' %}" class="{% if not step == '3' %}hollow{% endif %} secondary button">Submission Details</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '4' %}" class="{% if not step == '4' %}hollow{% endif %} secondary button">Email Templates</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '5' %}" class="{% if not step == '5' %}hollow{% endif %} secondary button">Live</a>
                 </div>
             </div>
             <div class="large-8 columns end">
