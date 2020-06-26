@@ -1137,18 +1137,26 @@ class Article(models.Model):
             return reverse('review_unassigned_article', kwargs=kwargs)
         elif self.stage == STAGE_PUBLISHED:
             return reverse('manage_archive_article', kwargs=kwargs)
+        elif not self.stage:
+            logger.error(
+                'Article #{} has no Stage.'.format(
+                    self.pk,
+                )
+            )
+            return '?workflow_element_url=no_stage'
         else:
             element = self.current_workflow_element
             if element:
                 return reverse(element.jump_url, kwargs=kwargs)
             else:
+                # In order to ensure the Dashboard renders we purposefully do
+                # not raise an error message here.
                 logger.error(
-                    'Article #{} on Journal {} has no Stage.'.format(
-                        self.pk,
-                        self.journal.name,
+                    'There is no workflow element for stage {}.'.format(
+                        self.stage,
                     )
                 )
-                return '?nostage=True'
+                return '?workflow_element_url=no_element'
 
     @cache(600)
     def render_sample_doi(self):
