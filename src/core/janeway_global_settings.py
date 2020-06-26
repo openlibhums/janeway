@@ -175,6 +175,7 @@ SETTINGS_EXPORT = [
     'ENABLE_ORCID',
     'DEBUG',
     'LANGUAGE_CODE',
+    'URL_CONFIG',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
