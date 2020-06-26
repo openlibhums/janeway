@@ -1446,7 +1446,7 @@ def add_member_to_group(request, group_id, user_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def plugin_list(request):
     """
     Fetches a list of plugins and fetching their manager urls.
