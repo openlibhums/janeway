@@ -545,6 +545,7 @@ def dashboard(request):
             owner=request.user,
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started'),
         'workflow_elements': workflow.element_names(request.journal.workflow().elements.all()),
+        'no_stage': request.GET.get('nostage', False)
     }
 
     return render(request, template, context)
