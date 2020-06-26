@@ -3,6 +3,7 @@ from django.forms import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 from django_summernote.widgets import SummernoteWidget
 from django.conf import settings
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 from submission import models as submission_models
 from repository import models
@@ -276,6 +277,9 @@ class VersionForm(forms.ModelForm):
 
 
 class RepositoryBaseClass(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+
     def __init__(self, *args, **kwargs):
         self.press = kwargs.pop('press')
         super(RepositoryBaseClass, self).__init__(*args, **kwargs)
@@ -283,7 +287,6 @@ class RepositoryBaseClass(forms.ModelForm):
 
 class RepositoryInitial(RepositoryBaseClass):
     class Meta:
-        model = models.Repository
         fields = (
             'name',
             'short_name',
@@ -316,7 +319,6 @@ class RepositoryInitial(RepositoryBaseClass):
 
 class RepositorySite(RepositoryBaseClass):
     class Meta:
-        model = models.Repository
         fields = (
             'about',
             'logo',
@@ -329,7 +331,6 @@ class RepositorySite(RepositoryBaseClass):
 
 class RepositorySubmission(RepositoryBaseClass):
     class Meta:
-        model = models.Repository
         fields = (
             'start',
             'limit_upload_to_pdf',
@@ -338,16 +339,35 @@ class RepositorySubmission(RepositoryBaseClass):
 
         widgets = {
             'start': SummernoteWidget,
+            'managers': FilteredSelectMultiple(
+                "Accounts",
+                False,
+                attrs={'rows': '2'},
+            )
         }
 
 
 class RepositoryEmails(RepositoryBaseClass):
     class Meta:
-        model = models.Repository
         fields = (
             'submission',
             'publication',
             'decline',
             'accept_version',
             'decline_version',
+        )
+
+        widgets = {
+            'submission': SummernoteWidget,
+            'publication': SummernoteWidget,
+            'decline': SummernoteWidget,
+            'accept_version': SummernoteWidget,
+            'decline_version': SummernoteWidget,
+        }
+
+
+class RepositoryLiveForm(RepositoryBaseClass):
+    class Meta:
+        fields = (
+            'live',
         )

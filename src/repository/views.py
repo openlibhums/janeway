@@ -1149,8 +1149,9 @@ def repository_wizard(request, short_name=None, step='1'):
         form_type = forms.RepositorySubmission
     elif step == '4':
         form_type = forms.RepositoryEmails
+    elif step == '5':
+        form_type = forms.RepositoryLiveForm,
     else:
-        print('are we here')
         raise Http404
 
     form = form_type(instance=repository, press=request.press)
@@ -1158,6 +1159,7 @@ def repository_wizard(request, short_name=None, step='1'):
     if request.POST:
         form = form_type(
             request.POST,
+            request.FILES,
             instance=repository,
             press=request.press,
         )
@@ -1166,7 +1168,7 @@ def repository_wizard(request, short_name=None, step='1'):
             updated_repository = form.save()
 
             # If we reach step 4, redirect to the Repo home page.
-            if step == 4:
+            if step == 5:
                 return redirect(
                     reverse(
                         repository.site_url()

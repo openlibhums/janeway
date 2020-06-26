@@ -120,7 +120,11 @@ class Repository(model_utils.AbstractSiteModel):
                     'authors to be PDF files.')
     )
     about = models.TextField(blank=True, null=True)
-    start = models.TextField(blank=True, null=True)
+    start = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Submission Start Text',
+    )
     submission = models.TextField(blank=True, null=True)
     publication = models.TextField(blank=True, null=True)
     decline = models.TextField(blank=True, null=True)
@@ -128,7 +132,10 @@ class Repository(model_utils.AbstractSiteModel):
     decline_version = models.TextField(blank=True, null=True)
 
     random_homepage_preprints = models.BooleanField(default=False)
-    homepage_preprints = models.ManyToManyField('submission.Article', blank=True)
+    homepage_preprints = models.ManyToManyField(
+        'submission.Article',
+        blank=True,
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'
