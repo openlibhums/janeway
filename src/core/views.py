@@ -545,7 +545,7 @@ def dashboard(request):
             owner=request.user,
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started'),
         'workflow_elements': workflow.element_names(request.journal.workflow().elements.all()),
-        'no_stage': request.GET.get('nostage', False)
+        'workflow_element_url': request.GET.get('workflow_element_url', False)
     }
 
     return render(request, template, context)
@@ -562,7 +562,7 @@ def active_submissions(request):
             stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal).order_by('pk', 'title'),
         'sections': submission_models.Section.objects.filter(is_filterable=True,
                                                              journal=request.journal),
-        'no_stage': request.GET.get('nostage', False)
+        'workflow_element_url': request.GET.get('workflow_element_url', False)
     }
 
     return render(request, template, context)
