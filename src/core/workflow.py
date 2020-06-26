@@ -23,6 +23,20 @@ ELEMENT_STAGES = {
     'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION]
 }
 
+STAGES_ELEMENTS = {
+    submission_models.STAGE_ASSIGNED: 'review',
+    submission_models.STAGE_UNDER_REVIEW: 'review',
+    submission_models.STAGE_UNDER_REVISION: 'review',
+
+    submission_models.STAGE_EDITOR_COPYEDITING: 'copyediting',
+    submission_models.STAGE_AUTHOR_COPYEDITING: 'copyediting',
+    submission_models.STAGE_FINAL_COPYEDITING: 'copyediting',
+
+    submission_models.STAGE_TYPESETTING: 'typesetting',
+    submission_models.STAGE_PROOFING: 'proofing',
+    submission_models.STAGE_READY_FOR_PUBLICATION: 'prepublication',
+}
+
 
 def workflow_element_complete(**kwargs):
     """
