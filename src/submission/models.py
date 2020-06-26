@@ -27,6 +27,9 @@ from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
 from review import models as review_models
 from utils.function_cache import cache
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 fs = JanewayFileSystemStorage()
 
@@ -1139,6 +1142,12 @@ class Article(models.Model):
             if element:
                 return reverse(element.jump_url, kwargs=kwargs)
             else:
+                logger.error(
+                    'Article #{} on Journal {} has no Stage.'.format(
+                        self.pk,
+                        self.journal.name,
+                    )
+                )
                 return '?nostage=True'
 
     @cache(600)
