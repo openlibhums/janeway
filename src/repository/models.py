@@ -113,7 +113,10 @@ class Repository(model_utils.AbstractSiteModel):
         help_text=_('The contents of this field are output into the JS area'
                     'at the foot of every Repository page.')
     )
-    live = models.BooleanField(default=False)
+    live = models.BooleanField(
+        default=False,
+        verbose_name='Repository is Live?'
+    )
     limit_upload_to_pdf = models.BooleanField(
         default=False,
         help_text=_('If set to True, this will require all file uploads from'

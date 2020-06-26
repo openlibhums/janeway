@@ -28,7 +28,7 @@ from security.decorators import press_only
 from submission import models as submission_models
 from utils import install
 from utils.logic import get_janeway_version
-from repository import views as repository_views
+from repository import views as repository_views, models
 
 
 def index(request):
@@ -138,6 +138,7 @@ def manager_index(request):
             stage=submission_models.STAGE_PUBLISHED
         ).select_related('journal')[:50],
         'version': version,
+        'repositories': models.Repository.objects.all()
     }
 
     return render(request, template, context)

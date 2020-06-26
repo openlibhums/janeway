@@ -1150,7 +1150,7 @@ def repository_wizard(request, short_name=None, step='1'):
     elif step == '4':
         form_type = forms.RepositoryEmails
     elif step == '5':
-        form_type = forms.RepositoryLiveForm,
+        form_type = forms.RepositoryLiveForm
     else:
         raise Http404
 
@@ -1168,10 +1168,15 @@ def repository_wizard(request, short_name=None, step='1'):
             updated_repository = form.save()
 
             # If we reach step 4, redirect to the Repo home page.
-            if step == 5:
+            if step == '5':
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    '{} has been setup.'.format(updated_repository.name)
+                )
                 return redirect(
                     reverse(
-                        repository.site_url()
+                        'core_manager_index'
                     )
                 )
 
