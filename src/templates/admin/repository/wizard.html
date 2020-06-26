@@ -12,6 +12,7 @@
 {% block body %}
     <section>
         <div class="row expanded" data-equalizer>
+            {% if repository %}
             <div class="large-12 columns">
                 <div class="expanded button-group">
                     <a href="{% url 'repository_wizard_with_id' repository.short_name '1' %}" class="{% if not step == '1' %}hollow{% endif %} secondary button">Repository Details 1</a>
@@ -21,6 +22,7 @@
                     <a href="{% url 'repository_wizard_with_id' repository.short_name '5' %}" class="{% if not step == '5' %}hollow{% endif %} secondary button">Live</a>
                 </div>
             </div>
+            {% endif %}
             <div class="large-8 columns end">
                 <div class="box" data-equalizer-watch>
                     <div class="title-area">
