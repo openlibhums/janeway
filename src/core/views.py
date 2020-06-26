@@ -562,6 +562,7 @@ def active_submissions(request):
             stage=submission_models.STAGE_UNSUBMITTED).filter(journal=request.journal).order_by('pk', 'title'),
         'sections': submission_models.Section.objects.filter(is_filterable=True,
                                                              journal=request.journal),
+        'no_stage': request.GET.get('nostage', False)
     }
 
     return render(request, template, context)
