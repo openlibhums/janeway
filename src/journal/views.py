@@ -30,7 +30,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
-from journal import logic, models, issue_forms, forms
+from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
 from review import forms as review_forms
@@ -109,6 +109,7 @@ def serve_journal_cover(request):
 
     return response
 
+
 @has_journal
 def funder_articles(request, funder_id):
     """ Renders the list of articles in the journal.
@@ -119,8 +120,12 @@ def funder_articles(request, funder_id):
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
-    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
-                                                                                   is_filterable=True)
+    sections = submission_models.Section.objects.language().fallbacks(
+        'en'
+    ).filter(
+        journal=request.journal,
+        is_filterable=True,
+    )
     page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
 
     if redirect:
@@ -130,10 +135,12 @@ def funder_articles(request, funder_id):
         journal=request.journal)]
     pinned_article_pks = [article.pk for article in pinned_articles]
 
-    article_objects = submission_models.Article.objects.filter(journal=request.journal,
-                                                               funders__fundref_id=funder_id,
-                                                               date_published__lte=timezone.now(),
-                                                               section__pk__in=filters).prefetch_related(
+    article_objects = submission_models.Article.objects.filter(
+        journal=request.journal,
+        funders__fundref_id=funder_id,
+        date_published__lte=timezone.now(),
+        section__pk__in=filters,
+    ).prefetch_related(
         'frozenauthor_set').order_by(sort).exclude(
         pk__in=pinned_article_pks)
 
@@ -159,7 +166,9 @@ def funder_articles(request, funder_id):
     }
     return render(request, template, context)
 
+
 @has_journal
+@decorators.frontend_enabled
 def articles(request):
     """ Renders the list of articles in the journal.
 
@@ -215,6 +224,7 @@ def articles(request):
 
 
 @has_journal
+@decorators.frontend_enabled
 def issues(request):
     """ Renders the list of issues in the journal.
 
@@ -234,12 +244,14 @@ def issues(request):
 
 
 @has_journal
+@decorators.frontend_enabled
 def current_issue(request, show_sidebar=True):
     """ Renders the current journal issue"""
     return issue(request, request.journal.current_issue_id, show_sidebar=show_sidebar)
 
 
 @has_journal
+@decorators.frontend_enabled
 def issue(request, issue_id, show_sidebar=True):
     """ Renders a specific issue/collection in the journal.
 
@@ -290,6 +302,7 @@ def issue(request, issue_id, show_sidebar=True):
 
 
 @has_journal
+@decorators.frontend_enabled
 def collections(request, issue_type_code="collection"):
     """
     Displays a list of collection Issues.
@@ -314,6 +327,7 @@ def collections(request, issue_type_code="collection"):
 
 
 @has_journal
+@decorators.frontend_enabled
 def collection(request, collection_id, show_sidebar=True):
     """
     A proxy view for an issue of type `Collection`.
@@ -326,6 +340,7 @@ def collection(request, collection_id, show_sidebar=True):
     return issue(request, collection_id, show_sidebar)
 
 
+@decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
 def article(request, identifier_type, identifier):
@@ -370,6 +385,7 @@ def article(request, identifier_type, identifier):
     return render(request, template, context)
 
 
+@decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
 def print_article(request, identifier_type, identifier):
@@ -413,6 +429,7 @@ def print_article(request, identifier_type, identifier):
 
 
 @has_journal
+@decorators.frontend_enabled
 @keyword_page_enabled
 def keywords(request):
     """
@@ -431,6 +448,7 @@ def keywords(request):
 
 
 @has_journal
+@decorators.frontend_enabled
 @keyword_page_enabled
 def keyword(request, keyword_id):
     """
@@ -1597,6 +1615,7 @@ def publication_schedule(request):
 
 
 @login_required
+@decorators.frontend_enabled
 def become_reviewer(request):
     """
     If a user is signed in and not a reviewer, lets them become one, otherwsie asks them to login/tells them they
@@ -1633,6 +1652,7 @@ def become_reviewer(request):
     return render(request, template, context)
 
 
+@decorators.frontend_enabled
 def contact(request):
     """
     Displays a form that allows a user to contact admins or editors.
@@ -1668,6 +1688,7 @@ def contact(request):
     return render(request, template, context)
 
 
+@decorators.frontend_enabled
 def editorial_team(request, group_id=None):
     """
     Displays a list of Editorial team members, an optional ID can be supplied to limit the display to a group only.
@@ -1690,6 +1711,7 @@ def editorial_team(request, group_id=None):
 
 
 @has_journal
+@decorators.frontend_enabled
 def author_list(request):
     """
     Displays list of authors.
@@ -1723,6 +1745,7 @@ def sitemap(request):
     return render(request, template, context, content_type="application/xml")
 
 
+@decorators.frontend_enabled
 def search(request):
     """
     Allows a user to search for articles by name or author name.
@@ -1776,7 +1799,6 @@ def search(request):
             article__date_published__lte=timezone.now(),
         ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
 
-
     template = 'journal/search.html'
     context = {
         'articles': articles,
@@ -1797,10 +1819,21 @@ def submissions(request):
     :return: HttpResponse object
     """
     template = 'journal/submissions.html'
+
+    if request.journal.disable_front_end:
+        template = 'admin/journal/submissions.html'
+
     context = {
-        'sections': submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
-                                                                                        public_submissions=True),
-        'licenses': submission_models.Licence.objects.filter(journal=request.journal, available_for_submission=True)
+        'sections': submission_models.Section.objects.language().fallbacks(
+            'en'
+        ).filter(
+            journal=request.journal,
+            public_submissions=True,
+        ),
+        'licenses': submission_models.Licence.objects.filter(
+            journal=request.journal,
+            available_for_submission=True,
+        )
     }
 
     return render(request, template, context)

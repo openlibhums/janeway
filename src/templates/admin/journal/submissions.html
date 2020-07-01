@@ -1,0 +1,118 @@
+{% extends 'admin/core/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ request.journal.name }} Submission{% endblock %}
+{% block title-section %}{{ request.journal.name }} Submission{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>Submission Information</li>
+{% endblock %}
+
+{% block css %}
+    <style>
+        .fa-check {
+            color: green;
+        }
+        .fa-times {
+            color: darkred;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="row columns">
+            <div class="box">
+                {% if journal_settings.general.disable_journal_submission %}
+                <p><strong>{% trans 'Submission is currently disabled for this journal.' %}</strong></p>
+                {% endif %}
+                <p>{{ journal_settings.general.submission_intro_text|safe }}</p>
+
+                {% if not journal_settings.general.disable_journal_submission %}
+                <div class="button-group">
+                    {% if not request.user.is_authenticated %}<a href="{% url 'core_register' %}" class="button">{% trans 'Register' %}</a>
+                    <a href="{% url 'core_login' %}" class="button">{% trans 'Login' %}</a>{% else %}
+                    <a href="{% url 'submission_start' %}" class="button">{% trans 'Start Submission' %}</a>{% endif %}
+                </div>
+                {% endif %}
+                
+                {% if journal_settings.general.journal_description %}
+                <div class="title-area"><h2>{% trans 'About' %} {{ request.journal.name }}</h2></div>
+                <p>{{ journal_settings.general.journal_description|safe }}</p>
+
+                {% endif %}
+                {% if journal_settings.general.focus_and_scope %}
+                <div class="title-area"><h2>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h2></div>
+                <p>{{ journal_settings.general.focus_and_scope|safe }}</p>
+                
+                {% endif %}
+                {% if journal_settings.general.submission_checklist %}
+                <div class="title-area"><h2>{% trans 'Submission Checklist' %}</h2></div>
+                {{ journal_settings.general.submission_checklist|safe }}
+                
+                {% endif %}
+                {% if not journal_settings.general.acceptance_criteria == '' %}
+                <div class="title-area"><h2>{% trans 'Submission Checklist' %}</h2></div>
+                {{ journal_settings.general.acceptance_criteria|safe }}
+                
+                {% endif %}
+                {% if journal_settings.general.copyright_notice %}
+                <div class="title-area"><h2>{% trans 'Copyright Notice' %}</h2></div>
+                {{ journal_settings.general.copyright_notice|safe }}
+                
+                {% endif %}
+                <div class="title-area"><h2>{% trans 'Licences' %}</h2></div>
+                <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                {% include "elements/license_block.html" %}
+                
+                {% if journal_settings.general.publication_fees %}
+                <div class="title-area"><h2>{% trans 'Publication Fees' %}</h2></div>
+                <p>{{ journal_settings.general.publication_fees|safe }}</p>
+                
+                {% endif %}
+                {% if journal_settings.general.peer_review_info %}
+                <div class="title-area"><h2>{% trans 'Peer Review' %}</h2></div>
+                <p>{{ journal_settings.general.peer_review_info|safe }}</p>
+                {% endif %}
+                {% if journal_settings.general.publication_cycle %}
+                <div class="title-area"><h2>{% trans 'Publication Cycle' %}</h2></div>
+                <p>{{ journal_settings.general.publication_cycle|safe }}</p>
+                {% endif %}
+                <div class="title-area"><h2>{% trans 'Sections' %}</h2></div>
+                    <div class="row expanded">
+                        <div class="large-6 columns">
+                            <p><strong>Section</strong></p>
+                        </div>
+                        <div class="medium-2 columns">
+                            <p><strong>{% trans "Public Submissions" %}</strong></p>
+                        </div>
+                        <div class="medium-2 columns">
+                            <p><strong>{% trans "Peer Reviewed" %}</strong></p>
+                        </div>
+                        <div class="medium-2 columns">
+                            <p><strong>{% trans "Indexed" %}</strong></p>
+                        </div>
+                    </div>
+                {% for section in sections %}
+                    <div class="row">
+                        <div class="large-6 columns">
+                            <p>{{ section.name }}</p>
+                        </div>
+                        <div class="medium-2 columns">
+                            <strong>{% if section.public_submissions %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</strong>
+                        </div>
+                        <div class="medium-2 columns">
+                            <strong>{% if section.number_of_reviewers > 0 %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</strong>
+                        </div>
+                        <div class="medium-2 columns">
+                            <strong>{% if section.indexing %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</strong>
+                        </div>
+                        
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </section>
+{% endblock body %}
