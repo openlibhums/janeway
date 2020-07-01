@@ -136,6 +136,8 @@ class Journal(AbstractSiteModel):
     display_issue_year = models.BooleanField(default=True)
     display_issue_title = models.BooleanField(default=True)
 
+    disable_front_end = models.BooleanField(default=False)
+
     def __str__(self):
         return u'{0}: {1}'.format(self.code, self.domain)
 
