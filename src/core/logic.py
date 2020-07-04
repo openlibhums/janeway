@@ -29,6 +29,9 @@ from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
 from comms import models as comms_models
 from utils import shared
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def send_reset_token(request, reset_token):
@@ -448,20 +451,24 @@ def get_available_elements(workflow):
         our_elements.append(element)
 
     for plugin in plugins:
-        module_name = "{0}.plugin_settings".format(plugin)
-        plugin_settings = import_module(module_name)
+        try:
+            module_name = "{0}.plugin_settings".format(plugin)
+            plugin_settings = import_module(module_name)
 
-        if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(
-                plugin_settings, 'HANDSHAKE_URL'):
-            if plugin_settings.IS_WORKFLOW_PLUGIN:
-                our_elements.append(
-                    {'name': plugin_settings.PLUGIN_NAME,
-                     'handshake_url': plugin_settings.HANDSHAKE_URL,
-                     'stage': plugin_settings.STAGE,
-                     'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL,
-                     'jump_url': plugin_settings.JUMP_URL if hasattr(plugin_settings, 'JUMP_URL') else '',
-                     }
-                )
+            if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(
+                    plugin_settings, 'HANDSHAKE_URL'):
+                if plugin_settings.IS_WORKFLOW_PLUGIN:
+                    our_elements.append(
+                        {'name': plugin_settings.PLUGIN_NAME,
+                         'handshake_url': plugin_settings.HANDSHAKE_URL,
+                         'stage': plugin_settings.STAGE,
+                         'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL,
+                         'jump_url': plugin_settings.JUMP_URL if hasattr(plugin_settings, 'JUMP_URL') else '',
+                         }
+                    )
+        except ImportError as e:
+            logger.error(e)
+
     return clear_active_elements(our_elements, workflow, plugins)
 
 
