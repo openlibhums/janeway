@@ -526,8 +526,17 @@ def preview_galley(request, proofing_task_id, galley_id):
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
 
+    article_content = ""
     if galley.type == 'xml' or galley.type == 'html':
         template = 'proofing/preview/rendered.html'
+        try:
+            article_content = galley.file_content()
+        except Exception as e:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Errors found rendering this galley',
+            )
     elif galley.type == 'epub':
         template = 'proofing/preview/epub.html'
     else:
@@ -536,7 +545,8 @@ def preview_galley(request, proofing_task_id, galley_id):
     context = {
         'proofing_task': proofing_task,
         'galley': galley,
-        'article': proofing_task.round.assignment.article
+        'article': proofing_task.round.assignment.article,
+        'article_content': article_content,
     }
 
     return render(request, template, context)
