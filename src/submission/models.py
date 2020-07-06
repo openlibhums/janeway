@@ -212,6 +212,12 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
+FINAL_STAGES = {
+    # An Article stage is final when it won't transition into further stages
+    STAGE_PUBLISHED,
+    STAGE_REJECTED,
+}
+
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
@@ -1135,7 +1141,7 @@ class Article(models.Model):
         # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
         if self.stage == STAGE_UNASSIGNED:
             return reverse('review_unassigned_article', kwargs=kwargs)
-        elif self.stage == STAGE_PUBLISHED:
+        elif self.stage in FINAL_STAGES:
             return reverse('manage_archive_article', kwargs=kwargs)
         elif not self.stage:
             logger.error(
