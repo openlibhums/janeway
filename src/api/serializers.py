@@ -25,6 +25,11 @@ class FrozenAuthorSerializer(serializers.HyperlinkedModelSerializer):
         model = submission_models.FrozenAuthor
         fields = ('first_name', 'middle_name', 'last_name', 'institution', 'department', 'country')
 
+    country = serializers.ReadOnlyField(
+        read_only=True,
+        source="country.name",
+    )
+
 
 class GalleySerializer(serializers.HyperlinkedModelSerializer):
 
