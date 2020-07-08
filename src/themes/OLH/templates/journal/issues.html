@@ -29,7 +29,9 @@
                 </div>
                 {% cycle '' '' '' '</div><div class="row">' %}
                 {% empty %}
-                <h3>{% trans "There are no issues published in this journal yet." %}</h3>
+                <div class="large-12 columns">
+                    <h3>{% trans "There are no issues published in this journal yet." %}</h3>
+                </div>
             {% endfor %}
         </div>
     </section>

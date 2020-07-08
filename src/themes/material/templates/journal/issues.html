@@ -15,26 +15,26 @@
         </div>
 
         {% for issue in issues %}
-            <div class="col m4">
-                <div class="card horizontal">
-                    <div class="card-image">
-                        <a href="{% url 'journal_issue' issue.id %}"><img
-                                class="issue_image" src="{% if issue.cover_image %}{{ issue.cover_image.url }}{% elif journal.default_cover_image %}{{ journal.default_cover_image.url }}{% else %}{% static "common/img/sample/issue_cover.png" %}{% endif %}"
-                                alt="{{ issue.title }}"
-                                class="img-fluid"></a>
+            <div class="col m12 l6 xl6 xxl4">
+                <div class="row">
+                    <div class="col s4 m3 l4 xxl5">
+                        <img src="{% if issue.cover_image %}{{ issue.cover_image.url }}{% elif journal.default_cover_image %}{{ journal.default_cover_image.url }}{% else %}{% static "common/img/sample/issue_cover.png" %}{% endif %}"
+                             alt="{{ issue.title }}"
+                             class="responsive-img">
                     </div>
-                    <div class="card-stacked">
-                        <div class="card-content">
-                            <p>{{ issue.display_title }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
-                        </div>
-                        <div class="card-action">
-                            <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
-                            {% if request.user and request.user.is_staff or user_is_editor %}
-                                <a href="{% url 'manage_issues_id' issue.pk %}"><i class="fa fa-edit">&nbsp;</i></a>
-                            {% endif %}
-                        </div>
+                    <div class="col s8 m9 l8 xxl7">
+                        <h2 class="issue_title">
+                            <a href="">{{ issue.display_title }}</a>
+                        </h2>
+                        <h3 class="issue_items">
+                            {{ issue.get_sorted_articles.count }} {% trans "items in this issue." %}
+                        </h3>
+                        <h3 class="issue_items">
+                            Published on {{ issue.date }}
+                        </h3>
                     </div>
                 </div>
+
             </div>
             {% empty %}
 
