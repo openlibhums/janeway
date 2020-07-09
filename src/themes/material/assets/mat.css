@@ -5,18 +5,16 @@
 }
 
 @media only screen and (min-width: 1550px) {
-  .container {
-    width: 80%;
-  }
-}
+    .container {
+        width: 80%;
+    }
 
-@media only screen and (min-width: 1550px) {
-  .row .col.xxl1 {
-    width: 8.3333333333%;
-    margin-left: auto;
-    left: auto;
-    right: auto;
-  }
+    .row .col.xxl1 {
+      width: 8.3333333333%;
+      margin-left: auto;
+      left: auto;
+      right: auto;
+    }
   .row .col.xxl2 {
     width: 16.6666666667%;
     margin-left: auto;
@@ -395,8 +393,8 @@ h5 {
 
 .header-overrides {
     background-color: #fafafa;
-    color: #616161 !important;
-    height: 90px !important;
+    color: #616161;
+    height: 90px;
 }
 
 .page-footer {
@@ -409,15 +407,15 @@ h5 {
 }
 
 .brand-logo {
-    color: #616161 !important;
+    color: #616161;
 }
 
 nav ul a {
-    color: #616161 !important;
+    color: #616161;
 }
 
 nav ul li {
-    line-height: 90px !important;
+    line-height: 90px;
 }
 
 nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
@@ -430,11 +428,11 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 
 .card .card-content p {
-    padding-bottom: 15px !important;
+    padding-bottom: 15px;
 }
 
 .carousel-text-wrapper {
-    opacity: 0.9 !important;
+    opacity: 0.9;
 }
 
 .carousel-text-wrapper a {
@@ -448,10 +446,6 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .card .card-image img {
     height: 260px;
     object-fit: cover;
-}
-
-.card .card-content p {
-    padding-bottom: 15px !important;
 }
 
 .small-card-title {
