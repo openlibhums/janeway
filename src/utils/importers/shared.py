@@ -158,8 +158,11 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
 
     # intercept the request if we need to parse this as HTML or XML with images to rewrite
     if handle_images:
-        resp = resp.decode()
-        resp = fetch_images_and_rewrite_xml_paths(base, root, resp, article, user)
+        try:
+            resp = resp.decode()
+        except UnicodeDecodeError:
+            logger.warning("Cant extract images from %s" % url)
+            resp = fetch_images_and_rewrite_xml_paths(base, root, resp, article, user)
 
     if isinstance(resp, str):
         resp = bytes(resp, 'utf-8')
@@ -466,7 +469,7 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
             institution = ''
 
         # add an account for this new user
-        account = core_models.Account.objects.filter(email=email)
+        account = core_models.Account.objects.filter(email__iexact=email)
 
         if account is not None and len(account) > 0:
             account = account[0]
@@ -541,7 +544,13 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         code="issue",
     )
     issue_title = ""
-    issue = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_issue'}), 'content', 0))
+    issue = get_soup(soup_object.find('meta', attrs={'name': 'citation_issue'}), 'content', 0)
+    if issue.isdigit():
+        issue = int(issue)
+    else:
+        # We can't handle alpha issue numbers so set to zero and try other
+        #strategy
+        issue = 0
     volume = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_volume'}), 'content', 0))
 
     # Try DC tags
@@ -550,14 +559,16 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         if dc_issue.isdigit():
             issue = int(dc_issue)
         else:
+            # We couldn't find a numeric issue number, set to zero
+            # and produce an issue title instead
             issue_title = "{}: {}".format(issue_type.pretty_name, dc_issue)
     if volume == 0:
         dc_volume = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Volume'}), 'content', "")
         if dc_volume.isdigit():
             volume = int(dc_volume)
 
-    if issue == volume == 0 and issue_title:
-        # If no issue and volume information, create issue with title
+    if issue == 0 and issue_title:
+        # If no issue and/or volume information, create issue with title
         # identifier
         new_issue, created = journal_models.Issue.objects.get_or_create(
             journal=article.journal,
@@ -570,7 +581,10 @@ def set_article_issue_and_volume(article, soup_object, date_published):
 
     else:
         new_issue, created = journal_models.Issue.objects.get_or_create(
-            journal=article.journal, issue=issue, volume=volume,
+            journal=article.journal,
+            issue=issue,
+            volume=volume,
+            issue_title=issue_title,
             defaults={"issue_type": issue_type},
         )
         new_issue.date = date_published

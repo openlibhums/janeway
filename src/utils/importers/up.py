@@ -138,13 +138,13 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         final_path_element = url.split('/')[-1]
         id_regex = re.compile(r'.*?(\d+)')
         matches = id_regex.match(final_path_element)
-        article_id = matches.group(1)
-
-        logger.info("Determined remote article ID as: {0}".format(article_id))
-        logger.info("Thumbnail path: {thumb_path}, URL: {url}".format(
-            thumb_path=thumb_path, url=url))
-
         try:
+            article_id = matches.group(1)
+
+            logger.info("Determined remote article ID as: {0}".format(article_id))
+            logger.info("Thumbnail path: {thumb_path}, URL: {url}".format(
+                thumb_path=thumb_path, url=url))
+
             filename, mime = shared.fetch_file(
                 domain,
                 thumb_path + "/" + article_id, "",
@@ -155,6 +155,8 @@ def import_article(journal, user, url, thumb_path=None, update=False):
                 mime, 'graphic', 'Thumbnail', user, filename, article,
                 thumbnail=True,
             )
+        except AttributeError:
+            logger.error("Unable to import thumbnail: No id in %s" % url)
         except Exception as e:
             logger.warning("Unable to import thumbnail: %s" % e)
 
@@ -335,13 +337,13 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         issue_num = issue.issue
-        if issue.issue == 0 and issue.issue_title:
+        if issue_num  == 0 and issue.issue_title:
             # Deconstruct issue title
             try:
                 issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[1]
             except IndexError:
                 logger.error("Can't reconstruct original issue for {} - {}".format(
-                    issue.number, issue.issue_title
+                    issue_num, issue.issue_title
                 ))
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
