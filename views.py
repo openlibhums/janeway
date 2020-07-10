@@ -221,7 +221,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         messages.add_message(
             request,
             messages.WARNING,
-            'No galley file uploaded',
+            'No typeset file uploaded',
         )
 
     return redirect(
@@ -777,7 +777,7 @@ def typesetting_assign_proofreader(request, article_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'You cannot assign a proofreader without Galley Files.',
+            'You cannot assign a proofreader without Typeset Files.',
         )
 
         return redirect(reverse(
@@ -1165,7 +1165,7 @@ def typesetting_proofing_download(request, article_id, assignment_id, file_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'Requested file is not a galley for proofing',
+            'Requested file is not a typeset file for proofing',
         )
         return redirect(request.META.get('HTTP_REFERER'))
 

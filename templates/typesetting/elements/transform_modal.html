@@ -3,7 +3,7 @@
      data-animation-out="slide-out-down">
     <div class="card">
         <div class="card-divider">
-            <h4>Generate Galleys for #{{ file.pk }}: {{ file.original_filename|truncatechars:40 }} ({{file.label}})</h4>
+            <h4>Generate typeset file for #{{ file.pk }}: {{ file.original_filename|truncatechars:40 }} ({{file.label}})</h4>
         </div>
         <div class="card-section">
             <table class="scroll small">
@@ -14,8 +14,8 @@
                 </tr>
                 <tr>
                     <td> ----- </td>
-                    <td> Converts this file into a galley as-is, preserving its label. e.g.: If used on the Manuscript, a link for "Dowloand Manuscript" will be provided on the article page</td>
-                    <td><a class="button success small" name="make_galley" href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}">Make Galley</a>
+                    <td> Converts this file into a typeset file as-is, preserving its label. e.g.: If used on the Manuscript, a link for "Dowloand Manuscript" will be provided on the article page</td>
+                    <td><a class="button success small" name="make_galley" href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}">Make Typeset File</a>
                 {% hook 'conversion_row' file article %} 
             </table>
         </div>

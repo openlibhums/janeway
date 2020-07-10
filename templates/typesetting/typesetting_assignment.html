@@ -36,10 +36,10 @@
                 </div>
                 {% if not assignment.cancelled %}
                 <div class="title-area">
-                    <h2>Galley Files</h2>
+                    <h2>Typeset Files</h2>
                 </div>
                 <div class="content">
-                    <p><small>Any galley files associated with this article will be displayed here. Ensure that any image files are uploaded using the upload images function and not as galleys themselves.</small></p>
+                    <p><small>Any typeset files associated with this article will be displayed here. Ensure that any image files are uploaded using the upload images function and not as typeset files themselves.</small></p>
                     {% include "typesetting/elements/typesetter/galleys.html" %}
 
                 </div>
@@ -55,7 +55,7 @@
                     {% else %}
                     {% if pending_corrections %}
                     <div class="callout bs-callout-danger">
-                        <h4><span class="fa fa-warning"></span> Some galley files have not been corrected yet</h4>
+                        <h4><span class="fa fa-warning"></span> Some typeset files have not been corrected yet</h4>
                         <ul >
                             {% for correction in pending_corrections %}
                             <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
@@ -67,7 +67,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         <p>
-                            <small>Once you are happy with the galleys, you can mark this stage as complete.</small>
+                            <small>Once you are happy with the typeset files, you can mark this stage as complete.</small>
                         </p>
                         <textarea name="note_from_typesetter" placeholder="If you have a note for the manager you can add it here."></textarea>
                         <button class="button" name="complete_typesetting">Complete Typesetting</button>

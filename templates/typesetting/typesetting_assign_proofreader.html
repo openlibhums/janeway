@@ -16,7 +16,7 @@
             <h2>Assign Proofreader to {{ article.title|safe }}</h2>
         </div>
         <div class="content">
-            <p>Select a proofreader from the list below. They will have access to the galley files:</p>
+            <p>Select a proofreader from the list below. They will have access to the typeset files:</p>
             <ul>
                 {% for galley in galleys %}
                 <li>{{ galley.id }} - {{ galley.label }} ({{ galley.file.original_filename }})</li>

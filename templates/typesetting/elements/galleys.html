@@ -13,7 +13,7 @@
         <th></th>
         <th>History</th>
         <th>Preview</th>
-        <th>Galley Figures</th>
+        <th>File Figures</th>
         {% if request.user.is_admin %}
             <th></th>{% endif %}
     </tr>
@@ -59,7 +59,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="10">No galleys have been uploaded.</td>
+            <td colspan="10">No typeset files have been uploaded.</td>
         </tr>
     {% endfor %}
 </table>
@@ -67,7 +67,7 @@
 {% if not disable_upload %}
 <div class="float-right"><a class="button success" data-open="uploadbox"><i
         class="fa fa-cloud-upload">
-    &nbsp;</i>Upload New Galley</a>
+    &nbsp;</i>Upload New Typeset File</a>
 </div>
 {% endif %}
 <br />

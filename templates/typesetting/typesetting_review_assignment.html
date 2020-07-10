@@ -88,7 +88,7 @@
                 {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
                     {% if pending_corrections %}
                     <div class="callout bs-callout-danger">
-                        <h4><span class="fa fa-warning"></span> The typesetter has not made any changes to some galley files</h4>
+                        <h4><span class="fa fa-warning"></span> The typesetter has not made any changes to some typeset files</h4>
                         <ul >
                             {% for correction in pending_corrections %}
                             <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
@@ -98,7 +98,7 @@
                     <button class="button warning" name="reopen">Reopen Assignment</button>
                     {% endif %}
                     <div class="content">
-                        <p><small>Now that the typesetter has completed their task you can review the uploaded Galley files and make a decision about next steps. The galley files for this article are listed below.</small></p>
+                        <p><small>Now that the typesetter has completed their task you can review the uploaded typeset files and make a decision about next steps. The typeset files for this article are listed below.</small></p>
                         <div class="row expanded">
                             <div class="large-6 columns">
                                 {{ decision_form }}
@@ -134,7 +134,7 @@
         <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
-                    <h2>Galley Files</h2>
+                    <h2>Typeset Files</h2>
                 </div>
                 <div class="content">
                     {% include "typesetting/elements/galleys.html" with galleys=galleys disable_upload='y' %}

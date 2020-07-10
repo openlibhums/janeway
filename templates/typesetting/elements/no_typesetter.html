@@ -2,7 +2,7 @@
     <div class="callout-title">
         <h4>Assign a Typesetter</h4>
     </div>
-    <p>This article does not have an assigned typesetter. If the article needs to be typeset, you can assign an external typesetter here. If your article is already typeset for publication, you can load the typeset files (known as ‘galleys’) here, and if needed, assign a proofreader to check them in the next step.</p>
+    <p>This article does not have an assigned typesetter. If the article needs to be typeset, you can assign an external typesetter here. If your article is already typeset for publication, you can load the typeset files here, and if needed, assign a proofreader to check them in the next step.</p>
     <a class="button" href="{% url 'typesetting_assign_typesetter' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
         Typesetter</a>
 </div>
@@ -13,11 +13,11 @@
     </div>
 
     {% if galleys %}
-        <p>If your article doesn’t need a typesetter, and you’ve already loaded in the typeset files below, you can assign a proofreader to check your typeset files (‘galleys’) here.</p>
+        <p>If your article doesn’t need a typesetter, and you’ve already loaded in the typeset files below, you can assign a proofreader to check your typeset files here.</p>
     <a class="button success" href="{% url 'typesetting_assign_proofreader' article.pk %}"><span class="fa fa-user-plus"></span> Assign a
         Proofreader</a>
     {% else %}
-        <p>You must either request a typesetter upload galley files or upload them yourself below before you can assign a proofreader.</p>
+        <p>You must either request a typesetter upload typeset files or upload them yourself below before you can assign a proofreader.</p>
     <button class="button disabled"><span class="fa fa-user-plus"></span> Assign a
         Proofreader</button>
     {% endif %}
