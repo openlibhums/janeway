@@ -14,8 +14,8 @@
                 </tr>
                 <tr>
                     <td> ----- </td>
-                    <td> Converts this file into a typeset file as-is, preserving its label. e.g.: If used on the Manuscript, a link for "Dowloand Manuscript" will be provided on the article page</td>
-                    <td><a class="button success small" name="make_galley" href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}">Make Typeset File</a>
+                    <td> Transforming this file will make it available for article readers to download.</td>
+                    <td><a class="button success small" name="make_galley" href="{% url 'article_file_make_galley' article.pk file.pk %}?return={{ request.path|urlencode }}">Convert</a>
                 {% hook 'conversion_row' file article %} 
             </table>
         </div>
