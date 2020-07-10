@@ -777,7 +777,7 @@ def typesetting_assign_proofreader(request, article_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'You cannot assign a proofreader without Typeset Files.',
+            'You cannot assign a proofreader without typeset files.',
         )
 
         return redirect(reverse(

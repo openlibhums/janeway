@@ -16,7 +16,7 @@
         <form method="POST" enctype="multipart/form-data" action="{% url 'typesetting_upload_galley' article.pk %}">
             {% csrf_token %}
             <input type="hidden" name="upload" value="upload">
-            <p>You can upload a new file for Typesetting.</p>
+            <p>Use this form to upload a new file for typesetting.</p>
             <div class="clearfix">
                 <div>
 
