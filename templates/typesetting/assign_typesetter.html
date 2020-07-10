@@ -29,21 +29,24 @@
         {% csrf_token %}
         <div class="box">
             <div class="title-area">
-                <h2>1. Assign a typesetter or upload a Typeset File and assign a Proofreader</h2>
+                <h2>1. Select a typesetter</h2>
             </div>
             <div class="content">
+                <p>Choose your typesetter from the list below.</p>
                 {% include "typesetting/elements/typesetter_list.html" with typesetters=typesetters %}
             </div>
             <div class="title-area">
                 <h2>2. Select Files</h2>
             </div>
             <div class="content">
+                <p>Select the files that you would like to have typeset.</p>
                 {% include "typesetting/elements/file_list.html" with files=files %}
             </div>
             <div class="title-area">
                 <h2>3. Set a Due Date</h2>
             </div>
             <div class="content">
+                <p>Add a deadline for the task.</p>
                 {{ form.due|foundation }}
             </div>
             <div class="title-area">
@@ -61,12 +64,16 @@
                 </div>
             {% endif %}
             <div class="content">
+                <p>Let the typesetter know which files you want them to create, eg, PDF and XML (web display version) and if there are any special circumstances. They will have access to the article’s metadata.</p>
                 {{ form.task|foundation }}
             </div>
             {% if article.galley_set.count > 0 %}
-            <div class="content">
-                {{ form.corrections|foundation }}
-            </div>
+                <div class="title-area">
+                    <h2>5. Corrections</h2>
+                </div>
+                <div class="content">
+                    {{ form.corrections|foundation }}
+                </div>
             {% endif %}
 
             <button name="save" class="button">Save Step 1</button>
