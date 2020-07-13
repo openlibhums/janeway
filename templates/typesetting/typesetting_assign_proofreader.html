@@ -14,9 +14,10 @@
     <div class="box">
         <div class="title-area">
             <h2>Assign Proofreader to {{ article.title|safe }}</h2>
+            <a class="button" href="{% url 'core_manager_role' 'proofreader' %}" target="_blank">Enrol a Proofreader</a>
         </div>
         <div class="content">
-            <p>Select a proofreader from the list below. They will have access to the typeset files:</p>
+            <p>Select a proofreader below. They will have access to the following typeset files:</p>
             <ul>
                 {% for galley in galleys %}
                 <li>{{ galley.id }} - {{ galley.label }} ({{ galley.file.original_filename }})</li>
