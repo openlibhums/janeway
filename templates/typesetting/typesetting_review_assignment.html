@@ -84,7 +84,7 @@
                         {{ form.assignment|foundation }}
                     </div>
                   <button class="button success" name="edit">Save Changes</button>
-                  <button class="button alert" name="delete">Delete Assignment</button>
+                  <button class="button alert" name="delete" onclick="return confirm('Are you sure you want to delete this assignment?');">Delete Assignment</button>
                 {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
                     {% if pending_corrections %}
                     <div class="callout bs-callout-danger">
