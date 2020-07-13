@@ -148,9 +148,11 @@ def new_typesetting_round(article, rounds, request):
     return new_round
 
 
-MISSING_GALLEYS = _("Article has no galleys")
-MISSING_IMAGES = _("One or more Galleys are missing images")
-OPEN_TASKS = _("One or more typesetting or proofing tasks haven't been closed")
+MISSING_GALLEYS = _("Article has no typeset files")
+MISSING_IMAGES = _("One or more typeset files are missing images")
+OPEN_TASKS = _(
+    "One or more typesetting or proofing tasks haven't been completed"
+)
 
 
 def typesetting_pending_tasks(round):

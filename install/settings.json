@@ -11,7 +11,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.typesetter.full_name }},</p><p>This is an notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment <a href=\"{% journal_url 'typesetting_assignments' %}\" >here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+      "default": "<p>Dear {{ assignment.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment <a href=\"{% journal_url 'typesetting_assignments' %}\" >here</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
     }
   },
   {

@@ -23,7 +23,7 @@ class AssignTypesetter(forms.ModelForm):
         self.fields['corrections'] = forms.MultipleChoiceField(
             required=False,
             choices=[(g.pk, g.label) for g in galleys],
-            help_text='Select which galleys require corrections '
+            help_text='Select which files require corrections '
                       '(Click and drag to select multiple)',
             initial=[galley.pk for galley in galleys],
         )

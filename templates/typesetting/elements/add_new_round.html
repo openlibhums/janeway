@@ -5,7 +5,7 @@
             <h4><i class="fa fa-plus">&nbsp;</i>Add New Round</h4>
         </div>
         <div class="card-section">
-          <p>A New typesetting round will be started where a new task can be assigned to the typesetters</p>
+          <p>A new typesetting round will be started, allowing you to assign a new task to the typesetters.</p>
           <form method="POST">
             {% csrf_token %}
             {% if pending_tasks %}
@@ -16,7 +16,7 @@
                 <li>{{ pending_task}}</li>
                 {% endfor %}
               </ul>
-              <p> Creating a new round will automatically cancel any open tasks. Assignees will be notified accordingly</p>
+              <p> Creating a new round will automatically cancel any open tasks. Assignees will be notified accordingly.</p>
           </div>
           {% endif %}
         <button type="submit" name="new-round" class="button success">Confirm</button>
