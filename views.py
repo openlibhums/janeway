@@ -1265,7 +1265,7 @@ def article_file_make_galley(request, article_id, file_id):
     :return: a redirect to the URL at the GET parameter 'return'
     """
     article_object = get_object_or_404(
-        submission_models.Article.allarticles, pk=article_id)
+        submission_models.Article, pk=article_id)
     file_object = get_object_or_404(
         core_models.File, pk=file_id)
 
