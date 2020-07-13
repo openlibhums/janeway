@@ -18,6 +18,7 @@
           <div class="title-area">
               <h2>Typesetting worked on
                   by {{ assignment.typesetter.full_name }}</h2>
+              <a href="{% url 'typesetting_article' article.pk %}" class="button">< Back</a>
           </div>
           <div class="content">
               <table class="table small">
