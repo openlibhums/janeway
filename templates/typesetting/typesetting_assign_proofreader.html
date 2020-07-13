@@ -17,6 +17,7 @@
             <a class="button" href="{% url 'core_manager_role' 'proofreader' %}" target="_blank">Enrol a Proofreader</a>
         </div>
         <div class="content">
+            {% include "elements/forms/errors.html" %}
             <p>Select a proofreader below. They will have access to the following typeset files:</p>
             <ul>
                 {% for galley in galleys %}
@@ -26,7 +27,6 @@
         </div>
     </div>
     <form method="POST">
-        {% include "elements/forms/errors.html" %}
         {% csrf_token %}
         <div class="box">
 
