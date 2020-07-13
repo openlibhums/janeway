@@ -12,6 +12,7 @@ from submission import models as submission_models
 from core import models as core_models, files
 from production import logic as production_logic
 from journal.views import article_figure
+from journal import logic as journal_logic
 
 
 @decorators.has_journal
@@ -668,6 +669,53 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
             'You do not have permission to view this file.',
         )
 
+@decorators.has_journal
+@security.user_can_manage_file
+def typesetting_download_file(request, article_id, file_id):
+    """
+    A view that serves up a file for a given article.
+    """
+    file = get_object_or_404(
+        core_models.File,
+        pk=file_id,
+        article_id=article_id,
+    )
+
+    return files.serve_any_file(
+        request,
+        file,
+        path_parts=('articles', article_id)
+    )
+
+
+@decorators.has_journal
+@decorators.production_user_or_editor_required
+def typesetting_delete_galley(request, galley_id):
+    """
+    Allows users with permission to delete files
+    """
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article__journal=request.journal,
+    )
+
+    # Grab the article and delete the Galley but retain the file.
+    article = galley.article
+    galley.delete()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        'Galley deleted.',
+    )
+
+    return redirect(
+        reverse(
+            'typesetting_article',
+            kwargs = {'article_id': article.pk},
+        )
+    )
 
 @decorators.has_journal
 @decorators.typesetter_user_required
@@ -1103,6 +1151,8 @@ def typesetting_preview_galley(
         pk=article_id,
         journal=request.journal,
     )
+    allowed_roles = ['editor', 'section-editor', 'production']
+
     if assignment_id:
         proofing_task = get_object_or_404(
             models.GalleyProofing,
@@ -1115,7 +1165,7 @@ def typesetting_preview_galley(
             article_id=article.pk,
         )
         proofing_task.proofed_files.add(galley)
-    elif request.user.has_an_editor_role(request):
+    elif request.user.has_role(request, allowed_roles):
         galley = get_object_or_404(
             core_models.Galley,
             pk=galley_id,
@@ -1203,3 +1253,23 @@ def preview_figure(
         raise PermissionDenied
 
     return article_figure(request, galley.article.pk, galley.pk, file_name)
+
+
+@security.user_can_manage_file
+def article_file_make_galley(request, article_id, file_id):
+    """ Copies a file to be a publicly available galley
+
+    :param request: the request associated with this call
+    :param article_id: the ID of the associated articled
+    :param file_id: the file ID for which to view the history
+    :return: a redirect to the URL at the GET parameter 'return'
+    """
+    article_object = get_object_or_404(
+        submission_models.Article, pk=article_id)
+    file_object = get_object_or_404(
+        core_models.File, pk=file_id)
+
+    journal_logic.create_galley_from_file(
+        file_object, article_object, owner=request.user)
+
+    return redirect(request.GET['return'])

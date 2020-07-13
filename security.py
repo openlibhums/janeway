@@ -4,9 +4,10 @@ from django.shortcuts import reverse, redirect, get_object_or_404, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
-from plugins.typesetting import models
+from plugins.typesetting import models, plugin_settings
 from security.decorators import base_check, deny_access
 from submission import models as submission_models
+from core import models as core_models
 
 
 def proofreader_for_article_required(func):
@@ -17,7 +18,6 @@ def proofreader_for_article_required(func):
     """
 
     def wrapper(request, *args, **kwargs):
-
         if not base_check(request):
             return redirect(
                 '{0}?next={1}'.format(
@@ -26,7 +26,7 @@ def proofreader_for_article_required(func):
                 )
             )
 
-        elif request.user.is_editor(request) or request.user.is_staff:
+        elif request.user.is_editor(request) or request.user.is_staff or request.user.is_production(request):
             return func(request, *args, **kwargs)
 
         # User is Assigned as proofreader, regardless of role
@@ -64,8 +64,70 @@ def require_not_notified(object_model):
             )
 
             if object_to_check.notified:
-                raise PermissionDenied("Notification for this assignment has already been sent.")
+                raise PermissionDenied(
+                    "Notification for this assignment has already been sent.",
+                )
 
             return func(request, *args, **kwargs)
         return inner
     return decorator
+
+
+def user_can_manage_file(func):
+    """
+    A decorator for checking if the current user can manage a file.
+    """
+    def wrapper(request, *args, **kwargs):
+        file_object_id = kwargs.get('file_id', None)
+
+        if not file_object_id:
+            raise Http404
+
+        file_object = get_object_or_404(
+            core_models.File,
+            pk=file_object_id,
+        )
+
+        if can_manage_file(request, file_object):
+            return func(request, *args, **kwargs)
+
+        return deny_access(request)
+
+    return wrapper
+
+
+
+def can_manage_file(request, file_object):
+    """
+    Determines if a user can view and download a file in the Typesetting Plugin.
+    """
+    if request.user.is_anonymous():
+        return redirect(
+            '{0}?next={1}'.format(
+                reverse('core_login'),
+                request.path_info
+            )
+        )
+
+    if file_object.article_id:
+        # Check if there is a workflow log entry for the typesetting plugin.
+        if not core_models.WorkflowLog.objects.filter(
+            article__pk=file_object.article_id,
+            article__journal=request.journal,
+            element__element_name=plugin_settings.PLUGIN_NAME,
+        ).exists():
+            return False
+    else:
+        # Files without article ids should not be downloadable here.
+        return False
+
+    if (
+        request.user.is_staff or
+        request.user.is_editor(request) or
+        request.user.is_production(request) or
+        file_object.owner == request.user
+    ):
+        return True
+
+    # deny access to all others
+    return False

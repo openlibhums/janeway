@@ -14,13 +14,12 @@
         <th>History</th>
         <th>Preview</th>
         <th>File Figures</th>
+        <th>Delete</th>
         {% if request.user.is_admin %}
             <th></th>{% endif %}
     </tr>
     {% for galley in galleys %}
-        {% can_view_file galley.file as can_view_file_flag %}
-        {% can_edit_file galley.file article as can_edit_file_flag %}
-        {% can_view_file_history galley.file article as can_view_file_history_flag %}
+        {% can_edit_file galley.file galley.article as user_can_edit_file %}
         <tr>
             <td>{{ galley.pk }}</td>
             <td>{{ galley.label }}</td>
@@ -29,12 +28,12 @@
             <td>
                 <a href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_article' article.pk %}"
                    class="fa fa-edit"></a></td>
-            <td>{% if can_view_file_flag %}
-                <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
-                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+            <td>
+                <a href="{% url 'typesetting_download_file' article.pk galley.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
             </td>
-            <td>{% if can_view_file_history_flag %}
-                <a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
+            <td>
+                {% if user_can_edit_file %}<a href="{% url 'file_history' article.pk galley.file.pk %}?return={{ request.path|urlencode }}"><i
                         class="fa fa-history">
                     &nbsp;</i></a>{% endif %}
             </td>
@@ -50,6 +49,16 @@
                 {% else %}
                     N/a
                 {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="{% url 'typesetting_delete_galley' galley.pk %}">
+                    {% csrf_token %}
+
+                    <button type="submit" name="delete" value="{{ galley.file.pk }}"><i
+                            class="fa fa-trash">
+                        &nbsp;</i>
+                    </button>
+                </form>
             </td>
             {% if request.user.is_admin %}
                 <td><a target="_blank"
