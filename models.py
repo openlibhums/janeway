@@ -247,9 +247,8 @@ class GalleyProofing(models.Model):
 
     task = models.TextField(
         verbose_name="Proofing Task",
-        help_text='If there is any additional information or direction you '
-                  'can give the proofreader to complete their task you can '
-                  'add it here.',
+        help_text='Add any additional information or instructions '
+                  'for the proofreader here.',
     )
     proofed_files = models.ManyToManyField('core.Galley', blank=True)
     notes = models.TextField(blank=True)
