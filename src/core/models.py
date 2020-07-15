@@ -427,7 +427,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             frozen_dict['order'] = frozen_author.order
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
-                frozen_author.save()
+            frozen_author.save()
         else:
             submission_models.FrozenAuthor.objects.get_or_create(**frozen_dict)
 
