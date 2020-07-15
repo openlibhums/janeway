@@ -48,7 +48,6 @@ class CarouselForm(forms.Form):
         request = kwargs.pop('request', None)
 
         article_list, news_list = self.load(request)
-        print(article_list, news_list)
 
         super(CarouselForm, self).__init__(*args, **kwargs)
 
