@@ -426,7 +426,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
             # ArticleAuthorOrder.
             frozen_dict['order'] = frozen_author.order
             for k, v in frozen_dict.items():
-                frozen_dict['order'] = frozen_author.order
                 setattr(frozen_author, k, v)
                 frozen_author.save()
         else:
