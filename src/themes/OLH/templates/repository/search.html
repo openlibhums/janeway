@@ -14,7 +14,7 @@
                 <h4>{% trans "Search Preprints" %}</h4>
                 {% for article in articles %}
                     <div class="box article">
-                        <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'preprints_article' article.pk %}{% endif %}"
+                        <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'repository_article' article.pk %}{% endif %}"
                            class="box-link"></a>
                         <div class="clearfix">
                             <div class="large-12 columns end">

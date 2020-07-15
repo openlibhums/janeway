@@ -35,7 +35,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 
 .card .card-content p {
-    padding-bottom: 15px !important;
+    padding-bottom: 15px;
 }
 
 .carousel-text-wrapper {
@@ -56,7 +56,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 
 .card .card-content p {
-    padding-bottom: 15px !important;
+    padding-bottom: 15px;
 }
 
 .small-card-title {
@@ -71,4 +71,39 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 
 .preprint-home-card {
     min-height: 180px;
+}
+
+.no-padding-top {
+    margin-top: 0;
+}
+
+.listing-title {
+    font-weight: 300;
+    font-size: 1.6rem;
+    margin-bottom: 0.625rem !important;
+}
+
+.listing-title a {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.preprint-card {
+    max-height: 250px;
+}
+
+.preprint-card img {
+    max-height: 250px;
+    opacity: 0.9;
+}
+
+p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding-bottom: 0.6rem !important;
+}
+
+h5 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-top: 0.5rem;
 }

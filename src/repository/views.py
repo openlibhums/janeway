@@ -264,35 +264,42 @@ def repository_preprint(request, article_id):
     :param article_id: integer, PK of an Article object
     :return: HttpResponse or Http404 if object not found
     """
-    article = get_object_or_404(submission_models.Article.preprints.prefetch_related('authors'), pk=article_id,
-                                stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-                                date_published__lte=timezone.now())
-    comments = models.Comment.objects.filter(article=article, is_public=True)
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=article_id,
+        repository=request.repository,
+        date_published__lte=timezone.now(),
+    )
+    comments = models.Comment.objects.filter(preprint=preprint, is_public=True)
     form = forms.CommentForm()
 
     if request.POST:
 
         if not request.user.is_authenticated:
-            messages.add_message(request, messages.WARNING, 'You must be logged in to comment')
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'You must be logged in to comment',
+            )
             return redirect(reverse('core_login'))
 
         form = forms.CommentForm(request.POST)
 
         if form.is_valid():
             comment = form.save(commit=False)
-            repository_logic.handle_comment_post(request, article, comment)
-            return redirect(reverse('repository_preprint', kwargs={'article_id': article_id}))
+            #repository_logic.handle_comment_post(request, preprint, comment)
+            return redirect(
+                reverse(
+                    'repository_preprint',
+                    kwargs={'article_id': article_id},
+                )
+            )
 
-    pdf = repository_logic.get_pdf(article)
-    html = repository_logic.get_html(article)
-    store_article_access(request, article, 'view')
+    # TODO: store access
 
-    template = 'preprints/article.html'
+    template = 'repository/preprint.html'
     context = {
-        'article': article,
-        'galleys': article.galley_set.all(),
-        'pdf': pdf,
-        'html': html,
+        'preprint': preprint,
         'comments': comments,
         'form': form,
     }

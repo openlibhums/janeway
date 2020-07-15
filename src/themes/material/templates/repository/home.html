@@ -35,7 +35,7 @@
             <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
         </div>
 
-        {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+        {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
         {% endif %}
     </div>
 {% endblock %}

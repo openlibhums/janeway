@@ -1,0 +1,14 @@
+{% extends "repository/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ request.repository.name }} {{ request.repository.object_name_plural }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col m8 spacer">
+            <h1>{{ request.repository.object_name_plural }}</h1>
+            {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+        </div>
+    </div>
+{% endblock %}

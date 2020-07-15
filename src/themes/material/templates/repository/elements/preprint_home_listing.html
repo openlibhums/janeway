@@ -1,0 +1,21 @@
+<div class="section">
+    <div class="row">
+        {% for preprint in preprints %}
+            <div class="col m4">
+                <div class="card preprint-home-card">
+                    <div class="card-content">
+                        <p>
+                            <small>{{ preprint.subject }}</small>
+                        </p>
+                        <h2 class="listing-title no-padding-top">
+                            <a href="{% url 'repository_preprint' preprint.pk %}">
+                                {{ preprint.title|safe }}
+                            </a>
+                        </h2>
+                        <p class="authors card-text">{{ preprint.display_authors }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

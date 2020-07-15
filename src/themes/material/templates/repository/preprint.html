@@ -1,0 +1,129 @@
+{% extends "repository/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block title %}{{ preprint.title }}{% endblock %}
+
+{% block body %}
+
+
+    <div class="row preprint-content">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-image preprint-card waves-effect waves-block waves-light">
+                    <img class="orbit-image" alt="{{ preprint.title|striptags }}"
+                         src="{% static "common/img/repository_background.jpg" %}">
+                    <span class="card-title">
+                        <div class="carousel-text-wrapper hide-on-small-only">
+                        <small>
+                            {{ preprint.subject.name }}
+                        </small>
+                        <br/>
+                        {{ preprint.title|safe }}
+                            </div>
+                    </span>
+                    <span class="card-title" style="font-size: 17px;">
+                        <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
+                        <small>
+                            {{ article.section.name }}
+
+                        <br/>
+                            {{ article.title|safe }}</small>
+                            </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col m7">
+            <div itemprop="articleBody" id="pdf">
+                <p class="preprint-text">
+                    {% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight." %}
+                </p>
+                {% if html %}
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Preprint Body</span>
+                            {{ html|safe }}
+                        </div>
+                    </div>
+                {% elif pdf %}
+                    EMBED PDF HERE
+                {% else %}
+                    <div class="preprint-content">
+                        <p>This {{ request.repository.object_name }} has no visible version.</p>
+                        <a href="" class="waves-effect waves-light btn">Download {{ request.repository.object_name }} <span class="fa fa-download"></span> </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col m5">
+            <div class="card">
+                <div class="card-content preprint-content">
+                    <h5>{% trans "Downloads" %}</h5>
+                    <p><a href="">Download {{ request.repository.object_name }} <span class="fa fa-download"></span> </a></p>
+                    <h5>{% trans "Authors" %}</h5>
+                    <p class="authors">
+                        {{ preprint.display_authors }}
+                    </p>
+                    <h5>{% trans "Abstract" %}</h5>
+                    <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                </div>
+            </div>
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">{% trans 'Comments' %}</span>
+                        {% if request.user.is_authenticated %}
+                            <div>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {% bootstrap_form form %}
+                                    <button type="submit" class="btn btn-success">Add Comment</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                {% for comment in comments %}
+                    <div class="card">
+                        <div class="card-content preprint-content">
+                            <div class="row" id="comment-{{ comment.pk }}">
+                                <div class="col m2">
+                                    {% if comment.author.profile_image %}
+                                        <img src="{{ comment.author.profile_image.url }}" class="responsive-img circle">
+                                    {% else %}
+                                        <img src="{% static "common/img/icons/users.png" %}"
+                                             class="responsive-img circle">
+                                    {% endif %}
+                                </div>
+                                <div class="col m10">
+                                    <p>
+                                        <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
+                                            @ {{ comment.date_time }}</small>
+                                    </p>
+                                    <p>
+                                        {{ comment.body }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="callout">
+                        <p>There are no comments or no comments have been made public for this article.</p>
+                    </div>
+                {% endfor %}
+                {% hook 'article_footer_block' %}
+        </div>
+    </div>
+
+    {% include "elements/journal/citation_modals.html" %}
+
+
+{% endblock %}
+
