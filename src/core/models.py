@@ -421,8 +421,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         frozen_author = self.frozen_author(article)
 
         if frozen_author:
+            # We prioritize the frozen_author.order because after a submission
+            # is complete backend reordering tools use FrozenAuthor.order over
+            # ArticleAuthorOrder.
+            frozen_dict['order'] = frozen_author.order
             for k, v in frozen_dict.items():
-                frozen_dict['order'] = frozen_author.order
                 setattr(frozen_author, k, v)
                 frozen_author.save()
         else:
