@@ -1,3 +1,5 @@
+from functools import wraps
+
 from django.shortcuts import redirect, reverse
 
 
@@ -10,6 +12,7 @@ def frontend_enabled(func):
     :return: either the function call or raises an Http404
     """
 
+    @wraps(func)
     def frontend_enabled_wrapper(request, *args, **kwargs):
         if request.journal and not request.journal.disable_front_end:
             return func(request, *args, **kwargs)
