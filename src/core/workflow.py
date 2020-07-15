@@ -32,7 +32,7 @@ STAGES_ELEMENTS = {
     submission_models.STAGE_AUTHOR_COPYEDITING: 'copyediting',
     submission_models.STAGE_FINAL_COPYEDITING: 'copyediting',
 
-    submission_models.STAGE_TYPESETTING: 'typesetting',
+    submission_models.STAGE_TYPESETTING: 'production',
     submission_models.STAGE_PROOFING: 'proofing',
     submission_models.STAGE_READY_FOR_PUBLICATION: 'prepublication',
 }
