@@ -19,6 +19,7 @@ from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
+from django.utils.html import mark_safe
 
 from core.file_system import JanewayFileSystemStorage
 from core import workflow
@@ -525,7 +526,7 @@ class Article(models.Model):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "title": self.title,
+            "title": mark_safe(self.title),
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_str": doi_str,
