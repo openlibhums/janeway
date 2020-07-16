@@ -15,7 +15,7 @@
         </div>
 
         {% for issue in issues %}
-            <div class="col m4">
+            <div class="col m12 l6 xl4">
                 <div class="card horizontal">
                     <div class="card-image">
                         <a href="{% url 'journal_issue' issue.id %}"><img
@@ -23,9 +23,18 @@
                                 alt="{{ issue.title }}"
                                 class="img-fluid"></a>
                     </div>
-                    <div class="card-stacked">
+                    <div class="card-stacked card">
                         <div class="card-content">
+                            {% if issue.pretty_issue_identifier and issue.issue_title and journal.display_issue_title %}
+                            <p>{{ issue.pretty_issue_identifier }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
+                            <span class="activator grey-text text-darken-4 fade fade-overflow-5">{{ issue.issue_title }}</span>
+                            {% else %}
                             <p>{{ issue.display_title }} <br /> {{ issue.get_sorted_articles.count }} {% trans "items" %}</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-reveal">
+                            <span class="card-title grey-text text-darken-4"><i class="material-icons right">close</i></span>
+                            <span class="grey-text text-darken-4">{{ issue.issue_title }}</span>
                         </div>
                         <div class="card-action">
                             <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
