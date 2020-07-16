@@ -473,6 +473,18 @@ class Issue(models.Model):
             return self.issue_title
 
         journal = self.journal
+        issue_identifier = self.pretty_issue_identifier
+
+        title = "{}".format(
+            self.issue_title) if journal.display_issue_title else ""
+
+        title_list = [issue_identifier, title]
+
+        return mark_safe(" &bull; ".join((filter(None, title_list))))
+
+    @property
+    def pretty_issue_identifier(self):
+        journal = self.journal
 
         volume = "Volume {}".format(
             self.volume) if journal.display_issue_volume else ""
@@ -480,12 +492,11 @@ class Issue(models.Model):
             self.issue) if journal.display_issue_number else ""
         year = "{}".format(
             self.date.year) if journal.display_issue_year else ""
-        title = "{}".format(
-            self.issue_title) if journal.display_issue_title else ""
 
-        title_list = [volume, issue, year, title]
+        parts = [volume, issue, year]
 
-        return mark_safe(" &bull; ".join((filter(None, title_list))))
+        return mark_safe(" &bull; ".join((filter(None, parts))))
+
 
     @property
     def manage_issue_list(self):
