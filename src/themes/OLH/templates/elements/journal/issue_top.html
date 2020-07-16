@@ -20,4 +20,10 @@
         <h1 class="em">{{ issue.display_title }}</h1>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% endif %}
+
+    {% if issue.editors.all %}
+    <p>
+        <strong>Editors: </strong> {% for editor in issue.issueeditor_set.all %}{{ editor.account.full_name }} ({{ editor.role }}){% if not forloop.last %}, {% endif %}{% endfor %}
+    </p>
+    {% endif %}
 </div>
