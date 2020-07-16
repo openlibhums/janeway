@@ -2076,7 +2076,7 @@ def review_forms(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@senior_editor_user_required
 def edit_review_form(request, form_id, element_id=None):
     """
     Allows the editing of an existing review form
@@ -2135,7 +2135,7 @@ def edit_review_form(request, form_id, element_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@senior_editor_user_required
 def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
