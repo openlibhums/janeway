@@ -24,7 +24,7 @@
                     </div>
                     <div class="col s8 m9 l8 xxl7">
                         <h2 class="issue_title">
-                            <a href="">{{ issue.display_title }}</a>
+                            <a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }}</a>
                         </h2>
                         <h3 class="issue_items">
                             {{ issue.get_sorted_articles.count }} {% trans "items in this issue." %}
