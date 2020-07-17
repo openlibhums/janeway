@@ -15,7 +15,6 @@
             <div class="large-8 columns">
                 {% for current_journal in journals %}
                     {% setting_var current_journal 'disable_journal_submission' as submission_disabled %}
-                    {{ submission_disabled }}
                     <div class="large-12 columns border-right border-bottom journal-div">
                         <div class="box journal">
                             <div class="row collapse">
