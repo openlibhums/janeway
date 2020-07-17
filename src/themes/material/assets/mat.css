@@ -391,7 +391,6 @@ h5 {
     font-variant: small-caps
 }
 
-<<<<<<< HEAD
 .header-overrides {
     background-color: #fafafa;
     color: #616161;
@@ -461,5 +460,3 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .issue_items {
     font-size: 1rem;
 }
-=======
->>>>>>> parent of be04ab77... Updates material styling and issues page. Fixes missing indentation on OLH issues page.
