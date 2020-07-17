@@ -388,10 +388,10 @@ class Preprint(models.Model):
 
     def add_user_as_author(self, user):
         author_dict = {
-            'first_name': user.first_name,
-            'middle_name': user.middle_name,
-            'last_name': user.last_name,
-            'affiliation': user.affiliation(),
+            'first_name': user.first_name if user.first_name else '',
+            'middle_name': user.middle_name if user.middle_name else '',
+            'last_name': user.last_name if user.last_name else '',
+            'affiliation': user.affiliation() if user.affiliation else '',
         }
         author, a_created = Author.objects.get_or_create(
             email_address=user.email,

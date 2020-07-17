@@ -5122,6 +5122,7 @@ ul.actions li a {
 /* Remove default bullets */
 .tree {
   list-style-type: none !important;
+  margin-left: 30px;
 }
 
 /* Remove margins and padding from the parent ul */
@@ -5130,6 +5131,7 @@ ul.actions li a {
 .caret {
   cursor: pointer;
   user-select: none; /* Prevent text selection */
+  margin-left: -20px;
 }
 
 /* Create the caret/arrow with a unicode, and style it */
@@ -5148,7 +5150,7 @@ ul.actions li a {
 /* Hide the nested list */
 .nested {
   display: none;
-    margin-left: 15px !important;
+  margin-left: 30px;
 }
 
 /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */

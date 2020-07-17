@@ -1,7 +1,7 @@
 {% for subject in subjects %}
-    <li>{% if subject.children.count > 0 %}<span class="caret"></span><strong>{% endif %}{{ subject }} <input type="radio" name="subject" value={{ subject.pk }}{% if subject == preprint.subject %} checked{% endif %}> {% if subject.children.count > 0 %}</strong>{% endif %}
+    <li>{% if subject.children.count > 0 %}<span class="caret"></span><strong>{% endif %}<input type="radio" name="subject" value={{ subject.pk }}{% if subject == preprint.subject %} checked{% endif %}> {% if subject.children.count > 0 %}</strong> {% endif %}{{ subject }}
     {% if subject.children.count > 0 %}
-        <ul class="nested">
+        <ul class="nested tree">
             {% include "admin/elements/repository/tree.html" with subjects=subject.children.all %}
         </ul>
     {% endif %}
