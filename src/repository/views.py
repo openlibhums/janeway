@@ -949,35 +949,77 @@ def preprints_settings(request):
 @staff_member_required
 def repository_subjects(request, subject_id=None):
 
-    if subject_id:
-        subject = get_object_or_404(models.Subject, pk=subject_id)
-    else:
-        subject = None
+    subject, parent_subject, initial = None, None, {}
 
-    form = forms.SubjectForm(instance=subject)
+    if subject_id:
+        subject = get_object_or_404(
+            models.Subject,
+            pk=subject_id,
+            repository=request.repository,
+        )
+
+    if request.GET.get('parent'):
+        parent_subject = get_object_or_404(
+            models.Subject,
+            slug=request.GET.get('parent'),
+            repository=request.repository,
+        )
+        initial = {'parent': parent_subject}
+
+    form = forms.SubjectForm(
+        instance=subject,
+        repository=request.repository,
+        initial=initial,
+    )
 
     if request.POST:
-
-        if 'delete' in request.POST:
-            utils_shared.clear_cache()
-            return repository_logic.handle_delete_subject(request)
-
-        form = forms.SubjectForm(request.POST, instance=subject)
+        form = forms.SubjectForm(
+            request.POST,
+            instance=subject,
+            repository=request.repository,
+        )
 
         if form.is_valid():
             form.save()
+            form.save_m2m()
             utils_shared.clear_cache()
             return redirect(reverse('repository_subjects'))
 
-    template = 'admin/preprints/subjects.html'
+    top_level_subjects = models.Subject.objects.filter(
+        parent__isnull=True,
+    ).prefetch_related('editors')
+
+    template = 'admin/repository/subjects.html'
     context = {
-        'subjects': models.Subject.objects.all().prefetch_related('editors'),
+        'top_level_subjects': top_level_subjects,
         'form': form,
         'subject': subject,
         'active_users': core_models.Account.objects.all()
     }
 
     return render(request, template, context)
+
+
+@require_POST
+@staff_member_required
+def repository_delete_subject(request):
+    subject_id = request.POST.get('delete')
+    subject = get_object_or_404(
+        models.Subject,
+        pk=subject_id,
+        repository=request.repository,
+    )
+    subject.delete()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        'Subject deleted. Any associated articles will have been orphaned.'
+    )
+
+    return redirect(
+        reverse('repository_subjects')
+    )
 
 
 @staff_member_required

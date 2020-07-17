@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_summernote.widgets import SummernoteWidget
 from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.utils.text import slugify
 
 from submission import models as submission_models
 from repository import models
@@ -232,7 +233,21 @@ class SettingsForm(forms.ModelForm):
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = models.Subject
-        exclude = ('preprints',)
+        exclude = ('repository', 'slug')
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop('repository')
+        super(SubjectForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        subject = super(SubjectForm, self).save(commit=False)
+        subject.repository = self.repository
+        subject.slug = slugify(subject.name)
+
+        if commit:
+            subject.save()
+
+        return subject
 
 
 class FileForm(forms.ModelForm):

@@ -112,6 +112,9 @@ urlpatterns = [
     url(r'^manager/subjects/$',
         views.repository_subjects,
         name='repository_subjects'),
+    url(r'^manager/subjects/delete/$',
+        views.repository_delete_subject,
+        name='repository_delete_subject'),
 
     url(r'^manager/subjects/(?P<subject_id>\d+)/$',
         views.repository_subjects,

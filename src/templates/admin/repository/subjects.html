@@ -20,6 +20,7 @@
                     <h2>Subjects</h2>
                 </div>
                 <div class="content">
+                     {% for subject in top_level_subjects %}
                     <table class="small scroll" id="unpub">
                         <thead>
                         <tr>
@@ -28,27 +29,33 @@
                             <th>Enabled</th>
                             <th># Editors</th>
                             <th>Delete</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for subject in subjects %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'repository_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
-                                </td>
-                                <td>{{ subject.slug }}</td>
-                                <td>{{ subject.enabled|bool_fa }}</td>
-                                <td>{{ subject.editors.all|length }}</td>
-                                <td>
-                                    <form method="POST">{% csrf_token %}
-                                        <button name="delete" value="{{ subject.pk }}" class="delete control-button"><i
-                                                class="fa fa-trash"></i></button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'repository_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
+                            </td>
+                            <td>{{ subject.slug }}</td>
+                            <td>{{ subject.enabled|bool_fa }}</td>
+                            <td>{{ subject.editors.all|length }}</td>
+                            <td>
+                                <form method="POST" action="{% url 'repository_delete_subject' %}">{% csrf_token %}
+                                    <button name="delete" value="{{ subject.pk }}" class="delete control-button"><i
+                                            class="fa fa-trash"></i></button>
+                                </form>
+                            </td>
+                            <td>
+                                <a href="?parent={{ subject.slug }}">
+                                    <span class="fa fa-plus-square"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% include 'admin/elements/repository/table_row.html' with subjects=subject.children.all %}
                         </tbody>
                     </table>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -65,7 +72,7 @@
                         {% csrf_token %}
                         {% include "elements/forms/errors.html" with form=form %}
                         {{ form.name|foundation }}
-                        {{ form.slug|foundation }}
+                        {{ form.parent|foundation }}
                         {{ form.enabled|foundation }}
 
                         <div class="row">
