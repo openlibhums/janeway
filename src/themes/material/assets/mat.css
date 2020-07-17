@@ -460,3 +460,44 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .issue_items {
     font-size: 1rem;
 }
+
+.card.card-stacked {
+    margin: 0px;
+}
+
+.card.card-stacked .card-content {
+    padding: 12px;
+    max-height: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card.card-stacked .card-reveal {
+    padding: 12px;
+}
+
+.card.card-stacked .card-content .activator {
+    cursor: pointer;
+    position: relative;
+    max-height: 7.1em /* 5 lines */;
+    overflow:hidden;
+}
+
+.fade-overflow-5 {
+  position: relative;
+  height: 7.1em; /* 5 lines */
+  display: inline-block;
+}
+
+.fade-overflow-5:after {
+    content: "";
+    text-align: right;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 1.2em;
+    /* might be a way to adjust this based on text/background colour */
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 100%);
+    pointer-events: none;
+}
