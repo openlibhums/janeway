@@ -1,14 +1,14 @@
 {% extends "admin/core/base.html" %}
 
-{% block title %}Orphaned Preprints{% endblock %}
+{% block title %}Orphaned {{ request.repository.object_name_plural }}{% endblock %}
 {% block title-section %}Orphaned Manager{% endblock %}
-{% block title-sub %}Displays a list of orphaned preprints and allows you to review them.{% endblock %}
+{% block title-sub %}Displays a list of orphaned {{ request.repository.object_name_plural }} and allows you to review them.{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
     <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
-    <li>Rejected Preprints</li>
+    <li>Orphaned {{ request.repository.object_name_plural }}</li>
 {% endblock %}
 
 {% block body %}
@@ -21,7 +21,6 @@
                         <th>Title</th>
                         <th>Date Submitted</th>
                         <th>Date Rejected</th>
-                        <th>Subject</th>
                         <th>First Author</th>
                     </tr>
                     </thead>
@@ -33,8 +32,7 @@
                             </td>
                             <td>{{ preprint.date_submitted }}</td>
                             <td>{{ preprint.date_declined }}</td>
-                            <td>{{ preprint.get_subject_area }}</td>
-                            <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
+                            <td>{{ preprint.authors.0.full_name }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

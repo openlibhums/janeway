@@ -1058,7 +1058,7 @@ def orphaned_preprints(request):
     """
     orphaned_preprints = repository_logic.list_articles_without_subjects()
 
-    template = 'admin/preprints/orphaned_preprints.html'
+    template = 'admin/repository/orphaned_preprints.html'
     context = {
         'orphaned_preprints': orphaned_preprints
     }

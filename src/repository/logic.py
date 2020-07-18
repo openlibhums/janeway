@@ -372,15 +372,12 @@ def get_preprint_if_id(preprint_id):
 # TODO: Update this
 @cache(300)
 def list_articles_without_subjects():
-    articles = submission_models.Article.preprints.filter(date_submitted__isnull=False)
+    preprints = models.Preprint.objects.filter(
+        date_submitted__isnull=False,
+        subject__isnull=True,
+    )
 
-    orphaned_articles = list()
-
-    for article in articles:
-        if not article.get_subject_area():
-            orphaned_articles.append(article)
-
-    return orphaned_articles
+    return preprints
 
 
 def get_doi(request, preprint):

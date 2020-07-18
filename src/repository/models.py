@@ -432,7 +432,10 @@ class Preprint(models.Model):
         self.save()
 
     def subject_editors(self):
-        return self.subject.editors.all()
+        if self.subject:
+            return self.subject.editors.all()
+        else:
+            return []
 
     def has_version(self):
         return self.preprintversion_set.all()
@@ -664,6 +667,7 @@ class Subject(models.Model):
         blank=True,
         null=True,
         related_name='children',
+        on_delete=models.SET_NULL,
     )
 
     class Meta:
