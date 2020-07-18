@@ -467,3 +467,11 @@ th {
 .formset-form>.columns {
     padding-bottom: 25px;
 }
+
+.table-subjects {
+    table-layout: fixed;
+}
+
+.table-subjects th:first-child {
+    width: 55%;
+}

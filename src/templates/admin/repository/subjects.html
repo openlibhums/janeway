@@ -21,15 +21,13 @@
                 </div>
                 <div class="content">
                      {% for subject in top_level_subjects %}
-                    <table class="small scroll" id="unpub">
+                         <table class="small scroll table-subjects" id="unpub">
                         <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Slug</th>
                             <th>Enabled</th>
-                            <th># Editors</th>
                             <th>Delete</th>
-                            <th></th>
+                            <th>Add Child</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -37,9 +35,7 @@
                             <td>
                                 <a href="{% url 'repository_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
                             </td>
-                            <td>{{ subject.slug }}</td>
                             <td>{{ subject.enabled|bool_fa }}</td>
-                            <td>{{ subject.editors.all|length }}</td>
                             <td>
                                 <form method="POST" action="{% url 'repository_delete_subject' %}">{% csrf_token %}
                                     <button name="delete" value="{{ subject.pk }}" class="delete control-button"><i

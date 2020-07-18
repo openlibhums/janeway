@@ -653,7 +653,7 @@ class Comment(models.Model):
 class Subject(models.Model):
     repository = models.ForeignKey(Repository)
     name = models.CharField(max_length=255)
-    slug = models.SlugField(blank=True)
+    slug = models.SlugField(blank=True, max_length=255)
     editors = models.ManyToManyField('core.Account', blank=True)
     enabled = models.BooleanField(
         default=True,
