@@ -2,7 +2,13 @@
      data-animation-out="slide-out-down">
     <div class="card">
         <div class="card-divider">
-            <h4><i class="fa fa-file-pdf-o">&nbsp;</i>Accept Preprint</h4>
+            <h4>
+                {% if not preprint.date_published %}
+                <i class="fa fa-check-circle">&nbsp;</i>Accept {{ request.repository.object_name }}
+                {% else %}
+                <i class="fa fa-edit"> </i> Edit Published Date
+                {% endif %}
+            </h4>
         </div>
     </div>
     <div class="card-section">
@@ -22,7 +28,7 @@
                             <input type="time" name="time" id="time" required value="{% if preprint.date_published %}{{ preprint.date_published|date:'H:i' }}{% else %}{% now "H:i" %}{% endif %}">
                         </div>
                         <div class="large-12 columns">
-                            <button type="submit" name="accept" class="small success button">Accept Article</button>
+                            <button type="submit" name="accept" class="small success button">Save</button>
                         </div>
                     </div>
             <small></small>

@@ -450,6 +450,15 @@ class Preprint(models.Model):
             version=self.next_version_number(),
         )
 
+    def update_date_published(self, date, time):
+        self.date_published = dateparser.parse(
+            '{date} {time}'.format(
+                date=date,
+                time=time,
+            )
+        )
+        self.save()
+
     def accept(self, date, time):
         self.date_accepted = timezone.now()
         self.date_declined = None

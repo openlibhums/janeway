@@ -90,9 +90,14 @@
                     <li><a href="{% url 'repository_comments' preprint.pk %}"><i class="fa fa-comments"
                                                                                 aria-hidden="true">&nbsp;</i>Comments
                         ({{ preprint.comment_set.all|length }})</a></li>
-                    {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_version %}
-                        <li><a href="#" data-open="accept_preprint"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept
-                            {{ request.repository.object_name }}</a></li>
+                    {% if not preprint.date_declined and preprint.has_version %}
+                        <li><a href="#" data-open="accept_preprint">
+                            {% if preprint.date_accepted %}
+                                <i class="fa fa-edit action-icon">&nbsp;</i>Edit Published Date
+                            {% else %}
+                                <i class="fa fa-check-circle action-icon">&nbsp;</i>Accept {{ request.repository.object_name }}
+                            {% endif %}
+                        </a></li>
                     {% endif %}
                     {% if not preprint.date_accepted and not preprint.date_declined %}
                         <li>
@@ -122,16 +127,20 @@
 
                 <div class="callout {% if not preprint.has_galley %}alert{% else %}info{% endif %}">
                     {% if preprint.date_accepted %}
-                        <small>This preprint was accepted on {{ preprint.date_accepted }}</small>
+                        <small>This {{ request.repository.object_name }} was accepted on {{ preprint.date_accepted }}</small>
                     {% elif preprint.date_declined %}
-                        <small>This preprint was rejected on {{ preprint.date_declined }}</small>
+                        <small>This {{ request.repository.object_name }} was rejected on {{ preprint.date_declined }}</small>
                     {% else %}
-                        <small>This preprint is currently awaiting review.</small>
+                        <small>This {{ request.repository.object_name }} is currently awaiting review.</small>
                     {% endif %}
                     {% if not preprint.has_version and not preprint.date_declined %}
-                        <small> This preprint requires at least one version. You can either turn an existing file
+                        <small> This {{ request.repository.object_name }} requires at least one version. You can either turn an existing file
                             into a version in the table below, or upload a new file to be a version.
                         </small>
+                    {% endif %}
+                    {% if preprint.date_published %}
+                        <br />
+                        <small>This {{ request.repository.object_name }} was published on {{ preprint.date_published }}</small>
                     {% endif %}
                 </div>
                 <div class="callout">
@@ -300,9 +309,9 @@
     </div>
 
 
-    {% include "elements/repository/new_file.html" %}
-    {% include "elements/repository/accept_preprint.html" %}
-    {% include "elements/repository/decline_preprint.html" %}
+    {% include "admin/elements/repository/new_file.html" %}
+    {% include "admin/elements/repository/accept_preprint.html" %}
+    {% include "admin/elements/repository/decline_preprint.html" %}
 
 {% endblock %}
 

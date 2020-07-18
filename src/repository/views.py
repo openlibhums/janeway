@@ -653,10 +653,20 @@ def repository_manager_article(request, preprint_id):
                 )
             else:
                 # TODO: Handle DOIs
-                preprint.accept(
-                    date=request.POST.get('date', timezone.now().date()),
-                    time=request.POST.get('time', timezone.now().time()),
-                )
+                kwargs = {
+                    'date': request.POST.get('date', timezone.now().date()),
+                    'time': request.POST.get('time', timezone.now().time()),
+                }
+                if preprint.date_published:
+                    preprint.update_date_published(**kwargs)
+                    return redirect(
+                        reverse(
+                            'repository_manager_article',
+                            kwargs={'preprint_id': preprint.pk},
+                        )
+                    )
+                else:
+                    preprint.accept(**kwargs)
                 return redirect(
                     reverse(
                         'repository_notification',
