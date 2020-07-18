@@ -87,7 +87,7 @@
                     <li>
                         <a href="{% url 'repository_preprint_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
                                 class="fa fa-clipboard">&nbsp;</i>Log</a></li>
-                    <li><a href="{% url 'preprints_comments' preprint.pk %}"><i class="fa fa-comments"
+                    <li><a href="{% url 'repository_comments' preprint.pk %}"><i class="fa fa-comments"
                                                                                 aria-hidden="true">&nbsp;</i>Comments
                         ({{ preprint.comment_set.all|length }})</a></li>
                     {% if not preprint.date_accepted and not preprint.date_declined and preprint.has_version %}

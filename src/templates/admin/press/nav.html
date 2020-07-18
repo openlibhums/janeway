@@ -69,7 +69,7 @@
                 &nbsp;
             </div>
             <div class="small-4 columns text-center">
-                <h1>{% if request.repository %}{{ request.repository.name }}{% else %}<a href="/">{{ request.press.name }}{% endif %}</a></h1>
+                <h1><a href="{{ request.site_type.site_url }}">{% if request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}</a></h1>
             </div>
             <div class="small-4 columns text-right">
                 <div class="profile">

@@ -35,7 +35,7 @@
                                 </td>
                                 <td>{{ preprint.date_submitted }}</td>
                                 <td>{{ preprint.subject }}</td>
-                                <td>{{ preprint.preprintauthor_set.all.0.author.full_name }}</td>
+                                <td>{{ preprint.authors.0.full_name }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

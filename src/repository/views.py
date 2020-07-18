@@ -257,24 +257,26 @@ def preprints_search(request, search_term=None):
 
 
 # TODO: Re-implement
-def repository_preprint(request, article_id):
+def repository_preprint(request, preprint_id):
     """
     Fetches a single article and displays its metadata
     :param request: HttpRequest
-    :param article_id: integer, PK of an Article object
+    :param preprint_id: integer, PK of an Article object
     :return: HttpResponse or Http404 if object not found
     """
     preprint = get_object_or_404(
         models.Preprint,
-        pk=article_id,
+        pk=preprint_id,
         repository=request.repository,
         date_published__lte=timezone.now(),
     )
     comments = models.Comment.objects.filter(preprint=preprint, is_public=True)
-    form = forms.CommentForm()
+    form = forms.CommentForm(
+        preprint=preprint,
+        author=request.user,
+    )
 
     if request.POST:
-
         if not request.user.is_authenticated:
             messages.add_message(
                 request,
@@ -283,15 +285,19 @@ def repository_preprint(request, article_id):
             )
             return redirect(reverse('core_login'))
 
-        form = forms.CommentForm(request.POST)
+        form = forms.CommentForm(
+            request.POST,
+            preprint=preprint,
+            author=request.user,
+        )
 
         if form.is_valid():
-            comment = form.save(commit=False)
-            #repository_logic.handle_comment_post(request, preprint, comment)
+            comment = form.save()
+            repository_logic.raise_comment_event(request, comment)
             return redirect(
                 reverse(
                     'repository_preprint',
-                    kwargs={'article_id': article_id},
+                    kwargs={'preprint_id': preprint.pk},
                 )
             )
 
@@ -895,7 +901,7 @@ def repository_preprint_log(request, preprint_id):
 
 
 @preprint_editor_or_author_required
-def preprints_comments(request, preprint_id):
+def repository_comments(request, preprint_id):
     """
     Presents an interface for authors and editors to mark comments as publicly readable.
     :param request: HttpRequest object
@@ -908,7 +914,7 @@ def preprints_comments(request, preprint_id):
         repository_logic.comment_manager_post(request, preprint)
         return redirect(
             reverse(
-                'preprints_comments', kwargs={'preprint_id': preprint.pk},
+                'repository_comments', kwargs={'preprint_id': preprint.pk},
             )
         )
 

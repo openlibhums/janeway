@@ -116,15 +116,22 @@ def get_publication_text(request, preprint, action):
     return email_content
 
 
-def handle_comment_post(request, article, comment):
-    comment.article = article
-    comment.author = request.user
-    comment.save()
+def raise_comment_event(request, comment):
+    kwargs = {
+        'request': request,
+        'preprint': comment.preprint,
+        'comment': comment,
+    }
+    event_logic.Events.raise_event(
+        event_logic.Events.ON_PREPRINT_COMMENT,
+        **kwargs,
+    )
 
-    kwargs = {'request': request, 'article': article, 'comment': comment}
-    event_logic.Events.raise_event(event_logic.Events.ON_PREPRINT_COMMENT, **kwargs)
-
-    messages.add_message(request, messages.SUCCESS, 'Your comment has been saved. It has been sent for moderation.')
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        'Your comment has been saved. It has been sent for moderation.',
+    )
 
 
 def comment_manager_post(request, preprint):

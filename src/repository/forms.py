@@ -179,6 +179,21 @@ class CommentForm(forms.ModelForm):
         model = models.Comment
         fields = ('body',)
 
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint', None)
+        self.author = kwargs.pop('author', None)
+        super(CommentForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        comment = super(CommentForm, self).save(commit=False)
+        comment.preprint = self.preprint
+        comment.author = self.author
+
+        if commit:
+            comment.save()
+
+        return comment
+
 
 class SettingsForm(forms.ModelForm):
     class Meta:
@@ -375,6 +390,7 @@ class RepositoryEmails(RepositoryBase):
             'decline',
             'accept_version',
             'decline_version',
+            'new_comment',
         )
 
         widgets = {
@@ -383,6 +399,7 @@ class RepositoryEmails(RepositoryBase):
             'decline': SummernoteWidget,
             'accept_version': SummernoteWidget,
             'decline_version': SummernoteWidget,
+            'new_comment': SummernoteWidget,
         }
 
 

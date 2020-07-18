@@ -107,3 +107,9 @@ h5 {
     font-weight: 300;
     margin-top: 0.5rem;
 }
+
+.comment-scroll {
+    max-height: 400px;
+    overflow-y: paged-y;
+    overflow-x: hidden;
+}

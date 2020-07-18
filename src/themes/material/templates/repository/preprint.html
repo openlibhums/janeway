@@ -64,7 +64,8 @@
             <div class="card">
                 <div class="card-content preprint-content">
                     <h5>{% trans "Downloads" %}</h5>
-                    <p><a href="">Download {{ request.repository.object_name }} <span class="fa fa-download"></span> </a></p>
+                    <p><a href="">Download {{ request.repository.object_name }} <span class="fa fa-download"></span>
+                    </a></p>
                     <h5>{% trans "Authors" %}</h5>
                     <p class="authors">
                         {{ preprint.display_authors }}
@@ -73,29 +74,28 @@
                     <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
                 </div>
             </div>
-                <div class="card">
-                    <div class="card-content">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">{% trans 'Add a Comment' %}</span>
+                    {% if request.user.is_authenticated %}
+                        <div>
+                            <form method="POST">
+                                {% csrf_token %}
+                                {% bootstrap_form form %}
+                                <button type="submit" class="btn btn-success">Add Comment</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                    <br/>
+                    <div class="divider"></div>
+                    <div class="comment-scroll">
                         <span class="card-title">{% trans 'Comments' %}</span>
-                        {% if request.user.is_authenticated %}
-                            <div>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    {% bootstrap_form form %}
-                                    <button type="submit" class="btn btn-success">Add Comment</button>
-                                </form>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-
-                {% for comment in comments %}
-                    <div class="card">
-                        <div class="card-content preprint-content">
+                        {% for comment in comments %}
                             <div class="row" id="comment-{{ comment.pk }}">
                                 <div class="col m2">
                                     {% if comment.author.profile_image %}
-                                        <img src="{{ comment.author.profile_image.url }}" class="responsive-img circle">
+                                        <img src="{{ comment.author.profile_image.url }}"
+                                             class="responsive-img circle">
                                     {% else %}
                                         <img src="{% static "common/img/icons/users.png" %}"
                                              class="responsive-img circle">
@@ -111,15 +111,18 @@
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                            {% empty %}
+                            <div class="callout">
+                                <p>There are no comments or no comments have been made public for this article.</p>
+                            </div>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <div class="callout">
-                        <p>There are no comments or no comments have been made public for this article.</p>
-                    </div>
-                {% endfor %}
-                {% hook 'article_footer_block' %}
+                </div>
+            </div>
         </div>
+
+        {% hook 'article_footer_block' %}
+    </div>
     </div>
 
     {% include "elements/journal/citation_modals.html" %}

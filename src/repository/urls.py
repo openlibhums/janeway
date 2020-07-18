@@ -29,7 +29,7 @@ urlpatterns = [
         views.preprints_search,
         name='preprints_search_with_term'),
 
-    url(r'^view/(?P<article_id>\d+)/$',
+    url(r'^view/(?P<preprint_id>\d+)/$',
         views.repository_preprint,
         name='repository_preprint'),
 
@@ -102,8 +102,8 @@ urlpatterns = [
         name='repository_preprint_log'),
 
     url(r'^manager/(?P<preprint_id>\d+)/comments/$',
-        views.preprints_comments,
-        name='preprints_comments'),
+        views.repository_comments,
+        name='repository_comments'),
 
     url(r'^manager/settings/$',
         views.preprints_settings,

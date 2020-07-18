@@ -6,8 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import os
 import uuid
 from dateutil import parser as dateparser
-import json
-import codecs
 
 from django.db import models
 from django.utils import timezone
@@ -20,6 +18,7 @@ from django.http.request import split_domain_port
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files
 from utils import logic
+from repository import install
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -133,6 +132,7 @@ class Repository(model_utils.AbstractSiteModel):
     decline = models.TextField(blank=True, null=True)
     accept_version = models.TextField(blank=True, null=True)
     decline_version = models.TextField(blank=True, null=True)
+    new_comment = models.TextField(blank=True, null=True)
 
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField(
@@ -753,21 +753,4 @@ def add_email_setting_defaults(sender, instance, **kwargs):
     instance before it is saved.
     """
     if instance._state.adding:
-        path = os.path.join(
-            settings.BASE_DIR,
-            'utils/install/repository_settings.json',
-        )
-        with codecs.open(
-                os.path.join(path),
-                'r+',
-                encoding='utf-8',
-        ) as json_data:
-            repo_settings = json.load(json_data)
-
-            # As we are using pre_save there is no need to call save so we
-            # avoid recursion here.
-            instance.submission = repo_settings[0]['submission']
-            instance.publication = repo_settings[0]['publication']
-            instance.decline = repo_settings[0]['decline']
-            instance.accept_version = repo_settings[0]['accept_version']
-            instance.decline_version = repo_settings[0]['decline_version']
+        install.load_settings(instance)

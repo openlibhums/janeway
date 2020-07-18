@@ -1111,19 +1111,38 @@ def preprint_publication(**kwargs):
 
 def preprint_comment(**kwargs):
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
 
-    email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
-                 '<a href="{base_url}{url}">on the journal site</a>.'.format(
-                     article=article.title, base_url=request.press_base_url, url=reverse('preprints_comments',
-                                                                                         kwargs={'article_id': article.pk}))
+    path = reverse(
+        'repository_comments',
+        kwargs={'preprint_id': preprint.pk},
+    )
+    url = request.repository.site_url(path)
 
-    description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Comment',
-                'target': article}
+    email_text = 'A comment has been made on your article {title}, you can moderate comments ' \
+                 '<a href="{url}">on the journal site</a>.'.format(
+        title=preprint.title,
+        url=url,
+    )
 
-    notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
-                                                  email_text, log_dict=log_dict)
+    description = '{author} commented on {title}'.format(
+        author=request.user.full_name(),
+        title=preprint.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Comment',
+        'target': preprint,
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'Preprint Comment',
+        preprint.owner.email,
+        email_text,
+        log_dict=log_dict,
+    )
 
 
 def preprint_version_update(**kwargs):
