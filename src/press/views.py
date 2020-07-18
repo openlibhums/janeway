@@ -23,7 +23,7 @@ from journal import (
     views as journal_views,
     forms as journal_forms,
 )
-from press import models as press_models, forms
+from press import models as press_models, forms, decorators
 from security.decorators import press_only
 from submission import models as submission_models
 from utils import install
@@ -68,12 +68,14 @@ def index(request):
     return render(request, template, context)
 
 
+@decorators.journals_enabled
 def journals(request):
     """
     Displays a filterable list of journals that are not marked as hidden
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+
     template = "press/press_journals.html"
 
     journal_objects = journal_models.Journal.objects.filter(

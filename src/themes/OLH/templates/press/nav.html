@@ -18,7 +18,7 @@
                 <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
             {% endif %}
         {% endfor %}
-        {% if request.press.publishes_journals %}
+        {% if request.press.publishes_journals and not request.press.disable_journals %}
         <li><a href="{% url 'press_journals' %}">Journals</a></li>
         {% endif %}
         {% if request.press.publishes_conferences%}
