@@ -357,8 +357,8 @@ class Article(models.Model):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=300, help_text=_('Your article title'))
-    subtitle = models.CharField(max_length=300, blank=True, null=True,
+    title = models.CharField(max_length=999, help_text=_('Your article title'))
+    subtitle = models.CharField(max_length=999, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
     abstract = models.TextField(
         blank=True,
