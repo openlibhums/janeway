@@ -47,6 +47,7 @@ logger = get_logger(__name__)
 
 
 @has_journal
+@decorators.frontend_enabled
 def home(request):
     """ Renders a journal homepage.
 
