@@ -1813,6 +1813,7 @@ def search(request):
     return render(request, template, context)
 
 
+@has_journal
 def submissions(request):
     """
     Displays a submission information page with info on sections and licenses etc.
