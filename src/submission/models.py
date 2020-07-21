@@ -514,9 +514,9 @@ class Article(models.Model):
             year_str = "({:%Y})".format(self.date_published)
         journal_str = "<i>%s</i>" % self.journal.name
         issue_str = ""
-        issue = self.primary_issue
-        if self.primary_issue:
-            issue_str = "%s(%s)" % (issue.issue, issue.volume)
+        issue = self.issue
+        if self.issue:
+            issue_str = "%s(%s)" % (issue.volume, issue.issue)
         doi_str = ""
         doi = self.get_doi()
         if doi:
