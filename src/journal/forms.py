@@ -85,7 +85,7 @@ class ResendEmailForm(forms.Form):
         log_entry = kwargs.pop('log_entry')
         super(ResendEmailForm, self).__init__(*args, **kwargs)
 
-        self.fields['to'].initial = '{to}; '.format(to=log_entry.to)
+        self.fields['to'].initial = ';'.join(log_entry.to)
         self.fields['subject'].initial = log_entry.subject
         self.fields['body'].initial = mark_safe(log_entry.description)
 
