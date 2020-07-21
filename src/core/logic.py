@@ -299,7 +299,7 @@ def get_settings_to_edit(group, journal):
         setting_group = 'general'
         settings.append({
             'name': 'from_address',
-            'object': setting_handler.get_setting('email', 'from_address', journal),
+            'object': setting_handler.get_setting('general', 'from_address', journal),
         })
 
     elif group == 'proofing':
