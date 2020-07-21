@@ -59,7 +59,6 @@ class LogEntry(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     is_email = models.BooleanField(default=False)
-    to = models.EmailField(blank=True, null=True)
     message_id = models.TextField(blank=True, null=True)
     message_status = models.CharField(max_length=255, choices=MESSAGE_STATUS, default='no_information')
     number_status_checks = models.IntegerField(default=0)
@@ -82,9 +81,23 @@ class LogEntry(models.Model):
         else:
             return 'amber'
 
+    @property
+    def to(self):
+        return [to.email for to in self.toaddress_set.all()]
+
     @staticmethod
-    def add_entry(types, description, level, actor=None, request=None, target=None, is_email=False, to=None,
-                  message_id=None, subject=None):
+    def add_entry(
+            types,
+            description,
+            level,
+            actor=None,
+            request=None,
+            target=None,
+            is_email=False,
+            to=None,
+            message_id=None,
+            subject=None,
+    ):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
             if actor.is_anonymous():
@@ -99,14 +112,27 @@ class LogEntry(models.Model):
             'ip_address': get_ip_address(request),
             'target': target,
             'is_email': is_email,
-            'to': to,
             'message_id': message_id,
             'subject': subject,
         }
+        new_entry = LogEntry.objects.create(**kwargs)
 
-        new_entry = LogEntry.objects.create(**kwargs).save()
+        if to:
+            for email in to:
+                ToAddress.objects.create(
+                    log_entry=new_entry,
+                    email=email,
+                )
 
         return new_entry
+
+
+class ToAddress(models.Model):
+    log_entry = models.ForeignKey(LogEntry)
+    email = models.EmailField(max_length=300)
+
+    def __str__(self):
+        return self.email
 
 
 class Version(models.Model):

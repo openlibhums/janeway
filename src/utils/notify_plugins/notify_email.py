@@ -94,8 +94,8 @@ def notify_hook(**kwargs):
 
     log_dict = kwargs.get('log_dict', None)
 
-    if type(to) in [list, tuple]:
-        to = ';'.join(to)
+    if not type(to) in [list, tuple]:
+        to = [to]
 
     if log_dict:
         notify_contents = {
