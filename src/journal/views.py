@@ -358,7 +358,7 @@ def article(request, identifier_type, identifier):
     galleys = article_object.galley_set.all()
 
     # check if there is a galley file attached that needs rendering
-    if article_object.stage == submission_models.STAGE_PUBLISHED:
+    if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
     else:
         article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
