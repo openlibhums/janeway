@@ -764,8 +764,12 @@ def edit_settings_group(request, group):
         else:
             attr_form = forms.JournalAttributeForm(request.POST, request.FILES, instance=journal)
 
-        if edit_form.is_valid() and attr_form.is_valid():
+        if edit_form.is_valid():
             edit_form.save(group=setting_group, journal=journal)
+
+        if group == 'journal' and attr_form.is_valid():
+            # Evaluate this form for this group only, otherwise booleans
+            # will all get set to False
             attr_form.save()
             logic.handle_default_thumbnail(request, journal, attr_form)
             logic.handle_press_override_image(request, journal, attr_form)
