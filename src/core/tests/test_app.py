@@ -66,6 +66,22 @@ class CoreTests(TestCase):
         except models.Account.DoesNotExist:
             self.fail('User account has not been saved.')
 
+    def test_email_subjects(self):
+        email_settings= models.Setting.objects.filter(
+            group__name="email",
+        ).values_list("name", flat=True)
+        subject_settings = models.Setting.objects.filter(
+            group__name="email_subject",
+        ).values_list("name", flat=True)
+        missing = (
+            set(email_settings)
+            - {s[len("subject_"):] for s in subject_settings}
+        )
+        self.assertFalse(
+            missing,
+            msg="Found emails that don't have a subject setting")
+
+
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
@@ -89,3 +105,4 @@ class CoreTests(TestCase):
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         call_command('install_plugins')
+        call_command('load_default_settings')
