@@ -35,7 +35,9 @@
                             <td>{{ template.description }}</td>
                             <td><a class="btn btn-primary btn-round-half" style="width:75px"
                                    href="{% url 'core_edit_email_template' template.name %}">Edit</a></td>
-                        <td><a href="{% url 'core_edit_email_template_subject' template.name 'subject' %}">Edit Subject</a></td>
+                        <td>
+                            <a href="{% url 'core_edit_email_template_subject' template.name 'subject' %}">Edit Subject</a>
+                        </td>
                         </tr>
                     {% endfor %}
                 </table>
