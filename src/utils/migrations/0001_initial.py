@@ -88,7 +88,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('value', models.TextField(blank=True, null=True)),
                 ('language_code', models.CharField(db_index=True, max_length=15)),
-                ('master', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='utils.PluginSettingValue')),
+                ('main', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='utils.PluginSettingValue')),
             ],
             options={
                 'db_table': 'utils_pluginsettingvalue_translation',
@@ -100,6 +100,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='pluginsettingvaluetranslation',
-            unique_together=set([('language_code', 'master')]),
+            unique_together=set([('language_code', 'main')]),
         ),
     ]

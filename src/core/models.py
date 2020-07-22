@@ -1138,7 +1138,7 @@ class DomainAlias(AbstractSiteModel):
             default=True,
             verbose_name="301",
             help_text="If enabled, the site will throw a 301 redirect to the "
-                "master domain."
+                "main domain."
     )
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     press = models.ForeignKey('press.Press', blank=True, null=True)

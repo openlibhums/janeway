@@ -28,7 +28,7 @@ def replace_author_review_setting(apps, schema_editor):
 
         for value in values:
             translations = SettingValueTranslation.objects.filter(
-                master_id=value.pk
+                main_id=value.pk
             )
 
             for translation in translations:

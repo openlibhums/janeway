@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('domain', models.CharField(max_length=255)),
-                ('redirect', models.BooleanField(default=True, help_text='If enabled, the site will throw a 301 redirect to the master domain.', verbose_name='301')),
+                ('redirect', models.BooleanField(default=True, help_text='If enabled, the site will throw a 301 redirect to the main domain.', verbose_name='301')),
                 ('site_id', models.PositiveIntegerField()),
             ],
         ),

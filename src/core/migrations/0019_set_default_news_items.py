@@ -30,8 +30,8 @@ def set_default_news_items(apps, schema_editor):
             SQL = """
             UPDATE utils_pluginsettingvalue_translation
                 SET value = 5
-                WHERE master_id = {master_id} AND value IN (NULL, "", " ");
-            """.format(master_id=plugin_setting_value.pk)
+                WHERE main_id = {main_id} AND value IN (NULL, "", " ");
+            """.format(main_id=plugin_setting_value.pk)
 
             with connection.cursor() as cursor:
                 cursor.execute(SQL)

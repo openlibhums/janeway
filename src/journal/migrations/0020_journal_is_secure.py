@@ -28,8 +28,8 @@ def populate_journal_is_secure(apps, schema_editor):
 
             SQL = """
             SELECT * FROM core_settingvalue_translation
-            WHERE master_id = {master_id}
-            """.format(master_id=value.pk)
+            WHERE main_id = {main_id}
+            """.format(main_id=value.pk)
 
             with connection.cursor() as cursor:
                 cursor.execute(SQL)
