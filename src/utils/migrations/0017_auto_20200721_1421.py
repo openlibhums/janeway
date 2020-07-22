@@ -6,7 +6,7 @@ import re
 from django.db import migrations, transaction
 
 def parse_email_addresses(entry):
-    match = re.findall(r'[\w\.-]+@[\w\.-]+\.\w+', entry.to)
+    match = re.findall(r'[\w\.\+-]+@[\w\.-]+\.\w+', entry.to)
     return match
 
 
@@ -17,14 +17,12 @@ def move_to_m2m(apps, schema_editor):
     email_log_entries = LogEntry.objects.filter(to__isnull=False)
 
     for entry in email_log_entries:
-        with transaction.atomic():
-            email_addresses = parse_email_addresses(entry)
-
-            for email in email_addresses:
-                ToAddress.objects.create(
-                    email=email,
-                    log_entry=entry,
-                )
+        email_addresses = parse_email_addresses(entry)
+        for email in email_addresses:
+            ToAddress.objects.create(
+                email=email,
+                log_entry=entry,
+            )
 
 
 def move_to_string(apps, schema_editor):
