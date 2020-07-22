@@ -2653,5 +2653,31 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "value": {"default": "Review Reminder"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Accepted Review Reminder",
+            "is_translatable": true,
+            "description": "Subject for Accepted Review Reminder.",
+            "name": "subject_accepted_review_reminder "
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "value": {"default": "Review Reminder"},
+        "setting": {
+            "type": "text",
+            "pretty_name": "Default Review Reminder",
+            "is_translatable": true,
+            "description": "Subject for Review Reminder.",
+            "name": "subject_default_review_reminder "
+        },
+        "group": {
+            "name": "email_subject"
+        }
     }
 ]
