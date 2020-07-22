@@ -14,13 +14,12 @@ def frontend_enabled(func):
 
     @wraps(func)
     def frontend_enabled_wrapper(request, *args, **kwargs):
-        if request.journal and not request.journal.disable_front_end:
-            return func(request, *args, **kwargs)
-
-        return redirect(
-            reverse(
-                'journal_submissions'
+        if request.journal and request.journal.disable_front_end:
+            return redirect(
+                reverse(
+                    'journal_submissions'
+                )
             )
-        )
+        return func(request, *args, **kwargs)
 
     return frontend_enabled_wrapper
