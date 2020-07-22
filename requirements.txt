@@ -47,4 +47,5 @@ ua-parser==0.7.2
 user-agents==1.0.1
 -e git+https://github.com/BirkbeckCTP/django-materialize.git@bcfbfd9150887328dddce965674c84b2b6e6b785#egg=django_materialize
 django-hijack
-geoip2
+geoip2==3.0.0 # Newer versions require python >= 3.6
+maxminddb==1.5.4
