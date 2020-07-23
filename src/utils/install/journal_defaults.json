@@ -121,7 +121,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "accepted_review_reminder"
         },
         "setting": {
             "description": "System emails are sent From this address.",
@@ -229,10 +229,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editors when a reviewer request is sent.",
+            "description": "Email sent when a review assignment is updated.",
             "is_translatable": true,
             "name": "review_request_sent",
-            "pretty_name": "Review Complete Update",
+            "pretty_name": "Review Request Update",
             "type": "rich-text"
         },
         "value": {
@@ -262,7 +262,7 @@
             "description": "Email sent to reviewers when they agree to undertake a review.",
             "is_translatable": true,
             "name": "review_decline_acknowledgement",
-            "pretty_name": "Review Declination Acknowledgement",
+            "pretty_name": "Review Decline Acknowledgement",
             "type": "rich-text"
         },
         "value": {
@@ -304,10 +304,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email to remind reviewers of a new request.",
+            "description": "Notify reviewer of accepted request and remind them to review submission.",
             "is_translatable": true,
             "name": "accepted_review_reminder",
-            "pretty_name": "Default Review Reminder",
+            "pretty_name": "Accepted Review Reminder",
             "type": "rich-text"
         },
         "value": {
@@ -919,7 +919,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "description": "Email sent to a proofreader when they are given an assignment.",
             "is_translatable": true,
             "name": "notify_proofreader_assignment",
             "pretty_name": "Notify Proofreader of Assignment",
@@ -1009,10 +1009,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Notify the proofing manager that corrections are complete.",
+            "description": "Notify the author of their publication date and time.",
             "is_translatable": true,
             "name": "author_publication",
-            "pretty_name": "Corrections Complete",
+            "pretty_name": "Author Publication Notification",
             "type": "rich-text"
         },
         "value": {
@@ -1324,7 +1324,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Editors.",
+            "description": "Digest email sent to editors..",
             "is_translatable": true,
             "name": "editor_digest",
             "pretty_name": "Editor Digest",

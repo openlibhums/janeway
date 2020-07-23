@@ -57,11 +57,28 @@ def move_from_address_to_general(apps, schema_editor):
 
     group = Group.objects.get(name='general')
 
-    Setting.objects.filter(
-        name='from_address'
-    ).update(
-        group=group
-    )
+    try:
+        Setting.objects.get(
+            name='from_address',
+        ).update(
+            group=group
+        )
+    except Setting.MultipleObjectsReturned:
+        # In this case load_default_settings has been run before this migration.
+        # We need to delete that new setting.
+        Setting.objects.get(
+            name='from_address',
+            group__name='general',
+        ).delete()
+
+        # And the update the existing one so that any linked SettingValues are
+        # retained.
+        setting_to_retain = Setting.objects.get(
+            name='from_address',
+            group__name='email',
+        )
+        setting_to_retain.group = group
+        setting_to_retain.save()
 
 
 def move_from_address_to_email(apps, schema_editor):
