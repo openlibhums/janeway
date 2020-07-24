@@ -121,7 +121,7 @@
     },
     {
         "group": {
-            "name": "accepted_review_reminder"
+            "name": "general"
         },
         "setting": {
             "description": "System emails are sent From this address.",
