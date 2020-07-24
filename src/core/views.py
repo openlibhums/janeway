@@ -704,8 +704,7 @@ def edit_setting(request, setting_group, setting_name):
             messages.add_message( request, messages.ERROR, error)
         else:
             cache.clear()
-
-        return redirect(reverse('core_settings_index'))
+            return redirect(reverse('core_settings_index'))
 
     template = 'core/manager/settings/edit_setting.html'
     context = {
