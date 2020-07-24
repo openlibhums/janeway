@@ -24,6 +24,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template import Template
+from django.template.exceptions import TemplateSyntaxError
 from django.urls import reverse
 
 from core import files
@@ -553,8 +555,16 @@ privacy_types = (
     ('owner', 'Owner'),
 )
 
+def validate_email_setting(value):
+    try:
+        template = Template(value)
+    except TemplateSyntaxError as error:
+        raise ValidationError(str(error))
 
 class SettingGroup(models.Model):
+    VALIDATORS = {
+        "email": [validate_email_setting],
+    }
     name = models.CharField(max_length=100)
     enabled = models.BooleanField(default=True)
 
@@ -564,8 +574,14 @@ class SettingGroup(models.Model):
     def __repr__(self):
         return u'%s' % self.name
 
+    def validate(self, value):
+        if self.name in self.VALIDATORS:
+            for validator in self.VALIDATORS[self.name]:
+                validator(value)
+
 
 class Setting(models.Model):
+    VALIDATORS = {}
     name = models.CharField(max_length=100)
     group = models.ForeignKey(SettingGroup)
     types = models.CharField(max_length=20, choices=setting_types)
@@ -589,6 +605,17 @@ class Setting(models.Model):
             setting=self,
             journal=None,
     )
+
+    def validate(self, value):
+        if self.types in self.VALIDATORS:
+            for validator in self.VALIDATORS[self.name]:
+                validator(value)
+
+        self.group.validate(value)
+
+    def save(self, *args, **kwargs):
+        self.validate(self.value)
+        super().save(*args, **kwargs)
 
 
 class SettingValue(TranslatableModel):
