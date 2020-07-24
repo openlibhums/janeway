@@ -47,7 +47,7 @@ class TestValidators(TestCase):
         with self.assertRaises(ValidationError):
             validators.validate_email_setting(test_value)
 
-    def test_invalid_email_setting(self):
+    def test_valid_email_setting(self):
         test_value = "{% if val %} This template is valid {% endif %}"
         try:
             validators.validate_email_setting(test_value)
