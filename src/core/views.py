@@ -697,9 +697,13 @@ def edit_setting(request, setting_group, setting_name):
         if request.FILES:
             value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        setting_value = setting_handler.save_setting(
-            setting_group, setting_name, request.journal, value)
-        cache.clear()
+        try:
+            setting_value = setting_handler.save_setting(
+                setting_group, setting_name, request.journal, value)
+        except ValidationError as error:
+            messages.add_message( request, messages.ERROR, error)
+        else:
+            cache.clear()
 
         return redirect(reverse('core_settings_index'))
 
