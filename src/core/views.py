@@ -1691,12 +1691,14 @@ def edit_email_template(request, template_code, subject=False):
 
     if request.POST:
         value = request.POST.get('value')
-        template_value.value = value
-        template_value.save()
-
-        cache.clear()
-
-        return redirect(reverse('core_email_templates'))
+        try:
+            template_value.value = value
+            template_value.save()
+        except ValidationError as error:
+            messages.add_message( request, messages.ERROR, error)
+        else:
+            cache.clear()
+            return redirect(reverse('core_email_templates'))
 
     template = 'core/manager/email/edit_email_template.html'
     context = {
