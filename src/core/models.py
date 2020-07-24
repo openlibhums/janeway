@@ -24,11 +24,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.template import Template
-from django.template.exceptions import TemplateSyntaxError
 from django.urls import reverse
 
-from core import files
+from core import files, validators
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from review import models as review_models
@@ -555,15 +553,10 @@ privacy_types = (
     ('owner', 'Owner'),
 )
 
-def validate_email_setting(value):
-    try:
-        template = Template(value)
-    except TemplateSyntaxError as error:
-        raise ValidationError(str(error))
 
 class SettingGroup(models.Model):
     VALIDATORS = {
-        "email": [validate_email_setting],
+        "email": (validators.validate_email_setting,),
     }
     name = models.CharField(max_length=100)
     enabled = models.BooleanField(default=True)
@@ -612,10 +605,6 @@ class Setting(models.Model):
                 validator(value)
 
         self.group.validate(value)
-
-    def save(self, *args, **kwargs):
-        self.validate(self.value)
-        super().save(*args, **kwargs)
 
 
 class SettingValue(TranslatableModel):
@@ -692,6 +681,13 @@ class SettingValue(TranslatableModel):
         else:
             from press.models import Press
             return Press.objects.all()[0]
+
+    def validate(self):
+        self.setting.validate(self.value)
+
+    def save(self, *args, **kwargs):
+        self.validate()
+        super().save(*args, **kwargs)
 
 
 class File(models.Model):
