@@ -5,7 +5,7 @@
             <h4><i class="fa fa-upload">&nbsp;</i>Upload File</h4>
         </div>
         <div class="card-section">
-            {% include "elements/forms/errors.html" with form=form %}
+            {% include "elements/forms/errors.html" with form=file_form %}
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ file_form.file }}

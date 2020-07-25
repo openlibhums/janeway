@@ -308,7 +308,6 @@
         </div>
     </div>
 
-
     {% include "admin/elements/repository/new_file.html" %}
     {% include "admin/elements/repository/accept_preprint.html" %}
     {% include "admin/elements/repository/decline_preprint.html" %}
@@ -318,7 +317,7 @@
 
 {% block js %}
     {% if modal %}
-        {% include "elements/open_modal.html" with target=modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
     <script src="{% static "admin/js/csrf.js" %}"></script>
     <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">

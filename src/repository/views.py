@@ -641,6 +641,7 @@ def repository_manager_article(request, preprint_id):
         repository=request.repository,
     )
     file_form = forms.FileForm(preprint=preprint)
+    redirect_request, modal = False, None
 
     if request.POST:
 
@@ -659,29 +660,20 @@ def repository_manager_article(request, preprint_id):
                 }
                 if preprint.date_published:
                     preprint.update_date_published(**kwargs)
+                else:
+                    preprint.accept(**kwargs)
                     return redirect(
                         reverse(
-                            'repository_manager_article',
+                            'repository_notification',
                             kwargs={'preprint_id': preprint.pk},
                         )
                     )
-                else:
-                    preprint.accept(**kwargs)
-                return redirect(
-                    reverse(
-                        'repository_notification',
-                        kwargs={'preprint_id': preprint.pk},
-                    )
-                )
+
+            redirect_request = True
 
         if 'decline' in request.POST:
             preprint.decline()
-            return redirect(
-                reverse(
-                    'repository_notification',
-                    kwargs={'preprint_id': preprint.pk},
-                )
-            )
+            redirect_request = True
 
         if 'upload' in request.POST and request.FILES:
             file_form = forms.FileForm(
@@ -694,12 +686,17 @@ def repository_manager_article(request, preprint_id):
                 file = file_form.save()
                 file.original_filename = request.FILES['file'].name
                 file.save()
+                redirect_request = True
+            else:
+                modal = 'new_file'
 
         if 'delete_file' in request.POST:
             repository_logic.delete_file(request, preprint)
+            redirect_request = True
 
         if 'delete_version' in request.POST:
             repository_logic.handle_delete_version(request, preprint)
+            redirect_request = True
 
         if 'reset' in request.POST:
             if preprint.date_published or preprint.date_declined:
@@ -709,6 +706,7 @@ def repository_manager_article(request, preprint_id):
                     messages.INFO,
                     'This preprint has been reset',
                 )
+                redirect_request = True
 
         if 'make_version' in request.POST:
             file = get_object_or_404(
@@ -717,13 +715,15 @@ def repository_manager_article(request, preprint_id):
                 preprint=preprint,
             )
             preprint.make_new_version(file)
+            redirect_request = True
 
-        return redirect(
-            reverse(
-                'repository_manager_article',
-                kwargs={'preprint_id': preprint.pk},
+        if redirect_request:
+            return redirect(
+                reverse(
+                    'repository_manager_article',
+                    kwargs={'preprint_id': preprint.pk},
+                )
             )
-        )
 
     template = 'admin/repository/article.html'
     context = {
@@ -734,6 +734,7 @@ def repository_manager_article(request, preprint_id):
             preprint=preprint,
             date_decision__isnull=True,
         ),
+        'modal': modal,
     }
 
     return render(request, template, context)
