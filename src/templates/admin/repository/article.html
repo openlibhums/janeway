@@ -156,7 +156,7 @@
                 <h2>Authors</h2>
             </div>
             <div class="content">
-                <form method="POST" action="{% url 'preprints_delete_author' preprint.pk 'manager' %}">
+                <form method="POST" action="{% url 'repository_delete_author' preprint.pk 'manager' %}">
                     {% csrf_token %}
                     <table class="small">
                         <thead>

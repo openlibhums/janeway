@@ -780,6 +780,16 @@ def repository_edit_metadata(request, preprint_id):
                     )
                 fire_redirect = True
 
+        if 'delete_author' in request.POST:
+            author_id = request.POST.get('delete_author')
+            print(author_id)
+            author = get_object_or_404(
+                models.PreprintAuthor,
+                author__pk=author_id,
+                preprint=preprint,
+            ).delete()
+            fire_redirect = True
+
         if 'metadata' in request.POST:
             metadata_form = forms.PreprintInfo(
                 request.POST,
@@ -1117,7 +1127,7 @@ def preprints_author_order(request, preprint_id):
 
 @login_required
 @require_POST
-def preprints_delete_author(request, preprint_id, redirect_string):
+def repository_delete_author(request, preprint_id, redirect_string):
     """
     Removes author-preprint link.
     :param request: HttpRequest object

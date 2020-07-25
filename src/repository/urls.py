@@ -62,8 +62,8 @@ urlpatterns = [
         name='repository_authors'),
 
     url(r'^submit/(?P<preprint_id>\d+)/authors/delete/(?P<redirect_string>[-\w]+)/$',
-        views.preprints_delete_author,
-        name='preprints_delete_author'),
+        views.repository_delete_author,
+        name='repository_delete_author'),
 
     url(r'^submit/(?P<preprint_id>\d+)/authors/order/$',
         views.preprints_author_order,

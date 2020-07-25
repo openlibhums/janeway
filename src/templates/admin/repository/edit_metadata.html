@@ -28,7 +28,7 @@
                         <form method="POST">
                             {% csrf_token %}
                             {% include "admin/elements/repository/metadata_form.html" with form=metadata_form %}
-                            <button name="metadata" class="button"><span class="fa fa-save">&nbsp;</span> Save Metadata</button>
+                            <button name="metadata" class="button"><span class="fa fa-save" aria-hidden="true">&nbsp;</span> Save Metadata</button>
                         </form>
                     </div>
                 </div>
@@ -51,9 +51,27 @@
                     </p>
                     <form method="POST">
                         {% csrf_token %}
-                        {{ author_formset|foundationinline }}
-                        <button name="authors" class="small button"><span class="fa fa-save">&nbsp;</span>Save</button>
+                        {{ author_formset.management_form }}
+                        <div id="form_set">
+                            {% for form in author_formset %}
+                                <fieldset class="fieldset">
+                                    {% include "elements/forms/errors.html" with form=form %}
+                                    {{ form|foundationinline }}
+                                    {% if form.instance.id %}
+                                    <button name="delete_author" value="{{ form.instance.id }}" class="alert button">Delete Author</button>
+                                    <br />
+                                    {% endif %}
+                                </fieldset>
+                            {% endfor %}
+                        </div>
+                        <button name="authors" class="button"><span class="fa fa-save" aria-hidden="true">&nbsp;</span>Save Authors</button>
+                        <div id="empty_form" style="display:none">
+                            <fieldset class="fieldset">
+                                {{ author_formset.empty_form|foundationinline }}
+                            </fieldset>
+                        </div>
                     </form>
+                    <button id="add_more" class="button"><span class="fa fa-plus" aria-hidden="true"></span> More Author Forms</button>
                 </div>
             </div>
         </div>
@@ -70,6 +88,12 @@
         $(document).ready(function () {
             $("#id_keywords").tagit(
                 {allowSpaces: true});
+            $('#add_more').click(function () {
+                console.log('test')
+                var form_idx = $('#id_form-TOTAL_FORMS').val();
+                $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, form_idx));
+                $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+            });
         });
     </script>
 {% endblock %}
