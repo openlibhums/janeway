@@ -939,30 +939,6 @@ def repository_comments(request, preprint_id):
 
 
 @staff_member_required
-def preprints_settings(request):
-    """
-    Displays and allows editing of various prepprint settings
-    :param request: HttpRequest
-    :return: HttpRedirect if POST else HttpResponse
-    """
-    form = forms.SettingsForm(instance=request.press)
-
-    if request.POST:
-        form = forms.SettingsForm(request.POST, instance=request.press)
-
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('preprints_settings'))
-
-    template = 'admin/preprints/settings.html'
-    context = {
-        'form': form,
-    }
-
-    return render(request, template, context)
-
-
-@staff_member_required
 def repository_subjects(request, subject_id=None):
 
     subject, parent_subject, initial = None, None, {}
@@ -1203,6 +1179,8 @@ def repository_wizard(request, short_name=None, step='1'):
             models.Repository,
             short_name=short_name,
         )
+    elif request.repository:
+        repository = request.repository
     else:
         repository = None
 

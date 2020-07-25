@@ -105,10 +105,6 @@ urlpatterns = [
         views.repository_comments,
         name='repository_comments'),
 
-    url(r'^manager/settings/$',
-        views.preprints_settings,
-        name='preprints_settings'),
-
     url(r'^manager/subjects/$',
         views.repository_subjects,
         name='repository_subjects'),

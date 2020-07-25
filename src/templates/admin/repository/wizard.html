@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 
 {% block title %}Create New Repository{% endblock %}
-{% block title-section %}Repository Creation Wizard &#x1F9D9; {% endblock %}
+{% block title-section %}Repository Wizard &#x1F9D9; {% endblock %}
 
 {% block nav %}
     {% include "admin/press/nav.html" %}
@@ -62,10 +62,16 @@
                         <h2>Help</h2>
                     </div>
                     <div class="content">
+                        {% if not request.repository %}
                         <p>
                             This Wizard will guide you through setting up your Repository. You are currently on <strong>Step
                             {{ step }} of 5</strong>.
                         </p>
+                        {% else %}
+                            <p>
+                                You can use this Wizard to edit your repository's details.
+                            </p>
+                        {% endif %}
                         {% include help_template %}
                     </div>
                 </div>

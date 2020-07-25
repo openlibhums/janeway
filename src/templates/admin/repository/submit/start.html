@@ -85,6 +85,14 @@
                     </div>
                 </div>
             </form>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Information</h2>
+                </div>
+                <div class="content">
+                    {{ request.repository.start|safe }}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
