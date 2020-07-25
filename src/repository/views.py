@@ -130,7 +130,7 @@ def repository_author_article(request, preprint_id):
 
                 return redirect(
                     reverse(
-                        'preprints_author_article',
+                        'repository_author_article',
                         kwargs={'preprint_id': preprint.pk},
                     )
                 )
