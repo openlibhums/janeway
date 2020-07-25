@@ -400,7 +400,7 @@ def repository_authors(request, preprint_id):
         date_submitted__isnull=True,
     )
     form = forms.AuthorForm()
-    modal, fire_redirect = None, False
+    modal, fire_redirect, author_to_add = None, False, None
 
     if request.POST:
 
@@ -426,9 +426,24 @@ def repository_authors(request, preprint_id):
 
         if 'form' in request.POST:
             form = forms.AuthorForm(request.POST)
+
             if form.is_valid():
-                new_author = form.save()
-                preprint_author, created = preprint.add_author(new_author)
+                author_to_add = form.save()
+            else:
+                # If the form is not valid we want to grab the email address
+                # and check if there is an author record already for that
+                # author.
+                if not form.cleaned_data.get('email_address', None):
+                    email_address = form.data['email_address']
+                    try:
+                        author_to_add = models.Author.objects.get(
+                            email_address=email_address,
+                        )
+                    except models.Author.DoesNotExist:
+                        author_to_add = None
+
+            if author_to_add:
+                preprint_author, created = preprint.add_author(author_to_add)
 
                 if not created:
                     messages.add_message(
