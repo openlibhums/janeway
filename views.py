@@ -1038,8 +1038,6 @@ def typesetting_proofreading_assignments(request):
         round__article__journal=request.journal,
     )
 
-    print(assignments)
-
     active_assignments = assignments.filter(
         completed__isnull=True,
     )

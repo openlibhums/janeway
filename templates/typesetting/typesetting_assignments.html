@@ -28,7 +28,7 @@
                     <td>{{ assignment.pk }}</td>
                     <td>{{ assignment.round.article.title|safe }}</td>
                     <td>{{ assignment.assigned }}</td>
-                    <td>{{ assignment.due }}</td>
+                    <td>{{ assignment.due|date:"Y-m-d" }}</td>
                     <td>{{ assignment.time_to_due }}</td>
                     <td><a href="{% url 'typesetting_assignment' assignment.pk %}">View Assignment</a></td>
                 </tbody>
