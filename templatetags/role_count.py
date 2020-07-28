@@ -10,6 +10,7 @@ register = template.Library()
 def typesetting_tasks_count(context):
     request = context['request']
     return models.TypesettingAssignment.objects.filter(
+        typesetter=request.user,
         round__article__journal=request.journal,
         completed__isnull=True,
         cancelled__isnull=True,
