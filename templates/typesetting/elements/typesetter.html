@@ -16,6 +16,9 @@
             <th>Due</th>
             <th>Completed</th>
             <th>Status</th>
+            {% if round.typesettingassignment.reviewed %}
+                <th>Manage</th>
+            {% endif %}
         </tr>
         <tr>
             <td>{{ round.typesettingassignment.pk }}</td>
@@ -25,6 +28,9 @@
             <td>{{ round.typesettingassignment.due }}</td>
             <td>{% if round.typesettingassignment.completed %}{{ round.typesettingassignment.completed }}{% else %}{{ round.typesettingassignment.completed|bool_fa }}{% endif %}</td>
             <td>{{ round.typesettingassignment.status|capfirst }}</td>
+            {% if round.typesettingassignment.reviewed %}
+                <td><a href="{% url 'typesetting_review_assignment' article.pk round.typesettingassignment.pk %}">Manage</a></td>
+            {% endif %}
         </tr>
     </table>
 </div>
