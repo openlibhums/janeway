@@ -82,9 +82,7 @@
                 <a class="small button" href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting Review assigned on {{ review.assigned|date:"Y-m-d" }}</a>
             {% endfor %}
 
-            {% if not article.active_revision_requests and not article.active_author_copyedits %}
-            <p>There are no active tasks</p>
-            {% endif %}
+            {% hook 'core_article_tasks' %}
         </div>
     </div>
 
