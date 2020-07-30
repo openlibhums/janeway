@@ -6,6 +6,7 @@ from django.http import Http404
 from django.conf import settings
 from django.urls.resolvers import NoReverseMatch
 from django.contrib import messages
+from django.utils.text import capfirst
 
 from core import models
 from submission import models as submission_models
@@ -108,7 +109,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
         request,
         messages.SUCCESS,
         '%s stage completed for article: %d'
-        '' % (current_element.stage, article.pk),
+        '' % (capfirst(current_element.element_name), article.pk),
     )
 
     return response
