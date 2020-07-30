@@ -1,0 +1,3 @@
+{% for task in author_proofing_tasks %}
+<a class="small button" href="{% url 'typesetting_manage_proofing_assignment' article.pk task.pk %}">Proofreading Task assigned on {{ task.assigned|date:"Y-m-d" }}</a>
+{% endfor %}

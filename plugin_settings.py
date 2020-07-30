@@ -58,7 +58,13 @@ def install():
 
 
 def hook_registry():
-    TypesettingPlugin.hook_registry()
+    return {
+        'core_article_tasks':
+            {
+                'module': 'plugins.typesetting.hooks',
+                'function': 'author_tasks',
+            },
+    }
 
 
 def register_for_events():
