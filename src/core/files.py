@@ -168,7 +168,7 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
     else:
         shutil.move(
             os.path.join(folder_structure, original_filename),
-            os.path.join(folder_structure, filename)
+            os.path.join(folder_structure, filename),
         )
         file_mime = guess_mime(filename)
 
