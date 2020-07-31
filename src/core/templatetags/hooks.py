@@ -4,6 +4,9 @@ from django.utils.html import mark_safe
 
 from importlib import import_module
 
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 register = template.Library()
 
 
@@ -17,7 +20,5 @@ def hook(context, hook_name, *args, **kwargs):
             html = html + function(context, *args, **kwargs)
 
         return mark_safe(html)
-    except BaseException as e:
-        # This is a broad exception to stop a plugin breaking the site.
-        if settings.DEBUG:
-            print('Error rendering hook {0}: {1}'.format(hook_name, e))
+    except Exception as e:
+        logger.error('Error rendering hook {0}: {1}'.format(hook_name, e))
