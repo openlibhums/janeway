@@ -166,7 +166,10 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
         save_file_to_disk(file_to_handle, filename, folder_structure)
         file_mime = file_path_mime(os.path.join(folder_structure, filename))
     else:
-        os.rename(os.path.join(folder_structure, original_filename), os.path.join(folder_structure, filename))
+        shutil.move(
+            os.path.join(folder_structure, original_filename),
+            os.path.join(folder_structure, filename)
+        )
         file_mime = guess_mime(filename)
 
     from core import models
