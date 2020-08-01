@@ -200,7 +200,7 @@ class ReviewFormElement(models.Model):
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     width = models.CharField(max_length=20, choices=element_width_choices())
-    help_text = models.TextField()
+    help_text = models.TextField(blank=True, null=True)
 
     default_visibility = models.BooleanField(default=True, help_text='If true, this setting will be available '
                                                                      'to the author automatically, if false it will'
