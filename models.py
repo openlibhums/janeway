@@ -342,7 +342,7 @@ class GalleyProofing(models.Model):
     def time_to_due(self):
         due = self.due - timezone.now()
 
-        if due.seconds < 86400:
+        if due.seconds < (24 * 60 * 60):
             return 'Due Today'
 
         if due < timedelta(0):
