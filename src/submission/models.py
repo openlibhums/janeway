@@ -1517,6 +1517,13 @@ class SubmissionConfiguration(models.Model):
         help_text=_('The default section of '
                     'articles when no option is presented'),
     )
+    submission_file_text = models.CharField(
+        max_length=255,
+        default='Manuscript File',
+        help_text='During submission the author will be asked to upload a file'
+                  'that is considered the main text of the article. You can use'
+                  'this field to change the label for that file in submission.',
+    )
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)

@@ -32,7 +32,7 @@
                             <label>
                                 Label <span class="red">*</span>
                             </label>
-                            <input type="text" name="label" id="id_label" required="" maxlength="200" value="Manuscript">
+                            <input type="text" name="label" id="id_label" required="" maxlength="200" value="{{ request.journal.submissionconfiguration.submission_file_text }}">
                         </div>
                     </div>
                     <div class="row expanded">
