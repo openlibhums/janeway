@@ -22,7 +22,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {% include "elements/forms/errors.html" %}
-                    {{ form|foundationinline }}
+                    {{ form|foundation }}
                     <button class="success button">Save Configuration</button>
                 </form>
             </div>
