@@ -281,6 +281,12 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    submission_supplementary_files = models.ManyToManyField(
+        'PreprintSupplementaryFile',
+        related_name='submission_supplementary_files',
+        blank=True,
+        null=True,
+    )
     meta_image = models.ImageField(
         blank=True,
         null=True,
@@ -531,6 +537,11 @@ class PreprintFile(models.Model):
             'repository_download_file',
             kwargs=self.reverse_kwargs(),
         )
+
+
+class PreprintSupplementaryFile(models.Model):
+    preprint = models.ForeignKey(Preprint)
+    url = models.URLField()
 
 
 class PreprintAccess(models.Model):
