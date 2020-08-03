@@ -76,7 +76,7 @@
                         {% endif %}
                     </form>
                 </div>
-                {% if not assignment.status == 'cancelled' %}
+                {% if not assignment.status == 'cancelled' and not assignment.completed %}
                 <div class="title-area">
                     <h2>Cancel Assignment</h2>
                 </div>
