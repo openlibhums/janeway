@@ -1075,7 +1075,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
         if form.is_valid():
             form.save()
 
-        if 'proofing_file' in request.POST:
+        if request.FILES:
             logic.handle_proofreader_file(
                 request,
                 assignment,
