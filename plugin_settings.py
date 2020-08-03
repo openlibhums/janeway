@@ -6,10 +6,10 @@ PLUGIN_NAME = 'Typesetting Plugin'
 DISPLAY_NAME = 'Typesetting'
 DESCRIPTION = 'An alternative for Production/Proofing'
 AUTHOR = 'Andy Byers'
-VERSION = '0.2'
+VERSION = '0.3'
 SHORT_NAME = 'typesetting'
 MANAGER_URL = 'typesetting_manager'
-JANEWAY_VERSION = "1.3.7"
+JANEWAY_VERSION = "1.3.8"
 
 # Workflow Settings
 IS_WORKFLOW_PLUGIN = True
