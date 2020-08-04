@@ -2313,8 +2313,9 @@
   <xsl:template match="pub-id" mode="nscitation">
     <xsl:choose>
       <xsl:when test="starts-with(current(), 'http')">
-        <xsl:text>DOI:&#160;</xsl:text>
-	<a href="{current()}" target="_blank">
+        <xsl:value-of select="@pub-id-type"/>
+        <xsl:text>:&#160;</xsl:text>
+        <a href="{current()}" target="_blank">
         <xsl:apply-templates/>
         </a>
       </xsl:when>
