@@ -16,7 +16,7 @@
             <tr id="note-{{ note.pk }}">
                 <td>{{ note.date_time|date:"Y-m-d" }}</td>
                 <td>{{ note.creator.full_name }}</td>
-                <td>{{ note.text }}</td>
+                <td>{{ note.text|safe }}</td>
                 <td><a class="tiny warming button" href="#" data-open="notemodaledit-{{ note.id }}"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
                 <td>
                     <form method="POST">

@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}
+\\wsl$\Ubuntu-20.04\home\ajrbyers\code\janeway\src\themes\OLH\templates\journal\article.html{% extends "core/base.html" %}
 {% load static from staticfiles %}
 {% load hooks %}
 {% load i18n %}
@@ -98,7 +98,7 @@
                         <h2>{% trans "Publisher Notes" %}</h2>
                         <ul>
                             {% for note in article.publisher_notes.all %}
-                                <li>{{ note.text }}</li>
+                                <li>{{ note.text|safe }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
