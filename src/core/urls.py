@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'', include('core.include_urls')),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG or settings.IN_TEST_RUNNER:
     import debug_toolbar
 
     urlpatterns += [
