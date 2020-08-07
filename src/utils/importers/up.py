@@ -61,6 +61,7 @@ def import_article(journal, user, url, thumb_path=None, update=False):
 
     # retrieve the remote page and establish if it has a DOI
     already_exists, doi, domain, soup_object = shared.fetch_page_and_check_if_exists(url)
+
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     if already_exists and update:
@@ -337,14 +338,6 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         issue_num = issue.issue
-        if issue_num  == 0 and issue.issue_title:
-            # Deconstruct issue title
-            try:
-                issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[1]
-            except IndexError:
-                logger.error("Can't reconstruct original issue for {} - {}".format(
-                    issue_num, issue.issue_title
-                ))
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
         img_url_suffix = soup.find(src=pattern)
@@ -438,6 +431,20 @@ def import_issue_images(journal, user, url):
                 article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
 
                 if article and article not in processed:
+                    thumb_img = article_link.find("img")
+                    if thumb_img:
+                        thumb_path = thumb_img["src"]
+                        filename, mime = shared.fetch_file(
+                            base_url,
+                            thumb_path, "",
+                            'graphic',
+                            article, user,
+                        )
+                        shared.add_file(
+                            mime, 'graphic', 'Thumbnail',
+                            user, filename, article,
+                            thumbnail=True,
+                        )
                     journal_models.ArticleOrdering.objects.create(issue=issue,
                                                                   article=article,
                                                                   section=article.section,
