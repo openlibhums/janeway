@@ -470,13 +470,13 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         # add an account for this new user
         account = core_models.Account.objects.filter(email__iexact=email)
+        parsed_name = parse_author_names(author_name, citation)
 
         if account is not None and len(account) > 0:
             account = account[0]
             print("Found account for {0}".format(email))
         else:
             print("Didn't find account for {0}. Creating.".format(email))
-            parsed_name = parse_author_names(author_name, citation)
             logger.debug("%s\t\t-> %s" % (author_name, parsed_name))
             account = core_models.Account.objects.create(
                 email=email,
@@ -490,12 +490,26 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         if account:
             article.authors.add(account)
-            submission_models.ArticleAuthorOrder.objects.get_or_create(
+            o, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
                 article=article,
                 author=account,
                 defaults={'order': article.next_author_sort()},
             )
-            account.snapshot_self(article)
+            # Copy behaviour of snapshot_self, some authors might have a
+            # shared dummy email address.
+            f, created = submission_models.FrozenAuthor.objects.get_or_create(
+                **{
+                    'article': article,
+                    'first_name': parsed_name["first_name"],
+                    'middle_name': parsed_name["middle_name"],
+                    'last_name': parsed_name["last_name"],
+                    'institution': institution,
+                    'order': o.order,
+                    'defaults': {"author": account},
+
+                },
+            )
+
 
 
 def set_article_section(article, soup_object, element='h4', attributes=None, default='Articles'):
