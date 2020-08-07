@@ -80,6 +80,23 @@ def import_up_article(**options):
     up.import_article(journal, user, url, update=update)
 
 
+def import_all(**options):
+    """ Imports all the content from a UP journal
+
+    We overload the import_issue_images function setting load_missing,
+    which will import all articles that have not yet been imported.
+    This turns the function into an 'import all content'
+
+    :param options: a dictionary containing 'journal_id', 'user_id', and a 'url'
+    :return: None
+    """
+    journal = journal_models.Journal.objects.get(code=options['journal_code'])
+    user = core_models.Account.objects.get(pk=options['user_id'])
+    url = options['url']
+
+    up.import_issue_images(journal, user, url, import_missing=True)
+
+
 def import_issue_images(**options):
     """ Imports a issue images and sequencing of sections/articles from a UP journal
 

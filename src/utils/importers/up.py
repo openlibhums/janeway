@@ -320,7 +320,15 @@ def map_review_recommendation(recommentdation):
     return recommendations.get(recommentdation, None)
 
 
-def import_issue_images(journal, user, url):
+def import_issue_images(journal, user, url, import_missing=False):
+    """ Imports all issue images and other issue related content
+    Currently also reorders all issues, articles and sections within issues,
+    article thumbnails and issue titles.
+    :param journal: a journal.models.Journal
+    :param user: the owner of the imported content as a core.models.Account
+    :url: the base url of the journal to import from
+    :param load_missing: Bool. If true, attempt to import missing articles
+    """
     base_url = url
 
     if not url.endswith('/issue/archive/'):
@@ -423,12 +431,18 @@ def import_issue_images(journal, user, url):
 
             for article_link in articles:
                 # parse the URL into a DOI and prefix
-                match = pattern.match(article_link['href'])
+                article_url = article_link["href"]
+                match = pattern.match(article_url)
                 prefix = match.group(1)
                 doi = match.group(2)
 
                 # get a proper article object
                 article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
+                if not article and import_missing:
+                    logger.debug(
+                        "Article %s not found, importing...", article_url)
+                    import_article(journal,user, base_url + article_url)
+
 
                 if article and article not in processed:
                     thumb_img = article_link.find("img")
@@ -445,10 +459,12 @@ def import_issue_images(journal, user, url):
                             user, filename, article,
                             thumbnail=True,
                         )
-                    journal_models.ArticleOrdering.objects.create(issue=issue,
-                                                                  article=article,
-                                                                  section=article.section,
-                                                                  order=article_order)
+                    journal_models.ArticleOrdering.objects.get_or_create(
+                        issue=issue,
+                        article=article,
+                        section=article.section,
+                        order=article_order,
+                    )
 
                     article_order += 1
 
