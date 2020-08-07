@@ -439,7 +439,7 @@ class Issue(models.Model):
 
     # issue metadata
     volume = models.IntegerField(default=1)
-    issue = models.IntegerField(default=1)
+    issue = models.CharField(max_length=255, default="1")
     issue_title = models.CharField(blank=True, max_length=300)
     date = models.DateTimeField(default=timezone.now)
     order = models.IntegerField(default=0)
