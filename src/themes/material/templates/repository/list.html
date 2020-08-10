@@ -7,7 +7,7 @@
     <div class="row">
 
         <div class="col m8 spacer">
-            <h1>{{ request.repository.object_name_plural }}</h1>
+            <h1>{{ request.repository.object_name_plural }} {%if search_term %} {% trans 'matching' %}: {{search_term}} {% endif %}</h1>
             {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
         </div>
     </div>

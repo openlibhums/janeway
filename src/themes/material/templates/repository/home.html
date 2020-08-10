@@ -12,11 +12,11 @@
 
 
         <div class="input-field col s12 m6 offset-m3 spacer">
-            <form method="POST" action="">
+            <form method="POST" action="{% url 'repository_search' %}">
                 {% csrf_token %}
 
                 <i class="material-icons prefix">search</i>
-                <input id="icon_prefix" type="text" class="validate">
+                <input id="icon_prefix" type="text" class="validate" name="search_term">
                 <label for="icon_prefix">Search {{ request.repository.object_name_plural }}</label>
             </form>
 

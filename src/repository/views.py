@@ -36,11 +36,12 @@ def repository_home(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
+
     preprints = models.Preprint.objects.filter(
         repository=request.repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED
-    )
+    )[:6]
     subjects = models.Subject.objects.filter(
         repository=request.repository,
     ).prefetch_related(
@@ -207,9 +208,9 @@ def repository_list(request, subject_slug=None):
 
 
 # TODO: Re-implement
-def preprints_search(request, search_term=None):
+def repository_search(request, search_term=None):
     """
-    Searches through preprints based on their titles and authors
+    Searches through repository content based on titles and authors
     :param request: HttpRequest
     :param search_term: Optional string
     :return: HttpResponse
@@ -217,40 +218,38 @@ def preprints_search(request, search_term=None):
     if search_term:
         split_search_term = search_term.split(' ')
 
-        article_search = submission_models.Article.preprints.filter(
+        repository_search = models.Preprint.objects.filter(
             (Q(title__icontains=search_term) |
-             Q(subtitle__icontains=search_term) |
+             Q(abstract__icontains=search_term) |
              Q(keywords__word__in=split_search_term)),
-            stage=submission_models.STAGE_PREPRINT_PUBLISHED, date_published__lte=timezone.now()
+            stage=models.STAGE_PREPRINT_PUBLISHED, date_published__lte=timezone.now()
         )
-        article_search = [article for article in article_search]
+        repository_search = [preprint for preprint in repository_search]
 
-        institution_query = reduce(operator.and_, (Q(institution__icontains=x) for x in split_search_term))
+        # institution_query = reduce(operator.and_, (Q(institution__icontains=x) for x in split_search_term))
 
-        from_author = core_models.Account.objects.filter(
-            (Q(first_name__in=split_search_term) |
-             Q(last_name__in=split_search_term) |
-             institution_query)
-        )
+        # from_author = models.Preprint.objects.filter(
+        #     (Q(preprintauthor__in=split_search_term))
+        # )
 
-        articles_from_author = [article for article in submission_models.Article.preprints.filter(
-            authors__in=from_author,
-            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-            date_published__lte=timezone.now())]
+        # preprints_from_author = [preprint for preprint in models.Preprint.objects.filter(
+        #     preprintauthor__in=from_author,
+        #     stage=models.STAGE_PREPRINT_PUBLISHED,
+        #     date_published__lte=timezone.now())]
 
-        articles = set(article_search + articles_from_author)
+        preprints = set(repository_search)
 
     else:
-        articles = submission_models.Article.preprints.all()
+        preprints = models.Preprint.objects.all()
 
     if request.POST:
         search_term = request.POST.get('search_term')
-        return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
+        return redirect(reverse('repository_search_with_term', kwargs={'search_term': search_term}))
 
-    template = 'preprints/list.html'
+    template = 'repository/list.html'
     context = {
         'search_term': search_term,
-        'articles': articles,
+        'preprints': preprints,
     }
 
     return render(request, template, context)
@@ -261,7 +260,7 @@ def repository_preprint(request, preprint_id):
     """
     Fetches a single article and displays its metadata
     :param request: HttpRequest
-    :param preprint_id: integer, PK of an Article object
+    :param preprint_id: integer, PK of an Preprint object
     :return: HttpResponse or Http404 if object not found
     """
     preprint = get_object_or_404(

@@ -22,12 +22,12 @@ urlpatterns = [
         name='repository_about'),
 
     url(r'^search/$',
-        views.preprints_search,
-        name='preprints_search'),
+        views.repository_search,
+        name='repository_search'),
 
     url(r'^search/(?P<search_term>.*)/$',
-        views.preprints_search,
-        name='preprints_search_with_term'),
+        views.repository_search,
+        name='repository_search_with_term'),
 
     url(r'^view/(?P<preprint_id>\d+)/$',
         views.repository_preprint,
