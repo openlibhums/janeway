@@ -41,7 +41,7 @@ def repository_home(request):
         repository=request.repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED
-    )
+    )[:6]
     subjects = models.Subject.objects.filter(
         repository=request.repository,
     ).prefetch_related(
