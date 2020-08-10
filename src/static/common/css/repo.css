@@ -70,7 +70,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 
 .preprint-home-card {
-    min-height: 180px;
+    min-height: 100%;
 }
 
 .no-padding-top {
@@ -112,4 +112,13 @@ h5 {
     max-height: 400px;
     overflow-y: paged-y;
     overflow-x: hidden;
+}
+
+.eq-height-col {
+    margin-bottom: 20px;
+}
+
+.homepage-hr {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }

@@ -1,5 +1,6 @@
 {% extends "repository/base.html" %}
 {% load i18n %}
+{% load static from staticfiles %}
 
 {% block title %}{{ request.repository.name }}{% endblock %}
 
@@ -19,6 +20,13 @@
                 <input id="icon_prefix" type="text" class="validate">
                 <label for="icon_prefix">Search {{ request.repository.object_name_plural }}</label>
             </form>
+        </div>
+
+        <div class="input-field col s10 offset-m1 spacer">
+            <hr class="homepage-hr" />
+        </div>
+
+         <div class="input-field col s12 m6 offset-m3 spacer">
 
             <div class="center spacer">
                 <a class="btn waves-effect waves-light"
@@ -38,4 +46,8 @@
         {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
         {% endif %}
     </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static "common/js/material-eq-height.js" %}"></script>
 {% endblock %}

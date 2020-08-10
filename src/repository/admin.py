@@ -27,6 +27,8 @@ class PreprintAdmin(admin.ModelAdmin):
     raw_id_fields = ('repository', 'owner', 'subject', )
     filter_horizontal = ('keywords',)
 
+    save_as = True
+
 
 class VersionAdmin(admin.ModelAdmin):
     list_display = ('pk', 'preprint', 'version', 'date_time')
