@@ -226,7 +226,7 @@ def repository_search(request, search_term=None):
         )
         repository_search = [preprint for preprint in repository_search]
 
-        # TODO: replicate the ability to search by author and institution, without using the author object
+        # TODO: replicate the ability to search by author and institution
 
         # institution_query = reduce(operator.and_, (Q(institution__icontains=x) for x in split_search_term))
 
@@ -234,7 +234,7 @@ def repository_search(request, search_term=None):
             (Q(last_name__icontains=split_search_term) |
              Q(first_name__icontains=split_search_term) |
              Q(middle_name__icontains=split_search_term) )
-        ).values('pk')
+        ).values('id')
 
         preprints_from_author = [preprint for preprint in models.Preprint.objects.filter(
             preprintauthor__author_id__in=from_author,
