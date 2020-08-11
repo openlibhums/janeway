@@ -226,16 +226,20 @@ def repository_search(request, search_term=None):
         )
         repository_search = [preprint for preprint in repository_search]
 
+        # TODO: replicate the ability to search by author and institution, without using the author object
+
         # institution_query = reduce(operator.and_, (Q(institution__icontains=x) for x in split_search_term))
 
-        # from_author = models.Preprint.objects.filter(
-        #     (Q(preprintauthor__in=split_search_term))
-        # )
+        from_author = models.Author.objects.filter( 
+            (Q(last_name__icontains=split_search_term) |
+             Q(first_name__icontains=split_search_term) |
+             Q(middle_name__icontains=split_search_term) )
+        ).values('pk')
 
-        # preprints_from_author = [preprint for preprint in models.Preprint.objects.filter(
-        #     preprintauthor__in=from_author,
-        #     stage=models.STAGE_PREPRINT_PUBLISHED,
-        #     date_published__lte=timezone.now())]
+        preprints_from_author = [preprint for preprint in models.Preprint.objects.filter(
+            preprintauthor__author_id__in=from_author,
+             stage=models.STAGE_PREPRINT_PUBLISHED,
+             date_published__lte=timezone.now())]
 
         preprints = set(repository_search)
 
