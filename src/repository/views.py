@@ -241,7 +241,7 @@ def repository_search(request, search_term=None):
              stage=models.STAGE_PREPRINT_PUBLISHED,
              date_published__lte=timezone.now())]
 
-        preprints = set(repository_search)
+        preprints = set(repository_search + preprints_from_author)
 
     else:
         preprints = models.Preprint.objects.all()
