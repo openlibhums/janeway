@@ -208,7 +208,7 @@ def repository_list(request, subject_slug=None):
     return render(request, template, context)
 
 
-def preprint_search(request, search_term=None):
+def repository_search(request, search_term=None):
     """
     Searches for and displays a list of Preprints.
     """
@@ -216,7 +216,7 @@ def preprint_search(request, search_term=None):
         search_term = request.POST.get('search_term')
         return redirect(
             reverse(
-                'preprints_search_with_term',
+                'repository_search_with_term',
                 kwargs={'search_term': search_term},
             )
         )
