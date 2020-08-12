@@ -6,9 +6,11 @@
 
 {% block title %}{{ preprint.title }}{% endblock %}
 
+{% block head %}
+{% include "common/metadata/preprint_dc.html" %}
+{% endblock %}
+
 {% block body %}
-
-
     <div class="row preprint-content">
         <div class="col m12">
             <div class="card">
@@ -41,16 +43,17 @@
             <div itemprop="articleBody" id="pdf">
                 <p class="preprint-text">
                     {% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight." %}
-                </p>
-                {% if html %}
+                {% if preprint.current_version_file_type == 'html' %}
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
-                            {{ html|safe }}
+                            {{ preprint.current_version.html|safe }}
                         </div>
                     </div>
-                {% elif pdf %}
-                    EMBED PDF HERE
+                {% elif preprint.current_version_file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                            width="100%" height="100%" style="min-height: 900px;" allowfullscreen
+                            webkitallowfullscreen></iframe>
                 {% else %}
                     <div class="preprint-content">
                         <p>This {{ request.repository.object_name }} has no visible version.</p>
@@ -64,14 +67,25 @@
             <div class="card">
                 <div class="card-content preprint-content">
                     <h5>{% trans "Downloads" %}</h5>
-                    <p><a href="">Download {{ request.repository.object_name }} <span class="fa fa-download"></span>
+                    <p><a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">Download {{ request.repository.object_name }} <span class="fa fa-download"></span>
                     </a></p>
                     <h5>{% trans "Authors" %}</h5>
                     <p class="authors">
-                        {{ preprint.display_authors }}
+                        {% for author in preprint.authors %}
+                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="/media/img/orcid.gif"></a>{% endif %}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
                     </p>
                     <h5>{% trans "Abstract" %}</h5>
                     <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+
+                    <h5>{% trans 'Subjects' %}</h5>
+                    <p>TODO once subjects are a m2m.</p>
+
+                    <h5>{% trans 'Keywords' %}</h5>
+                    <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+
+                    <h5>{% trans "License" %}</h5>
+                    <p>{{ preprint.license.name }}</p>
                 </div>
             </div>
             <div class="card">

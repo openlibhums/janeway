@@ -16,6 +16,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, Http404
+from django.core.exceptions import PermissionDenied
 
 from repository import forms, logic as repository_logic, models
 from core import models as core_models, files
@@ -312,13 +313,39 @@ def repository_preprint(request, preprint_id):
 
     return render(request, template, context)
 
+def repository_file_download(request, preprint_id, file_id):
+    """
+    Serves up a file for a published Preprint.
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+        date_published__lte=timezone.now(),
+    )
+
+    file = get_object_or_404(
+        models.PreprintFile,
+        preprint=preprint,
+        pk=file_id,
+    )
+
+    if file in preprint.version_files():
+        return files.serve_any_file(
+            request,
+            file,
+            path_parts=(file.path_parts(),)
+        )
+
+    raise PermissionDenied('You do not have permission to download this file.')
+
 
 # TODO: Re-implement
-def preprints_pdf(request, article_id):
+def repository_pdf(request, preprint_id):
 
     pdf_url = request.GET.get('file')
 
-    template = 'preprints/pdf.html'
+    template = 'repository/pdf.html'
     context = {
         'pdf_url': pdf_url,
     }

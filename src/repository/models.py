@@ -8,6 +8,7 @@ import uuid
 from dateutil import parser as dateparser
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -314,12 +315,6 @@ class Preprint(models.Model):
         blank=True,
         null=True,
     )
-    curent_version = models.ForeignKey(
-        'PreprintVersion',
-        related_name='curent_version',
-        blank=True,
-        null=True
-    )
     preprint_decision_notification = models.BooleanField(
         default=False,
     )
@@ -340,8 +335,22 @@ class Preprint(models.Model):
         return PreprintVersion.objects.filter(
             preprint=self,
         ).exclude(
-            preprint=self.curent_version,
+            preprint=self.current_version,
         )
+
+    @property
+    def current_version(self):
+        try:
+            return self.preprintversion_set.all()[0]
+        except IndexError:
+            return None
+
+    def version_files(self):
+        return [
+            version.file for version in self.preprintversion_set.filter(
+                Q(moderated_version__approved=True) | Q(moderated_version__isnull=True)
+            )
+        ]
 
     @property
     def views(self):
@@ -436,6 +445,7 @@ class Preprint(models.Model):
             return self.subject.editors.all()
         else:
             return []
+            return []
 
     def has_version(self):
         return self.preprintversion_set.all()
@@ -490,6 +500,14 @@ class Preprint(models.Model):
             return True
         return False
 
+    def current_version_file_type(self):
+        print(self.current_version)
+        if self.current_version.file.mime_type in files.HTML_MIMETYPES:
+            return 'html'
+        elif self.current_version.file.mime_type in files.PDF_MIMETYPES:
+            return 'pdf'
+        return None
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
@@ -531,6 +549,12 @@ class PreprintFile(models.Model):
             'repository_download_file',
             kwargs=self.reverse_kwargs(),
         )
+
+    def contents(self):
+        file = open(self.file.path, mode='r')
+        contents = file.read()
+        file.close()
+        return contents
 
 
 class PreprintAccess(models.Model):
@@ -615,6 +639,12 @@ class PreprintVersion(models.Model):
 
     class Meta:
         ordering = ('-version', '-date_time', '-id')
+
+    def html(self):
+        if self.file.mime_type in files.HTML_MIMETYPES:
+            return self.file.contents()
+        else:
+            return ''
 
 
 class Comment(models.Model):

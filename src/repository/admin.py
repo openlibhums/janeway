@@ -22,7 +22,7 @@ class SubjectAdmin(admin.ModelAdmin):
 
 
 class PreprintAdmin(admin.ModelAdmin):
-    list_display = ('title', 'pk', 'repository', 'doi', 'curent_version')
+    list_display = ('title', 'pk', 'repository', 'doi', 'current_version')
     list_filter = ('repository',)
     raw_id_fields = ('repository', 'owner', 'subject', )
     filter_horizontal = ('keywords',)

@@ -33,9 +33,13 @@ urlpatterns = [
         views.repository_preprint,
         name='repository_preprint'),
 
-    url(r'^view/(?P<article_id>\d+)/pdf/$',
-        views.preprints_pdf,
-        name='preprints_pdf'),
+    url(r'^view/(?P<preprint_id>\d+)/pdf/$',
+        views.repository_pdf,
+        name='repository_pdf'),
+
+    url(r'^object/(?P<preprint_id>\d+)/download/(?P<file_id>\d+)/$',
+        views.repository_file_download,
+        name='repository_file_download'),
 
     url(r'^list/$',
         views.repository_list,
@@ -108,6 +112,7 @@ urlpatterns = [
     url(r'^manager/subjects/$',
         views.repository_subjects,
         name='repository_subjects'),
+
     url(r'^manager/subjects/delete/$',
         views.repository_delete_subject,
         name='repository_delete_subject'),
