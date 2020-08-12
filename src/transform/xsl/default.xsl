@@ -2311,12 +2311,22 @@
   <!-- misc stuff -->
 
   <xsl:template match="pub-id" mode="nscitation">
-    <xsl:text> [</xsl:text>
-    <xsl:value-of select="@pub-id-type"/>
-
-    <xsl:text>: </xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>]</xsl:text>
+    <xsl:choose>
+      <xsl:when test="starts-with(current(), 'http')">
+        <xsl:value-of select="@pub-id-type"/>
+        <xsl:text>:&#160;</xsl:text>
+        <a href="{current()}" target="_blank">
+        <xsl:apply-templates/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text> [</xsl:text>
+        <xsl:value-of select="@pub-id-type"/>
+        <xsl:text>: </xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>]</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="annotation" mode="nscitation">

@@ -28,6 +28,7 @@ from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
 from utils.logger import get_logger
+from utils.logic import get_current_request
 from utils.notify_plugins import notify_email
 from events import logic as event_logic
 
@@ -152,11 +153,23 @@ def get_galley_content(article, galleys, recover=False):
 
 
 def get_doi_data(article):
+    request = get_current_request()
     try:
         doi = identifier_models.Identifier.objects.get(id_type='doi', article=article)
-        r = requests.get(doi.get_doi_url())
+        doi_url= doi.get_doi_url()
+        logger.info("Fetching %s.." % doi_url)
+        r = requests.get(doi_url, timeout=settings.HTTP_TIMEOUT_SECONDS)
         return [r, doi]
-    except BaseException:
+    except requests.exceptions.Timeout:
+        if request:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                "Timed out reaching %s" % doi_url,
+            )
+        return [None, doi]
+    except Exception as e:
+        logger.error("Error getting DOI data: %s", e)
         return [None, None]
 
 

@@ -26,7 +26,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
-from core import files
+from core import files, validators
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from review import models as review_models
@@ -555,6 +555,9 @@ privacy_types = (
 
 
 class SettingGroup(models.Model):
+    VALIDATORS = {
+        "email": (validators.validate_email_setting,),
+    }
     name = models.CharField(max_length=100)
     enabled = models.BooleanField(default=True)
 
@@ -564,8 +567,14 @@ class SettingGroup(models.Model):
     def __repr__(self):
         return u'%s' % self.name
 
+    def validate(self, value):
+        if self.name in self.VALIDATORS:
+            for validator in self.VALIDATORS[self.name]:
+                validator(value)
+
 
 class Setting(models.Model):
+    VALIDATORS = {}
     name = models.CharField(max_length=100)
     group = models.ForeignKey(SettingGroup)
     types = models.CharField(max_length=20, choices=setting_types)
@@ -589,6 +598,13 @@ class Setting(models.Model):
             setting=self,
             journal=None,
     )
+
+    def validate(self, value):
+        if self.types in self.VALIDATORS:
+            for validator in self.VALIDATORS[self.name]:
+                validator(value)
+
+        self.group.validate(value)
 
 
 class SettingValue(TranslatableModel):
@@ -665,6 +681,13 @@ class SettingValue(TranslatableModel):
         else:
             from press.models import Press
             return Press.objects.all()[0]
+
+    def validate(self):
+        self.setting.validate(self.value)
+
+    def save(self, *args, **kwargs):
+        self.validate()
+        super().save(*args, **kwargs)
 
 
 class File(models.Model):

@@ -465,6 +465,9 @@ WORKFLOW_PLUGINS = {}
 
 SILENT_IMPORT_CACHE = False
 
+# Default timeout for outgoing HTTP connections
+HTTP_TIMEOUT_SECONDS = 5
+
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
 DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.3.8)'

@@ -134,7 +134,7 @@
                                     <h2>{% trans "Publisher Notes" %}</h2>
                                     <ul>
                                         {% for note in article.publisher_notes.all %}
-                                            <li>{{ note.text }}</li>
+                                            <li>{{ note.text|safe }}</li>
                                         {% endfor %}
                                     </ul>
                                 </div>

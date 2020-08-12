@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import datetime
+from mock import patch
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -80,6 +81,15 @@ class CoreTests(TestCase):
         self.assertFalse(
             missing,
             msg="Found emails that don't have a subject setting")
+
+    @patch.object(models.Setting, 'validate')
+    def test_setting_validation(self, mock_method):
+        from utils import setting_handler
+        setting_handler.save_setting(
+            'email', 'editor_assignment', self.journal_one, 'test'
+        )
+        mock_method.assert_called()
+
 
 
     def setUp(self):
