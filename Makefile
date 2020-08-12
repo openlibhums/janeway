@@ -61,8 +61,8 @@ rebuild:	## Rebuild the Janeway docker image.
 	docker pull birkbeckctp/janeway-base:latest
 	docker-compose build --no-cache janeway-web
 shell:		## Runs the janeway-web service and starts an interactive bash process instead of the webserver
-	docker-compose run --entrypoint=/bin/bash --rm janeway-web
-attach:		## Runs an interactive bash process within the currently running janeway-web container
+	docker-compose run --service-ports --entrypoint=/bin/bash --rm janeway-web
+attach:		## Runs an interactive bash process within the currently running janeway-web container.
 	docker exec -ti `docker ps -q --filter 'name=janeway-web'` /bin/bash
 db-client:	## runs the database CLI client interactively within the database container as per the value of DB_VENDOR
 	docker exec -ti `docker ps -q --filter 'name=janeway-$(DB_VENDOR)'` $(CLI_COMMAND)
