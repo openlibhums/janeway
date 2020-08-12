@@ -208,51 +208,61 @@ def repository_list(request, subject_slug=None):
     return render(request, template, context)
 
 
-# TODO: Re-implement
-def preprints_search(request, search_term=None):
+def preprint_search(request, search_term=None):
     """
-    Searches through preprints based on their titles and authors
-    :param request: HttpRequest
-    :param search_term: Optional string
-    :return: HttpResponse
+    Searches for and displays a list of Preprints.
     """
+    if request.POST and 'search_term' in request.POST:
+        search_term = request.POST.get('search_term')
+        return redirect(
+            reverse(
+                'preprints_search_with_term',
+                kwargs={'search_term': search_term},
+            )
+        )
+
+    # Grab all of the preprints that are published. We can then filter them
+    # if a search term is given or return them if none.
+    preprints = models.Preprint.objects.filter(
+        date_published__lte=timezone.now(),
+        repository=request.repository,
+    )
+
     if search_term:
         split_search_term = search_term.split(' ')
 
-        article_search = submission_models.Article.preprints.filter(
+        # Initial filter on Title, Abstract and Keywords.
+        preprint_search = preprints.filter(
             (Q(title__icontains=search_term) |
-             Q(subtitle__icontains=search_term) |
-             Q(keywords__word__in=split_search_term)),
-            stage=submission_models.STAGE_PREPRINT_PUBLISHED, date_published__lte=timezone.now()
-        )
-        article_search = [article for article in article_search]
-
-        institution_query = reduce(operator.and_, (Q(institution__icontains=x) for x in split_search_term))
-
-        from_author = core_models.Account.objects.filter(
-            (Q(first_name__in=split_search_term) |
-             Q(last_name__in=split_search_term) |
-             institution_query)
+             Q(abstract__icontains=search_term) |
+             Q(keywords__word__in=split_search_term))
         )
 
-        articles_from_author = [article for article in submission_models.Article.preprints.filter(
-            authors__in=from_author,
-            stage=submission_models.STAGE_PREPRINT_PUBLISHED,
-            date_published__lte=timezone.now())]
+        # Create a filter for author affiliation using the split term to check
+        # if each individual word is present.
+        affiliation_query = reduce(
+            operator.and_,
+            (Q(author__affiliation__icontains=x) for x in split_search_term)
+        )
 
-        articles = set(article_search + articles_from_author)
+        from_author = models.PreprintAuthor.objects.filter(
+            (Q(author__first_name__in=split_search_term) |
+             Q(author__middle_name__in=split_search_term) |
+             Q(author__last_name__in=split_search_term) |
+             affiliation_query)
+        )
 
-    else:
-        articles = submission_models.Article.preprints.all()
+        preprints_from_author = [pa.preprint for pa in models.PreprintAuthor.objects.filter(
+            pk__in=from_author,
+            preprint__date_published__lte=timezone.now(),
+        )]
 
-    if request.POST:
-        search_term = request.POST.get('search_term')
-        return redirect(reverse('preprints_search_with_term', kwargs={'search_term': search_term}))
+        preprints = set(list(preprint_search) + preprints_from_author)
 
-    template = 'preprints/list.html'
+    template = 'repository/list.html'
     context = {
         'search_term': search_term,
-        'articles': articles,
+        'preprints': preprints,
     }
 
     return render(request, template, context)
