@@ -187,7 +187,7 @@ def repository_list(request, subject_slug=None):
             repository=request.repository,
         )
 
-    paginator = Paginator(preprints, 2)
+    paginator = Paginator(preprints, 15)
     page = request.GET.get('page', 1)
 
     try:
