@@ -17,7 +17,7 @@
         <ul class="right hide-on-med-and-down">
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a>
-            <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a></li>
+            <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural | capfirst }}</a></li>
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% hook 'nav_block' %}
