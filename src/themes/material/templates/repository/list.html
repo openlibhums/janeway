@@ -1,5 +1,6 @@
 {% extends "repository/base.html" %}
 {% load i18n %}
+{% load pages %}
 
 {% block title %}{{ request.repository.name }} {{ request.repository.object_name_plural }}{% endblock %}
 
@@ -8,7 +9,25 @@
 
         <div class="col m8 spacer">
             <h1>{{ request.repository.object_name_plural }}</h1>
+            <p>{{ request.repository.object_name_plural }} are listed in order of publication.</p>
             {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+            <div class="pagination-block">
+                <ul class="pagination">
+                    {% if preprints.has_previous %}
+                        <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a></li>
+                        &nbsp;{% endif %}
+                    {{ preprints.page.page_range }}
+                    {% for page in preprints|slice_pages:3 %}
+                        <li class="waves-effect {% if preprints.number == page.number %}active{% endif %}"><a
+                                href="?page={{ page.number }}">{{ page.number }}</a>&nbsp;
+                        </li>
+                    {% endfor %}
+                    {% if preprints.has_next %}
+                        <li class="waves-effect"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 {% endblock %}
