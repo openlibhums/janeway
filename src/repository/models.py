@@ -288,10 +288,10 @@ class Preprint(models.Model):
         upload_to=preprint_file_upload,
         storage=preprint_media_store,
     )
-    subject = models.ForeignKey(
+    subject = models.ManyToManyField(
         'Subject',
+        blank=False,
         null=True,
-        on_delete=models.SET_NULL,
     )
     keywords = models.ManyToManyField(
         'submission.Keyword',
@@ -441,11 +441,12 @@ class Preprint(models.Model):
         self.save()
 
     def subject_editors(self):
-        if self.subject:
-            return self.subject.editors.all()
-        else:
-            return []
-            return []
+        editors = []
+        for subject in self.subject.all():
+            for editor in subject.editors.all():
+                editors.append(editor)
+
+        return editors
 
     def has_version(self):
         return self.preprintversion_set.all()
@@ -560,6 +561,7 @@ class PreprintFile(models.Model):
 class PreprintAccess(models.Model):
     preprint = models.ForeignKey(Preprint)
     file = models.ForeignKey(PreprintFile, blank=True, null=True)
+    accessed = models.DateTimeField(auto_now_add=True)
     accessed = models.DateTimeField(auto_now_add=True)
     location = models.CharField(max_length=10)
 

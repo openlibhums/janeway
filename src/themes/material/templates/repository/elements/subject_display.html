@@ -1,0 +1,1 @@
+{% for subject in preprint.subject.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}

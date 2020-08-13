@@ -14,10 +14,10 @@ from review.forms import render_choices
 
 class PreprintInfo(forms.ModelForm):
     keywords = forms.CharField(required=False)
-    subject = forms.ModelChoiceField(
+    subject = forms.ModelMultipleChoiceField(
         required=True,
         queryset=models.Subject.objects.none(),
-        widget=forms.HiddenInput(),
+        widget=forms.SelectMultiple(attrs={'multiple': ''}),
     )
 
     class Meta:

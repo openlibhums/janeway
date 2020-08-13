@@ -46,11 +46,11 @@
                             <td colspan="2"><small>{{ preprint.abstract }}</small></td>
                         </tr>
                         <tr>
-                            <th>Subject</th>
+                            <th>Subjects</th>
                             <th>License</th>
                         </tr>
                         <tr>
-                            <td>{{ preprint.subject }}</td>
+                            <td>{% for subject in preprint.subject.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                             <td>{{ preprint.license }}</td>
                         </tr>
                         <tr>
