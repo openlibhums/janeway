@@ -37,14 +37,23 @@
                         <td>{{ preprint.license.short_name }}</td>
                     </tr>
                     <tr>
+                        <th colspan="3">
+                            Subjects
+                        </th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            {% include "repository/elements/subject_display.html" %}
+                        </td>
+                    </tr>
+                    <tr>
                         <th colspan="1">Started</th>
-                        <th colspan="1">Submitted</th>
-                        <th>Subject</th>
+                        <th colspan="2">Submitted</th>
+
                     </tr>
                     <tr>
                         <td>{{ preprint.date_started }}</td>
                         <td>{{ preprint.date_submitted }}</td>
-                        <td>{{ preprint.subject }}</td>
                     </tr>
                     <tr>
                         <th colspan="4">Abstract</th>

@@ -385,6 +385,7 @@ def repository_submit(request, preprint_id=None):
     )
 
     if request.POST:
+        print(request.POST)
         form = forms.PreprintInfo(
             request.POST,
             instance=preprint,

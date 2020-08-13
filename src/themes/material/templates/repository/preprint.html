@@ -79,7 +79,7 @@
                     <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
 
                     <h5>{% trans 'Subjects' %}</h5>
-                    <p>TODO once subjects are a m2m.</p>
+                    <p>{% include "repository/elements/subject_display.html" %}</p>
 
                     <h5>{% trans 'Keywords' %}</h5>
                     <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
