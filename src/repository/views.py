@@ -238,18 +238,13 @@ def repository_search(request, search_term=None):
              Q(keywords__word__in=split_search_term))
         )
 
-        # Create a filter for author affiliation using the split term to check
-        # if each individual word is present.
-        affiliation_query = reduce(
-            operator.and_,
-            (Q(author__affiliation__icontains=x) for x in split_search_term)
-        )
-
         from_author = models.PreprintAuthor.objects.filter(
-            (Q(author__first_name__in=split_search_term) |
-             Q(author__middle_name__in=split_search_term) |
-             Q(author__last_name__in=split_search_term) |
-             affiliation_query)
+            (
+                    Q(author__first_name__in=split_search_term) |
+                    Q(author__middle_name__in=split_search_term) |
+                    Q(author__last_name__in=split_search_term) |
+                    Q(affiliation__icontains=search_term)
+            )
         )
 
         preprints_from_author = [pa.preprint for pa in models.PreprintAuthor.objects.filter(
