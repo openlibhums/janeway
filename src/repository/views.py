@@ -201,8 +201,7 @@ def repository_list(request, subject_slug=None):
     context = {
         'preprints': preprints,
         'subject': subject,
-        'subjects': models.Subject.objects.filter(enabled=True),
-        'page': page,
+        'subjects': models.Subject.objects.filter(enabled=True)
     }
 
     return render(request, template, context)
@@ -243,7 +242,7 @@ def repository_search(request, search_term=None):
                     Q(author__first_name__in=split_search_term) |
                     Q(author__middle_name__in=split_search_term) |
                     Q(author__last_name__in=split_search_term) |
-                    Q(affiliation__icontains=search_term)
+                    Q(author__affiliation__icontains=search_term)
             )
         )
 
@@ -252,7 +251,18 @@ def repository_search(request, search_term=None):
             preprint__date_published__lte=timezone.now(),
         )]
 
-        preprints = set(list(preprint_search) + preprints_from_author)
+        preprints = list(set(list(preprint_search) + preprints_from_author))
+
+
+    paginator = Paginator(preprints, 15)
+    page = request.GET.get('page', 1)
+
+    try:
+        preprints = paginator.page(page)
+    except PageNotAnInteger:
+        preprints = paginator.page(1)
+    except EmptyPage:
+        preprints = paginator.page(paginator.num_pages)
 
     template = 'repository/list.html'
     context = {
@@ -391,7 +401,6 @@ def repository_submit(request, preprint_id=None):
     )
 
     if request.POST:
-        print(request.POST)
         form = forms.PreprintInfo(
             request.POST,
             instance=preprint,

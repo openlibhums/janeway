@@ -10,7 +10,9 @@
             </h2>
             <p class="authors card-text">{{ preprint.display_authors }}</p>
             <p class="info">
-                <strong>Published</strong>: {{ preprint.date_published|date:"Y-m-d" }} <strong>Subject</strong>: {{ preprint.subject }}
+                <strong>Published</strong>: {{ preprint.date_published|date:"Y-m-d" }}
+                <br />
+                {% if preprint.subject.exists %}<strong>Subjects</strong>: {% include "repository/elements/subject_display.html" %}{% endif %}
             </p>
             <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
         </div>
