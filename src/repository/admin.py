@@ -54,6 +54,12 @@ class PreprintFileAdmin(admin.ModelAdmin):
     raw_id_fields = ('preprint',)
 
 
+class PreprintAccessAdmin(admin.ModelAdmin):
+    list_display = ('preprint', 'accessed', 'country', 'access_type')
+    list_filter = ('preprint', 'country')
+    save_as = True
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.PreprintVersion, VersionAdmin),
@@ -66,7 +72,7 @@ admin_list = [
     (models.PreprintAuthor,),
     (models.RepositoryField,),
     (models.RepositoryFieldAnswer,),
-    (models.PreprintAccess,),
+    (models.PreprintAccess, PreprintAccessAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

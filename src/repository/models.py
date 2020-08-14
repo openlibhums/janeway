@@ -20,6 +20,7 @@ from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files
 from utils import logic
 from repository import install
+from utils.function_cache import cache
 
 
 STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
@@ -353,6 +354,7 @@ class Preprint(models.Model):
         ]
 
     @property
+    @cache(300)
     def views(self):
         return PreprintAccess.objects.filter(
             preprint=self,
@@ -360,6 +362,7 @@ class Preprint(models.Model):
         )
 
     @property
+    @cache(300)
     def downloads(self):
         return PreprintAccess.objects.filter(
             preprint=self,
@@ -561,9 +564,15 @@ class PreprintFile(models.Model):
 class PreprintAccess(models.Model):
     preprint = models.ForeignKey(Preprint)
     file = models.ForeignKey(PreprintFile, blank=True, null=True)
+    identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
-    accessed = models.DateTimeField(auto_now_add=True)
-    location = models.CharField(max_length=10)
+    country = models.ForeignKey('core.Country', blank=True, null=True)
+
+    @property
+    def access_type(self):
+        if self.file:
+            return 'download'
+        return 'view'
 
 
 class PreprintAuthor(models.Model):

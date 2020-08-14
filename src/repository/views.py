@@ -273,7 +273,6 @@ def repository_search(request, search_term=None):
     return render(request, template, context)
 
 
-# TODO: Re-implement
 def repository_preprint(request, preprint_id):
     """
     Fetches a single article and displays its metadata
@@ -318,7 +317,10 @@ def repository_preprint(request, preprint_id):
                 )
             )
 
-    # TODO: store access
+    repository_logic.store_preprint_access(
+        request,
+        preprint,
+    )
 
     template = 'repository/preprint.html'
     context = {
@@ -347,6 +349,11 @@ def repository_file_download(request, preprint_id, file_id):
     )
 
     if file in preprint.version_files():
+        repository_logic.store_preprint_access(
+            request,
+            preprint,
+            file,
+        )
         return files.serve_any_file(
             request,
             file,

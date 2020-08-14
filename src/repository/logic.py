@@ -1,4 +1,6 @@
 from dateutil.relativedelta import relativedelta
+from user_agents import parse as parse_ua_string
+from datetime import timedelta
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
@@ -6,14 +8,13 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Q
 
-from metrics import models as metrics_models
 from production.logic import save_galley
 from core import models as core_models, files
-from utils import render_template
+from utils import render_template, shared
 from utils.function_cache import cache
 from events import logic as event_logic
 from repository import models
-from submission import models as submission_models
+from metrics.logic import get_iso_country_code, iso_to_country_object
 
 
 def get_month_day_range(date):
@@ -35,21 +36,37 @@ def metrics_summary(published_preprints):
     last_month_date = timezone.now() - relativedelta(months=1)
     first_last_month, last_last_month = get_month_day_range(last_month_date)
 
-    accesses_this_month = models.PreprintAccess.objects.filter(
+    total_accesses_this_month = models.PreprintAccess.objects.filter(
         accessed__gte=first_this_month,
         accessed__lte=last_this_month,
-        preprint__in=published_preprints
-    ).count()
+        preprint__in=published_preprints,
+    )
 
-    accesses_last_month = models.PreprintAccess.objects.filter(
+    total_accesses_last_month = models.PreprintAccess.objects.filter(
         accessed__gte=first_last_month,
         accessed__lte=last_last_month,
-        preprint__in=published_preprints
+        preprint__in=published_preprints,
+    )
+
+    views_this_month = total_accesses_this_month.filter(
+        file__isnull=True,
+    ).count()
+    views_last_month = total_accesses_last_month.filter(
+        file__isnull=True,
+    ).count()
+    downloads_this_month = total_accesses_this_month.filter(
+        file__isnull=False,
+    ).count()
+    downloads_last_monnth = total_accesses_last_month.filter(
+        file__isnull=False,
     ).count()
 
+
     return {
-        'accesses_this_month': accesses_this_month,
-        'accesses_last_month': accesses_last_month,
+        'views_this_month': views_this_month,
+        'views_last_month': views_last_month,
+        'downloads_this_month': downloads_this_month,
+        'downloads_last_monnth': downloads_last_monnth,
     }
 
 
@@ -465,3 +482,36 @@ def raise_event(event_type, request, preprint):
             event_logic.Events.ON_PREPRINT_PUBLICATION,
             **kwargs,
         )
+
+
+def store_preprint_access(request, preprint, file=None):
+    try:
+        user_agent = parse_ua_string(request.META.get('HTTP_USER_AGENT', None))
+    except TypeError:
+        user_agent = None
+
+    if user_agent and not user_agent.is_bot:
+
+        ip = shared.get_ip_address(request)
+        iso_country_code = get_iso_country_code(ip)
+        country = iso_to_country_object(iso_country_code)
+        counter_tracking_id = request.session.get('counter_tracking')
+        identifier = counter_tracking_id if counter_tracking_id else hash(ip)
+
+        # Check if someone with this identifier has accessed the same file
+        # within the last X seconds
+        time_to_check = timezone.now() - timedelta(seconds=30)
+
+        if not models.PreprintAccess.objects.filter(
+            preprint=preprint,
+            file=file,
+            identifier=identifier,
+            accessed__gte=time_to_check,
+        ).exists():
+
+            models.PreprintAccess.objects.create(
+                preprint=preprint,
+                file=file,
+                identifier=identifier,
+                country=country,
+            )
