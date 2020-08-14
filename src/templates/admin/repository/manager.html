@@ -117,8 +117,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
-                            <th>Subject</th>
-                            <th>Date Submitted</th>
                             <th>Date Published</th>
                             <th>First Author</th>
                         </tr>
@@ -130,10 +128,8 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
-                                <td>{{ preprint.get_subject_area }}</td>
-                                <td>{{ preprint.date_submitted }}</td>
                                 <td>{{ preprint.date_published }}</td>
-                                <td>{{ preprint.articleauthororder_set.all.0.author.full_name }}</td>
+                                <td>{{ preprint.authors.0.full_name }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
