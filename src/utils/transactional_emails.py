@@ -1098,7 +1098,7 @@ def preprint_publication(**kwargs):
 
     notify_helpers.send_email_with_body_from_user(
         request,
-        '{} Submission Decision',
+        '{} Submission Decision'.format(preprint.title),
         preprint.owner.email,
         content,
         log_dict=log_dict,
@@ -1176,7 +1176,6 @@ def preprint_version_update(**kwargs):
             context,
             template,
             template_is_setting=True,
-
         )
     else:
         template = request.repository.decline_version
@@ -1185,12 +1184,11 @@ def preprint_version_update(**kwargs):
             context,
             template,
             template_is_setting=True,
-
         )
     notify_helpers.send_email_with_body_from_user(
         request,
         '{} Version Update'.format(pending_update.preprint.title),
-        request.user.email,
+        pending_update.preprint.owner.email,
         email_text,
         log_dict=log_dict,
     )
