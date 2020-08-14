@@ -731,7 +731,12 @@ def repository_manager_article(request, preprint_id):
 
         if 'decline' in request.POST:
             preprint.decline()
-            redirect_request = True
+            return redirect(
+                reverse(
+                    'repository_notification',
+                    kwargs={'preprint_id': preprint.pk},
+                )
+            )
 
         if 'upload' in request.POST and request.FILES:
             file_form = forms.FileForm(
