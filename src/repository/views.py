@@ -26,7 +26,7 @@ from events import logic as event_logic
 from security.decorators import (
     preprint_editor_or_author_required,
     is_article_preprint_editor,
-    is_preprint_editor,
+    is_repository_manager,
 )
 
 
@@ -654,7 +654,7 @@ def repository_review(request, preprint_id):
     return render(request, template, context)
 
 
-@is_preprint_editor
+@is_repository_manager
 def preprints_manager(request):
     """
     Displays preprint information and management interfaces for them.
@@ -1327,3 +1327,88 @@ def repository_wizard(request, short_name=None, step='1'):
 
     return render(request, template, context)
 
+
+@is_repository_manager
+def repository_fields(request, field_id=None):
+    """
+    Allows repository managers to manage additional fields.
+    """
+    if field_id:
+        field = get_object_or_404(
+            models.RepositoryField,
+            repository=request.repository,
+            pk=field_id,
+        )
+    else:
+        field = None
+
+    form = forms.RepositoryFieldForm(
+        instance=field,
+        repository=request.repository,
+    )
+
+    if request.POST:
+        form = forms.RepositoryFieldForm(
+            request.POST,
+            instance=field,
+            repository=request.repository,
+        )
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Field Saved.',
+            )
+
+            return redirect(
+                reverse(
+                    'repository_fields',
+                )
+            )
+
+    template = 'admin/repository/fields.html'
+    context = {
+        'field': field,
+        'form': form,
+        'fields': request.repository.additional_submission_fields(),
+    }
+
+    return render(request, template, context)
+
+
+@require_POST
+@is_repository_manager
+def repository_delete_field(request):
+    """
+    Deletes a Repositories field.
+    """
+    field_id = request.POST.get('field_to_delete')
+    field = get_object_or_404(
+        models.RepositoryField,
+        repository=request.repository,
+        pk=field_id,
+    )
+    field.delete()
+    messages.add_message(
+        request,
+        messages.WARNING,
+        'Field Deleted.'
+    )
+
+    return redirect(
+        reverse('repository_fields')
+    )
+
+
+@require_POST
+@is_repository_manager
+def repository_order_fields(request):
+    ids = [int(_id) for _id in request.POST.getlist('fields[]')]
+
+    for field in request.repository.additional_submission_fields():
+        field.order = ids.index(field.pk)
+        field.save()
+
+    return HttpResponse('Ok')

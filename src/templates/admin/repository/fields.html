@@ -1,0 +1,85 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}Submission Fields{% endblock %}
+{% block title-section %}Submission Fields{% endblock %}
+{% block title-sub %}Add fields to the submission platform{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'submission_fields' %}">Submission Fields</a></li>
+    {% if field %}<li><a href="{% url 'submission_fields_id' field.pk %}">{{ field.name }}</a></li>{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Current Fields</h2>
+                </div>
+                <div class="content">
+                    <form method="POST" action="{% url 'repository_delete_field' %}">
+                        <ul class="list-group" id="sortable">
+                            {% csrf_token %}
+                            {% for field in fields %}
+                                <li class="list-group-item" id="fields-{{ field.pk }}">
+                                    <i class="fa fa-arrows">&nbsp;</i>
+                                    {{ field.name }}
+                                    <div class="float-right">
+                                        <a href="{% url 'repository_fields_with_id' field.pk %}" class="tiny warning button"><i
+                                                class="fa fa-edit"></i></a>
+                                        <button name="field_to_delete" value="{{ field.pk }}" class="tiny alert button del"><i
+                                                class="fa fa-trash"></i></button>
+                                    </div>
+                                    <div class="clear"></div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </form>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    {% if field %}
+                        <h2>Edit {{ field.name }}</h2>
+                        <a class="button" href="{% url 'repository_fields' %}">< Back</a>
+                    {% else %}
+                        <h2>Add New Field</h2>
+                    {% endif %}
+                </div>
+                <div class="content">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+                        <button class="success button" name="save">Save Field</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static "common/js/confirm.js" %}"></script>
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script>
+    $( "#sortable" ).sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            console.log(data);
+            // POST to server using $.post or $.ajax
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{% url 'repository_order_fields' %}'
+            });
+        }
+    });
+    $( "#sortable" ).disableSelection();
+</script>
+{% endblock js %}
