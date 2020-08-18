@@ -364,7 +364,6 @@ def repository_file_download(request, preprint_id, file_id):
     raise PermissionDenied('You do not have permission to download this file.')
 
 
-# TODO: Re-implement
 def repository_pdf(request, preprint_id):
 
     pdf_url = request.GET.get('file')
@@ -853,7 +852,6 @@ def repository_edit_metadata(request, preprint_id):
 
         if 'delete_author' in request.POST:
             author_id = request.POST.get('delete_author')
-            print(author_id)
             author = get_object_or_404(
                 models.PreprintAuthor,
                 author__pk=author_id,
@@ -1020,7 +1018,7 @@ def repository_comments(request, preprint_id):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_repository_manager
 def repository_subjects(request, subject_id=None):
 
     subject, parent_subject, initial = None, None, {}
