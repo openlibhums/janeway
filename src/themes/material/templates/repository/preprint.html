@@ -63,7 +63,9 @@
                         {% endfor %}
                     </p>
                     <h5>{% trans "Abstract" %}</h5>
-                    <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                    <div class="truncatejs">
+                        <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                    </div>
 
                     <h5>{% trans 'Subjects' %}</h5>
                     <p>{% include "repository/elements/subject_display.html" %}</p>
@@ -72,7 +74,7 @@
                     <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 
                     <h5>{% trans "License" %}</h5>
-                    <p>{{ preprint.license.name }}</p>
+                    <p>{% if preprint.license.url %}<a href="{{ preperint.license.url }}">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
                 </div>
             </div>
             <div class="card">
@@ -129,5 +131,9 @@
     {% include "elements/journal/citation_modals.html" %}
 
 
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'common/js/moreless.js' %}"></script>
 {% endblock %}
 
