@@ -409,3 +409,31 @@ class RepositoryLiveForm(RepositoryBase):
         fields = (
             'live',
         )
+
+
+class RepositoryFieldForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositoryField
+        fields = (
+            'name',
+            'input_type',
+            'choices',
+            'required',
+            'order',
+            'help_text',
+            'display',
+            'dc_metadata_type',
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop('repository')
+        super(RepositoryFieldForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        field = super(RepositoryFieldForm, self).save(commit=False)
+        field.repository = self.repository
+
+        if commit:
+            field.save()
+
+        return field

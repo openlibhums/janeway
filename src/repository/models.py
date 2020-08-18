@@ -229,7 +229,12 @@ class RepositoryField(models.Model):
             'If this field is to be output as a dc metadata field you can add'
             'the type here.'
         ),
+        blank=True,
+        null=True,
     )
+
+    class Meta:
+        ordering = ('order', 'name',)
 
     def __str__(self):
         return '{}: {}'.format(self.repository.name, self.name)
