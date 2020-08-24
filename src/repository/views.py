@@ -556,6 +556,9 @@ def repository_files(request, preprint_id):
     )
 
     form = forms.FileForm(preprint=preprint)
+    supplementary = forms.PreprintSupplementaryFileForm(
+        preprint=preprint,
+    )
 
     if request.POST:
 
@@ -588,6 +591,16 @@ def repository_files(request, preprint_id):
                     )
                 )
 
+        if 'label' and 'url' in request.POST:
+            supplementary = forms.PreprintSupplementaryFileForm(
+                request.POST,
+                preprint=preprint,
+            )
+            if supplementary.is_valid():
+                preprint_supplementary, created = preprint.add_supplementary_file(supplementary)
+                messages.add_message(request, messages.INFO, 'Supplementary file link saved.')
+
+
         if 'complete' in request.POST:
             if preprint.submission_file:
                 return redirect(
@@ -607,6 +620,7 @@ def repository_files(request, preprint_id):
     context = {
         'preprint': preprint,
         'form': form,
+        'supplementary': supplementary,
     }
 
     return render(request, template, context)

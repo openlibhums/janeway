@@ -56,6 +56,16 @@
                     <h5>{% trans "Downloads" %}</h5>
                     <p><a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">Download {{ request.repository.object_name }} <span class="fa fa-download"></span>
                     </a></p>
+                    {% if preprint.supplementaryfiles %}
+                        <h5>{% trans "Supplementary Files" %}</h5>
+                        <ul>
+                        {% for link in preprint.supplementaryfiles %}
+                            <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                        {% empty %}
+                            <li>No Supplementary File</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
                     <h5>{% trans "Authors" %}</h5>
                     <p class="authors">
                         {% for author in preprint.authors %}

@@ -102,12 +102,22 @@
                             <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
                         </tr>
                     </table>
-
+                <div class="title-area">
+                    <h2>Supplementary Files</h2>
+                </div>
+                <div class="content">
+                    <ul>
+                    {% for link in preprint.supplementaryfiles %}
+                        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                    {% empty %}
+                        <li>No Supplementary File</li>
+                    {% endfor %}
+                    </ul>
+                </div>
                     <form method="POST">
                         {% csrf_token %}
                         <button name="complete" class="button">Complete Submission</button>
                     </form>
-                </div>
             </div>
         </div>
     </div>

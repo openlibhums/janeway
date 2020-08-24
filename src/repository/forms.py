@@ -148,6 +148,28 @@ class PreprintInfo(forms.ModelForm):
         return preprint
 
 
+class PreprintSupplementaryFileForm(forms.ModelForm):
+    class Meta:
+        model = models.PreprintSupplementaryFile
+        fields = ( 'label', 'url',)
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
+
+
+    def save(self, commit=True):
+        link = super(PreprintSupplementaryFileForm, self).save(commit=False)
+        link.preprint = self.preprint
+
+        if commit:
+            link.save()
+
+        return link
+
+
+
+
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = models.Author

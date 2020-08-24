@@ -396,6 +396,12 @@ class Preprint(models.Model):
 
         return [pa.author for pa in preprint_authors]
 
+    @property
+    def supplementaryfiles(self):
+        return PreprintSupplementaryFile.objects.filter(
+            preprint=self,
+        )
+
     def author_objects(self):
         pks = [author.pk for author in self.authors]
         return Author.objects.filter(pk__in=pks)
@@ -430,6 +436,14 @@ class Preprint(models.Model):
         )
 
         return preprint_author, created
+
+    def add_supplementary_file(self, supplementary):
+        return PreprintSupplementaryFile.objects.get_or_create(
+            label=supplementary.cleaned_data['label'],
+            url=supplementary.cleaned_data['url'],
+            preprint=self,
+        )
+
 
     def user_is_author(self, user):
         if user.email in [author.email_address for author in self.authors]:
@@ -564,6 +578,23 @@ class PreprintFile(models.Model):
         contents = file.read()
         file.close()
         return contents
+
+
+class PreprintSupplementaryFile(models.Model):
+    preprint = models.ForeignKey(Preprint)
+    url = models.URLField()
+    label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
+    sequence = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ('sequence',)
+        unique_together = ('url', 'preprint')
+
+    '''def __str__(self):
+        return '{self.url} linked to {self.preprint}'.format(
+            author=self.url,
+            preprint=self.preprint.title,
+        )'''
 
 
 class PreprintAccess(models.Model):
