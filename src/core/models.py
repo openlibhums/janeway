@@ -148,11 +148,11 @@ class Country(models.Model):
 
 class AccountQuerySet(models.query.QuerySet):
     def create(self, **kwargs):
-            obj = self.model(**kwargs)
-            obj.clean()
-            self._for_write = True
-            obj.save(force_insert=True, using=self.db)
-            return obj
+        obj = self.model(**kwargs)
+        obj.clean()
+        self._for_write = True
+        obj.save(force_insert=True, using=self.db)
+        return obj
 
 
 class AccountManager(BaseUserManager):
@@ -234,7 +234,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
         unique_together = ('email', 'username')
-
 
     def clean(self, *args, **kwargs):
         """ Normalizes the email address
