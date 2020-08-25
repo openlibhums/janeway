@@ -133,7 +133,6 @@ class RegistrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super(RegistrationForm, self).save(commit=False)
-        user.username = self.cleaned_data['email']
         user.set_password(self.cleaned_data["password_1"])
         user.is_active = False
         user.confirmation_code = uuid.uuid4()
