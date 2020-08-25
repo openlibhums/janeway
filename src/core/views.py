@@ -74,7 +74,7 @@ def user_login(request):
         form = forms.LoginForm(request.POST, bad_logins=bad_logins)
 
         if form.is_valid():
-            user = request.POST.get('user_name').lower()
+            user = request.POST.get('user_name')
             pawd = request.POST.get('user_pass')
 
             user = authenticate(username=user, password=pawd)
@@ -100,7 +100,7 @@ def user_login(request):
                     return redirect(reverse('website_index'))
             else:
 
-                empty_password_check = logic.no_password_check(request.POST.get('user_name').lower())
+                empty_password_check = logic.no_password_check(request.POST.get('user_name'))
 
                 if empty_password_check:
                     messages.add_message(request, messages.INFO,
@@ -110,8 +110,9 @@ def user_login(request):
                 else:
 
                     messages.add_message(request, messages.ERROR,
-                                         'Account not found or account not active. Please ensure'
-                                         ' you have activated your account.')
+                                         'No account found with those credentials. Please ensure you are using the'
+                                         'correct username and password and that you have completed the activation'
+                                         'process.')
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
                                                        request.POST.get('user_name')),

@@ -18,6 +18,12 @@
                     {% csrf_token %}
                     <div class="card-content">
                         <span class="card-title">Login</span>
+                        <p>
+                            <small>
+                                Note: Login credentials are case sensitive. Please ensure you enter your username and
+                                password in the same case you did whilst registering.
+                            </small>
+                        </p>
                         <div class="input-field col s12">
                             {{ form.user_name }}
                             <label for="email">{% trans form.user_name.label %}</label>

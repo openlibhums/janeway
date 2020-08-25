@@ -20,6 +20,13 @@
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}"
                            class="btn btn-primary btn-block">{% trans "Log in with ORCiD" %}</a>
                         <br/>
+                            <p>
+                                <small>
+                                    Note: Login credentials are case sensitive. Please ensure you enter your username
+                                    and
+                                    password in the same case you did whilst registering.
+                                </small>
+                            </p>
                         {% endif %}
                         <form method="POST">
                             {% include "common/elements/static-error-messages.html" with form=form %}
