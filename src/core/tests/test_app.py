@@ -67,6 +67,30 @@ class CoreTests(TestCase):
         except models.Account.DoesNotExist:
             self.fail('User account has not been saved.')
 
+    @override_settings(URL_CONFIG="domain")
+    def test_mixed_case_email_address(self):
+
+        data = {
+            'email': 'MiXeDcAsE@TEST.com',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': 235,
+        }
+
+        self.client.force_login(self.admin_user)
+        response = self.client.post(reverse('core_register'), data)
+
+        try:
+            models.Account.objects.get(username='mixedcase@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('Username has not been set to lowercase.')
+
     def test_email_subjects(self):
         email_settings= models.Setting.objects.filter(
             group__name="email",
@@ -89,8 +113,6 @@ class CoreTests(TestCase):
             'email', 'editor_assignment', self.journal_one, 'test'
         )
         mock_method.assert_called()
-
-
 
     def setUp(self):
         self.press = helpers.create_press()
