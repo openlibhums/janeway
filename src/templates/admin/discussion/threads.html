@@ -1,0 +1,48 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}{{ object.title }} Discussions{% endblock %}
+{% block title-section %}{{ object_type|capfirst }} {{ object.title }} Discussions{% endblock %}
+
+{% block body %}
+
+    <div class="row expanded">
+        <div class="large-5 columns thread-box-left">
+            <div class="box thread-box thread-dark">
+                {% for thread in threads %}
+                    {% include "admin/discussion/thread.html" %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="large-7 columns thread-box-right">
+            <div class="box thread-box">
+                {% if active_thread %}
+                    <div>
+                        <h2>{{ active_thread.subject }}</h2>
+                        <p class="subheader">Started on {{ active_thread.started|date:"Y-m-d H:i" }} (newest at top)</p>
+                        <div class="row expanded">
+                            <form method="POST" action="{% url 'discussion_add_post' active_thread.pk %}">
+                                {% csrf_token %}
+                                <div class="small-9 columns">
+                                    <textarea name="new_post" rows="4"></textarea>
+                                </div>
+                                <div class="small-3 columns">
+                                    <button class="button expanded post-button">
+                                        <span class="fa fa-send-o" aria-hidden="true">&nbsp;</span> Add Post
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="thread-inner">
+                            {% for post in active_thread.posts.all %}
+                                {% include "admin/discussion/post.html" %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p>Select a thread to display posts.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
