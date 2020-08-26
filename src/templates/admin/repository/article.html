@@ -21,7 +21,7 @@
                 <h2>Metadata</h2>
             </div>
             <div class="content">
-                <table class="scroll">
+                <table class="scroll small">
                     <tr>
                         <th colspan="3">Title</th>
                     </tr>
@@ -35,6 +35,12 @@
                     <tr>
                         <td colspan="2">{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
+                    </tr>
+                     <tr>
+                        <th colspan="3">Published DOI</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
                     </tr>
                     <tr>
                         <th colspan="3">
@@ -53,7 +59,7 @@
                     </tr>
                     <tr>
                         <td>{{ preprint.date_started }}</td>
-                        <td>{{ preprint.date_submitted }}</td>
+                        <td colspan="2">{{ preprint.date_submitted }}</td>
                     </tr>
                     <tr>
                         <th colspan="4">Abstract</th>

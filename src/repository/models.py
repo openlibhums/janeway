@@ -264,6 +264,7 @@ class Preprint(models.Model):
         'core.Account',
         null=True,
         on_delete=models.SET_NULL,
+        help_text='The account that submitted this item.',
     )
     stage = models.CharField(max_length=25, default=STAGE_PREPRINT_UNSUBMITTED)
     title = models.CharField(
@@ -320,6 +321,9 @@ class Preprint(models.Model):
         max_length=100,
         blank=True,
         null=True,
+        verbose_name='Published DOI',
+        help_text='You can add a DOI linking to this item\'s published version using this field. '
+                  'Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.'
     )
     preprint_decision_notification = models.BooleanField(
         default=False,

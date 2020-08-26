@@ -39,12 +39,6 @@ class Thread(models.Model):
     def __str__(self):
         return self.subject
 
-    def clean(self):
-        if not self.article and not self.preprint:
-            raise ValidationError(
-                _('You must select either an Article or a Preprint object.')
-            )
-
     def object_title(self):
         if self.article:
             return self.article.title
@@ -59,7 +53,7 @@ class Thread(models.Model):
 
     def object_id(self):
         if self.article:
-            return self.articke.pk
+            return self.article.pk
         else:
             return self.preprint.pk
 

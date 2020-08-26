@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.http import Http404
 from django.views.decorators.http import require_POST
 
-from discussion import models
+from discussion import models, forms
 from submission import models as submission_models
 from repository import models as repository_models
 
@@ -11,6 +11,8 @@ def threads(request, object_type, object_id, thread_id=None):
     """
     Grabs threads for an object type.
     """
+    modal = None
+
     if object_type == 'article':
         object_to_get = get_object_or_404(
             submission_models.Article,
@@ -38,12 +40,42 @@ def threads(request, object_type, object_id, thread_id=None):
     else:
         thread = None
 
+    form = forms.ThreadForm(
+        object=object_to_get,
+        object_type=object_type,
+        owner=request.user,
+    )
+
+    if request.POST:
+        form = forms.ThreadForm(
+            request.POST,
+            object=object_to_get,
+            object_type=object_type,
+            owner=request.user,
+        )
+        if form.is_valid():
+            thread = form.save()
+            return redirect(
+                reverse(
+                    'discussion_thread',
+                    kwargs={
+                        'object_type': thread.object_string(),
+                        'object_id': thread.object_id(),
+                        'thread_id': thread.pk,
+                    }
+                )
+            )
+        else:
+            modal = 'new_thread'
+
     template = 'admin/discussion/threads.html'
     context = {
         'object': object_to_get,
         'object_type': object_type,
         'threads': threads,
         'active_thread': thread,
+        'form': form,
+        'modal': modal,
     }
     return render(request, template, context)
 
