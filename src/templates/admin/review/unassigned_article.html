@@ -78,7 +78,7 @@
                             <th colspan="4">{{ field_answer.field.name }}</th>
                         </tr>
                         <tr>
-                            <td colspan="4">{{ field_answer.answer }}</td>
+                            <td colspan="4">{{ field_answer.answer|safe }}</td>
                         </tr>
                     {% endfor %}
                 </table>
