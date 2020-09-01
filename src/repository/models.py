@@ -577,6 +577,23 @@ class PreprintFile(models.Model):
         return contents
 
 
+class PreprintSupplementaryFile(models.Model):
+    preprint = models.ForeignKey(Preprint)
+    url = models.URLField()
+    label = models.CharField(max_length=200, verbose_name=_('Label'), default='Supplementary File')
+    order = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ('order',)
+        unique_together = ('url', 'preprint')
+
+    def __str__(self):
+        return '{self.url} linked to {self.preprint}'.format(
+            author=self.url,
+            preprint=self.preprint.title,
+        )
+
+
 class PreprintAccess(models.Model):
     preprint = models.ForeignKey(Preprint)
     file = models.ForeignKey(PreprintFile, blank=True, null=True)
