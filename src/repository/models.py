@@ -587,12 +587,6 @@ class PreprintSupplementaryFile(models.Model):
         ordering = ('order',)
         unique_together = ('url', 'preprint')
 
-    def __str__(self):
-        return '{self.url} linked to {self.preprint}'.format(
-            author=self.url,
-            preprint=self.preprint.title,
-        )
-
 
 class PreprintAccess(models.Model):
     preprint = models.ForeignKey(Preprint)
