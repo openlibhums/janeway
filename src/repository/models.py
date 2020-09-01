@@ -325,6 +325,13 @@ class Preprint(models.Model):
         help_text='You can add a DOI linking to this item\'s published version using this field. '
                   'Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.'
     )
+    preprint_doi = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Preprint DOI',
+        help_text='System supplied DOI. '
+    )
     preprint_decision_notification = models.BooleanField(
         default=False,
     )
