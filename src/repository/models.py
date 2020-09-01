@@ -581,7 +581,7 @@ class PreprintSupplementaryFile(models.Model):
     preprint = models.ForeignKey(Preprint)
     url = models.URLField()
     label = models.CharField(max_length=200, verbose_name=_('Label'), default='Supplementary File')
-    order = models.IntegerField(default=1)
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ('order',)
