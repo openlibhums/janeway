@@ -28,6 +28,7 @@ class PreprintInfo(forms.ModelForm):
             'license',
             'comments_editor',
             'subject',
+            'doi',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
@@ -102,7 +103,7 @@ class PreprintInfo(forms.ModelForm):
                             preprint=preprint,
                         )
                         self.fields[element.name].initial = check_for_answer.answer
-                    except submission_models.FieldAnswer.DoesNotExist:
+                    except models.RepositoryFieldAnswer.DoesNotExist:
                         pass
 
     def save(self, commit=True):

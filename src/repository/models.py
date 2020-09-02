@@ -264,6 +264,7 @@ class Preprint(models.Model):
         'core.Account',
         null=True,
         on_delete=models.SET_NULL,
+        help_text='The account that submitted this item.',
     )
     stage = models.CharField(max_length=25, default=STAGE_PREPRINT_UNSUBMITTED)
     title = models.CharField(
@@ -320,6 +321,16 @@ class Preprint(models.Model):
         max_length=100,
         blank=True,
         null=True,
+        verbose_name='Published DOI',
+        help_text='You can add a DOI linking to this item\'s published version using this field. '
+                  'Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.'
+    )
+    preprint_doi = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Preprint DOI',
+        help_text='System supplied DOI. '
     )
     preprint_decision_notification = models.BooleanField(
         default=False,
@@ -583,18 +594,12 @@ class PreprintFile(models.Model):
 class PreprintSupplementaryFile(models.Model):
     preprint = models.ForeignKey(Preprint)
     url = models.URLField()
-    label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
-    sequence = models.IntegerField(default=1)
+    label = models.CharField(max_length=200, verbose_name=_('Label'), default='Supplementary File')
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ('order',)
         unique_together = ('url', 'preprint')
-
-    '''def __str__(self):
-        return '{self.url} linked to {self.preprint}'.format(
-            author=self.url,
-            preprint=self.preprint.title,
-        )'''
 
 
 class PreprintAccess(models.Model):

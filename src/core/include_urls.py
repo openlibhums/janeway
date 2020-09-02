@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^repository/', include('repository.urls')),
     url(r'^utils/', include('utils.urls')),
     url(r'^workflow/', include('workflow.urls')),
+    url(r'^discussion/', include('discussion.urls')),
 
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
