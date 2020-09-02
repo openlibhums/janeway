@@ -194,6 +194,20 @@
                         {% endfor %}
                     </table>
                 </div>
+                <div class="title-area">
+                    <h2>Supplementary Files</h2>
+                </div>
+                <div class="content">
+                    <div>TODO -- add way to add more links / change the order</div>
+                    <ul>
+                    {% for link in preprint.supplementaryfiles %}
+                        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                    {% empty %}
+                        <li>No Supplementary File</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+
                 {% if preprint.date_accepted %}
                 <div class="title-area">
                     <h2>Submit to Journal</h2>

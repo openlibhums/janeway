@@ -60,6 +60,11 @@ class PreprintAccessAdmin(admin.ModelAdmin):
     save_as = True
 
 
+class PreprintSupplementaryFileAdmin(admin.ModelAdmin):
+    pass
+
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.PreprintVersion, VersionAdmin),
@@ -68,6 +73,7 @@ admin_list = [
     (models.VersionQueue, QueueAdmin),
     (models.Preprint, PreprintAdmin),
     (models.PreprintFile, PreprintFileAdmin),
+    (models.PreprintSupplementaryFile, PreprintSupplementaryFileAdmin),
     (models.Author,),
     (models.PreprintAuthor,),
     (models.RepositoryField,),
