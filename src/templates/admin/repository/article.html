@@ -327,6 +327,20 @@
                 </table>
             </div>
         </div>
+        <div class="box">
+            <div class="title-area">
+                <h2>Supplementary Files</h2>
+            </div>
+            <div class="content">
+                <ul>
+                {% for link in preprint.supplementaryfiles %}
+                    <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                {% empty %}
+                    <li>No Supplementary File</li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
 
     {% include "admin/elements/repository/new_file.html" %}
