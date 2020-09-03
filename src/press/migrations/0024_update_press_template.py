@@ -12,18 +12,21 @@ REG_NEW = "{% site_url 'core_confirm_account' user.confirmation_code %}"
 
 def update_press_templates(apps, schema_editor):
     Press = apps.get_model('press', 'Press')
-    press_obj = Press.objects.all()[0]
+    try:
+        press_obj = Press.objects.all()[0]
 
-    press_obj.password_reset_text = press_obj.password_reset_text.replace(
-        REST_BASE,
-        RESET_NEW,
-    )
-    press_obj.registration_text = press_obj.registration_text.replace(
-        REG_BASE,
-        REG_NEW,
-    )
+        press_obj.password_reset_text = press_obj.password_reset_text.replace(
+            REST_BASE,
+            RESET_NEW,
+        )
+        press_obj.registration_text = press_obj.registration_text.replace(
+            REG_BASE,
+            REG_NEW,
+        )
 
-    press_obj.save()
+        press_obj.save()
+    except IndexError:
+        pass
 
 
 class Migration(migrations.Migration):
