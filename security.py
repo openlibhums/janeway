@@ -22,7 +22,7 @@ def proofreader_for_article_required(func):
             return redirect(
                 '{0}?next={1}'.format(
                     reverse('core_login'),
-                    request.path_info
+                    request.path_info,
                 )
             )
 
@@ -35,7 +35,7 @@ def proofreader_for_article_required(func):
                 proofreader=request.user,
                 cancelled=False,
                 completed__isnull=True,
-                round__article__journal=request.journal
+                round__article__journal=request.journal,
         ).exists():
             return func(request, *args, **kwargs)
 
@@ -58,7 +58,7 @@ def can_preview_typesetting_article(func):
             return redirect(
                 '{0}?next={1}'.format(
                     reverse('core_login'),
-                    request.path_info
+                    request.path_info,
                 )
             )
 
@@ -71,7 +71,7 @@ def can_preview_typesetting_article(func):
                 proofreader=request.user,
                 cancelled=False,
                 completed__isnull=True,
-                round__article__journal=request.journal
+                round__article__journal=request.journal,
         ).exists():
             return func(request, *args, **kwargs)
 
