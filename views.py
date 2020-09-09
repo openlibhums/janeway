@@ -1128,7 +1128,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
     return render(request, template, context)
 
 
-@security.proofreader_for_article_required
+@security.can_preview_typesetting_article
 def typesetting_preview_galley(
         request,
         article_id,
@@ -1141,6 +1141,7 @@ def typesetting_preview_galley(
     :param assignment_id: ProofingTask object PK
     :param galley_id: Galley object PK
     :param article_id: Article object PK
+    :param assignment_id: Optional proofing or typesetting assignment id
     :return: HttpResponse
     """
     proofing_task = None
@@ -1149,28 +1150,24 @@ def typesetting_preview_galley(
         pk=article_id,
         journal=request.journal,
     )
-    allowed_roles = ['editor', 'section-editor', 'production']
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        article_id=article.pk,
+    )
 
     if assignment_id:
-        proofing_task = get_object_or_404(
-            models.GalleyProofing,
-            pk=assignment_id,
-            round__article=article,
-        )
-        galley = get_object_or_404(
-            core_models.Galley,
-            pk=galley_id,
-            article_id=article.pk,
-        )
-        proofing_task.proofed_files.add(galley)
-    elif request.user.has_role(request, allowed_roles):
-        galley = get_object_or_404(
-            core_models.Galley,
-            pk=galley_id,
-            article_id=article.pk,
-        )
-    else:
-        raise PermissionDenied
+        try:
+            proofing_task = models.GalleyProofing.objects.get(
+                pk=assignment_id,
+                round__article=article,
+            )
+            proofing_task.proofed_files.add(galley)
+        except models.GalleyProofing.DoesNotExist:
+            get_object_or_404(
+                models.TypesettingAssignment,
+                pk=assignment_id,
+            )
 
     if galley.type == 'xml' or galley.type == 'html':
         template = 'journal/article.html'

@@ -44,6 +44,49 @@ def proofreader_for_article_required(func):
 
     return wrapper
 
+def can_preview_typesetting_article(func):
+    """ Checks if the user should be allowed to preview articles files
+
+    The user should either be an editor/production manager, a proofreader
+    for the article or a typesetter for the article
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an PermissionDenied
+    """
+
+    def wrapper(request, *args, **kwargs):
+        if not base_check(request):
+            return redirect(
+                '{0}?next={1}'.format(
+                    reverse('core_login'),
+                    request.path_info
+                )
+            )
+
+        elif request.user.is_editor(request) or request.user.is_staff or request.user.is_production(request):
+            return func(request, *args, **kwargs)
+
+        # User is Assigned as proofreader, regardless of role
+        elif models.GalleyProofing.objects.filter(
+                pk=kwargs['assignment_id'],
+                proofreader=request.user,
+                cancelled=False,
+                completed__isnull=True,
+                round__article__journal=request.journal
+        ).exists():
+            return func(request, *args, **kwargs)
+
+        # User is Assigned as typesetter, regardless of role
+        elif models.TypesettingAssignment.objects.filter(
+                pk=kwargs['assignment_id'],
+                typesetter=request.user,
+                cancelled__isnull=True,
+                round__article__journal=request.journal,
+        ).exists():
+            return func(request, *args, **kwargs)
+        else:
+            deny_access(request)
+
+    return wrapper
 
 def require_not_notified(object_model):
     """
