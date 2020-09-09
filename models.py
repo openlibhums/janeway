@@ -221,7 +221,9 @@ class TypesettingAssignment(models.Model):
         "unknown": "Task status unknown",
         "Corrections Required": "This article requires corrections.",
         "Proofing Required": "This article requires proofing.",
-        "Accept": "Typesetting for this article has been accepted."
+        "Accept": "Typesetting for this article has been completed. However,"
+            " if you want to make further changes, you can still assign"
+            " proofreaders or start a new typesetting round.",
     }
 
     @property
