@@ -5,8 +5,8 @@ from utils.install import update_settings
 PLUGIN_NAME = 'Typesetting Plugin'
 DISPLAY_NAME = 'Typesetting'
 DESCRIPTION = 'An alternative for Production/Proofing'
-AUTHOR = 'Andy Byers'
-VERSION = '0.3'
+AUTHOR = 'Birkbeck Centre for Technology and Publishing'
+VERSION = '1.0'
 SHORT_NAME = 'typesetting'
 MANAGER_URL = 'typesetting_manager'
 JANEWAY_VERSION = "1.3.8"
