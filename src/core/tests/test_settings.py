@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from core.models import SettingGroup
 from utils.testing import helpers
@@ -145,6 +145,7 @@ class TestSettingHandler(TestCase):
         )
         self.assertEqual(result.value, setting_value)
 
+    @override_settings(USE_I18N=True)
     @helpers.activate_translation("es")
     def test_save_translated_setting_without_default_lang(self):
         setting_name = "test_save_translated_setting_without_default_lang"
@@ -169,6 +170,7 @@ class TestSettingHandler(TestCase):
             )
         self.assertEqual(result.value, expected_result)
 
+    @override_settings(USE_I18N=True)
     def test_save_translated_setting_with_default_lang(self):
         setting_name = "test_save_translated_setting_with_default_lang"
         setting_value = "banana"
@@ -206,6 +208,7 @@ class TestSettingHandler(TestCase):
         self.assertEqual(result, setting_value)
         self.assertEqual(xl_result, xl_setting_value)
 
+    @override_settings(USE_I18N=True)
     def test_update_translated_setting_with_default_lang(self):
         setting_name = "test_update_translated_setting_with_default_lang"
         setting_value = "banana"
