@@ -6,9 +6,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from mock import patch
 
+from django.core.management import call_command
+from django.db import IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.core.management import call_command
 
 from utils.testing import helpers
 from core import models
@@ -68,7 +69,7 @@ class CoreTests(TestCase):
             self.fail('User account has not been saved.')
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
-    def test_mixed_case_email_address(self):
+    def test_mixed_case_email_address_correct_username(self):
 
         data = {
             'email': 'MiXeDcAsE@TEST.com',
@@ -90,7 +91,39 @@ class CoreTests(TestCase):
             self.fail('Username has not been set to lowercase.')
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
-    def test_mixed_case_login(self):
+    def test_mixed_case_email_address_no_duplicates(self):
+        """Ensure no duplicate accounts can be created for mixed case emails"""
+        email = "MiXeDcAsE@TEST.com"
+        other_email = email.lower()
+
+        data = {
+            'email': email,
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+        }
+
+        response = self.client.post(reverse('core_register'), data)
+        try:
+            models.Account.objects.get(username='mixedcase@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('Username has not been set to lowercase.')
+        with self.assertRaises(
+            IntegrityError,
+            msg="Managed to issue accounts for %s and %s"
+                "" % (email, other_email),
+        ):
+            models.Account.objects.create(email=other_email)
+
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_mixed_case_login_same_case(self):
         email = "Janeway@voyager.com"
         password = "random_password"
 
