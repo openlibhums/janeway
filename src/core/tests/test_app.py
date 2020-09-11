@@ -155,6 +155,40 @@ class CoreTests(TestCase):
                 "" % (email, email),
         )
 
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_mixed_case_login_different_case(self):
+        email = "Janeway@voyager.com"
+        login_email = email.lower()
+        password = "random_password"
+
+        data = {
+            'email': email,
+            'is_active': True,
+            'password_1': password,
+            'password_2': password,
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+        }
+
+        response = self.client.post(reverse('core_register'), data)
+        account = models.Account.objects.get(email=email)
+        account.is_active = True
+        account.save()
+        data = {"user_name": login_email, "user_pass": password}
+        response = self.client.post(
+            reverse("core_login"), data,
+            HTTP_USER_AGENT='Mozilla/5.0',
+        )
+        self.assertEqual(
+            self.client.session["_auth_user_id"], str(account.pk),
+            msg="Registered user %s can't login with email %s"
+                "" % (email, login_email),
+        )
+
     def test_email_subjects(self):
         email_settings= models.Setting.objects.filter(
             group__name="email",
