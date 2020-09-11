@@ -225,7 +225,6 @@ class AdminUserForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super(AdminUserForm, self).save(commit=False)
-        user.username = self.cleaned_data['email']
 
         if self.cleaned_data.get('password_1'):
             user.set_password(self.cleaned_data["password_1"])
