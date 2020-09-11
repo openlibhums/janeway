@@ -162,6 +162,7 @@ class EditAccountForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
+        user.clean()
 
         posted_interests = self.cleaned_data['interests'].split(',')
         for interest in posted_interests:
