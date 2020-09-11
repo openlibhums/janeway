@@ -107,13 +107,17 @@ class RegistrationForm(forms.ModelForm):
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
 
-    if settings.CAPTCHA_TYPE == 'simple_math':
-        question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
-        are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
-    elif settings.CAPTCHA_TYPE == 'recaptcha':
-        are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
-    else:
-        are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if settings.CAPTCHA_TYPE == 'simple_math':
+            question_template = _('What is %(num1)i %(operator)s %(num2)i? ')
+            are_you_a_robot = MathCaptchaField(label=_('Answer this question: '))
+        elif settings.CAPTCHA_TYPE == 'recaptcha':
+            are_you_a_robot = ReCaptchaField(widget=ReCaptchaWidget())
+        else:
+            are_you_a_robot = forms.CharField(widget=forms.HiddenInput(), required=False)
+        self.fields["are_you_a_robot"] = are_you_a_robot
 
     class Meta:
         model = models.Account
