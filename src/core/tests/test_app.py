@@ -67,7 +67,7 @@ class CoreTests(TestCase):
         except models.Account.DoesNotExist:
             self.fail('User account has not been saved.')
 
-    @override_settings(URL_CONFIG="domain")
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_mixed_case_email_address(self):
 
         data = {
@@ -80,16 +80,47 @@ class CoreTests(TestCase):
             'last_name': 'Eve',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
-            'country': 235,
+            'country': '',
         }
 
-        self.client.force_login(self.admin_user)
         response = self.client.post(reverse('core_register'), data)
-
         try:
             models.Account.objects.get(username='mixedcase@test.com')
         except models.Account.DoesNotExist:
             self.fail('Username has not been set to lowercase.')
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    def test_mixed_case_login(self):
+        email = "Janeway@voyager.com"
+        password = "random_password"
+
+        data = {
+            'email': email,
+            'is_active': True,
+            'password_1': password,
+            'password_2': password,
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': '',
+        }
+
+        response = self.client.post(reverse('core_register'), data)
+        account = models.Account.objects.get(email=email)
+        account.is_active = True
+        account.save()
+        data = {"user_name": email, "user_pass": password}
+        response = self.client.post(
+            reverse("core_login"), data,
+            HTTP_USER_AGENT='Mozilla/5.0',
+        )
+        self.assertEqual(
+            self.client.session["_auth_user_id"], str(account.pk),
+            msg="Registered user %s can't login with email %s"
+                "" % (email, email),
+        )
 
     def test_email_subjects(self):
         email_settings= models.Setting.objects.filter(
