@@ -406,6 +406,7 @@ def handle_email_change(request, email_address):
     request.user.email = email_address
     request.user.is_active = False
     request.user.confirmation_code = uuid.uuid4()
+    request.user.clean()
     request.user.save()
 
     context = {'user': request.user}
