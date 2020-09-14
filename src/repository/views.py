@@ -590,6 +590,21 @@ def repository_files(request, preprint_id):
 
         if 'complete' in request.POST:
             if preprint.submission_file:
+                preprint.submit_preprint()
+                kwargs = {'request': request, 'preprint': preprint}
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_PREPRINT_SUBMISSION,
+                    **kwargs,
+                )
+
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    '{object} {title} submitted.'.format(
+                        object=request.repository.object_name,
+                        title=preprint.title
+                    )
+                )
                 return redirect(
                     reverse(
                         'repository_review',
@@ -625,25 +640,11 @@ def repository_review(request, preprint_id):
         models.Preprint,
         pk=preprint_id,
         owner=request.user,
-        date_submitted__isnull=True,
+        date_submitted__isnull=False,
     )
 
     if request.POST and 'complete' in request.POST:
-        preprint.submit_preprint()
-        kwargs = {'request': request, 'preprint': preprint}
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_PREPRINT_SUBMISSION,
-            **kwargs,
-        )
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            '{object} {title} submitted'.format(
-                object=request.repository.object_name,
-                title=preprint.title
-            )
-        )
         return redirect(reverse('repository_dashboard'))
 
     template = 'admin/repository/submit/review.html'
