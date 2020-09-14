@@ -229,7 +229,12 @@ class RepositoryField(models.Model):
             'If this field is to be output as a dc metadata field you can add'
             'the type here.'
         ),
+        blank=True,
+        null=True,
     )
+
+    class Meta:
+        ordering = ('order', 'name',)
 
     def __str__(self):
         return '{}: {}'.format(self.repository.name, self.name)
@@ -259,6 +264,7 @@ class Preprint(models.Model):
         'core.Account',
         null=True,
         on_delete=models.SET_NULL,
+        help_text='The account that submitted this item.',
     )
     stage = models.CharField(max_length=25, default=STAGE_PREPRINT_UNSUBMITTED)
     title = models.CharField(
@@ -315,6 +321,16 @@ class Preprint(models.Model):
         max_length=100,
         blank=True,
         null=True,
+        verbose_name='Published DOI',
+        help_text='You can add a DOI linking to this item\'s published version using this field. '
+                  'Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.'
+    )
+    preprint_doi = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Preprint DOI',
+        help_text='System supplied DOI. '
     )
     preprint_decision_notification = models.BooleanField(
         default=False,
@@ -391,6 +407,12 @@ class Preprint(models.Model):
 
         return [pa.author for pa in preprint_authors]
 
+    @property
+    def supplementaryfiles(self):
+        return PreprintSupplementaryFile.objects.filter(
+            preprint=self,
+        )
+
     def author_objects(self):
         pks = [author.pk for author in self.authors]
         return Author.objects.filter(pk__in=pks)
@@ -425,6 +447,14 @@ class Preprint(models.Model):
         )
 
         return preprint_author, created
+
+    def add_supplementary_file(self, supplementary):
+        return PreprintSupplementaryFile.objects.get_or_create(
+            label=supplementary.cleaned_data['label'],
+            url=supplementary.cleaned_data['url'],
+            preprint=self,
+        )
+
 
     def user_is_author(self, user):
         if user.email in [author.email_address for author in self.authors]:
@@ -559,6 +589,17 @@ class PreprintFile(models.Model):
         contents = file.read()
         file.close()
         return contents
+
+
+class PreprintSupplementaryFile(models.Model):
+    preprint = models.ForeignKey(Preprint)
+    url = models.URLField()
+    label = models.CharField(max_length=200, verbose_name=_('Label'), default='Supplementary File')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('order',)
+        unique_together = ('url', 'preprint')
 
 
 class PreprintAccess(models.Model):

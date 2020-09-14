@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'core',
     'copyediting',
     'cron',
+    'discussion',
     'events',
     'identifiers',
     'journal',

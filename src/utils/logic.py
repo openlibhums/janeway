@@ -154,7 +154,6 @@ def get_janeway_version():
 
 def get_log_entries(object):
     content_type = ContentType.objects.get_for_model(object)
-    print(content_type)
     return models.LogEntry.objects.filter(
         content_type=content_type,
         object_id=object.pk,

@@ -1030,7 +1030,7 @@ def is_article_preprint_editor(func):
             repository=request.repository
         )
 
-        if request.user in preprint.subject_editors() or request.user.is_staff:
+        if request.user in preprint.subject_editors() or request.user.is_staff or request.user in request.repository.managers.all():
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1038,22 +1038,23 @@ def is_article_preprint_editor(func):
     return wrapper
 
 
-def is_preprint_editor(func):
+def is_repository_manager(func):
     """
-    Checks that the current user is a preprint editor
+    Checks that the current user is a repository manager
     :param func:
     :return:
     """
 
     @base_check_required
-    def wrapper(request, *args, **kwargs):
+    def preprint_manager_wrapper(request, *args, **kwargs):
 
-        if request.user in request.press.preprint_editors() or request.user.is_staff:
-            return func(request, *args, **kwargs)
+        if request.repository and request.user:
+            if request.user.is_staff or request.user in request.repository.managers.all():
+                return func(request, *args, **kwargs)
 
         deny_access(request)
 
-    return wrapper
+    return preprint_manager_wrapper
 
 
 def deny_access(request, *args, **kwargs):

@@ -140,4 +140,20 @@ urlpatterns = [
     url(r'^wizard/repository/(?P<short_name>[-\w]+)/step/(?P<step>\d+)/$',
         views.repository_wizard,
         name='repository_wizard_with_id'),
+
+    url(r'^manager/fields/$',
+        views.repository_fields,
+        name='repository_fields'),
+
+    url(r'^manager/fields/delete/$',
+        views.repository_delete_field,
+        name='repository_delete_field'),
+
+    url(r'^manager/fields/order/$',
+        views.repository_order_fields,
+        name='repository_order_fields'),
+
+    url(r'^manager/fields/(?P<field_id>\d+)/$',
+        views.repository_fields,
+        name='repository_fields_with_id'),
 ]

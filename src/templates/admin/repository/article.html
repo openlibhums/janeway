@@ -3,13 +3,13 @@
 {% load static from staticfiles %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
-{% block title-section %}Preprint Manager{% endblock %}
-{% block title-sub %}Preprint #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
     <li>{{ preprint.title|safe }}</li>
 {% endblock %}
 
@@ -18,10 +18,10 @@
     <div class="large-8 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Preprint Metadata</h2>
+                <h2>Metadata</h2>
             </div>
             <div class="content">
-                <table class="scroll">
+                <table class="scroll small">
                     <tr>
                         <th colspan="3">Title</th>
                     </tr>
@@ -35,6 +35,12 @@
                     <tr>
                         <td colspan="2">{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
+                    </tr>
+                     <tr>
+                        <th colspan="3">Published DOI</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
                     </tr>
                     <tr>
                         <th colspan="3">
@@ -53,7 +59,7 @@
                     </tr>
                     <tr>
                         <td>{{ preprint.date_started }}</td>
-                        <td>{{ preprint.date_submitted }}</td>
+                        <td colspan="2">{{ preprint.date_submitted }}</td>
                     </tr>
                     <tr>
                         <th colspan="4">Abstract</th>
@@ -99,6 +105,12 @@
                     <li><a href="{% url 'repository_comments' preprint.pk %}"><i class="fa fa-comments"
                                                                                 aria-hidden="true">&nbsp;</i>Comments
                         ({{ preprint.comment_set.all|length }})</a></li>
+                    <li>
+                        <a target="_blank" href="{% url 'discussion_threads' 'preprint' preprint.pk %}">
+                            <i class="fa fa-align-justify" aria-hidden="true">&nbsp;</i>
+                            Discussion ({{ preprint.thread_set.count }})
+                        </a>
+                    </li>
                     {% if not preprint.date_declined and preprint.has_version %}
                         <li><a href="#" data-open="accept_preprint">
                             {% if preprint.date_accepted %}
@@ -313,6 +325,20 @@
                         {% endfor %}
                     </form>
                 </table>
+            </div>
+        </div>
+        <div class="box">
+            <div class="title-area">
+                <h2>Supplementary Files</h2>
+            </div>
+            <div class="content">
+                <ul>
+                {% for link in preprint.supplementaryfiles %}
+                    <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                {% empty %}
+                    <li>No Supplementary File</li>
+                {% endfor %}
+                </ul>
             </div>
         </div>
     </div>

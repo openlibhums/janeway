@@ -28,6 +28,7 @@ class PreprintInfo(forms.ModelForm):
             'license',
             'comments_editor',
             'subject',
+            'doi',
         )
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
@@ -102,7 +103,7 @@ class PreprintInfo(forms.ModelForm):
                             preprint=preprint,
                         )
                         self.fields[element.name].initial = check_for_answer.answer
-                    except submission_models.FieldAnswer.DoesNotExist:
+                    except models.RepositoryFieldAnswer.DoesNotExist:
                         pass
 
     def save(self, commit=True):
@@ -146,6 +147,28 @@ class PreprintInfo(forms.ModelForm):
             preprint.save()
 
         return preprint
+
+
+class PreprintSupplementaryFileForm(forms.ModelForm):
+    class Meta:
+        model = models.PreprintSupplementaryFile
+        fields = ( 'label', 'url',)
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop('preprint')
+        super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
+
+
+    def save(self, commit=True):
+        link = super(PreprintSupplementaryFileForm, self).save(commit=False)
+        link.preprint = self.preprint
+
+        if commit:
+            link.save()
+
+        return link
+
+
 
 
 class AuthorForm(forms.ModelForm):
@@ -409,3 +432,31 @@ class RepositoryLiveForm(RepositoryBase):
         fields = (
             'live',
         )
+
+
+class RepositoryFieldForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositoryField
+        fields = (
+            'name',
+            'input_type',
+            'choices',
+            'required',
+            'order',
+            'help_text',
+            'display',
+            'dc_metadata_type',
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop('repository')
+        super(RepositoryFieldForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        field = super(RepositoryFieldForm, self).save(commit=False)
+        field.repository = self.repository
+
+        if commit:
+            field.save()
+
+        return field

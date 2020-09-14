@@ -21,13 +21,16 @@ urlpatterns = [
     url(r'', include('core.include_urls')),
 ]
 
-if settings.DEBUG:
-    import debug_toolbar
+try:
+    if settings.DEBUG or settings.IN_TEST_RUNNER:
+        import debug_toolbar
 
-    urlpatterns += [
-        url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-        url(r'^404/$', TemplateView.as_view(template_name='404.html')),
-        url(r'^500/$', TemplateView.as_view(template_name='500.html')),
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r'^hijack/', include('hijack.urls', namespace='hijack')),
-    ]
+        urlpatterns += [
+            url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+            url(r'^404/$', TemplateView.as_view(template_name='404.html')),
+            url(r'^500/$', TemplateView.as_view(template_name='500.html')),
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+            url(r'^hijack/', include('hijack.urls', namespace='hijack')),
+        ]
+except AttributeError:
+    pass

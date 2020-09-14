@@ -7,7 +7,8 @@
 {% block title %}{{ preprint.title }}{% endblock %}
 
 {% block head %}
-{% include "common/metadata/preprint_dc.html" %}
+    {% include "common/metadata/preprint_dc.html" %}
+    {% include "common/metadata/preprint_citation.html" %}
 {% endblock %}
 
 {% block body %}
@@ -29,7 +30,8 @@
         <div class="col m7">
             <div itemprop="articleBody" id="pdf">
                 <p class="preprint-text">
-                    {% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight." %}
+                    This is a {{ request.repository.object_name }} and has not been peer reviewed.{% if preprint.doi %} The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.{% endif %}
+                </p>
                 {% if preprint.current_version_file_type == 'html' %}
                     <div class="card">
                         <div class="card-content">
@@ -56,6 +58,16 @@
                     <h5>{% trans "Downloads" %}</h5>
                     <p><a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">Download {{ request.repository.object_name }} <span class="fa fa-download"></span>
                     </a></p>
+                    {% if preprint.supplementaryfiles %}
+                        <h5>{% trans "Supplementary Files" %}</h5>
+                        <ul>
+                        {% for link in preprint.supplementaryfiles %}
+                            <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                        {% empty %}
+                            <li>No Supplementary File</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
                     <h5>{% trans "Authors" %}</h5>
                     <p class="authors">
                         {% for author in preprint.authors %}
@@ -63,7 +75,9 @@
                         {% endfor %}
                     </p>
                     <h5>{% trans "Abstract" %}</h5>
-                    <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                    <div class="truncatejs">
+                        <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                    </div>
 
                     <h5>{% trans 'Subjects' %}</h5>
                     <p>{% include "repository/elements/subject_display.html" %}</p>
@@ -72,7 +86,7 @@
                     <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 
                     <h5>{% trans "License" %}</h5>
-                    <p>{{ preprint.license.name }}</p>
+                    <p>{% if preprint.license.url %}<a href="{{ preperint.license.url }}">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
                 </div>
             </div>
             <div class="card">
@@ -129,5 +143,9 @@
     {% include "elements/journal/citation_modals.html" %}
 
 
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'common/js/moreless.js' %}"></script>
 {% endblock %}
 

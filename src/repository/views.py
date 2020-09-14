@@ -26,7 +26,7 @@ from events import logic as event_logic
 from security.decorators import (
     preprint_editor_or_author_required,
     is_article_preprint_editor,
-    is_preprint_editor,
+    is_repository_manager,
 )
 
 
@@ -331,6 +331,7 @@ def repository_preprint(request, preprint_id):
 
     return render(request, template, context)
 
+
 def repository_file_download(request, preprint_id, file_id):
     """
     Serves up a file for a published Preprint.
@@ -363,7 +364,6 @@ def repository_file_download(request, preprint_id, file_id):
     raise PermissionDenied('You do not have permission to download this file.')
 
 
-# TODO: Re-implement
 def repository_pdf(request, preprint_id):
 
     pdf_url = request.GET.get('file')
@@ -556,6 +556,9 @@ def repository_files(request, preprint_id):
     )
 
     form = forms.FileForm(preprint=preprint)
+    supplementary = forms.PreprintSupplementaryFileForm(
+        preprint=preprint,
+    )
 
     if request.POST:
 
@@ -587,6 +590,16 @@ def repository_files(request, preprint_id):
                         },
                     )
                 )
+
+        if 'label' and 'url' in request.POST:
+            supplementary = forms.PreprintSupplementaryFileForm(
+                request.POST,
+                preprint=preprint,
+            )
+            if supplementary.is_valid():
+                preprint_supplementary, created = preprint.add_supplementary_file(supplementary)
+                messages.add_message(request, messages.INFO, 'Supplementary file link saved.')
+
 
         if 'complete' in request.POST:
             if preprint.submission_file:
@@ -622,6 +635,7 @@ def repository_files(request, preprint_id):
     context = {
         'preprint': preprint,
         'form': form,
+        'supplementary': supplementary,
     }
 
     return render(request, template, context)
@@ -655,7 +669,7 @@ def repository_review(request, preprint_id):
     return render(request, template, context)
 
 
-@is_preprint_editor
+@is_repository_manager
 def preprints_manager(request):
     """
     Displays preprint information and management interfaces for them.
@@ -853,7 +867,6 @@ def repository_edit_metadata(request, preprint_id):
 
         if 'delete_author' in request.POST:
             author_id = request.POST.get('delete_author')
-            print(author_id)
             author = get_object_or_404(
                 models.PreprintAuthor,
                 author__pk=author_id,
@@ -1020,7 +1033,7 @@ def repository_comments(request, preprint_id):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_repository_manager
 def repository_subjects(request, subject_id=None):
 
     subject, parent_subject, initial = None, None, {}
@@ -1328,3 +1341,88 @@ def repository_wizard(request, short_name=None, step='1'):
 
     return render(request, template, context)
 
+
+@is_repository_manager
+def repository_fields(request, field_id=None):
+    """
+    Allows repository managers to manage additional fields.
+    """
+    if field_id:
+        field = get_object_or_404(
+            models.RepositoryField,
+            repository=request.repository,
+            pk=field_id,
+        )
+    else:
+        field = None
+
+    form = forms.RepositoryFieldForm(
+        instance=field,
+        repository=request.repository,
+    )
+
+    if request.POST:
+        form = forms.RepositoryFieldForm(
+            request.POST,
+            instance=field,
+            repository=request.repository,
+        )
+
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Field Saved.',
+            )
+
+            return redirect(
+                reverse(
+                    'repository_fields',
+                )
+            )
+
+    template = 'admin/repository/fields.html'
+    context = {
+        'field': field,
+        'form': form,
+        'fields': request.repository.additional_submission_fields(),
+    }
+
+    return render(request, template, context)
+
+
+@require_POST
+@is_repository_manager
+def repository_delete_field(request):
+    """
+    Deletes a Repositories field.
+    """
+    field_id = request.POST.get('field_to_delete')
+    field = get_object_or_404(
+        models.RepositoryField,
+        repository=request.repository,
+        pk=field_id,
+    )
+    field.delete()
+    messages.add_message(
+        request,
+        messages.WARNING,
+        'Field Deleted.'
+    )
+
+    return redirect(
+        reverse('repository_fields')
+    )
+
+
+@require_POST
+@is_repository_manager
+def repository_order_fields(request):
+    ids = [int(_id) for _id in request.POST.getlist('fields[]')]
+
+    for field in request.repository.additional_submission_fields():
+        field.order = ids.index(field.pk)
+        field.save()
+
+    return HttpResponse('Ok')
