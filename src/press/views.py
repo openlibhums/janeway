@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse, Http404
 
+from cms import models as cms_models
 from core import (
     files,
     models as core_models,
@@ -43,7 +44,6 @@ def index(request):
 
     if request.repository is not None:
         # if there is a repository we return the repository homepage.
-        print('test')
         return repository_views.repository_home(request)
 
     homepage_elements, homepage_element_names = core_logic.get_homepage_elements(
@@ -66,6 +66,31 @@ def index(request):
                 context[k] = v
 
     return render(request, template, context)
+
+
+def sitemap(request):
+    """
+    Renders an XML sitemap based on articles and pages available to the press
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+
+    if request.journal is not None:
+        # if there's a journal, then we render the _journal_ sitemap, not the press
+        return journal_views.sitemap(request)
+
+    if request.repository is not None:
+        # if there is a repository we return the repository sitemap.
+        return repository_views.repository_sitemap(request)
+
+    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
+
+    template = 'journal/sitemap.xml'
+
+    context = {
+        'cms_pages': cms_pages,
+    }
+    return render(request, template, context, content_type="application/xml")
 
 
 @decorators.journals_enabled
