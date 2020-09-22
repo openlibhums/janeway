@@ -59,6 +59,10 @@
 </script>
 
 {% block js %}{% endblock %}
-
+{% if request.repository.custom_js_code %}
+<script>
+  {{ request.repository.custom_js_code }}
+</script>
+{% endif %}
 </body>
 </html>
