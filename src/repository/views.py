@@ -41,7 +41,7 @@ def repository_home(request):
         repository=request.repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED
-    )[:6]
+    ).order_by('-date_published')[:6]
     subjects = models.Subject.objects.filter(
         repository=request.repository,
     ).prefetch_related(
@@ -179,13 +179,13 @@ def repository_list(request, subject_slug=None):
         preprints = subject.preprint_set.filter(
             repository=request.repository,
             date_published__lte=timezone.now(),
-        )
+        ).order_by('-date_published')
     else:
         subject = None
         preprints = models.Preprint.objects.filter(
             date_published__lte=timezone.now(),
             repository=request.repository,
-        )
+        ).order_by('-date_published')
 
     paginator = Paginator(preprints, 15)
     page = request.GET.get('page', 1)
