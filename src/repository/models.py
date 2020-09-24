@@ -542,6 +542,22 @@ class Preprint(models.Model):
             return 'pdf'
         return None
 
+    @property
+    @cache(600)
+    def url(self):
+        return self.repository.site_url(path=self.local_url)
+
+    @property
+    def local_url(self):
+        url = reverse(
+            'repository_preprint',
+            kwargs={'preprint_id': self.id,}
+        )
+
+        return url
+
+
+
 
 class PreprintFile(models.Model):
     preprint = models.ForeignKey(Preprint)
