@@ -135,6 +135,11 @@ class Repository(model_utils.AbstractSiteModel):
     accept_version = models.TextField(blank=True, null=True)
     decline_version = models.TextField(blank=True, null=True)
     new_comment = models.TextField(blank=True, null=True)
+    footer = models.TextField(
+        blank=True,
+        null=True,
+        default='<p>Powered by Janeway</p>',
+    )
 
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField(

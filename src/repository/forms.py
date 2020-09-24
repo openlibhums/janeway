@@ -73,7 +73,6 @@ class PreprintInfo(forms.ModelForm):
                             }
                         ),
                         required=element.required)
-
                 elif element.input_type == 'select':
                     choices = render_choices(element.choices)
                     self.fields[element.name] = forms.ChoiceField(
@@ -81,7 +80,6 @@ class PreprintInfo(forms.ModelForm):
                         choices=choices,
                         required=element.required,
                     )
-
                 elif element.input_type == 'email':
                     self.fields[element.name] = forms.EmailField(
                         widget=forms.TextInput(),
@@ -91,6 +89,12 @@ class PreprintInfo(forms.ModelForm):
                     self.fields[element.name] = forms.BooleanField(
                         widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                         required=element.required)
+                elif element.input_type == 'number':
+                    self.fields[element.name] = forms.IntegerField(
+                        required=element.required,
+                    )
+                else:
+                    self.fields[element.name] = forms.TextInput()
 
                 self.fields[element.name].help_text = element.help_text
                 self.fields[element.name].label = element.name
@@ -378,10 +382,12 @@ class RepositorySite(RepositoryBase):
         fields = (
             'about',
             'logo',
+            'footer',
             'custom_js_code',
         )
         widgets = {
             'about': SummernoteWidget,
+            'footer': SummernoteWidget,
         }
 
 
