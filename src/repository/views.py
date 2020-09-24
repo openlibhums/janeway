@@ -19,6 +19,7 @@ from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
 
 from repository import forms, logic as repository_logic, models
+from cms import models as cms_models
 from core import models as core_models, files
 from metrics.logic import store_article_access
 from utils import shared as utils_shared, logic as utils_logic
@@ -41,7 +42,7 @@ def repository_home(request):
         repository=request.repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED
-    )[:6]
+    ).order_by('-date_published')[:6]
     subjects = models.Subject.objects.filter(
         repository=request.repository,
     ).prefetch_related(
@@ -55,6 +56,27 @@ def repository_home(request):
     }
 
     return render(request, template, context)
+
+
+def repository_sitemap(request):
+    """
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
+    preprints = models.Preprint.objects.filter(
+        repository=request.repository,
+        date_published__lte=timezone.now(),
+        stage=models.STAGE_PREPRINT_PUBLISHED
+    ).order_by('-date_published')
+
+    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
+
+    template = 'journal/sitemap.xml'
+
+    context = {
+        'preprints': preprints,
+    }
+    return render(request, template, context, content_type="application/xml")
 
 
 @login_required
@@ -179,13 +201,13 @@ def repository_list(request, subject_slug=None):
         preprints = subject.preprint_set.filter(
             repository=request.repository,
             date_published__lte=timezone.now(),
-        )
+        ).order_by('-date_published')
     else:
         subject = None
         preprints = models.Preprint.objects.filter(
             date_published__lte=timezone.now(),
             repository=request.repository,
-        )
+        ).order_by('-date_published')
 
     paginator = Paginator(preprints, 15)
     page = request.GET.get('page', 1)
