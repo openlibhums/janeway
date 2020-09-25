@@ -21,7 +21,10 @@
           title="News Feed for Journal">
     {% endif %}
     {% if request.journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>{% endif %}
+        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% elif request.repository.favicon %}
+        <link rel="icon" href="{{ request.repository.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% endif %}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
     <link rel="stylesheet" href="{% static "material/mat.css" %}">

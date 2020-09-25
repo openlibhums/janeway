@@ -17,7 +17,7 @@
             <div class="card">
                 <div class="card-image preprint-card waves-effect waves-block waves-light">
                     <img class="orbit-image" alt="{{ preprint.title|striptags }}"
-                         src="{% static "common/img/repository_background.jpg" %}">
+                         src="{% if request.repository.hero_background %}{{ request.repository.hero_background.url }}{% else %}{% static "common/img/repository_background.jpg" %}{% endif %}">
                     <span class="card-title">
                         <div class="carousel-text-wrapper">
                             {{ preprint.title|safe }}

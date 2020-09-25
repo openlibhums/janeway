@@ -104,6 +104,18 @@ class Repository(model_utils.AbstractSiteModel):
         storage=preprint_media_store,
         upload_to=repo_media_upload,
     )
+    favicon = models.ImageField(
+        blank=True,
+        null=True,
+        storage=preprint_media_store,
+        upload_to=repo_media_upload,
+    )
+    hero_background = models.ImageField(
+        blank=True,
+        null=True,
+        storage=preprint_media_store,
+        upload_to=repo_media_upload,
+    )
     publisher = models.CharField(
         max_length=255,
         help_text=_('Used for outputs including DC and Citation metadata'),
