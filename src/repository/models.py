@@ -155,7 +155,9 @@ class Repository(model_utils.AbstractSiteModel):
     login_text = models.TextField(
         blank=True,
         null=True,
-        help_text='If text is added it will display on the login page.',
+        help_text='If text is added it will display on the login '
+                  'and register pages.',
+        verbose_name='Account Page Text'
     )
 
     random_homepage_preprints = models.BooleanField(default=False)
