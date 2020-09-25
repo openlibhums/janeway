@@ -140,6 +140,11 @@ class Repository(model_utils.AbstractSiteModel):
         null=True,
         default='<p>Powered by Janeway</p>',
     )
+    login_text = models.TextField(
+        blank=True,
+        null=True,
+        help_text='If text is added it will display on the login page.',
+    )
 
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField(

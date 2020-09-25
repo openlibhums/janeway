@@ -383,11 +383,13 @@ class RepositorySite(RepositoryBase):
             'about',
             'logo',
             'footer',
+            'login_text',
             'custom_js_code',
         )
         widgets = {
             'about': SummernoteWidget,
             'footer': SummernoteWidget,
+            'login_text': SummernoteWidget,
         }
 
 
