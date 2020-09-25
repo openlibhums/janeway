@@ -89,7 +89,7 @@
 
 {% if request.repository and request.repository.custom_js_code %}
 <script>
-  {{ request.repository.custom_js_code }}
+  {{ request.repository.custom_js_code|safe }}
 </script>
 {% endif %}
 
