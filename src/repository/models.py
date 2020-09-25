@@ -492,6 +492,11 @@ class Preprint(models.Model):
     def additional_field_answers(self):
         return self.repositoryfieldanswer_set.all()
 
+    def display_additional_fields(self):
+        return self.repositoryfieldanswer_set.filter(
+            field__display=True,
+        )
+
     def make_new_version(self, file):
         PreprintVersion.objects.create(
             preprint=self,

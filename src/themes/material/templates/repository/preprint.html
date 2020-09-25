@@ -79,14 +79,31 @@
                         <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
                     </div>
 
+                    {% if preprint.preprint_doi %}
+                    <h5>DOI</h5>
+                    <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    {% endif %}
+
+                    {% if preprint.subject.all %}
                     <h5>{% trans 'Subjects' %}</h5>
                     <p>{% include "repository/elements/subject_display.html" %}</p>
+                    {% endif %}
 
                     <h5>{% trans 'Keywords' %}</h5>
                     <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 
+                    <h5>Dates</h5>
+                    <p><strong>Published: </strong>{{ preprint.date_published }}</p>
+                    {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ preprint.current_version.date_time }}</p>{% endif %}
+
                     <h5>{% trans "License" %}</h5>
                     <p>{% if preprint.license.url %}<a href="{{ preperint.license.url }}">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
+
+                    <h5>Additional Metadata</h5>
+                    {% for answer in preprint.display_additional_fields %}
+                    <p><strong>{{ answer.field.name }}: </strong><br/> {{ answer.answer|safe }}</p>
+                    {% endfor %}
+
                 </div>
             </div>
             <div class="card">
