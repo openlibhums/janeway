@@ -46,7 +46,7 @@
                 {% else %}
                     <div class="preprint-content">
                         <p>This {{ request.repository.object_name }} has no visible version.</p>
-                        <a href="" class="waves-effect waves-light btn">Download {{ request.repository.object_name }} <span class="fa fa-download"></span> </a>
+                        <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}" class="waves-effect waves-light btn">Download {{ request.repository.object_name }} <span class="fa fa-download"></span> </a>
                     </div>
                 {% endif %}
             </div>
