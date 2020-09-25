@@ -382,6 +382,8 @@ class RepositorySite(RepositoryBase):
         fields = (
             'about',
             'logo',
+            'hero_background',
+            'favicon',
             'footer',
             'login_text',
             'custom_js_code',

@@ -2,7 +2,7 @@
 {% load foundation %}
 {% load static from staticfiles %}
 
-{% block title %}Create New Repository{% endblock %}
+{% block title %}{% if request.repository %}Edit Repository{% else %}Create New Repository{% endif %}{% endblock %}
 {% block title-section %}Repository Wizard &#x1F9D9; {% endblock %}
 
 {% block nav %}
