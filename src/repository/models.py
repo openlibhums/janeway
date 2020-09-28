@@ -477,7 +477,9 @@ class Preprint(models.Model):
             label=supplementary.cleaned_data['label'],
             url=supplementary.cleaned_data['url'],
             preprint=self,
-            order=self.next_supp_file_order(),
+            defaults={
+                'order': self.next_supp_file_order()
+            },
         )
 
     def next_supp_file_order(self):
