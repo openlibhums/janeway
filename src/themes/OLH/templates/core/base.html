@@ -19,6 +19,8 @@
     {% if request.journal %}
         <link href="{% static "OLH/css/default_override.css" %}" rel="stylesheet">
         <link href="{% static "OLH/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
+    {% elif request.press %}
+        <link href="{% static "OLH/css/press_override.css" %}" rel="stylesheet">
     {% endif %}
 
     <script src="https://use.typekit.net/lff8ikn.js"></script>
