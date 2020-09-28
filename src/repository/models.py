@@ -477,7 +477,12 @@ class Preprint(models.Model):
             label=supplementary.cleaned_data['label'],
             url=supplementary.cleaned_data['url'],
             preprint=self,
+            order=self.next_supp_file_order(),
         )
+
+    def next_supp_file_order(self):
+        orderings = [supp_file.order for supp_file in self.supplementaryfiles]
+        return max(orderings) + 1 if orderings else 0
 
 
     def user_is_author(self, user):

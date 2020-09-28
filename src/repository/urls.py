@@ -109,6 +109,22 @@ urlpatterns = [
         views.repository_comments,
         name='repository_comments'),
 
+    url(r'^manager/(?P<preprint_id>\d+)/supp_files/$',
+        views.manage_supplementary_files,
+        name='repository_manage_supplementary_files'),
+
+    url(r'^manager/(?P<preprint_id>\d+)/supp_files/new/$',
+        views.new_supplementary_file,
+        name='repository_new_supplementary_files'),
+
+    url(r'^manager/(?P<preprint_id>\d+)/supp_files/order/$',
+        views.order_supplementary_files,
+        name='repository_order_supplementary_files'),
+
+    url(r'^manager/(?P<preprint_id>\d+)/supp_files/delete/$',
+        views.delete_supplementary_file,
+        name='repository_delete_supplementary_files'),
+
     url(r'^manager/subjects/$',
         views.repository_subjects,
         name='repository_subjects'),

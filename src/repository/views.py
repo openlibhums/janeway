@@ -1448,3 +1448,117 @@ def repository_order_fields(request):
         field.save()
 
     return HttpResponse('Ok')
+
+
+@preprint_editor_or_author_required
+def manage_supplementary_files(request, preprint_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    form = forms.PreprintSupplementaryFileForm(
+        preprint=preprint,
+    )
+    template = 'admin/repository/manage_supp_files.html'
+    if preprint.owner == request.user and not request.user in request.repository.managers.all():
+        template = 'admin/repository/author_supp_files.html'
+    context = {
+        'preprint': preprint,
+        'supplementary_files': preprint.supplementaryfiles,
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@require_POST
+@preprint_editor_or_author_required
+def new_supplementary_file(request, preprint_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    if 'form' in request.POST:
+        form = forms.PreprintSupplementaryFileForm(
+            request.POST,
+            preprint=preprint,
+        )
+        if form.is_valid():
+            preprint.add_supplementary_file(
+                form,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'New Supplementary File Created',
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                ' '.join([' '.join(x for x in l) for l in list(form.errors.values())])
+            )
+    else:
+        messages.add_message(
+            request,
+            messages.INFO,
+            'No form supplied.',
+        )
+    return redirect(
+        reverse(
+            'repository_manage_supplementary_files',
+            kwargs={'preprint_id': preprint.pk},
+        )
+    )
+
+@require_POST
+@preprint_editor_or_author_required
+def order_supplementary_files(request, preprint_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    if 'contact[]' in request.POST:
+        ids = [int(_id) for _id in request.POST.getlist('contact[]')]
+
+        for file in preprint.supplementaryfiles:
+            file.order = ids.index(file.pk)
+            file.save()
+
+    return HttpResponse('Ok')
+
+
+@require_POST
+@preprint_editor_or_author_required
+def delete_supplementary_file(request, preprint_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    try:
+        id_to_delete = int(request.POST.get('delete', 0))
+    except ValueError:
+        raise ValueError(
+            'The Supplementary File ID must be an integer.',
+        )
+
+    file_to_delete = get_object_or_404(
+        models.PreprintSupplementaryFile,
+        pk=id_to_delete,
+        preprint=preprint,
+    )
+    file_to_delete.delete()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        'Supplementary file deleted',
+    )
+    return redirect(
+        reverse(
+            'repository_manage_supplementary_files',
+            kwargs={'preprint_id': preprint.pk},
+        )
+    )
