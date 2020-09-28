@@ -196,9 +196,9 @@
                 </div>
                 <div class="title-area">
                     <h2>Supplementary Files</h2>
+                    <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">Manage Supplementary Files</a>
                 </div>
                 <div class="content">
-                    <div>TODO -- add way to add more links / change the order</div>
                     <ul>
                     {% for link in preprint.supplementaryfiles %}
                         <li><a href="{{ link.url }}">{{ link.label }}</a></li>
