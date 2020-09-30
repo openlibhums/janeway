@@ -326,7 +326,7 @@ def import_issue_images(journal, user, url, import_missing=False):
     article thumbnails and issue titles.
     :param journal: a journal.models.Journal
     :param user: the owner of the imported content as a core.models.Account
-    :url: the base url of the journal to import from
+    :param url: the base url of the journal to import from
     :param load_missing: Bool. If true, attempt to import missing articles
     """
     base_url = url
