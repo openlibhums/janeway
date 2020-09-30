@@ -56,9 +56,7 @@ def width_choices():
 
 fs_path = os.path.join('files/')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
-
-media_path = settings.MEDIA_ROOT  # TODO: @mauro to make this relative?
-preprint_media_store = JanewayFileSystemStorage(location=media_path)
+preprint_media_store = JanewayFileSystemStorage()
 
 
 def preprint_file_upload(instance, filename):
