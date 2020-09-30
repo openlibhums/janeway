@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='repository',
             name='submission_agreement',
-            field=models.TextField(default='Authors grant us the right to publish, on this website, their uploaded manuscript, supplementary materials and any supplied metadata.', help_text="Add any information that the author may need to know as part of their submission, eg. Copyright transfer etc.'", null=True),
+            field=models.TextField(default='<p>Authors grant us the right to publish, on this website, their uploaded manuscript, supplementary materials and any supplied metadata.</p>', help_text="Add any information that the author may need to know as part of their submission, eg. Copyright transfer etc.'", null=True),
         ),
     ]
