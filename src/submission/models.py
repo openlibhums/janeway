@@ -1023,9 +1023,17 @@ class Article(models.Model):
         else:
             return False
 
-    def snapshot_authors(self, article):
-        for order in self.articleauthororder_set.all():
-            order.author.snapshot_self(article)
+    def snapshot_authors(self, article=None, force_update=True):
+        """ Creates/updates FrozenAuthor records for this article's authors
+        :param article: (deprecated) should not pass this argument
+        :param force_update: (bool) Whether or not to update existing records
+        """
+        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
+            article=self, author__id=models.OuterRef("id")
+        ).values_list("order"))
+        authors = self.authors.annotate(order=subq).order_by("order")
+        for author in authors:
+            author.snapshot_self(self, force_update)
 
     def frozen_authors(self):
         return FrozenAuthor.objects.filter(article=self)
