@@ -99,10 +99,12 @@
                     <h5>{% trans "License" %}</h5>
                     <p>{% if preprint.license.url %}<a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
 
+                    {% if preprint.display_additional_fields %}
                     <h5>Additional Metadata</h5>
                     {% for answer in preprint.display_additional_fields %}
                     <p><strong>{{ answer.field.name }}: </strong><br/> {{ answer.answer|safe }}</p>
                     {% endfor %}
+                    {% endif %}
 
                 </div>
             </div>
