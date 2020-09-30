@@ -9,7 +9,13 @@
 
         <div class="col m8 spacer">
             <h1>{{ request.repository.object_name_plural }}</h1>
-            <p>{{ request.repository.object_name_plural }} are listed in order of publication.</p>
+            <p>
+                {% if search_term %}
+                    Searching for <em>{{ search_term }}</em>, there are {{ preprints|length }} results.
+                {% else %}
+                    There {% if preprints|length > 1 %}are {{ preprints|length }} {{ request.repository.object_name_plural }} listed.{% elif preprints|length == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
+                {% endif %}
+            </p>
             {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
             <div class="pagination-block">
                 <ul class="pagination">

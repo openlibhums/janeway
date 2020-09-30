@@ -46,7 +46,7 @@
                 {% else %}
                     <div class="preprint-content">
                         <p>This {{ request.repository.object_name }} has no visible version.</p>
-                        <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}" class="waves-effect waves-light btn">Download {{ request.repository.object_name }} <span class="fa fa-download"></span> </a>
+                        <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}" class="waves-effect waves-light btn"><span class="fa fa-download"></span> Download {{ request.repository.object_name }}</a>
                     </div>
                 {% endif %}
             </div>
@@ -56,7 +56,7 @@
             <div class="card">
                 <div class="card-content preprint-content">
                     <h5>{% trans "Downloads" %}</h5>
-                    <p><a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">Download {{ request.repository.object_name }} <span class="fa fa-download"></span>
+                    <p><a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span class="fa fa-download"></span> Download {{ request.repository.object_name }}
                     </a></p>
                     {% if preprint.supplementaryfiles %}
                         <h5>{% trans "Supplementary Files" %}</h5>
@@ -96,6 +96,17 @@
                     <p><strong>Published: </strong>{{ preprint.date_published }}</p>
                     {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ preprint.current_version.date_time }}</p>{% endif %}
 
+                    {% if preprint.preprintversion_set.count > 0 %}
+                        <h5>Older Versions</h5>
+                        <ul>
+                        {% for version in preprint.preprintversion_set.all %}
+                            {% if not version == preprint.current_version %}
+                                <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+
                     <h5>{% trans "License" %}</h5>
                     <p>{% if preprint.license.url %}<a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
 
@@ -117,9 +128,12 @@
                                 <button type="submit" class="btn btn-success">Add Comment</button>
                             </form>
                         </div>
+                        <br/>
+                    {% else %}
+                        <p>You must login to post a comment.</p>
                     {% endif %}
-                    <br/>
                     <div class="divider"></div>
+                    <br />
                     <div class="comment-scroll">
                         <span class="card-title">{% trans 'Comments' %}</span>
                         {% for comment in comments %}
