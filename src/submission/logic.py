@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import warnings
 
 from bs4 import BeautifulSoup
 
@@ -17,6 +18,11 @@ from submission import models
 
 
 def add_self_as_author(user, article):
+    warnings.warn("'add_self_as_author' is deprecated and will be removed")
+    return add_user_as_author(user, article)
+
+
+def add_user_as_author(user, article):
     new_author = user
     article.authors.add(new_author)
     models.ArticleAuthorOrder.objects.get_or_create(
