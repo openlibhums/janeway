@@ -159,6 +159,14 @@ class Repository(model_utils.AbstractSiteModel):
                   'and register pages.',
         verbose_name='Account Page Text'
     )
+    submission_agreement = models.TextField(
+        null=True,
+        help_text="Add any information that the author may need to know as "
+                  "part of their submission, eg. Copyright transfer etc.'",
+        default="<p>Authors grant us the right to publish, on this website, "
+                "their uploaded manuscript, supplementary materials and "
+                "any supplied metadata.</p>",
+    )
 
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField(
