@@ -148,7 +148,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_self_as_author(author, article)
+        logic.add_user_as_author(author, article)
 
         article.snapshot_authors()
         frozen = article.frozen_authors().all()[0]
@@ -165,8 +165,8 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author_1, author_2 = self.create_authors()
-        logic.add_self_as_author(author_1, article)
-        logic.add_self_as_author(author_2, article)
+        logic.add_user_as_author(author_1, article)
+        logic.add_user_as_author(author_2, article)
 
         article.snapshot_authors()
         frozen = article.frozen_authors().all()
@@ -182,7 +182,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_self_as_author(author, article)
+        logic.add_user_as_author(author, article)
 
         article.snapshot_authors()
         frozen = article.frozen_authors().all()[0]
@@ -202,7 +202,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_self_as_author(author, article)
+        logic.add_user_as_author(author, article)
 
         article.snapshot_authors()
         new_department = "New department"
@@ -221,8 +221,8 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author_1, author_2 = self.create_authors()
-        logic.add_self_as_author(author_1, article)
-        logic.add_self_as_author(author_2, article)
+        logic.add_user_as_author(author_1, article)
+        logic.add_user_as_author(author_2, article)
         no_order_author = Account.objects.create(
             email="no_order@t.t",
             first_name="no order",
