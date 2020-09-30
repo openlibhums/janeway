@@ -13,6 +13,10 @@ from review.forms import render_choices
 
 
 class PreprintInfo(forms.ModelForm):
+    submission_agreement = forms.BooleanField(
+        widget=forms.CheckboxInput(),
+        required=True,
+    )
     keywords = forms.CharField(required=False)
     subject = forms.ModelMultipleChoiceField(
         required=True,
@@ -400,12 +404,14 @@ class RepositorySubmission(RepositoryBase):
         model = models.Repository
         fields = (
             'start',
+            'submission_agreement',
             'limit_upload_to_pdf',
             'managers',
         )
 
         widgets = {
             'start': SummernoteWidget,
+            'submission_agreement': SummernoteWidget,
             'managers': FilteredSelectMultiple(
                 "Accounts",
                 False,

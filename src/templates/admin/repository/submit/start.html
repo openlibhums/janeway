@@ -23,9 +23,20 @@
                 <div class="large-6 columns end">
                     <div class="row">
                         <div class="title-area">
-                            <h2>{% trans "Metadata" %}</h2>
+                            <h2>{% trans "Submission Agreement" %}</h2>
                         </div>
                         {% include "elements/forms/errors.html" with form=form %}
+                        <div class="large-12 columns">
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    {{ request.repository.submission_agreement|safe }}
+                                    {{ form.submission_agreement }}<label for="id_submission_agreement">You must agree to the above in order to continue.</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="title-area">
+                            <h2>{% trans "Metadata" %}</h2>
+                        </div>
                         <div class="large-12 columns">
                             {{ form.title|foundation }}
                         </div>
