@@ -97,7 +97,7 @@
                     {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ preprint.current_version.date_time }}</p>{% endif %}
 
                     <h5>{% trans "License" %}</h5>
-                    <p>{% if preprint.license.url %}<a href="{{ preperint.license.url }}">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
+                    <p>{% if preprint.license.url %}<a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
 
                     <h5>Additional Metadata</h5>
                     {% for answer in preprint.display_additional_fields %}
