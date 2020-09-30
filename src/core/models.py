@@ -399,14 +399,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def snapshot_self(self, article, force_update=True):
         frozen_dict = {
-            'article': article,
-            'author': self,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
             'institution': self.institution,
             'department': self.department,
-            'order': order,
         }
 
         frozen_author = self.frozen_author(article)
@@ -415,8 +412,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
             frozen_author.save()
+
         else:
-            submission_models.FrozenAuthor.objects.get_or_create(**frozen_dict)
+            try:
+                order = article.articleauthororder_set.get(author=self).order
+            except submission_models.ArticleAuthorOrder.DoesNotExist:
+                order = article.next_author_sort()
+
+            submission_models.FrozenAuthor.objects.get_or_create(
+                author=self,
+                article=article,
+                defaults=dict(order=order, **frozen_dict)
+            )
 
     def frozen_author(self, article):
         try:
