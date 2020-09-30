@@ -130,7 +130,7 @@
                         </div>
                         <br/>
                     {% else %}
-                        <p>You must log in to post a comment.</p>
+                        <p>You must <a href="{% url 'core_login' %}">log in</a> to post a comment.</p>
 
                     {% endif %}
                     <div class="divider"></div>
