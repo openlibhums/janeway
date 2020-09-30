@@ -11,7 +11,7 @@
             <h1>{{ request.repository.object_name_plural }}</h1>
             <p>
                 {% if search_term %}
-                    Searching for <em>{{ search_term }}</em>, there are {{ preprints|length }} results.
+                    Search for <em>{{ search_term }}</em> ({{ preprints|length }} results)
                 {% else %}
                     There {% if preprints|length > 1 %}are {{ preprints|length }} {{ request.repository.object_name_plural }} listed.{% elif preprints|length == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
                 {% endif %}
