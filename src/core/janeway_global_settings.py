@@ -243,7 +243,6 @@ LANGUAGES = (
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_RELATIVE = (os.path.join(PROJECT_DIR, 'src', 'media'))
 
 USE_I18N = True
 USE_L10N = False
