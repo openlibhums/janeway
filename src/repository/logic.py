@@ -354,7 +354,7 @@ def get_unpublished_preprints(request):
         'preprintauthor_set'
     )
 
-    if request.user.is_staff:
+    if request.user.is_staff or request.user in request.repository.managers.all():
         return unpublished_preprints
     else:
         return unpublished_preprints.filter(pk__in=subject_article_pks(request))
@@ -367,7 +367,7 @@ def get_published_preprints(request):
         'preprintauthor_set'
     )
 
-    if request.user.is_staff:
+    if request.user.is_staff or request.user in request.repository.managers.all():
         return published_preprints
     else:
         return published_preprints.filter(pk__in=subject_article_pks(request))
