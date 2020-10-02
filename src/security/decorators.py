@@ -1007,6 +1007,9 @@ def preprint_editor_or_author_required(func):
         if request.user in preprint.subject_editors():
             return func(request, *args, **kwargs)
 
+        if request.user in request.repository.managers.all():
+            return func(request, *args, **kwargs)
+
         deny_access(request)
 
     return wrapper

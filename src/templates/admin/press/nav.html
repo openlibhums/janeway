@@ -13,10 +13,10 @@
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
 
         {% if request.press.enable_preprints and request.repository %}
-            {% is_preprint_editor as preprint_editor %}
+            {% is_repository_manager as repository_manager %}
             <li class="subtitle"><a href="#">Preprints</a></li>
             <li><a href="{% url 'repository_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Author Dashboard</a></li>
-            {% if request.user.is_staff or preprint_editor %}
+            {% if request.user.is_staff or repository_manager %}
                 <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Repository Manager</a></li>
             {% endif %}
             {% if request.user.is_staff %}
