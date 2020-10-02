@@ -431,6 +431,10 @@ th {
     margin-bottom: 10px;
 }
 
+.light-green {
+    color: forestgreen;
+}
+
 .green {
     color: darkgreen;
 }
@@ -462,4 +466,12 @@ th {
 
 .file p {
     word-break: break-all;
+}
+
+.no-pad td {
+    padding: 0.1rem;
+}
+
+.no-bottom-margin {
+    margin-bottom: 0;
 }
