@@ -2,11 +2,14 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.db import models
 from django.utils import timezone
 from django.db.models import Q
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
+
+from utils import shared
 
 assignment_choices = (
     ('editor', 'Editor'),
@@ -152,6 +155,31 @@ class ReviewAssignment(models.Model):
                     return True
 
         return False
+
+    def short_status(self):
+        string = ''
+        if self.decision == 'withdrawn':
+            string = '<span class="red">Withdrawn</span>'
+        elif self.date_complete:
+            string = '<span class="light-green">Complete</span>'
+        elif self.date_accepted:
+            string = '<span class="green">Accept</span>'
+        elif self.date_declined:
+            string = '<span class="red">Declined</span>'
+        else:
+            string = '<span class="amber">Wait</span>'
+
+        return string
+
+    def status_date(self):
+        if self.decision == 'withdrawn':
+            return shared.day_month(self.date_complete)
+        elif self.date_complete:
+            return shared.day_month(self.date_complete)
+        elif self.date_accepted:
+            return shared.day_month(self.date_accepted)
+        elif self.date_declined:
+            return shared.day_month(self.date_declined)
 
     def __str__(self):
         return u'{0} - Article: {1}, Reviewer: {2}'.format(self.id, self.article.title, self.reviewer.full_name())

@@ -69,3 +69,10 @@ def yes_or_no(question):
             return True
         if reply[0] == 'n':
             return False
+
+
+def day_month(date):
+    return '{}-{}'.format(
+        date.day,
+        date.month,
+    )
