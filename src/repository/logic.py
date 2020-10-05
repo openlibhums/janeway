@@ -334,17 +334,17 @@ def delete_file(request, preprint):
         )
 
 
-def subject_article_pks(request):
+def subject_article_pks(user):
     prepint_pks = []
     # TODO: Update this implementation
-    for subject in request.user.preprint_subjects():
+    for subject in user.preprint_subjects():
         for preprint in subject.preprints.all():
             prepint_pks.append(preprint.pk)
 
     return prepint_pks
 
 
-def get_unpublished_preprints(request):
+def get_unpublished_preprints(request, user_subject_pks):
     unpublished_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=False,
@@ -357,10 +357,10 @@ def get_unpublished_preprints(request):
     if request.user.is_staff or request.user.is_repository_manager(request.repository):
         return unpublished_preprints
     else:
-        return unpublished_preprints.filter(pk__in=subject_article_pks(request))
+        return unpublished_preprints.filter(pk__in=user_subject_pks)
 
 
-def get_published_preprints(request):
+def get_published_preprints(request, user_subject_pks):
     published_preprints = models.Preprint.objects.filter(
         date_published__isnull=False,
         date_submitted__isnull=False).prefetch_related(
@@ -370,7 +370,7 @@ def get_published_preprints(request):
     if request.user.is_staff or request.user.is_repository_manager(request.repository):
         return published_preprints
     else:
-        return published_preprints.filter(pk__in=subject_article_pks(request))
+        return published_preprints.filter(pk__in=user_subject_pks)
 
 
 def get_preprint_if_id(preprint_id):

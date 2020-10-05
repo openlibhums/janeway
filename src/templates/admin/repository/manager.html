@@ -1,7 +1,7 @@
 {% extends "admin/core/base.html" %}
 
 {% block title-section %}Preprint Manager{% endblock %}
-{% block title-sub %}Management interface for {{ request.press.name }} preprints{% endblock %}
+{% block title-sub %}Management interface for {{ request.repository.name }}]}{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
@@ -22,7 +22,6 @@
                             <th>ID</th>
                             <th>Title</th>
                             <th>Date Submitted</th>
-                            <th>First Author</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -33,7 +32,6 @@
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
                                 <td>{{ preprint.date_submitted }}</td>
-                                <td>{{ preprint.authors.0.full_name }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -95,9 +93,6 @@
                             <th>ID</th>
                             <th>Title</th>
                             <th>Date Published</th>
-                            <th>First Author</th>
-                            <th>Views</th>
-                            <th>Downloads</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -108,9 +103,6 @@
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
                                 <td>{{ preprint.date_published }}</td>
-                                <td>{{ preprint.authors.0.full_name }}</td>
-                                <td>{{ preprint.views.count }}</td>
-                                <td>{{ preprint.downloads.count }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
