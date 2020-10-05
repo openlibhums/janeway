@@ -3,7 +3,7 @@ A django implementation of the OAI-PMH interface
 """
 from django.utils import timezone
 
-from api.oai.base import OAIModelView
+from api.oai.base import OAIPagedModelView
 from submission import models as submission_models
 
 
@@ -13,9 +13,10 @@ def oai_view_factory(request, *args, **kwargs):
     return view(request, *args, **kwargs)
 
 
-class OAIListRecords(OAIModelView):
+class OAIListRecords(OAIPagedModelView):
     template_name = "apis/OAI_ListRecords.xml"
     queryset = submission_models.Article.objects.all()
+    paginate_by = 3
 
     def filter_by_journal(self, qs):
         if self.request.journal:
