@@ -43,7 +43,7 @@
 </record>
 {% endfor %}
 {% if resumption_token %}
-<resumptionToken completeListSize={{ total }}>{{ resumption_token }}</resumptionToken>
+<resumptionToken completeListSize="{{ total }}">{{ resumption_token }}</resumptionToken>
 {% endif %}
 </ListRecords>
 {% endblock body %}
