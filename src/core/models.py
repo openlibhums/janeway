@@ -392,8 +392,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_proofing_manager(self, request):
         return self.check_role(request.journal, 'proofing_manager')
 
-    def is_repository_manager(self, request):
-        if self in request.repository.managers.all():
+    def is_repository_manager(self, repository):
+        if self in repository.managers.all():
             return True
 
         return False
