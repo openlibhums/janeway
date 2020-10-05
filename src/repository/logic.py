@@ -336,9 +336,8 @@ def delete_file(request, preprint):
 
 def subject_article_pks(user):
     prepint_pks = []
-    # TODO: Update this implementation
     for subject in user.preprint_subjects():
-        for preprint in subject.preprints.all():
+        for preprint in subject.preprint_set.all():
             prepint_pks.append(preprint.pk)
 
     return prepint_pks
@@ -354,7 +353,7 @@ def get_unpublished_preprints(request, user_subject_pks):
         'preprintauthor_set'
     )
 
-    if request.user.is_staff or request.user.is_repository_manager(request.repository):
+    if request.user.is_staff and request.user.is_repository_manager(request.repository):
         return unpublished_preprints
     else:
         return unpublished_preprints.filter(pk__in=user_subject_pks)
