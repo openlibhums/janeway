@@ -45,8 +45,13 @@ class PreprintInfo(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
+        self.admin = kwargs.pop('admin', False)
         elements = self.request.repository.additional_submission_fields()
         super(PreprintInfo, self).__init__(*args, **kwargs)
+        print(self.admin)
+        if self.admin:
+            self.fields.pop('submission_agreement')
+            self.fields.pop('comments_editor')
 
         self.fields['subject'].queryset = models.Subject.objects.filter(
             enabled=True,
