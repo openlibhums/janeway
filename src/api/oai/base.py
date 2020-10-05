@@ -27,12 +27,14 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
 
 
 class OAIPaginationMixin():
+    page_kwarg = "token_page"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._decoded_token = {}
 
     def get_context_data(self, **kwargs):
+        self.kwargs["token_page"] = self.page
         context = super().get_context_data(**kwargs)
         if context["is_paginated"] and context["page_obj"].has_next():
             context["resumption_token"] = self.encode_token(context)
@@ -42,8 +44,6 @@ class OAIPaginationMixin():
     def get_token_context(self, context):
         return {
                 "page": context["page_obj"].next_page_number(),
-                "until": self.request.GET.get("until"),
-                "from": self.request.GET.get("from"),
         }
 
     def encode_token(self, context):
@@ -55,35 +55,55 @@ class OAIPaginationMixin():
             self._decoded_token = dict(parse_qsl(unquote(raw_token)))
 
     @property
-    def from_(self):
+    def page(self):
         self._decode_token()
         if self._decoded_token:
+            return int(self._decoded_token.get("page", 1))
+        return None
+
+
+class OAIDateFilterMixin(OAIPaginationMixin):
+
+    def filter_by_date_range(self, qs):
+        if self.from_:
+            from_date = date_parser.parse(self.from_)
+            qs = qs.filter(date_published__gte=from_date)
+        if self.until:
+            until_date = date_parser.parse(self.until)
+            qs = qs.filter(date_published__lte=until_date)
+        return qs
+
+    def get_token_context(self, context):
+        # We need to consider previous filters when generating the new token
+        token_context = super().get_token_context(context)
+        if self.until:
+            token_context["until"] = self.until
+        elif "until" in self.request.GET:
+            token_context["until"] = self.request.GET["until"]
+        if self.from_:
+            token_context["from"] = self.from_
+        elif "from" in self.request.GET:
+            token_context["from"] = self.request.GET["from"]
+        return token_context
+
+    @property
+    def from_(self):
+        self._decode_token()
+        if self._decoded_token and "from" in self._decoded_token:
             return self._decoded_token.get("from")
         else:
             return self.request.GET.get("from")
 
     @property
     def until(self):
+        date_str = None
         self._decode_token()
-        if self._decoded_token:
-            return self._decoded_token.get("until")
+        if self._decoded_token and "until" in self._decoded_token:
+            date_str = self._decoded_token.get("until")
         else:
-            return self.request.GET.get("until")
-
-    @property
-    def page(self):
-        self._decode_token()
-        return self._decoded_token["from"]
-
-    def filter_by_range(self, qs):
-        if self.from_:
-            from_date = date_parser.parse(self._from)
-            qs = qs.filter(date_published__gte=from_date)
-        if self.until:
-            until_date = date_parser.parse(self.until)
-            qs = qs.filter(date_published__gte=until_date)
-        return qs
+            date_str = self.request.GET.get("until")
+        return date_str
 
 
-class OAIPagedModelView(OAIPaginationMixin, OAIModelView):
+class OAIPagedModelView(OAIDateFilterMixin, OAIModelView):
     pass

@@ -16,7 +16,7 @@ def oai_view_factory(request, *args, **kwargs):
 class OAIListRecords(OAIPagedModelView):
     template_name = "apis/OAI_ListRecords.xml"
     queryset = submission_models.Article.objects.all()
-    paginate_by = 3
+    paginate_by = 50
 
     def filter_by_journal(self, qs):
         if self.request.journal:
