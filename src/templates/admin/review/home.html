@@ -47,9 +47,9 @@
 
                                         <tr>
                                             <td><a href="{% url 'review_view_review' article.pk review.pk %}">{{ review.reviewer.initials }}</a></td>
-                                            <td>{{ review.short_status|safe }}</td>
-                                            <td>{{ review.status_date }}</td>
-                                            <td>Due {{ review.date_due|date:"d-m" }}</td>
+                                            <td><span class="{{ review.status.span_class }}">{{ review.status.display|safe }}</span></td>
+                                            <td>{{ review.status.date }}</td>
+                                            <td>{% if review.status.reminder %}<a href="{% url 'review_send_reminder' article.pk review.pk review.status.reminder %}">{% endif %}Due {{ review.date_due|date:"d-m" }}{% if review.status.reminder %}</a>{% endif %}</td>
                                         </tr>
                                     {% endfor %}
                                 </table>

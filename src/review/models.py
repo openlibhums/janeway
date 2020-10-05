@@ -156,30 +156,48 @@ class ReviewAssignment(models.Model):
 
         return False
 
-    def short_status(self):
-        string = ''
+    @property
+    def status(self):
         if self.decision == 'withdrawn':
-            string = '<span class="red">Withdrawn</span>'
+            return {
+                'code': 'withdrawn',
+                'display': 'Withdrawn',
+                'span_class': 'red',
+                'date': '',
+                'reminder': None,
+            }
         elif self.date_complete:
-            string = '<span class="light-green">Complete</span>'
+            return {
+                'code': 'complete',
+                'display': 'Complete',
+                'span_class': 'light-green',
+                'date': shared.day_month(self.date_complete),
+                'reminder': None,
+            }
         elif self.date_accepted:
-            string = '<span class="green">Accept</span>'
+            return {
+                'code': 'accept',
+                'display': 'Accept',
+                'span_class': 'green',
+                'date': shared.day_month(self.date_accepted),
+                'reminder': 'accepted',
+            }
         elif self.date_declined:
-            string = '<span class="red">Declined</span>'
+            return {
+                'code': 'declined',
+                'display': 'Declined',
+                'span_class': 'red',
+                'date': shared.day_month(self.date_declined),
+                'reminder': None,
+            }
         else:
-            string = '<span class="amber">Wait</span>'
-
-        return string
-
-    def status_date(self):
-        if self.decision == 'withdrawn':
-            return shared.day_month(self.date_complete)
-        elif self.date_complete:
-            return shared.day_month(self.date_complete)
-        elif self.date_accepted:
-            return shared.day_month(self.date_accepted)
-        elif self.date_declined:
-            return shared.day_month(self.date_declined)
+            return {
+                'code': 'wait',
+                'display': 'Wait',
+                'span_class': 'amber',
+                'date': '',
+                'reminder': 'request',
+            }
 
     def __str__(self):
         return u'{0} - Article: {1}, Reviewer: {2}'.format(self.id, self.article.title, self.reviewer.full_name())
