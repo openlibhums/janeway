@@ -30,7 +30,7 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
 
 
 class OAIListRecords(OAIModelView):
-    template_name = "apis/OAI.xml"
+    template_name = "apis/OAI_ListRecords.xml"
     queryset = submission_models.Article.objects.all()
 
     def filter_by_journal(self, qs):
