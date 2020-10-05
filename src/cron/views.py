@@ -10,6 +10,7 @@ from django.utils.text import slugify
 
 from cron import models, forms, logic
 from utils import setting_handler
+from security.decorators import editor_user_required
 
 
 @staff_member_required
@@ -22,7 +23,7 @@ def home(request):
     pass
 
 
-@staff_member_required
+@editor_user_required
 def reminders_index(request):
     """
     Displays a list of Reminders and allows new ones to be created and existing ones to be deleted.
@@ -65,7 +66,7 @@ def reminders_index(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def edit_reminder(request, reminder_id):
     """
     Allows for editing an existing Reminder object.
@@ -95,7 +96,7 @@ def edit_reminder(request, reminder_id):
     return render(request, template, context)
 
 
-@staff_member_required
+@editor_user_required
 def create_template(request, reminder_id, template_name):
     """
     If a new Reminder.template doesn't exist, they are redirected here to create a new one.
