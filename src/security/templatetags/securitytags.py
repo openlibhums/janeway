@@ -72,7 +72,7 @@ def is_author(context):
 @register.simple_tag(takes_context=True)
 def is_repository_manager(context):
     request = context['request']
-    return request.user.is_repository_manager(request)
+    return request.user.is_repository_manager(request.repository)
 
 
 @register.simple_tag(takes_context=True)

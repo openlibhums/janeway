@@ -1033,7 +1033,7 @@ def is_article_preprint_editor(func):
             repository=request.repository
         )
 
-        if request.user in preprint.subject_editors() or request.user.is_staff or request.user in request.repository.managers.all():
+        if request.user in preprint.subject_editors() or request.user.is_staff or request.user.is_repository_manager(request.repository):
             return func(request, *args, **kwargs)
 
         deny_access(request)
