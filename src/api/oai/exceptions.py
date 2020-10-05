@@ -1,0 +1,3 @@
+class OAIException(Exception):
+    pass
+
