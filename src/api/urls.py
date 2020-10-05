@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 
 from rest_framework import routers
 
-from api import views
+from api import views, oai
 
 router = routers.DefaultRouter()
 router.register(r'accountrole', views.AccountRoleViewSet)
@@ -16,5 +16,5 @@ router.register(r'keywords', views.KeywordsViewSet, 'keywords')
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^oai/$', views.oai, name='OAI_list_records'),
+    url(r'^oai/$', oai.oai_view_factory, name='OAI_list_records'),
 ]
