@@ -864,6 +864,7 @@ def repository_edit_metadata(request, preprint_id):
     metadata_form = forms.PreprintInfo(
         instance=preprint,
         request=request,
+        admin=True,
     )
 
     author_formset = forms.AuthorFormSet(
@@ -901,6 +902,7 @@ def repository_edit_metadata(request, preprint_id):
                 request.POST,
                 instance=preprint,
                 request=request,
+                admin=True,
             )
 
             if metadata_form.is_valid():

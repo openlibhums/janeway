@@ -43,12 +43,20 @@
                             <td colspan="2"><small>{{ preprint.abstract }}</small></td>
                         </tr>
                         <tr>
-                            <th>Subject</th>
-                            <th>License</th>
+                            <th colspan="2">
+                                Subjects
+                            </th>
                         </tr>
                         <tr>
-                            <td>{{ preprint.subject }}</td>
-                            <td>{{ preprint.license }}</td>
+                            <td colspan="2">
+                                {% include "repository/elements/subject_display.html" %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">License</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ preprint.license }}</td>
                         </tr>
                         <tr>
                             <th colspan="2">Comments to the Editor</th>
