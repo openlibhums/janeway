@@ -698,8 +698,15 @@ def preprints_manager(request):
     :param request: HttpRequest
     :return: HttpResponse or HttpRedirect
     """
-    unpublished_preprints = repository_logic.get_unpublished_preprints(request)
-    published_preprints = repository_logic.get_published_preprints(request)
+    user_subject_pks = repository_logic.subject_article_pks(request.user)
+    unpublished_preprints = repository_logic.get_unpublished_preprints(
+        request,
+        user_subject_pks,
+    )
+    published_preprints = repository_logic.get_published_preprints(
+        request,
+        user_subject_pks,
+    )
     incomplete_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=True,
