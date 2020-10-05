@@ -7,7 +7,7 @@
     <request verb="ListRecords" id="{{ journal_settings.general.publisher_name }}" metadataPrefix="oai_dc">{% journal_url 'OAI_list_records' %}</request>
     <ListRecords>
 
-                {% for article in articles %}
+                {% for article in object_list %}
         <record>
             <header>
                 <identifier>oai:{{ journal_settings.general.base_url }}:article/{{article.id}}</identifier>
