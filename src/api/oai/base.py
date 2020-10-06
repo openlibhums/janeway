@@ -9,6 +9,8 @@ from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
 from django.views.generic.base import TemplateResponseMixin
 
+from api.oai import exceptions
+
 
 class OAIModelView(BaseListView, TemplateResponseMixin):
     """ Base class for OAI views generated from model Querysets """
@@ -38,7 +40,10 @@ class OAIPaginationMixin():
         context = super().get_context_data(**kwargs)
         if context["is_paginated"] and context["page_obj"].has_next():
             context["resumption_token"] = self.encode_token(context)
-            context["total"] = context["paginator"].count
+            total_items = context["paginator"].count
+            if total_items == 0:
+                raise exceptions.OAINoRecordsMatch()
+            context["total"] = total_items
         return context
 
     def get_token_context(self, context):
@@ -52,7 +57,10 @@ class OAIPaginationMixin():
     def _decode_token(self):
         if not self._decoded_token and "resumptionToken" in self.request.GET:
             raw_token = self.request.GET["resumptionToken"]
-            self._decoded_token = dict(parse_qsl(unquote(raw_token)))
+            try:
+                self._decoded_token = dict(parse_qsl(unquote(raw_token)))
+            except ValueError:
+                raise exceptions.OAIBadToken()
 
     @property
     def page(self):
@@ -65,13 +73,16 @@ class OAIPaginationMixin():
 class OAIDateFilterMixin(OAIPaginationMixin):
 
     def filter_by_date_range(self, qs):
-        if self.from_:
-            from_date = date_parser.parse(self.from_)
-            qs = qs.filter(date_published__gte=from_date)
-        if self.until:
-            until_date = date_parser.parse(self.until)
-            qs = qs.filter(date_published__lte=until_date)
-        return qs
+        try:
+            if self.from_:
+                from_date = date_parser.parse(self.from_)
+                qs = qs.filter(date_published__gte=from_date)
+            if self.until:
+                until_date = date_parser.parse(self.until)
+                qs = qs.filter(date_published__lte=until_date)
+            return qs
+        except ValueError:
+            raise exceptions.OAIBadArgument()
 
     def get_token_context(self, context):
         # We need to consider previous filters when generating the new token
