@@ -1,0 +1,6 @@
+{% extends "apis/OAI_base.xml" %}
+{% block body %}
+<GetRecord>
+    {% include "apis/OAI_record.xml" with article=article %}
+</GetRecord>
+{% endblock body %}

@@ -20,7 +20,7 @@ class OAINoRecordsMatch(OAIException):
 class OAIDoesNotExist(OAIException):
     msg = ("The value of the identifier argument is unknown or illegal"
            " in this repository.")
-    code = "noRecordsMatch"
+    code = "idDoesNotExist"
 
 
 class OAIUnsupportedMetadataFormat(OAIException):

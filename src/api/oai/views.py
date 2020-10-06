@@ -6,6 +6,7 @@ from django.views.generic.base import TemplateView
 
 from api.oai import exceptions
 from api.oai.base import OAIPagedModelView
+from identifiers.models import Identifier
 from submission import models as submission_models
 
 # We default `verb` to ListRecords for backwards compatibility.
@@ -48,9 +49,47 @@ class OAIListRecords(OAIPagedModelView):
             date_published__lte=timezone.now(),
         )
 
+
+class OAIGetRecord(TemplateView):
+    template_name = "apis/OAI_GetRecord.xml"
+    content_type = "application/xml"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["article"] = self.get_article()
+        return context
+
+    def get_article(self):
+        id_param = self.request.GET.get("identifier")
+        try:
+            id_type, id = id_param.split(":")
+        except (ValueError, AttributeError):
+            raise exceptions.OAIBadArgument()
+
+        try:
+            if id_type == "id":
+                article = submission_models.Article.objects.get(
+                    id=id,
+                    stage=submission_models.STAGE_PUBLISHED,
+                )
+            else:
+                article = Identifier.objects.get(
+                    id_type=id_type, identifier=id,
+                    article__stage=submission_models.STAGE_PUBLISHED,
+                ).article
+        except (
+            Identifier.DoesNotExist,
+            submission_models.Article.DoesNotExist,
+        ):
+            raise exceptions.OAIDoesNotExist()
+
+        return article
+
+
+
+
 class OAIListIdentifiers(OAIListRecords):
     template_name = "apis/OAI_ListIdentifiers.xml"
-
 
 
 class OAIErrorResponse(TemplateView):
@@ -71,6 +110,7 @@ class OAIErrorResponse(TemplateView):
 
 
 ROUTES = {
+    "GetRecord": OAIGetRecord.as_view(),
     "ListRecords": OAIListRecords.as_view(),
     "ListIdentifiers": OAIListIdentifiers.as_view(),
 }
