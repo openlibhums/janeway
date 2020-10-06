@@ -15,17 +15,28 @@ from api.oai import exceptions
 class OAIModelView(BaseListView, TemplateResponseMixin):
     """ Base class for OAI views generated from model Querysets """
     content_type = "application/xml"
+    # `oai_dc` is the only required metadata format by OAI spec
+    metadata_formats = {"oai_dc"}
 
     def get_queryset(self):
         qs = super().get_queryset()
         filtered = self.apply_filters(qs)
         return filtered
 
+    def get(self, *args, **kwargs):
+        self.validate_metadata_format()
+        return super().get(*args, **kwargs)
+
     def apply_filters(self, qs):
         for attr in (a for a in dir(self) if a.startswith("filter_")):
             filter_ = getattr(self, attr)
             qs = filter_(qs)
         return qs
+
+    def validate_metadata_format(self):
+        prefix = self.request.GET.get("metadataPrefix")
+        if prefix and prefix not in self.metadata_formats:
+            raise exceptions.OAIUnsupportedMetadataFormat()
 
 
 class OAIPaginationMixin():
