@@ -1,0 +1,4 @@
+<header>
+  <identifier>oai:{{ journal_settings.general.base_url }}:article/{{article.id}}</identifier>
+  <datestamp>{{article.date_published}}</datestamp>
+</header>
