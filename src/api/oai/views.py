@@ -48,6 +48,10 @@ class OAIListRecords(OAIPagedModelView):
             date_published__lte=timezone.now(),
         )
 
+class OAIListIdentifiers(OAIListRecords):
+    template_name = "apis/OAI_ListIdentifiers.xml"
+
+
 
 class OAIErrorResponse(TemplateView):
     """ Base Error response returned for raised OAI API errors
@@ -68,4 +72,5 @@ class OAIErrorResponse(TemplateView):
 
 ROUTES = {
     "ListRecords": OAIListRecords.as_view(),
+    "ListIdentifiers": OAIListIdentifiers.as_view(),
 }
