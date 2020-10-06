@@ -1321,6 +1321,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, the review dashboard will show all active reviews, otherwise just a count of completed reviews",
+            "is_translatable": false,
+            "name": "enable_expanded_review_details",
+            "pretty_name": "Enable expanded review cdetauls",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        }
+    },
+    {
+        "group": {
             "name": "email"
         },
         "setting": {

@@ -255,6 +255,10 @@ def get_settings_to_edit(group, journal):
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
             },
             {
+                'name': 'enable_one_click_access',
+                'object': setting_handler.get_setting('general', 'enable_expanded_review_details', journal),
+            },
+            {
                 'name': 'draft_decisions',
                 'object': setting_handler.get_setting('general', 'draft_decisions', journal),
             },
