@@ -72,7 +72,4 @@ def yes_or_no(question):
 
 
 def day_month(date):
-    return '{}-{}'.format(
-        date.day,
-        date.month,
-    )
+    return date.strftime("%d-%b")
