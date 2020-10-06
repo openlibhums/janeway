@@ -46,7 +46,7 @@
                         <td>
                             {% if article.active_reviews %}
 
-                                <table style="width:100%;" class="table table-stack small no-pad no-bottom-margin">
+                                <table style="width:100%; min-width:230px;" class="table table-stack small no-pad no-bottom-margin">
                                     {% for review in article.reviewassignment_set.all %}
 
                                         <tr>
