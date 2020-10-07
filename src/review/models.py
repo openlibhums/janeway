@@ -167,6 +167,7 @@ class ReviewForm(models.Model):
     thanks = models.TextField(help_text="Message displayed after the reviewer is finished.")
 
     elements = models.ManyToManyField('ReviewFormElement')
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return u'{0} - {1}'.format(self.id, self.name)
