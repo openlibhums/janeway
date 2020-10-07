@@ -21,17 +21,17 @@
             </div>
             <div class="content">
                 <ul class="list-group">
-                    {% for form in form_list %}
+                    {% for form_obj in form_list %}
                         <li class="list-group-item">
-                            {{ form.name }} {% if default_form == form.pk %} <a href="{% url 'core_edit_settings_group' 'review' %}#id_default_review_form"><i>(Default)</i></a>{% endif %}
+                            {{ form_obj.name }} {% if default_form == form_obj.pk %} <a href="{% url 'core_edit_settings_group' 'review' %}#id_default_review_form"><i>(Default)</i></a>{% endif %}
                             <div class="float-right">
-                                <a href="{% url 'edit_review_form' form.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
-                                <a class="tiny alert button{% if form.pk == default_form %} disabled{% endif %}" data-open="delete-{{ form.pk }}"><i class="fa fa-trash"></i></a>
+                                <a href="{% url 'edit_review_form' form_obj.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                <a class="tiny alert button{% if form_obj.pk == default_form %} disabled{% endif %}" data-open="delete-{{ form_obj.pk }}"><i class="fa fa-trash"></i></a>
                             </div>
-                            <div class="reveal small" id="delete-{{ form.pk }}" data-reveal data-animation-in="slide-in-up"
+                            <div class="reveal small" id="delete-{{ form_obj.pk }}" data-reveal data-animation-in="slide-in-up"
                                  data-animation-out="slide-out-down">
                                 <div class="card">
-                                    <h3> Deleting form #{{ form.pk }}: "{{ form.name }}"</h3>
+                                    <h3> Deleting form #{{ form_obj.pk }}: "{{ form_obj.name }}"</h3>
                                     <div class="card-divider"> </div>
                                     <div class="card-section">
                                         <p>
@@ -41,7 +41,7 @@
                                         <p> Proceed?</p>
                                         <form method="POST">
                                         {% csrf_token %}
-                                        <button type="submit" name="delete" value="{{ form.pk }}" class="alert button">Delete <i class="fa fa-trash"></i></button>
+                                        <button type="submit" name="delete" value="{{ form_obj.pk }}" class="alert button">Delete <i class="fa fa-trash"></i></button>
                                         </form>
                                     </div>
                                 </div>
