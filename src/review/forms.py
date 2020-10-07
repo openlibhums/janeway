@@ -41,7 +41,7 @@ class ReviewAssignmentForm(forms.ModelForm):
                                                    'default_review_form', journal, create=True).processed_value
 
         if journal:
-            self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=journal)
+            self.fields['form'].queryset = models.ReviewForm.objects.filter(journal=journal, deleted=False)
 
         if default_visibility.value:
             self.fields['visibility'].initial = default_visibility.value
