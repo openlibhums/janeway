@@ -14,9 +14,9 @@ from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
@@ -30,6 +30,7 @@ from security.decorators import (
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate
+from utils import shared
 
 
 @senior_editor_user_required
@@ -2151,6 +2152,30 @@ def preview_form(request, form_id):
     }
 
     return render(request, template, context)
+
+
+@require_POST
+@senior_editor_user_required
+def order_review_elements(request, form_id):
+    """
+    Reorders Review Form elements.
+    :param request: HttpRequest object
+    :param form_id: ReviewForm PK
+    """
+    form = get_object_or_404(
+        models.ReviewForm,
+        pk=form_id,
+        journal=request.journal,
+    )
+
+    shared.set_order(
+        form.elements.all(),
+        'order',
+        request.POST.getlist('element[]'),
+    )
+
+    return HttpResponse('Ok')
+
 
 
 @reviewer_user_for_assignment_required

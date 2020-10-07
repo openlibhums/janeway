@@ -69,3 +69,20 @@ def yes_or_no(question):
             return True
         if reply[0] == 'n':
             return False
+
+
+def set_order(objects, order_attr_name, pk_list):
+    """
+    A generic implementation of model object ordering.
+    :param: objects: a queryset or list of model objects
+    :param: order_attr_name: string the model object's order attr name
+    :param: pk_list: list of object PKs in order
+    """
+    ids = [int(_id) for _id in pk_list]
+
+    for _object in objects:
+        order = ids.index(_object.pk)
+        setattr(_object, order_attr_name, order)
+        _object.save()
+
+    return objects

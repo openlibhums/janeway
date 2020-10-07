@@ -206,6 +206,9 @@ class ReviewFormElement(models.Model):
                                                                      'to the author automatically, if false it will'
                                                                      'be hidden to the author by default.')
 
+    class Meta:
+        ordering = ('order', 'name')
+
     def __str__(self):
         return "Element: {0} ({1})".format(self.name, self.kind)
 
