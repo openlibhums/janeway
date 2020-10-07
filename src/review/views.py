@@ -2062,10 +2062,14 @@ def review_forms(request):
     default_form = setting_handler.get_setting(
         'general', 'default_review_form', request.journal,
     ).processed_value
+    if default_form.isdigit():
+        default_form = int(default_form)
 
     if request.POST:
         if 'delete' in request.POST:
             form_id = request.POST["delete"]
+            if form_id.isdigit():
+                form_id = int(form_id)
             if default_form == form_id:
                 messages.add_message(
                     request,
