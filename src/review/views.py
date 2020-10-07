@@ -29,8 +29,7 @@ from security.decorators import (
     section_editor_draft_decisions, article_stage_review_required
 )
 from submission import models as submission_models, forms as submission_forms
-from utils import models as util_models, ithenticate
-from utils import shared
+from utils import models as util_models, ithenticate, shared
 
 
 @senior_editor_user_required
