@@ -1,0 +1,17 @@
+{% load static from staticfiles %}
+
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script>
+    $("#sortable").sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{{ sort_url }}'
+            });
+        }
+    });
+    $("#sortable").disableSelection();
+</script>

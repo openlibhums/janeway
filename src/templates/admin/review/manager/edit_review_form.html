@@ -1,6 +1,5 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
-{% load static from staticfiles %}
 
 {% block title %}Review Forms{% endblock title %}
 {% block title-section %}Review Forms{% endblock %}
@@ -70,23 +69,8 @@
     {% if modal %}
         {% include "admin/elements/open_modal.html" with target=modal %}
     {% else %}
-        <script src="{% static "admin/js/csrf.js" %}"></script>
-        <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-        <script>
-            $("#sortable").sortable({
-                update: function (event, ui) {
-                    var data = $(this).sortable('serialize');
-                    console.log(data);
-                    // POST to server using $.post or $.ajax
-                    $.ajax({
-                        data: data,
-                        type: 'POST',
-                        url: '{% url 'order_review_elements' edit_form.pk %}'
-                    });
-                }
-            });
-            $("#sortable").disableSelection();
-        </script>
+        {% url 'order_review_elements' edit_form.pk as sort_url %}
+        {% include "admin/elements/sortable.html" with sort_url=sort_url %}
     {% endif %}
 
 {% endblock %}
