@@ -27,8 +27,8 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 class ReviewFormAdmin(admin.ModelAdmin):
-    list_display = ('name', 'journal', 'slug')
-    list_filter = ('journal',)
+    list_display = ('name', 'journal', 'slug', 'deleted')
+    list_filter = ('journal', 'deleted')
     filter_horizontal = ('elements',)
 
 

@@ -160,7 +160,10 @@ def process_setting_list(settings_to_get, type, journal):
 
 def get_settings_to_edit(group, journal):
     review_form_choices = list()
-    for form in review_models.ReviewForm.objects.filter(journal=journal):
+    for form in review_models.ReviewForm.objects.filter(
+        journal=journal,
+        deleted=False,
+    ):
         review_form_choices.append([form.pk, form])
 
     if group == 'submission':
