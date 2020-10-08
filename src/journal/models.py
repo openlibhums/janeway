@@ -439,7 +439,7 @@ class Issue(models.Model):
 
     # issue metadata
     volume = models.IntegerField(default=1)
-    issue = models.IntegerField(default=1)
+    issue = models.CharField(max_length=255, default="1")
     issue_title = models.CharField(blank=True, max_length=300)
     date = models.DateTimeField(default=timezone.now)
     order = models.IntegerField(default=0)
@@ -687,22 +687,31 @@ class Issue(models.Model):
 
         # get the latest issue from the specified journal
         try:
-            latest_issue = Issue.objects.filter(journal=journal, issue_type='Issue').latest('date')
+            latest_issue = Issue.objects.filter(
+                journal=journal,
+                issue_type__code='issue',
+            ).latest('date')
 
         # if no issues in journal, start at 1:1
         except Issue.DoesNotExist:
-            return (1, 1)
+            return (1, "1")
 
         # if issues exist, iterate - if new year, add 1 to volume and reset issue to 1
         # otherwise keep volume the same and add 1 to issue
         else:
             if datetime.now().year > latest_issue.date.year:
                 volume = latest_issue.volume + 1
-                issue = 1
+                issue = "1"
                 return (volume, issue)
             else:
-                issue = latest_issue.issue + 1
-                return (latest_issue.volume, issue)
+                if latest_issue.issue.isdigit():
+                    issue = int(latest_issue.issue) + 1
+                    return (latest_issue.volume, str(issue))
+                else:
+                    raise TypeError(
+                        "Can't auto increase issue number after issue %s",
+                        latest_issue.issue,
+                    )
 
     def __str__(self):
         return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
