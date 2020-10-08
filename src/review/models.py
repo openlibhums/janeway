@@ -2,11 +2,14 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
 from django.db import models
 from django.utils import timezone
 from django.db.models import Q
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
+
+from utils import shared
 
 assignment_choices = (
     ('editor', 'Editor'),
@@ -153,6 +156,49 @@ class ReviewAssignment(models.Model):
 
         return False
 
+    @property
+    def status(self):
+        if self.decision == 'withdrawn':
+            return {
+                'code': 'withdrawn',
+                'display': 'Withdrawn',
+                'span_class': 'red',
+                'date': '',
+                'reminder': None,
+            }
+        elif self.date_complete:
+            return {
+                'code': 'complete',
+                'display': 'Complete',
+                'span_class': 'light-green',
+                'date': shared.day_month(self.date_complete),
+                'reminder': None,
+            }
+        elif self.date_accepted:
+            return {
+                'code': 'accept',
+                'display': 'Accept',
+                'span_class': 'green',
+                'date': shared.day_month(self.date_accepted),
+                'reminder': 'accepted',
+            }
+        elif self.date_declined:
+            return {
+                'code': 'declined',
+                'display': 'Declined',
+                'span_class': 'red',
+                'date': shared.day_month(self.date_declined),
+                'reminder': None,
+            }
+        else:
+            return {
+                'code': 'wait',
+                'display': 'Wait',
+                'span_class': 'amber',
+                'date': '',
+                'reminder': 'request',
+            }
+
     def __str__(self):
         return u'{0} - Article: {1}, Reviewer: {2}'.format(self.id, self.article.title, self.reviewer.full_name())
 
@@ -167,6 +213,7 @@ class ReviewForm(models.Model):
     thanks = models.TextField(help_text="Message displayed after the reviewer is finished.")
 
     elements = models.ManyToManyField('ReviewFormElement')
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return u'{0} - {1}'.format(self.id, self.name)

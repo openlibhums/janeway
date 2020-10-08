@@ -1,0 +1,34 @@
+<record>
+    {% include "apis/OAI_record_header.xml" with article=article %}
+    <metadata>
+  <oai_dc:dc
+      xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
+      http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+      <dc:articleTitle>{{article.title|striptags}}</dc:articleTitle>
+      <dc:title>{{article.title|striptags}}</dc:title>
+      {% for author in article.authors.all %}
+      <dc:creator>{{author.last_name}}, {{author.first_name}}</dc:creator>
+      {% endfor %}
+      <dc:description>{{article.abstract|striptags}}</dc:description>
+      <dc:date>
+    <dc:day>{{ article.date_published|date:"d" }}</dc:day>
+    <dc:month>{{ article.date_published|date:"m" }}</dc:month>
+    <dc:year>{{ article.date_published|date:"yy" }}</dc:year>
+      </dc:date>
+      <dc:type>info:eu-repo/semantics/article</dc:type>
+      {% if article.issue %}<dc:volume>{{ article.issue.volume }}</dc:volume>
+      <dc:issue>{{ article.issue.issue }}</dc:issue>{% endif %}
+      {% if article.journal.publisher %}<dc:publisher>{{ article.journal.publisher }}</dc:publisher>{% endif %}
+      <dc:journalTitle>{{ article.journal.name}}</dc:journalTitle>
+      {% if article.identifier.id_type == 'doi' %}<dc:doi>{{article.identifier.identifier}}</dc:doi>{% endif %}
+      <dc:identifier>{% if article.identifier.id_type == 'doi' %}https://doi.org/{{article.identifier.identifier}}{% else %}{% journal_url 'article_view' 'id' article.id %}{% endif %}</dc:identifier>
+      <dc:fullTextUrl>{% journal_url 'article_view' 'id' article.id %}</dc:fullTextUrl>
+      {% if article.journal.issn %}<dc:source>{{ article.journal.issn}}</dc:source>{% endif %}
+      {% if article.license.url %}<dc:rights>{{ article.license.url }}</dc:rights>{% endif %}
+      {% if article.page_numbers %}<dc:format.extent>{{ article.page_numbers }}</dc:format.extent>{% else %}<dc:format.extent>1</dc:format.extent>{% endif %}
+  </oai_dc:dc>
+    </metadata>
+</record>

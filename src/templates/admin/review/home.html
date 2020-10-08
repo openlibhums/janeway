@@ -25,24 +25,43 @@
                         <th>Editors</th>
                         <th>Section</th>
                         <th>Projected Issue</th>
-                        <th>No. Active Reviews</th>
+                        {% if journal_settings.general.enable_expanded_review_details %}
+                        <th>Review Status</th>
+                        {% else %}
                         <th>No. Complete Reviews</th>
-                        <th></th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for article in articles %}
                     <tr>
                         <td>{{ article.pk }}</td>
-                        <td>{{ article.title }}</td>
+                        <td><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></td>
                         <td>{{ article.date_submitted }}</td>
                         <td>{{ article.correspondence_author.full_name }}</td>
                         <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                         <td>{{ article.section.name }}</td>
                         <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
-                        <td>{{ article.active_reviews|length }}</td>
-                        <td>{{ article.completed_reviews|length }}</td>
-                        <td><a href="{% url 'review_in_review' article.pk %}">View</a></td>
+                        {% if journal_settings.general.enable_expanded_review_details %}
+                        <td>
+                            {% if article.active_reviews %}
+
+                                <table style="width:100%; min-width:230px;" class="table table-stack small no-pad no-bottom-margin">
+                                    {% for review in article.reviewassignment_set.all %}
+
+                                        <tr>
+                                            <td><a href="{% url 'review_view_review' article.pk review.pk %}">{{ review.reviewer.initials }}</a></td>
+                                            <td><span class="{{ review.status.span_class }}">{{ review.status.display|safe }}</span></td>
+                                            <td>{{ review.status.date }}</td>
+                                            <td>{% if review.status.reminder %}<a href="{% url 'review_send_reminder' article.pk review.pk review.status.reminder %}">{% endif %}Due {{ review.date_due|date:"d-m" }}{% if review.status.reminder %}</a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            {% endif %}
+                        </td>
+                        {% else %}
+                        <td>{{ article.completed_reviews|length }} Complete</td>
+                        {% endif %}
                     </tr>
                     {% empty %}
                     <tr>

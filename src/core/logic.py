@@ -160,7 +160,10 @@ def process_setting_list(settings_to_get, type, journal):
 
 def get_settings_to_edit(group, journal):
     review_form_choices = list()
-    for form in review_models.ReviewForm.objects.filter(journal=journal):
+    for form in review_models.ReviewForm.objects.filter(
+        journal=journal,
+        deleted=False,
+    ):
         review_form_choices.append([form.pk, form])
 
     if group == 'submission':
@@ -250,6 +253,10 @@ def get_settings_to_edit(group, journal):
             {
                 'name': 'enable_one_click_access',
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
+            },
+            {
+                'name': 'enable_expanded_review_details',
+                'object': setting_handler.get_setting('general', 'enable_expanded_review_details', journal),
             },
             {
                 'name': 'draft_decisions',

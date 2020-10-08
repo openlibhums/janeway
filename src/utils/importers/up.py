@@ -61,6 +61,7 @@ def import_article(journal, user, url, thumb_path=None, update=False):
 
     # retrieve the remote page and establish if it has a DOI
     already_exists, doi, domain, soup_object = shared.fetch_page_and_check_if_exists(url)
+
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     if already_exists and update:
@@ -319,7 +320,15 @@ def map_review_recommendation(recommentdation):
     return recommendations.get(recommentdation, None)
 
 
-def import_issue_images(journal, user, url):
+def import_issue_images(journal, user, url, import_missing=False):
+    """ Imports all issue images and other issue related content
+    Currently also reorders all issues, articles and sections within issues,
+    article thumbnails and issue titles.
+    :param journal: a journal.models.Journal
+    :param user: the owner of the imported content as a core.models.Account
+    :param url: the base url of the journal to import from
+    :param load_missing: Bool. If true, attempt to import missing articles
+    """
     base_url = url
 
     if not url.endswith('/issue/archive/'):
@@ -337,14 +346,6 @@ def import_issue_images(journal, user, url):
 
     for issue in journal.issues():
         issue_num = issue.issue
-        if issue_num  == 0 and issue.issue_title:
-            # Deconstruct issue title
-            try:
-                issue_num = issue.issue_title.split("{}: ".format(issue.issue_type.pretty_name))[1]
-            except IndexError:
-                logger.error("Can't reconstruct original issue for {} - {}".format(
-                    issue_num, issue.issue_title
-                ))
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
         img_url_suffix = soup.find(src=pattern)
@@ -430,18 +431,40 @@ def import_issue_images(journal, user, url):
 
             for article_link in articles:
                 # parse the URL into a DOI and prefix
-                match = pattern.match(article_link['href'])
+                article_url = article_link["href"]
+                match = pattern.match(article_url)
                 prefix = match.group(1)
                 doi = match.group(2)
 
                 # get a proper article object
                 article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
+                if not article and import_missing:
+                    logger.debug(
+                        "Article %s not found, importing...", article_url)
+                    import_article(journal,user, base_url + article_url)
+
 
                 if article and article not in processed:
-                    journal_models.ArticleOrdering.objects.create(issue=issue,
-                                                                  article=article,
-                                                                  section=article.section,
-                                                                  order=article_order)
+                    thumb_img = article_link.find("img")
+                    if thumb_img:
+                        thumb_path = thumb_img["src"]
+                        filename, mime = shared.fetch_file(
+                            base_url,
+                            thumb_path, "",
+                            'graphic',
+                            article, user,
+                        )
+                        shared.add_file(
+                            mime, 'graphic', 'Thumbnail',
+                            user, filename, article,
+                            thumbnail=True,
+                        )
+                    journal_models.ArticleOrdering.objects.get_or_create(
+                        issue=issue,
+                        article=article,
+                        section=article.section,
+                        order=article_order,
+                    )
 
                     article_order += 1
 

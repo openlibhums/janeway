@@ -1,0 +1,4 @@
+<header>
+  <identifier>id:{{ article.pk }}</identifier>
+  <datestamp>{{article.date_published}}</datestamp>
+</header>

@@ -470,13 +470,13 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         # add an account for this new user
         account = core_models.Account.objects.filter(email__iexact=email)
+        parsed_name = parse_author_names(author_name, citation)
 
         if account is not None and len(account) > 0:
             account = account[0]
             print("Found account for {0}".format(email))
         else:
             print("Didn't find account for {0}. Creating.".format(email))
-            parsed_name = parse_author_names(author_name, citation)
             logger.debug("%s\t\t-> %s" % (author_name, parsed_name))
             account = core_models.Account.objects.create(
                 email=email,
@@ -490,12 +490,26 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         if account:
             article.authors.add(account)
-            submission_models.ArticleAuthorOrder.objects.get_or_create(
+            o, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
                 article=article,
                 author=account,
                 defaults={'order': article.next_author_sort()},
             )
-            account.snapshot_self(article)
+            # Copy behaviour of snapshot_self, some authors might have a
+            # shared dummy email address.
+            f, created = submission_models.FrozenAuthor.objects.get_or_create(
+                **{
+                    'article': article,
+                    'first_name': parsed_name["first_name"],
+                    'middle_name': parsed_name["middle_name"],
+                    'last_name': parsed_name["last_name"],
+                    'institution': institution,
+                    'order': o.order,
+                    'defaults': {"author": account},
+
+                },
+            )
+
 
 
 def set_article_section(article, soup_object, element='h4', attributes=None, default='Articles'):
@@ -543,60 +557,32 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         journal=article.journal,
         code="issue",
     )
-    issue_title = ""
     issue = get_soup(soup_object.find('meta', attrs={'name': 'citation_issue'}), 'content', 0)
-    if issue.isdigit():
-        issue = int(issue)
-    else:
-        # We can't handle alpha issue numbers so set to zero and try other
-        #strategy
-        issue = 0
     volume = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_volume'}), 'content', 0))
 
     # Try DC tags
-    if issue == 0:
+    if not issue:
         dc_issue = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Issue'}), 'content', "")
-        if dc_issue.isdigit():
-            issue = int(dc_issue)
-        else:
-            # We couldn't find a numeric issue number, set to zero
-            # and produce an issue title instead
-            issue_title = "{}: {}".format(issue_type.pretty_name, dc_issue)
-    if volume == 0:
+    if not volume:
         dc_volume = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Volume'}), 'content', "")
         if dc_volume.isdigit():
             volume = int(dc_volume)
 
-    if issue == 0 and issue_title:
-        # If no issue and/or volume information, create issue with title
-        # identifier
-        new_issue, created = journal_models.Issue.objects.get_or_create(
-            journal=article.journal,
-            issue_title=issue_title,
-            defaults={
-                "issue": issue, "volume": volume, "issue_type": issue_type,
-                "date": date_published
-            },
-        )
-
-    else:
-        new_issue, created = journal_models.Issue.objects.get_or_create(
-            journal=article.journal,
-            issue=issue,
-            volume=volume,
-            issue_title=issue_title,
-            defaults={"issue_type": issue_type},
-        )
-        new_issue.date = date_published
-
+    new_issue, created = journal_models.Issue.objects.get_or_create(
+        journal=article.journal,
+        issue=issue,
+        volume=volume,
+        defaults={
+            "issue_type": issue_type,
+            "date": date_published,
+        },
+    )
     article.issues.add(new_issue)
 
     if created:
         new_issue.save()
         log_string = "Created a new issue ({0}:{1}, {2})".format(
             volume, issue, date_published)
-        if issue_title:
-            log_string = "{0} - {1}".format(log_string, issue_title)
         logger.info(log_string)
 
 
