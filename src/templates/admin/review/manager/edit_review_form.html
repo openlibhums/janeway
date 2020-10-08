@@ -22,20 +22,26 @@
                 <a href="#" data-open="element" class="button">Add Element</a>
             </div>
             <div class="content">
-                <ul class="list-group">
+
                 <form method="POST">
                     {% csrf_token %}
-                    {% for element in edit_form.elements.all %}
-                        <li class="list-group-item">
-                            {{ element.name }}
-                            <div class="float-right">
-                                <a class="tiny warning button" href="{% url 'edit_review_form_element' edit_form.pk element.pk %}"><i class="fa fa-edit"></i></a>
-                                <button type="submit" name="delete" value="{{ element.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
-                            </div>
-                        </li>
-                    {% endfor %}
+                    <ul class="list-group" id="sortable">
+                        {% for element in edit_form.elements.all %}
+                            <li class="list-group-item" id="element-{{ element.pk }}">
+                                <span class="fa fa-sort">&nbsp;</span>
+                                {{ element.name }}
+                                <div class="float-right">
+                                    <a class="tiny warning button"
+                                       href="{% url 'edit_review_form_element' edit_form.pk element.pk %}"><i
+                                            class="fa fa-edit"></i></a>
+                                    <button type="submit" name="delete" value="{{ element.pk }}"
+                                            class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </form>
-                </ul>
+
             </div>
         </div>
     </div>
@@ -62,5 +68,9 @@
 {% block js %}
     {% if modal %}
         {% include "admin/elements/open_modal.html" with target=modal %}
+    {% else %}
+        {% url 'order_review_elements' edit_form.pk as sort_url %}
+        {% include "admin/elements/sortable.html" with sort_url=sort_url %}
     {% endif %}
+
 {% endblock %}

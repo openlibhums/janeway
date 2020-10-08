@@ -71,5 +71,22 @@ def yes_or_no(question):
             return False
 
 
+def set_order(objects, order_attr_name, pk_list):
+    """
+    A generic implementation of model object ordering.
+    :param: objects: a queryset or list of model objects
+    :param: order_attr_name: string the model object's order attr name
+    :param: pk_list: list of object PKs in order
+    """
+    ids = [int(id_) for id_ in pk_list]
+
+    for object_ in objects:
+        order = ids.index(object_.pk)
+        setattr(object_, order_attr_name, order)
+        object_.save()
+
+    return objects
+
+  
 def day_month(date):
     return date.strftime("%d-%b")
