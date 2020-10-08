@@ -1,29 +1,32 @@
 ifndef DB_VENDOR
-	DB_VENDOR=mysql
+	DB_VENDOR=postgres
 endif
 
 unexport NO_DEPS
-DB_HOST=janeway-mysql
-DB_PORT=3306
 DB_NAME ?= janeway
+DB_HOST=janeway-postgres
+DB_PORT=5432
 DB_USER=janeway-web
 DB_PASSWORD=janeway-web
-CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
-DB_VOLUME=db/mysql-data
+DB_VOLUME=db/postgres-data
+CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
 
 ifeq ($(DB_VENDOR), mariadb)
 	DB_HOST=janeway-mariadb
+	DB_PORT=3306
+	DB_USER=janeway-web
+	DB_PASSWORD=janeway-web
+	CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
 	DB_VOLUME=db/mariadb-data
 endif
 
-ifeq ($(DB_VENDOR), postgres)
-	unexport NO_DEPS
-	DB_HOST=janeway-postgres
-	DB_PORT=5432
+ifeq ($(DB_VENDOR), mysql)
+	DB_HOST=janeway-mysql
+	DB_PORT=3306
 	DB_USER=janeway-web
 	DB_PASSWORD=janeway-web
-	DB_VOLUME=db/postgres-data
-	CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
+	CLI_COMMAND=mysql -u $(DB_USER) -p$(DB_PASSWORD)
+	DB_VOLUME=db/mysql-data
 endif
 
 ifeq ($(DB_VENDOR), sqlite)
@@ -51,11 +54,13 @@ all: janeway
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependant services detached.
+	docker-compose run --rm start_dependencies
 	docker-compose $(_VERBOSE) run $(NO_DEPS) --rm --service-ports  janeway-web $(entrypoint)
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable
 	docker-compose run $(NO_DEPS) --rm janeway-web $(CMD)
 install:	## Run the install_janeway command inside a container
 	touch db/janeway.sqlite3
+	docker-compose run --rm start_dependencies
 	bash -c "make command CMD=install_janeway"
 rebuild:	## Rebuild the Janeway docker image.
 	docker pull birkbeckctp/janeway-base:latest
