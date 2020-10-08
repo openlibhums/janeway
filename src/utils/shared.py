@@ -78,11 +78,11 @@ def set_order(objects, order_attr_name, pk_list):
     :param: order_attr_name: string the model object's order attr name
     :param: pk_list: list of object PKs in order
     """
-    ids = [int(_id) for _id in pk_list]
+    ids = [int(id_) for id_ in pk_list]
 
-    for _object in objects:
-        order = ids.index(_object.pk)
-        setattr(_object, order_attr_name, order)
-        _object.save()
+    for object_ in objects:
+        order = ids.index(object_.pk)
+        setattr(object_, order_attr_name, order)
+        object_.save()
 
     return objects
