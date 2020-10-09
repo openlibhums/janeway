@@ -18,6 +18,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
+from core.model_utils import merge_models
 from journal import models as journal_models, views as journal_views, forms as journal_forms
 from press import models as press_models, forms
 from security.decorators import press_only
@@ -255,3 +256,39 @@ def journal_domain(request, journal_id):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def merge_users(request):
+    users = core_models.Account.objects.all()
+    if request.POST:
+        from_id = request.POST["from"]
+        to_id = request.POST["to"]
+        if from_id == to_id:
+            messages.add_message(
+                request, messages.ERROR,
+                "Can't merge a user with itself",
+            )
+        return redirect(reverse('merge_users'))
+
+        try:
+            from_acc = core_models.Account.objects.get(id=from_id)
+            to_acc = core_models.Account.objects.get(id=to_id)
+        except core_models.Account.DoesNotExist:
+            messages.add_message(
+                request, messages.ERROR,
+                "Can't find users with ids %d, %d" % (from_id, to_id),
+            )
+        merge_models(from_acc, to_acc)
+        messages.add_message(
+            request, messages.INFO,
+            "Merged %s into %s" % (from_acc.username, to_acc.username),
+        )
+        return redirect(reverse('merge_users'))
+
+    template = "press/merge_users.html"
+    context = {
+        'users': users,
+    }
+    return render(request, template, context)
+
