@@ -232,9 +232,9 @@
                         {% endfor %}
                     </td>
                 {% else %}
-                    <td>Example DOI Based on Pattern</td>
-                    <td>{{ article.render_sample_doi }}</td>
-                    <td></td>
+                    <td>DOI</td>
+                    <td><span class="fa fa-exclamation-triangle"> Article has no DOI</span></td>
+                    <td><a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a></td>
                 {% endif %}
                 {% endwith %}
             </tr>
