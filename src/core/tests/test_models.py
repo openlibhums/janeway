@@ -2,6 +2,8 @@ from django.db import IntegrityError
 from django.test import TestCase
 
 from core import models
+from core.model_utils import merge_models
+from utils.testing import helpers
 
 
 class TestAccount(TestCase):
@@ -56,3 +58,71 @@ class TestAccount(TestCase):
             msg="Managed to register account with duplicate email",
         ):
             models.Account.objects.create(email=email_b)
+
+    def test_merge_accounts_m2m(self):
+        """Test merging of m2m elements when mergint two accounts"""
+        # Setup
+        from_account = models.Account.objects.create(email="from@test.com")
+        to_account = models.Account.objects.create(email="to@test.com")
+        interest = models.Interest.objects.create(name="test")
+        from_account.interest.add(interest)
+
+        # Test
+        merge_models(from_account, to_account)
+
+        # Assert
+        self.assertTrue(
+            interest in to_account.interest.all(),
+            msg="Failed to merge user models",
+        )
+
+    def test_merge_accounts_o2m(self):
+        """Test merging of o2m elements when merging two accounts"""
+        # Setup
+        press = helpers.create_press()
+        journal, _ = helpers.create_journals()
+        from_account = models.Account.objects.create(email="from@test.com")
+        to_account = models.Account.objects.create(email="to@test.com")
+        role = models.AccountRole.objects.create(
+            user=from_account,
+            journal=journal,
+            role=models.Role.objects.create(name="t", slug="t"),
+        )
+
+        # Test
+        merge_models(from_account, to_account)
+
+        # Assert
+        self.assertTrue(
+            role in to_account.accountrole_set.all(),
+            msg="Failed to merge user models",
+        )
+
+    def test_merge_accounts_o2m_unique(self):
+        """Test merging of o2m unique elements of two accounts"""
+        # Setup
+        press = helpers.create_press()
+        journal, _ = helpers.create_journals()
+        from_account = models.Account.objects.create(email="from@test.com")
+        to_account = models.Account.objects.create(email="to@test.com")
+        role_obj = models.Role.objects.create(name="t", slug="t")
+        role = models.AccountRole.objects.create(
+            user=from_account,
+            journal=journal,
+            role=role_obj,
+        )
+        unique_violation = models.AccountRole.objects.create(
+            user=to_account,
+            journal=journal,
+            role=role_obj
+        )
+
+
+        # Test
+        merge_models(from_account, to_account)
+
+        # Assert
+        self.assertTrue(
+            unique_violation in to_account.accountrole_set.all()
+            msg="Failed to merge user models",
+        )
