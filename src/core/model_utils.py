@@ -6,7 +6,8 @@ __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.db import models
+from django.db import models, IntegrityError, transaction
+from django.db.models.fields.related import ForeignObjectRel
 from django.http.request import split_domain_port
 
 from utils import logic
@@ -47,3 +48,42 @@ class AbstractSiteModel(models.Model):
             scheme=self.SCHEMES[self.is_secure],
             path=path or "",
         )
+
+
+def merge_models(src, dest):
+    """ Moves relations from `src` to `dest` and deletes src
+    :param src: Model instance to be removed
+    :param dest: Model instance into which src will be merged
+    """
+    model = src._meta.model
+    if dest._meta.model != model:
+        raise TypeError("Can't merge a %s with a %s", model, dest._meta.model)
+    fields = src._meta.get_fields()
+    for field in fields:
+        if field.many_to_many:
+            # These can be ManyToManyRel or ManyToManyField depending on the
+            # direction the relationship was declared.
+            if isinstance(field, models.Field):
+                related_model = field.related_model
+                remote_field = field.remote_field.name
+                objects = related_model.objects.filter(**{remote_field:src})
+                manager = getattr(dest, field.get_attname())
+            else:
+                accessor = getattr(src, field.get_accessor_name())
+                manager = getattr(dest, field.get_accessor_name())
+                objects = accessor.all()
+            for obj in objects:
+                manager.add(obj)
+        elif field.one_to_many:
+            remote_field = field.remote_field.name
+            accessor_name = field.get_accessor_name()
+            accessor = getattr(src, accessor_name)
+            for obj in accessor.all():
+                try:
+                    with transaction.atomic():
+                        setattr(obj, remote_field, dest)
+                        obj.save()
+                except IntegrityError:
+                    # Ignore unique constraint violations
+                    pass
+    src.delete()
