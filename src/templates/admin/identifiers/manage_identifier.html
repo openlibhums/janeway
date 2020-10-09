@@ -22,6 +22,8 @@
         <h2>{% if identifier %}Edit Identifier - {{ identifier.pk }}{% else %}Add New Identifier{% endif %}</h2>
         <a class="button" href="{% url 'article_identifiers' article.pk %}"><i class="fa fa-arrow-left">&nbsp;</i>Back</a>
     </div>
+    <p>Dois should be entered on their ID format, not their URL format<p>
+    <p>Example DOI based on pattern for this article: {{ article.render_sample_doi }}</p>
     <form method="POST">
         {% csrf_token %}
         {% include "elements/forms/errors.html" %}
