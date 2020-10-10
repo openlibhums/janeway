@@ -3,13 +3,18 @@
 <h3>{% if issue_length > 1 %}Issues{% else %}Issue{% endif %}</h3>
 {% endwith %}
 <ul>
+    {% if article.primary_issue %}
+        <li>
+            <a href="{% url 'journal_issue' article.primary_issue.pk %}">{{ article.primary_issue.display_title }}</a>
+            {% if journal_settings.article.display_guest_editors %}
+            <br />
+            {% include "common/elements/guest_editors.html" with issue=article.primary_issue small="small" %}
+            {% endif %}
+        </li>
+    {% endif %}
     {% for issue in article.issues_list %}
-        <li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.display_title }}</a></li>
+        {% if not issue == article.primary_issue %}<li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.display_title }}</a></li>{% endif %}
     {% empty %}
-        {% if article.primary_issue %}
-            <li><a href="{% url 'journal_issue' issue.pk %}">{{ article.primary_issue.display_title }}</a></li>
-        {% else %}
         <li>This article is not a part of any issues.</li>
-        {% endif %}
     {% endfor %}
 </ul>

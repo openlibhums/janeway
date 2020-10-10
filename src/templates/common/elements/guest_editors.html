@@ -1,0 +1,8 @@
+{% if issue.editors.all %}
+    <p>
+    {% if small %}<small>{% endif %}
+        <strong>Editors: </strong>
+        {% for editor in issue.issueeditor_set.all %}{{ editor.account.full_name }} ({{ editor.role }}){% if not forloop.last %}, {% endif %}{% endfor %}
+    {% if small %}</small>{% endif %}
+    </p>
+{% endif %}
