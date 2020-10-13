@@ -2694,5 +2694,20 @@
         "group": {
             "name": "email_subject"
         }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled guest editors will display on the article page for primary issues.",
+            "is_translatable": false,
+            "name": "display_guest_editors",
+            "pretty_name": "Display Guest Editors",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]
