@@ -657,6 +657,8 @@ def default_settings_index(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    if request.journal:
+        raise Http404()
 
     return settings_index(request)
 
@@ -693,18 +695,24 @@ def edit_setting(request, setting_group, setting_name):
         return redirect(reverse('core_settings_index'))
 
     if request.POST:
-        value = request.POST.get('value')
-        if request.FILES:
-            value = logic.handle_file(request, setting_value, request.FILES['value'])
-
-        try:
-            setting_value = setting_handler.save_setting(
-                setting_group, setting_name, request.journal, value)
-        except ValidationError as error:
-            messages.add_message( request, messages.ERROR, error)
+        if 'delete' in request.POST and setting_value:
+            setting_value.delete()
         else:
-            cache.clear()
-            return redirect(reverse('core_settings_index'))
+            value = request.POST.get('value')
+            if request.FILES:
+                value = logic.handle_file(request, setting_value, request.FILES['value'])
+
+            try:
+                setting_value = setting_handler.save_setting(
+                    setting_group, setting_name, request.journal, value)
+            except ValidationError as error:
+                messages.add_message( request, messages.ERROR, error)
+            else:
+                cache.clear()
+
+        if "email_template" in request.GET:
+            return redirect(reverse('core_email_templates'))
+        return redirect(reverse('core_settings_index'))
 
     template = 'core/manager/settings/edit_setting.html'
     context = {
