@@ -1140,7 +1140,7 @@ def repository_delete_subject(request):
     )
 
 
-@staff_member_required
+@is_repository_manager
 def repository_rejected_submissions(request):
     """
     A staff only view that displays a list of preprints that have been
@@ -1161,7 +1161,7 @@ def repository_rejected_submissions(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_repository_manager
 def orphaned_preprints(request):
     """
     Displays a list of preprints that have bee orphaned from subjects.
@@ -1178,7 +1178,7 @@ def orphaned_preprints(request):
     return render(request, template, context)
 
 
-@staff_member_required
+@is_repository_manager
 def version_queue(request):
     """
     Displays a list of version update requests.
