@@ -1677,47 +1677,6 @@ def email_templates(request):
 
 
 @editor_user_required
-def edit_email_template(request, template_code, subject=False):
-    """
-    Allows staff to edit email templates and subjects
-    :param request: HttpRequest object
-    :param template_code: string, name of the template to be edited
-    :param subject: boolean, if True we are editing the subject field not the body
-    :return: HttpResponse object
-    """
-    if subject:
-        template_value = setting_handler.get_setting('email_subject', 'subject_{0}'.format(template_code),
-                                                     request.journal, create=True)
-    else:
-        template_value = setting_handler.get_setting('email', template_code, request.journal, create=True)
-
-    if template_value.setting.types == 'rich-text':
-        template_value.value = linebreaksbr(template_value.value)
-
-    edit_form = forms.EditKey(key_type=template_value.setting.types, value=template_value.value)
-
-    if request.POST:
-        value = request.POST.get('value')
-        try:
-            template_value.value = value
-            template_value.save()
-        except ValidationError as error:
-            messages.add_message( request, messages.ERROR, error)
-        else:
-            cache.clear()
-            return redirect(reverse('core_email_templates'))
-
-    template = 'core/manager/email/edit_email_template.html'
-    context = {
-        'template_value': template_value,
-        'edit_form': edit_form,
-        'setting': template_value.setting,
-    }
-
-    return render(request, template, context)
-
-
-@editor_user_required
 def sections(request, section_id=None):
     """
     Displays a list of sections, allows them to be added, edited and deleted.
