@@ -30,7 +30,12 @@
                             <p>
                                 <small>{{ member.user.affiliation }}</small>
                             </p>
-
+                            {% if member.user.enable_public_profile %}
+                                <p>
+                                    <small><a href="{% url 'core_public_profile' member.user.uuid %}">View Profile</a>
+                                    </small>
+                                </p>
+                            {% endif %}
                             <p>
                             {% include "elements/journal/editorial_social_content.html" with user=member.user %}
                             </p>
