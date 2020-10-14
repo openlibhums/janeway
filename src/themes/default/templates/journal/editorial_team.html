@@ -24,7 +24,7 @@
                             <p>
                                 <small>{{ member.user.affiliation }}</small>
                             </p>
-                            {% if user.enable_public_profile %}
+                            {% if member.user.enable_public_profile %}
                                 <p>
                                     <small><a href="{% url 'core_public_profile' member.user.uuid %}">View Profile</a>
                                     </small>
