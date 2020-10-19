@@ -161,6 +161,12 @@ def extract_citations_for_crossref(article):
             souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
             citation_list = souped_xml.find('citation_list')
 
+            # Crossref only accepts DOIs on identifier format (not url)
+            url_element = "doi.org/"
+            for doi in citation_list.findAll("doi"):
+                if doi.string and url_element in doi.string:
+                    *_, doi.string = doi.string.split(url_element)
+
             if citation_list:
                 citations = str(citation_list.extract())
                 citations = citations.replace(
