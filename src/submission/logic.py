@@ -29,7 +29,7 @@ def add_user_as_author(user, article, give_role=True):
     :param give_role: If true, the user is given the author role in the journal
     """
     if give_role:
-        user.add_account_tole("author", article.journal)
+        user.add_account_role("author", article.journal)
     article.authors.add(user)
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
