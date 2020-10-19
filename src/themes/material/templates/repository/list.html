@@ -11,9 +11,9 @@
             <h1>{{ request.repository.object_name_plural }}</h1>
             <p>
                 {% if search_term %}
-                    Search for <em>{{ search_term }}</em> ({{ preprints|length }} results)
+                    Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)
                 {% else %}
-                    There {% if preprints|length > 1 %}are {{ preprints|length }} {{ request.repository.object_name_plural }} listed.{% elif preprints|length == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
+                    There {% if preprints.paginator.count > 1 %}are {{ preprints.paginator.count }} {{ request.repository.object_name_plural }} listed.{% elif preprints.paginator.count == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
                 {% endif %}
             </p>
             {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
