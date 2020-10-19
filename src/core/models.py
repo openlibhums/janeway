@@ -34,6 +34,7 @@ from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils import setting_handler
 from utils.logger import get_logger
+from utils import logic as utils_logic
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -443,6 +444,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def articles(self):
         return submission_models.Article.objects.filter(authors__in=[self])
+
+    def published_articles(self):
+        articles = submission_models.Article.objects.filter(
+            authors=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
+        request = utils_logic.get_current_request()
+        if request and request.journal:
+            articles.filter(journal=request.journal)
+
+        return articles
 
     def preprint_subjects(self):
         "Returns a list of preprint subjects this user is an editor for"

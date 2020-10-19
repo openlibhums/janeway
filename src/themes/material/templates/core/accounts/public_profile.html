@@ -23,7 +23,7 @@
                 {% endif %}
                 <h3>{% trans "Publications" %}</h3>
                 <hr />
-                {% for article in user.articles %}
+                {% for article in user.published_articles %}
                     {% include "elements/article_listing.html" with article=article %}
                     <hr />
                 {% endfor %}
