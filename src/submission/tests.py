@@ -18,6 +18,7 @@ from utils.install import update_xsl_files, update_settings
 
 # Create your tests here.
 class SubmissionTests(TestCase):
+    fixtures = ["src/utils/install/roles.json"]
 
     def test_new_journals_has_submission_configuration(self):
         if not self.journal_one.submissionconfiguration:
