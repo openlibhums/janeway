@@ -60,7 +60,7 @@ def user_login(request):
     else:
         bad_logins = logic.check_for_bad_login_attempts(request)
 
-    if bad_logins >= 5:
+    if bad_logins >= 10:
         messages.info(
                 request,
                 'You have been banned from logging in due to failed attempts.'
@@ -109,9 +109,11 @@ def user_login(request):
                     logic.start_reset_process(request, empty_password_check)
                 else:
 
-                    messages.add_message(request, messages.ERROR,
-                                         'Account not found or account not active. Please ensure'
-                                         ' you have activated your account.')
+                    messages.add_message(
+                        request, messages.ERROR,
+                        'Wrong email/password combination or your'
+                        ' email addressed has not been confirmed yet.',
+                    )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
                                                        request.POST.get('user_name')),
