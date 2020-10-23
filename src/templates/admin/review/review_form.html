@@ -154,7 +154,9 @@
                             {{ decision_form.comments_for_editor|foundation }}
                         </div>
                     </div>
+                {% if allow_save_review %}
                 <button class="button info" type="submit" name="save_progress">Save progress and continue later</button>
+                {% endif %}
                 <button class="button success" type="submit" name="complete">Complete Review</button>
               </form>
             </div>

@@ -809,16 +809,16 @@ def do_review(request, assignment_id):
             Q(reviewer=request.user)
         )
 
-    fields_required = True
-    decision_required = True
-    # If the submission has a review_file, reviewer does not need
-    # to complete the generated part of the form. Same if this is
-    # a POST for saving progress but not completing the review
-    if request.POST and "save_progress" in request.POST:
-        fields_required = False
-        decission_required = False
+    allow_save_review = setting_handler.get_setting(
+        'general', 'enable_save_review_progress', request.journal,
+    ).processed_value
+
+    fields_required = decision_required = True
+    if allow_save_review:
+        fields_required = decision_required = False
     elif assignment.review_file:
         fields_required = False
+
     review_round = assignment.article.current_review_round_object()
     form = forms.GeneratedForm(
         review_assignment=assignment,
@@ -854,6 +854,15 @@ def do_review(request, assignment_id):
                 )
             )
 
+        # If the submission has a review_file, reviewer does not need
+        # to complete the generated part of the form. Same if this is
+        # a POST for saving progress but not completing the review
+        if "complete" in request.POST:
+            if assignment.review_file:
+                fields_required = False
+            else:
+                fields_required = True
+            decision_required = True
         form = forms.GeneratedForm(
             request.POST,
             review_assignment=assignment,
@@ -862,6 +871,7 @@ def do_review(request, assignment_id):
         decision_form = forms.ReviewerDecisionForm(
             request.POST,
             instance=assignment,
+            decision_required=decision_required,
         )
 
         if form.is_valid() and decision_form.is_valid():
@@ -896,6 +906,12 @@ def do_review(request, assignment_id):
                         access_code,
                     )
                 )
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Found errors on the form. Please, resolve them and try again',
+            )
 
 
     template = 'review/review_form.html'
@@ -905,6 +921,7 @@ def do_review(request, assignment_id):
         'decision_form': decision_form,
         'review_round': review_round,
         'access_code': access_code,
+        'allow_save_review': allow_save_review,
     }
 
     return render(request, template, context)
