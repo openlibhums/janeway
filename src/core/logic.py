@@ -251,6 +251,14 @@ def get_settings_to_edit(group, journal):
                 'object': setting_handler.get_setting('general', 'default_review_days', journal),
             },
             {
+                'name': 'enable_save_review_progress',
+                'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
+            },
+            {
+                'name': 'default_review_days',
+                'object': setting_handler.get_setting('general', 'default_review_days', journal),
+            },
+            {
                 'name': 'enable_one_click_access',
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
             },
