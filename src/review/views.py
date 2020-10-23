@@ -857,29 +857,36 @@ def do_review(request, assignment_id):
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
             assignment.save_review_form(form, assignment)
-            assignment.date_complete = timezone.now()
-            assignment.is_complete = True
-
-            if not assignment.date_accepted:
-                assignment.date_accepted = timezone.now()
-
-            assignment.save()
-
-            kwargs = {'review_assignment': assignment,
-                      'request': request}
-            event_logic.Events.raise_event(
-                event_logic.Events.ON_REVIEW_COMPLETE,
-                task_object=assignment.article,
-                **kwargs
-            )
-
-            return redirect(
-                logic.generate_access_code_url(
-                    'thanks_review',
-                    assignment,
-                    access_code,
+            if 'save_progress' in request.POST:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Progress saved',
                 )
-            )
+            else:
+                assignment.date_complete = timezone.now()
+                assignment.is_complete = True
+                if not assignment.date_accepted:
+                    assignment.date_accepted = timezone.now()
+
+                assignment.save()
+
+                kwargs = {'review_assignment': assignment,
+                        'request': request}
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_REVIEW_COMPLETE,
+                    task_object=assignment.article,
+                    **kwargs
+                )
+
+                return redirect(
+                    logic.generate_access_code_url(
+                        'thanks_review',
+                        assignment,
+                        access_code,
+                    )
+                )
+
 
     template = 'review/review_form.html'
     context = {
