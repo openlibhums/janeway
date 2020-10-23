@@ -217,10 +217,10 @@ class Repository(model_utils.AbstractSiteModel):
             return self._site_path_url(path)
 
         return logic.build_url(
-                netloc=self.domain,
-                scheme=self.SCHEMES[self.is_secure],
-                port=None,
-                path=path,
+            netloc=self.domain,
+            scheme=self.SCHEMES[self.is_secure],
+            port=None,
+            path=path,
         )
 
     def _site_path_url(self, path=None):
@@ -451,16 +451,25 @@ class Preprint(models.Model):
         return ", ".join([author.full_name for author in self.authors])
 
     def add_user_as_author(self, user):
+
         author_dict = {
             'first_name': user.first_name if user.first_name else '',
             'middle_name': user.middle_name if user.middle_name else '',
             'last_name': user.last_name if user.last_name else '',
             'affiliation': user.affiliation() if user.affiliation else '',
+            'orcid': user.orcid if user.orcid else '',
         }
+
         author, a_created = Author.objects.get_or_create(
             email_address=user.email,
             defaults=author_dict,
         )
+
+        #if the author object already exists, but does not have an orcid, the default given above will not be used... solution: go back and update the orcid
+        if not author.orcid and user.orcid:
+            author.orcid = user.orcid
+            author.save()
+
         preprint_author, created = PreprintAuthor.objects.get_or_create(
             author=author,
             preprint=self,
