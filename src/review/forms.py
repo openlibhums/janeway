@@ -59,7 +59,8 @@ class ReviewerDecisionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['decision'].required = True
+        decision_required = kwargs.pop("decision_required", False)
+        self.fields['decision'].required = decision_required
 
     class Meta:
         model = models.ReviewAssignment

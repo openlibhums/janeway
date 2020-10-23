@@ -809,15 +809,25 @@ def do_review(request, assignment_id):
             Q(reviewer=request.user)
         )
 
+    fields_required = True
+    decision_required = True
     # If the submission has a review_file, reviewer does not need
-    # to complete the generated part of the form.
-    fields_required = False if assignment.review_file else True
+    # to complete the generated part of the form. Same if this is
+    # a POST for saving progress but not completing the review
+    if request.POST and "save_progress" in request.POST:
+        fields_required = False
+        decission_required = False
+    elif assignment.review_file:
+        fields_required = False
     review_round = assignment.article.current_review_round_object()
     form = forms.GeneratedForm(
         review_assignment=assignment,
         fields_required=fields_required,
     )
-    decision_form = forms.ReviewerDecisionForm(instance=assignment)
+    decision_form = forms.ReviewerDecisionForm(
+        instance=assignment,
+        decision_required=decision_required,
+    )
 
     if 'review_file' in request.GET:
         return logic.serve_review_file(assignment)
