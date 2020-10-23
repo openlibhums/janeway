@@ -37,7 +37,7 @@
                     {% endif %}
                     <div class="divider spacer"></div>
 
-                    {% if journal_settings.general.journal_description %}
+                    {% if journal_settings.general.display_about_on_submissions and journal_settings.general.journal_description %}
                     <span class="card-title">{% trans 'About' %} {{ request.journal.name }}</span>
                     {{ journal_settings.general.journal_description|safe }}
                     <div class="divider spacer"></div>

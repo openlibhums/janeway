@@ -2671,6 +2671,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, the journal about block will be rendered in the submissions page",
+            "is_translatable": false,
+            "name": "display_about_on_submissions",
+            "pretty_name": "Display 'About' on submissions",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        }
+    },
+    {
+        "group": {
             "name": "article"
         },
         "setting": {
