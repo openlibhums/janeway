@@ -32,7 +32,7 @@
                 </div>
                 {% endif %}
                 <hr />
-                {% if journal_settings.general.journal_description %}
+                {% if journal_settings.general.display_about_on_submissions and journal_settings.general.journal_description %}
                 <h2>{% trans 'About' %} {{ request.journal.name }}</h2>
                 {{ journal_settings.general.journal_description|safe }}
                 <hr />
