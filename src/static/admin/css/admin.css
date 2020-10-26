@@ -475,3 +475,12 @@ th {
 .no-bottom-margin {
     margin-bottom: 0;
 }
+
+.dont-break-out {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.fixed-table {
+    table-layout: fixed;
+}
