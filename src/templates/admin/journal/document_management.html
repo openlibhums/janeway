@@ -23,6 +23,7 @@
                     <th>Modified</th>
                     <th>Filename</th>
                     <th>Download</th>
+                    <th>History</th>
                     <th>Replace</th>
                     <th>Delete</th>
                     <th>Type</th>
@@ -35,6 +36,7 @@
                 {% for file in files %}
                     {% can_edit_file file article as can_edit_file_flag %}
                     {% can_view_file file as can_view_file_flag %}
+                    {% can_view_file_history file article as can_view_file_history_flag %}
                     <tr class="active">
                         <td>{{ file.pk }}</td>
                         <td>{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
@@ -45,6 +47,11 @@
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">
                                 &nbsp;</i></a>{% endif %}</td>
+                        <td>{% if can_view_file_history_flag %}
+                            <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                    class="fa fa-history">
+                                &nbsp;</i></a>{% endif %}
+                        </td>
                         <td>{% if can_edit_file_flag %}
                             <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
