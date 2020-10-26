@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load securitytags %}
 
 {% block title %}Add Review Files{% endblock title %}
 {% block title-section %}Add Files{% endblock %}
@@ -35,11 +36,13 @@
                             <th>Type</th>
                             <th>Uploaded</th>
                             <th>Download</th>
+                            <th>History</th>
                             <th>Replace</th>
 
                         </tr>
                         </thead>
                         {% for file in article.manuscript_files.all %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
                             <tbody>
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
@@ -51,6 +54,11 @@
                                 <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
+                                <td>{% if can_view_file_history_flag %}
+                                    <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                            class="fa fa-history">
+                                        &nbsp;</i></a>{% endif %}
+                                </td>
                                 <td>
                                     <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i
                                             class="fa fa-cloud-upload">&nbsp;</i></a></td>
@@ -58,6 +66,7 @@
                             </tr>
                         {% endfor %}
                         {% for file in article.data_figure_files.all %}
+                        {% can_view_file_history file article as can_view_file_history_flag %}
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
@@ -67,7 +76,14 @@
                                 <td>Data/Figure</td>
                                 <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
+                                        class="fa fa-">&nbsp;</i></a></td>
+                                <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
+                                <td>{% if can_view_file_history_flag %}
+                                    <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
+                                            class="fa fa-history">
+                                        &nbsp;</i></a>{% endif %}
+                                </td>
                                 <td>
                                     <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i
                                             class="fa fa-cloud-upload">&nbsp;</i></a></td>
