@@ -465,7 +465,7 @@ class Preprint(models.Model):
             defaults=author_dict,
         )
 
-        #if the author object already exists, but does not have an orcid, the default given above will not be used... solution: go back and update the orcid
+        # if the author object already exists, but does not have an orcid, the default given above will not be used... solution: go back and update the orcid
         if not author.orcid and user.orcid:
             author.orcid = user.orcid
             author.save()
