@@ -12,15 +12,20 @@
 
 {% block body %}
 
-    <div class="large-8 columns">
+    <div class="large-12 columns">
         <div class="box">
+            <div class="content float-right">
+                <a href="#" class="success button" data-open="upload_file">
+                    <span class="fa fa-upload" aria-hidden="true"> Upload File</span>
+                </a>
+            </div>
             <div class="title-area">
                 <h2>Files</h2>
             </div>
             <div class="content">
                 <form method="POST">
                     {% csrf_token %}
-                    <table class="table scroll" id="files">
+                    <table class="table scroll small fixed-table" id="files">
                         <thead>
                         <tr>
                             <th>Select</th>
@@ -40,8 +45,8 @@
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
                                 <td>{{ file.pk }}</td>
-                                <td>{{ file.label }}</td>
-                                <td>{{ file.original_filename }}</td>
+                                <td class="dont-break-out">{{ file.label }}</td>
+                                <td class="dont-break-out">{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
                                 <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
@@ -86,12 +91,14 @@
             </div>
         </div>
     </div>
-    <div class="large-4 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Upload Files</h2>
+
+    <div class="reveal small" id="upload_file" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload Files</h4>
             </div>
-            <div class="content">
+            <div class="card-section">
                 <p>If you want to upload a file for review that isn't already linked to this article, you can do so here. Note, if you simply want to
                 anonymise the existing manuscript, use the "Replace" button in the table.</p>
                 <form method="POST" enctype="multipart/form-data">
@@ -101,6 +108,9 @@
                 </form>
             </div>
         </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 
 {% endblock body %}

@@ -3725,7 +3725,7 @@ table.scroll {
   overflow-x: auto;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   table.scroll {
     display: block;
     width: 100%;
