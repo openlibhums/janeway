@@ -18,6 +18,20 @@
                 {% include "elements/forms/errors.html" with form=form %}
                 {% csrf_token %}
             </div>
+            {% if not article.projected_issue %}
+            <div class="callout alert" data-closable style="background-color: #f7e4e1; color: #0a0a0a">
+                <h5>Article missing prjected issue</h5>
+                <p>
+                    This Article doesn't have a projected issue, the typesetter won't know what issue this article belongs to. You can
+                    <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">
+                        assign one here.
+                    </a>
+                </p>
+                <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
             <div class="title-area">
                 <h2>1. Select a Typesetter</h2>
                 <a href="#" data-open="enrol" class="button">Enrol Users</a>

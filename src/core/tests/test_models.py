@@ -123,6 +123,6 @@ class TestAccount(TestCase):
 
         # Assert
         self.assertTrue(
-            unique_violation in to_account.accountrole_set.all()
+            unique_violation in to_account.accountrole_set.all(),
             msg="Failed to merge user models",
         )

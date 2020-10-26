@@ -401,7 +401,7 @@ class LoginForm(forms.Form):
                 "[FAILED_LOGIN:%s][FAILURES: %s]"
                 "" % (self.fields["user_name"], bad_logins),
             )
-        if bad_logins >= 3:
+        if bad_logins > 3:
             self.fields['captcha'] = self.captcha_field
         else:
             self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)

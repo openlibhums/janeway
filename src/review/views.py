@@ -809,15 +809,25 @@ def do_review(request, assignment_id):
             Q(reviewer=request.user)
         )
 
-    # If the submission has a review_file, reviewer does not need
-    # to complete the generated part of the form.
-    fields_required = False if assignment.review_file else True
+    allow_save_review = setting_handler.get_setting(
+        'general', 'enable_save_review_progress', request.journal,
+    ).processed_value
+
+    fields_required = decision_required = True
+    if allow_save_review:
+        fields_required = decision_required = False
+    elif assignment.review_file:
+        fields_required = False
+
     review_round = assignment.article.current_review_round_object()
     form = forms.GeneratedForm(
         review_assignment=assignment,
         fields_required=fields_required,
     )
-    decision_form = forms.ReviewerDecisionForm(instance=assignment)
+    decision_form = forms.ReviewerDecisionForm(
+        instance=assignment,
+        decision_required=decision_required,
+    )
 
     if 'review_file' in request.GET:
         return logic.serve_review_file(assignment)
@@ -844,6 +854,15 @@ def do_review(request, assignment_id):
                 )
             )
 
+        # If the submission has a review_file, reviewer does not need
+        # to complete the generated part of the form. Same if this is
+        # a POST for saving progress but not completing the review
+        if "complete" in request.POST:
+            if assignment.review_file:
+                fields_required = False
+            else:
+                fields_required = True
+            decision_required = True
         form = forms.GeneratedForm(
             request.POST,
             review_assignment=assignment,
@@ -852,34 +871,48 @@ def do_review(request, assignment_id):
         decision_form = forms.ReviewerDecisionForm(
             request.POST,
             instance=assignment,
+            decision_required=decision_required,
         )
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
             assignment.save_review_form(form, assignment)
-            assignment.date_complete = timezone.now()
-            assignment.is_complete = True
-
-            if not assignment.date_accepted:
-                assignment.date_accepted = timezone.now()
-
-            assignment.save()
-
-            kwargs = {'review_assignment': assignment,
-                      'request': request}
-            event_logic.Events.raise_event(
-                event_logic.Events.ON_REVIEW_COMPLETE,
-                task_object=assignment.article,
-                **kwargs
-            )
-
-            return redirect(
-                logic.generate_access_code_url(
-                    'thanks_review',
-                    assignment,
-                    access_code,
+            if 'save_progress' in request.POST:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Progress saved',
                 )
+            else:
+                assignment.date_complete = timezone.now()
+                assignment.is_complete = True
+                if not assignment.date_accepted:
+                    assignment.date_accepted = timezone.now()
+
+                assignment.save()
+
+                kwargs = {'review_assignment': assignment,
+                        'request': request}
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_REVIEW_COMPLETE,
+                    task_object=assignment.article,
+                    **kwargs
+                )
+
+                return redirect(
+                    logic.generate_access_code_url(
+                        'thanks_review',
+                        assignment,
+                        access_code,
+                    )
+                )
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Found errors on the form. Please, resolve them and try again',
             )
+
 
     template = 'review/review_form.html'
     context = {
@@ -888,6 +921,7 @@ def do_review(request, assignment_id):
         'decision_form': decision_form,
         'review_round': review_round,
         'access_code': access_code,
+        'allow_save_review': allow_save_review,
     }
 
     return render(request, template, context)

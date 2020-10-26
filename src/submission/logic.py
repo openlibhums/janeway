@@ -22,15 +22,21 @@ def add_self_as_author(user, article):
     return add_user_as_author(user, article)
 
 
-def add_user_as_author(user, article):
-    new_author = user
-    article.authors.add(new_author)
+def add_user_as_author(user, article, give_role=True):
+    """ Assigns the given user as an author of the paper
+    :param user: An instance of core.models.Account
+    :param article: An instance of submission.models.Article
+    :param give_role: If true, the user is given the author role in the journal
+    """
+    if give_role:
+        user.add_account_role("author", article.journal)
+    article.authors.add(user)
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
-        author=new_author,
+        author=user,
         defaults={'order': article.next_author_sort()},
     )
-    return new_author
+    return user
 
 
 def check_author_exists(email):

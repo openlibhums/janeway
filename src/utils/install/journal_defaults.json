@@ -1216,6 +1216,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it (Only recommended journals using custom review forms that are particularly long)",
+            "is_translatable": false,
+            "name": "enable_save_review_progress",
+            "pretty_name": "Enable save review progress",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "email"
         },
         "setting": {
@@ -2656,6 +2671,21 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled, the journal about block will be rendered in the submissions page",
+            "is_translatable": false,
+            "name": "display_about_on_submissions",
+            "pretty_name": "Display 'About' on submissions",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        }
+    },
+    {
+        "group": {
             "name": "article"
         },
         "setting": {
@@ -2693,6 +2723,21 @@
         },
         "group": {
             "name": "email_subject"
+        }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled guest editors will display on the article page for primary issues.",
+            "is_translatable": false,
+            "name": "display_guest_editors",
+            "pretty_name": "Display Guest Editors",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         }
     }
 ]

@@ -18,7 +18,7 @@
                                 src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
                             {% elif request.journal and request.journal.default_large_image %}
                                  src="{{ request.journal.default_large_image.url }}"
-                            {% else %}
+                            {% elif request.press.default_carousel_image %}
                                 src="{{ request.press.default_carousel_image.url }}"
                             {% endif %}
                                 alt="{{ item.title }}"/></a>

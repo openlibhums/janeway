@@ -80,10 +80,9 @@
                             <ul class="menu vertical medium-horizontal"
                                 data-responsive-menu="drilldown medium-dropdown">
                                 <li>{% trans "Share" %}:</li>
-                                <li><a href="https://www.facebook.com/share.php?p[url]={{ request.journal.site_url }}{{ request.path }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://www.facebook.com/share.php?p[url]={{ article.url }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
                                 <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {{ article.url }}" target="_blank"><i class="fa fa-twitter"></i></a></li>
-                                <li><a href="https://plus.google.com/share?url={{ article.url }}"><i class="fa fa-google-plus"></i></a></li>
-                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}" target="_blank"><i class="fa fa-linkedin"></i></a></li>
                             </ul>
                         </div>
                         <div class="large-6 columns">

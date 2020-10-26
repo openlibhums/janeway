@@ -178,6 +178,13 @@ def get_settings_to_edit(group, journal):
                  journal,
              )
              },
+            {'name': 'display_about_on_submissions',
+             'object': setting_handler.get_setting(
+                 'general',
+                 'display_about_on_submissions',
+                 journal
+             )
+             },
             {'name': 'submission_intro_text',
              'object': setting_handler.get_setting(
                  'general',
@@ -251,6 +258,14 @@ def get_settings_to_edit(group, journal):
                 'object': setting_handler.get_setting('general', 'default_review_days', journal),
             },
             {
+                'name': 'enable_save_review_progress',
+                'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
+            },
+            {
+                'name': 'default_review_days',
+                'object': setting_handler.get_setting('general', 'default_review_days', journal),
+            },
+            {
                 'name': 'enable_one_click_access',
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
             },
@@ -318,6 +333,7 @@ def get_settings_to_edit(group, journal):
     elif group == 'article':
         article_settings = [
             'suppress_how_to_cite',
+            'display_guest_editors',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'

@@ -201,39 +201,41 @@ def submit_authors(request, article_id):
 
     if request.GET.get('add_self', None) == 'True':
         new_author = logic.add_user_as_author(request.user, article)
-        messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
-        return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+        messages.add_message(
+            request, messages.SUCCESS,
+            '%s added to the article' % new_author.full_name(),
+        )
+        return redirect(reverse(
+            'submit_authors', kwargs={'article_id': article_id}))
 
     if request.POST and 'add_author' in request.POST:
         form = forms.AuthorForm(request.POST)
         modal = 'author'
 
-        author_exists = logic.check_author_exists(request.POST.get('email'))
+        email = request.POST.get("email")
+        author = None
+        author_exists = logic.check_author_exists(email=email)
         if author_exists:
-            article.authors.add(author_exists)
-            models.ArticleAuthorOrder.objects.get_or_create(
-                article=article,
-                author=author_exists,
-                defaults={'order': article.next_author_sort()},
-            )
-            messages.add_message(request, messages.SUCCESS, '%s added to the article' % author_exists.full_name())
-            return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+            author = core_models.Account.objects.get(email=email)
+        elif form.is_valid():
+            new_author = form.save(commit=False)
+            new_author.set_password(utils_shared.generate_password())
+            new_author.save()
+            author = new_author
         else:
-            if form.is_valid():
-                new_author = form.save(commit=False)
-                new_author.username = new_author.email
-                new_author.set_password(utils_shared.generate_password())
-                new_author.save()
-                new_author.add_account_role(role_slug='author', journal=request.journal)
-                article.authors.add(new_author)
-                models.ArticleAuthorOrder.objects.get_or_create(
-                    article=article,
-                    author=new_author,
-                    defaults={'order': article.next_author_sort()},
-                )
-                messages.add_message(request, messages.SUCCESS, '%s added to the article' % new_author.full_name())
+            messages.add_message(
+                request, messages.WARNING,
+                'Errors found in the new author form',
+            )
 
-                return redirect(reverse('submit_authors', kwargs={'article_id': article_id}))
+        if author:
+            logic.add_user_as_author(author, article)
+            messages.add_message(
+                request, messages.SUCCESS,
+                '%s added to the article' % author.full_name(),
+            )
+            return redirect(reverse(
+                'submit_authors', kwargs={'article_id': article_id}))
 
     elif request.POST and 'search_authors' in request.POST:
         search = request.POST.get('author_search_text', None)
@@ -242,33 +244,38 @@ def submit_authors(request, article_id):
             messages.add_message(
                 request,
                 messages.WARNING,
-                'An empty search is not allowed.'
+                'An empty search is not allowed.',
             )
         else:
             try:
-                search_author = core_models.Account.objects.get(Q(email=search) | Q(orcid=search))
-                article.authors.add(search_author)
-                models.ArticleAuthorOrder.objects.get_or_create(
-                    article=article,
-                    author=search_author,
-                    defaults={'order': article.next_author_sort()},
+                search_author = core_models.Account.objects.get(
+                    Q(email=search) | Q(orcid=search)
                 )
-                messages.add_message(request, messages.SUCCESS, '%s added to the article' % search_author.full_name())
+                logic.add_user_as_author(search_author, article)
+                messages.add_message(
+                    request, messages.SUCCESS,
+                    '%s added to the article' % search_author.full_name(),
+                )
             except core_models.Account.DoesNotExist:
-                messages.add_message(request, messages.WARNING, 'No author found with those details.')
+                messages.add_message(
+                    request, messages.WARNING,
+                    'No author found with those details.',
+                )
 
     elif request.POST and 'main-author' in request.POST:
         correspondence_author = request.POST.get('main-author', None)
 
         if correspondence_author == 'None':
-            messages.add_message(request, messages.WARNING, 'You must select a main author.')
+            messages.add_message(
+                request, messages.WARNING, 'You must select a main author.')
         else:
             author = core_models.Account.objects.get(pk=correspondence_author)
             article.correspondence_author = author
             article.current_step = 3
             article.save()
 
-            return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
+            return redirect(reverse(
+                'submit_files', kwargs={'article_id': article_id}))
 
     elif request.POST and 'authors[]' in request.POST:
         logic.save_author_order(request, article)

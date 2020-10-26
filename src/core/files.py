@@ -21,7 +21,7 @@ from django.http import StreamingHttpResponse, HttpResponseRedirect, HttpRespons
 from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
 from django.utils.text import slugify
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import patch_cache_control
 
 from utils import models as util_models
 from utils.logger import get_logger
@@ -395,7 +395,9 @@ def serve_file(request, file_to_serve, article, public=False, hide_name=False):
     )
 
 
-@cache_control(max_age=600)
+# MS: I disabled cache control here. When replacing a file, we keep the same
+# URL, which leads to browsers wrongly serving the old cached version.
+# @cache_control(max_age=600)
 def serve_file_to_browser(file_path, file_to_serve, public=False,
                           hide_name=False):
     """ Stream a file to the browser in a safe way
@@ -412,7 +414,11 @@ def serve_file_to_browser(file_path, file_to_serve, public=False,
     filename, extension = os.path.splitext(file_to_serve.original_filename)
 
     if file_to_serve.mime_type in IMAGE_MIMETYPES:
-        response = HttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
+        response = HttpResponse(
+            FileWrapper(open(file_path, 'rb'), 8192),
+            content_type=file_to_serve.mime_type,
+        )
+        patch_cache_control(response, max_age=600)
     else:
         response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
 

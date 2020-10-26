@@ -60,7 +60,7 @@ def user_login(request):
     else:
         bad_logins = logic.check_for_bad_login_attempts(request)
 
-    if bad_logins >= 5:
+    if bad_logins >= 10:
         messages.info(
                 request,
                 'You have been banned from logging in due to failed attempts.'
@@ -109,9 +109,11 @@ def user_login(request):
                     logic.start_reset_process(request, empty_password_check)
                 else:
 
-                    messages.add_message(request, messages.ERROR,
-                                         'Account not found or account not active. Please ensure'
-                                         ' you have activated your account.')
+                    messages.add_message(
+                        request, messages.ERROR,
+                        'Wrong email/password combination or your'
+                        ' email addressed has not been confirmed yet.',
+                    )
                     util_models.LogEntry.add_entry(types='Authentication',
                                                    description='Failed login attempt for user {0}'.format(
                                                        request.POST.get('user_name')),
@@ -657,6 +659,8 @@ def default_settings_index(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    if request.journal:
+        raise Http404()
 
     return settings_index(request)
 
@@ -693,18 +697,24 @@ def edit_setting(request, setting_group, setting_name):
         return redirect(reverse('core_settings_index'))
 
     if request.POST:
-        value = request.POST.get('value')
-        if request.FILES:
-            value = logic.handle_file(request, setting_value, request.FILES['value'])
-
-        try:
-            setting_value = setting_handler.save_setting(
-                setting_group, setting_name, request.journal, value)
-        except ValidationError as error:
-            messages.add_message( request, messages.ERROR, error)
+        if 'delete' in request.POST and setting_value:
+            setting_value.delete()
         else:
-            cache.clear()
-            return redirect(reverse('core_settings_index'))
+            value = request.POST.get('value')
+            if request.FILES:
+                value = logic.handle_file(request, setting_value, request.FILES['value'])
+
+            try:
+                setting_value = setting_handler.save_setting(
+                    setting_group, setting_name, request.journal, value)
+            except ValidationError as error:
+                messages.add_message( request, messages.ERROR, error)
+            else:
+                cache.clear()
+
+        if "email_template" in request.GET:
+            return redirect(reverse('core_email_templates'))
+        return redirect(reverse('core_settings_index'))
 
     template = 'core/manager/settings/edit_setting.html'
     context = {
@@ -1663,47 +1673,6 @@ def email_templates(request):
     template = 'core/manager/email/email_templates.html'
     context = {
         'template_list': template_list,
-    }
-
-    return render(request, template, context)
-
-
-@editor_user_required
-def edit_email_template(request, template_code, subject=False):
-    """
-    Allows staff to edit email templates and subjects
-    :param request: HttpRequest object
-    :param template_code: string, name of the template to be edited
-    :param subject: boolean, if True we are editing the subject field not the body
-    :return: HttpResponse object
-    """
-    if subject:
-        template_value = setting_handler.get_setting('email_subject', 'subject_{0}'.format(template_code),
-                                                     request.journal, create=True)
-    else:
-        template_value = setting_handler.get_setting('email', template_code, request.journal, create=True)
-
-    if template_value.setting.types == 'rich-text':
-        template_value.value = linebreaksbr(template_value.value)
-
-    edit_form = forms.EditKey(key_type=template_value.setting.types, value=template_value.value)
-
-    if request.POST:
-        value = request.POST.get('value')
-        try:
-            template_value.value = value
-            template_value.save()
-        except ValidationError as error:
-            messages.add_message( request, messages.ERROR, error)
-        else:
-            cache.clear()
-            return redirect(reverse('core_email_templates'))
-
-    template = 'core/manager/email/edit_email_template.html'
-    context = {
-        'template_value': template_value,
-        'edit_form': edit_form,
-        'setting': template_value.setting,
     }
 
     return render(request, template, context)

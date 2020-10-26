@@ -16,7 +16,7 @@
                     <div class="card-image">
                         <img{% if item.large_image_file %}
                                     src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                                {% else %}
+                                {% elif request.press.default_carousel_image.url %}
                                     src="{{ request.press.default_carousel_image.url }}"
                                 {% endif %}
                                     alt="{{ item.title }}"/>
