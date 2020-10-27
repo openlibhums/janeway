@@ -273,14 +273,14 @@
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="upload" value="upload">
-                <h5>Upload File</h5>
+                <div class="title-area">
+                    <h2>Upload File</h2>
+                </div>
                 <div class="clearfix">
                     <p>
-                        <small>You can upload a new file here, if this is just a minor correction select the correct
-                            option and upload the file, it will replace the existing file. If this is a completely
-                            new
-                            version of this manuscript, upload it and a new version will be generated and the older
-                            version retained for posterity.
+                        <small>
+                            Upload your new version here. If there is only minor changes select Correction, if this is heavily revised version
+                            select New Version. You can also update the title and abstract below.
                         </small>
                     </p>
                     <div>

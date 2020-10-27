@@ -577,7 +577,6 @@ class Preprint(models.Model):
         return False
 
     def current_version_file_type(self):
-        print(self.current_version)
         if self.current_version.file.mime_type in files.HTML_MIMETYPES:
             return 'html'
         elif self.current_version.file.mime_type in files.PDF_MIMETYPES:
@@ -597,8 +596,6 @@ class Preprint(models.Model):
         )
 
         return url
-
-
 
 
 class PreprintFile(models.Model):
@@ -746,6 +743,21 @@ class PreprintVersion(models.Model):
         blank=True,
         null=True,
     )
+    title = models.CharField(
+        max_length=300,
+        help_text=_('Your article title'),
+    )
+    abstract = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'Please avoid pasting content from word processors as they can add '
+            'unwanted styling to the abstract. You can retype the abstract '
+            'here or copy and paste it into notepad/a plain text editor before '
+            'pasting here.',
+        )
+
+    )
 
     class Meta:
         ordering = ('-version', '-date_time', '-id')
@@ -842,9 +854,46 @@ class VersionQueue(models.Model):
     date_decision = models.DateTimeField(blank=True, null=True)
     approved = models.BooleanField(default=False)
 
+    title = models.CharField(
+        max_length=300,
+        help_text=_('Your article title'),
+    )
+    abstract = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'Please avoid pasting content from word processors as they can add '
+            'unwanted styling to the abstract. You can retype the abstract '
+            'here or copy and paste it into notepad/a plain text editor before '
+            'pasting here.',
+        )
+
+    )
+
     def approve(self):
         self.date_decision = timezone.now()
         self.approved = True
+
+        # Update the current version to have the Preprint's current title
+        # and abstract.
+        current_version = self.preprint.current_version
+        current_version.title = self.preprint.title
+        current_version.abstract = self.preprint.abstract
+
+        # Create a new PreprintVersion, this will now be the current_version.
+        PreprintVersion.objects.create(
+            preprint=self.preprint,
+            file=self.file,
+            version=self.preprint.next_version_number(),
+            moderated_version=self,
+        )
+
+        # Overwrite the preprint's metadata now we have a historical record.
+        self.preprint.title = self.title
+        self.preprint.abstract = self.abstract
+
+        current_version.save()
+        self.preprint.save()
         self.save()
 
     def decline(self):

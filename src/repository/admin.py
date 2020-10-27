@@ -31,7 +31,7 @@ class PreprintAdmin(admin.ModelAdmin):
 
 
 class VersionAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'preprint', 'version', 'date_time')
+    list_display = ('pk', 'preprint', 'title', 'version', 'date_time')
     list_filter = ('preprint',)
     raw_id_fields = ('preprint',)
 
