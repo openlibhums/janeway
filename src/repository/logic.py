@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from user_agents import parse as parse_ua_string
 from datetime import timedelta
+from collections import Counter
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
@@ -223,12 +224,6 @@ def approve_pending_update(request):
     pending_update = get_pending_update_from_post(request)
 
     if pending_update:
-        models.PreprintVersion.objects.create(
-            preprint=pending_update.preprint,
-            file=pending_update.file,
-            version=pending_update.preprint.next_version_number(),
-            moderated_version=pending_update,
-        )
         pending_update.approve()
         messages.add_message(
             request,
@@ -439,7 +434,8 @@ def get_list_of_preprint_journals():
 
 
 def check_duplicates(version_queue):
-    return [version_request.preprint for version_request in version_queue]
+    preprints = [version_request.preprint for version_request in version_queue]
+    return [k for k,v in Counter(preprints).items() if v > 1]
 
 
 def search_for_authors(request, preprint):

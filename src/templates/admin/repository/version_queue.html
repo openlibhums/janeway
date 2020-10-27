@@ -27,7 +27,7 @@
                             <th>Requester</th>
                             <th>Requested</th>
                             <th>Request Type</th>
-                            <th>File</th>
+                            <th></th>
                             <th>Approve</th>
                             <th>Decline</th>
                         </tr>
@@ -40,7 +40,7 @@
                             <td>{{ version.preprint.owner }}</td>
                             <td>{{ version.date_submitted }}</td>
                             <td>{{ version.get_update_type_display }}</td>
-                            <td><a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a></td>
+                            <td><a href="#" data-open="detail-{{ version.pk }}">View Detail</a></td>
                             <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
                             <td><a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> </a></td>
                         </tr>
@@ -51,7 +51,8 @@
         </div>
     </div>
     {% for version in version_queue %}
-    {% include "admin/elements/repository/decline_update.html" %}
+        {% include "admin/elements/repository/decline_update.html" %}
+        {% include "admin/elements/repository/version_detail.html" %}
     {% endfor %}
 {% endblock %}
 
