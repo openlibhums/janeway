@@ -674,10 +674,15 @@ class PreprintAccess(models.Model):
         return 'view'
 
 
+class PreprintAuthorManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related('author')
+
 class PreprintAuthor(models.Model):
     preprint = models.ForeignKey('Preprint')
     author = models.ForeignKey('Author')
     order = models.PositiveIntegerField(default=0)
+    objects = PreprintAuthorManager()
 
     class Meta:
         ordering = ('order',)

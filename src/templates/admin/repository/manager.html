@@ -21,6 +21,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>First Author</th>
                             <th>Date Submitted</th>
                         </tr>
                         </thead>
@@ -31,6 +32,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
+                                <td>{{ preprint.preprintauthor_set.all.0.author.full_name }}</td>
                                 <td>{{ preprint.date_submitted }}</td>
                             </tr>
                         {% endfor %}
@@ -92,6 +94,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>First Author</th>
                             <th>Date Published</th>
                         </tr>
                         </thead>
@@ -102,6 +105,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
+                                <td>{{ preprint.preprintauthor_set.all.0.author.full_name }}</td>
                                 <td>{{ preprint.date_published }}</td>
                             </tr>
                         {% endfor %}
