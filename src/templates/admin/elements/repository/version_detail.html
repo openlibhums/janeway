@@ -10,7 +10,7 @@
             <span aria-hidden="true">&times;</span>
         </button>
         <div class="row expanded">
-            <p>The current and updated metadata are displayed below. This has been marked as a <strong>{{ version.get_update_type_display }}</strong>.</p>
+            <p>The current and updated metadata are displayed below. This has been marked as a <strong>{{ version.get_update_type_display }}</strong>. Where Title and Abstract are blank in the New Metadata section this means no change will be made.</p>
             <div class="large-6 columns">
                 <div class="title-area">
                     <h2>Current Metadata</h2>
@@ -29,10 +29,10 @@
                     <h2>New Metadata</h2>
                 </div>
                 <div class="content">
-                    <p><strong>Title{% if version.title != version.preprint.title %} (changed){% endif %}</strong></p>
-                    <p>{{ version.title|safe }}</p>
-                    <p><strong>Abstract{% if version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
-                    <p>{{ version.abstract|safe|linebreaksbr }}</p>
+                    <p><strong>Title{% if version.title and version.title != version.preprint.title %} (changed){% endif %}</strong></p>
+                    <p>{{ version.title|safe }}{% if not version.title %}Title is unchanged{% endif %}</p>
+                    <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
+                    <p>{{ version.abstract|safe|linebreaksbr }}{% if not version.abstract %}Abstract is unchanged{% endif %}</p>
                     <p><strong>File</strong></p>
                     <p><a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a></p>
                 </div>
