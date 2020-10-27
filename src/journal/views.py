@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -1767,7 +1768,12 @@ def search(request):
     if search_term:
         # checks titles, keywords and subtitles first,
         # then matches author based on below regex split search term.
-        search_regex = "^({})$".format("|".join(set(name for name in set(chain(search_term.split(" "),(search_term,))))))
+        escaped = re.escape(search_term)
+        search_regex = "^({})$".format(
+            "|".join({name for name in set(
+                chain(escaped.split(" "),(escaped,))
+            )})
+        )
         articles = submission_models.Article.objects.filter(
                     (
                         Q(title__icontains=search_term) |
