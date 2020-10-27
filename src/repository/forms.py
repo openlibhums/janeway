@@ -128,7 +128,10 @@ class PreprintInfo(forms.ModelForm):
     def save(self, commit=True):
         preprint = super(PreprintInfo, self).save()
 
-        preprint.owner = self.request.user
+        # We only set the preprint owner once on creation.
+        if not preprint.owner:
+            preprint.owner = self.request.user
+
         preprint.repository = self.request.repository
 
         posted_keywords = self.cleaned_data['keywords'].split(',')
