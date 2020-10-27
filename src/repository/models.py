@@ -889,8 +889,11 @@ class VersionQueue(models.Model):
         )
 
         # Overwrite the preprint's metadata now we have a historical record.
-        self.preprint.title = self.title
-        self.preprint.abstract = self.abstract
+        # Check that title and abstract have value, if not there is no change.
+        if self.title:
+            self.preprint.title = self.title
+        if self.abstract:
+            self.preprint.abstract = self.abstract
 
         current_version.save()
         self.preprint.save()
