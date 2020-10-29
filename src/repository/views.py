@@ -190,7 +190,7 @@ def repository_about(request):
     return render(request, template, context)
 
 
-def subject_list(request):
+def repository_subject_list(request):
     """
     Displays a list of enabled subjects for selection.
     :param request: a HttpRequest object
