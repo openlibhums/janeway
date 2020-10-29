@@ -12,6 +12,8 @@
             <p>
                 {% if search_term %}
                     Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)
+                {% elif subject %}
+                    Filtering by Subject: {{ subject }}
                 {% else %}
                     There {% if preprints.paginator.count > 1 %}are {{ preprints.paginator.count }} {{ request.repository.object_name_plural }} listed.{% elif preprints.paginator.count == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
                 {% endif %}

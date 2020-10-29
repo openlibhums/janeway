@@ -44,6 +44,10 @@ urlpatterns = [
     url(r'^list/$',
         views.repository_list,
         name='repository_list'),
+    
+    url(r'^list/subjects/$',
+        views.subject_list,
+        name='repository_subject_list'),
 
     url(r'^list/(?P<subject_slug>[-\w]+)/$',
         views.repository_list,
