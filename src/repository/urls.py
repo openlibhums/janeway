@@ -46,7 +46,7 @@ urlpatterns = [
         name='repository_list'),
     
     url(r'^list/subjects/$',
-        views.subject_list,
+        views.repository_subject_list,
         name='repository_subject_list'),
 
     url(r'^list/(?P<subject_slug>[-\w]+)/$',
