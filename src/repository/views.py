@@ -190,6 +190,26 @@ def repository_about(request):
     return render(request, template, context)
 
 
+def subject_list(request):
+    """
+    Displays a list of enabled subjects for selection.
+    :param request: a HttpRequest object
+    :return: HttpResponse
+    """
+    top_level_subjects = models.Subject.objects.filter(
+        repository=request.repository,
+        enabled=True,
+        parent__isnull=True,
+    )
+    
+    template = 'repository/list_subjects.html'
+    context = {
+        'top_level_subjects': top_level_subjects,
+    }
+    return render(request, template, context)
+
+
+
 def repository_list(request, subject_slug=None):
     """
     Displays a list of all published preprints.
@@ -274,7 +294,7 @@ def repository_search(request, search_term=None):
         )]
 
         preprints = list(set(list(preprint_search) + preprints_from_author))
-
+        preprints.sort(key=lambda x: x.date_published, reverse=True)
 
     paginator = Paginator(preprints, 15)
     page = request.GET.get('page', 1)
