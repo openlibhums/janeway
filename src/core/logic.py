@@ -561,14 +561,14 @@ def password_policy_check(request):
     password = request.POST.get('password_1')
 
     rules = [
-        lambda s: len(password) >= request.press.password_length or 'Your password must be {} characters long'.format(request.press.password_length)
+        lambda s: len(password) >= request.press.password_length or 'length'
     ]
 
     if request.press.password_upper:
-        rules.append(lambda password: any(x.isupper() for x in password) or 'An uppercase character is required')
+        rules.append(lambda password: any(x.isupper() for x in password) or 'upper')
 
     if request.press.password_number:
-        rules.append(lambda password: any(x.isdigit() for x in password) or 'A number is required')
+        rules.append(lambda password: any(x.isdigit() for x in password) or 'digit')
 
     problems = [p for p in [r(password) for r in rules] if p != True]
 
