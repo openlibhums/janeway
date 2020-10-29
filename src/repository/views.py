@@ -294,7 +294,7 @@ def repository_search(request, search_term=None):
         )]
 
         preprints = list(set(list(preprint_search) + preprints_from_author))
-        preprints.sort(key=lambda x: x.date_published, reverse=True)
+        preprints.sort(key=operator.attrgetter('date_published'), reverse=True)
 
     paginator = Paginator(preprints, 15)
     page = request.GET.get('page', 1)
