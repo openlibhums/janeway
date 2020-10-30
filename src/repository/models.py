@@ -855,15 +855,16 @@ class Subject(models.Model):
 
 def version_choices():
     return (
-        ('correction', 'Correction'),
+        ('correction', 'Text Correction'),
+        ('metadata_correction', 'Metadata Correction'),
         ('version', 'New Version'),
     )
 
 
 class VersionQueue(models.Model):
     preprint = models.ForeignKey(Preprint)
-    file = models.ForeignKey(PreprintFile)
-    update_type = models.CharField(max_length=10, choices=version_choices())
+    file = models.ForeignKey(PreprintFile, null=True)
+    update_type = models.CharField(max_length=20, choices=version_choices())
 
     date_submitted = models.DateTimeField(default=timezone.now)
     date_decision = models.DateTimeField(blank=True, null=True)
@@ -896,9 +897,11 @@ class VersionQueue(models.Model):
         current_version.abstract = self.preprint.abstract
 
         # Create a new PreprintVersion, this will now be the current_version.
+        # If the current VersionQueue has no file (in the case of Metadata
+        # updates) use the preprint's current version's file.
         PreprintVersion.objects.create(
             preprint=self.preprint,
-            file=self.file,
+            file=self.file if self.file else self.preprint.current_version.file,
             version=self.preprint.next_version_number(),
             moderated_version=self,
         )

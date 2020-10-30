@@ -30,11 +30,11 @@
                 </div>
                 <div class="content">
                     <p><strong>Title{% if version.title and version.title != version.preprint.title %} (changed){% endif %}</strong></p>
-                    <p>{{ version.title|safe }}{% if not version.title %}Title is unchanged{% endif %}</p>
+                    <p>{% if version.title == version.preprint.title %}Unchanged{% else %} {{ version.title }}{% endif %}</p>
                     <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
-                    <p>{{ version.abstract|safe|linebreaksbr }}{% if not version.abstract %}Abstract is unchanged{% endif %}</p>
+                    <p>{% if version.abstract == version.preprint.abstract %}Unchanged{% else %}{{ version.abstract|safe|linebreaksbr }}{% endif %}</p>
                     <p><strong>File</strong></p>
-                    <p><a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a></p>
+                    <p>{% if version.file %}<a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a>{% else %}No File{% endif %}</p>
                 </div>
             </div>
             <div class="large-12 columns">

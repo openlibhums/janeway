@@ -101,6 +101,73 @@ def repository_dashboard(request):
     }
 
     return render(request, template, context)
+    
+
+@preprint_editor_or_author_required
+def repository_submit_update(request, preprint_id, action):
+    """
+    Allows a preprint author to update their Preprint.
+    :param request: HttpRequest
+    :param preprint_id: Preprint PK
+    :param action: String, correction, version or metadata_correction
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        stage__in=models.SUBMITTED_STAGES,
+    )
+
+    file_form = None
+    version_form = forms.VersionForm(preprint=preprint)
+    
+    if action in ['correction', 'version']:
+        file_form = forms.FileForm(preprint=preprint)
+
+    if request.POST:
+        version_form = forms.VersionForm(
+            request.POST,
+            preprint=preprint,
+        )
+        if action in ['correction', 'version'] and request.FILES:
+            file_form = forms.FileForm(
+                request.POST,
+                request.FILES,
+                preprint=preprint,
+            )
+            # If required, check if the file is a PDF:
+            if request.repository.limit_upload_to_pdf:
+                if not files.check_in_memory_mime(
+                        in_memory_file=request.FILES.get('file'),
+                ) == 'application/pdf':
+                    file_form.add_error(
+                        None,
+                        'You must upload a PDF for your manuscript',
+                    )
+        if version_form.is_valid() and file_form.is_valid() if file_form else True:
+            new_version = version_form.save(commit=False)
+            new_version.update_type = action
+
+            if file_form:
+                new_file = file_form.save()
+                new_version.file = new_file
+
+            new_version.save()
+
+            return redirect(
+                reverse(
+                    'repository_author_article',
+                    kwargs={'preprint_id': preprint.pk},
+                )
+            )
+
+    template = 'admin/repository/submit_update.html'
+    context = {
+        'preprint': preprint,
+        'action': action,
+        'version_form': version_form,
+        'file_form': file_form,
+    }
+    return render(request, template, context)
 
 
 @preprint_editor_or_author_required
@@ -122,6 +189,10 @@ def repository_author_article(request, preprint_id):
     modal = None
 
     if request.POST:
+        version_form = forms.VersionForm(
+            request.POST,
+            preprint=preprint,
+        )
 
         if request.FILES:
 
@@ -130,10 +201,7 @@ def repository_author_article(request, preprint_id):
                 request.FILES,
                 preprint=preprint,
             )
-            version_form = forms.VersionForm(
-                request.POST,
-                preprint=preprint,
-            )
+            
 
             # If required, check if the file is a PDF:
             if request.repository.limit_upload_to_pdf:
