@@ -17,6 +17,10 @@ urlpatterns = [
         views.repository_author_article,
         name='repository_author_article'),
 
+    url(r'^dashboard/(?P<preprint_id>\d+)/action/(?P<action>correction|version|metadata_correction)/$',
+        views.repository_submit_update,
+        name='repository_submit_update'),
+
     url(r'^about/$',
         views.repository_about,
         name='repository_about'),

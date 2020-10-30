@@ -326,7 +326,7 @@ class FileForm(forms.ModelForm):
 class VersionForm(forms.ModelForm):
     class Meta:
         model = models.VersionQueue
-        fields = ('update_type', 'title', 'abstract')
+        fields = ('title', 'abstract')
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop('preprint')
