@@ -4,6 +4,10 @@
             <div class="row column" id="orbiter">
                 <div class="orbit" role="region" aria-label="{{ request.journal.name }} Carousel" data-orbit>
                     <h2 class="orbit-title">{{ carousel.get_mode_display }}</h2>
+                    <div class="orbit-controls">
+                        <button class="orbit-previous"><span class="show-for-sr">Previous Slide</span>&#9664;&#xFE0E;</button>
+                        <button class="orbit-next"><span class="show-for-sr">Next Slide</span>&#9654;&#xFE0E;</button>
+                    </div>
                     <ul class="orbit-container">
                         {% for carousel_item in carousel_items %}
                             <li class="orbit-slide overlay">
