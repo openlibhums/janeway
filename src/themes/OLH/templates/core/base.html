@@ -3,9 +3,10 @@
 {% load svg from press_url %}
 {% load i18n %}
 {% load roles %}
+{% get_current_language as current_language %}
 
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js"  lang="{{ current_language }}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -47,15 +48,16 @@
 
 </head>
 <body>
+<div class="skipnav"><a href="#main">Skip to main content</a> <a href="#footer">Skip to footer</a></div>
 <div class="wrapper">
     <header class="main-header" role="banner">
         <div class="main top-bar">
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
                     {% if request.journal.header_image %}
-                        <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image"></a>
+                        <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image" alt="{{ request.journal.name }} logo"></a>
                     {% else %}
-                        <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
+                        <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}" alt="Janeway"></a>
                     {% endif %}
                 {% else %}
                     {% if 'svg' in request.press_cover %}
@@ -87,10 +89,10 @@
                             {% csrf_token %}
                             <div class="input-group">
                                 <span class="input-group-label"><i class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="article_search">
+                                <input class="input-group-field" type="search" name="article_search" aria-label="Article Search Term">
                                 <input type="hidden" name="sort" value="title">
 
-                            </div><input type="submit" style="visibility: hidden;" />
+                            </div><input type="submit" style="visibility: hidden;" value="Search" aria-label="Search"/>
                         </form>
                     </li>
                 </ul>
@@ -122,13 +124,13 @@
         {% endblock navbar %}
     </header>
 
-    <main>
+    <main id="main">
         {% block body %}{% endblock body %}
     </main>
 </div>
 
 
-<footer class="main-footer">
+<footer class="main-footer" id="footer">
     <div class="row expanded" data-equalizer data-equalize-on="medium">
         <div class="large-2 columns very-dark-primary-color text-center" data-equalizer-watch>
             {% if request.journal.press_image_override %}

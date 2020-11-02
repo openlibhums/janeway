@@ -9,6 +9,8 @@
 
 {% block body %}
 
+    <h1 class="sr-only-none">{{ request.journal.name }}</h1>
+
     {% for element in homepage_elements %}
         {% include element.template_path %}
     {% endfor %}

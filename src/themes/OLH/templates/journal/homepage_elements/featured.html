@@ -10,17 +10,17 @@
             <div class="large-4 columns" >
                 <div class="box" data-equalizer-watch>
                     <a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}"
-                       class="box-link"></a>
+                       class="box-link">{{ fa.article.title|safe }}</a>
 
                     {% if fa.article.large_image_file %}
                         <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
-                             alt="{{ article.title|striptags }}" class="feature-article-image">
+                             alt="{{ fa.article.title|striptags }}" class="feature-article-image">
                     {% elif fa.article.journal.default_large_image %}
                         <img src="{{ fa.article.journal.default_large_image.url }}"
-                             alt="{{ article.title|striptags }}" class="feature-article-image">
+                             alt="{{ fa.article.title|striptags }}" class="feature-article-image">
                     {% else  %}
                         <img src="{% static 'common/img/sample/article-small.jpg' %}"
-                             alt="{{ article.title|striptags }}" class="feature-article-image">
+                             alt="{{ fa.article.title|striptags }}" class="feature-article-image">
                     {% endif %}
 
                     <div class="content">

@@ -276,7 +276,7 @@ header {
 
 .orbit {
   @include breakpoint(small only) {
-    background-color: $primary-dark-color;
+    background-color: #8F8F8F;
   }
   .orbit-title {
     position: absolute;
@@ -286,6 +286,7 @@ header {
     width: 100%;
     text-align: center;
     color: #fff;
+    font-size: rem-calc(40px);
 
     @extend .title;
   }
@@ -355,6 +356,7 @@ pre {@extend blockquote; @extend p;}
   left: 0;
   width: 100%;
   height: 100%;
+  visibility: hidden;
 }
 
 .overlay {
@@ -1172,4 +1174,33 @@ button.list-group-item-danger.active:focus {
 
 .small-caps {
     font-variant: small-caps
+}
+
+.sr-only-hidden {
+  visibility: hidden;
+}
+
+.sr-only-none {
+  display: none;
+}
+
+.skipnav {
+  text-align: left;
+  a {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    color: #4F637D;
+    text-decoration: underline;
+  }
+  a:focus, .skipnav a:active {
+    position: static;
+    left: 0;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    text-decoration: underline;
+  }
 }

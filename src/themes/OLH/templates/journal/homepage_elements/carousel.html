@@ -2,12 +2,12 @@
 {% if carousel.mode != "off" %}
         <section class="no-padding" id="orbitsection">
             <div class="row column" id="orbiter">
-                <div class="orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
+                <div class="orbit" role="region" aria-label="{{ request.journal.name }} Carousel" data-orbit>
                     <h2 class="orbit-title">{{ carousel.get_mode_display }}</h2>
                     <ul class="orbit-container">
                         {% for carousel_item in carousel_items %}
                             <li class="orbit-slide overlay">
-                            <a href="{{ carousel_item.url }}" class="box-link"></a>
+                            <a href="{{ carousel_item.url }}" class="box-link">{{ carousel_item.carousel_title }}</a>
                                 <img class="orbit-image"
                                      {% if carousel_item.large_image_file.id %}
                                      src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
