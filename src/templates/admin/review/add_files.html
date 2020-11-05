@@ -76,8 +76,6 @@
                                 <td>Data/Figure</td>
                                 <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                                 <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
-                                        class="fa fa-">&nbsp;</i></a></td>
-                                <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>{% if can_view_file_history_flag %}
                                     <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
