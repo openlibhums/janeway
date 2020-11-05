@@ -718,7 +718,7 @@ class File(models.Model):
     is_remote = models.BooleanField(default=False)
     remote_url = models.URLField(blank=True, null=True, verbose_name="Remote URL of file")
 
-    history = models.ManyToManyField('FileHistory')
+    history = models.ManyToManyField('FileHistory', blank=True)
 
     class Meta:
         ordering = ('sequence', 'pk')

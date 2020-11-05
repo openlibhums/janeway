@@ -22,7 +22,7 @@ INSTALLED_APPS = [
 
 
 def show_toolbar(request):
-    return True
+    return False
 
 
 DEBUG_TOOLBAR_CONFIG = {

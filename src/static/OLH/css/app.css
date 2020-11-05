@@ -4414,10 +4414,10 @@ ul.tagit input[type="text"] {
   outline: none; }
 
 a {
-  color: #2199e8; }
+  color: #105C8E; }
 
 #toc a, aside a {
-  color: #2199e8; }
+  color: #105C8E; }
 
 html, body {
   height: 100%; }
@@ -4563,7 +4563,7 @@ header #main-menu {
 
 @media screen and (max-width: 39.9375em) {
   .orbit {
-    background-color: #062657; } }
+    background-color: #8F8F8F; } }
 
 .orbit .orbit-title {
   position: absolute;
@@ -4572,7 +4572,8 @@ header #main-menu {
   left: 0;
   width: 100%;
   text-align: center;
-  color: #fff; }
+  color: #fff;
+  font-size: 2.77778rem; }
 
 .orbit .orbit-caption h3 {
   font-size: 1.94444rem;
@@ -4622,7 +4623,8 @@ header #main-menu {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%; }
+  height: 100%;
+  font-size: 0; }
 
 .overlay:before {
   content: '';
@@ -4688,7 +4690,7 @@ h3 small {
       fill: rgba(255, 255, 255, 0.02); }
 
 div.caption span.label {
-  background-color: #2199e8;
+  background-color: #105C8E;
   color: #FFFFFF; }
 
 .box {
@@ -4741,7 +4743,7 @@ div.caption span.label {
     .box.journal-list .content {
       padding: 0.69444rem 0; }
   .box.issue .info-bar {
-    position: absolute;
+    position: relative;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -4807,7 +4809,9 @@ div.caption span.label {
   list-style-type: none;
   margin: 0; }
   #content aside ul li {
-    position: relative; }
+    position: relative;
+    margin-bottom: 10px;
+    line-height: 1.3em; }
     #content aside ul li:before {
       content: '';
       position: absolute;
@@ -4832,7 +4836,7 @@ div.caption span.label {
   .summary .top {
     background: #062657; }
   .summary .bottom {
-    background: #2199e8; }
+    background: #105C8E; }
 
 footer .columns {
   padding-top: 1.38889rem;
@@ -4871,7 +4875,7 @@ table tr th {
 
 table tr.active td {
   background-color: #062657;
-  color: #2199e8; }
+  color: #105C8E; }
 
 .orbit {
   position: relative;
@@ -5261,3 +5265,30 @@ button.list-group-item-danger.active:focus {
 .alignleft {
   float: left;
   padding: 5px; }
+
+.small-caps {
+  font-variant: small-caps; }
+
+.sr-only-hidden {
+  visibility: hidden; }
+
+.sr-only-none {
+  display: none; }
+
+.skipnav {
+  text-align: left; }
+  .skipnav a {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    color: #4F637D;
+    text-decoration: underline; }
+  .skipnav a:focus, .skipnav .skipnav a:active {
+    position: static;
+    left: 0;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    text-decoration: underline; }
