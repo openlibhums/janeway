@@ -35,6 +35,7 @@
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a></li>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a></li>
+            <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% if request.user.is_authenticated %}
