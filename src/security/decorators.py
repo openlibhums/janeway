@@ -186,12 +186,10 @@ def section_editor_draft_decisions(func):
     :param func: the function to callback from the decorator
     :return: either the function call or raises an permissiondenied.
     """
+    @base_check_required
     def wrapper(request, *args, **kwargs):
         article_id = kwargs.get('article_id', None)
         drafting = setting_handler.get_setting('general', 'draft_decisions', request.journal).value
-
-        if request is None or request.user is None:
-            deny_access(request)
 
         if request.user.is_section_editor(request) and article_id:
             article = get_object_or_404(models.Article, pk=article_id)
