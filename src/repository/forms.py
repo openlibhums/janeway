@@ -94,7 +94,7 @@ class PreprintInfo(forms.ModelForm):
                         widget=forms.TextInput(),
                         required=element.required,
                     )
-                elif element.input_type == 'check':
+                elif element.input_type == 'checkbox':
                     self.fields[element.name] = forms.BooleanField(
                         widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                         required=element.required)
@@ -103,9 +103,15 @@ class PreprintInfo(forms.ModelForm):
                         required=element.required,
                     )
                 else:
-                    self.fields[element.name] = forms.TextInput()
+                    self.fields[element.name] = forms.CharField(
+                        widget=forms.Textarea(),
+                        required=element.required,
+                    )
 
-                self.fields[element.name].help_text = element.help_text
+                if element.input_type == 'date':
+                    self.fields[element.name].help_text = 'Use ISO 8601 Date Format YYYY-MM-DD. {}'.format(element.help_text)
+                else:
+                    self.fields[element.name].help_text = element.help_text
                 self.fields[element.name].label = element.name
 
                 preprint = kwargs['instance']
