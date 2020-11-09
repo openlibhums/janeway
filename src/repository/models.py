@@ -42,6 +42,7 @@ def html_input_types():
         ('checkbox', 'Checkbox'),
         ('number', 'Number'),
         ('date', 'Date'),
+        ('textarea', 'Text Area'),
     )
 
 
