@@ -21,7 +21,6 @@ def lower_all_usernames(apps, schema_editor):
 
 def handle_unique_username_violation(account, apps):
     AccountRole = apps.get_model('core', 'Accountrole')
-    ArticleAuthor = apps.get_model('submission', 'ArticleAuthor')
     Account = apps.get_model('core', 'Account')
     same_accounts = Account.objects.filter(username__iexact=account.username)
     # Try checking if one has logged in
