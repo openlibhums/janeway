@@ -415,11 +415,13 @@ def repository_file_download(request, preprint_id, file_id):
     )
 
     if file in preprint.version_files():
-        repository_logic.store_preprint_access(
-            request,
-            preprint,
-            file,
-        )
+        if not request.GET.get('embed'):
+            # When the file is embedded we do not count this as a Download.
+            repository_logic.store_preprint_access(
+                request,
+                preprint,
+                file,
+            )
         return files.serve_any_file(
             request,
             file,
