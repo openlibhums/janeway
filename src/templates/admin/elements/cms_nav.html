@@ -5,13 +5,13 @@
             <li class="list-group-item">Home
                 <button name="nav" value="nav_home"
                     class="tiny button float-right
-                  {% if request.journal.nav_home %} 
+                  {% if request.journal.nav_home %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
         {% endif %}
@@ -39,17 +39,10 @@
             {% endif %}
         {% endfor %}
         {#Custom Issue types navigation#}
-        {% for issue_type, nav in collection_nav_items %}
+        {% for issue_type in collection_nav_items %}
         <li class="list-group-item">{{ issue_type.plural_name }}
-            <button name="toggle_collection_nav" value="{{ issue_type.pk  }}"
-                class="tiny button float-right
-              {% if nav %} 
-                warning">
-                <i class="fa fa-times warning"></i> Disable
-              {%  else %} 
-                success">
+            <button name="toggle_collection_nav" value="{{ issue_type.pk }}" class="tiny button float-right success">
                 <i class="fa fa-check"></i> Enable
-              {% endif %} 
             </button>
         </li>
         {% endfor %}
@@ -57,37 +50,37 @@
             <li class="list-group-item">News
                 <button name="nav" value="nav_news"
                     class="tiny button float-right
-                  {% if request.journal.nav_news %} 
+                  {% if request.journal.nav_news %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
             <li class="list-group-item">Articles
                 <button name="nav" value="nav_articles"
                     class="tiny button float-right
-                  {% if request.journal.nav_articles %} 
+                  {% if request.journal.nav_articles %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
             <li class="list-group-item">Issues
                 <button name="nav" value="nav_issues"
                     class="tiny button float-right
-                  {% if request.journal.nav_issues %} 
+                  {% if request.journal.nav_issues %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
             <li class="list-group-item">Editorial Team <i
@@ -96,49 +89,49 @@
             <li class="list-group-item">Submissions
                 <button name="nav" value="nav_sub"
                     class="tiny button float-right
-                  {% if request.journal.nav_sub %} 
+                  {% if request.journal.nav_sub %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
             <li class="list-group-item">Contact
                 <button name="nav" value="nav_contact"
                     class="tiny button float-right
-                  {% if request.journal.nav_contact %} 
+                  {% if request.journal.nav_contact %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
             <li class="list-group-item">Start Submission
                 <button name="nav" value="nav_start"
                     class="tiny button float-right
-                  {% if request.journal.nav_start %} 
+                  {% if request.journal.nav_start %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
             <li class="list-group-item">Become a Reviewer
                 <button name="nav" value="nav_review"
                     class="tiny button float-right
-                  {% if request.journal.nav_review %} 
+                  {% if request.journal.nav_review %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
-                  {%  else %} 
+                  {% else %}
                     success">
                     <i class="fa fa-check"></i> Enable
-                  {% endif %} 
+                  {% endif %}
                 </button>
             </li>
         {% endif %}
