@@ -21,8 +21,8 @@
                 <a class="tiny button" href="{% url 'cms_nav_edit' nav.pk %}"><i class="fa fa-edit"> Edit</i></a>
                 <button class="tiny button alert" name="delete_nav" value="{{ nav.pk }}"><i class="fa fa-trash"></i> Delete</button>
               </span>
-            </li>
             {% if nav.sub_nav_items %}
+            <br />
                 <ul>
                     {% for sub_nav in nav.sub_nav_items %}
                         <li>{{ sub_nav.link_name }} ({{ sub_nav.link }})
@@ -35,6 +35,7 @@
                         </li>
                     {% endfor %}
                 </ul>
+            </li>
             {% endif %}
         {% endfor %}
         {#Custom Issue types navigation#}
