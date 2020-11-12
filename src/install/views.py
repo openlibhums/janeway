@@ -3,12 +3,14 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 
 from install import forms, logic
 from core import files
+from security.decorators import has_journal
+from journal import models
 
 
 @staff_member_required
@@ -73,3 +75,36 @@ def next(request):
     context = {}
 
     return render(request, template, context)
+
+
+@has_journal
+@staff_member_required
+def wizard_one(request, journal_id=None):
+    """
+    A set up wizard for Journals.
+    """
+    journal = None
+    if journal_id:
+        journal = get_object_or_404(
+            models.Journal,
+            pk=journal_id,
+        )
+    elif request.journal:
+        journal = request.journal
+
+    form = forms.CombinedJournalForm(
+        instance=journal,
+    )
+
+    template = 'install/wizard/wizard.html'
+    context = {
+        'journal': journal,
+        'step': 1,
+        'help_template': 'install/wizard/help_1.html',
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context
+    )

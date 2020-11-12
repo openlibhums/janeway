@@ -1,0 +1,73 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}{% if request.repository %}Edit Journal{% else %}Create New Journal{% endif %}{% endblock %}
+{% block title-section %}Journal Wizard &#x1F9D9; {% endblock %}
+
+{% block nav %}
+    {% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+    <section>
+        <div class="row expanded" data-equalizer>
+            {% if journal %}
+            <div class="large-12 columns">
+                <div class="expanded button-group">
+                    <a href="{% url 'install_wizard_one_id' journal.id %}" class="{% if not step == 1 %}hollow{% endif %} secondary button">Journal Details</a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="large-8 columns end">
+                <div class="box" data-equalizer-watch>
+                    <div class="title-area">
+                        <h2>
+                            Journal Details
+                        </h2>
+                    </div>
+                    <div class="content">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="large-4 columns end">
+                <div class="box" data-equalizer-watch>
+                    <div class="title-area">
+                        <h2>Help</h2>
+                    </div>
+                    <div class="content">
+                        {% if not request.journal %}
+                        <p>
+                            This Wizard will guide you through setting up your Journal.
+                        </p>
+                        {% else %}
+                            <p>
+                                You can use this Wizard to edit your journals's details.
+                            </p>
+                        {% endif %}
+                        {% include help_template %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block js %}
+    {% if step == '3' %}
+        <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
+        <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/SelectBox.js" %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/SelectFilter2.js" %}"></script>
+
+        <link rel="stylesheet" type="text/css" href="{% static "admin/js/forms.css" %}" >
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}" >
+    {% endif %}
+{% endblock %}

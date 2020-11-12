@@ -9,5 +9,8 @@ from install import views
 urlpatterns = [
     url(r'^$', views.index, name='install_index'),
     url(r'^journal/$', views.journal, name='install_journal'),
-    url(r'^next/$', views.next, name='install_next')
+    url(r'^next/$', views.next, name='install_next'),
+
+    url(r'^wizard/$', views.wizard_one, name='install_wizard_one'),
+    url(r'^wizard/journal/(?P<journal_id>\d+)/$', views.wizard_one, name='install_wizard_one_id'),
 ]
