@@ -77,7 +77,6 @@ def next(request):
     return render(request, template, context)
 
 
-@has_journal
 @staff_member_required
 def wizard_one(request, journal_id=None):
     """
@@ -94,7 +93,19 @@ def wizard_one(request, journal_id=None):
 
     form = forms.CombinedJournalForm(
         instance=journal,
+        setting_group='general',
+        model_keys=['code', 'description'],
     )
+
+    if request.POST:
+        form = forms.CombinedJournalForm(
+            request.POST,
+            instance=journal,
+            setting_group='general',
+            model_keys=['code', 'description'],
+        )
+        if form.is_valid():
+            form.save(commit=True)
 
     template = 'install/wizard/wizard.html'
     context = {

@@ -30,6 +30,11 @@
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form|foundation }}
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <button class="button">Save</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
