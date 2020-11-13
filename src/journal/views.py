@@ -249,6 +249,15 @@ def issues(request):
 @decorators.frontend_enabled
 def current_issue(request, show_sidebar=True):
     """ Renders the current journal issue"""
+    issue_id = request.journal.current_issue_id
+    if not issue_id:
+        latest_issue = models.Issue.objects.filter(
+            date=timezone.now(),
+        ).order_by("-date").values("id").first()
+        if latest_issue:
+            issue_id = latest_issue.id
+    if not issue_id:
+        return redirect(reverse('journal_issues'))
     return issue(request, request.journal.current_issue_id, show_sidebar=show_sidebar)
 
 
