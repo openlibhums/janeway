@@ -15,6 +15,11 @@ def can_edit_file(request, user, file_object, article):
     if user.is_staff or user.is_editor(request) or file_object.owner == user:
         return True
 
+    # allow section editors to edit files of articles assigned to them
+    if user.is_section_editor(request) and file_object.article:
+        if user in file_object.article.section_editors():
+            return True
+
     # allow file editing when the user is a production manager and the piece is in production
     try:
         production_assigned = production_models.ProductionAssignment.objects.get(article=article,)
@@ -75,6 +80,11 @@ def can_view_file(request, user, file_object):
 
     if user.is_staff or user.is_editor(request) or file_object.owner == user:
         return True
+
+    # allow section editors to view files of articles assigned to them
+    if user.is_section_editor(request) and file_object.article:
+        if user in file_object.article.section_editors():
+            return True
 
     # allow file editing when the user is the proofing manager for this article
     try:
