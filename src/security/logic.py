@@ -16,9 +16,8 @@ def can_edit_file(request, user, file_object, article):
         return True
 
     # allow section editors to edit files of articles assigned to them
-    if user.is_section_editor(request) and file_object.article:
-        if user in file_object.article.section_editors():
-            return True
+    if user.is_section_editor(request) and user in article.section_editors():
+        return True
 
     # allow file editing when the user is a production manager and the piece is in production
     try:
