@@ -50,7 +50,7 @@
                 {% can_edit_file file article as can_edit_file_flag %}
                 {% can_view_file file as can_view_file_flag %}
                 {% for file_history in file.history.all %}
-                    {% can_view_file file_history as can_view_historic_file_flag %}
+                    {% can_view_file_history file_history article as can_view_historic_file_flag %}
                     <tr>
                         <td>{{ file_history.pk }}</td>
                         <td>{{ file_history.label }} ({{ file_history.history_seq }})</td>
