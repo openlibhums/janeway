@@ -50,7 +50,7 @@
                             <th colspan="4">Comments to Editor</th>
                         </tr>
                         <tr>
-                            <td colspan="4">{% if preprint.comments_editor %}{{ preprint.comments_editor }}{% else %}No
+                            <td colspan="4">{% if preprint.comments_editor %}{{ preprint.comments_editor|linebreaksbr }}{% else %}No
                                 comments{% endif %}</td>
                         </tr>
                         {% if journal_settings.general.submission_competing_interests %}
