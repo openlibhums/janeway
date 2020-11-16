@@ -285,7 +285,11 @@ def get_settings_to_edit(group, journal):
             {
                 'name': 'reviewer_form_download',
                 'object': setting_handler.get_setting('general', 'reviewer_form_download', journal),
-            }
+            },
+            {
+                'name': 'peer_review_upload_text',
+                'object': setting_handler.get_setting('general', 'peer_review_upload_text', journal),
+            },
         ]
         setting_group = 'general'
 

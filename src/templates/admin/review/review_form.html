@@ -122,8 +122,7 @@
                     </div>
                     <div class="content">
                         <div class="large-12 columns">
-                            <p>You may upload a file in lieu of completing the review form. Please
-                                ensure you've covered all of the required fields below.</p>
+                            {{ journal_settings.general.peer_review_upload_text|safe }}
                                 {% csrf_token %}
                                 {% if assignment.review_file %}Current file: {{ assignment.review_file }}{% endif %}
                                 <input type="file" id="review_file"
