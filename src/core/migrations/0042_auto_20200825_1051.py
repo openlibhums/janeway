@@ -13,7 +13,7 @@ def lower_all_usernames(apps, schema_editor):
     handled = set()
 
     for account in accounts:
-        if account.pk in handled:
+        if account.username.lower() in handled:
             continue
         try:
             with transaction.atomic():
@@ -64,7 +64,7 @@ def handle_unique_username_violation(same_accounts, apps):
     for acc in same_accounts:
         if acc != real_account:
             merge_models(acc, real_account)
-            merged.add(acc.pk)
+            merged.add(acc.username.lower())
     real_account.username = real_account.username.lower()
     real_account.save()
     return merged
