@@ -262,10 +262,10 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
     # send to reviewer
     if accepted:
         notify_helpers.send_email_with_body_from_setting_template(
-            request, 
+            request,
             'review_accept_acknowledgement',
             'subject_review_accept_acknowledgement',
-            review_assignment.reviewer.email, 
+            review_assignment.reviewer.email,
             context,
         )
 
@@ -344,10 +344,15 @@ def send_submission_acknowledgement(**kwargs):
 
     if editors_to_email:
         editor_pks = [int(pk) for pk in editors_to_email]
-        editor_emails = [role.user.email for role in core_models.AccountRole.objects.filter(
-            role__slug='editor', user__id__in=editor_pks)]
+        editor_emails = {role.user.email for role in core_models.AccountRole.objects.filter(
+            role__slug='editor', user__id__in=editor_pks)}
     else:
-        editor_emails = request.journal.editor_emails
+        editor_emails = set(request.journal.editor_emails)
+
+    assigned_to_section = (
+        article.section.editors.all() | article.section.section_editors.all())
+
+    editor_emails |= {editor.email for editor in assigned_to_section}
 
     notify_helpers.send_email_with_body_from_setting_template(request,
                                                               'editor_new_submission',
