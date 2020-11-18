@@ -251,16 +251,15 @@ class Events:
                 return event_return[0]
 
     @staticmethod
-    def register_for_event(event_name, function):
+    def register_for_event(event_name, *functions):
         """
         Register a function to fire on a specific event
         :param event_name: the name of the event
-        :param function: the function to be called
+        :param functions: the functions to be called
         :return:
         """
         if event_name not in Events._hooks:
             Events._hooks[event_name] = []
 
-        event = Events._hooks[event_name]
+        Events._hooks[event_name] += functions
 
-        event.append(function)
