@@ -229,27 +229,17 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
         messages.add_message(request, messages.WARNING, 'User is not an Editor or Section Editor')
         return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
 
-    try:
-        assignment = models.EditorAssignment.objects.create(article=article, editor=editor, editor_type=assignment_type)
-        messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
-
-        kwargs = {'user_message_content': '',
-                  'editor_assignment': assignment,
-                  'request': request,
-                  'skip': True,
-                  'acknowledgement': False}
-
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ASSIGNED, task_object=article, **kwargs)
-
-        if should_redirect:
-            return redirect('{0}?return={1}'.format(
-                reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
-                request.GET.get('return')))
-    except IntegrityError:
+    _, created = logic.assign_editor(article, editor, assignment_type, request)
+    messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
+    if created and should_redirect:
+        return redirect('{0}?return={1}'.format(
+            reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
+            request.GET.get('return')))
+    elif not created:
         messages.add_message(request, messages.WARNING,
-                             '{0} is already an Editor on this article.'.format(editor.full_name()))
-        if should_redirect:
-            return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
+                            '{0} is already an Editor on this article.'.format(editor.full_name()))
+    if should_redirect:
+        return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
 
 
 @senior_editor_user_required
