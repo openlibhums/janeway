@@ -26,7 +26,7 @@ class PressForm(forms.ModelForm):
             'default_carousel_image', 'favicon', 'enable_preprints',
             'is_secure', 'password_number', 'password_upper',
             'password_length', 'password_reset_text', 'registration_text',
-            'tracking_code',
+            'tracking_code', 'privacy_policy_url',
         )
         widgets = {
             'theme': forms.Select(
