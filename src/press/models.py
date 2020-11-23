@@ -83,6 +83,11 @@ class Press(AbstractSiteModel):
     featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
     carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)
     tracking_code = models.TextField(blank=True, null=True)
+    privacy_policy_url = models.URLField(
+        max_length=999, blank=True, null=True,
+        help_text="URL to an external privacy-policy, linked from the page"
+        " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
+    )
 
     password_reset_text = models.TextField(blank=True, null=True, default=press_text('reset'))
     registration_text = models.TextField(blank=True, null=True, default=press_text('registration'))
