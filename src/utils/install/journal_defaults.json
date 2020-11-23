@@ -34,6 +34,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "URL to an external privacy-policy, linked from the footer. If blank, it links to the Janeway CMS page: /site/privacy.",
+            "is_translatable": false,
+            "name": "privacy_policy_url",
+            "pretty_name": "External Privacy Policy URL",
+            "type": "char"
+        },
+        "value": {
+            "default": null
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
             "is_translatable": false,
             "name": "publisher_name",
