@@ -1,1 +1,17 @@
+{% load i18n %}
+<div class="large-5 columns" data-equalizer-watch>
+    <p>
 {{ press.footer_description|safe }}
+</div>
+<div class="large-5 columns large-text-right" data-equalizer-watch>
+    <ul class="inline-list">
+      {% if press.privacy_policy_url %}
+        <li><a href="{{ press.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
+      {% else %}
+        <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
+      {% endif %}
+        <li><a href="/sitemap">{% trans "Sitemap" %}</a></li>
+        <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">Login</a></li>{% endif %}
+    </ul>
+</div>

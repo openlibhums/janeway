@@ -69,44 +69,11 @@
                     {% svg request.press_cover %}
                 {% endif %}
             </div>
-            <div class="col-md-5">
-                <small><p>
-                    {% if request.journal %}
-                        {% include "elements/journal_footer.html" %}
-                    {% else %}
-                        {% include "elements/press_footer.html" %}
-                    {% endif %}
-                </p></small>
-            </div>
-            <div class="col-md-5 text-right">
-                <small><p>
-                    <ul class="list-inline">
-                        <li class="list-inline-item"><a href="/site/privacy/">{% trans "Privacy Policy" %}</a></li>
-                        <li class="list-inline-item"><a href="/sitemap">{% trans "Sitemap" %}</a></li>
-                        <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
-                        {% if not request.user.is_authenticated %}
-                            <li><a href="{% url 'core_login' %}">Login</a></li>{% endif %}
-                        {% if journal_settings.general.switch_language %}
-                            <li class="list-inline-item">
-                                <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-                                    <input name="next" type="hidden" value="{{ request.PATH }}"/>
-                                    <select name="language" onchange="this.form.submit()">
-                                        {% get_current_language as LANGUAGE_CODE %}
-                                        {% get_available_languages as LANGUAGES %}
-                                        {% get_language_info_list for LANGUAGES as languages %}
-                                        {% for language in languages %}
-                                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %}
-                                                    selected{% endif %}>
-                                                {{ language.name_local }} ({{ language.code }})
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </form>
-                            </li>
-                        {% endif %}
-                    </ul>
-                    </p></small>
-            </div>
+            {% if request.journal %}
+                {% include "elements/journal_footer.html" %}
+            {% else %}
+                {% include "elements/press_footer.html" %}
+            {% endif %}
         </div>
     </div>
 </footer>
