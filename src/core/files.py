@@ -7,9 +7,7 @@ import mimetypes as mime
 import os
 from uuid import uuid4
 from wsgiref.util import FileWrapper
-from bs4 import BeautifulSoup
 from lxml import etree
-import re
 import shutil
 import magic
 import hashlib
@@ -329,6 +327,7 @@ def render_xml(file_to_render, article, xsl_path=None, recover=False):
 
     return transform_with_xsl(path, xsl_path, recover=recover)
 
+
 def transform_with_xsl(xml_path, xsl_path, recover=False):
     try:
         xml_dom = etree.parse(xml_path)
@@ -342,14 +341,14 @@ def transform_with_xsl(xml_path, xsl_path, recover=False):
     xsl_transform = etree.XSLT(etree.parse(xsl_path))
     try:
         transformed_dom = xsl_transform(xml_dom)
+        return transformed_dom
     except Exception as err:
         logger.error(err)
         for xsl_error in xsl_transform.error_log:
             logger.error(xsl_error)
         if not recover:
             raise
-
-    return transformed_dom
+        return ''
 
 
 def serve_any_file(request, file_to_serve, public=False, hide_name=False,
