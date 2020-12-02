@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from core import models
 from core.model_utils import merge_models
+from journal import models as journal_models
 from utils.testing import helpers
 
 
@@ -73,6 +74,30 @@ class TestAccount(TestCase):
         # Assert
         self.assertTrue(
             interest in to_account.interest.all(),
+            msg="Failed to merge user models",
+        )
+
+    def test_merge_accounts_m2m_through(self):
+        """Test merging of m2m declaring 'through' when merging two accounts"""
+        # Setup
+        from_account = models.Account.objects.create(email="from@test.com")
+        to_account = models.Account.objects.create(email="to@test.com")
+        press = helpers.create_press()
+        journal, _ = helpers.create_journals()
+        issue = journal_models.Issue.objects.create(journal=journal)
+
+        # Issue editors have a custom through model
+        issue_editor = journal_models.IssueEditor.objects.create(
+            issue=issue,
+            account=from_account,
+        )
+
+        # Test
+        merge_models(from_account, to_account)
+
+        # Assert
+        self.assertTrue(
+            to_account.issueeditor_set.filter(issue=issue).exists(),
             msg="Failed to merge user models",
         )
 
