@@ -66,24 +66,27 @@ def merge_models(src, dest):
             if isinstance(field, models.Field):
                 related_model = field.related_model
                 remote_field = field.remote_field.name
-                objects = related_model.objects.filter(**{remote_field:src})
                 manager = getattr(dest, field.get_attname())
             else:
                 accessor = getattr(src, field.get_accessor_name())
                 manager = getattr(dest, field.get_accessor_name())
-                objects = accessor.all()
-            for obj in objects:
-                manager.add(obj)
+            # Query all related objects via through, in case there is a custom
+            # Through model
+            remote_field = manager.source_field_name
+            related_filter = {remote_field: src}
+            objects = manager.through.objects.filter(**related_filter)
         elif field.one_to_many:
             remote_field = field.remote_field.name
             accessor_name = field.get_accessor_name()
             accessor = getattr(src, accessor_name)
-            for obj in accessor.all():
-                try:
-                    with transaction.atomic():
-                        setattr(obj, remote_field, dest)
-                        obj.save()
-                except IntegrityError:
-                    # Ignore unique constraint violations
-                    pass
+            objects = accessor.all()
+
+        for obj in objects:
+            try:
+                with transaction.atomic():
+                    setattr(obj, remote_field, dest)
+                    obj.save()
+            except IntegrityError:
+                # Ignore unique constraint violations
+                pass
     src.delete()
