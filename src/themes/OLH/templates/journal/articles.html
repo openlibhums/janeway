@@ -48,6 +48,9 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="section">
+                            <h3>{% trans "Filter Articles" %}</h3>
+                        </div>
+                        <div class="section">
                             <label>{% trans "Show" %}
                                 <select name="show">
                                     <option value="10"{% if show == 10 %} selected="selected"{% endif %}>10</option>
@@ -76,8 +79,8 @@
                                                                              {% if section.id in filters %}checked="checked"{% endif %}>{{ section.name }}
                                 </label>
                             {% endfor %}
-                            <button type="submit" class="button">{% trans "Filter" %}</button>
-                            {% if active_filters %}<button type="submit" class="button" name="clear">{% trans "Clear Filters" %}</button>{% endif %}
+                            <button type="submit" class="button dark-primary-bg">{% trans "Filter" %}</button>
+                            {% if active_filters %}<button type="submit" class="button dark-primary-bg" name="clear">{% trans "Clear Filters" %}</button>{% endif %}
                         </div>
                     </form>
                 </div>

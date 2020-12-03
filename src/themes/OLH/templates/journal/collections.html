@@ -17,8 +17,8 @@
                 {% for collection in collections %}
                     <div class="large-4 columns {% if forloop.last %}end{% endif %}">
                         <div class="box collection " data-equalizer-watch>
-                            <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
-                            <img src="{% if collection.large_image %}{{ collection.large_image.url }}{% else %}{% static 'common/img/sample/article-small.jpg' %}{% endif %}" alt="Collection Image">
+                            <a href="{% url 'journal_collection' collection.pk %}" class="box-link">{{ collection.issue_title }}</a>
+                            <img src="{% if collection.large_image %}{{ collection.large_image.url }}{% else %}{% static 'common/img/sample/article-small.jpg' %}{% endif %}" alt="{{ collection.issue_title }} Image">
                             <div class="content">
                                 <p>Collection<br/>
                                     <small>{% trans "Published" %}: {{ collection.date|date:"d/m/y" }}</small>

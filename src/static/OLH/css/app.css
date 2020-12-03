@@ -1251,15 +1251,15 @@ h6 {
 
 @media screen and (min-width: 40em) {
   h1 {
-    font-size: 3.33333rem; }
+    font-size: 2.63889rem; }
   h2 {
-    font-size: 2.77778rem; }
+    font-size: 2.22222rem; }
   h3 {
-    font-size: 2.15278rem; }
+    font-size: 1.80556rem; }
   h4 {
-    font-size: 1.73611rem; }
+    font-size: 1.52778rem; }
   h5 {
-    font-size: 1.38889rem; }
+    font-size: 1.31944rem; }
   h6 {
     font-size: 1.11111rem; } }
 
@@ -5273,7 +5273,14 @@ button.list-group-item-danger.active:focus {
   visibility: hidden; }
 
 .sr-only-none {
-  display: none; }
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0; }
 
 .skipnav {
   text-align: left; }

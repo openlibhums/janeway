@@ -71,7 +71,7 @@
                     <doi>{{ doi }}</doi>
                     <resource>{{ article_url }}</resource>
                     <collection property="crawler-based">
-                        <item crawler="iParadigms">
+                        <item crawler="k">
                             {% if pdf_url %}
                                 <resource>{{ pdf_url }}</resource>
                             {% else %}

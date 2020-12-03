@@ -14,21 +14,22 @@
         <div class="row column">
             <div class="large-4 columns contact">
                 {% if request.journal %}
-                    <h4>{% trans "Journal Representatives" %}</h4>
+                    <h2>{% trans "Journal Representatives" %}</h2>
                 {% else %}
-                    <h4>{% trans "Press Representatives" %}</h4>
+                    <h2>{% trans "Press Representatives" %}</h2>
                 {% endif %}
+            <br />
                 {% for contact in contacts %}
-                    <h5>{{ contact.name }}</h5>
+                    <h3>{{ contact.name }}</h3>
                     <p>{{ contact.role }}</p>
                 {% endfor %}
                 {% if request.journal and request.journal.contact_info %}
-                    <h4>{% trans 'Contact Information' %}</h4>
+                    <h2>{% trans 'Contact Information' %}</h2>
                     {{ request.journal.contact_info|safe }}
                 {% endif %}
             </div>
             <div class="large-8 columns">
-                <h3>{% trans "Contact" %}</h3>
+                <h1>{% trans "Contact" %}</h1>
                 <form method="POST">
                     {% include "elements/forms/errors.html" with form=contact_form %}
                     {% csrf_token %}

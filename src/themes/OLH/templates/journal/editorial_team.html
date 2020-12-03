@@ -13,15 +13,18 @@
 
 {% block body %}
     <section id="content">
-        <div class="row column">
-            {% if group_id %}
-                <h1>{{ editorial_groups.0.name }}</h1>
-            {% else %}
-                <h1>{% trans "Editorial Team" %}</h1>
-            {% endif %}
+        <div class="row">
+            <div class="large-12 columns">
+                {% if group_id %}
+                    <h1>{{ editorial_groups.0.name }}</h1>
+                {% else %}
+                    <h1>{% trans "Editorial Team" %}</h1>
+                {% endif %}
+            </div>
             {% for group in editorial_groups %}
+                 <div class="large-12 columns">
                 {% if not group_id %}
-                    <h4>{{ group.name }}</h4>
+                    <h2>{{ group.name }}</h2>
                 {% endif %}
                 {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
@@ -53,6 +56,7 @@
                     {% endfor %}
                     </div>
                 <hr/>
+                </div>
             {% endfor %}
         </div>
     </section>

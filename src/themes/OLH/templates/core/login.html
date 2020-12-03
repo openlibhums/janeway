@@ -32,14 +32,14 @@
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}" class="success button expanded">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
-                        <label>{% trans form.fields.user_name.label %}</label>
+                        <label for="id_user_name">{% trans form.fields.user_name.label %}*</label>
                             {{ form.user_name }}
-                        <label>{% trans form.user_pass.label %}</label>
+                        <label for="id_user_pass">{% trans form.user_pass.label %}*</label>
                             {{ form.user_pass }}
                         <br />
                         {{ form.captcha }}
                         <br />
-                        <p><button type="submit" class="button expanded">{% trans "Log in" %}</button></p>
+                        <p><button type="submit" class="button success expanded">{% trans "Log in" %}</button></p>
                         <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgotten your password?" %}</a></p>
                         <p class="text-center"><a href="{% url 'core_register' %}">{% trans "Register a new account" %}</a></p>
                     </div>
