@@ -28,7 +28,7 @@ from django.urls import reverse
 
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel
+from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
@@ -187,7 +187,7 @@ class AccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True, verbose_name=_('Email'))
+    email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=48, unique=True, verbose_name=_('Username'))
 
     first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
