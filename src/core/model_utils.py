@@ -56,6 +56,8 @@ class PGCaseInsensitivedMixin():
     def db_type(self, connection):
         if connection.vendor == "postgresql":
             return "citext"
+        elif connection.vendor == "sqlite":
+            return "text collate nocase"
         else:
             return super().db_type(connection)
 
