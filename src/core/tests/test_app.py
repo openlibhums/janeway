@@ -46,7 +46,6 @@ class CoreTests(TestCase):
 
 
     @override_settings(URL_CONFIG="domain")
-    @postgres_only
     def test_create_user_form_mixed_case(self):
         data = {
             'email': 'test@test.com',
