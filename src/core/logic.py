@@ -36,18 +36,40 @@ logger = get_logger(__name__)
 
 
 def send_reset_token(request, reset_token):
-    context = {'reset_token': reset_token}
+    core_reset_password_url = request.site_type.site_url(
+        reverse(
+            'core_reset_password',
+            kwargs={'token': reset_token.token},
+        )
+    )
+    context = {
+        'reset_token': reset_token,
+        'core_reset_password_url': core_reset_password_url,
+    }
     log_dict = {'level': 'Info', 'types': 'Reset Token', 'target': None}
     if not request.journal:
-        message = render_template.get_message_content(request, context, request.press.password_reset_text,
-                                                      template_is_setting=True)
+        message = render_template.get_message_content(
+            request,
+            context,
+            request.press.password_reset_text,
+            template_is_setting=True,
+        )
         subject = 'Password Reset'
     else:
-        message = render_template.get_message_content(request, context, 'password_reset')
+        message = render_template.get_message_content(
+            request,
+            context,
+            'password_reset',
+        )
         subject = 'subject_password_reset'
 
-    notify_helpers.send_email_with_body_from_user(request, subject, reset_token.account.email, message,
-                                                  log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        reset_token.account.email,
+        message,
+        log_dict=log_dict,
+    )
 
 
 def send_confirmation_link(request, new_user):
