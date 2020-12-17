@@ -305,11 +305,6 @@ def send_submission_acknowledgement(**kwargs):
         request=request,
     )
 
-    context = {
-        'article': article,
-        'request': request
-    }
-
     log_dict = {
         'level': 'Info',
         'action_text': 'A new article {0} was submitted'.format(article.title),
@@ -317,18 +312,25 @@ def send_submission_acknowledgement(**kwargs):
         'target': article,
     }
 
-    # send to slack
-    slack_url = request.journal.site_url(
-        path=reverse('review_unassigned_article',
-                     kwargs={'article_id': article.pk})
+    # generate URL
+    editor_review_url = request.journal.site_url(
+        path=reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': article.pk},
+        )
     )
     notify_helpers.send_slack(
         request,
         'New submission: {0} {1}'.format(article.title,
-                                         slack_url),
+                                         editor_review_url),
         ['slack_editors'])
 
     # send to author
+    context = {
+        'article': article,
+        'request': request,
+        'editor_review_url': editor_review_url,
+    }
     notify_helpers.send_email_with_body_from_setting_template(
         request,
         'submission_acknowledgement',
