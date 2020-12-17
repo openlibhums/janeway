@@ -486,9 +486,28 @@ def handle_email_change(request, email_address):
     request.user.clean()
     request.user.save()
 
-    context = {'user': request.user}
-    message = render_template.get_message_content(request, context, 'user_email_change')
-    notify_helpers.send_email_with_body_from_user(request, 'subject_user_email_change', request.user.email, message)
+    core_confirm_account_url = request.site_type.site_url(
+        reverse(
+            'core_confirm_account',
+            kwargs={'token': request.user.confirmation_code},
+        )
+    )
+
+    context = {
+        'user': request.user,
+        'core_confirm_account_url': core_confirm_account_url,
+    }
+    message = render_template.get_message_content(
+        request,
+        context,
+        'user_email_change',
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'subject_user_email_change',
+        request.user.email,
+        message,
+    )
 
     logout(request)
 
