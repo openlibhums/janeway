@@ -21,6 +21,7 @@ from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
+from django.shortcuts import reverse
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -50,18 +51,43 @@ def send_reset_token(request, reset_token):
 
 
 def send_confirmation_link(request, new_user):
-    context = {'user': new_user}
+    core_confirm_account_url = reverse(
+        'core_confirm_account',
+        kwargs={'token': new_user.confirmation_code},
+    )
+    context = {
+        'user': new_user,
+        'core_confirm_account_url': core_confirm_account_url,
+    }
     if not request.journal:
-        message = render_template.get_message_content(request, context, request.press.registration_text,
-                                                      template_is_setting=True)
+        message = render_template.get_message_content(
+            request,
+            context,
+            request.press.registration_text,
+            template_is_setting=True,
+        )
         subject = 'Registration Confirmation'
     else:
-        message = render_template.get_message_content(request, context, 'new_user_registration')
+        message = render_template.get_message_content(
+            request,
+            context,
+            'new_user_registration',
+        )
         subject = 'subject_new_user_registration'
 
-    notify_helpers.send_slack(request, 'New registration: {0}'.format(new_user.full_name()), ['slack_admins'])
+    notify_helpers.send_slack(
+        request,
+        'New registration: {0}'.format(new_user.full_name()),
+        ['slack_admins'],
+    )
     log_dict = {'level': 'Info', 'types': 'Account Confirmation', 'target': None}
-    notify_helpers.send_email_with_body_from_user(request, subject, new_user.email, message, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        new_user.email,
+        message,
+        log_dict=log_dict,
+    )
 
 
 def resize_and_crop(img_path, size, crop_type='middle'):
