@@ -313,7 +313,7 @@ def send_submission_acknowledgement(**kwargs):
     }
 
     # generate URL
-    editor_review_url = request.journal.site_url(
+    review_unassigned_article_url = request.journal.site_url(
         path=reverse(
             'review_unassigned_article',
             kwargs={'article_id': article.pk},
@@ -321,15 +321,17 @@ def send_submission_acknowledgement(**kwargs):
     )
     notify_helpers.send_slack(
         request,
-        'New submission: {0} {1}'.format(article.title,
-                                         editor_review_url),
+        'New submission: {0} {1}'.format(
+            article.title,
+            review_unassigned_article_url,
+        ),
         ['slack_editors'])
 
     # send to author
     context = {
         'article': article,
         'request': request,
-        'editor_review_url': editor_review_url,
+        'review_unassigned_article_url': review_unassigned_article_url,
     }
     notify_helpers.send_email_with_body_from_setting_template(
         request,
@@ -346,8 +348,12 @@ def send_submission_acknowledgement(**kwargs):
 
     if editors_to_email:
         editor_pks = [int(pk) for pk in editors_to_email]
-        editor_emails = {role.user.email for role in core_models.AccountRole.objects.filter(
-            role__slug='editor', user__id__in=editor_pks)}
+        editor_emails = {
+            role.user.email for role in core_models.AccountRole.objects.filter(
+                role__slug='editor',
+                user__id__in=editor_pks,
+            )
+        }
     else:
         editor_emails = set(request.journal.editor_emails)
 
@@ -356,11 +362,14 @@ def send_submission_acknowledgement(**kwargs):
 
     editor_emails |= {editor.email for editor in assigned_to_section}
 
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'editor_new_submission',
-                                                              'subject_editor_new_submission',
-                                                              editor_emails,
-                                                              context, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'editor_new_submission',
+        'subject_editor_new_submission',
+        editor_emails,
+        context,
+        log_dict=log_dict,
+    )
 
 
 def send_article_decision(**kwargs):
