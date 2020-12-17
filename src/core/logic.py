@@ -51,9 +51,11 @@ def send_reset_token(request, reset_token):
 
 
 def send_confirmation_link(request, new_user):
-    core_confirm_account_url = reverse(
-        'core_confirm_account',
-        kwargs={'token': new_user.confirmation_code},
+    core_confirm_account_url = request.site_type.site_url(
+        reverse(
+            'core_confirm_account',
+            kwargs={'token': new_user.confirmation_code},
+        )
     )
     context = {
         'user': new_user,
