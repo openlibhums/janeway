@@ -55,9 +55,12 @@ def get_copyeditor_notification(request, article, copyedit):
     :param copyedit: CopyeditAssignment Object
     :return: a template rendered into a string
     """
+    copyedit_requests_url = request.journal.site_url(
+        reverse("copyedit_requests"))
     email_context = {
         'article': article,
         'assignment': copyedit,
+        'copyedit_requests_url': copyedit_requests_url,
     }
 
     return render_template.get_message_content(request, email_context, 'copyeditor_assignment_notification')

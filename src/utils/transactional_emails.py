@@ -498,16 +498,23 @@ def send_copyedit_assignment(**kwargs):
     user_message_content = kwargs['user_message_content']
     skip = kwargs.get('skip', False)
 
-    description = '{0} has requested copyediting for {1} due on {2}'.format(request.user.full_name(),
-                                                                            copyedit_assignment.article.title,
-                                                                            copyedit_assignment.due)
+    description = '{0} has requested copyediting for {1} due on {2}'.format(
+        request.user.full_name(),
+        copyedit_assignment.article.title,
+        copyedit_assignment.due,
+    )
 
     if not skip:
-        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment',
-                    'target': copyedit_assignment.article}
-        response = notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
-                                                                 copyedit_assignment.copyeditor.email,
-                                                                 user_message_content, log_dict)
+        log_dict = {
+            'level': 'Info', 'action_text': description,
+            'types': 'Copyedit Assignment',
+            'target': copyedit_assignment.article,
+        }
+        response = notify_helpers.send_email_with_body_from_user(
+            request, 'subject_copyeditor_assignment_notification',
+            copyedit_assignment.copyeditor.email,
+            user_message_content, log_dict,
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
