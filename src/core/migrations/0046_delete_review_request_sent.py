@@ -12,6 +12,22 @@ def delete_settings(apps, schema_editor):
         name='review_request_sent',
     ).delete()
 
+
+def remove_link_form_production_complete(apps, schema_editor):
+    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+
+    settings = SettingValueTranslation.objects.filter(
+        master__setting__name='production_complete',
+        master__setting__group__name='email',
+    )
+
+    for setting in settings:
+        setting.value = setting.value.replace(
+            '<p>This article is now in the Proofing workflow: {{ proofing_list_url }}.</p>',
+            '',
+        )
+        setting.save()
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -21,6 +37,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             delete_settings,
+            reverse_code=migrations.RunPython.noop,
+        ),
+        migrations.RunPython(
+            remove_link_form_production_complete,
             reverse_code=migrations.RunPython.noop,
         ),
     ]

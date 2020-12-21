@@ -761,19 +761,34 @@ def send_production_complete(**kwargs):
 
     description = 'Production has been completed for article {0}.'.format(article.title)
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Production Complete',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Production Complete',
+        'target': article,
+    }
 
     for task in assignment.typesettask_set.all():
-        notify_helpers.send_email_with_body_from_user(request, 'Article Production Complete', task.typesetter.email,
-                                                      user_content_message)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'Article Production Complete',
+            task.typesetter.email,
+            user_content_message,
+        )
 
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'production_complete',
-                                                              'subject_production_complete',
-                                                              article.editor_emails(),
-                                                              {'article': article, 'assignment': assignment},
-                                                              log_dict=log_dict)
+    context = {
+        'article': article,
+        'assignment': assignment,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'production_complete',
+        'subject_production_complete',
+        article.editor_emails(),
+        context,
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
