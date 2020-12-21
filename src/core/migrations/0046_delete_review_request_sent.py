@@ -8,7 +8,7 @@ from django.db import migrations
 def delete_settings(apps, schema_editor):
     Setting = apps.get_model('core', 'Setting')
     Setting.objects.filter(
-        group__name='general',
+        group__name='email',
         name='review_request_sent',
     ).delete()
 
