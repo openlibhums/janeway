@@ -244,21 +244,6 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when a review assignment is updated.",
-            "is_translatable": true,
-            "name": "review_request_sent",
-            "pretty_name": "Review Request Update",
-            "type": "rich-text"
-        },
-        "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }}, <br><br>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been <a href=\"{% journal_url 'review_in_review' review_assignment.article.pk  %}\">updated</a>. <br><br>Regards, <br>{{ request.user.signature|safe }}"
-        }
-    },
-    {
-        "group": {
-            "name": "email"
-        },
-        "setting": {
             "description": "Email sent to editors when a reviewer complete a review.",
             "is_translatable": true,
             "name": "review_complete_acknowledgement",

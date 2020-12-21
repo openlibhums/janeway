@@ -124,18 +124,6 @@ def send_editor_assigned_acknowledgements(**kwargs):
 
 def send_reviewer_requested_acknowledgements(**kwargs):
     """
-    This function is called via the event handling framework and it notifies that an editor has been assigned.
-    It is wired up in core/urls.py.
-    :param kwargs: a list of kwargs that includes editor_assignment, user_message_content, skip (boolean) and request
-    :return: None
-    """
-    kwargs['acknowledgement'] = True
-
-    send_reviewer_requested_acknowledgements_mandatory(**kwargs)
-
-
-def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
-    """
     This function is called via the event handling framework and it notifies that a reviewer has been requested.
     It is wired up in core/urls.py.
     :param kwargs: a list of kwargs that includes review_assignment, user_message_content, skip (boolean) and request
@@ -146,21 +134,16 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
     article = review_assignment.article
     request = kwargs['request']
     user_message_content = kwargs['user_message_content']
-    acknowledgement = kwargs['acknowledgement']
 
     if 'skip' not in kwargs:
         kwargs['skip'] = True
 
     skip = kwargs['skip']
 
-    description = 'A review request was added to "{0}" for user {1}'.format(article.title,
-                                                                            review_assignment.reviewer.full_name())
-
-    context = {
-        'article': article,
-        'request': request,
-        'review_assignment': review_assignment
-    }
+    description = 'A review request was added to "{0}" for user {1}'.format(
+        article.title,
+        review_assignment.reviewer.full_name(),
+    )
 
     log_dict = {'level': 'Info',
                 'action_text': description,
@@ -169,18 +152,16 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
 
     # send to requested reviewer
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_review_request_sent',
-                                                      review_assignment.reviewer.email,
-                                                      user_message_content, log_dict=log_dict)
-    if not acknowledgement:
-        # send slack
-        notify_helpers.send_slack(request, description, ['slack_editors'])
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_review_request_sent',
+            review_assignment.reviewer.email,
+            user_message_content,
+            log_dict=log_dict,
+        )
 
-        # send to editor
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_request_sent',
-                                                                  'subject_review_request_sent',
-                                                                  review_assignment.editor.email, context,
-                                                                  log_dict=log_dict)
+    # send slack
+    notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
 def send_review_complete_acknowledgements(**kwargs):
