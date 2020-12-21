@@ -435,20 +435,30 @@ def send_revisions_request(**kwargs):
 
     skip = kwargs['skip']
 
-    description = '{0} has requested revisions for {1} due on {2}'.format(request.user.full_name(),
-                                                                          revision.article.title,
-                                                                          revision.date_due)
+    description = '{0} has requested revisions for {1} due on {2}'.format(
+        request.user.full_name(),
+        revision.article.title,
+        revision.date_due,
+    )
 
     log_dict = {'level': 'Info',
                 'action_text': description,
                 'types': 'Revision Request',
-                'target': revision.article}
+                'target': revision.article,
+                }
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_request_revisions',
-                                                      revision.article.correspondence_author.email,
-                                                      user_message_content, log_dict=log_dict)
-        notify_helpers.send_slack(request, description, ['slack_editors'])
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_request_revisions',
+            revision.article.correspondence_author.email,
+            user_message_content,
+            log_dict=log_dict,
+        )
+        notify_helpers.send_slack(
+            request,
+            description,['slack_editors'],
+        )
 
 
 def send_revisions_complete(**kwargs):
