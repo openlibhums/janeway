@@ -102,7 +102,9 @@ def get_notify_proofreader(request, article, proofing_task):
 
 
 def get_notify_typesetter(request, article, proofing_task, typeset_task):
+    proofing_url = request.journal.site_url(reverse("proofing_requests"))
     context = {
+        'proofing_requests_url': proofing_url,
         'article': article,
         'proofing_task': proofing_task,
         'typesetter_proofing_task': typeset_task,
