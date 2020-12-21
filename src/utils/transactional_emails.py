@@ -776,15 +776,32 @@ def fire_proofing_manager_assignment(**kwargs):
         proofing_assignment.proofing_manager.full_name(),
         article.title,
     )
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Manager Assigned',
-                'target': article}
-    context = {'request': request, 'proofing_assignment': proofing_assignment, 'article': article}
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'notify_proofing_manager',
-                                                              'subject_notify_proofing_manager',
-                                                              proofing_assignment.proofing_manager.email,
-                                                              context,
-                                                              log_dict=log_dict)
+    log_dict = {
+        'level': 'Info', 'action_text': description,
+        'types': 'Proofing Manager Assigned',
+        'target': article,
+    }
+
+    proofing_url = request.journal.site_url(reverse(
+        'proofing_article', args=[article.pk]
+    ))
+
+    context = {
+        'request': request,
+        'proofing_assignment': proofing_assignment,
+        'article': article,
+        'proofing_article_url': proofing_url,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_proofing_manager',
+        'subject_notify_proofing_manager',
+        proofing_assignment.proofing_manager.email,
+        context,
+        log_dict=log_dict,
+    )
+
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
