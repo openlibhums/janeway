@@ -624,13 +624,22 @@ def send_copyedit_complete(**kwargs):
     log_dict = {
         'level': 'Info', 'action_text': description,
         'types': 'Copyedit Complete',
-        'target': copyedit_assignment.article,
+        'target': article,
     }
+    article_copyediting_url = request.journal.site_url(reverse(
+        'article_copyediting', args=[copyedit_assignment.pk],
+    ))
 
-    notify_helpers.send_email_with_body_from_user(
-        request, 'subject_copyeditor_notify_editor',
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'copyeditor_notify_editor',
+        'subject_copyeditor_notify_editor',
         copyedit_assignment.editor.email,
-        description, log_dict=log_dict,
+        context={
+            'assignment': copyedit_assignment,
+            'article_copyediting_url': article_copyediting_url,
+        },
+        log_dict=log_dict,
     )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
