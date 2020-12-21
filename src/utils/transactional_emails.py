@@ -195,33 +195,55 @@ def send_review_complete_acknowledgements(**kwargs):
     request = kwargs['request']
     request.user = review_assignment.reviewer
 
-    description = '{0} completed the review of "{1}": {2}'.format(review_assignment.reviewer.full_name(),
-                                                                  article.title,
-                                                                  review_assignment.get_decision_display())
+    description = '{0} completed the review of "{1}": {2}'.format(
+        review_assignment.reviewer.full_name(),
+        article.title,
+        review_assignment.get_decision_display(),
+    )
 
-    util_models.LogEntry.add_entry(types='Review Complete', description=description, level='Info', actor=request.user,
-                                   target=article,
-                                   request=request)
+    util_models.LogEntry.add_entry(
+        types='Review Complete',
+        description=description,
+        level='Info',
+        actor=request.user,
+        target=article,
+        request=request,
+    )
+
+    review_in_review_url = request.journal.site_url(
+        path=reverse(
+            'review_in_review',
+            kwargs={'article_id': article.pk},
+        )
+    )
 
     context = {
         'article': article,
         'request': request,
-        'review_assignment': review_assignment
+        'review_assignment': review_assignment,
     }
 
     # send slack
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
     # send to reviewer
-    notify_helpers.send_email_with_body_from_setting_template(request, 'review_complete_reviewer_acknowledgement',
-                                                              'subject_review_complete_reviewer_acknowledgement',
-                                                              review_assignment.reviewer.email,
-                                                              context)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'review_complete_reviewer_acknowledgement',
+        'subject_review_complete_reviewer_acknowledgement',
+        review_assignment.reviewer.email,
+        context,
+    )
 
     # send to editor
-    notify_helpers.send_email_with_body_from_setting_template(request, 'review_complete_acknowledgement',
-                                                              'subject_review_complete_reviewer_acknowledgement',
-                                                              review_assignment.editor.email, context)
+    context['review_in_review_url'] = review_in_review_url
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'review_complete_acknowledgement',
+        'subject_review_complete_reviewer_acknowledgement',
+        review_assignment.editor.email,
+        context,
+    )
 
 
 def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
