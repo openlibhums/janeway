@@ -894,12 +894,22 @@ def send_proofreader_complete_notification(**kwargs):
         proofing_task.proofreader.full_name(),
         article.title,
     )
+    proofing_url = request.journal.site_url(reverse(
+        'proofing_article', args=[article.pk]
+    ))
+    context = {
+        'proofing_task': proofing_task,
+        'proofing_article_url': proofing_url,
+
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_proofreader_complete',
+        'subject_notify_proofreader_complete',
+        proofing_task.round.assignment.proofing_manager.email,
+        context,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'notify_proofreader_complete',
-                                                              'subject_notify_proofreader_complete',
-                                                              proofing_task.round.assignment.proofing_manager.email,
-                                                              {'proofing_task': proofing_task})
 
 
 def send_proofing_typeset_request(**kwargs):
