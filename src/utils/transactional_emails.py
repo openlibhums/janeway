@@ -614,17 +614,24 @@ def send_copyedit_complete(**kwargs):
     copyedit_assignment = kwargs['copyedit_assignment']
     article = kwargs['article']
 
-    description = 'Copyediting requested by {0} from {1} for article {2} has been completed'.format(
-        request.user.full_name(),
-        copyedit_assignment.copyeditor.full_name(),
-        article.title)
+    description = 'Copyediting requested by {0} from {1} for article {2} ' \
+        'has been completed'.format(
+            request.user.full_name(),
+            copyedit_assignment.copyeditor.full_name(),
+            article.title
+    )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Complete',
-                'target': copyedit_assignment.article}
+    log_dict = {
+        'level': 'Info', 'action_text': description,
+        'types': 'Copyedit Complete',
+        'target': copyedit_assignment.article,
+    }
 
-    notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_notify_editor',
-                                                  copyedit_assignment.editor.email,
-                                                  description, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request, 'subject_copyeditor_notify_editor',
+        copyedit_assignment.editor.email,
+        description, log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 

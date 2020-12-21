@@ -84,11 +84,16 @@ def get_copyedit_message(request, article, copyedit, template,
             'author_copyedit', args=[article.pk, author_review.pk]))
     else:
         copyedit_review_url = None
+
+    copyedit_requests_url = request.journal.site_url(reverse(
+        'copyedit_requests'))
+
     email_context = {
         'article': article,
         'assignment': copyedit,
         'author_review': author_review,
         'copyedit_review_url': copyedit_review_url,
+        'copyedit_requests_url': copyedit_requests_url,
     }
 
     return render_template.get_message_content(request, email_context, template)
