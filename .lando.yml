@@ -14,7 +14,7 @@ services:
       - grep '^deb ' /etc/apt/sources.list | perl -pe 's/deb /deb-src /' >> /etc/apt/sources.list
       - apt-get update -qq && apt-get install -y python3-lxml pylint libxml2-dev libxslt1-dev python3-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev libmariadb-dev-compat libmariadb-dev mysql-client && apt-get build-dep -y lxml
     build:
-      - cd /app && pip install Cython && pip install -r requirements.txt &&  pip install -r dev-requirements.txt
+      - cd /app && pip install --upgrade pip && pip install Cython && pip install -r requirements.txt &&  pip install -r dev-requirements.txt
     scanner: true
     overrides:
       ports:
@@ -38,7 +38,7 @@ tooling:
     cmd: python
   manage:
     service: appserver
-    cmd: cd /app/src && python manage.py
+    cmd: cd /app && python src/manage.py
   mysql:
     service: db
     cmd: mysql -u root
