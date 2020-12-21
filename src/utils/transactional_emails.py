@@ -236,25 +236,43 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
     request = kwargs['request']
     accepted = kwargs['accepted']
 
-    description = '{0} {1} to review {2}'.format(review_assignment.reviewer.full_name(),
-                                                 ('accepted' if accepted else 'declined'),
-                                                 article.title)
+    description = '{0} {1} to review {2}'.format(
+        review_assignment.reviewer.full_name(),
+        ('accepted' if accepted else 'declined'),
+        article.title,
+    )
 
-    util_models.LogEntry.add_entry(types='Review request {0}'.format(('accepted' if accepted else 'declined')),
-                                   description=description, level='Info', actor=request.user, target=article,
-                                   request=request)
+    util_models.LogEntry.add_entry(
+        types='Review request {0}'.format(('accepted' if accepted else 'declined')),
+        description=description,
+        level='Info',
+        actor=request.user,
+        target=article,
+        request=request,
+    )
 
     review_url = review_logic.get_review_url(
         request,
         review_assignment,
     )
 
+    review_in_review_url = request.journal.site_url(
+        path=reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
     context = {
         'article': article,
         'request': request,
         'review_assignment': review_assignment,
-        'review_url': review_url,
     }
+
+    reviewer_context = context
+    reviewer_context['review_url'] = review_url
+    editor_context = context
+    editor_context['review_in_review_url'] = review_in_review_url
 
     # send to slack
     notify_helpers.send_slack(request, description, ['slack_editors'])
@@ -266,22 +284,26 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
             'review_accept_acknowledgement',
             'subject_review_accept_acknowledgement',
             review_assignment.reviewer.email,
-            context,
+            reviewer_context,
         )
 
-        # send to editor
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',
-                                                                  'subject_review_acknowledgement',
-                                                                  review_assignment.editor.email, context)
     else:
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_decline_acknowledgement',
-                                                                  'subject_review_decline_acknowledgement',
-                                                                  review_assignment.reviewer.email, context)
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'review_decline_acknowledgement',
+            'subject_review_decline_acknowledgement',
+            review_assignment.reviewer.email,
+            reviewer_context,
+        )
 
-        # send to editor
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',
-                                                                  'subject_review_acknowledgement',
-                                                                  review_assignment.editor.email, context)
+    # send to editor
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'review_acknowledgement',
+        'subject_review_acknowledgement',
+        review_assignment.editor.email,
+        editor_context,
+    )
 
 
 def send_submission_acknowledgement(**kwargs):
