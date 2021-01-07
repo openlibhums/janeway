@@ -13,7 +13,7 @@ def delete_settings(apps, schema_editor):
     ).delete()
 
 
-def remove_link_form_production_complete(apps, schema_editor):
+def update_setting_values(apps, schema_editor):
     SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
 
     settings = SettingValueTranslation.objects.filter(
@@ -26,7 +26,12 @@ def remove_link_form_production_complete(apps, schema_editor):
             '<p>This article is now in the Proofing workflow: {{ proofing_list_url }}.</p>',
             '',
         )
+        setting.value = setting.value.replace(
+            'Dear {{ assignment.editor.full_name }},</p><p>This is an automatic',
+            'This is a',
+        )
         setting.save()
+
 
 class Migration(migrations.Migration):
 
@@ -40,7 +45,7 @@ class Migration(migrations.Migration):
             reverse_code=migrations.RunPython.noop,
         ),
         migrations.RunPython(
-            remove_link_form_production_complete,
+            update_setting_values,
             reverse_code=migrations.RunPython.noop,
         ),
     ]

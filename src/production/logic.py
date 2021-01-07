@@ -286,7 +286,7 @@ def get_complete_template(request, article, production_assignment):
         'article': article,
         'production_assignment': production_assignment,
     }
-    return render_template.get_message_content(request, context, 'typeset_ack')
+    return render_template.get_message_content(request, context, 'production_complete')
 
 
 def get_image_names(galley):
