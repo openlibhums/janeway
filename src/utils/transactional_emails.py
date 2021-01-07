@@ -744,12 +744,34 @@ def send_typeset_complete(**kwargs):
         typeset_task.note_from_typesetter,
     )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetting Assignment Complete',
-                'target': typeset_task.assignment.article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Typesetting Assignment Complete',
+        'target': typeset_task.assignment.article,
+    }
 
-    notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_complete_notification',
-                                                  typeset_task.assignment.production_manager.email,
-                                                  description, log_dict=log_dict)
+    production_article_url = request.journal.site_url(
+        path=reverse(
+            'production_article',
+            kwargs={'article_id': typeset_task.assignment.article.pk},
+        )
+    )
+
+    context = {
+        'production_article_url': production_article_url,
+        'typeset_task': typeset_task,
+        'production_assignment': typeset_task.assignment,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'typesetter_complete_notification',
+        'subject_typesetter_complete_notification',
+        typeset_task.assignment.production_manager.email,
+        context,
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
