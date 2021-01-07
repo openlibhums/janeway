@@ -277,6 +277,7 @@ def update_typesetter_task(typeset, request):
 def get_typesetter_notification(typeset_task, request):
     context = {
         'typeset_task': typeset_task,
+        'typesetter_requests_url': request.journal.site_url(path=reverse('typesetter_requests')),
     }
     return render_template.get_message_content(request, context, 'typesetter_notification')
 

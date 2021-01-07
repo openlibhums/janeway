@@ -16,18 +16,30 @@ def delete_settings(apps, schema_editor):
 def update_setting_values(apps, schema_editor):
     SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
 
-    settings = SettingValueTranslation.objects.filter(
+    prod_complete_settings = SettingValueTranslation.objects.filter(
         master__setting__name='production_complete',
         master__setting__group__name='email',
     )
 
-    for setting in settings:
+    for setting in prod_complete_settings:
         setting.value = setting.value.replace(
             '<p>This article is now in the Proofing workflow: {{ proofing_list_url }}.</p>',
             '',
         )
         setting.value = setting.value.replace(
             'Dear {{ assignment.editor.full_name }},</p><p>This is an automatic',
+            'This is a',
+        )
+        setting.save()
+
+    typesetter_notification_settings = SettingValueTranslation.objects.filter(
+        master__setting__name='typesetter_notification',
+        master__setting__group__name='email',
+    )
+
+    for setting in typesetter_notification_settings:
+        setting.value = setting.value.replace(
+            'This is an automatic',
             'This is a',
         )
         setting.save()

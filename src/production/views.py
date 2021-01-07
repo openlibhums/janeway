@@ -530,7 +530,7 @@ def notify_typesetter(request, typeset_id, event=True):
             'user_message_content': user_message_content,
             'typeset_task': typeset,
             'request': request,
-            'skip': True if 'skip' in request.POST else False
+            'skip': True if 'skip' in request.POST else False,
         }
 
         if 'skip' not in request.POST:
