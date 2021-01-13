@@ -1004,16 +1004,36 @@ def send_corrections_complete(**kwargs):
     typeset_task = kwargs['typeset_task']
     article = kwargs['article']
 
-    description = '{0} has completed corrections task for article {1} (proofing task {2}'.format(
+    description = '{0} has completed corrections task for article {1} (proofing task {2})'.format(
         request.user.full_name(),
         article.title,
         typeset_task.pk,
     )
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Typesetting Complete',
-                'target': typeset_task.proofing_task.round.assignment.article}
-    notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_corrections_complete',
-                                                  article.proofingassignment.proofing_manager.email,
-                                                  description, log_dict=log_dict)
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Proofing Typesetting Complete',
+        'target': typeset_task.proofing_task.round.assignment.article,
+    }
+    proofing_article_url = request.journal.site_url(
+        path=reverse(
+            'production_article',
+            kwargs={'article_id': typeset_task.proofing_task.assignment.article.pk},
+        )
+    )
+    context = {
+        'typeset_task': typeset_task,
+        'proofing_article_url': proofing_article_url,
+        'production_assignment': typeset_task.proofing_task.assignment,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'typesetter_corrections_complete',
+        'subject_typesetter_corrections_complete',
+        article.proofingassignment.proofing_manager.email,
+        context,
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
