@@ -1064,12 +1064,20 @@ def send_proofing_complete(**kwargs):
     skip = kwargs['skip']
 
     description = "Proofing is now complete for {0}".format(article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Complete',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Proofing Complete',
+        'target': article,
+    }
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_notify_editor_proofing_complete',
-                                                      article.editor_emails(),
-                                                      user_message, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_notify_editor_proofing_complete',
+            article.editor_emails(),
+            user_message,
+            log_dict=log_dict,
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 

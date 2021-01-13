@@ -971,7 +971,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ proofing_assignment.editor.full_name }},</p><p>Proofing for \"{{ article.title }}\" is now <a href=\"{% url 'publish' %}\">complete</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
+            "default": "<p>Dear {{ proofing_assignment.editor.full_name }},</p><p>Proofing for \"{{ article.title }}\" is now complete.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p><p><br></p>"
         }
     },
     {

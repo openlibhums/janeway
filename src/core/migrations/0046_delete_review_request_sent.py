@@ -44,6 +44,18 @@ def update_setting_values(apps, schema_editor):
         )
         setting.save()
 
+    notify_editor_proofing_complete_settings = SettingValueTranslation.objects.filter(
+        master__setting__name='notify_editor_proofing_complete',
+        master__setting__group__name='email',
+    )
+
+    for setting in notify_editor_proofing_complete_settings:
+        setting.value = setting.value.replace(
+            ': {{ publish_url }}',
+            '',
+        )
+        setting.save()
+
 
 class Migration(migrations.Migration):
 
