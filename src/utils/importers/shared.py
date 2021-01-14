@@ -613,10 +613,12 @@ def set_article_galleys(domain, galleys, article, url, user):
     :param user: the user who should own the new file
     :return: None
     """
+    article.galley_set.all().delete()
     for galley_name, galley in galleys.items():
         if galley:
             if galley_name == 'PDF' or galley_name == 'XML':
                 handle_images = True if galley_name == 'XML' else False
+
                 filename, mime = fetch_file(domain, galley, url, galley_name.lower(), article, user,
                                             handle_images=handle_images)
                 add_file('application/{0}'.format(galley_name.lower()), galley_name.lower(),

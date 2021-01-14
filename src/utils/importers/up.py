@@ -122,9 +122,10 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         'XML': xml,
         'HTML': html
     }
+    shared.set_article_galleys(domain, galleys, article, url, user)
     if not already_exists:
-        # The code below is not safe for updates yet
-        shared.set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user)
+        # The code below is not safe for updates
+        shared.set_article_identifier(doi, article)
     # fetch thumbnails
     if thumb_path is None:
         parsed_url = urlparse(url)
@@ -320,7 +321,7 @@ def map_review_recommendation(recommentdation):
     return recommendations.get(recommentdation, None)
 
 
-def import_issue_images(journal, user, url, import_missing=False):
+def import_issue_images(journal, user, url, import_missing=False, update=False):
     """ Imports all issue images and other issue related content
     Currently also reorders all issues, articles and sections within issues,
     article thumbnails and issue titles.
@@ -328,6 +329,7 @@ def import_issue_images(journal, user, url, import_missing=False):
     :param user: the owner of the imported content as a core.models.Account
     :param url: the base url of the journal to import from
     :param load_missing: Bool. If true, attempt to import missing articles
+    :param update: Bool. If true, update existing article records
     """
     base_url = url
 
@@ -439,12 +441,12 @@ def import_issue_images(journal, user, url, import_missing=False):
                 # get a proper article object
                 article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
                 if not article and import_missing:
-                    logger.debug(
+                    logger.info(
                         "Article %s not found, importing...", article_url)
                     import_article(journal,user, base_url + article_url)
 
-
                 if article and article not in processed:
+                    import_article(journal,user, base_url + article_url, update=update)
                     thumb_img = article_link.find("img")
                     if thumb_img:
                         thumb_path = thumb_img["src"]
