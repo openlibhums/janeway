@@ -1029,3 +1029,49 @@ def complete_article_with_production_content(article, article_dict, journal, aut
         process_for_typesetting(article, article_dict, auth_file, base_url)
     else:
         process_for_copyediting(article, article_dict, auth_file, base_url)
+
+
+def import_collections(journal, base_url, owner, update=False):
+    collections_url = base_url + '/collections/special'
+    resp, mime = utils_models.ImportCacheEntry.fetch(url=collections_url)
+    soup = BeautifulSoup(resp, 'html.parser')
+
+    collections_div = soup.find("ul", attrs={"id": "special-collection-grid"})
+    if collections_div:
+        collections = collections_div.findAll("a", attrs={"class": "collection-image"})
+        for idx, collection in enumerate(collections):
+            collection_path = shared.get_soup(collection, "href")
+            coll_url = base_url + collection_path
+            collection = import_collection(
+                journal, coll_url, owner, update)
+            collection.order = idx
+            collection.save()
+
+
+def import_collection(journal, url, owner, update=False):
+    #TODO: Image, blurb, articles, article order, collection date
+    resp, mime = utils_models.ImportCacheEntry.fetch(url=url)
+    soup = BeautifulSoup(resp, 'html.parser')
+    base_url = url.split("/collections/special/")[0]
+
+    img_div = soup.find("div", attrs={"class": "collection-image"})
+    img_path = shared.get_soup(img_div.find("img"), "src")
+    title = img_div.find("h1").text.strip()
+    blurb_div = soup.find("div", attrs={"class": "main-body-block"})
+    blurb = ''.join(str(tag) for tag in blurb_div.contents)
+    import pdb; pdb.set_trace()  # XXX BREAKPOINT
+
+    coll_type = journal_models.IssueType.objects.get(
+        journal=journal, code="collection")
+    coll, c = journal_models.Issue.objects.get_or_create(
+        issue_type=coll_type,
+        journal=journal,
+        issue_title=title,
+        defaults={
+            "issue_description": blurb,
+        }
+    )
+    if c:
+        logger.info("Created collection: %s", title)
+
+    return coll
