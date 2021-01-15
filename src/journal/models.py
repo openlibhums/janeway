@@ -448,6 +448,7 @@ class Issue(models.Model):
     # To be deprecated in 1.3.7
     old_issue_type = models.CharField(max_length=200, default='Issue', choices=ISSUE_TYPES, null=True, blank=True)
     issue_description = models.TextField(blank=True, null=True)
+    short_description = models.CharField(max_length=600, blank=True, null=True)
 
     cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
