@@ -1051,7 +1051,6 @@ def import_issue_articles(soup, issue, user, base_url, import_missing=False, upd
 
     article_order = 0
 
-    import pdb; pdb.set_trace()  # XXX BREAKPOINT
     processed = []
 
     for article_link in articles:
