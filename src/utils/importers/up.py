@@ -182,6 +182,8 @@ def import_article(journal, user, url, thumb_path=None, update=False):
     except (IndexError, AttributeError):
         logger.info("No article metrics found")
 
+    return article
+
 
 def import_oai(journal, user, soup, domain, update=False):
     """ Initiate an OAI import on a Ubiquity Press journal.
@@ -1066,7 +1068,7 @@ def import_issue_articles(soup, issue, user, base_url, import_missing=False, upd
         if not article and import_missing:
             logger.info(
                 "Article %s not found, importing...", article_url)
-            import_article(journal,user, base_url + article_url)
+            article = import_article(journal,user, base_url + article_url)
 
         if article and article not in processed:
             import_article(journal,user, base_url + article_url, update=update)
@@ -1084,12 +1086,18 @@ def import_issue_articles(soup, issue, user, base_url, import_missing=False, upd
                     user, filename, article,
                     thumbnail=True,
                 )
-            journal_models.ArticleOrdering.objects.get_or_create(
+
+            # Add article to collection (idempotent for issues)
+            article.issues.add(issue)
+
+            obj, c = journal_models.ArticleOrdering.objects.get_or_create(
                 issue=issue,
                 article=article,
                 section=article.section,
-                order=article_order,
             )
+            obj.order = article_order
+            obj.save()
+
 
             article_order += 1
 
