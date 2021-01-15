@@ -24,7 +24,11 @@
                                     <small>{% trans "Published" %}: {{ collection.date|date:"d/m/y" }}</small>
                                 </p>
                                 <h2>{{ collection.issue_title }}</h2>
+                                {% if collection.short_description %}
+                                <p>{{ collection.short_description|safe }}</p>
+                                {% else %}
                                 <p>{{ collection.issue_description|safe }}</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

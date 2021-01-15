@@ -18,7 +18,12 @@
                             <h4 class="card-title">{{ collection.issue_title }}</h4>
                         </a>
                         <p class="card-text"><small>Published: {{ collection.date|date:"d/m/y" }}</small></p>
+                        {% if collection.short_description %}
+                        <p class="card-text">{{ collection.short_description|safe }}</p>
+                        {% else %}
                         <p class="card-text">{{ collection.issue_description|safe }}</p>
+                        {% endif %}
+                    </div>
                     </div>
                 </div>
             </div>
