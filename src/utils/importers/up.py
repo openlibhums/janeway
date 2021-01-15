@@ -1006,7 +1006,6 @@ def import_collections(journal, base_url, owner, update=False):
 
 
 def import_collection(journal, url, owner, update=False):
-    #TODO: Image, blurb, articles, article order, collection date
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url)
     soup = BeautifulSoup(resp, 'html.parser')
     base_url = url.split("/collections/special/")[0]
@@ -1014,6 +1013,7 @@ def import_collection(journal, url, owner, update=False):
     img_div = soup.find("div", attrs={"class": "collection-image"})
     title = img_div.find("h1").text.strip()
     blurb_div = soup.find("div", attrs={"class": "main-body-block"})
+    date_launched = extract_date_launched(blurb_div.find_all("h5"))
     blurb = ''.join(str(tag) for tag in blurb_div.contents)
 
     coll_type = journal_models.IssueType.objects.get(
@@ -1022,6 +1022,7 @@ def import_collection(journal, url, owner, update=False):
         issue_type=coll_type,
         journal=journal,
         issue_title=title,
+        defaults={"date": date_launched},
     )
     if c:
         logger.info("Created collection: %s", title)
@@ -1029,6 +1030,7 @@ def import_collection(journal, url, owner, update=False):
     if c or update:
         import_collection_images(img_div, collection, base_url)
         collection.issue_description = blurb
+        collection.date = date_launched
         collection.save()
         articles_div = soup.find("div", attrs={"class": "featured-block"})
         import_issue_articles(
@@ -1106,3 +1108,17 @@ def import_issue_articles(soup, issue, user, base_url, import_missing=False, upd
             article_order += 1
 
         processed.append(article)
+
+
+def extract_date_launched(headers):
+    for header in headers:
+        text = header.text
+        if text and "Collection launched" in text:
+            try:
+                raw_date = text.split("Collection launched: ")[-1]
+                header.extract()
+                return dateparser.parse(raw_date)
+            except(IndexError, ValueError):
+                logger.debug("Failed to parse collection date: %s", text)
+    return None
+
