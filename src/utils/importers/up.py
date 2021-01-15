@@ -7,6 +7,7 @@ import json
 from dateutil import parser as dateparser
 from urllib.parse import urlparse
 
+from django.core.files.base import ContentFile
 from django.utils import timezone
 
 from utils.importers import shared
@@ -1055,23 +1056,32 @@ def import_collection(journal, url, owner, update=False):
     base_url = url.split("/collections/special/")[0]
 
     img_div = soup.find("div", attrs={"class": "collection-image"})
-    img_path = shared.get_soup(img_div.find("img"), "src")
     title = img_div.find("h1").text.strip()
     blurb_div = soup.find("div", attrs={"class": "main-body-block"})
     blurb = ''.join(str(tag) for tag in blurb_div.contents)
-    import pdb; pdb.set_trace()  # XXX BREAKPOINT
 
     coll_type = journal_models.IssueType.objects.get(
         journal=journal, code="collection")
-    coll, c = journal_models.Issue.objects.get_or_create(
+    collection, c = journal_models.Issue.objects.get_or_create(
         issue_type=coll_type,
         journal=journal,
         issue_title=title,
-        defaults={
-            "issue_description": blurb,
-        }
     )
     if c:
         logger.info("Created collection: %s", title)
 
-    return coll
+    if c or update:
+        import_collection_images(img_div, collection, base_url)
+        collection.issue_description = blurb
+        collection.save()
+
+    return collection
+
+
+def import_collection_images(soup, collection, base_url):
+    img_path = shared.get_soup(soup.find("img"), "src")
+    blob, mime = utils_models.ImportCacheEntry.fetch(url=base_url + img_path)
+    image_file = ContentFile(blob)
+    image_file.name = "collection-{}-cover.graphic".format(collection.id)
+    collection.cover_image = collection.large_image = image_file
+    collection.save()
