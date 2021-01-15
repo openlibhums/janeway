@@ -19,8 +19,12 @@
                         <div class="card-content">
                             <span class="card-title">{{ collection.issue_title }}</span>
                             <p>Published: {{ collection.date|date:"d/m/y" }}</p>
+                            {% if collection.short_description %}
+                            <p>{{ collection.short_description|safe }}</p>
+                            {% else %}
                             <p>{{ collection.issue_description|safe }}</p>
-                        </div>
+                            {% endif %}
+                    </div>
                         <div class="card-action">
                             <a href="{% url 'journal_collection' collection.id %}">{% trans "View Collection" %}</a>
                         </div>
