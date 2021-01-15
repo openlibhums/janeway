@@ -995,13 +995,25 @@ def import_collections(journal, base_url, owner, update=False):
 
     collections_div = soup.find("ul", attrs={"id": "special-collection-grid"})
     if collections_div:
-        collections = collections_div.findAll("a", attrs={"class": "collection-image"})
-        for idx, collection in enumerate(collections):
-            collection_path = shared.get_soup(collection, "href")
+        collections = collections_div.find_all("li")
+        for idx, collection_div in enumerate(collections):
+            collection_link = collection_div.find(
+                "a", attrs={"class": "collection-image"})
+            collection_path = shared.get_soup(collection_link, "href")
             coll_url = base_url + collection_path
-            collection = import_collection(
+            collection, created = import_collection(
                 journal, coll_url, owner, update)
+
             collection.order = idx
+            if created or update:
+                try:
+                    desc_div = collection_div.find(
+                        "div", attrs={"class": "collections-description"})
+                    description = desc_div.find("p").text
+                    collection.short_description = description.strip()
+                except AttributeError:
+                    logger.debug("No description in %s", desc_div)
+
             collection.save()
 
 
@@ -1036,7 +1048,7 @@ def import_collection(journal, url, owner, update=False):
         import_issue_articles(
             articles_div, collection, owner, base_url, update, update)
 
-    return collection
+    return collection, c
 
 
 def import_collection_images(soup, collection, base_url):
