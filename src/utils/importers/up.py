@@ -177,8 +177,12 @@ def import_article(journal, user, url, thumb_path=None, update=False):
             else:
                 downloads = 0
 
-            metrics_models.HistoricArticleAccess.objects.create(
-                article=article, views=views, downloads=downloads)
+            o, _ = metrics_models.HistoricArticleAccess.objects.get_or_create(
+                article=article)
+
+            o.downloads = downloads
+            o.views=views
+            o.save()
     except (IndexError, AttributeError):
         logger.info("No article metrics found")
 
