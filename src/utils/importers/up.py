@@ -420,58 +420,8 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
                                                               section=order_section,
                                                               order=section_order).save()
 
-            logger.info("Extracting article orders within the issue...")
+            import_issue_articles(soup, issue, user, import_missing, update)
 
-            # delete existing order models for issue
-            journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
-
-            pattern = re.compile(r'\/articles\/(.+?)/(.+?)/')
-            articles = soup_issue.find_all(href=pattern)
-
-            article_order = 0
-
-            processed = []
-
-            for article_link in articles:
-                # parse the URL into a DOI and prefix
-                article_url = article_link["href"]
-                match = pattern.match(article_url)
-                prefix = match.group(1)
-                doi = match.group(2)
-
-                # get a proper article object
-                article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
-                if not article and import_missing:
-                    logger.info(
-                        "Article %s not found, importing...", article_url)
-                    import_article(journal,user, base_url + article_url)
-
-                if article and article not in processed:
-                    import_article(journal,user, base_url + article_url, update=update)
-                    thumb_img = article_link.find("img")
-                    if thumb_img:
-                        thumb_path = thumb_img["src"]
-                        filename, mime = shared.fetch_file(
-                            base_url,
-                            thumb_path, "",
-                            'graphic',
-                            article, user,
-                        )
-                        shared.add_file(
-                            mime, 'graphic', 'Thumbnail',
-                            user, filename, article,
-                            thumbnail=True,
-                        )
-                    journal_models.ArticleOrdering.objects.get_or_create(
-                        issue=issue,
-                        article=article,
-                        section=article.section,
-                        order=article_order,
-                    )
-
-                    article_order += 1
-
-                processed.append(article)
             issue.save()
 
 
@@ -1074,6 +1024,9 @@ def import_collection(journal, url, owner, update=False):
         import_collection_images(img_div, collection, base_url)
         collection.issue_description = blurb
         collection.save()
+        articles_div = soup.find("div", attrs={"class": "featured-block"})
+        import_issue_articles(
+            articles_div, collection, owner, base_url, update, update)
 
     return collection
 
@@ -1085,3 +1038,60 @@ def import_collection_images(soup, collection, base_url):
     image_file.name = "collection-{}-cover.graphic".format(collection.id)
     collection.cover_image = collection.large_image = image_file
     collection.save()
+
+
+def import_issue_articles(soup, issue, user, base_url, import_missing=False, update=False):
+    journal = issue.journal
+    logger.info("Extracting article orders within thei %s...", )
+    # delete existing order models for issue
+    journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
+
+    pattern = re.compile(r'\/articles\/(.+?)/(.+?)/')
+    articles = soup.find_all(href=pattern)
+
+    article_order = 0
+
+    import pdb; pdb.set_trace()  # XXX BREAKPOINT
+    processed = []
+
+    for article_link in articles:
+        # parse the URL into a DOI and prefix
+        article_url = article_link["href"]
+        match = pattern.match(article_url)
+        prefix = match.group(1)
+        doi = match.group(2)
+
+        # get a proper article object
+        article = models.Article.get_article(
+            journal, 'doi', '{0}/{1}'.format(prefix, doi))
+        if not article and import_missing:
+            logger.info(
+                "Article %s not found, importing...", article_url)
+            import_article(journal,user, base_url + article_url)
+
+        if article and article not in processed:
+            import_article(journal,user, base_url + article_url, update=update)
+            thumb_img = article_link.find("img")
+            if thumb_img:
+                thumb_path = thumb_img["src"]
+                filename, mime = shared.fetch_file(
+                    base_url,
+                    thumb_path, "",
+                    'graphic',
+                    article, user,
+                )
+                shared.add_file(
+                    mime, 'graphic', 'Thumbnail',
+                    user, filename, article,
+                    thumbnail=True,
+                )
+            journal_models.ArticleOrdering.objects.get_or_create(
+                issue=issue,
+                article=article,
+                section=article.section,
+                order=article_order,
+            )
+
+            article_order += 1
+
+        processed.append(article)
