@@ -426,7 +426,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
                                                               section=order_section,
                                                               order=section_order).save()
 
-            import_issue_articles(soup, issue, user, import_missing, update)
+            import_issue_articles(soup, issue, user, base_url, import_missing, update)
 
             issue.save()
 
@@ -1062,7 +1062,7 @@ def import_collection_images(soup, collection, base_url):
 
 def import_issue_articles(soup, issue, user, base_url, import_missing=False, update=False):
     journal = issue.journal
-    logger.info("Extracting article orders within thei %s...", )
+    logger.info("Extracting article orders within issue...", )
     # delete existing order models for issue
     journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
 
