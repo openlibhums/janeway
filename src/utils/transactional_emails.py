@@ -1159,16 +1159,33 @@ def send_author_copyedit_complete(**kwargs):
     copyedit = kwargs['copyedit']
     author_review = kwargs['author_review']
 
+    editor_review_url = request.journal.site_url(
+        path=reverse(
+            'editor_review',
+            kwargs={
+                'article_id': copyedit.article.pk,
+                'copyedit_id': copyedit.pk,
+            }
+        )
+    )
     description = "Author {0} has completed their copyediting task for article {1}".format(
         author_review.author.full_name(),
         copyedit.article.title,
     )
+    context = {
+        'copyedit': copyedit,
+        'author_review': author_review,
+        'editor_review_url': editor_review_url,
+    }
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'author_copyedit_complete',
-                                                              'subject_author_copyedit_complete',
-                                                              copyedit.editor.email,
-                                                              {'copyedit': copyedit, 'author_review': author_review})
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'author_copyedit_complete',
+        'subject_author_copyedit_complete',
+        copyedit.editor.email,
+        context,
+    )
+
 
 
 def preprint_submission(**kwargs):
