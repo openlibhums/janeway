@@ -171,7 +171,7 @@ def import_article(journal, user, url, thumb_path=None, update=False):
     stats = soup_object.findAll('div', {'class': 'stat-number'})
 
     try:
-        if stats and not already_exists:
+        if stats and (not already_exists or update):
             from metrics import models as metrics_models
             views = stats[0].contents[0]
             if len(stats) > 1:
