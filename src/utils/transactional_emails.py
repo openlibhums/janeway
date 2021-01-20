@@ -618,7 +618,7 @@ def send_copyedit_complete(**kwargs):
         'target': article,
     }
     article_copyediting_url = request.journal.site_url(reverse(
-        'article_copyediting', args=[copyedit_assignment.pk],
+        'article_copyediting', args=[article.pk],
     ))
 
     notify_helpers.send_email_with_body_from_setting_template(
