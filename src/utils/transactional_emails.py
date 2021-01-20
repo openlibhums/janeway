@@ -1143,15 +1143,31 @@ def send_draft_decison(**kwargs):
 
     description = "Section Editor {0} has drafted a decision for Article {1}".format(
         draft.section_editor.full_name(), article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Draft Decision',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Draft Decision',
+        'target': article,
+    }
+    review_edit_draft_decision_url = request.journal.site_url(
+        path=reverse(
+            'review_edit_draft_decision', args=[article.pk, draft.pk]
+        )
+    )
+    context = {
+        'draft': draft,
+        'article': article,
+        'review_edit_draft_decision_url': review_edit_draft_decision_url,
+    }
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'draft_editor_message',
-                                                              'subject_draft_editor_message',
-                                                              emails,
-                                                              {'draft': draft, 'article': article},
-                                                              log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'draft_editor_message',
+        'subject_draft_editor_message',
+        emails,
+        context,
+        log_dict=log_dict,
+    )
 
 
 def send_author_copyedit_complete(**kwargs):
