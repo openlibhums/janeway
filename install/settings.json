@@ -11,7 +11,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment here {{ typesetting_assignments_url }} .</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+      "default": "<p>Dear {{ assignment.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment here: {{ typesetting_assignments_url }} .</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
     }
   },
   {
@@ -101,7 +101,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Regards,</p>"
+      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Visit the article URL for more details: {{ typesetting_article_url }}</p><p>Regards,</p>"
     }
   },
   {
@@ -189,7 +189,7 @@
         "type": "rich-text"
     },
     "value": {
-        "default": "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.title}}\".</p><p>This article is now in the <a href=\"{% url 'proofing_list' %}\">Proofing workflow</a>.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        "default": "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
   },
   {

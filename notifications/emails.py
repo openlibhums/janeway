@@ -1,3 +1,5 @@
+from django.shortcuts import reverse
+
 from utils import notify_helpers
 from utils import models as utils_models
 
@@ -233,7 +235,11 @@ def send_typesetting_assign_deleted(**kwargs):
 
 def send_typesetting_assign_complete(**kwargs):
     assignment = kwargs['assignment']
+    article = assignment.round.article
     request = kwargs['request']
+    url = request.journal.site_url(
+        reverse("typesetting_article", kwargs={"article_id": article.pk})
+    )
 
     description = 'Typesetting task completed by {0}'.format(
         assignment.typesetter.full_name(),
@@ -243,7 +249,7 @@ def send_typesetting_assign_complete(**kwargs):
         'level': 'Info',
         'action_text': description,
         'types': 'Typesetting Complete',
-        'target': assignment.round.article,
+        'target': article,
     }
 
     notify_helpers.send_email_with_body_from_setting_template(
@@ -251,7 +257,10 @@ def send_typesetting_assign_complete(**kwargs):
         'typesetting_typesetter_complete',
         'Typesetting Assignment Complete',
         assignment.manager.email,
-        context={'assignment': assignment},
+        context={
+            'assignment': assignment,
+            'typesetting_article_url': url,
+        },
         log_dict=log_dict,
     )
 

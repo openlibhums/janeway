@@ -83,9 +83,11 @@ def get_proofreaders(article, round, assignment=None):
 
 
 def get_typesetter_notification(assignment, article, request):
+    url = request.journal.site_url(reverse("typesetting_assignments"))
     context = {
         'article': article,
         'assignment': assignment,
+        'typesetting_assignments_url': url,
     }
     return render_template.get_message_content(
         request,
@@ -95,9 +97,11 @@ def get_typesetter_notification(assignment, article, request):
 
 
 def get_proofreader_notification(assignment, article, request):
+    url = request.journal.site_url(reverse("typesetting_proofreading_assignments"))
     context = {
         'article': article,
         'assignment': assignment,
+        'typesetting_assignments_url': url,
     }
     return render_template.get_message_content(
         request,
