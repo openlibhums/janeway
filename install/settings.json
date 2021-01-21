@@ -11,7 +11,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment here: {{ typesetting_assignments_url }} .</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+      "default": "<p>Dear {{ assignment.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment: {{ typesetting_assignments_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
     }
   },
   {
@@ -131,7 +131,8 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.proofreader.full_name }},</p><p>This is an notification from {{ request.user.full_name }} that you have been assigned to proofread {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment here: {{ typesetting_assignments_url }} .</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+      "default": "<p>Dear {{ assignment.proofreader.full_name }},</p><p>This is an notification from {{ request.user.full_name }} that you have been assigned to proofread {{ assignment.round.article.title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment: {{ typesetting_assignments_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+
     }
   },
   {
@@ -284,7 +285,7 @@
         "type": "rich-text"
     },
     "value": {
-        "default": "<p>Dear {{assignment.proofreader.full_name}},</p><p>This is a notification to let you know that your proofreading request for the article {{assignment.round.article.title}}, with article number {{assignment.round.article.pk}}, has been reopened. Please log in to the journal using this link in order to complete this proofreading request: {% journal_url 'typesetting_proofreading_assignments' %}.</p><p>Thank you for your help,</p><p>Best wishes,</p><p>{{ assignment.manager.signature|safe }}</p>"
+        "default": "<p>Dear {{assignment.proofreader.full_name}},</p><p>This is a notification to let you know that your proofreading request for the article {{assignment.round.article.title}}, with article number {{assignment.round.article.pk}}, has been reopened. Please log in to the journal using this link in order to complete this proofreading request: {{ typesetting_proofreading_assignments }}.</p><p>Thank you for your help,</p><p>Best wishes,</p><p>{{ assignment.manager.signature|safe }}</p>"
         }
   },
 
