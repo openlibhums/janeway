@@ -1107,8 +1107,9 @@ def import_issue_articles(soup, issue, user, base_url, import_missing=False, upd
                     thumbnail=True,
                 )
 
-            # Add article to collection (idempotent for issues)
-            article.issues.add(issue)
+            # Add article to collection
+            if issue.issue_type.code == "collection":
+                article.issues.add(issue)
 
             obj, c = journal_models.ArticleOrdering.objects.get_or_create(
                 issue=issue,
