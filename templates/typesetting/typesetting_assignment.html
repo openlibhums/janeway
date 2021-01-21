@@ -36,7 +36,7 @@
                 </div>
                 {% if not assignment.cancelled %}
                 <div class="title-area">
-                    <h2>Typeset Files</h2>
+                    <h2>Upload Typeset Files</h2>
                 </div>
                 <div class="content">
                     <p><small>Any typeset files associated with this article will be displayed here. Ensure that any image files are uploaded using the upload images function and not as typeset files.</small></p>
@@ -61,8 +61,21 @@
                             <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
                             {% endfor %}
                         </ul>
+                        <p> You can edit to the typeset file by hitting 'Edit' on the typeset file, then you can upload a correction</p>
                     </div>
                     {% endif %}
+                    {% if missing_images %}
+                    <div class="callout bs-callout-danger">
+                        <h4><span class="fa fa-warning"></span> Some typeset files don't have their images uploaded</h4>
+                        <ul>
+                            {% for galley in missing_images %}
+                            <li><p>{{ galley }} - {{ galley.file }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p> You can add images to the typeset file by hitting 'Edit'. A menu will show you which images are missing</p>
+                    </div>
+                    {% endif %}
+
 
                     <form method="POST">
                         {% csrf_token %}

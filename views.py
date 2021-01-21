@@ -802,6 +802,7 @@ def typesetting_assignment(request, assignment_id):
             correction for correction in assignment.corrections.all()
             if not correction.corrected
         ],
+        'missing_images': [g for g in galleys if g.has_missing_image_files()]
     }
 
     return render(request, template, context)
