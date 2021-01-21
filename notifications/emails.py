@@ -91,7 +91,10 @@ def send_proofreader_assign_transaction_email(**kwargs):
         'typesetting_proofreader_{}'.format(event_type),
         'Proofreader Assignment {}'.format(event_type),
         message_target,
-        context={'assignment': assignment, 'event_type': event_type},
+        context={
+            'assignment': assignment,
+            'event_type': event_type,
+        },
         log_dict=log_dict,
     )
     notify_helpers.send_slack(
