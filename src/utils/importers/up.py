@@ -1141,9 +1141,12 @@ def extract_date_launched(headers):
 
 
 def split_affiliation(affiliation):
-    parts = affiliation.split(',')
-    if len(parts) == 2:
-        department = ''
+    parts = [p.strip() for p in affiliation.split(',')]
+    country = institution = department = None
+
+    if len(parts) == 1:
+        institution = parts[0]
+    elif len(parts) == 2:
         institution = parts[0]
         country = parts[1]
     else:
@@ -1151,7 +1154,7 @@ def split_affiliation(affiliation):
         institution = parts[1]
         country = parts[2]
     try:
-        country = core_models.Country.objects.get(name=country.strip())
+        country = core_models.Country.objects.get(name=country)
     except core_models.Country.DoesNotExist:
         country = None
 
