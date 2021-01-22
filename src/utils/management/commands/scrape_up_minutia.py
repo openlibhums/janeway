@@ -23,8 +23,8 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', default=None)
         parser.add_argument('base_url', default=None)
+        parser.add_argument('journal_code', default=None)
 
     def handle(self, *args, **options):
         translation.activate('en')
