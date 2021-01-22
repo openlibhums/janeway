@@ -1167,6 +1167,7 @@ def split_name(name):
 
 
 def scrape_editorial_team(journal, base_url):
+    logger.info("Scraping editorial team page")
     editorial_team_path = '/about/editorialteam/'
     page = requests.get('{}{}'.format(base_url, editorial_team_path))
 
@@ -1224,6 +1225,7 @@ def scrape_editorial_team(journal, base_url):
 # Remove the authorship link
 
 def scrape_policies_page(journal, base_url):
+    logger.info("Scraping editorial policies page")
     policy_page_path = '/about/editorialpolicies/'
     page = requests.get('{}{}'.format(base_url, policy_page_path))
 
@@ -1261,6 +1263,7 @@ def process_header_tags(content, tag):
 
 
 def scrape_submissions_page(journal, base_url):
+    logger.info("Scraping policies page")
     submission_path = '/about/submissions/'
     page = requests.get('{}{}'.format(base_url, submission_path))
     soup = BeautifulSoup(page.content, 'lxml')
@@ -1321,6 +1324,7 @@ def create_cms_page(url, name, content, journal):
 
 
 def scrape_research_integrity_page(journal, base_url):
+    logger.info("Scraping research integrity page")
     research_integrity_url = '{}/about/research-integrity/'.format(base_url)
     content = scrape_page(
         research_integrity_url,
@@ -1349,6 +1353,7 @@ def scrape_research_integrity_page(journal, base_url):
 
 
 def scrape_about_page(journal, base_url):
+    logger.info("Scraping about page")
     about_url = '{}/about/'.format(base_url)
     content = scrape_page(about_url, block_to_find='main-body-block')
     soup = BeautifulSoup(content, 'lxml')
