@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils.logic import build_url_for_request
 
+
 class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
