@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 
 from django.core.files.base import ContentFile
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 
 from utils.importers import shared
 from submission import models
@@ -18,6 +19,7 @@ from utils import models as utils_models, setting_handler
 from core import models as core_models, files as core_files
 from review import models as review_models
 from utils.logger import get_logger
+from cms import models as cms_models
 
 logger = get_logger(__name__)
 
@@ -1137,3 +1139,235 @@ def extract_date_launched(headers):
                 logger.debug("Failed to parse collection date: %s", text)
     return None
 
+
+def split_affiliation(affiliation):
+    parts = affiliation.split(',')
+    if len(parts) == 2:
+        department = ''
+        institution = parts[0]
+        country = parts[1]
+    else:
+        department = parts[0]
+        institution = parts[1]
+        country = parts[2]
+    try:
+        country = core_models.Country.objects.get(name=country.strip())
+    except core_models.Country.DoesNotExist:
+        country = None
+
+    return department, institution, country
+
+
+def split_name(name):
+    parts = name.split(' ')
+    return parts[0], parts[1]
+
+
+def scrape_editorial_team(journal, base_url):
+    editorial_team_path = '/about/editorialteam/'
+    page = requests.get('{}{}'.format(base_url, editorial_team_path))
+
+    soup = BeautifulSoup(page.content, 'lxml')
+    main_block = soup.find('div', {'class': 'major-floating-block'})
+    divs = main_block.find_all('div', {'class': 'col-md-12'})
+
+    for div in divs:
+        # Try to grab the headers
+        header = div.find('h2')
+        header_sequence = 0
+        if header:
+            group, c = core_models.EditorialGroup.objects.get_or_create(
+                name=header.text.strip(),
+                journal=journal,
+                sequence=header_sequence
+            )
+            header_sequence = header_sequence + 1
+        else:
+            # look for team group
+            member_sequence = 0
+            member_divs = div.find_all('div', {'class': 'col-md-6'})
+            for member_div in member_divs:
+                name = member_div.find('h6')
+                if name and name.text.strip():
+                    affiliation = member_div.find('h5')
+                    email_link = member_div.find('a', {'class': 'fa-envelope'})
+                    email_search = re.search(r'[\w\.-]+@[\w\.-]+', email_link.get('href'))
+                    email = email_search.group(0)
+
+                    department, institution, country = split_affiliation(affiliation.text)
+                    first_name, last_name = split_name(name.text.strip())
+
+                    account, c = core_models.Account.objects.get_or_create(
+                        email=email,
+                        defaults={
+                            'username': email,
+                            'first_name': first_name,
+                            'last_name': last_name,
+                            'department': department,
+                            'institution': institution,
+                            'country': country,
+                        }
+                    )
+
+                    core_models.EditorialGroupMember.objects.get_or_create(
+                        group=group,
+                        user=account,
+                        sequence=member_sequence
+                    )
+                    member_sequence = member_sequence + 1
+
+
+# Checking links and rewrite the ones we know about
+# Remove the authorship link
+
+def scrape_policies_page(journal, base_url):
+    policy_page_path = '/about/editorialpolicies/'
+    page = requests.get('{}{}'.format(base_url, policy_page_path))
+
+    soup = BeautifulSoup(page.content, 'lxml')
+    h2 = soup.find('h2', text=' Peer Review Process')
+
+    peer_review_text = ''
+    for element in h2.next_siblings:
+        if element.name == 'p':
+            peer_review_text = peer_review_text + str(element)
+
+    setting_handler.save_setting(
+        'general',
+        'peer_review_info',
+        journal,
+        peer_review_text,
+    )
+
+
+def process_header_tags(content, tag):
+    headers = content.find_all(tag)
+
+    sections = {}
+
+    for header in headers:
+        section_text = ''
+        for element in header.next_siblings:
+            if element.name == tag:
+                break
+            else:
+                section_text = section_text + str(element)
+        sections[header.text.strip()] = section_text
+
+    return sections
+
+
+def scrape_submissions_page(journal, base_url):
+    submission_path = '/about/submissions/'
+    page = requests.get('{}{}'.format(base_url, submission_path))
+    soup = BeautifulSoup(page.content, 'lxml')
+    main_block = soup.find('div', {'class': 'featured-block'})
+
+    sections = process_header_tags(main_block, 'h1')
+
+    if sections.get('Author Guidelines'):
+        create_cms_page(
+            'author-guidelines',
+            'Author Guidelines',
+            sections.get('Author Guidelines'),
+            journal
+        )
+
+    if sections.get('Submission Preparation Checklist'):
+        setting_handler.save_setting(
+            'general',
+            'submission_checklist',
+            journal,
+            sections.get('Submission Preparation Checklist'),
+        )
+    if sections.get('Copyright Notice'):
+        setting_handler.save_setting(
+            'general',
+            'copyright_notice',
+            journal,
+            sections.get('Copyright Notice')
+        )
+    if sections.get('Publication Fees'):
+        setting_handler.save_setting(
+            'general',
+            'publication_fees',
+            journal,
+            sections.get('Publication Fees')
+        )
+
+
+def scrape_page(page_url, block_to_find='featured-block'):
+    page = requests.get(page_url)
+    soup = BeautifulSoup(page.content, 'lxml')
+    return str(soup.find('div', {'class': block_to_find}))
+
+
+def create_cms_page(url, name, content, journal):
+    content_type = ContentType.objects.get_for_model(journal)
+    defaults = {
+        'display_name': name,
+        'content': content,
+        'is_markdown': False,
+    }
+    cms_models.Page.objects.get_or_create(
+        content_type=content_type,
+        object_id=journal.pk,
+        name=url,
+        defaults=defaults
+    )
+
+
+def scrape_research_integrity_page(journal, base_url):
+    research_integrity_url = '{}/about/research-integrity/'.format(base_url)
+    content = scrape_page(
+        research_integrity_url,
+    )
+
+    soup = BeautifulSoup(content, 'lxml')
+    content = soup
+    for div in soup.find_all('div', {'class': 'person-image'}):
+        div.decompose()
+
+    soup.select_one('.main-color-text').decompose()
+    soup.find('style').decompose()
+
+    for div in soup.find_all('div', {'style': 'border-top: 1px dashed #b3cfd4;'}):
+        div.decompose()
+
+    soup.section.unwrap()
+    soup.section.unwrap()
+
+    create_cms_page(
+        'research-integrity',
+        'Research Integrity',
+        str(content),
+        journal
+    )
+
+
+def scrape_about_page(journal, base_url):
+    about_url = '{}/about/'.format(base_url)
+    content = scrape_page(about_url, block_to_find='main-body-block')
+    soup = BeautifulSoup(content, 'lxml')
+    sections = process_header_tags(soup, 'h2')
+
+    if sections.get('Focus and Scope'):
+        setting_handler.save_setting(
+            'general',
+            'focus_and_scope',
+            journal,
+            sections.get('Focus and Scope')
+        )
+    if sections.get('Publication Frequency'):
+        setting_handler.save_setting(
+            'general',
+            'publication_cycle',
+            journal,
+            sections.get('Publication Frequency')
+        )
+    create_cms_page(
+        'about',
+        'About',
+        str(content),
+        journal
+    )
