@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template import Template, Context
 from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q, Count
@@ -715,6 +716,21 @@ def submit_files_info(request, article_id, file_id):
     }
 
     return render(request, template, context)
+
+@login_required
+@file_history_user_required
+def file_metadata_dump(request, article_id, file_id):
+    """ Dumps metadata of a file.
+
+    :param request: the request associated with this call
+    :param article_id: the ID of the associated article
+    :param file_id: the file ID for which to view the history
+    :return: a rendered template showing the file history
+    """
+    file_object = get_object_or_404(core_models.File, pk=file_id)
+
+    response = HttpResponse(str(file_object.metadata(raw=True)), content_type='text/plain')
+    return response
 
 
 @login_required

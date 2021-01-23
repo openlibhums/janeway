@@ -44,6 +44,10 @@
                         <th>Erase metadata</th>
                         <td><a href="#">Erase metadata</a></td>
                     </tr>
+                    <tr>
+                        <th>Full metadata</th>
+                        <td><a href="{% url 'file_metadata_dump' article.pk file.pk %}">Show full metadata dump</a></td>
+                    </tr>
                 {%  endif %}
             </table>
         </div>

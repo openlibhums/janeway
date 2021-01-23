@@ -796,18 +796,18 @@ class File(models.Model):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
 
-    def iter_meta(self, metadata: dict, depth: int = 1, ret: dict = None):
+    def flatten_metadata_dict(self, input: dict, depth: int = 1, ret: dict = None):
         # this function basically flattens a set of dictionaries
         padding = "-" * depth * 2
         if ret is None:
             ret = {}
 
-        if not metadata:
+        if not input:
             return "No file metadata found."
 
-        for (k, v) in sorted(metadata.items()):
+        for (k, v) in sorted(input.items()):
             if isinstance(v, dict):
-                self.iter_meta(v, depth + 1, ret)
+                self.flatten_metadata_dict(v, depth + 1, ret)
                 continue
             else:
                 try:
@@ -816,17 +816,19 @@ class File(models.Model):
                     pass
         return ret
 
-    @property
-    def metadata(self):
+    def metadata(self, raw: bool = False):
         try:
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
             if p is not None:
                 p.sandbox = True
                 self.can_scrub = True
-                ret = self.iter_meta(p.get_meta())
+                ret = self.flatten_metadata_dict(p.get_meta())
                 ret_final = {}
+
+                if raw:
+                    return ret
+
                 for k, v in ret.items():
-                    print(k)
                     try:
                         if k == 'dc:creator':
                             ret_final['Creator'] = v
@@ -835,7 +837,7 @@ class File(models.Model):
                         if k == 'author':
                             ret_final['Creator'] = v
                     except UnicodeEncodeError:
-                        return 'Harmful metadata content'
+                        pass
                 return ret_final
             else:
                 self.can_scrub = False

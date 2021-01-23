@@ -88,6 +88,8 @@ urlpatterns = [
         name='file_history'),
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/delete/$', views.file_delete,
         name='file_delete'),
+    url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/metadata_dump/$', views.file_metadata_dump,
+        name='file_metadata_dump'),
     url(r'^(?P<article_id>\d+)/files/(?P<file_id>\d+)/old/(?P<file_history_id>\d+)/reinstate/$',
         views.file_reinstate,
         name='file_reinstate'),
