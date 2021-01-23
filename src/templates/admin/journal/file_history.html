@@ -33,10 +33,18 @@
                     <th>Privacy</th>
                     <td>{{ file.get_privacy_display }}</td>
                 </tr>
-                <tr>
-                    <th>File metadata</th>
-                    <td>{{ file.metadata|linebreaks }}</td>
-                </tr>
+                {% for meta, val in file.metadata.items %}
+                    <tr>
+                        <th>{{ meta }}</th>
+                        <td>{{ val }}</td>
+                    </tr>
+                {% endfor %}
+                {% if file.can_scrub %}
+                    <tr>
+                        <th>Erase metadata</th>
+                        <td><a href="#">Erase metadata</a></td>
+                    </tr>
+                {%  endif %}
             </table>
         </div>
             <table class="scroll">

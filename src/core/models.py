@@ -725,6 +725,9 @@ class File(models.Model):
 
     history = models.ManyToManyField('FileHistory')
 
+    # a property that is only set when the metadata function is called
+    can_scrub = False
+
     class Meta:
         ordering = ('sequence', 'pk')
 
@@ -819,18 +822,24 @@ class File(models.Model):
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
             if p is not None:
                 p.sandbox = True
+                self.can_scrub = True
                 ret = self.iter_meta(p.get_meta())
-                ret_str = ''
+                ret_final = {}
                 for k, v in ret.items():
                     print(k)
                     try:
                         if k == 'dc:creator':
-                            ret_str += 'Creator: ' + v + '\n'
+                            ret_final['Creator'] = v
                         if k == 'cp:lastModifiedBy':
-                            ret_str += 'Last modifier: ' + v + '\n'
+                            ret_final['Last modifier'] = v
+                        if k == 'author':
+                            ret_final['Creator'] = v
                     except UnicodeEncodeError:
                         return 'Harmful metadata content'
-                return ret_str.rstrip()
+                return ret_final
+            else:
+                self.can_scrub = False
+
         except ValueError as e:
             pass
 
