@@ -26,6 +26,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
+# file extensions
+from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
+from libmat2 import check_dependencies, UnknownMemberPolicy
+import unicodedata
+
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
@@ -787,6 +792,47 @@ class File(models.Model):
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
+
+    def iter_meta(self, metadata: dict, depth: int = 1, ret: dict = None):
+        # this function basically flattens a set of dictionaries
+        padding = "-" * depth * 2
+        if ret is None:
+            ret = {}
+
+        if not metadata:
+            return "No file metadata found."
+
+        for (k, v) in sorted(metadata.items()):
+            if isinstance(v, dict):
+                self.iter_meta(v, depth + 1, ret)
+                continue
+            else:
+                try:
+                    ret[k] = ''.join(ch for ch in v if not unicodedata.category(ch).startswith('C'))
+                except TypeError:
+                    pass
+        return ret
+
+    @property
+    def metadata(self):
+        try:
+            p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
+            if p is not None:
+                p.sandbox = True
+                ret = self.iter_meta(p.get_meta())
+                ret_str = ''
+                for k, v in ret.items():
+                    print(k)
+                    try:
+                        if k == 'dc:creator':
+                            ret_str += 'Creator: ' + v + '\n'
+                        if k == 'cp:lastModifiedBy':
+                            ret_str += 'Last modifier: ' + v + '\n'
+                    except UnicodeEncodeError:
+                        return 'Harmful metadata content'
+                return ret_str.rstrip()
+        except ValueError as e:
+            pass
 
     def next_history_seq(self):
         try:

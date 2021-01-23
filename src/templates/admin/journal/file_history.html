@@ -33,6 +33,10 @@
                     <th>Privacy</th>
                     <td>{{ file.get_privacy_display }}</td>
                 </tr>
+                <tr>
+                    <th>File metadata</th>
+                    <td>{{ file.metadata|linebreaks }}</td>
+                </tr>
             </table>
         </div>
             <table class="scroll">

@@ -720,7 +720,7 @@ def submit_files_info(request, article_id, file_id):
 @login_required
 @file_history_user_required
 def file_history(request, article_id, file_id):
-    """ Renders a template to show the history of a file.
+    """ Renders a template to show the history and metadata of a file.
 
     :param request: the request associated with this call
     :param article_id: the ID of the associated article
@@ -741,7 +741,6 @@ def file_history(request, article_id, file_id):
     }
 
     return render(request, template, context)
-
 
 @editor_user_required
 def issue_file_history(request, issue_id):
