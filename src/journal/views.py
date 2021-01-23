@@ -732,6 +732,22 @@ def file_metadata_dump(request, article_id, file_id):
     response = HttpResponse(str(file_object.metadata(raw=True)), content_type='text/plain')
     return response
 
+@login_required
+@file_history_user_required
+def file_metadata_scrub(request, article_id, file_id):
+    """ Scrubs metadata of a file.
+
+    :param request: the request associated with this call
+    :param article_id: the ID of the associated article
+    :param file_id: the file ID for which to view the history
+    :return: a rendered template showing the file history
+    """
+    file_object = get_object_or_404(core_models.File, pk=file_id)
+
+    file_object.scrub_metadata(request)
+
+    return redirect(request.GET['return'])
+
 
 @login_required
 @file_history_user_required
@@ -754,6 +770,7 @@ def file_history(request, article_id, file_id):
     context = {
         'article': article_object,
         'file': file_object,
+        'metadata': file_object.metadata(raw=False)
     }
 
     return render(request, template, context)

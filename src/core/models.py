@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import shutil
 import uuid
 import statistics
 import json
@@ -816,6 +817,22 @@ class File(models.Model):
                     pass
         return ret
 
+    def scrub_metadata(self, request):
+        try:
+            p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
+        except ValueError as e:
+            return False
+        if p is None:
+            return False
+
+        p.lightweight_cleaning = False
+        p.sandbox = True
+
+        ret = p.remove_all()
+        if ret is True:
+            new_file = files.replace_scrubbed_file(p.output_filename, self.article, replace=self, label='Clean MS')
+        return ret
+
     def metadata(self, raw: bool = False):
         try:
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
@@ -827,6 +844,9 @@ class File(models.Model):
 
                 if raw:
                     return ret
+
+                if ret and not getattr(ret, "items", None):
+                    return {}
 
                 for k, v in ret.items():
                     try:
@@ -841,9 +861,10 @@ class File(models.Model):
                 return ret_final
             else:
                 self.can_scrub = False
+                return {}
 
         except ValueError as e:
-            pass
+            return {'Information': 'There may be metadata in this file but we cannot detect it'}
 
     def next_history_seq(self):
         try:

@@ -33,16 +33,18 @@
                     <th>Privacy</th>
                     <td>{{ file.get_privacy_display }}</td>
                 </tr>
-                {% for meta, val in file.metadata.items %}
-                    <tr>
-                        <th>{{ meta }}</th>
-                        <td>{{ val }}</td>
-                    </tr>
-                {% endfor %}
+                {% if metadata %}
+                    {% for meta, val in metadata.items %}
+                        <tr>
+                            <th>{{ meta }}</th>
+                            <td>{{ val }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
                 {% if file.can_scrub %}
                     <tr>
                         <th>Erase metadata</th>
-                        <td><a href="#">Erase metadata</a></td>
+                        <td><a href="{% url 'file_metadata_scrub' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}">Erase metadata</a></td>
                     </tr>
                     <tr>
                         <th>Full metadata</th>
