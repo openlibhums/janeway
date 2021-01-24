@@ -7,6 +7,7 @@ RUN apt-get install -y libgirepository1.0-dev
 RUN apt-get install -y gir1.2-poppler-0.18
 RUN apt-get install -y gir1.2-gdkpixbuf-2.0
 RUN apt-get install -y exiftool
+RUN apt-get install -y pandoc
 RUN apt-get install -y gir1.2-rsvg-2.0
 RUN apt-get install -y libimage-exiftool-perl
 RUN apt-get install -y python3-gi-cairo

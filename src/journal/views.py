@@ -765,12 +765,15 @@ def file_history(request, article_id, file_id):
 
     article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
+    fuzz, success = file_object.fuzzy_compromises()
 
     template = "journal/file_history.html"
     context = {
         'article': article_object,
         'file': file_object,
-        'metadata': file_object.metadata(raw=False)
+        'metadata': file_object.metadata(raw=False),
+        'fuzzy_compromises': fuzz,
+        'fuzz_success': success
     }
 
     return render(request, template, context)

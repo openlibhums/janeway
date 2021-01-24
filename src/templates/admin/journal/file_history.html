@@ -41,6 +41,19 @@
                         </tr>
                     {% endfor %}
                 {% endif %}
+                {% if fuzz_success == 0 %}
+                <tr>
+                    <th>Alert</th>
+                    <td>Unable to parse file to read contents</td>
+                </tr>
+                {% else %}
+                {% if fuzzy_compromises %}
+                <tr>
+                    <th>Potentially compromising text</th>
+                    <td>{% for compromise in fuzzy_compromises %}"{{ compromise }}"{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                </tr>
+                {% endif %}
+                {% endif %}
                 {% if file.can_scrub %}
                     <tr>
                         <th>Erase metadata</th>

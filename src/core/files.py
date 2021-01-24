@@ -156,6 +156,7 @@ def replace_scrubbed_file(file_to_handle, article, replace=None, label=''):
     shutil.copy(file_to_handle, os.path.join(folder_structure, filename))
 
     replace.uuid_filename = filename
+    replace.text_version = ''
     replace.label = label
     replace.original_filename = ntpath.basename(original_filename)
     replace.mime_type = guess_mime(filename)
@@ -590,6 +591,7 @@ def overwrite_file(uploaded_file, file_to_replace, path_parts=()):
     file_to_replace.uuid_filename = filename
     file_to_replace.original_filename = original_filename
     file_to_replace.mime_type = guess_mime(filename)
+    file_to_replace.text_version = ''
 
     file_to_replace.save()
 

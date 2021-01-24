@@ -11,6 +11,7 @@ import json
 from datetime import timedelta
 from urllib.parse import urlunparse
 
+import pypandoc as pypandoc
 import pytz
 
 from bs4 import BeautifulSoup
@@ -714,6 +715,7 @@ class File(models.Model):
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
+    text_version = models.TextField(default='')
 
     date_uploaded = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -833,6 +835,39 @@ class File(models.Model):
             new_file = files.replace_scrubbed_file(p.output_filename, self.article, replace=self, label='Clean MS')
         return ret
 
+    def fuzzy_compromises(self):
+        # a function that attempts to determine if a file is 'fuzzily' compromised: i.e. contains author names or
+        # similar
+
+        # attempt a pandoc conversion
+        try:
+            if self.text_version == '':
+                txt_version = pypandoc.convert_file(self.get_file_path(self.article), 'plain').upper()
+                self.text_version = txt_version
+                self.save()
+            else:
+                txt_version = self.text_version
+        except:
+            return [], 0
+
+        output_list = []
+
+        # check authors and affiliations
+        for author in self.article.authors.all():
+            if author.full_name().upper() in txt_version:
+                output_list.append(author.full_name)
+            for word_split in author.affiliation().split(' '):
+                if word_split.upper() in txt_version:
+                    output_list.append(author.affiliation)
+
+        # check our phrase list
+        phrases = ['financial support', 'funded', 'funding', 'previous', 'I have', 'we have', 'my']
+        for phrase in phrases:
+            if phrase.upper() in txt_version:
+                output_list.append(phrase)
+
+        return output_list, 1
+
     def metadata(self, raw: bool = False):
         try:
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
@@ -865,6 +900,23 @@ class File(models.Model):
 
         except ValueError as e:
             return {'Information': 'There may be metadata in this file but we cannot detect it'}
+
+    def is_compromised(self):
+        # Returns: 0 = failed to parse file
+        # Returns: 1 = compromised
+        # Returns: 2 = clean
+        fuzz, success = self.fuzzy_compromises()
+
+        if success == 0:
+            print("Returning 0")
+            return 0
+        
+        if not self.metadata() and not fuzz:
+            print("Returning 1")
+            return 1
+
+        print("Returning 2")
+        return 2
 
     def next_history_seq(self):
         try:
