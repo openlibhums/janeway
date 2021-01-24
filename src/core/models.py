@@ -854,8 +854,12 @@ class File(models.Model):
 
         # check authors and affiliations
         for author in self.article.authors.all():
-            if author.full_name().upper() in txt_version:
-                output_list.append(author.full_name)
+            if author.first_name and author.first_name.upper() in txt_version:
+                output_list.append(author.first_name)
+            if author.middle_name and author.middle_name.upper() in txt_version:
+                output_list.append(author.middle_name)
+            if author.last_name and author.last_name.upper() in txt_version:
+                output_list.append(author.last_name)
             for word_split in author.affiliation().split(' '):
                 if word_split.upper() in txt_version:
                     output_list.append(author.affiliation)
