@@ -847,7 +847,12 @@ class File(models.Model):
                 self.save()
             else:
                 txt_version = self.text_version
+
+                if txt_version == 'fail':
+                    return [], 0
         except:
+            self.text_version = 'fail'
+            self.save()
             return [], 0
 
         output_list = []
