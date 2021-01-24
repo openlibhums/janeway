@@ -916,14 +916,11 @@ class File(models.Model):
         fuzz, success = self.fuzzy_compromises()
 
         if success == 0:
-            print("Returning 0")
             return 0
         
         if not self.metadata() and not fuzz:
-            print("Returning 1")
             return 1
 
-        print("Returning 2")
         return 2
 
     def next_history_seq(self):
