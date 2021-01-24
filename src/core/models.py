@@ -826,7 +826,7 @@ class File(models.Model):
             return False
 
         p.lightweight_cleaning = False
-        p.sandbox = True
+        p.sandbox = False
 
         ret = p.remove_all()
         if ret is True:
@@ -837,7 +837,7 @@ class File(models.Model):
         try:
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
             if p is not None:
-                p.sandbox = True
+                p.sandbox = False
                 self.can_scrub = True
                 ret = self.flatten_metadata_dict(p.get_meta())
                 ret_final = {}
