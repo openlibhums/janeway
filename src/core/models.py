@@ -872,6 +872,10 @@ class File(models.Model):
 
         return output_list, 1
 
+    def compromise_list(self):
+        fuzz, success = self.fuzzy_compromises()
+        return fuzz
+
     def metadata(self, raw: bool = False):
         try:
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))

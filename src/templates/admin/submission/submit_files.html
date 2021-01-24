@@ -49,7 +49,7 @@
                                 {% for file in article.manuscript_files.all %}
                                     <tr>
                                         <td>{{ file.label }}</td>
-                                        <td>{{ file }}</td>
+                                        <td>{{ file }}{% if file.compromise_list %}<br/><b>Warning, file contains potentially identifying text:</b> {% for compromise in file.compromise_list %}“{{ compromise }}”{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</td>
                                         <td>
                                             <button name="delete" type="submit" value="{{ file.pk }}"><i
                                                     class="fa fa-trash"></i></button>
