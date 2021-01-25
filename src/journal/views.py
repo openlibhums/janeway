@@ -1490,11 +1490,13 @@ def issue_article_order(request, issue_id=None):
             order_obj, c = models.ArticleOrdering.objects.get_or_create(
                 issue=issue,
                 article=article,
+                defaults={
+                    'order': order,
+                    'section': article.section,
+                }
             )
-
-            order_obj.order = order
-            order_obj.section = article.section
             order_obj.save()
+            print(order_obj.pk)
 
     return HttpResponse('Thanks')
 
