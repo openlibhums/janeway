@@ -1496,7 +1496,6 @@ def issue_article_order(request, issue_id=None):
                 }
             )
             order_obj.save()
-            print(order_obj.pk)
 
     return HttpResponse('Thanks')
 
