@@ -9,7 +9,7 @@ AUTHOR = 'Birkbeck Centre for Technology and Publishing'
 VERSION = '1.0'
 SHORT_NAME = 'typesetting'
 MANAGER_URL = 'typesetting_manager'
-JANEWAY_VERSION = "1.3.8"
+JANEWAY_VERSION = "1.3.9"
 
 # Workflow Settings
 IS_WORKFLOW_PLUGIN = True
