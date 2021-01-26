@@ -807,6 +807,37 @@ def typesetting_assignment(request, assignment_id):
 
     return render(request, template, context)
 
+@decorators.production_user_or_editor_required
+def typesetting_delete_correction(request, correction_id):
+    try:
+        correction = models.TypesettingCorrection.objects.get(
+            task__round__article__journal=request.journal,
+            pk=correction_id,
+        )
+    except models.TypesettingCorrection.DoesNotExist:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Correction already adressed',
+        )
+
+    else:
+        correction.delete()
+        if correction.galley:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Correction Deleted',
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Confirmed',
+            )
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
 
 @decorators.has_journal
 @decorators.production_user_or_editor_required

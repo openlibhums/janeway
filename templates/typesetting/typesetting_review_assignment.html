@@ -91,8 +91,12 @@
                     <div class="callout bs-callout-danger">
                         <h4><span class="fa fa-warning"></span> The typesetter has not made any changes to some typeset files</h4>
                         <ul >
-                            {% for correction in pending_corrections %}
-                            <li><p>{{ correction.galley }} - {{ correction.galley.file }}</li>
+                          {% for correction in pending_corrections %}
+                           {% if correction.galley %}
+                            <li><p>{{ correction.galley }} - {{ correction.galley.file }}</p></li>
+                           {% else %}
+                           <li><p>A file with label {{ correction.label }} has been deleted, if this is not expected, check that the typesetter has uploaded a new file <a class="button success small float-right" href={% url 'typesetting_delete_correction' correction.pk %}>Dismiss</a></p></li>
+                           {% endif %}
                             {% endfor %}
                         </ul>
                     </div>

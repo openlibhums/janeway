@@ -423,6 +423,7 @@ class TypesettingCorrection(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+    label = models.CharField(max_length=255, blank=True, null=True)
     date_requested = models.DateTimeField(auto_now_add=True)
     date_completed = models.DateTimeField(blank=True, null=True)
     date_declined = models.DateTimeField(blank=True, null=True)
@@ -445,4 +446,6 @@ class TypesettingCorrection(models.Model):
 
     @property
     def corrected(self):
-        return self.file_checksum != self.galley.file.checksum()
+        if self.galley:
+            return self.file_checksum != self.galley.file.checksum()
+        return False
