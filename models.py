@@ -234,6 +234,22 @@ class TypesettingAssignment(models.Model):
     def friendly_status(self):
         return self.FRIENDLY_STATUSES.get(self.status)
 
+    def proofing_assignments_for_corrections(self):
+        """ Returns the proofreading assignemnts for corrections
+        The proofreadings relevant for round n of proofing would have been
+        stored against round n-1 of this article
+        """
+        rounds = TypesettingRound.objects.filter(article=self.round.article)
+        if rounds.count() > 1:
+            previous_round = rounds[1]
+            proofing_assignments = previous_round.galleyproofing_set.filter(
+                completed__isnull=False,
+                cancelled=False,
+            )
+            return proofing_assignments
+        else:
+            return GalleyProofing.objects.none()
+
 
 class GalleyProofing(models.Model):
     round = models.ForeignKey(TypesettingRound)
