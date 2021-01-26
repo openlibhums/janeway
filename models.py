@@ -92,6 +92,10 @@ class TypesettingAssignment(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
     cancelled = models.DateTimeField(blank=True, null=True)
     reviewed = models.BooleanField(default=False)
+    display_proof_comments= models.BooleanField(
+        default=True,
+        help_text="Allow the typesetter to see the poofreading comments",
+    )
     review_decision = models.CharField(
         choices=review_choices(),
         max_length=21,
@@ -423,6 +427,7 @@ class TypesettingCorrection(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+    # A copy of the galley label, in case the galley is deleted
     label = models.CharField(max_length=255, blank=True, null=True)
     date_requested = models.DateTimeField(auto_now_add=True)
     date_completed = models.DateTimeField(blank=True, null=True)

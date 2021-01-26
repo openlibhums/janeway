@@ -35,6 +35,7 @@ class AssignTypesetter(forms.ModelForm):
             'due',
             'task',
             'files_to_typeset',
+            'display_proof_comments',
         )
 
         widgets = {
