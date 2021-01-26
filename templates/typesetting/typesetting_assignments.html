@@ -18,6 +18,7 @@
                 <thead>
                     <th>ID</th>
                     <th>Title</th>
+                    <th>Round</th>
                     <th>Assigned</th>
                     <th>Due</th>
                     <th>Time to Due</th>
@@ -27,6 +28,7 @@
                 <tbody>
                     <td>{{ assignment.pk }}</td>
                     <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.round }}</td>
                     <td>{{ assignment.assigned }}</td>
                     <td>{{ assignment.due|date:"Y-m-d" }}</td>
                     <td>{{ assignment.time_to_due }}</td>
@@ -46,6 +48,7 @@
                 <thead>
                     <th>ID</th>
                     <th>Title</th>
+                    <th>Round</th>
                     <th>Assigned</th>
                     <th>Completed</th>
                 </thead>
@@ -53,6 +56,7 @@
                 <tbody>
                     <td>{{ assignment.pk }}</td>
                     <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.round }}</td>
                     <td>{{ assignment.assigned }}</td>
                     <td>{{ assignment.completed }}</td>
                 </tbody>
