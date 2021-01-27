@@ -684,6 +684,12 @@ class Article(models.Model):
     def get_doi(self):
         return self.get_identifier('doi')
 
+    def get_doi_url(self):
+        ident = self.get_identifier('doi', object=True)
+        if ident:
+            return ident.get_doi_url()
+        return None
+
     @property
     def identifiers(self):
         from identifiers import models as identifier_models

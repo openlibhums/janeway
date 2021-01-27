@@ -501,3 +501,42 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
     background: linear-gradient(to right, rgba(255, 255, 255, 0), white 100%);
     pointer-events: none;
 }
+
+:root {
+    --facebook: #3b5998;
+    --facebook-hover: #3b5998;
+    --twitter: #00acee;
+    --twitter-hover: #008abe;
+    --linkedin: #0e76a8;
+    --linkedin-hover: #0b5e87;
+}
+
+.btn-small {
+    height: 24px;
+    line-height: 24px;
+    padding: 0.1rem 0.8rem 0.1rem;
+}
+
+.facebook-bg {
+    background-color: var(--facebook);
+}
+
+.facebook-bg:hover {
+    background-color: var(--facebook-hover);
+}
+
+.twitter-bg {
+    background-color: var(--twitter);
+}
+
+.twitter-bg:hover {
+    background-color: var(--twitter-hover);
+}
+
+.linkedin-bg {
+    background-color: var(--linkedin);
+}
+
+.linkedin-bg:hover {
+    background-color: var(--linkedin-hover);
+}
