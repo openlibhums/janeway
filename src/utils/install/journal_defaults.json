@@ -716,7 +716,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br><br>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }}.</br></br></br></br></p><p><br>Regards,</br></p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br><br>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br><br>This assignment is due on {{ assignment.due }}. You can access this task on the journal site: {{ copyedit_requests_url }}.</br></br></br></br></p><p><br>Regards,</br></p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -1271,7 +1271,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the\u00a0journal site: {{ review_edit_draft_decision_url }}.<br/></p>"
+            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the journal site: {{ review_edit_draft_decision_url }}.<br/></p>"
         }
     },
     {
