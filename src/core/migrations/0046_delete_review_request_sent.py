@@ -56,6 +56,18 @@ def update_setting_values(apps, schema_editor):
         )
         setting.save()
 
+    review_ack_settings = SettingValueTranslation.objects.filter(
+        master__setting__name='review_complete_reviewer_acknowledgement',
+        master__setting__group__name='email',
+    )
+
+    for setting in review_ack_settings:
+        setting.value = setting.value.replace(
+            'request.user.signature',
+            'review_assignment.editor.signature',
+        )
+        setting.save()
+
 
 class Migration(migrations.Migration):
 
