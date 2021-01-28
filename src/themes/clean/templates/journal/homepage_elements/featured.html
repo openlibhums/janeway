@@ -1,0 +1,31 @@
+{% load static from staticfiles %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="index-header">{% trans 'Featured Articles' %}</h1>
+    </div>
+    {% for fa in featured_articles %}
+        <div class="col-md-4 row-eq-height">
+            <div class="card">
+              {% if fa.article.large_image_file %}
+                    <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% elif fa.article.journal.default_large_image %}
+                    <img src="{{ fa.article.journal.default_large_image.url }}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% else %}
+                    <img src="{% static 'common/img/sample/article-small.jpg' %}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% endif %}
+              <div class="card-body">
+                <p class="card-text">{{ fa.article.author_list }}</p>
+                <p class="card-text"><strong></strong><a aria-label="Link to article number {{ fa.article.pk }} {{ fa.article.title }}" href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}">{{ fa.article.title|safe|truncatechars:200 }}</a></strong></p>
+              </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

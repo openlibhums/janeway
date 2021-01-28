@@ -1,0 +1,8 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ issue.display_title }}{% endblock %}
+{% block page_title %}{{ issue.display_title }}{% endblock %}
+
+{% block body %}
+{% include "journal/issue_display.html" %}
+{% endblock body %}

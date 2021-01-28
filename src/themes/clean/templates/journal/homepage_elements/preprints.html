@@ -1,0 +1,9 @@
+{% load static from staticfiles %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="index-header">{% trans 'Featured Preprints' %}</h1>
+    </div>
+    {% include "elements/preprint_block.html" with preprints=preprints %}
+</div>

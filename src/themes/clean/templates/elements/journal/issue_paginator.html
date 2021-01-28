@@ -1,0 +1,18 @@
+{% load pages %}
+
+{% if articles and articles.paginator %}
+<div class="pagination-block">
+    <ul class="d-flex justify-content-center">
+        {% if articles.has_previous %}
+            <a href="?page={{ articles.previous_page_number }}" class="btn btn-primary">&laquo;</a>
+            &nbsp;{% endif %}
+        {{ articles.page.page_range }}
+        {% for page in articles.paginator.page_range %}
+            <a href="?page={{ page }}" class="btn btn-primary">{{ page }}</a>&nbsp;
+        {% endfor %}
+        {% if articles.has_next %}
+            <a href="?page={{ articles.next_page_number }}" class="btn btn-primary">&raquo;</a>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
