@@ -234,6 +234,7 @@ LANGUAGES = (
     ('en', ugettext('English')),
     ('fr', ugettext('French')),
     ('de', ugettext('German')),
+    ('cy', ugettext('Welsh')),
 )
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
