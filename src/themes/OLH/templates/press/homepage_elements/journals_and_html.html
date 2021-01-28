@@ -23,7 +23,7 @@
 
                         <a href="{{ current_journal.site_url }}"
                            class="box-link"></a>
-                        <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}Unnamed Journal{% endif %}"></img>
+                        <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}Unnamed Journal{% endif %}">
                         </a>
                         <div class="content">
                             <h3><a href="{{ current_journal.site_url }}"/>{% if current_journal.name != " " and current_journal.name != "" %}
