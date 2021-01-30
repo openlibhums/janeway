@@ -11,7 +11,6 @@ import json
 from datetime import timedelta
 from urllib.parse import urlunparse
 
-import pypandoc as pypandoc
 import pytz
 
 from bs4 import BeautifulSoup
@@ -28,9 +27,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
+from core.decorators import has_mat2, has_pandoc, check_mat2, check_pandoc
+
 # file extensions
-from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
-from libmat2 import check_dependencies, UnknownMemberPolicy
 import unicodedata
 
 from core import files, validators
@@ -819,7 +818,10 @@ class File(models.Model):
                     pass
         return ret
 
+    @has_mat2
     def scrub_metadata(self, request):
+        from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
+        from libmat2 import check_dependencies, UnknownMemberPolicy
         try:
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
         except ValueError as e:
@@ -835,9 +837,12 @@ class File(models.Model):
             new_file = files.replace_scrubbed_file(p.output_filename, self.article, replace=self, label='Clean MS')
         return ret
 
+    @has_pandoc
     def fuzzy_compromises(self):
         # a function that attempts to determine if a file is 'fuzzily' compromised: i.e. contains author names or
         # similar
+
+        import pypandoc as pypandoc
 
         # attempt a pandoc conversion
         try:
@@ -881,8 +886,11 @@ class File(models.Model):
         fuzz, success = self.fuzzy_compromises()
         return fuzz
 
+    @has_mat2
     def metadata(self, raw: bool = False):
         try:
+            from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
+            from libmat2 import check_dependencies, UnknownMemberPolicy
             p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
             if p is not None:
                 p.sandbox = False
@@ -918,7 +926,12 @@ class File(models.Model):
         # Returns: 0 = failed to parse file
         # Returns: 1 = compromised
         # Returns: 2 = clean
-        fuzz, success = self.fuzzy_compromises()
+
+        if check_pandoc() and check_mat2():
+            fuzz, success = self.fuzzy_compromises()
+        else:
+            fuzz = 0
+            success = 0
 
         if success == 0:
             return 0
