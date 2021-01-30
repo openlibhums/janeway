@@ -61,7 +61,7 @@
                                     class="fa fa-trash">
                                 &nbsp;</i></a>{% endif %}</td>
                         <td>{% if can_edit_file_flag %}
-                            <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}">{% if file.is_compromised == 1 %}<span style="color: green;"><i class="fa fa-check"></i></span>{% elif file.is_compromised == 2 %}<span style="color: red;"><i class="fa fa-times-circle"></i></span>{% else %}<span style="color: orange; font-weight: bold">?</span>{% endif %}</a>{% endif %}</td>
+                            <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}">{% if file.is_compromised == 1 %}<span style="color: green;"><i aria-hidden="true" title="Document is anonymized" class="fa fa-check"></i></span>{% elif file.is_compromised == 2 %}<span style="color: red;"><i aria-hidden="true" title="Document is not anonymized" class="fa fa-times-circle"></i></span>{% else %}<span style="color: orange; font-weight: bold" title="Document anonymization is unknown">?</span>{% endif %}</a>{% endif %}</td>
                         <td>{% file_type article file %}</td>
                         {% if request.user.is_admin %}
                         <td>
