@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import shutil
 import uuid
 import statistics
 import json
@@ -25,6 +26,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+
+from core.decorators import has_mat2, has_pandoc, check_mat2, check_pandoc
+
+# file extensions
+import unicodedata
 
 from core import files, validators
 from core.file_system import JanewayFileSystemStorage
@@ -708,6 +714,7 @@ class File(models.Model):
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
+    text_version = models.TextField(default='')
 
     date_uploaded = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -719,6 +726,9 @@ class File(models.Model):
     remote_url = models.URLField(blank=True, null=True, verbose_name="Remote URL of file")
 
     history = models.ManyToManyField('FileHistory')
+
+    # a property that is only set when the metadata function is called
+    can_scrub = False
 
     class Meta:
         ordering = ('sequence', 'pk')
@@ -787,6 +797,149 @@ class File(models.Model):
     def get_file_size(self, article):
         return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
                                             str(self.uuid_filename)))
+
+    def flatten_metadata_dict(self, input: dict, depth: int = 1, ret: dict = None):
+        # this function basically flattens a set of dictionaries
+        padding = "-" * depth * 2
+        if ret is None:
+            ret = {}
+
+        if not input:
+            return "No file metadata found."
+
+        for (k, v) in sorted(input.items()):
+            if isinstance(v, dict):
+                self.flatten_metadata_dict(v, depth + 1, ret)
+                continue
+            else:
+                try:
+                    ret[k] = ''.join(ch for ch in v if not unicodedata.category(ch).startswith('C'))
+                except TypeError:
+                    pass
+        return ret
+
+    @has_mat2
+    def scrub_metadata(self, request):
+        from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
+        from libmat2 import check_dependencies, UnknownMemberPolicy
+        try:
+            p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
+        except ValueError as e:
+            return False
+        if p is None:
+            return False
+
+        p.lightweight_cleaning = False
+        p.sandbox = False
+
+        ret = p.remove_all()
+        if ret is True:
+            new_file = files.replace_scrubbed_file(p.output_filename, self.article, replace=self, label='Clean MS')
+        return ret
+
+    @has_pandoc
+    def fuzzy_compromises(self):
+        # a function that attempts to determine if a file is 'fuzzily' compromised: i.e. contains author names or
+        # similar
+
+        import pypandoc as pypandoc
+
+        # attempt a pandoc conversion
+        try:
+            if self.text_version == '':
+                txt_version = pypandoc.convert_file(self.get_file_path(self.article), 'plain').upper()
+                self.text_version = txt_version
+                self.save()
+            else:
+                txt_version = self.text_version
+
+                if txt_version == 'fail':
+                    return [], 0
+        except:
+            self.text_version = 'fail'
+            self.save()
+            return [], 0
+
+        output_list = []
+
+        # check authors and affiliations
+        for author in self.article.authors.all():
+            if author.first_name and author.first_name.upper() in txt_version:
+                output_list.append(author.first_name)
+            if author.middle_name and author.middle_name.upper() in txt_version:
+                output_list.append(author.middle_name)
+            if author.last_name and author.last_name.upper() in txt_version:
+                output_list.append(author.last_name)
+            for word_split in author.affiliation().split(' '):
+                if word_split.upper() in txt_version:
+                    output_list.append(author.affiliation)
+
+        # check our phrase list
+        phrases = ['financial support', 'funded', 'funding', 'previous', 'I have', 'we have', 'my']
+        for phrase in phrases:
+            if phrase.upper() in txt_version:
+                output_list.append(phrase)
+
+        return output_list, 1
+
+    def compromise_list(self):
+        fuzz, success = self.fuzzy_compromises()
+        return fuzz
+
+    @has_mat2
+    def metadata(self, raw: bool = False):
+        try:
+            from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
+            from libmat2 import check_dependencies, UnknownMemberPolicy
+            p, mtype = parser_factory.get_parser(self.get_file_path(self.article))
+            if p is not None:
+                p.sandbox = False
+                self.can_scrub = True
+                ret = self.flatten_metadata_dict(p.get_meta())
+                ret_final = {}
+
+                if raw:
+                    return ret
+
+                if ret and not getattr(ret, "items", None):
+                    return {}
+
+                for k, v in ret.items():
+                    try:
+                        if k == 'dc:creator':
+                            ret_final['Creator'] = v
+                        if k == 'cp:lastModifiedBy':
+                            ret_final['Last modifier'] = v
+                        if k == 'author':
+                            ret_final['Creator'] = v
+                    except UnicodeEncodeError:
+                        pass
+                return ret_final
+            else:
+                self.can_scrub = False
+                return {}
+
+        except ValueError as e:
+            return {'Information': 'There may be metadata in this file but we cannot detect it'}
+
+    def is_compromised(self):
+        # Returns: 0 = failed to parse file
+        # Returns: 1 = compromised
+        # Returns: 2 = clean
+
+        if check_pandoc() and check_mat2():
+            fuzz, success = self.fuzzy_compromises()
+        else:
+            fuzz = 0
+            success = 0
+
+        if success == 0:
+            return 0
+        
+        if not self.metadata() and not fuzz:
+            return 1
+
+        return 2
 
     def next_history_seq(self):
         try:

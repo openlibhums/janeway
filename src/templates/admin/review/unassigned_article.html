@@ -139,6 +139,7 @@
                         <th>Download</th>
                         <th>Replace</th>
                         <th>File History</th>
+                        <th>Anon?</th>
                         {% if journal_settings.crosscheck.enable %}
                             <th>Similarity Check</th>{% endif %}
                     </tr>
@@ -158,6 +159,8 @@
                                 <td>
                                     <a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
                                             class="fa fa-history">&nbsp;</i></a></td>
+
+                                <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}">{% if file.is_compromised == 1 %}<span style="color: green;"><i aria-hidden="true" title="Document is anonymized" class="fa fa-check"></i></span>{% elif file.is_compromised == 2 %}<span style="color: red;"><i aria-hidden="true" title="Document is not anonymized" class="fa fa-times-circle"></i></span>{% else %}<span style="color: orange; font-weight: bold" title="Document anonymization is unknown">?</span>{% endif %}</a></td>
                                 {% if journal_settings.crosscheck.enable %}
                                     <td>{% if not article.ithenticate_id %}
                                         <button type="submit" name="crosscheck" value="{{ file.id }}"><i

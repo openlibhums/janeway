@@ -43,9 +43,12 @@ raven==6.0.0 # TODO: Optional for sentry
 requests==2.25.1
 six==1.10.0
 sqlparse==0.2.3
+mat2
+pypandoc
 ua-parser==0.7.2
 user-agents==1.0.1
 -e git+https://github.com/BirkbeckCTP/django-materialize.git@bcfbfd9150887328dddce965674c84b2b6e6b785#egg=django_materialize
 django-hijack
 geoip2==3.0.0 # Newer versions require python >= 3.6
 maxminddb==1.5.4
+

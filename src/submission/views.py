@@ -381,10 +381,14 @@ def submit_files(request, article_id):
             if logic.check_file(uploaded_file, request, form):
                 if form.is_valid():
                     new_file = files.save_file_to_article(uploaded_file, article, request.user)
+                    # scrub the file's metadata (before adding to the MS list)
+                    new_file.scrub_metadata(request)
+
                     article.manuscript_files.add(new_file)
                     new_file.label = form.cleaned_data['label']
                     new_file.description = form.cleaned_data['description']
                     new_file.save()
+
                     return redirect(reverse('submit_files', kwargs={'article_id': article_id}))
                 else:
                     modal = 'manuscript'

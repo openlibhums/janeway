@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import mimetypes as mime
+import ntpath
 import os
 from uuid import uuid4
 from wsgiref.util import FileWrapper
@@ -134,6 +135,35 @@ def copy_local_file_to_article(file_to_handle, file_name, article, owner, label=
 
     return new_file
 
+def replace_scrubbed_file(file_to_handle, article, replace=None, label=''):
+    """Save a file into an article's folder with appropriate mime type and permissions.
+
+    :param file_to_handle: the uploaded file object we need to handle
+    :param article: the article to which the file belongs
+    :param owner: the owner of the file
+    :param label: the file's label (or title)
+    :param description: the description of the item
+    :param replace: the file to which this is a revision or None
+    :return: a File object that has been saved in the database
+    """
+
+    create_file_history_object(replace)
+    original_filename = file_to_handle
+
+    # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
+    filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id))
+    shutil.copy(file_to_handle, os.path.join(folder_structure, filename))
+
+    replace.uuid_filename = filename
+    replace.text_version = ''
+    replace.label = label
+    replace.original_filename = ntpath.basename(original_filename)
+    replace.mime_type = guess_mime(filename)
+
+    replace.save()
+
+    return replace
 
 def save_file_to_article(file_to_handle, article, owner, label=None, description=None, replace=None, is_galley=False,
                          save=True):
@@ -561,6 +591,7 @@ def overwrite_file(uploaded_file, file_to_replace, path_parts=()):
     file_to_replace.uuid_filename = filename
     file_to_replace.original_filename = original_filename
     file_to_replace.mime_type = guess_mime(filename)
+    file_to_replace.text_version = ''
 
     file_to_replace.save()
 

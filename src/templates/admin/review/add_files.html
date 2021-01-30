@@ -38,7 +38,7 @@
                             <th>Download</th>
                             <th>History</th>
                             <th>Replace</th>
-
+                            <th>Anonymized?</th>
                         </tr>
                         </thead>
                         {% for file in article.manuscript_files.all %}
@@ -60,9 +60,10 @@
                                         &nbsp;</i></a>{% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path }}"><i
+                                    <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
                                             class="fa fa-cloud-upload">&nbsp;</i></a></td>
 
+                            <td><a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}">{% if file.is_compromised == 1 %}<span style="color: green;"><i aria-hidden="true" title="Document is anonymized" class="fa fa-check"></i></span>{% elif file.is_compromised == 2 %}<span style="color: red;"><i aria-hidden="true" title="Document is not anonymized" class="fa fa-times-circle"></i></span>{% else %}<span style="color: orange; font-weight: bold" title="Document anonymization is unknown">?</span>{% endif %}</a></td>
                             </tr>
                         {% endfor %}
                         {% for file in article.data_figure_files.all %}
