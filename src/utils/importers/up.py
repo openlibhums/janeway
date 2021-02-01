@@ -430,7 +430,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
                                                               section=order_section,
                                                               order=section_order).save()
 
-            import_issue_articles(soup, issue, user, base_url, import_missing, update)
+            import_issue_articles(soup_issue, issue, user, base_url, import_missing, update)
 
             issue.save()
 
