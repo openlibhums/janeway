@@ -34,7 +34,7 @@ class Command(BaseCommand):
         tab = CronTab(user=True)
         virtualenv = os.environ.get('VIRTUAL_ENV', None)
 
-        cwd = os.getcwd().replace('/', '_')
+        cwd = settings.PROJECT_DIR.replace('/', '_')
 
         jobs = [
             {
