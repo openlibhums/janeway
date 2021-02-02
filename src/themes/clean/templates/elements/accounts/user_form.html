@@ -2,7 +2,7 @@
 {% load bootstrap4 %}
 {% load static %}
 
-<h5>Core Data</h5>
+<h5>{% trans 'Core Data' %}</h5>
 <div class="row">
     <div class="col-md-3">
         {% bootstrap_field form.salutation %}
@@ -32,7 +32,7 @@
     </div>
 </div>
 <hr />
-<h5>Social Media and Accounts</h5>
+<h5>{% trans 'Social Media and Accounts' %}</h5>
 <div class="row">
     <div class="col-md-4">
         {% bootstrap_field form.twitter %}
@@ -56,7 +56,7 @@
     </div>
 </div>
 <hr />
-<h5>Biography and Signature</h5>
+<h5>{% trans 'Biography and Signature' %}</h5>
 <div class="row">
     <div class="col-md-6">
         {% bootstrap_field form.biography %}
@@ -65,12 +65,12 @@
         {% bootstrap_field form.signature %}
     </div>
     <div class="col-md-12">
-        <label for="id_interests">Review Interests</label>
-        <input type="text" id="id_interests" name="interests" value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/> Hit Enter to add a new interest.
+        <label for="id_interests">{% trans 'Review Interests' %}</label>
+        <input type="text" id="id_interests" name="interests" value="{% for interest in user_to_edit.interest.all %}{{ interest }}{% if not forloop.last %},{% endif %}{% endfor %}"/> {% trans 'Hit Enter to add a new interest' %}.
     </div>
 </div>
 
-<h5>Profile Image</h5>
+<h5>{% trans 'Profile Image' %}</h5>
 <div class="row">
     <div class="col-md-3">
         {% if user_to_edit.profile_image %}
@@ -86,7 +86,7 @@
 
 </div>
 <hr />
-<h5>Options</h5>
+<h5>{% trans 'Options' %}</h5>
 <div class="row">
     <div class="col-md-4">
         {% bootstrap_field form.enable_digest %}

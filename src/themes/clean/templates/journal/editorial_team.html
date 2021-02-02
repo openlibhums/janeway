@@ -1,12 +1,12 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
 
-{% block title %}Editorial Team{% endblock title %}
+{% block title %}{% trans 'Editorial Team' %}{% endblock title %}
 
 {% block body %}
     <div class="row mb-2">
         <div class="col-md-12">
-            <h1>Editorial Team</h1>
+            <h1>{% trans 'Editorial Team' %}</h1>
         </div>
 
         {% for group in editorial_groups %}

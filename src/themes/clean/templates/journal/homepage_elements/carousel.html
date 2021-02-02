@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h1 class="sr-only">Latest Articles & News</h1>
+        <h1 class="sr-only">{% trans 'Latest Articles & News' %}</h1>
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
@@ -25,21 +25,21 @@
             </div>
             <a class="carousel-control-prev" href="#carousel" role="button" data-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
+                <span class="sr-only">{% trans 'Previous' %}</span>
             </a>
             <a class="carousel-control-next" href="#carousel" role="button" data-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
+                <span class="sr-only">{% trans 'Next' %}</span>
             </a>
               <div id="carousel-buttons">
                 <button id="carousel-play" type="button" class="btn btn-secondary btn-sm">
                   <span class="fa fa-play">
-                    <span class="sr-only">Play</span>
+                    <span class="sr-only">{% trans 'Play' %}</span>
                   </span>
                </button>
                 <button id="carousel-pause" type="button" class="btn btn-secondary btn-sm">
                   <span class="fa fa-pause">
-                    <span class="sr-only">Play</span>
+                    <span class="sr-only">{% trans 'Play' %}</span>
                   </span>
                 </button>
               </div>

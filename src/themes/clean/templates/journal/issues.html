@@ -13,7 +13,7 @@
 
 
             {% if request.journal.current_issue %}
-                <p>The current issue is: </p>
+                <p>{% trans 'The current issue is' %}: </p>
                 <ul>
                     <li>
                         <a href="{% url 'journal_issue' request.journal.current_issue.id %}">{{ request.journal.current_issue.display_title }}&bull; {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}</a>
@@ -27,7 +27,7 @@
                     <li><a href="{% url 'journal_issue' issue.id %}">{{ issue.display_title }}
                         &bull; {{ issue.articles.all.count }} {% trans "items" %}</a></li>
                     {% empty %}
-                    <li>This journal has no issues.</li>
+                    <li>{% trans 'This journal has no issues' %}.</li>
                 {% endfor %}
             </ul>
 
