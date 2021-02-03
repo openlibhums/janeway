@@ -16,7 +16,7 @@
       <dc:date>
     <dc:day>{{ article.date_published|date:"d" }}</dc:day>
     <dc:month>{{ article.date_published|date:"m" }}</dc:month>
-    <dc:year>{{ article.date_published|date:"yy" }}</dc:year>
+    <dc:year>{{ article.date_published|date:"Y" }}</dc:year>
       </dc:date>
       <dc:type>info:eu-repo/semantics/article</dc:type>
       {% if article.issue %}<dc:volume>{{ article.issue.volume }}</dc:volume>
