@@ -1,0 +1,15 @@
+{% if item.has_sub_nav %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
+           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ item.link_name }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
+            {% for subnav in item.sub_nav_items %}
+                <a href="{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
+            {% endfor %}
+        </div>
+    </li>
+{% else %}
+    <li class="nav-item"><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+{% endif %}
