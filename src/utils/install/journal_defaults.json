@@ -2775,7 +2775,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled this will suppress the citations counter on the article page.",
+            "description": "If enabled this will suppress the citations counter on the article page. The citation block will only appear for articles that have a citation. This setting is overruled by the Disable Metrics setting.",
             "is_translatable": false,
             "name": "suppress_citations_metric",
             "pretty_name": "Suppress Citation Metrics",
