@@ -56,7 +56,7 @@
                         {% if request.journal.submissionconfiguration.license %}
                             <div class="large-{{ request.journal.submissionconfiguration.lang_section_license_width }} columns error">
                                 {{ form.license|foundation }}
-                                <p class="help-text"><a href="#" data-open="license">View license information</a></p>
+                                <p class="help-text"><a href="#" data-open="license">{% trans 'View license information' %}</a></p>
                             </div>
                         {% endif %}
 
@@ -65,7 +65,7 @@
                             <div class="large-12 columns">
                                 <div class="row expanded">
                                     <div class="large-12 columns">
-                                        <label for="id_keywords">Keywords</label>
+                                        <label for="id_keywords">{% trans 'Keywords' %}</label>
                                         {{ form.keywords }}
                                         {{ form.keywords.help_text}}
                                     </div>
@@ -80,7 +80,7 @@
 
                     {% if additional_fields %}
                         <div class="title-area">
-                            <h2>Additional Fields</h2>
+                            <h2>{% trans 'Additional Fields' %}</h2>
                         </div>
                         {% for additional_field in additional_fields %}
                             {% get_form_field form additional_field.name as field %}
@@ -105,7 +105,7 @@
          role="dialog">
         <div class="card">
             <div class="card-divider">
-                <h2 id="licensetitle">License Information</h2>
+                <h2 id="licensetitle">{% trans 'License Information' %}</h2>
             </div>
             <div class="card-section">
                 <p>{{ request.journal.name }} {% trans "allows the following licenses for submission" %}:</p>
