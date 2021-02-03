@@ -156,7 +156,8 @@
                                         <p><i class="fa fa-reddit"></i> Reddit</p>
                                     </div>
                                 {% endif %}
-                                {% if article.citation_count %}
+
+                                {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.citation_count }}
