@@ -16,8 +16,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
+"Plural-Forms: nplurals=4; plural=(n==1) ? 0 : (n==2) ? 1 : (n != 8 && n != "
+"11) ? 2 : 3;\n"
 #: src/core/forms.py:88
 msgid "Password 1"
 msgstr ""
@@ -50,10 +50,8 @@ msgid "Anti-spam captcha"
 msgstr ""
 
 #: src/core/forms.py:450
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "Email"
+msgstr ""
 
 #: src/core/homepage_elements/about/hooks.py:23
 msgid "About this Journal"
@@ -64,10 +62,8 @@ msgid "Off"
 msgstr ""
 
 #: src/core/homepage_elements/carousel/models.py:10
-#, fuzzy
-#| msgid "Articles"
 msgid "Latest Articles"
-msgstr "Artikel"
+msgstr ""
 
 #: src/core/homepage_elements/carousel/models.py:11
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:9
@@ -77,10 +73,8 @@ msgid "Latest News"
 msgstr ""
 
 #: src/core/homepage_elements/carousel/models.py:12
-#, fuzzy
-#| msgid "Articles"
 msgid "Selected Articles"
-msgstr "Artikel"
+msgstr ""
 
 #: src/core/homepage_elements/carousel/models.py:13
 msgid "Latest Articles and News"
@@ -92,15 +86,15 @@ msgstr ""
 
 #: src/core/janeway_global_settings.py:234
 msgid "English"
-msgstr "Englisch"
+msgstr ""
 
 #: src/core/janeway_global_settings.py:235
 msgid "French"
-msgstr "Französisch"
+msgstr ""
 
 #: src/core/janeway_global_settings.py:236
 msgid "German"
-msgstr "Deutsche"
+msgstr ""
 
 #: src/core/janeway_global_settings.py:237
 msgid "Welsh"
@@ -114,11 +108,11 @@ msgstr ""
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:16
 #: src/themes/material/templates/core/accounts/get_reset_token.html:18
 msgid "Email"
-msgstr "Email"
+msgstr ""
 
 #: src/core/models.py:191
 msgid "Username"
-msgstr "Benutzername"
+msgstr ""
 
 #: src/core/models.py:193
 msgid "First name"
@@ -134,7 +128,7 @@ msgstr ""
 
 #: src/core/models.py:199
 msgid "Salutation"
-msgstr "Anrede"
+msgstr ""
 
 #: src/core/models.py:200
 #: src/themes/OLH/templates/core/accounts/public_profile.html:19
@@ -317,10 +311,8 @@ msgid "Submission is disabled for this journal."
 msgstr ""
 
 #: src/submission/models.py:360
-#, fuzzy
-#| msgid "Articles"
 msgid "Your article title"
-msgstr "Artikel"
+msgstr ""
 
 #: src/submission/models.py:362
 msgid "Subtitle of the article display format; Title: Subtitle"
@@ -381,10 +373,9 @@ msgid "File deleted"
 msgstr ""
 
 #: src/submission/views.py:520
-#, fuzzy, python-brace-format
-#| msgid "Articles"
+#, python-brace-format
 msgid "Article {title} submitted"
-msgstr "Artikel"
+msgstr ""
 
 #: src/submission/views.py:611
 msgid "Metadata updated."
@@ -528,7 +519,7 @@ msgstr ""
 #: src/themes/material/templates/press/nav.html:40
 #: src/themes/material/templates/press/nav.html:64
 msgid "Register"
-msgstr "Neu registrieren"
+msgstr ""
 
 #: src/templates/admin/journal/submissions.html:35
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:28
@@ -554,7 +545,7 @@ msgstr "Neu registrieren"
 #: src/themes/material/templates/press/nav.html:39
 #: src/themes/material/templates/press/nav.html:63
 msgid "Login"
-msgstr "Anmeldung"
+msgstr ""
 
 #: src/templates/admin/journal/submissions.html:36
 #: src/templates/admin/submission/start.html:84
@@ -656,10 +647,8 @@ msgstr ""
 #: src/themes/OLH/templates/journal/submissions.html:86
 #: src/themes/clean/templates/journal/submissions.html:65
 #: src/themes/material/templates/journal/submissions.html:100
-#, fuzzy
-#| msgid "Salutation"
 msgid "Public Submissions"
-msgstr "Anrede"
+msgstr ""
 
 #: src/templates/admin/journal/submissions.html:91
 #: src/themes/OLH/templates/journal/article.html:191
@@ -936,10 +925,8 @@ msgstr ""
 #: src/templates/admin/submission/submit_info.html:7
 #: src/templates/admin/submission/submit_review.html:27
 #: src/themes/OLH/templates/preprints/review.html:22
-#, fuzzy
-#| msgid "Articles"
 msgid "Article Info"
-msgstr "Artikel"
+msgstr ""
 
 #: src/templates/admin/submission/submit_funding.html:16
 #: src/templates/admin/submission/timeline.html:36
@@ -954,10 +941,8 @@ msgid "Add Funding Source"
 msgstr ""
 
 #: src/templates/admin/submission/submit_funding.html:27
-#, fuzzy
-#| msgid "Articles"
 msgid "Search for funder"
-msgstr "Artikel"
+msgstr ""
 
 #: src/templates/admin/submission/submit_funding.html:31
 msgid "Add funder manually"
@@ -1073,10 +1058,8 @@ msgstr ""
 
 #: src/templates/admin/submission/submit_review.html:60
 #: src/themes/OLH/templates/preprints/review.html:51
-#, fuzzy
-#| msgid "Articles"
 msgid "Author Info"
-msgstr "Artikel"
+msgstr ""
 
 #: src/templates/admin/submission/submit_review.html:70
 #: src/themes/OLH/templates/preprints/review.html:61
@@ -1087,10 +1070,8 @@ msgstr ""
 #: src/templates/admin/submission/timeline.html:28
 #: src/templates/admin/submission/timeline.html:29
 #: src/themes/OLH/templates/preprints/review.html:70
-#, fuzzy
-#| msgid "Articles"
 msgid "Article Files"
-msgstr "Artikel"
+msgstr ""
 
 #: src/templates/admin/submission/submit_review.html:81
 #: src/themes/OLH/templates/preprints/review.html:73
@@ -1192,10 +1173,8 @@ msgstr ""
 #: src/themes/OLH/templates/core/accounts/activate_account.html:32
 #: src/themes/clean/templates/core/accounts/activate_account.html:22
 #: src/themes/material/templates/core/accounts/activate_account.html:26
-#, fuzzy
-#| msgid "Login"
 msgid "login"
-msgstr "Anmeldung"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/edit_profile.html:4
 #: src/themes/clean/templates/core/accounts/edit_profile.html:5
@@ -1243,17 +1222,13 @@ msgstr ""
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:36
 #: src/themes/OLH/templates/press/core/login.html:33
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:29
-#, fuzzy
-#| msgid "Log in"
 msgid "Log In"
-msgstr "Einloggen"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:37
 #: src/themes/OLH/templates/press/core/login.html:34
-#, fuzzy
-#| msgid "Forgotten your password?"
 msgid "Forgot your password?"
-msgstr "Passwort vergessen"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/public_profile.html:5
 #: src/themes/OLH/templates/core/nav.html:73
@@ -1279,34 +1254,22 @@ msgstr ""
 #: src/themes/OLH/templates/core/accounts/public_profile.html:14
 #: src/themes/clean/templates/core/accounts/public_profile.html:14
 #: src/themes/material/templates/core/accounts/public_profile.html:14
-#, fuzzy
-#| msgid "Salutation"
 msgid "Affiliation"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/public_profile.html:24
 #: src/themes/clean/templates/core/accounts/public_profile.html:18
 #: src/themes/material/templates/core/accounts/public_profile.html:24
-#, fuzzy
-#| msgid "Salutation"
 msgid "Publications"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/register.html:30
 #: src/themes/clean/templates/core/accounts/register.html:22
 #: src/themes/material/templates/core/accounts/register.html:19
-#, fuzzy
-#| msgid "Regsiter for"
 msgid "Register for"
-msgstr "Registrieren für"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/register.html:32
-#, fuzzy
-#| msgid ""
-#| "Your password should be at minimum 12 characters long. It does not need "
-#| "to contain specific characters but you should make it as long as "
-#| "possible. For more information read on <a href=\"#\" data-open=\"password-"
-#| "modal\">password guide</a>."
 msgid ""
 "Your password should be at minimum 12 characters long. It does not need to\n"
 "                            contain specific characters but you should make "
@@ -1314,10 +1277,6 @@ msgid ""
 "                            read on <a href=\"#\" data-open=\"password-modal"
 "\">password guide</a>."
 msgstr ""
-"Ihr Passwort sollte mindestens 12 Zeichen lang sein. Es muss nicht bestimmte "
-"Zeichen enthalten, aber Sie sollten es so lange wie möglich machen. Weitere "
-"Informationen finden Sie auf der <a href=\"#\" data-open=\"password-modal"
-"\">Kennwort-Anleitung.</a>"
 
 #: src/themes/OLH/templates/core/accounts/register.html:78
 #: src/themes/clean/templates/core/accounts/register.html:31
@@ -1337,7 +1296,7 @@ msgstr ""
 #: src/themes/clean/templates/elements/press_footer.html:11
 #: src/themes/material/templates/core/accounts/register.html:30
 msgid "Privacy Policy"
-msgstr "Datenschutz-Bestimmungen"
+msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/register.html:93
 #: src/themes/OLH/templates/core/accounts/reset_password.html:43
@@ -1388,12 +1347,6 @@ msgid "Enter your new password twice to complete the reset process"
 msgstr ""
 
 #: src/themes/OLH/templates/core/accounts/reset_password.html:27
-#, fuzzy
-#| msgid ""
-#| "Your password should be at minimum 12 characters long. It does not need "
-#| "to contain specific characters but you should make it as long as "
-#| "possible. For more information read on <a href=\"#\" data-open=\"password-"
-#| "modal\">password guide</a>."
 msgid ""
 "Your password should be at minimum 12 characters long. It does not need to\n"
 "                            contain specific\n"
@@ -1402,32 +1355,28 @@ msgid ""
 "                            <a href=\"#\" data-open=\"password-modal"
 "\">password guide</a>"
 msgstr ""
-"Ihr Passwort sollte mindestens 12 Zeichen lang sein. Es muss nicht bestimmte "
-"Zeichen enthalten, aber Sie sollten es so lange wie möglich machen. Weitere "
-"Informationen finden Sie auf der <a href=\"#\" data-open=\"password-modal"
-"\">Kennwort-Anleitung.</a>"
 
 #: src/themes/OLH/templates/core/login.html:32
 #: src/themes/OLH/templates/press/core/login.html:25
 #: src/themes/clean/templates/core/login.html:19
 msgid "Log in with your account"
-msgstr "Melden Sie sich mit Ihrem Konto an"
+msgstr ""
 
 #: src/themes/OLH/templates/core/login.html:33
 #: src/themes/clean/templates/core/login.html:21
 #: src/themes/material/templates/core/login.html:37
 msgid "Log in with ORCiD"
-msgstr "Einloggen mit ORCiD"
+msgstr ""
 
 #: src/themes/OLH/templates/core/login.html:42
 #: src/themes/clean/templates/core/login.html:38
 msgid "Log in"
-msgstr "Einloggen"
+msgstr ""
 
 #: src/themes/OLH/templates/core/login.html:43
 #: src/themes/clean/templates/core/login.html:42
 msgid "Forgotten your password?"
-msgstr "Passwort vergessen"
+msgstr ""
 
 #: src/themes/OLH/templates/core/login.html:44
 #: src/themes/clean/templates/core/login.html:46
@@ -1461,7 +1410,7 @@ msgstr ""
 #: src/themes/material/templates/press/core/news/index.html:10
 #: src/themes/material/templates/press/core/news/item.html:5
 msgid "News"
-msgstr "Nachrichten"
+msgstr ""
 
 #: src/themes/OLH/templates/core/nav.html:24
 #: src/themes/OLH/templates/journal/articles.html:7
@@ -1477,7 +1426,7 @@ msgstr "Nachrichten"
 #: src/themes/material/templates/journal/articles.html:13
 #: src/themes/material/templates/journal/search.html:19
 msgid "Articles"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/core/nav.html:25
 #: src/themes/OLH/templates/elements/journal/article_issue_list.html:4
@@ -1529,7 +1478,7 @@ msgstr ""
 #: src/themes/material/templates/journal/contact.html:6
 #: src/themes/material/templates/journal/contact.html:43
 msgid "Contact"
-msgstr "Kontakt"
+msgstr ""
 
 #: src/themes/OLH/templates/core/nav.html:44
 #: src/themes/OLH/templates/journal/become_reviewer.html:5
@@ -1601,10 +1550,8 @@ msgstr ""
 #: src/themes/clean/templates/core/nav.html:91
 #: src/themes/material/templates/core/nav.html:122
 #: src/themes/material/templates/core/nav.html:154
-#, fuzzy
-#| msgid "Articles"
 msgid "Edit Article"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/core/nav.html:62
 #: src/themes/OLH/templates/elements/right_hand_menu.html:27
@@ -1647,7 +1594,7 @@ msgstr ""
 #: src/themes/material/templates/core/news/index.html:11
 #: src/themes/material/templates/press/core/news/index.html:11
 msgid "Filtering tag"
-msgstr "Filter-Tag"
+msgstr ""
 
 #: src/themes/OLH/templates/core/news/index.html:30
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:15
@@ -1656,7 +1603,7 @@ msgstr "Filter-Tag"
 #: src/themes/material/templates/journal/homepage_elements/news.html:23
 #: src/themes/material/templates/press/core/news/index.html:30
 msgid "Read More"
-msgstr "Weiterlesen"
+msgstr ""
 
 #: src/themes/OLH/templates/core/news/index.html:37
 #: src/themes/material/templates/core/news/index.html:37
@@ -1825,10 +1772,8 @@ msgstr ""
 #: src/themes/material/templates/press/nav.html:106
 #: src/themes/material/templates/press/nav.html:107
 #: src/themes/material/templates/press/nav.html:108
-#, fuzzy
-#| msgid "Articles"
 msgid "Preprints"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/OLH/templates/journal/articles.html:51
@@ -1843,10 +1788,8 @@ msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
-#, fuzzy
-#| msgid "Salutation"
 msgid "APA Citation Style"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:27
 #: src/themes/clean/templates/elements/journal/citation_modals.html:28
@@ -1860,10 +1803,8 @@ msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/elements/journal/citation_modals.html:49
-#, fuzzy
-#| msgid "Salutation"
 msgid "APA-Style Citation"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:6
 #: src/themes/OLH/templates/journal/article.html:167
@@ -1905,14 +1846,12 @@ msgstr ""
 #: src/themes/clean/templates/elements/journal_footer.html:25
 #: src/themes/clean/templates/elements/press_footer.html:13
 msgid "Sitemap"
-msgstr "Sitemap"
+msgstr ""
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:14
 #: src/themes/material/templates/core/nav.html:144
-#, fuzzy
-#| msgid "Salutation"
 msgid "Edit Submissions Page"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:15
 #: src/themes/material/templates/core/nav.html:145
@@ -1950,17 +1889,13 @@ msgstr ""
 #: src/themes/material/templates/press/nav.html:102
 #: src/themes/material/templates/press/nav.html:110
 #: src/themes/material/templates/press/nav.html:111
-#, fuzzy
-#| msgid "Articles"
 msgid "Preprint"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/article.html:6
 #: src/themes/material/templates/journal/article.html:7
-#, fuzzy
-#| msgid "Articles"
 msgid "Article"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/article.html:39
 #: src/themes/OLH/templates/journal/article.html:217
@@ -2027,10 +1962,8 @@ msgstr ""
 #: src/themes/OLH/templates/journal/article.html:172
 #: src/themes/clean/templates/journal/article.html:175
 #: src/themes/material/templates/journal/article.html:164
-#, fuzzy
-#| msgid "Salutation"
 msgid "Citations"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/article.html:183
 #: src/themes/OLH/templates/preprints/article.html:105
@@ -2069,10 +2002,8 @@ msgstr ""
 #: src/themes/OLH/templates/journal/article.html:247
 #: src/themes/clean/templates/journal/article.html:131
 #: src/themes/material/templates/journal/article.html:241
-#, fuzzy
-#| msgid "Articles"
 msgid "Supplementary Files"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/article.html:262
 msgid "View Summary"
@@ -2087,10 +2018,8 @@ msgid "File Checksums (MD5)"
 msgstr ""
 
 #: src/themes/OLH/templates/journal/articles.html:18
-#, fuzzy
-#| msgid "Articles"
 msgid "Pinned Articles"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/articles.html:27
 msgid "There are no articles published in this journal yet"
@@ -2123,10 +2052,8 @@ msgstr ""
 #: src/themes/OLH/templates/journal/articles.html:80
 #: src/themes/clean/templates/journal/articles.html:82
 #: src/themes/material/templates/journal/articles.html:109
-#, fuzzy
-#| msgid "Articles"
 msgid "Clear Filters"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/collections.html:24
 #: src/themes/material/templates/journal/article.html:278
@@ -2167,20 +2094,16 @@ msgstr ""
 #: src/themes/clean/templates/journal/homepage_elements/featured.html:6
 #: src/themes/clean/templates/journal/homepage_elements/popular.html:9
 #: src/themes/material/templates/journal/homepage_elements/featured.html:6
-#, fuzzy
-#| msgid "Articles"
 msgid "Featured Articles"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:5
 #: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:7
 #: src/themes/clean/templates/journal/homepage_elements/journals.html:4
 #: src/themes/material/templates/journal/homepage_elements/journals.html:6
 #: src/themes/material/templates/press/homepage_elements/journals_and_html.html:5
-#, fuzzy
-#| msgid "Articles"
 msgid "Featured Journals"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:23
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:28
@@ -2195,27 +2118,21 @@ msgstr ""
 #: src/themes/OLH/templates/journal/homepage_elements/popular.html:6
 #: src/themes/clean/templates/journal/homepage_elements/popular.html:7
 #: src/themes/material/templates/journal/homepage_elements/popular.html:6
-#, fuzzy
-#| msgid "Articles"
 msgid "Most Popular Articles"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/homepage_elements/preprints.html:6
 #: src/themes/clean/templates/journal/homepage_elements/preprints.html:6
-#, fuzzy
-#| msgid "Articles"
 msgid "Featured Preprints"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/issues.html:25
 #: src/themes/clean/templates/journal/issues.html:19
 #: src/themes/clean/templates/journal/issues.html:28
 #: src/themes/material/templates/journal/issues.html:29
 #: src/themes/material/templates/journal/issues.html:32
-#, fuzzy
-#| msgid "Sitemap"
 msgid "items"
-msgstr "Sitemap"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/issues.html:33
 msgid "There are no issues published in this journal yet."
@@ -2246,10 +2163,8 @@ msgstr ""
 
 #: src/themes/OLH/templates/journal/search.html:21
 #: src/themes/material/templates/journal/search.html:12
-#, fuzzy
-#| msgid "Articles"
 msgid "Searching for"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/journal/search.html:43
 msgid "You are currently browsing by keyword"
@@ -2300,10 +2215,8 @@ msgstr ""
 #: src/themes/OLH/templates/preprints/article.html:117
 #: src/themes/clean/templates/journal/article.html:178
 #: src/themes/material/templates/preprints/article.html:145
-#, fuzzy
-#| msgid "Salutation"
 msgid "Citation"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/article.html:130
 #: src/themes/OLH/templates/preprints/list.html:6
@@ -2329,10 +2242,8 @@ msgid "Preprint Authors"
 msgstr ""
 
 #: src/themes/OLH/templates/preprints/authors.html:16
-#, fuzzy
-#| msgid "Articles"
 msgid "Add authors to"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/authors.html:80
 msgid ""
@@ -2351,10 +2262,8 @@ msgid "This repository has no subjects or editors to display."
 msgstr ""
 
 #: src/themes/OLH/templates/preprints/home.html:29
-#, fuzzy
-#| msgid "Read More"
 msgid "Read about"
-msgstr "Weiterlesen"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/home.html:29
 #: src/themes/material/templates/preprints/home.html:25
@@ -2368,24 +2277,18 @@ msgstr ""
 
 #: src/themes/OLH/templates/preprints/home.html:30
 #: src/themes/material/templates/preprints/home.html:26
-#, fuzzy
-#| msgid "Articles"
 msgid "all preprints"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/home.html:36
 #: src/themes/material/templates/preprints/home.html:32
-#, fuzzy
-#| msgid "Articles"
 msgid "Latest Preprints"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/list.html:61
 #: src/themes/OLH/templates/preprints/search.html:46
-#, fuzzy
-#| msgid "Articles"
 msgid "Search preprints"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/list.html:65
 #: src/themes/OLH/templates/preprints/search.html:50
@@ -2395,17 +2298,13 @@ msgstr ""
 #: src/themes/OLH/templates/preprints/list.html:69
 #: src/themes/OLH/templates/preprints/search.html:54
 #: src/themes/material/templates/preprints/list.html:80
-#, fuzzy
-#| msgid "Articles"
 msgid "Author Name"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/list.html:70
 #: src/themes/OLH/templates/preprints/search.html:55
-#, fuzzy
-#| msgid "Salutation"
 msgid "Author Affiliation"
-msgstr "Anrede"
+msgstr ""
 
 #: src/themes/OLH/templates/preprints/list.html:76
 #: src/themes/material/templates/press/nav.html:101
@@ -2460,10 +2359,8 @@ msgid "Hit Enter to add a new keyword."
 msgstr ""
 
 #: src/themes/OLH/templates/press/core/login.html:26
-#, fuzzy
-#| msgid "Log in with ORCiD"
 msgid "Login with ORCiD"
-msgstr "Einloggen mit ORCiD"
+msgstr ""
 
 #: src/themes/OLH/templates/press/core/news/index.html:37
 msgid "This press currently has no news items to display."
@@ -2490,10 +2387,8 @@ msgid "Back to News List"
 msgstr ""
 
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:13
-#, fuzzy
-#| msgid "Articles"
 msgid "Preprints Dashboard"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/press/nav.html:22
 #: src/themes/OLH/templates/press/press_journals.html:5
@@ -2505,16 +2400,12 @@ msgid "Conferences"
 msgstr ""
 
 #: src/themes/OLH/templates/press/nav.html:31
-#, fuzzy
-#| msgid "Articles"
 msgid "Preprints Home"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/press/nav.html:33
-#, fuzzy
-#| msgid "Articles"
 msgid "About Preprints"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/OLH/templates/press/press_journals.html:48
 msgid "Disciplines"
@@ -2533,22 +2424,14 @@ msgid ""
 msgstr ""
 
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:30
-#, fuzzy
-#| msgid "Forgotten your password?"
 msgid "Forgot your password"
-msgstr "Passwort vergessen"
+msgstr ""
 
 #: src/themes/clean/templates/core/accounts/public_profile.html:10
 msgid "profile photo"
 msgstr ""
 
 #: src/themes/clean/templates/core/accounts/register.html:24
-#, fuzzy
-#| msgid ""
-#| "Your password should be at minimum 12 characters long. It does not need "
-#| "to contain specific characters but you should make it as long as "
-#| "possible. For more information read on <a href=\"#\" data-open=\"password-"
-#| "modal\">password guide</a>."
 msgid ""
 "Your password should be at minimum 12 characters long. It does not need\n"
 "                                to contain specific characters but you "
@@ -2558,18 +2441,8 @@ msgid ""
 "target=\"#passwordmodal\"> password guide</a>\n"
 "                                ."
 msgstr ""
-"Ihr Passwort sollte mindestens 12 Zeichen lang sein. Es muss nicht bestimmte "
-"Zeichen enthalten, aber Sie sollten es so lange wie möglich machen. Weitere "
-"Informationen finden Sie auf der <a href=\"#\" data-open=\"password-modal"
-"\">Kennwort-Anleitung.</a>"
 
 #: src/themes/clean/templates/core/accounts/reset_password.html:17
-#, fuzzy
-#| msgid ""
-#| "Your password should be at minimum 12 characters long. It does not need "
-#| "to contain specific characters but you should make it as long as "
-#| "possible. For more information read on <a href=\"#\" data-open=\"password-"
-#| "modal\">password guide</a>."
 msgid ""
 "Your password should be at minimum 12 characters long. It does not\n"
 "                                    need to contain specific\n"
@@ -2579,10 +2452,6 @@ msgid ""
 "target=\"#passwordmodal\">password\n"
 "                                        guide</a>."
 msgstr ""
-"Ihr Passwort sollte mindestens 12 Zeichen lang sein. Es muss nicht bestimmte "
-"Zeichen enthalten, aber Sie sollten es so lange wie möglich machen. Weitere "
-"Informationen finden Sie auf der <a href=\"#\" data-open=\"password-modal"
-"\">Kennwort-Anleitung.</a>"
 
 #: src/themes/clean/templates/core/accounts/reset_password.html:46
 msgid ""
@@ -2684,16 +2553,12 @@ msgid "Sort and Filter"
 msgstr ""
 
 #: src/themes/clean/templates/journal/contact.html:15
-#, fuzzy
-#| msgid "Contact"
 msgid "Journal Contacts"
-msgstr "Kontakt"
+msgstr ""
 
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:5
-#, fuzzy
-#| msgid "Articles"
 msgid "Latest Articles & News"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:28
 msgid "Previous"
@@ -2727,12 +2592,6 @@ msgid ""
 msgstr ""
 
 #: src/themes/material/templates/core/accounts/register.html:22
-#, fuzzy
-#| msgid ""
-#| "Your password should be at minimum 12 characters long. It does not need "
-#| "to contain specific characters but you should make it as long as "
-#| "possible. For more information read on <a href=\"#\" data-open=\"password-"
-#| "modal\">password guide</a>."
 msgid ""
 "Your password should be at minimum 12 characters long. It does not need\n"
 "                        to contain specific characters but you should make "
@@ -2742,10 +2601,6 @@ msgid ""
 "password guide</a>\n"
 "                        ."
 msgstr ""
-"Ihr Passwort sollte mindestens 12 Zeichen lang sein. Es muss nicht bestimmte "
-"Zeichen enthalten, aber Sie sollten es so lange wie möglich machen. Weitere "
-"Informationen finden Sie auf der <a href=\"#\" data-open=\"password-modal"
-"\">Kennwort-Anleitung.</a>"
 
 #: src/themes/material/templates/core/accounts/register.html:44
 #: src/themes/material/templates/core/accounts/reset_password.html:39
@@ -2759,12 +2614,6 @@ msgid ""
 msgstr ""
 
 #: src/themes/material/templates/core/accounts/reset_password.html:17
-#, fuzzy
-#| msgid ""
-#| "Your password should be at minimum 12 characters long. It does not need "
-#| "to contain specific characters but you should make it as long as "
-#| "possible. For more information read on <a href=\"#\" data-open=\"password-"
-#| "modal\">password guide</a>."
 msgid ""
 "Your password should be at minimum 12 characters long. It does not\n"
 "                                    need to contain specific\n"
@@ -2773,22 +2622,14 @@ msgid ""
 "                                    <a href=\"#passwordmodal\" class=\"modal-"
 "trigger\"> password guide</a>."
 msgstr ""
-"Ihr Passwort sollte mindestens 12 Zeichen lang sein. Es muss nicht bestimmte "
-"Zeichen enthalten, aber Sie sollten es so lange wie möglich machen. Weitere "
-"Informationen finden Sie auf der <a href=\"#\" data-open=\"password-modal"
-"\">Kennwort-Anleitung.</a>"
 
 #: src/themes/material/templates/core/login.html:33
-#, fuzzy
-#| msgid "Regsiter for"
 msgid "Register an Account"
-msgstr "Registrieren für"
+msgstr ""
 
 #: src/themes/material/templates/core/login.html:34
-#, fuzzy
-#| msgid "Forgotten your password?"
 msgid "Reset Your Password"
-msgstr "Passwort vergessen"
+msgstr ""
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:7
 msgid ""
@@ -2878,16 +2719,12 @@ msgid "View Issue"
 msgstr ""
 
 #: src/themes/material/templates/journal/search.html:23
-#, fuzzy
-#| msgid "Articles"
 msgid "No articles to display."
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/material/templates/journal/search.html:28
-#, fuzzy
-#| msgid "Articles"
 msgid "Searching"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/material/templates/preprints/editors.html:10
 msgid "Subject Area Editors"
@@ -2898,10 +2735,8 @@ msgid "search"
 msgstr ""
 
 #: src/themes/material/templates/preprints/home.html:24
-#, fuzzy
-#| msgid "Read More"
 msgid "Read about "
-msgstr "Weiterlesen"
+msgstr ""
 
 #: src/themes/material/templates/preprints/list.html:37
 msgid "There are no preprints to display"
@@ -2912,10 +2747,8 @@ msgid "You can search by:"
 msgstr ""
 
 #: src/themes/material/templates/preprints/list.html:81
-#, fuzzy
-#| msgid "Articles"
 msgid "Author Institution"
-msgstr "Artikel"
+msgstr ""
 
 #: src/themes/material/templates/press/nav.html:67
 msgid "menu"
