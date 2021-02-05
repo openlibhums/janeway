@@ -33,6 +33,14 @@ urlpatterns = [
         views.typesetting_upload_galley,
         name='typesetting_upload_galley'
         ),
+    url(r'^correction/(?P<correction_id>\d+)/delete/$',
+        views.typesetting_delete_correction,
+        name='typesetting_delete_correction',
+        ),
+    url(r'^article/(?P<article_id>\d+)/galley/upload/$',
+        views.typesetting_upload_galley,
+        name='typesetting_upload_galley'
+        ),
     url(r'^article/(?P<article_id>\d+)/assign/typesetter/$',
         views.typesetting_assign_typesetter,
         name='typesetting_assign_typesetter'

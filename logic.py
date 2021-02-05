@@ -139,10 +139,11 @@ def new_typesetting_round(article, rounds, request):
         latest_round = rounds[0]
         latest_round.close(request.user)
 
-        notify.event_typesetting_cancelled(
-            latest_round.typesettingassignment,
-            request,
-        )
+        if hasattr(latest_round, 'typesettingassignment'):
+            notify.event_typesetting_cancelled(
+                latest_round.typesettingassignment,
+                request,
+            )
 
         new_round = models.TypesettingRound.objects.create(
             article=article,

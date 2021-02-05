@@ -92,6 +92,10 @@ class TypesettingAssignment(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
     cancelled = models.DateTimeField(blank=True, null=True)
     reviewed = models.BooleanField(default=False)
+    display_proof_comments= models.BooleanField(
+        default=True,
+        help_text="Allow the typesetter to see the poofreading comments",
+    )
     review_decision = models.CharField(
         choices=review_choices(),
         max_length=21,
@@ -229,6 +233,22 @@ class TypesettingAssignment(models.Model):
     @property
     def friendly_status(self):
         return self.FRIENDLY_STATUSES.get(self.status)
+
+    def proofing_assignments_for_corrections(self):
+        """ Returns the proofreading assignemnts for corrections
+        The proofreadings relevant for round n of proofing would have been
+        stored against round n-1 of this article
+        """
+        rounds = TypesettingRound.objects.filter(article=self.round.article)
+        if rounds.count() > 1:
+            previous_round = rounds[1]
+            proofing_assignments = previous_round.galleyproofing_set.filter(
+                completed__isnull=False,
+                cancelled=False,
+            )
+            return proofing_assignments
+        else:
+            return GalleyProofing.objects.none()
 
 
 class GalleyProofing(models.Model):
@@ -423,6 +443,8 @@ class TypesettingCorrection(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+    # A copy of the galley label, in case the galley is deleted
+    label = models.CharField(max_length=255, blank=True, null=True)
     date_requested = models.DateTimeField(auto_now_add=True)
     date_completed = models.DateTimeField(blank=True, null=True)
     date_declined = models.DateTimeField(blank=True, null=True)
@@ -445,4 +467,6 @@ class TypesettingCorrection(models.Model):
 
     @property
     def corrected(self):
-        return self.file_checksum != self.galley.file.checksum()
+        if self.galley:
+            return self.file_checksum != self.galley.file.checksum()
+        return False

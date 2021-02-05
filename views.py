@@ -658,7 +658,11 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
         article_id=assignment.round.article.pk,
     )
 
-    if file in assignment.files_to_typeset.all():
+    if (
+        file in assignment.files_to_typeset.all()
+        or assignment.proofing_assignments_for_corrections().filter(
+            annotated_files__id=file_id)
+    ):
         return files.serve_any_file(
             request,
             file,
@@ -802,10 +806,42 @@ def typesetting_assignment(request, assignment_id):
             correction for correction in assignment.corrections.all()
             if not correction.corrected
         ],
-        'missing_images': [g for g in galleys if g.has_missing_image_files()]
+        'missing_images': [g for g in galleys if g.has_missing_image_files()],
+        'proofing_assignments': assignment.proofing_assignments_for_corrections,
     }
 
     return render(request, template, context)
+
+@decorators.production_user_or_editor_required
+def typesetting_delete_correction(request, correction_id):
+    try:
+        correction = models.TypesettingCorrection.objects.get(
+            task__round__article__journal=request.journal,
+            pk=correction_id,
+        )
+    except models.TypesettingCorrection.DoesNotExist:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Correction already adressed',
+        )
+
+    else:
+        correction.delete()
+        if correction.galley:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Correction Deleted',
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Confirmed',
+            )
+    return redirect(request.META.get('HTTP_REFERER'))
+
 
 
 @decorators.has_journal

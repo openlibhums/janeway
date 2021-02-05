@@ -35,6 +35,7 @@ class AssignTypesetter(forms.ModelForm):
             'due',
             'task',
             'files_to_typeset',
+            'display_proof_comments',
         )
 
         widgets = {
@@ -53,9 +54,11 @@ class AssignTypesetter(forms.ModelForm):
                     assignment.files_to_typeset.add(file)
 
                 for galley_id in self.cleaned_data.get("corrections", []):
+                    galley = core_models.Galley.objects.get(pk=galley_id)
                     correction, _ = assignment.corrections.get_or_create(
                         task=assignment,
-                        galley=core_models.Galley.objects.get(pk=galley_id),
+                        galley=galley,
+                        label=galley.label,
                     )
 
         return assignment

@@ -16,6 +16,20 @@
             <h2>Assign Typesetter to {{ article.title|safe }}</h2>
         </div>
         <div class="content">
+            {% if not article.projected_issue %}
+            <div class="callout alert" data-closable style="background-color: #f7e4e1; color: #0a0a0a">
+                <h5>Article missing prjected issue</h5>
+                <p>
+                    This Article doesn't have a projected issue, the typesetter won't know what issue this article belongs to. You can
+                    <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">
+                        assign one here.
+                    </a>
+                </p>
+                <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
             <p>Select a Typesetter from the list below and detail what typeset files you would like them to generate. They will have access to:</p>
             <ul>
                 <li>The manuscript files you select from the list below.</li>
@@ -39,7 +53,7 @@
                 <h2>2. Select Files</h2>
             </div>
             <div class="content">
-                <p>Select the files that you would like to have typeset.</p>
+                <p>Select the files that you would like to have typeset. This should include the latest version of the manuscript, as well as any supporting multimedia files (e.g: figure files)</p>
                 {% include "typesetting/elements/file_list.html" with files=files %}
             </div>
             <div class="title-area">
@@ -58,19 +72,29 @@
                         proofreader feedback</a>
                     <p>
                         <small><span class="fa fa-bell action-icon"></span> You can consolidate the feedback from the
-                            proofreaders in the task below
+                            proofreaders in the task below. You can also grant the typesetter access to the comments from the proofreader.
                         </small>
                     </p>
+                {{ form.display_proof_comments|foundation }}
                 </div>
             {% endif %}
             <div class="content">
-                <p>Let the typesetter know which files you want them to create, eg, PDF and XML (web display version) and if there are any special circumstances. They will have access to the article’s metadata.</p>
+                <p>
+                  {% if proofing_assignments %}
+                    Let the typesetter know all the corrections required, as well as to which files they apply (XML, PDF, HTML etc). If you haven't made the proofreader comments available above,
+                    you should collate all of their feedback here.
+                  {% else %}
+                    Let the typesetter know which files you want them to create, eg, PDF and XML (web display version) and if there are any special circumstances.
+                  {% endif %}
+                   They will have access to all of the article’s metadata.
+                </p>
                 {{ form.task|foundation }}
             </div>
             {% if article.galley_set.count > 0 %}
                 <div class="title-area">
                     <h2>5. Corrections</h2>
                 </div>
+                    <p> In most cases, the typesetter should be given access to all the typeset files in case that some corrections apply to more than one file (PDF, XML, HTML, etc)</p>
                 <div class="content">
                     {{ form.corrections|foundation }}
                 </div>
