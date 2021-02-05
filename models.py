@@ -125,7 +125,13 @@ class TypesettingAssignment(models.Model):
 
     @property
     def time_to_due(self):
-        return self.due - timezone.now().date()
+        due = self.due - timezone.now().date()
+        if due == timedelta(0):
+            return 'Due Today'
+        elif due < timedelta(0):
+            return 'Overdue'
+
+        return '{} days'.format(due.days)
 
     @property
     def is_active(self):
@@ -362,12 +368,11 @@ class GalleyProofing(models.Model):
 
     @property
     def time_to_due(self):
-        due = self.due - timezone.now()
+        due = self.due.date() - timezone.now().date()
 
-        if due.seconds < (24 * 60 * 60):
+        if due == timedelta(0):
             return 'Due Today'
-
-        if due < timedelta(0):
+        elif due < timedelta(0):
             return 'Overdue'
 
         return '{} days'.format(due.days)

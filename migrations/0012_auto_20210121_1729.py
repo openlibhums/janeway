@@ -10,8 +10,6 @@ OLD_COMPLETE = "<p>Dear editors,</p><p>This is an automatic notification to info
 NEW_COMPLETE = "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
 
 
-
-
 def update_setting_values(apps, schema_editor):
     SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
     queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_typesetter_complete'))
@@ -26,6 +24,7 @@ def replace_value(qs, old, new):
             setting.value = new
             setting.save()
 
+
 def reverse_code(apps, schema_editor):
     SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
     queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_typesetter_complete'))
@@ -33,8 +32,8 @@ def reverse_code(apps, schema_editor):
     queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
     replace_value(queryset, old=NEW_COMPLETE, new=OLD_COMPLETE)
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
 
     dependencies = [
         ('typesetting', '0011_auto_20200713_1317'),
