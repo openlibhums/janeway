@@ -122,9 +122,7 @@ def funder_articles(request, funder_id):
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
-    sections = submission_models.Section.objects.language().fallbacks(
-        'en'
-    ).filter(
+    sections = submission_models.Section.objects.filter(
         journal=request.journal,
         is_filterable=True,
     )
@@ -180,8 +178,10 @@ def articles(request):
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
-    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
-                                                                                   is_filterable=True)
+    sections = submission_models.Section.objects.filter(
+        journal=request.journal,
+        is_filterable=True,
+    )
     page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
 
     if redirect:
@@ -1842,9 +1842,7 @@ def submissions(request):
         template = 'admin/journal/submissions.html'
 
     context = {
-        'sections': submission_models.Section.objects.language().fallbacks(
-            'en'
-        ).filter(
+        'sections': submission_models.Section.objects.filter(
             journal=request.journal,
             public_submissions=True,
         ),

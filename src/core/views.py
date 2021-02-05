@@ -1688,7 +1688,7 @@ def sections(request, section_id=None):
     """
     section = get_object_or_404(submission_models.Section, pk=section_id,
                                 journal=request.journal) if section_id else None
-    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal)
+    sections = submission_models.Section.objects.filter(journal=request.journal)
 
     if section:
         form = forms.SectionForm(instance=section, request=request)

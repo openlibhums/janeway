@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
+from utils import models, setting_handler
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -15,6 +15,7 @@ PLUGIN_NAME = 'About'
 DESCRIPTION = 'This is a homepage element that renders About this Journal section.'
 AUTHOR = 'Martin Paul Eve & Andy Byers'
 VERSION = '1.0'
+DEFAULT_ABOUT = 'About this Journal'
 
 
 def get_self():
@@ -52,9 +53,6 @@ def install():
         }
     )
 
-    if c:
-        logger.debug('Setting created')
-
     # check whether this homepage element has already
     # been installed for all journals
     journals = journal_models.Journal.objects.all()
@@ -67,9 +65,25 @@ def install():
             template_path='journal/homepage_elements/about.html',
             content_type=content_type,
             object_id=journal.pk,
-            has_config=True)
+            has_config=True,
+        )
 
         element.save()
+
+        about_title = setting_handler.get_plugin_setting(
+            plugin=plugin,
+            setting_name='about_title',
+            journal=journal,
+            create=True,
+        ).value
+
+        if about_title in {None, " ", ""}:
+            setting_handler.save_plugin_setting(
+                plugin=plugin,
+                setting_name='about_title',
+                value=DEFAULT_ABOUT,
+                journal=journal,
+            )
 
 
 def hook_registry():

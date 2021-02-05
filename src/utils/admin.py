@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
-from hvad.admin import TranslatableAdmin
+from parler.admin import TranslatableAdmin
 
 from utils import models
 

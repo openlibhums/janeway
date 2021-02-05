@@ -1,6 +1,8 @@
 import os
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.utils import translation
 
 from core import plugin_loader
 
@@ -27,7 +29,7 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-
+        translation.activate(settings.LANGUAGE_CODE)
         plugin_name = options.get('plugin_name', None)
 
         if plugin_name:

@@ -9,7 +9,7 @@ SHORT_NAME = 'news'
 DESCRIPTION = 'This is a homepage element that renders News section.'
 AUTHOR = 'Martin Paul Eve & Andy Byers'
 VERSION = '1.0'
-DEFAULT_NEWS = 5 #Defines how many news are to be displayed by default
+DEFAULT_NEWS = 5  # Defines how many news are to be displayed by default
 
 
 def install():

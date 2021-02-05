@@ -15,7 +15,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from hvad.models import TranslatableModel, TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions

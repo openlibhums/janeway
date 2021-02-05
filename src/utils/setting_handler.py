@@ -9,8 +9,7 @@ import codecs
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management import call_command
-from django.utils.translation import get_language
+from django.utils.translation import get_language, activate
 
 from core import models as core_models
 from utils import models
@@ -194,6 +193,7 @@ def save_plugin_setting(plugin, setting_name, value, journal):
 
 def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', fallback='', types='Text'):
     lang = get_language() or settings.LANGUAGE_CODE
+    activate(lang)
     try:
         try:
             setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
@@ -240,29 +240,18 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
 
 def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
     try:
-        setting = models.PluginSettingValue.objects.language(lang).get(
+        setting = models.PluginSettingValue.objects.get(
             setting__plugin=plugin,
             setting=setting,
-            journal=journal
+            journal=journal,
         )
+        print(lang, setting.setting.name, setting.get_current_language())
         return setting
     except models.PluginSettingValue.DoesNotExist:
-        if lang == settings.LANGUAGE_CODE:
-            if create:
-                return save_plugin_setting(plugin, setting.name, '', journal)
-            else:
-                raise IndexError('Plugin setting does not exist and will not be created.')
+        if create:
+            return save_plugin_setting(plugin, setting.name, '', journal)
         else:
-            # Switch get the setting and start a translation
-            setting = models.PluginSettingValue.objects.language(settings.LANGUAGE_CODE).get(
-                setting__plugin=plugin,
-                setting=setting,
-                journal=journal
-            )
-
-            if not fallback:
-                setting.translate(lang)
-            return setting
+            raise IndexError('Plugin setting does not exist and will not be created.')
 
 
 def get_email_subject_setting(setting_group, setting_name, journal, create=False, fallback=False):

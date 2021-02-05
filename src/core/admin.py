@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from hvad.admin import TranslatableAdmin
+from parler.admin import TranslatableAdmin
 from django.utils.safestring import mark_safe
 
 from core import models, forms

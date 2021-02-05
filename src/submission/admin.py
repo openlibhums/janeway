@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from django import forms
 
-from hvad.admin import TranslatableAdmin
+from parler.admin import TranslatableAdmin
 
 from submission import models
 

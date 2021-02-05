@@ -83,7 +83,7 @@ INSTALLED_APPS = [
     # 3rd Party
     'django_summernote',
     'markdown_deux',
-    'hvad',
+    'parler',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
@@ -233,7 +233,21 @@ LANGUAGES = (
     ('en', ugettext('English')),
     ('fr', ugettext('French')),
     ('de', ugettext('German')),
+    ('cy', ugettext('Welsh')),
 )
+
+PARLER_LANGUAGES = {
+    None: (
+        {'code': 'en'},
+        {'code': 'fr'},
+        {'code': 'de'},
+        {'code': 'cy'},
+    ),
+    'default': {
+        'fallback': 'en',
+        'hide_untranslated': False,
+    }
+}
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
