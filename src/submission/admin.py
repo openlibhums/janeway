@@ -27,6 +27,15 @@ class ArticleAdmin(admin.ModelAdmin):
     search_fields = ('pk', 'title', 'subtitle')
     list_filter = ('stage', 'is_import', 'journal')
     raw_id_fields = ('section',)
+    filter_horizontal = (
+        'authors',
+        'manuscript_files',
+        'data_figure_files',
+        'supplementary_files',
+        'publisher_notes',
+        'keywords',
+        'source_files',
+    )
 
     def get_queryset(self, request):
         return self.model.allarticles.get_queryset()

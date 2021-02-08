@@ -1490,10 +1490,11 @@ def issue_article_order(request, issue_id=None):
             order_obj, c = models.ArticleOrdering.objects.get_or_create(
                 issue=issue,
                 article=article,
+                defaults={
+                    'order': order,
+                    'section': article.section,
+                }
             )
-
-            order_obj.order = order
-            order_obj.section = article.section
             order_obj.save()
 
     return HttpResponse('Thanks')
@@ -1775,13 +1776,13 @@ def search(request):
         return redir
     from itertools import chain
     if search_term:
+        escaped = re.escape(search_term)
         # checks titles, keywords and subtitles first,
         # then matches author based on below regex split search term.
-        escaped = re.escape(search_term)
+        split_term = [re.escape(word) for word in search_term.split(" ")]
+        split_term.append(escaped)
         search_regex = "^({})$".format(
-            "|".join({name for name in set(
-                chain(escaped.split(" "),(escaped,))
-            )})
+            "|".join({name for name in split_term})
         )
         articles = submission_models.Article.objects.filter(
                     (

@@ -115,4 +115,8 @@ class AuthorReview(models.Model):
     date_decided = models.DateTimeField(null=True, blank=True)
     author_note = models.TextField(null=True, blank=True, verbose_name='Note to the Editor')
 
-    files_updated = models.ManyToManyField('core.File', verbose_name='files_updated')
+    files_updated = models.ManyToManyField(
+        'core.File',
+        verbose_name='files_updated',
+        blank=True,
+    )

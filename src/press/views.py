@@ -269,7 +269,7 @@ def merge_users(request):
                 request, messages.ERROR,
                 "Can't merge a user with itself",
             )
-        return redirect(reverse('merge_users'))
+            return redirect(reverse('merge_users'))
 
         try:
             from_acc = core_models.Account.objects.get(id=from_id)

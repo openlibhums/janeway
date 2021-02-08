@@ -156,7 +156,8 @@
                                         <p><i class="fa fa-reddit"></i> Reddit</p>
                                     </div>
                                 {% endif %}
-                                {% if article.citation_count %}
+
+                                {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.citation_count }}
@@ -186,6 +187,24 @@
         <div class="col m4">
             <div class="card">
                 <div class="card-content">
+                    <h4>
+                        {% trans "Share" %}
+                    </h4>
+                      {% with article.get_doi_url as doi_url%}
+                        <a class="waves-effect waves-light btn btn-small facebook-bg"
+                            href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
+                            target="_blank"><i class="fa fa-facebook"></i></a>
+                        <a class="waves-effect waves-light btn btn-small twitter-bg" 
+                            href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
+                            target="_blank"><i class="fa fa-twitter"></i></a>
+                        <a class="waves-effect waves-light btn btn-small linkedin-bg"
+                            href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
+                            target="_blank"><i class="fa fa-linkedin"></i></a></button>
+                      {% endwith %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
                     <h4>
                         {% trans "Authors" %}
                     </h4>

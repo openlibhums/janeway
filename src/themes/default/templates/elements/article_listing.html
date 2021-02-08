@@ -5,7 +5,7 @@
     <div class="card-block">
         <div class="row">
             {% if not journal.disable_article_images %}
-                <div class="col-md-2">
+                <div class="col-md-2 hidden-sm-down">
                     <a href="
                             {% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}">
                         {% if article.thumbnail_image_file %}
@@ -21,7 +21,7 @@
                     </a>
                 </div>
             {% endif %}
-            <div class="col article-block">
+            <div class="col-md-10 col-sm-12 article-block">
                 <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.local_url }}{% endif %}">
                     <h4 class="card-title">{{ article.title|safe }}{% if article.is_remote %}&nbsp;
                         <i class="fa fa-external-link small-icon-text"></i>{% endif %}</h4>

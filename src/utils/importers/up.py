@@ -1393,6 +1393,7 @@ def scrape_about_page(journal, base_url):
         journal
     )
 
+
 def generate_dummy_email(profile_dict):
     seed = ''.join(str(val) for val in profile_dict.values())
     hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()

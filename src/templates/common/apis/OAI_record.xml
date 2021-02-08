@@ -13,11 +13,7 @@
       <dc:creator>{{author.last_name}}, {{author.first_name}}</dc:creator>
       {% endfor %}
       <dc:description>{{article.abstract|striptags}}</dc:description>
-      <dc:date>
-    <dc:day>{{ article.date_published|date:"d" }}</dc:day>
-    <dc:month>{{ article.date_published|date:"m" }}</dc:month>
-    <dc:year>{{ article.date_published|date:"yy" }}</dc:year>
-      </dc:date>
+      <date>{{article.date_published|date:"c"}}</date>
       <dc:type>info:eu-repo/semantics/article</dc:type>
       {% if article.issue %}<dc:volume>{{ article.issue.volume }}</dc:volume>
       <dc:issue>{{ article.issue.issue }}</dc:issue>{% endif %}

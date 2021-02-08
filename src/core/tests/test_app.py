@@ -7,7 +7,7 @@ import datetime
 from mock import patch
 
 from django.core.management import call_command
-from django.db import IntegrityError
+from django.db import connection, IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -43,6 +43,38 @@ class CoreTests(TestCase):
             models.Account.objects.get(email='test@test.com')
         except models.Account.DoesNotExist:
             self.fail('User account has not been saved.')
+
+
+    @override_settings(URL_CONFIG="domain")
+    def test_create_user_form_mixed_case(self):
+        data = {
+            'email': 'test@test.com',
+            'is_active': True,
+            'password_1': 'this_is_a_password',
+            'password_2': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+            'country': 235,
+        }
+        new_email = "TeSt@test.com"
+
+        self.client.force_login(self.admin_user)
+        response_1 = self.client.post(reverse('core_add_user'), data)
+        response_2= self.client.post(
+            reverse('core_add_user'),
+            dict(data, email=new_email),
+        )
+
+        try:
+            models.Account.objects.get(email='test@test.com')
+        except models.Account.DoesNotExist:
+            self.fail('User account has not been saved.')
+
+        self.assertEqual(response_2.status_code, 200)
+
 
     @override_settings(URL_CONFIG="domain")
     def test_create_user_form_normalise_email(self):

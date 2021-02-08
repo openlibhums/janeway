@@ -7,6 +7,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.db import models, IntegrityError, transaction
+from django.db.models import fields
 from django.db.models.fields.related import ForeignObjectRel
 from django.http.request import split_domain_port
 
@@ -48,6 +49,21 @@ class AbstractSiteModel(models.Model):
             scheme=self.SCHEMES[self.is_secure],
             path=path or "",
         )
+
+
+class PGCaseInsensitivedMixin():
+    """Activates the citext postgres extension for the given field"""
+    def db_type(self, connection):
+        if connection.vendor == "postgresql":
+            return "citext"
+        elif connection.vendor == "sqlite":
+            return "text collate nocase"
+        else:
+            return super().db_type(connection)
+
+
+class PGCaseInsensitiveEmailField(PGCaseInsensitivedMixin, models.EmailField):
+    pass
 
 
 def merge_models(src, dest):
