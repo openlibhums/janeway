@@ -218,13 +218,22 @@ def send_review_complete_acknowledgements(**kwargs):
 
     # send to editor
     context['review_in_review_url'] = review_in_review_url
-    notify_helpers.send_email_with_body_from_setting_template(
-        request,
-        'review_complete_acknowledgement',
-        'subject_review_complete_reviewer_acknowledgement',
-        review_assignment.editor.email,
-        context,
-    )
+    if review_assignment.editor:
+        editors = [review_assignment.editor]
+    elif article.editorassignment_set.exists():
+        editors = [ass.editor for ass in article.editorassignment_set.all()]
+    else:
+        editors = [r.user for r in core_models.AccountRole.objects.filter(
+            role__slug='editor', journal=article.journal)]
+
+    for editor in editors:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'review_complete_acknowledgement',
+            'subject_review_complete_reviewer_acknowledgement',
+            editor,
+            context,
+        )
 
 
 def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
