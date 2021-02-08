@@ -92,10 +92,17 @@ def get_suggested_reviewers(article, reviewers):
 
 
 def get_assignment_content(request, article, editor, assignment):
+    review_in_review_url = request.journal.site_url(
+        reverse(
+            'review_in_review',
+            kwargs={'article_id': article.pk}
+        )
+    )
     email_context = {
         'article': article,
         'editor': editor,
         'assignment': assignment,
+        'review_in_review_url': review_in_review_url,
     }
 
     return render_template.get_message_content(request, email_context, 'editor_assignment')
@@ -186,10 +193,18 @@ def get_decision_content(request, article, decision, author_review_url):
 
 
 def get_revision_request_content(request, article, revision):
+    do_revisions_url = request.journal.site_url(path=reverse(
+        'do_revisions',
+        kwargs={
+            'article_id': article.pk,
+            'revision_id': revision.pk,
+        }
+    ))
 
     email_context = {
         'article': article,
         'revision': revision,
+        'do_revisions_url': do_revisions_url,
     }
 
     return render_template.get_message_content(request, email_context, 'request_revisions')
@@ -221,9 +236,14 @@ def log_revision_event(text, user, revision_request):
 
 
 def get_draft_email_message(request, article):
-
+    review_in_review_url = request.journal.site_url(
+        path=reverse(
+            'review_in_review', args=[article.pk]
+        )
+    )
     email_context = {
         'article': article,
+        'review_in_review_url': review_in_review_url,
     }
 
     return render_template.get_message_content(request, email_context, 'draft_message')
@@ -486,16 +506,24 @@ def send_review_reminder(request, form, review_assignment, reminder_type):
 
 def assign_editor(article, editor, assignment_type, request=None, skip=True):
         assignment, created = models.EditorAssignment.objects.get_or_create(
-            article=article, editor=editor, editor_type=assignment_type,
+            article=article,
+            editor=editor,
+            editor_type=assignment_type,
         )
         if request and created:
             message_content = get_assignment_content(
-                request, article, editor,assignment)
-            kwargs = {'user_message_content': message_content,
-                    'editor_assignment': assignment,
-                    'request': request,
-                    'skip': skip,
-                    'acknowledgement': False}
+                request,
+                article,
+                editor,
+                assignment,
+            )
+            kwargs = {
+                'user_message_content': message_content,
+                'editor_assignment': assignment,
+                'request': request,
+                'skip': skip,
+                'acknowledgement': False,
+            }
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_ASSIGNED,

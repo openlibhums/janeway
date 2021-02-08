@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.models import Q
 from django.contrib import messages
 from django.utils import timezone
+from django.urls import reverse
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 
@@ -90,7 +91,9 @@ def get_files_from_post(request):
 
 
 def get_notify_proofreader(request, article, proofing_task):
+    proofing_url = request.journal.site_url(reverse("proofing_requests"))
     context = {
+        'proofing_requests_url': proofing_url,
         'article': article,
         'proofing_task': proofing_task,
     }
@@ -99,7 +102,9 @@ def get_notify_proofreader(request, article, proofing_task):
 
 
 def get_notify_typesetter(request, article, proofing_task, typeset_task):
+    proofing_url = request.journal.site_url(reverse("proofing_correction_requests"))
     context = {
+        'proofing_requests_url': proofing_url,
         'article': article,
         'proofing_task': proofing_task,
         'typesetter_proofing_task': typeset_task,
