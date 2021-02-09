@@ -2510,7 +2510,7 @@
         "setting": {
             "type": "boolean",
             "pretty_name": "Disable Submission",
-            "is_translatable": true,
+            "is_translatable": false,
             "description": "If true, users cannot submit new articles.",
             "name": "disable_journal_submission"
         },

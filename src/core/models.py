@@ -8,16 +8,15 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
-from urllib.parse import urlunparse
 
 import pytz
 
 from bs4 import BeautifulSoup
-from hvad.models import TranslatableModel, TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import models
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -32,7 +31,6 @@ from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
-from utils import setting_handler
 from utils.logger import get_logger
 from utils import logic as utils_logic
 

@@ -102,7 +102,6 @@ def _get_setting(
     try:
         return core_models.SettingValue.objects \
             .language(lang) \
-            .fallbacks(_fallback) \
             .get(
                 setting__group__name=setting_group,
                 setting=setting,
@@ -129,30 +128,11 @@ def _get_setting(
 
 
 def save_setting(setting_group, setting_name, journal, value):
-    setting = core_models.Setting.objects.get(name=setting_name)
-    lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
-
-    setting_value, created = core_models.SettingValue.objects \
-        .language(settings.LANGUAGE_CODE) \
-        .get_or_create(
-            setting__group=setting.group,
-            setting=setting,
-            journal=journal
+    setting = core_models.Setting.objects.get(
+        name=setting_name,
+        group__name=setting_group,
     )
-
-    if created:
-        # Ensure that a value exists for settings.LANGUAGE_CODE
-        setting_value.value = ""
-        setting_value.save()
-
-    if (
-        setting_value.setting.is_translatable
-        and lang != settings.LANGUAGE_CODE
-    ):
-        try:
-            setting_value = setting_value.translations.get_language(lang)
-        except ObjectDoesNotExist:
-            setting_value = setting_value.translate(lang)
+    lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
 
     if setting.types == 'json':
         value = json.dumps(value)
@@ -160,7 +140,18 @@ def save_setting(setting_group, setting_name, journal, value):
     if setting.types == 'boolean':
         value = 'on' if value else ''
 
-    setting_value.value = value
+    setting_value, created = core_models.SettingValue.objects.language(
+        lang,
+    ).get_or_create(
+        setting=setting,
+        journal=journal,
+        defaults={
+            'value': value,
+        }
+    )
+
+    if not created:
+        setting_value.value = value
 
     setting_value.save()
 
