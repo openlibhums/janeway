@@ -218,20 +218,13 @@ def send_review_complete_acknowledgements(**kwargs):
 
     # send to editor
     context['review_in_review_url'] = review_in_review_url
-    if review_assignment.editor:
-        editors = [review_assignment.editor]
-    elif article.editorassignment_set.exists():
-        editors = [ass.editor for ass in article.editorassignment_set.all()]
-    else:
-        editors = [r.user for r in core_models.AccountRole.objects.filter(
-            role__slug='editor', journal=article.journal)]
-
+    editors = get_review_assignment_editors(review_assignment)
     for editor in editors:
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_complete_acknowledgement',
             'subject_review_complete_reviewer_acknowledgement',
-            editor,
+            editor.email,
             context,
         )
 
@@ -309,13 +302,15 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         )
 
     # send to editor
-    notify_helpers.send_email_with_body_from_setting_template(
-        request,
-        'review_acknowledgement',
-        'subject_review_acknowledgement',
-        review_assignment.editor.email,
-        editor_context,
-    )
+    editors = get_review_assignment_editors(review_assignment)
+    for editor in editors:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'review_acknowledgement',
+            'subject_review_acknowledgement',
+            editor.email,
+            editor_context,
+        )
 
 
 def send_submission_acknowledgement(**kwargs):
@@ -1317,3 +1312,24 @@ def send_cancel_corrections(**kwargs):
         context=kwargs,
         log_dict=log_dict,
     )
+
+
+def get_review_assignment_editors(review_assignment):
+    """ Get editors relevant to a review assignment
+
+    This is a helper function to retrieve the editors that should be
+    notified of changes in a review assignment. It exists to handle edge-cases
+    where a review assignment might not have an editor assigned (e.g.:
+    migrated reviews from another system)
+    """
+    article = review_assignment.article
+    if review_assignment.editor:
+        editors = [review_assignment.editor]
+    elif article.editorassignment_set.exists():
+        # Try article assignment
+        editors = [ass.editor for ass in article.editorassignment_set.all()]
+    else:
+        # Fallback to all editors
+        editors = [r.user for r in core_models.AccountRole.objects.filter(
+            role__slug='editor', journal=article.journal)]
+    return editors
