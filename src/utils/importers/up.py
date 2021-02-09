@@ -1,3 +1,4 @@
+import hashlib
 import re
 import uuid
 import os
@@ -7,6 +8,7 @@ import json
 from dateutil import parser as dateparser
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
@@ -430,7 +432,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
                                                               section=order_section,
                                                               order=section_order).save()
 
-            import_issue_articles(soup, issue, user, base_url, import_missing, update)
+            import_issue_articles(soup_issue, issue, user, base_url, import_missing, update)
 
             issue.save()
 
@@ -1195,23 +1197,34 @@ def scrape_editorial_team(journal, base_url):
                 if name and name.text.strip():
                     affiliation = member_div.find('h5')
                     email_link = member_div.find('a', {'class': 'fa-envelope'})
-                    email_search = re.search(r'[\w\.-]+@[\w\.-]+', email_link.get('href'))
-                    email = email_search.group(0)
-
                     department, institution, country = split_affiliation(affiliation.text)
                     first_name, last_name = split_name(name.text.strip())
-
-                    account, c = core_models.Account.objects.get_or_create(
-                        email=email,
-                        defaults={
-                            'username': email,
+                    profile_dict = {
                             'first_name': first_name,
                             'last_name': last_name,
                             'department': department,
                             'institution': institution,
-                            'country': country,
-                        }
+                    }
+                    if email_link:
+                        email_search = re.search(r'[\w\.-]+@[\w\.-]+', email_link.get('href'))
+                        email = email_search.group(0)
+                    else:
+                        email = generate_dummy_email(profile_dict)
+                    profile_dict["username"] = email
+                    profile_dict["country"] = country
+
+
+
+                    account, c = core_models.Account.objects.get_or_create(
+                        email=email,
+                        defaults=profile_dict,
                     )
+                    bio_div = member_div.find("div", attrs={"class": "well"})
+                    if bio_div:
+                        bio = bio_div.text.strip()
+                        account.biography = bio
+                        account.enable_public_profile = True
+                        account.save()
 
                     core_models.EditorialGroupMember.objects.get_or_create(
                         group=group,
@@ -1379,3 +1392,9 @@ def scrape_about_page(journal, base_url):
         str(content),
         journal
     )
+
+
+def generate_dummy_email(profile_dict):
+    seed = ''.join(str(val) for val in profile_dict.values())
+    hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()
+    return "{0}@{1}".format(hashed, settings.DUMMY_EMAIL_DOMAIN)
