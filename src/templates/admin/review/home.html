@@ -44,7 +44,7 @@
                         <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
                         {% if journal_settings.general.enable_expanded_review_details %}
                         <td>
-                            {% if article.active_reviews %}
+                            {% if article.reviewassignment_set.exists %}
 
                                 <table style="width:100%; min-width:230px;" class="table table-stack small no-pad no-bottom-margin">
                                     {% for review in article.reviewassignment_set.all %}
@@ -57,6 +57,8 @@
                                         </tr>
                                     {% endfor %}
                                 </table>
+                             {% else %}
+                             No Review assignments
                             {% endif %}
                         </td>
                         {% else %}
