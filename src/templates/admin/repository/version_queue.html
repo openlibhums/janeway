@@ -23,6 +23,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>{{ request.repository.object_name }} ID</th>
                             <th>{{ request.repository.object_name }}</th>
                             <th>Requester</th>
                             <th>Requested</th>
@@ -36,6 +37,7 @@
                     {% for version in version_queue %}
                         <tr>
                             <td>{{ version.pk }}</td>
+                            <td>{{ version.preprint.id }}</td>
                             <td>{{ version.preprint.title|safe }} {% if version.preprint in duplicates %}<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" tabindex="1" title="This {{ request.repository.object_name }} has multiple requests in queue."><i class="fa fa-info-circle"></i></span>{% endif %}</td>
                             <td>{{ version.preprint.owner }}</td>
                             <td>{{ version.date_submitted }}</td>
