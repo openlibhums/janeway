@@ -270,10 +270,16 @@
                             <td>Update ID: {{ update.pk }}</td>
                             <td>{{ update.get_update_type_display }} (Pending)</td>
                             <td>{{ update.date_submitted }}</td>
+                            {% if update.file %}
                             <td>{{ update.file.original_filename }}</td>
                             <td>{{ update.file.uploaded }}</td>
                             <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}"><i
                                     class="fa fa-download"></i></a></td>
+                            {% else %}
+                            <td>n/a</td>
+                            <td>n/a</td>
+                            <td>n/a</td>
+                            {% endif %}
                             <td>
                                 <a href="{% url 'version_queue' %}">Manage</a>
                             </td>
