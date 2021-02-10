@@ -889,6 +889,7 @@ class VersionQueue(models.Model):
     def approve(self):
         self.date_decision = timezone.now()
         self.approved = True
+        current_version = None
 
         # Update the current version to have the Preprint's current title
         # and abstract.
@@ -896,13 +897,17 @@ class VersionQueue(models.Model):
             current_version = self.preprint.current_version
             current_version.title = self.preprint.title
             current_version.abstract = self.preprint.abstract
+            this_file = self.preprint.current_version.file
+        # no version yet
+        else:
+            this_file = self.preprint.submission_file
 
         # Create a new PreprintVersion, this will now be the current_version.
         # If the current VersionQueue has no file (in the case of Metadata
         # updates) use the preprint's current version's file.
         PreprintVersion.objects.create(
             preprint=self.preprint,
-            file=self.file if self.file else self.preprint.current_version.file,
+            file=self.file if self.file else this_file,
             version=self.preprint.next_version_number(),
             moderated_version=self,
         )
