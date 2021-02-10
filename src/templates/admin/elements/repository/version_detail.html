@@ -21,7 +21,9 @@
                     <p><strong>Abstract</strong></p>
                     <p>{{ version.preprint.abstract|safe|linebreaksbr }}</p>
                     <p><strong>File</strong></p>
+                    {% if version.preprint.current_version.file %}
                     <p><a href="{% url 'repository_file_download' version.preprint.id version.preprint.current_version.file.id %}"><i class="fa fa-download"></i> Download</a></p>
+                    {% endif %}
                 </div>
             </div>
             <div class="large-6 columns">

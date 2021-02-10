@@ -892,9 +892,10 @@ class VersionQueue(models.Model):
 
         # Update the current version to have the Preprint's current title
         # and abstract.
-        current_version = self.preprint.current_version
-        current_version.title = self.preprint.title
-        current_version.abstract = self.preprint.abstract
+        if self.preprint.current_version is not None:
+            current_version = self.preprint.current_version
+            current_version.title = self.preprint.title
+            current_version.abstract = self.preprint.abstract
 
         # Create a new PreprintVersion, this will now be the current_version.
         # If the current VersionQueue has no file (in the case of Metadata
@@ -913,7 +914,8 @@ class VersionQueue(models.Model):
         if self.abstract:
             self.preprint.abstract = self.abstract
 
-        current_version.save()
+        if current_version is not None:
+            current_version.save()
         self.preprint.save()
         self.save()
 
