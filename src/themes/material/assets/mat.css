@@ -213,6 +213,6 @@ h5 {
   }
   
   /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
-  .active {
+  #subjects .tree .active {
     display: block;
   }
