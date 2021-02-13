@@ -64,7 +64,7 @@ class ReviewerDecisionForm(forms.ModelForm):
 
     class Meta:
         model = models.ReviewAssignment
-        fields = ('decision', 'comments_for_editor')
+        fields = ('decision', 'comments_for_editor', 'permission_to_make_public')
 
 
 class FakeReviewerDecisionForm(FakeModelForm, ReviewerDecisionForm):

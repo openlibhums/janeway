@@ -319,8 +319,16 @@
                     {% if article.peer_reviewed %}
                         <p>
                             <i class="fa fa-check-circle-o" style="color: green"></i>
-                            {% trans "This article has been peer reviewed." %}
-                        </p>
+                            {% trans "This article has been peer reviewed." %}</p>
+                            {% if journal_settings.general.open_peer_review %}
+                                {% if article.public_reviews.count > 0 %}
+                                    <p>
+                                        {% for review in article.public_reviews %}
+                                            Review by {{ review.reviewer.full_name }} (<a style="color:{% if 'accept' in review.decision %}green;{% elif 'revision' in review.decision %}orange;{% elif 'reject' in review.decision %}red;{% endif %}" href="#reviewmodal-{{ review.pk }}" class="button small success pub-button modal-trigger">{{ review.decision|title }}</a></span>)
+                                        {% endfor %}<br/>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
                     {% else %}
                         <p>
                             {% trans "This article has not been peer reviewed." %}
@@ -366,6 +374,7 @@
 
     </div>
     {% include "elements/summary_modal.html" %}
+    {% include "elements/public_reviews_material.html" %}
 {% endblock %}
 
 {% block js %}

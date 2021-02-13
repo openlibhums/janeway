@@ -955,6 +955,16 @@ class Article(models.Model):
         return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True)
 
     @property
+    def completed_reviews_with_permission(self):
+        return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True,
+                                                permission_to_make_public=True)
+
+    @property
+    def public_reviews(self):
+        return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True,
+                                                permission_to_make_public=True, display_public=True)
+
+    @property
     def completed_reviews_with_decision(self):
         return self.reviewassignment_set.filter(is_complete=True,
                                                 date_declined__isnull=True,

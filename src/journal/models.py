@@ -815,6 +815,7 @@ class FixedPubCheckItems(models.Model):
     notify_the_author = models.BooleanField(default=False)
     select_render_galley = models.BooleanField(default=False)
     select_article_image = models.BooleanField(default=False)
+    select_open_reviews = models.BooleanField(default=False)
 
 
 class PresetPublicationCheckItem(models.Model):

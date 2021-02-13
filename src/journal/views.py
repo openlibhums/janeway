@@ -979,6 +979,13 @@ def publish_article(request, article_id):
                 )
             )
 
+        if 'open_reviews' in request.POST:
+            logic.set_open_reviews(request, article)
+            reverse(
+                'publish_article',
+                kwargs={'article_id': article.pk},
+            )
+
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
             article.snapshot_authors(force_update=False)

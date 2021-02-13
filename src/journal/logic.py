@@ -277,6 +277,15 @@ def set_render_galley(request, article):
         messages.add_message(request, messages.WARNING, 'No galley id supplied.')
 
 
+def set_open_reviews(request, article):
+    # get a list of reviews
+    reviews = article.completed_reviews_with_permission
+
+    for review in reviews:
+        review.display_public = bool(request.POST.get('open-review-' + str(review.pk), False))
+        review.save()
+
+
 def set_article_image(request, article):
     from core import logic as core_logic
 

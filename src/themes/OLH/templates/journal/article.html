@@ -296,6 +296,19 @@
                                 {% endfor %}
                             </ul>
                         </div>
+
+                        <div class="section hide-for-small-only">
+                            <h3>{% trans "Peer Review" %}</h3>
+                            {% if journal_settings.general.open_peer_review %}
+                                {% if article.public_reviews.count > 0 %}
+                                    <p>
+                                        {% for review in article.public_reviews %}
+                                            Review by {{ review.reviewer.full_name }} (<a style="color:{% if 'accept' in review.decision %}green;{% elif 'revision' in review.decision %}orange;{% elif 'reject' in review.decision %}red;{% endif %}" href="#" data-open="reviewmodal-{{ review.pk }}">{{ review.decision|title }}</a></span>)
+                                        {% endfor %}<br/>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
                 </aside>
@@ -306,6 +319,7 @@
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}
     {% include "elements/journal/summary_modal.html" %}
+    {% include "elements/public_reviews_olh.html" %}
     <div class="hline"></div>
     <br/>
 
