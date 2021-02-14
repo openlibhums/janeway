@@ -1038,6 +1038,29 @@ def add_review_assignment(request, article_id):
         if 'quick_assign' in request.POST:
             logic.quick_assign(request, article)
             return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+        elif 'add_and_assign' in request.POST:
+            # first check whether the user exists
+            new_reviewer_form = core_forms.QuickUserForm(request.POST)
+
+            try:
+                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
+                user.add_account_role('reviewer', request.journal)
+            except:
+                user = None
+
+            if user:
+                logic.quick_assign(request, article, reviewer_user=user)
+                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+
+            valid = new_reviewer_form.is_valid()
+
+            if valid:
+                acc = logic.handle_reviewer_form(request, new_reviewer_form)
+                logic.quick_assign(request, article, reviewer_user=acc)
+                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+            else:
+                modal = 'reviewer'
+
         elif 'assign' in request.POST:
             # first check whether the user exists
             new_reviewer_form = core_forms.QuickUserForm(request.POST)
@@ -1058,6 +1081,7 @@ def add_review_assignment(request, article_id):
                 return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
             else:
                 modal = 'reviewer'
+
         elif 'enrollusers' in request.POST:
             user_ids = request.POST.getlist('user_id')
             users = core_models.Account.objects.filter(pk__in=user_ids)
