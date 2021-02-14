@@ -177,4 +177,34 @@
         {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
     {% include "elements/datatables.html" with target="#enrolluser" %}
+
+    <script lang="javascript">
+    function getQueryStrings()
+    {
+        let vars = [], hash;
+        let hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(let i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1].split('#')[0];
+        }
+        return vars;
+    }
+
+    // populate the query box when ready
+    $( document ).ready(function() {
+        let urls = getQueryStrings();
+        let user = urls["user"];
+        let user_id = urls["id"];
+
+        if (user !== '') {
+            $('#reviewers').DataTable().search(decodeURIComponent(user)).draw();
+
+            if (user_id !== '') {
+                $("input[value=" + decodeURIComponent(user_id) + "]").attr('checked', 'checked');
+            }
+        }
+    });
+    </script>
 {% endblock js %}
