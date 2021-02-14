@@ -378,6 +378,7 @@ def handle_reviewer_form(request, new_reviewer_form):
     account.save()
     account.add_account_role('reviewer', request.journal)
     messages.add_message(request, messages.INFO, 'A new account has been created.')
+    return account
 
 
 def get_enrollable_users(request):

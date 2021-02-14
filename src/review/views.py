@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
+from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 
@@ -1035,10 +1036,23 @@ def add_review_assignment(request, article_id):
             logic.quick_assign(request, article)
             return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
         elif 'assign' in request.POST:
+            # first check whether the user exists
             new_reviewer_form = core_forms.QuickUserForm(request.POST)
-            if new_reviewer_form.is_valid():
-                logic.handle_reviewer_form(request, new_reviewer_form)
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}))
+
+            try:
+                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
+                user.add_account_role('reviewer', request.journal)
+            except:
+                user = None
+
+            if user:
+                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)}))
+
+            valid = new_reviewer_form.is_valid()
+
+            if valid:
+                acc = logic.handle_reviewer_form(request, new_reviewer_form)
+                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
             else:
                 modal = 'reviewer'
         elif 'enrollusers' in request.POST:
