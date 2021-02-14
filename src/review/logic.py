@@ -305,7 +305,7 @@ def get_access_code(request):
     return access_code
 
 
-def quick_assign(request, article):
+def quick_assign(request, article, reviewer_user=None):
     errors = []
     try:
         default_review_form_id = setting_handler.get_setting('general',
@@ -329,8 +329,11 @@ def quick_assign(request, article):
     except BaseException:
         errors.append('This journal does not have either default visibilty or default due.')
 
-    user_id = request.POST.get('quick_assign')
-    user = core_models.Account.objects.get(pk=user_id)
+    if not reviewer_user:
+        user_id = request.POST.get('quick_assign')
+        user = core_models.Account.objects.get(pk=user_id)
+    else:
+        user = reviewer_user
 
     if user not in request.journal.users_with_role('reviewer'):
         errors.append('This user is not a reviewer for this journal.')
