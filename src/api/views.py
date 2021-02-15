@@ -17,6 +17,7 @@ from api import serializers, permissions as api_permissions
 from core import models as core_models
 from submission import models as submission_models
 from journal import models as journal_models
+from repository import models as repository_models
 
 
 @api_view(['GET'])
@@ -139,6 +140,20 @@ class ArticleViewSet(viewsets.ModelViewSet):
                                                                 date_published__lte=timezone.now())
 
         return queryset
+
+
+class PreprintViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint for preprints.
+    """
+    pass
+    serializer_class = serializers.PreprintSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        return repository_models.Preprint.objects.filter(repository=self.request.repository,
+                                                         date_published__lte=timezone.now(),
+                                                         stage=repository_models.STAGE_PREPRINT_PUBLISHED)
 
 
 def oai(request):
