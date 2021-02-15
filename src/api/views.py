@@ -120,7 +120,11 @@ def oai(request):
     return render(request, template, context, content_type="application/xml")
 
 
-def kbart(request):
+def kbart_tsv(request):
+    return kbart(request, delim='\t')
+
+
+def kbart(request, delim=','):
     """
     Produces KBART metadata output
     @param request: the request object
@@ -133,7 +137,13 @@ def kbart(request):
               "parent_publication_title_id", "preceding_publication_title_id", "access_type"]
 
     response = HttpResponse(content_type='text/csv')
-    writer = csv.DictWriter(response, fieldnames=fields)
+
+    if delim == ',':
+        writer = csv.DictWriter(response, fieldnames=fields)
+        response['Content-Disposition'] = 'attachment; filename="kbart.csv"'
+    else:
+        writer = csv.DictWriter(response, fieldnames=fields, delimiter='\t')
+        response['Content-Disposition'] = 'attachment; filename="kbart.tsv"'
 
     writer.writeheader()
 
@@ -156,7 +166,5 @@ def kbart(request):
         journal_line['access_type'] = 'F'
 
         writer.writerow(journal_line)
-
-    response['Content-Disposition'] = 'attachment; filename="kbart.csv"'
 
     return response
