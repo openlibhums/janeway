@@ -81,10 +81,9 @@ class PreprintSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = repository_models.Preprint
-        fields = ('pk', 'title', 'abstract', 'license', 'keywords', 'section',
+        fields = ('pk', 'title', 'abstract', 'license', 'keywords', 
                   'date_submitted', 'date_accepted', 'date_published',
-                  'doi', 'preprint_doi', 'authors', 'subject',
- )
+                  'doi', 'preprint_doi', 'authors', 'subject',)
 
     authors = PreprintAuthorSerializer(
         many=True,
@@ -94,10 +93,6 @@ class PreprintSerializer(serializers.HyperlinkedModelSerializer):
     keywords = KeywordsSerializer(
         many=True,
         read_only=True,
-    )
-    section = serializers.ReadOnlyField(
-        read_only=True,
-        source='section.name'
     )
     subject = PreprintSubjectSerializer(
         many=True,
