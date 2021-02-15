@@ -225,4 +225,3 @@ class TimezoneMiddleware(object):
                 logger.debug("Activated timezone %s" % tzname)
         except Exception as e:
             logger.warning("Failed to activate timezone %s: %s" % (tzname, e))
-

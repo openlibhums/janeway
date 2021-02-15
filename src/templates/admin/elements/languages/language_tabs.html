@@ -1,0 +1,21 @@
+{% load i18n %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<div class="row expanded">
+    <div class="large-12 columns">
+        <ul class="menu simple lang-tabs">
+            {% if object and languages|length > 1 %}
+                {% for lang in languages %}
+                    <li class="lang-tab{% if lang.code == language %} lang-tab-active{% endif %}">
+                        <a href="?language={{ lang.code }}">{{ lang.name_local }} ({{ lang.code }})</a>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <p>Before translations become available you must create the section in the base language ({{ LANGUAGE_CODE }}).</p>
+            {% endif %}
+        </ul>
+    </div>
+</div>

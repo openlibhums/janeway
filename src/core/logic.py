@@ -141,7 +141,6 @@ def cached_settings_for_context(journal, language):
                 group,
                 setting.name,
                 journal,
-                fallback=True,
             ).processed_value
 
     return _dict

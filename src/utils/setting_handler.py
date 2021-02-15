@@ -34,21 +34,18 @@ def get_setting(
         setting_group, setting_name,
         journal=None,
         create=False,
-        fallback=True,
         default=True,
 ):
     """ Returns a matching SettingValue for the language in context
 
     It no journal is passed it returns the default setting directly. If
-    fallback or default are True, it will attempt to returnthe base language
-    and/or the default value respectively (in that order)
+    default s True, it will attempt to return the default value respectively
+    (in that order)
     :setting_group: (str) The group__name of the Setting
     :setting_name: (str) The name of the Setting
     :journal: (Journal object) The journal for which this setting is relevant.
         If None, returns the default value
     :create: If True, a journal override will be created if one is not present
-    :fallback: If True, it will attempt to return the value for the base
-        language when no value is available for the current language
     :default: If True, returns the default SettingValue when no journal specific
         value is present
     """
@@ -56,17 +53,16 @@ def get_setting(
     lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
     try:
         return _get_setting(
-            setting_group, setting, journal, lang, create, fallback, default)
+            setting_group, setting, journal, lang, create, default)
     except Exception as e:
         logger.critical(
                 "Failed to load setting for context:\n"
                 "setting_name: {0},\n"
                 "journal: {1},\n"
-                "fallback: {2},\n"
-                "request language: {3},\n"
-                "settings language: {4},\n"
+                "request language: {2},\n"
+                "settings language: {3},\n"
                 "".format(
-                    setting_name, journal, fallback,
+                    setting_name, journal,
                     lang, settings.LANGUAGE_CODE
                 )
             )
@@ -91,22 +87,20 @@ def _get_setting(
         journal,
         lang,
         create=False,
-        fallback=True,
         default=True,
 ):
-    if fallback:
-        _fallback = settings.LANGUAGE_CODE
-    else:
-        _fallback = None # deactivates fallback
 
     try:
-        return core_models.SettingValue.objects \
+        setting_value_object = core_models.SettingValue.objects \
             .language(lang) \
             .get(
                 setting__group__name=setting_group,
                 setting=setting,
                 journal=journal,
         )
+        #  We call setting_value_object to force parler to check the active translation.
+        setting_value_object.value
+        return setting_value_object
     except ObjectDoesNotExist:
         if journal is not None:
             if create:
@@ -119,7 +113,7 @@ def _get_setting(
                 journal = None
                 return _get_setting(
                         setting_group, setting, journal,
-                        lang, create, fallback,
+                        lang, create,
                 )
             else:
                 return None
@@ -182,14 +176,14 @@ def save_plugin_setting(plugin, setting_name, value, journal):
     return setting_value
 
 
-def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', fallback='', types='Text'):
+def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', types='Text'):
     lang = get_language() or settings.LANGUAGE_CODE
     activate(lang)
     try:
         try:
             setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
             lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
-            return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
+            return _get_plugin_setting(plugin, setting, journal, lang, create)
         except models.PluginSetting.DoesNotExist:
             # Some Plugins rely on this function to install themselves
             logger.warning(
@@ -208,7 +202,7 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
                 if created:
                     save_plugin_setting(plugin, setting_name, ' ', journal)
                 lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
-                return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
+                return _get_plugin_setting(plugin, setting, journal, lang, create)
             else:
                 raise
 
@@ -218,25 +212,22 @@ def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', f
                 "plugin: {0},\n"
                 "setting_name: {1},\n"
                 "journal: {2},\n"
-                "fallback: {3},\n"
-                "request language: {4},\n"
-                "settings language: {5},\n"
+                "request language: {3},\n"
+                "settings language: {4},\n"
                 "".format(
-                    plugin, setting_name, journal,
-                    fallback, lang, settings.LANGUAGE_CODE
+                    plugin, setting_name, journal, lang, settings.LANGUAGE_CODE
                 )
             )
         raise e
 
 
-def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
+def _get_plugin_setting(plugin, setting, journal, lang, create):
     try:
         setting = models.PluginSettingValue.objects.get(
             setting__plugin=plugin,
             setting=setting,
             journal=journal,
         )
-        print(lang, setting.setting.name, setting.get_current_language())
         return setting
     except models.PluginSettingValue.DoesNotExist:
         if create:
@@ -245,12 +236,12 @@ def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
             raise IndexError('Plugin setting does not exist and will not be created.')
 
 
-def get_email_subject_setting(setting_group, setting_name, journal, create=False, fallback=False):
+def get_email_subject_setting(setting_group, setting_name, journal, create=False):
     try:
         setting = core_models.Setting.objects.get(name=setting_name)
         lang = get_language() if setting.is_translatable else 'en'
 
-        return _get_setting(setting_group, setting, journal, lang, create, fallback).value
+        return _get_setting(setting_group, setting, journal, lang, create).value
     except core_models.Setting.DoesNotExist:
         return setting_name
 

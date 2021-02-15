@@ -1686,14 +1686,27 @@ def sections(request, section_id=None):
     :param section_id: Section object PK, optional
     :return: HttpResponse object
     """
-    section = get_object_or_404(submission_models.Section, pk=section_id,
-                                journal=request.journal) if section_id else None
-    sections = submission_models.Section.objects.filter(journal=request.journal)
+    section = get_object_or_404(
+        submission_models.Section,
+        pk=section_id,
+        journal=request.journal,
+    ) if section_id else None
+    sections = submission_models.Section.objects.filter(
+        journal=request.journal,
+    )
+    language = request.GET.get('language', django_settings.LANGUAGE_CODE)
 
     if section:
-        form = forms.SectionForm(instance=section, request=request)
+        section.set_current_language(language)
+        form = forms.SectionForm(
+            instance=section,
+            request=request,
+            _current_language=language,
+        )
     else:
-        form = forms.SectionForm(request=request)
+        form = forms.SectionForm(
+            request=request,
+        )
 
     if request.POST:
 
@@ -1703,7 +1716,12 @@ def sections(request, section_id=None):
             object.delete()
         else:
             if section:
-                form = forms.SectionForm(request.POST, instance=section, request=request)
+                form = forms.SectionForm(
+                    request.POST,
+                    instance=section,
+                    request=request,
+                    _current_language=language,
+                )
             else:
                 form = forms.SectionForm(request.POST, request=request)
 
@@ -1712,14 +1730,29 @@ def sections(request, section_id=None):
                 form_section.journal = request.journal
                 form_section.save()
                 form.save_m2m()
-
-        return redirect(reverse('core_manager_sections'))
+        if section:
+            return redirect(
+                '{0}?language={1}'.format(
+                    reverse(
+                        'core_manager_section',
+                        args=[section.pk],
+                    ),
+                    language,
+                )
+            )
+        else:
+            return redirect(
+                reverse(
+                    'core_manager_sections',
+                )
+            )
 
     template = 'core/manager/sections/sections.html'
     context = {
         'sections': sections,
         'section': section,
         'form': form,
+        'language': language,
     }
 
     return render(request, template, context)

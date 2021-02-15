@@ -484,3 +484,24 @@ th {
 .fixed-table {
     table-layout: fixed;
 }
+
+.lang-tabs {
+    margin-bottom: 15px;
+}
+
+.lang-tab {
+    font-size: 0.8rem;
+}
+
+.lang-tab :hover {
+    text-decoration: rgb(64, 69, 84) underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 3px;
+    cursor: pointer;
+}
+
+.lang-tab-active {
+    text-decoration: rgb(64, 69, 84) underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 3px;
+}

@@ -69,7 +69,7 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
                     real_root = requests.head(root, allow_redirects=True).url
                     url_to_use = real_root.replace('/article/view', '/articles') + '/' + url
 
-                #guess extension from url
+                # guess extension from url
                 suffixes = Path(url_to_use).suffixes
                 if suffixes:
                     extension = "".join(suffixes)
@@ -515,7 +515,6 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
             )
 
 
-
 def set_article_section(article, soup_object, element='h4', attributes=None, default='Articles'):
     """ Set an article to a specific section
 
@@ -543,7 +542,12 @@ def set_article_section(article, soup_object, element='h4', attributes=None, def
     if section_name and section_name != '':
         print('Adding article to section {0}'.format(section_name))
 
-        section, created = submission_models.Section.objects.language('en').get_or_create(journal=article.journal, name=section_name)
+        section, created = submission_models.Section.objects.language(
+            settings.LANGUAGE_CODE,
+        ).get_or_create(
+            journal=article.journal,
+            name=section_name,
+        )
         article.section = section
     else:
         print('No section information found. Reverting to default of "Articles"')
@@ -796,6 +800,7 @@ def parse_author_names(author, citation=None):
 SEED_KEYS = [
     "First Name", "Middle Name", "Last Name", "Affiliation", "Country"
 ]
+
 def generate_dummy_email(profile_dict):
     seed = sum(profile_dict.get(key, "") for key in SEED_KEYS)
     hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()

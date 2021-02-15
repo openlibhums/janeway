@@ -53,7 +53,6 @@ class TestSettingHandler(TestCase):
             result = setting_handler.get_setting(
                     "test_group", "test_get_setting",
                     journal=self.journal_one,
-                    fallback=True,
             )
         self.assertEqual(result.value, setting_value)
 
@@ -75,7 +74,6 @@ class TestSettingHandler(TestCase):
         result = setting_handler.get_setting(
                 "test_group", setting_name,
                 journal=self.journal_one,
-                fallback=True,
         )
         self.assertEqual(result.value, setting_value)
 
@@ -98,7 +96,6 @@ class TestSettingHandler(TestCase):
             result = setting_handler.get_setting(
                     "test_group", setting_name,
                     journal=self.journal_one,
-                    fallback=True,
             )
         self.assertEqual(result.value, setting_value)
 

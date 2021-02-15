@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
 from utils.importers import shared
 from submission import models
@@ -414,7 +415,6 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
             except AttributeError as e:
                 logger.debug("Couldn't extract an issue description %s" % e)
 
-
             sections_to_order = soup_issue.find_all(name='h2', attrs={'class': 'main-color-text'})
 
             # delete existing order models for sections for this issue
@@ -423,9 +423,12 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
             for section_order, section in enumerate(sections_to_order):
 
                 logger.info('[{0}] {1}'.format(section_order, section.getText()))
-                order_section, c = models.Section.objects.language('en').get_or_create(
+                order_section, c = models.Section.objects.language(
+                    settings.LANGUAGE_CODE,
+                ).get_or_create(
                     name=section.getText().strip(),
-                    journal=journal)
+                    journal=journal,
+                )
                 journal_models.SectionOrdering.objects.create(issue=issue,
                                                               section=order_section,
                                                               order=section_order).save()
@@ -655,8 +658,12 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
 
         # Get or create the article's section
         try:
-            section = models.Section.objects.language().fallbacks('en').get(journal=journal,
-                                                                            name=article_dict.get('section'))
+            section = models.Section.objects.language().fallbacks(
+                settings.LANGUAGE_CODE,
+            ).get(
+                journal=journal,
+                name=article_dict.get('section'),
+            )
         except models.Section.DoesNotExist:
             section = None
 

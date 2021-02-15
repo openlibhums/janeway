@@ -171,6 +171,7 @@ SETTINGS_EXPORT = [
     'ENABLE_ORCID',
     'DEBUG',
     'LANGUAGE_CODE',
+    'LANGUAGES',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -248,6 +249,8 @@ PARLER_LANGUAGES = {
         'hide_untranslated': False,
     }
 }
+
+PARLER_DEFAULT_ACTIVATE = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'

@@ -44,12 +44,14 @@
     <div class="large-6 columns">
         <div class="box">
             <div class="title-area">
-                <h2>{% if section %}Edit Section{% else %} Add Section{% endif %}</h2>
+                <h2>{% if section %}Edit {{ section.name }}{% else %} Add Section{% endif %}</h2>
             </div>
             <div class="content">
-                <form method="POST">
+                {% include "admin/elements/languages/language_tabs.html" with object=section %}
+                <form method="POST" action="?language={{ language }}">
                     {% include "elements/forms/errors.html" with form=form %}
                     {% csrf_token %}
+                    {{ form.field.widget.input_type }}
                     {{ form|foundation }}
                     <button type="submit" class="success button">{% if section %}Edit{% else %}Add{% endif %} Section</button>
                 </form>

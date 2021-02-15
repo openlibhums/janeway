@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
+from django.conf import settings
 
 from core import files
 from core import models as core_models
@@ -119,7 +120,12 @@ def import_from_jats_xml(path, journal):
         authors = parse_authors(soup)
         section = get_text(soup, 'subj-group')
 
-        section_obj, created = models.Section.objects.language('en').get_or_create(name=section, journal=journal)
+        section_obj, created = models.Section.objects.language(
+            settings.LANGUAGE_CODE,
+        ).get_or_create(
+            name=section,
+            journal=journal,
+        )
 
         article = models.Article.objects.create(
             title=title,

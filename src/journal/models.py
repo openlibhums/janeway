@@ -160,7 +160,7 @@ class Journal(AbstractSiteModel):
     @cache(300)
     def name(self):
         try:
-            return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+            return setting_handler.get_setting('general', 'journal_name', self, create=False).value
         except IndexError:
             self.name = 'Janeway Journal'
             return self.name
@@ -171,7 +171,7 @@ class Journal(AbstractSiteModel):
 
     @property
     def publisher(self):
-        return setting_handler.get_setting('general', 'publisher_name', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'publisher_name', self, create=False).value
 
     @publisher.setter
     def publisher(self, value):
@@ -180,7 +180,7 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def issn(self):
-        return setting_handler.get_setting('general', 'journal_issn', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'journal_issn', self, create=False).value
 
     @property
     @cache(120)
@@ -189,8 +189,7 @@ class Journal(AbstractSiteModel):
             return setting_handler.get_setting('Identifiers',
                                                'crossref_prefix',
                                                self,
-                                               create=False,
-                                               fallback='en').processed_value
+                                               create=False).processed_value
         except IndexError:
             return False
 

@@ -640,11 +640,10 @@ class SettingValue(TranslatableModel):
         return self.process_value()
 
     def process_value(self):
-        """ Converts string values of settings to proper values
-
+        """
+        Converts string values of settings to proper values
         :return: a value
         """
-
         if self.setting.types == 'boolean' and self.value == 'on':
             return True
         elif self.setting.types == 'boolean':

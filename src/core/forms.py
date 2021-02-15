@@ -18,7 +18,7 @@ from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
 
-from core import models, validators
+from core import models, validators, language
 from utils.logic import get_current_request
 from journal import models as journal_models
 from utils import setting_handler
@@ -355,7 +355,7 @@ class ArticleMetaImageForm(forms.ModelForm):
         fields = ('meta_image',)
 
 
-class SectionForm(TranslatableModelForm):
+class SectionForm(language.JanewayTranslatableModelForm):
     class Meta:
         model = submission_models.Section
         fields = [
