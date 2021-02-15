@@ -308,6 +308,22 @@ class Keyword(models.Model):
         return self.word
 
 
+class KeywordArticle(models.Model):
+    keyword = models.ForeignKey("submission.Keyword")
+    article = models.ForeignKey("submission.Article")
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = ('keyword', 'article')
+
+    def __str__(self):
+        return self.word
+
+    def __repr__(self):
+        return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
+
+
 class AllArticleManager(models.Manager):
     use_for_related_fields = True
 
@@ -316,6 +332,7 @@ class AllArticleManager(models.Manager):
 
 
 class ArticleManager(models.Manager):
+    use_in_migrations = True
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
 
@@ -370,7 +387,10 @@ class Article(models.Model):
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
-    keywords = models.ManyToManyField(Keyword, blank=True, null=True)
+    keywords = models.ManyToManyField(
+        Keyword,
+        blank=True, null=True, through='submission.KeywordArticle',
+    )
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
