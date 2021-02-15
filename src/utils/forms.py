@@ -35,7 +35,8 @@ class KeywordModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        current_keywords = self.instance.keywords.values_list("word", flat=True)
+        current_keywords = self.instance.keywords.values_list(
+            "word", flat=True)
         field = self.fields["keywords"]
         field.initial = ",".join(current_keywords)
 
@@ -43,11 +44,15 @@ class KeywordModelForm(ModelForm):
         instance = super().save(commit=commit, *args, **kwargs)
 
         posted_keywords = self.cleaned_data.get('keywords', '').split(',')
-        for keyword in posted_keywords:
+        for i, keyword in enumerate(posted_keywords):
             if keyword != '':
                 obj, _ = submission_models.Keyword.objects.get_or_create(
                         word=keyword)
-                instance.keywords.add(obj)
+                submission_models.KeywordArticle.objects.update_or_create(
+                    keyword=obj,
+                    article=instance,
+                    defaults={"order":i}
+                )
 
         for keyword in instance.keywords.all():
             if keyword.word not in posted_keywords:
