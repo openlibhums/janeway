@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.db import models
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Max, Q, Value
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 
@@ -67,6 +67,30 @@ class ReviewRound(models.Model):
 
     def __repr__(self):
         return u'%s - %s round number: %s' % (self.pk, self.article.title, self.round_number)
+
+    @classmethod
+    def latest_article_round(cls, article):
+        """ Works out and returns the latest article review round
+        MS: I'm still not quite sure why it works but it does
+        the round with a single query:
+            SELECT "review_reviewround"."*"
+            "FROM "review_reviewround"
+            WHERE ("review_reviewround"."article_id" = {id}
+            AND "review_reviewround"."round_number" = (
+                SELECT MAX(U0."round_number") AS "latest_round"
+                FROM "review_reviewround" U0 WHERE U0."article_id" = {id})
+            )
+            ORDER BY "review_reviewround"."round_number" DESC
+
+        """
+        latest_round = cls.objects.filter( article=article,).annotate(
+            # Annotate all rows with the same value to force a group by
+            constant=Value(1),
+        ).values("constant").annotate(
+            latest_round=Max('round_number')
+        ).values("latest_round")
+
+        return cls.objects.get(article=article, round_number=latest_round)
 
 
 class ReviewAssignment(models.Model):
