@@ -30,6 +30,9 @@ from security.decorators import (
 )
 from submission import models as submission_models, forms as submission_forms
 from utils import models as util_models, ithenticate, shared, setting_handler
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @senior_editor_user_required
@@ -1555,6 +1558,16 @@ def request_revisions(request, article_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     form = forms.RevisionRequest()
+    review_round = models.ReviewRound.latest_article_round(
+        article=article
+    )
+    pending_approval = review_round.reviewassignment_set.filter(
+        is_complete=True,
+        for_author_consumption=False,
+    )
+    incomplete = review_round.reviewassignment_set.filter(
+        is_complete=False,
+    )
 
     if request.POST:
         form = forms.RevisionRequest(request.POST)
@@ -1568,13 +1581,20 @@ def request_revisions(request, article_id):
             article.stage = submission_models.STAGE_UNDER_REVISION
             article.save()
 
-            return redirect(reverse('request_revisions_notification', kwargs={'article_id': article.pk,
-                                                                              'revision_id': revision_request.pk}))
+            return redirect(reverse(
+                'request_revisions_notification',
+                kwargs={
+                    'article_id': article.pk,
+                    'revision_id': revision_request.pk,
+                }
+            ))
 
     template = 'review/revision/request_revisions.html'
     context = {
         'article': article,
         'form': form,
+        'pending_approval': pending_approval,
+        'incomplete': incomplete,
     }
 
     return render(request, template, context)

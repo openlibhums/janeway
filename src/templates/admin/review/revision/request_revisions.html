@@ -17,8 +17,25 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Revision Request Information</h2>
-
                 </div>
+                    {% if pending_approval.exists or incomplete.exists %}
+                    <div class="callout bs-callout-warning">
+                        <h4><strong><span class="fa fa-warning"></span> Potential problems detected</strong></h4>
+                        <p>Please, make sure you look over and address the following warnings where necessary</p>
+                        <ul>
+                            {% for rev in pending_approval %}
+
+                            <li><p>Review #{{ rev.pk }} has not been marked as "allow author to see" <a href="{% url 'review_view_review' article.pk rev.pk %}" target="_blank">[change] <i class="fa fa-external-link"></i></a></p></li>
+                            {% endfor %}
+                            {% for rev in incomplete %}
+                            <li><p>Review #{{ rev.pk }} has not been completed by the peer reviewer <a href="{% url 'review_withdraw_review' article.pk rev.pk %}" target="_blank">[withdraw] <i class="fa fa-external-link"></i></a></p></li>
+                            {% endfor %}
+                            <a class="button small" onClick="window.location.reload();"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</a>
+
+                        </ul>
+                    </div>
+                    {% endif %}
+
 
                 <div class="content">
                     <div class="row expanded">
