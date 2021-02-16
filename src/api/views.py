@@ -126,22 +126,28 @@ def kbart_tsv(request):
 
 def kbart(request, delim=','):
     """
-    Produces KBART metadata output according to the spec: https://doi.org/10.1080/0361526X.2017.1309826
+    Produces KBART metadata output according to the spec:
+    https://doi.org/10.1080/0361526X.2017.1309826
     @param request: the request object
     @param delim: whether to use csv (',') or tsv ('\t') deliminators
     @return: a rendered CSV or TSV
     """
-    fields = ["date_first_issue_online", "num_first_vol_online", "num_first_issue_online", "date_last_issue_online",
-              "num_last_vol_online", "num_last_issue_online", "title_url", "first_author", "title_id", "embargo_info",
-              "coverage_depth", "notes", "publisher_name", "publication_type", "date_monograph_published_print",
-              "date_monograph_published_online", "monograph_volume", "monograph_edition", "first_editor",
-              "parent_publication_title_id", "preceding_publication_title_id", "access_type"]
+    fields = ["date_first_issue_online", "num_first_vol_online",
+              "num_first_issue_online", "date_last_issue_online",
+              "num_last_vol_online", "num_last_issue_online",
+              "title_url", "first_author", "title_id", "embargo_info",
+              "coverage_depth", "notes", "publisher_name", "publication_type",
+              "date_monograph_published_print",
+              "date_monograph_published_online", "monograph_volume",
+              "monograph_edition", "first_editor",
+              "parent_publication_title_id", "preceding_publication_title_id",
+              "access_type"]
 
     response = HttpResponse(content_type='text/csv')
 
     writer = csv.DictWriter(response, fieldnames=fields, delimiter=delim)
-    response['Content-Disposition'] = 'attachment; filename="kbart.csv"' if delim == ',' \
-        else 'attachment; filename="kbart.tsv"'
+    response['Content-Disposition'] = 'attachment; filename="kbart.csv"' \
+        if delim == ',' else 'attachment; filename="kbart.tsv"'
 
     writer.writeheader()
 
@@ -149,12 +155,18 @@ def kbart(request, delim=','):
         journal_line = {}
         issues = journal.issues()
         if issues.count() > 0:
-            journal_line['date_first_issue_online'] = '{:%Y-%m-%d}'.format(issues.order_by('date')[0].date)
-            journal_line['num_first_vol_online'] = issues.order_by('date')[0].volume
-            journal_line['num_first_issue_online'] = issues.order_by('date')[0].issue
-            journal_line['date_last_issue_online'] = '{:%Y-%m-%d}'.format(issues.order_by('-date')[0].date)
-            journal_line['num_last_vol_online'] = issues.order_by('-date')[0].volume
-            journal_line['num_last_issue_online'] = issues.order_by('-date')[0].issue
+            journal_line['date_first_issue_online'] = \
+                '{:%Y-%m-%d}'.format(issues.order_by('date')[0].date)
+            journal_line['num_first_vol_online'] = \
+                issues.order_by('date')[0].volume
+            journal_line['num_first_issue_online'] = \
+                issues.order_by('date')[0].issue
+            journal_line['date_last_issue_online'] = \
+                '{:%Y-%m-%d}'.format(issues.order_by('-date')[0].date)
+            journal_line['num_last_vol_online'] = \
+                issues.order_by('-date')[0].volume
+            journal_line['num_last_issue_online'] = \
+                issues.order_by('-date')[0].issue
 
         journal_line['title_url'] = journal.full_url()
         journal_line['coverage_depth'] = 'fulltext'
@@ -162,11 +174,14 @@ def kbart(request, delim=','):
         journal_line['publication_type'] = 'serial'
         journal_line['title_id'] = journal.issn
 
-        # from the spec: "The access_type field is used to indicate whether a publication is fee-based or Open Access.
-        # This field has only two possible values: F (free) or P (paid). F should be used only if 100% of the content
-        # being described is free. If a title has a mix of paid and free content, the P value should be used. If a title
-        # has a mix of free and paid content that is clearly delineated by volume, multiple lines can be included
-        # within a KBART file to indicate the coverage ranges for each type of access."
+        # from the spec: "The access_type field is used to indicate whether
+        # a publication is fee-based or Open Access.T his field has only two
+        # possible values: F (free) or P (paid). F should be used only if 100%
+        # of the content being described is free. If a title has a mix of paid
+        # and free content, the P value should be used. If a title has a mix of
+        # free and paid content that is clearly delineated by volume, multiple
+        # lines can be included within a KBART file to indicate the
+        # coverage ranges for each type of access."
         journal_line['access_type'] = 'F'
 
         writer.writerow(journal_line)
