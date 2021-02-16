@@ -869,7 +869,7 @@ class Notifications(models.Model):
 @receiver(post_save, sender=Journal)
 def setup_default_section(sender, instance, created, **kwargs):
     if created:
-        submission_models.Section.objects.language('en').get_or_create(
+        submission_models.Section.objects.get_or_create(
             journal=instance,
             number_of_reviewers=2,
             name='Article',

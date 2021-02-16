@@ -10,7 +10,6 @@ from django.forms.fields import Field
 from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from parler.forms import TranslatableModelForm
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 

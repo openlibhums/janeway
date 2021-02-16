@@ -18,6 +18,7 @@ from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
 
+
 class TestSiteMiddleware(TestCase):
     def setUp(self):
         journal_kwargs = dict(
