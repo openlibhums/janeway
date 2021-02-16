@@ -11,7 +11,6 @@ def migrate_keywords(apps, schema_editor):
     Article = apps.get_model('submission', 'Article')
     KeywordArticle = apps.get_model('submission', 'KeywordArticle')
     articles = Article.objects.filter(keywords__isnull=False)
-    import pdb; pdb.set_trace()  # XXX BREAKPOINT
 
     for article in Article.objects.all():
         for i,kw in enumerate(article.keywords.all()):
