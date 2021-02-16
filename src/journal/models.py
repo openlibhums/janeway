@@ -249,6 +249,9 @@ class Journal(AbstractSiteModel):
     def issues(self):
         return Issue.objects.filter(journal=self)
 
+    def serial_issues(self):
+        return Issue.objects.filter(journal=self, issue_type__code='issue')
+
     def editors(self):
         pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
         return core_models.Account.objects.filter(pk__in=pks)
@@ -467,6 +470,13 @@ class Issue(models.Model):
 
     class Meta:
         ordering = ('order', 'year', 'volume', 'issue', 'title')
+
+    @property
+    def is_serial(self):
+        if self.issue_type.code == 'issue':
+            return True
+        else:
+            return False
 
     @property
     def display_title(self):
