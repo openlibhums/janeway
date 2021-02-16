@@ -126,9 +126,10 @@ def kbart_tsv(request):
 
 def kbart(request, delim=','):
     """
-    Produces KBART metadata output
+    Produces KBART metadata output according to the spec: https://doi.org/10.1080/0361526X.2017.1309826
     @param request: the request object
-    @return: a rendered CSV
+    @param delim: whether to use csv (',') or tsv ('\t') deliminators
+    @return: a rendered CSV or TSV
     """
     fields = ["date_first_issue_online", "num_first_vol_online", "num_first_issue_online", "date_last_issue_online",
               "num_last_vol_online", "num_last_issue_online", "title_url", "first_author", "title_id", "embargo_info",
@@ -138,12 +139,9 @@ def kbart(request, delim=','):
 
     response = HttpResponse(content_type='text/csv')
 
-    if delim == ',':
-        writer = csv.DictWriter(response, fieldnames=fields)
-        response['Content-Disposition'] = 'attachment; filename="kbart.csv"'
-    else:
-        writer = csv.DictWriter(response, fieldnames=fields, delimiter='\t')
-        response['Content-Disposition'] = 'attachment; filename="kbart.tsv"'
+    writer = csv.DictWriter(response, fieldnames=fields, delimiter=delim)
+    response['Content-Disposition'] = 'attachment; filename="kbart.csv"' if delim == ',' \
+        else 'attachment; filename="kbart.tsv"'
 
     writer.writeheader()
 
