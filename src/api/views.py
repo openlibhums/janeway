@@ -163,6 +163,12 @@ def kbart(request, delim=','):
         journal_line['publisher_name'] = request.press.name
         journal_line['publication_type'] = 'serial'
         journal_line['title_id'] = journal.issn
+
+        # from the spec: "The access_type field is used to indicate whether a publication is fee-based or Open Access.
+        # This field has only two possible values: F (free) or P (paid). F should be used only if 100% of the content
+        # being described is free. If a title has a mix of paid and free content, the P value should be used. If a title
+        # has a mix of free and paid content that is clearly delineated by volume, multiple lines can be included
+        # within a KBART file to indicate the coverage ranges for each type of access."
         journal_line['access_type'] = 'F'
 
         writer.writerow(journal_line)
