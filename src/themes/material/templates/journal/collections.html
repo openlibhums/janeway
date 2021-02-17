@@ -10,7 +10,7 @@
 
     <div class="row">
         {% for collection in collections %}
-             <div class="col m6">
+             <div class="col m12 l6">
                 <div class="card horizontal">
                     <div class="card-image">
                         {% if collection.cover_image or journal.default_cover_image %}<img class="issue_image" src="{% if collection.cover_image %}{{ collection.cover_image.url }}{% else %}{{ journal.default_cover_image.url }}{% endif %}" alt="{{ collection.issue_title }}" class="img-fluid">{% endif %}
@@ -31,6 +31,10 @@
                     </div>
                 </div>
             </div>
+          {% if forloop.counter|divisibleby:2 %}
+      </div>
+      <div class="row">
+          {% endif %}
         {% empty %}
             <h4>{% trans "There are no collections to display" %}</h4>
         {% endfor %}
