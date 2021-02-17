@@ -87,7 +87,7 @@ class ReviewRound(models.Model):
             # Annotate all rows with the same value to force a group by
             constant=Value(1),
         ).values("constant").annotate(
-            latest_round=Max('round_number')
+            latest_round=Max('round_number'),
         ).values("latest_round")
 
         return cls.objects.get(article=article, round_number=latest_round)

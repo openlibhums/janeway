@@ -51,7 +51,7 @@ class KeywordModelForm(ModelForm):
                 submission_models.KeywordArticle.objects.update_or_create(
                     keyword=obj,
                     article=instance,
-                    defaults={"order":i}
+                    defaults={"order":i},
                 )
 
         for keyword in instance.keywords.all():

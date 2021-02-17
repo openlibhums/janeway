@@ -1559,7 +1559,7 @@ def request_revisions(request, article_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     form = forms.RevisionRequest()
     review_round = models.ReviewRound.latest_article_round(
-        article=article
+        article=article,
     )
     pending_approval = review_round.reviewassignment_set.filter(
         is_complete=True,
