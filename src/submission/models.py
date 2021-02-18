@@ -538,6 +538,9 @@ class Article(models.Model):
         if self.issue:
             issue_str = "%s(%s)" % (issue.volume, issue.issue)
         doi_str = ""
+        pages_str = ""
+        if self.page_numbers:
+            pages_str = " p.{0}.".format(self.page_numbers)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -550,6 +553,7 @@ class Article(models.Model):
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_str": doi_str,
+            "pages_str": pages_str,
         }
         return render_to_string(template, context)
 
