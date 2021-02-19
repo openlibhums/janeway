@@ -15,7 +15,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from hvad.models import TranslatableModel, TranslatedFields
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
@@ -1368,7 +1367,7 @@ class FrozenAuthor(models.Model):
             return True
 
 
-class Section(TranslatableModel):
+class Section(models.Model):
     journal = models.ForeignKey('journal.Journal')
     number_of_reviewers = models.IntegerField(default=2)
 
@@ -1411,13 +1410,6 @@ class Section(TranslatableModel):
         blank=True,
         help_text="Pluralised name for the section"
                   " (e.g: Article -> Articles)",
-    )
-    translations = TranslatedFields(
-        hvad_name=models.CharField(max_length=200),
-        hvad_plural=models.CharField(max_length=200, null=True, blank=True,
-                                help_text="Pluralised name for the section"
-                                          " (e.g: Article -> Articles)"
-                                )
     )
 
     class Meta:

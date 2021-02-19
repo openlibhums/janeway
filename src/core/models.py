@@ -8,12 +8,9 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
-from urllib.parse import urlunparse
-
 import pytz
 
 from bs4 import BeautifulSoup
-from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -32,7 +29,6 @@ from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
-from utils import setting_handler
 from utils.logger import get_logger
 from utils import logic as utils_logic
 
@@ -614,14 +610,10 @@ class Setting(models.Model):
         self.group.validate(value)
 
 
-class SettingValue(TranslatableModel):
+class SettingValue(models.Model):
     journal = models.ForeignKey('journal.Journal', null=True, blank=True)
     setting = models.ForeignKey(Setting)
     value = models.TextField(null=True, blank=True)
-
-    translations = TranslatedFields(
-        hvad_value=models.TextField(null=True, blank=True)
-    )
 
     class Meta:
         unique_together = (

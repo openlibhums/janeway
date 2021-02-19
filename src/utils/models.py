@@ -16,7 +16,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 
-from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
 
@@ -199,14 +198,10 @@ class PluginSetting(models.Model):
         return u'%s' % self.name
 
 
-class PluginSettingValue(TranslatableModel):
+class PluginSettingValue(models.Model):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     setting = models.ForeignKey(PluginSetting)
     value = models.TextField(null=True, blank=True)
-
-    translations = TranslatedFields(
-        hvad_value=models.TextField(null=True, blank=True)
-    )
 
     def __repr__(self):
         return "{0}, {1}".format(self.setting.name, self.value)
