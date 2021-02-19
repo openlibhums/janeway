@@ -2936,7 +2936,7 @@
             "type": "char"
         },
         "value": {
-            "default": ""
+            "default": "1"
         }
     }
 ]
