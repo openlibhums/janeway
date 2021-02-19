@@ -91,4 +91,20 @@ class Migration(migrations.Migration):
                                    max_length=200, null=True),
         ),
         migrations.RunPython(migrate_sections, reverse_code=migrations.RunPython.noop),
+        migrations.AlterUniqueTogether(
+            name='sectiontranslation',
+            unique_together=set([]),
+        ),
+        migrations.RemoveField(
+            model_name='sectiontranslation',
+            name='master',
+        ),
+        migrations.AlterModelManagers(
+            name='section',
+            managers=[
+            ],
+        ),
+        migrations.DeleteModel(
+            name='SectionTranslation',
+        ),
     ]

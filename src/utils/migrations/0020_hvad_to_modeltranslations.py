@@ -17,6 +17,10 @@ def migrate_plugin_settings(apps, schema_editor):
         setting.save()
 
 
+def drop_plugin_settings_translations_tables(apps, schema_editor):
+    sql = "DROP TABLE utils_pluginsettingvalue_translation;"
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -57,4 +61,24 @@ class Migration(migrations.Migration):
             field=models.TextField(blank=True, null=True),
         ),
         migrations.RunPython(migrate_plugin_settings, reverse_code=migrations.RunPython.noop),
+        migrations.AlterUniqueTogether(
+            name='pluginsettingvaluetranslation',
+            unique_together=set([]),
+        ),
+        migrations.RemoveField(
+            model_name='pluginsettingvaluetranslation',
+            name='master',
+        ),
+        migrations.AlterModelOptions(
+            name='pluginsettingvalue',
+            options={},
+        ),
+        migrations.AlterModelManagers(
+            name='pluginsettingvalue',
+            managers=[
+            ],
+        ),
+        migrations.DeleteModel(
+            name='PluginSettingValueTranslation',
+        ),
     ]

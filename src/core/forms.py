@@ -10,7 +10,6 @@ from django.forms.fields import Field
 from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from hvad.forms import TranslatableModelForm
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 
@@ -354,11 +353,11 @@ class ArticleMetaImageForm(forms.ModelForm):
         fields = ('meta_image',)
 
 
-class SectionForm(TranslatableModelForm):
+class SectionForm(forms.ModelForm):
     class Meta:
         model = submission_models.Section
         fields = [
-            'hvad_name', 'hvad_plural', 'number_of_reviewers',
+            'name', 'plural', 'number_of_reviewers',
             'is_filterable', 'sequence', 'section_editors',
             'editors', 'public_submissions', 'indexing',
             'auto_assign_editors',

@@ -55,4 +55,20 @@ class Migration(migrations.Migration):
             field=models.TextField(blank=True, null=True),
         ),
         migrations.RunPython(migrate_settings, reverse_code=migrations.RunPython.noop),
+        migrations.AlterUniqueTogether(
+            name='settingvaluetranslation',
+            unique_together=set([]),
+        ),
+        migrations.RemoveField(
+            model_name='settingvaluetranslation',
+            name='master',
+        ),
+        migrations.AlterModelManagers(
+            name='settingvalue',
+            managers=[
+            ],
+        ),
+        migrations.DeleteModel(
+            name='SettingValueTranslation',
+        ),
     ]
