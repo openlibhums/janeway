@@ -472,8 +472,12 @@ HTTP_TIMEOUT_SECONDS = 5
 # are first uploaded
 DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.3.8)'
 
-# Testing Overrides
-if IN_TEST_RUNNER and COMMAND[1:2] != ["--keepdb"]:
+# Skip migrations by default on sqlite for faster execution
+if (
+    IN_TEST_RUNNER
+    and "--keepdb" not in COMMAND
+    and os.environ.get("DB_VENDOR") == "sqlite"
+):
     from collections.abc import Mapping
 
 
