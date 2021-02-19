@@ -380,18 +380,6 @@ class QuickUserForm(forms.ModelForm):
         model = models.Account
         fields = ('email', 'first_name', 'last_name')
 
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        if self.instance.email == email:
-            return email
-        try:
-            models.Account.objects.get(email=email)
-        except models.Account.DoesNotExist:
-            return email
-        raise forms.ValidationError(
-            'This email address is already in use.'
-        )
-
 
 class LoginForm(forms.Form):
     user_name = forms.CharField(max_length=255, label="Email")
