@@ -202,9 +202,10 @@ class PluginSetting(models.Model):
 class PluginSettingValue(TranslatableModel):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     setting = models.ForeignKey(PluginSetting)
+    value = models.TextField(null=True, blank=True)
 
     translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
+        hvad_value=models.TextField(null=True, blank=True)
     )
 
     def __repr__(self):

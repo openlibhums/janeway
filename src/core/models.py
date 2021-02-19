@@ -617,9 +617,10 @@ class Setting(models.Model):
 class SettingValue(TranslatableModel):
     journal = models.ForeignKey('journal.Journal', null=True, blank=True)
     setting = models.ForeignKey(Setting)
+    value = models.TextField(null=True, blank=True)
 
     translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
+        hvad_value=models.TextField(null=True, blank=True)
     )
 
     class Meta:

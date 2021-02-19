@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from hvad.admin import TranslatableAdmin
 from django.utils.safestring import mark_safe
 
 from core import models, forms
@@ -61,7 +60,7 @@ class PasswordResetAdmin(admin.ModelAdmin):
     raw_id_fields = ('account',)
 
 
-class SettingValueAdmin(TranslatableAdmin):
+class SettingValueAdmin(admin.ModelAdmin):
     list_display = ('setting_journal', 'setting_pretty_name')
     list_filter = ('setting', 'journal')
 

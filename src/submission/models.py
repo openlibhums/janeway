@@ -1372,36 +1372,52 @@ class Section(TranslatableModel):
     journal = models.ForeignKey('journal.Journal')
     number_of_reviewers = models.IntegerField(default=2)
 
-    editors = models.ManyToManyField('core.Account',
+    editors = models.ManyToManyField(
+        'core.Account',
         help_text="Editors assigned will be notified of submissions,"
-            " overruling the notification settings for the journal.",
+                  " overruling the notification settings for the journal.",
     )
-    section_editors = models.ManyToManyField('core.Account',
+    section_editors = models.ManyToManyField(
+        'core.Account',
         help_text="Section editors assigned will be notified of submissions,"
-            " overruling the notification settings for the journal.",
+                  " overruling the notification settings for the journal.",
         related_name='section_editors',
     )
-    auto_assign_editors = models.BooleanField(default=False,
+    auto_assign_editors = models.BooleanField(
+        default=False,
         help_text="Articles submitted to this section will be automatically"
-            " assigned to the editors and/or section editors selected above.",
+                  " assigned to the editors and/or section editors selected above.",
     )
-
-    is_filterable = models.BooleanField(default=True,
-        help_text="Allows filtering article search results by this section.")
+    is_filterable = models.BooleanField(
+        default=True,
+        help_text="Allows filtering article search results by this section.",
+    )
     public_submissions = models.BooleanField(default=True)
-    indexing = models.BooleanField(default=True,
+    indexing = models.BooleanField(
+        default=True,
         help_text="Whether this section is put forward for indexing")
-    sequence = models.PositiveIntegerField(default=0,
+    sequence = models.PositiveIntegerField(
+        default=0,
         help_text="Determines the order in which the section is rendered"
-            " Sections can also be reorder by drag-and-drop",
+                  " Sections can also be reorder by drag-and-drop",
     )
-
+    name = models.CharField(
+        max_length=200,
+        null=True,
+    )
+    plural = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="Pluralised name for the section"
+                  " (e.g: Article -> Articles)",
+    )
     translations = TranslatedFields(
-        name=models.CharField(max_length=200),
-        plural=models.CharField(max_length=200, null=True, blank=True,
-            help_text="Pluralised name for the section"
-                " (e.g: Article -> Articles)"
-        )
+        hvad_name=models.CharField(max_length=200),
+        hvad_plural=models.CharField(max_length=200, null=True, blank=True,
+                                help_text="Pluralised name for the section"
+                                          " (e.g: Article -> Articles)"
+                                )
     )
 
     class Meta:
