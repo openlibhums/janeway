@@ -389,6 +389,8 @@ def get_settings_to_edit(group, journal):
             'suppress_how_to_cite',
             'display_guest_editors',
             'suppress_citations_metric',
+            'display_altmetric_badge',
+            'altmetric_badge_type',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'

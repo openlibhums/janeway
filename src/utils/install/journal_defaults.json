@@ -2908,5 +2908,35 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled altmetric badges will be displayed in the sidebar.",
+            "is_translatable": false,
+            "name": "display_altmetric_badge",
+            "pretty_name": "Display Altmetric Badges",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "Select a badge type, 1, large-donut, large-bar etc. Defaults to '1' if none selected.",
+            "is_translatable": false,
+            "name": "altmetric_badge_type",
+            "pretty_name": "Altermetric Badge Type",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]
