@@ -1,0 +1,8 @@
+{% with article.get_doi as doi %}
+{% if doi and journal_settings.article.display_altmetric_badge %}
+    <div{% if class %} class="{{ class }}"{% endif %}>
+    <div data-badge-popover="left" data-badge-type="{% if journal_settings.article.altmetric_badge_type %}{{ journal_settings.article.altmetric_badge_type }}{% else %}1{% endif %}"
+         data-doi="{{ doi }}" class="altmetric-embed"></div>
+    </div>
+{% endif %}
+{% endwith %}

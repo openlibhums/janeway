@@ -216,18 +216,20 @@
                     <div class="sticky" data-sticky data-margin-top="0"
                          data-sticky data-anchor="content">
                         {% if article.is_published %}
-                            <div class="section">
-                                {% if journal.disable_article_images %}
+
+                            {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
+                            {% if journal.disable_article_images %}
+                                <div class="section">
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
                                             <li>{{ author.full_name }} ({{ author.affiliation }})</li>
                                         {% endfor %}
                                     </ul>
-                                {% endif %}
-                            </div>
+                                </div>
+                            {% endif %}
                             <div class="section">
-                            <h3>{% trans "Download" %}</h3>
+                                <h3>{% trans "Download" %}</h3>
                             <ul>
                                 {% for galley in galleys %}
                                     <li>

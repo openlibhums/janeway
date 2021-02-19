@@ -110,6 +110,7 @@
 
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
+                {% include "common/elements/altmetric_badges.html" with article=article %}
                 {% if journal.disable_article_images %}
                     <h4>{% trans "Authors" %}</h4>
                     <ul>
