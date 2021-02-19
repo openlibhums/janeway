@@ -9,6 +9,7 @@ Django==1.11.29
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
 django-debug-toolbar==1.11.1
 django-hvad==1.8.0
+django-modeltranslation
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git#egg=django-mailgun
 django-markdown-deux==1.0.5
 django-settings-export==1.2.1

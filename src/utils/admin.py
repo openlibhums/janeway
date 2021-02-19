@@ -4,12 +4,11 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
-from hvad.admin import TranslatableAdmin
 
 from utils import models
 
 
-class SettingValueAdmin(TranslatableAdmin):
+class SettingValueAdmin(admin.ModelAdmin):
     pass
 
 
