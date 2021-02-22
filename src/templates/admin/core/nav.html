@@ -77,13 +77,13 @@
 
     <header class="main-header" role="banner">
         <div class="row expanded">
-            <div class="small-3 columns">
+            <div class="small-3 columns hide-for-large">
                 <button type="button" class="button hide-for-large" data-toggle="offCanvas"><img
                         src="{% static "admin/img/icons/menu-toggle.svg" %}" alt="Menu"> Menu
                 </button>
                 &nbsp;
             </div>
-            <div class="small-6 columns text-center show-for-large">
+            <div class="small-6 large-10 columns show-for-large">
                 <h1><a href="{% url 'website_index' %}">{{ request.journal.name }}</a></h1>
             </div>
             <div class="small-6 columns text-center show-for-medium-only">
@@ -92,11 +92,10 @@
             <div class="small-6 columns text-center show-for-small-only">
                 <h1><a href="{% url 'website_index' %}">{{ request.journal.code }}</a></h1>
             </div>
-            <div class="small-3 columns text-right">
+            <div class="small-3 large-2 columns text-right">
                 {% if request.user.is_authenticated %}
                 <div class="profile">
                     <a class="float-right" data-toggle="profile-dropdown">
-                        <p class="show-for-medium">Hello, {{ request.user.first_name }}!</p>
                         {% include "elements/avatar.html" with user=request.user tooltip="off" %}
                     </a>
                 </div>
