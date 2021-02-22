@@ -238,3 +238,22 @@ class SubmissionTests(TestCase):
             [f.author for f in article.frozen_authors().order_by("order")],
             msg="Authors frozen in the wrong order",
         )
+
+    def test_article_keyword_default_order(self):
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test of keywords",
+        )
+        keywords = ["one", "two", "three", "four"]
+        for i, kw in enumerate(keywords):
+            kw_obj = models.Keyword.objects.create(word=kw)
+            models.KeywordArticle.objects.get_or_create(
+                keyword=kw_obj,
+                article=article
+            )
+
+        self.assertEqual(
+            keywords,
+            [kw.word for kw in article.keywords.all()],
+        )
+
