@@ -161,7 +161,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the journal site: {{ review_in_review_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ editor.full_name }}, </p><p>You have been assigned as an editor to \"{{ article.title }}\" in the journal {{ request.journal.name }}.</p><p>If you are unable to be the editor for this article, please reply to this email.</p><p>You can view this article's data on the journal site: {{ review_in_review_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -191,7 +191,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }},<br/><br/>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \"{{ article.title }}\" in {{ article.journal.name }}. You can view more information on the journal site: {{ review_in_review_url }}.<br/><br/>Regards,"
+            "default": "Dear {{ review_assignment.editor.full_name }},<br/><br/>This is a notification that the reviewer {{ review_assignment.reviewer.full_name }} has responded to your review request for \"{{ article.title }}\" in {{ article.journal.name }}. You can view more information on the journal site: {{ review_in_review_url }} <br/><br/>Regards,"
         }
     },
     {
@@ -206,7 +206,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }}<br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ article.correspondence_author.full_name }},<br/><br/>We are requesting that you make some changes to your paper. Details of the changes required are below:<br/><br/>{{ revision.editor_note }}<br/><br/>You can access your revision here: {{ do_revisions_url }} br/><br/>Your revisions are due on {{ revision.date_due }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -221,7 +221,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br/><br/>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br/><br/>You can now access the manuscript and the review process at: {{ review_url }}. <br/><br/>Regards, <br/>{{ review_assignment.editor.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }}, <br/><br/>Thank you for agreeing to review \"{{ article.title }}\" in {{ article.journal.name }}. <br/><br/>You can now access the manuscript and the review process at: {{ review_url }}  <br/><br/>Regards, <br/>{{ review_assignment.editor.signature|safe }}"
         }
     },
     {
@@ -266,7 +266,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.editor.full_name }}, <br/><br/>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the journal site: {{ review_in_review_url }}. <br/><br/>Regards,"
+            "default": "Dear {{ review_assignment.editor.full_name }}, <br/><br/>This is a notification that the reviewer status on \"{{ article.title }}\" in {{ article.journal.name }} has been updated.  You can view more information on the journal site: {{ review_in_review_url }}  <br/><br/>Regards,"
         }
     },
     {
@@ -296,7 +296,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the review: {{ review_url }}.<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -311,7 +311,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We recently sent you an email requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>We would appreciate it if you could let us know your decision or decline to undertake the review: {{ review_url }}.<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>We recently sent you an email requesting that you undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>We would appreciate it if you could let us know your decision or decline to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -326,7 +326,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>You recently agreed undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>Check our site to undertake the review: {{ review_url }}.<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ review_assignment.reviewer.full_name }},<br/><br/>You recently agreed undertake a review of \"{{ article.title }}\" in {{ article.journal.name }}.<br/><br/>We would be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>Check our site to undertake the review: {{ review_url }} <br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -341,7 +341,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br/><br/>We are happy to inform you that your article, \"{{ article.title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }}.</p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br/><br/>We are happy to inform you that your article, \"{{ article.title }}\", has been accepted in {{ article.journal.name }}. Thank you for submitting such a strong manuscript.<br/></p><p>Peer review reports and feedback on the manuscript can be viewed at: {{ review_url }} </p><p>We will be back in touch soon to discuss the next stages of production.</p><p><br/>Regards,</p><p><br/>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -356,7 +356,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }}<br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ article.correspondence_author.full_name }},<br><br>We are sorry to inform you that \"{{ article.title }}\" has been declined in {{ article.journal.name }}.<br><br>You can view your reviews and feedback on the manuscript at: {{ review_url }} br><br>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -716,7 +716,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }}.</p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -731,7 +731,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.editor.full_name }},<br/><br/>The copyedit task is now complete. You can view more information in the journal site: {{ article_copyediting_url }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.editor.full_name }},<br/><br/>The copyedit task is now complete. You can view more information in the journal site: {{ article_copyediting_url }} <br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -746,7 +746,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br/><br/>The copyeditor has completed their task, you can review the copyedits: {{ author_copyedit_url }}.<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.article.correspondence_author.full_name }},<br/><br/>The copyeditor has completed their task, you can review the copyedits: {{ author_copyedit_url }} <br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -761,7 +761,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the\u00a0journal site: {{ copyedit_requests_url }}.<br/><br/>[ADD FEEDBACK HERE].<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
+            "default": "Dear {{ assignment.copyeditor.full_name }},<br/><br/>We are requesting further copyedits article \"{{ assignment.article.title }}\". You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} <br/><br/>[ADD FEEDBACK HERE].<br/><br/>Regards, <br/>{{ request.user.signature|safe }}"
         }
     },
     {
@@ -791,7 +791,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Dear {{ copyedit.editor.full_name }},<br/><br/>The author {{ author_review.author.full_name }} has completed their review.<br/><br/>Their comments can be accessed here: {{ editor_review_url }}.<br/>"
+            "default": "Dear {{ copyedit.editor.full_name }},<br/><br/>The author {{ author_review.author.full_name }} has completed their review.<br/><br/>Their comments can be accessed here: {{ editor_review_url }} <br/>"
         }
     },
     {
@@ -821,7 +821,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ production_assignment.production_manager.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ production_assignment.article.title }}. You can view further information on this here: {{ production_article_url }}.</p><p>Regards,</p>"
+            "default": "<p>Dear {{ production_assignment.production_manager.full_name }},</p><p>This is an automatic notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ production_assignment.article.title }}. You can view further information on this here: {{ production_article_url }} </p><p>Regards,</p>"
         }
     },
     {
@@ -836,7 +836,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this here: {{ typesetter_requests_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ typeset_task.assignment.article.title }}. </p><p>You can view further information on this here: {{ typesetter_requests_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -851,7 +851,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.title }} has been completed. You can view further information on the journal site.: {{ production_article_url }}</p><p>Regards,<br/></p>"
+            "default": "<p>Dear {{ production_assignment.production_manager.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that typesetting for article {{ production_assignment.article.title }} has been completed. You can view further information on the journal site.: {{ production_article_url }} /p><p>Regards,<br/></p>"
         }
     },
     {
@@ -896,7 +896,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typeset_task.typesetter.full_name }}</p><p>Thanks for your efforts typesetting the article, {{ typeset_task.article }}. This task has now been re-opened for further work: {{ proofing_requests_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ typeset_task.typesetter.full_name }}</p><p>Thanks for your efforts typesetting the article, {{ typeset_task.article }}. This task has now been re-opened for further work: {{ proofing_requests_url }} </p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
     },
     {
@@ -956,7 +956,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the requests page: {{ proofing_requests_url }}</p><p>Regards,<br/></p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
+            "default": "<p>Dear {{ typesetter_proofing_task.typesetter.full_name }},</p><p>Changes have been requested for article \"{{ article.title }}\".</p><p>You can access this request from the requests page: {{ proofing_requests_url }} /p><p>Regards,<br/></p><p>{{ request.user.signature|safe }}</p><p><br/></p>"
         }
     },
     {
@@ -1196,7 +1196,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ reset_token.account.full_name }},<br/><br/>A password reset for your account has been requested. You can reset your password at the following link:</p><p>{{ core_reset_password_url }}<br/><br/></p>"
+            "default": "<p>Dear {{ reset_token.account.full_name }},<br/><br/>A password reset for your account has been requested. You can reset your password at the following link:</p><p>{{ core_reset_password_url }} br/><br/></p>"
         }
     },
     {
@@ -1211,7 +1211,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br/>{{ core_confirm_account_url }}<br/></p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br/>{{ core_confirm_account_url }} br/></p>"
         }
     },
     {
@@ -1271,7 +1271,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the\u00a0journal site: {{ review_edit_draft_decision_url }}.<br/></p>"
+            "default": "<p>{{ draft.section_editor.full_name }} has drafted a decision for {{ article.title }}.</p><p>The section editor provided the following message:</p><p>{{ draft.message_to_editor|safe }}</p><p>You can view the draft decision on the\u00a0journal site: {{ review_edit_draft_decision_url }} <br/></p>"
         }
     },
     {
@@ -1286,7 +1286,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "A new article, {{ article.title }}, has been submitted.<br/><br/>You can assign an editor Here: {{ review_unassigned_article_url }}.<br/><br/>Regards, <br/>"
+            "default": "A new article, {{ article.title }}, has been submitted.<br/><br/>You can assign an editor Here: {{ review_unassigned_article_url }} <br/><br/>Regards, <br/>"
         }
     },
     {
@@ -1556,7 +1556,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>This is an automatic notification from {{ request.journal.name }} that you have been assigned to the production of article {{ article.title }}. You can view further information on this on the journal site: {{ url }}.</p><p>Regards,</p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>This is an automatic notification from {{ request.journal.name }} that you have been assigned to the production of article {{ article.title }}. You can view further information on this on the journal site: {{ url }} </p><p>Regards,</p>"
         }
     },
     {
@@ -1586,7 +1586,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ notification.user.full_name }},<br/><br/>This email is to notify you that {{ article.correspondence_author.full_name }} has submitted article \"{{ article.title }}\" to  {{ article.journal.name }}.</p><p>You can review the metadata in the journal site: {{ review_unassigned_url }}.</p><p>Regards,</p>"
+            "default": "<p>Dear {{ notification.user.full_name }},<br/><br/>This email is to notify you that {{ article.correspondence_author.full_name }} has submitted article \"{{ article.title }}\" to  {{ article.journal.name }}.</p><p>You can review the metadata in the journal site: {{ review_unassigned_url }} </p><p>Regards,</p>"
         }
     },
     {
@@ -1766,7 +1766,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: confirm account: {{ core_confirm_account_url }}.</p><p>Regards,</p>"
+            "default": "<p>Dear {{ user.full_name }},</p><p>You have requested that your email address be updated.</p><p>You can confirm your account at the following link: confirm account: {{ core_confirm_account_url }} </p><p>Regards,</p>"
         }
     },
     {
