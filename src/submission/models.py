@@ -21,8 +21,9 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
 
-from core.file_system import JanewayFileSystemStorage
 from core import workflow
+from core.file_system import JanewayFileSystemStorage
+from core.model_utils import M2MOrderedThroughField
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
@@ -387,7 +388,7 @@ class Article(models.Model):
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
-    keywords = models.ManyToManyField(
+    keywords = M2MOrderedThroughField(
         Keyword,
         blank=True, null=True, through='submission.KeywordArticle',
     )
