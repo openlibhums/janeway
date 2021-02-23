@@ -180,60 +180,6 @@ setting_types = (
 )
 
 
-class PluginSetting(models.Model):
-    name = models.CharField(max_length=100)
-    plugin = models.ForeignKey(Plugin)
-    types = models.CharField(max_length=20, choices=setting_types, default='text')
-    pretty_name = models.CharField(max_length=100, default='')
-    description = models.TextField(null=True, blank=True)
-    is_translatable = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ('plugin', 'name')
-
-    def __str__(self):
-        return u'%s' % self.name
-
-    def __repr__(self):
-        return u'%s' % self.name
-
-
-class PluginSettingValue(models.Model):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    setting = models.ForeignKey(PluginSetting)
-    value = models.TextField(null=True, blank=True)
-
-    def __repr__(self):
-        return "{0}, {1}".format(self.setting.name, self.value)
-
-    def __str__(self):
-        return "[{0}]: {1}".format(self.journal, self.setting.name)
-
-    @property
-    def processed_value(self):
-        return self.process_value()
-
-    def process_value(self):
-        """ Converts string values of settings to proper values
-
-        :return: a value
-        """
-
-        if self.setting.types == 'boolean' and self.value == 'on':
-            return True
-        elif self.setting.types == 'boolean':
-            return False
-        elif self.setting.types == 'number':
-            try:
-                return int(self.value)
-            except BaseException:
-                return 0
-        elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
-        else:
-            return self.value
-
-
 class ImportCacheEntry(models.Model):
     url = models.TextField(max_length=800, blank=False, null=False)
     on_disk = models.TextField(max_length=800, blank=False, null=False)

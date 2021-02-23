@@ -8,18 +8,9 @@ from django.contrib import admin
 from utils import models
 
 
-class SettingValueAdmin(admin.ModelAdmin):
-    pass
-
-
 class ImportCacheAdmin(admin.ModelAdmin):
     list_display = ('url', 'mime_type', 'date_time')
     list_filter = ('url', 'mime_type')
-
-
-class PluginSettingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'plugin', 'types', 'pretty_name', 'is_translatable')
-    list_filter = ('plugin', 'types')
 
 
 class PluginAdmin(admin.ModelAdmin):
@@ -37,8 +28,6 @@ class VersionAdmin(admin.ModelAdmin):
 admin_list = [
     (models.LogEntry, LogAdmin),
     (models.Plugin, PluginAdmin),
-    (models.PluginSetting, PluginSettingAdmin),
-    (models.PluginSettingValue, SettingValueAdmin),
     (models.ImportCacheEntry, ImportCacheAdmin),
     (models.Version, VersionAdmin)
 ]

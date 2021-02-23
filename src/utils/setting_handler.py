@@ -153,12 +153,13 @@ def save_plugin_setting(plugin, setting_name, value, journal):
         "PluginSettings and PluginSettingValues are deprecated as of 1.4",
     )
     plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
-    save_setting(
+    setting = save_setting(
         setting_group_name=plugin_group_name,
         setting_name=setting_name,
         journal=journal,
         value=value,
     )
+    return setting
 
 
 def get_plugin_setting(
@@ -193,6 +194,9 @@ def get_plugin_setting(
             )
 
             return setting
+
+    except core_models.Setting.MultipleObjectsReturned as e:
+        logger.error("Found multiple {}".format(setting_name, plugin_group_name))
 
         raise e
 

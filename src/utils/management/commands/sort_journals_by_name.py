@@ -21,7 +21,7 @@ class Command(BaseCommand):
         name_list = list()
         journals = models.Journal.objects.all()
         for journal in journals:
-            name = setting_handler.get_requestless_setting('general', 'journal_name', journal).value
+            name = setting_handler.get_setting('general', 'journal_name', journal).value
             journal_dict[name] = journal.pk,
             name_list.append(name)
 
