@@ -119,7 +119,7 @@ def import_from_jats_xml(path, journal):
         authors = parse_authors(soup)
         section = get_text(soup, 'subj-group')
 
-        section_obj, created = models.Section.objects.language('en').get_or_create(name=section, journal=journal)
+        section_obj, created = models.Section.objects.get_or_create(name=section, journal=journal)
 
         article = models.Article.objects.create(
             title=title,
