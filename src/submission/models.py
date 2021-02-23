@@ -16,7 +16,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from hvad.models import TranslatableModel, TranslatedFields
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
@@ -1629,3 +1629,22 @@ def remove_author_from_article(sender, instance, **kwargs):
         pass
 
     instance.article.authors.remove(instance.author)
+
+
+def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == 'post_add':
+        try:
+            latest = KeywordArticle.objects.filter(
+                article=instance).latest("order").order
+        except KeywordArticle.DoesNotExist:
+            latest = 0
+        for pk in pk_set:
+            latest += 1
+            keyword_article = KeywordArticle.objects.get(
+                keyword__pk=pk, article=instance)
+            if keyword_article.order == 1 != latest:
+                keyword_article.order = latest
+                keyword_article.save()
+
+
+m2m_changed.connect(order_keywords, sender=Article.keywords.through)
