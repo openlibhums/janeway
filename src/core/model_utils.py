@@ -5,6 +5,7 @@ __copyright__ = "Copyright 2018 Birkbeck, University of London"
 __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from contextlib import contextmanager
 
 from django.db import models, IntegrityError, transaction
 from django.db.models import fields
@@ -140,10 +141,25 @@ class M2MOrderedThroughDescriptor(ManyToManyDescriptor):
                         self.rel,
                         reverse=self.reverse,
         )
-        return create_m2m_ordered_through_manager(related_manager)
+        return create_m2m_ordered_through_manager(related_manager, self.rel)
 
 
-def create_m2m_ordered_through_manager(related_manager):
+@contextmanager
+def allow_m2m_operation(through):
+    """ Enables m2m operations on through models
+
+    This is done by flagging the model as auto_created dynamically. It only
+    works if all your extra fields on the through model have defaults declared.
+    """
+    cached = through._meta.auto_created
+    through._meta.auto_created = True
+    try:
+        yield
+    finally:
+        through._meta.auto_created = cached
+
+
+def create_m2m_ordered_through_manager(related_manager, rel):
     class M2MOrderedThroughManager(related_manager):
         def _apply_ordering(self, queryset):
             # Check for custom related name (there should be a
@@ -159,5 +175,22 @@ def create_m2m_ordered_through_manager(related_manager):
             """ Here is where we can finally apply our ordering logic"""
             qs = super().get_queryset(*args, **kwargs)
             return self._apply_ordering(qs)
+
+        def add(self, *objs):
+            with allow_m2m_operation(rel.through):
+                return super().add(*objs)
+
+        def remove(self, *objs):
+            with allow_m2m_operation(rel.through):
+                return super().remove(*objs)
+
+        def clear(self):
+            with allow_m2m_operation(rel.through):
+                return super().clear()
+
+        def set(self, *args, **kwargs):
+            with allow_m2m_operation(rel.through):
+                return super().clear(*args, **kwargs)
+
 
     return M2MOrderedThroughManager
