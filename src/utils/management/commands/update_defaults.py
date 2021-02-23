@@ -52,18 +52,18 @@ class Command(BaseCommand):
             journal = None
 
         if not group_name and not setting_name:
-            setting_list = core_models.SettingValue.objects.language('en').filter(
+            setting_list = core_models.SettingValue.objects.filter(
                 journal=journal
             )
 
         if group_name:
-            setting_list = core_models.SettingValue.objects.language('en').filter(
+            setting_list = core_models.SettingValue.objects.filter(
                 setting__group__name=group_name,
                 journal=journal
             )
 
         if setting_name:
-            setting_list = core_models.SettingValue.objects.language('en').filter(
+            setting_list = core_models.SettingValue.objects.filter(
                 setting__group__name=group_name,
                 setting__name=setting_name,
                 journal=journal

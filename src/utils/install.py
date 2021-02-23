@@ -54,7 +54,7 @@ def update_settings(journal_object=None, management_command=False,
                         setattr(setting, k, v)
                         setting.save()
 
-            setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+            setting_value, created = core_models.SettingValue.objects.get_or_create(
                 journal=journal_object,
                 setting=setting
             )
@@ -97,7 +97,7 @@ def update_emails(journal_object=None, management_command=False):
                     defaults=setting_defaults
                 )
 
-                setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+                setting_value, created = core_models.SettingValue.objects.get_or_create(
                     journal=journal_object,
                     setting=setting
                 )

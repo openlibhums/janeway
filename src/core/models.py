@@ -597,7 +597,7 @@ class Setting(models.Model):
 
     @property
     def default_setting_value(self):
-        return SettingValue.objects.language("en").get(
+        return SettingValue.objects.get(
             setting=self,
             journal=None,
     )
