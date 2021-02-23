@@ -257,3 +257,54 @@ class SubmissionTests(TestCase):
             [kw.word for kw in article.keywords.all()],
         )
 
+    def test_article_keyword_add(self):
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test of keywords",
+        )
+        keywords = ["one", "two", "three", "four"]
+        for i, kw in enumerate(keywords):
+            kw_obj = models.Keyword.objects.create(word=kw)
+            article.keywords.add(kw_obj)
+
+        self.assertEqual(
+            keywords,
+            [kw.word for kw in article.keywords.all()],
+        )
+
+    def test_article_keyword_remove(self):
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test of keywords",
+        )
+        keywords = ["one", "two", "three", "four"]
+        kw_objs = []
+        for i, kw in enumerate(keywords):
+            kw_obj = models.Keyword.objects.create(word=kw)
+            kw_objs.append(kw_obj)
+            article.keywords.add(kw_obj)
+
+        article.keywords.remove(kw_objs[1])
+        keywords.pop(1)
+
+        self.assertEqual(
+            keywords,
+            [kw.word for kw in article.keywords.all()],
+        )
+
+    def test_article_keyword_clear(self):
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test of keywords",
+        )
+        keywords = ["one", "two", "three", "four"]
+        for i, kw in enumerate(keywords):
+            kw_obj = models.Keyword.objects.create(word=kw)
+            article.keywords.add(kw_obj)
+        article.keywords.clear()
+
+        self.assertEqual(
+            [],
+            [kw.word for kw in article.keywords.all()],
+        )
+
