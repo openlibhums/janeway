@@ -188,9 +188,5 @@ def create_m2m_ordered_through_manager(related_manager, rel):
             with allow_m2m_operation(rel.through):
                 return super().clear()
 
-        def set(self, *args, **kwargs):
-            with allow_m2m_operation(rel.through):
-                return super().clear(*args, **kwargs)
-
 
     return M2MOrderedThroughManager
