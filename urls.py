@@ -106,10 +106,18 @@ urlpatterns = [
         views.preview_figure,
         name='proofreader_preview_figure'
         ),
+    url(r'^preview_galley/article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/assignment/(?P<assignment_id>\d+)/(?P<file_name>.*)$',
+        views.preview_figure,
+        name='proofreader_preview_figure_b'
+        ),
 
     url(r'^preview_galley/article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/figures/(?P<file_name>.*)$',
         views.preview_figure,
         name='typesetter_preview_figure'
+        ),
+    url(r'^preview_galley/article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/(?P<file_name>.*)$',
+        views.preview_figure,
+        name='typesetter_preview_figure_b'
         ),
 
     url(r'^article/(?P<article_id>\d+)/file/(?P<file_id>\d+)/download/$',
