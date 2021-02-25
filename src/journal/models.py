@@ -729,7 +729,12 @@ class IssueType(models.Model):
     custom_plural = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{self.code}".format(self=self)
+        return (
+            self.custom_plural
+            or self.pretty_name
+            or "{self.code}".format(self=self)
+        )
+
 
     @property
     def plural_name(self):
