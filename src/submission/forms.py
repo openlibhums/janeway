@@ -102,14 +102,23 @@ class ArticleInfo(KeywordModelForm):
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
-            self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
+            section_queryset = models.Section.objects.language().fallbacks(
+                'en').filter(
                 journal=article.journal,
-                public_submissions=self.FILTER_PUBLIC_FIELDS,
             )
-            self.fields['license'].queryset = models.Licence.objects.filter(
+            license_queryset = models.Licence.objects.filter(
                 journal=article.journal,
-                available_for_submission=self.FILTER_PUBLIC_FIELDS,
             )
+            if self.FILTER_PUBLIC_FIELDS:
+                section_queryset = section_queryset.filter(
+                    public_submissions=self.FILTER_PUBLIC_FIELDS,
+                )
+                license_queryset = license_queryset.filter(
+                    available_for_submission=self.FILTER_PUBLIC_FIELDS,
+                )
+            self.fields['section'].queryset = section_queryset
+            self.fields['license'].queryset = license_queryset
+
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.issues.all()
