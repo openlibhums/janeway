@@ -65,6 +65,7 @@ class ArticleStart(forms.ModelForm):
 
 
 class ArticleInfo(KeywordModelForm):
+    FILTER_PUBLIC_FIELDS = False
 
     class Meta:
         model = models.Article
@@ -103,11 +104,11 @@ class ArticleInfo(KeywordModelForm):
             article = kwargs['instance']
             self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
                 journal=article.journal,
-                public_submissions=True,
+                public_submissions=self.FILTER_PUBLIC_FIELDS,
             )
             self.fields['license'].queryset = models.Licence.objects.filter(
                 journal=article.journal,
-                available_for_submission=True,
+                available_for_submission=self.FILTER_PUBLIC_FIELDS,
             )
             self.fields['section'].required = True
             self.fields['license'].required = True
@@ -207,6 +208,11 @@ class ArticleInfo(KeywordModelForm):
             article.save()
 
         return article
+
+
+class ArticleInfoSubmit(ArticleInfo):
+    # Filter licenses and sections to publicly available only
+    FILTER_PUBLIC_FIELDS = True
 
 
 class AuthorForm(forms.ModelForm):
