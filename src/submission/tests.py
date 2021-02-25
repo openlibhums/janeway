@@ -7,12 +7,19 @@ from mock import Mock
 
 from django.http import Http404
 from django.test import TestCase
+from django.utils import translation
 
 from core.models import Account
 from identifiers import logic as id_logic
 from identifiers import logic as id_logic
 from journal import models as journal_models
-from submission import decorators, models, logic
+from submission import (
+    decorators,
+    forms,
+    logic,
+    models,
+)
+
 from utils.install import update_xsl_files, update_settings
 
 
@@ -308,3 +315,31 @@ class SubmissionTests(TestCase):
             [kw.word for kw in article.keywords.all()],
         )
 
+    def test_edit_section(self):
+        """ Ensures editors can select sections that are not submissible"""
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test of sections",
+        )
+        with translation.override("en"):
+            section = models.Section.objects.create(
+                journal=self.journal_one,
+                name="section",
+                public_submissions=False,
+            )
+            form = forms.ArticleInfo(instance=article)
+            self.assertTrue(section in form.fields["section"].queryset)
+
+    def test_select_disabled_section_submit(self):
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test of sections",
+        )
+        with translation.override("en"):
+            section = models.Section.objects.create(
+                journal=self.journal_one,
+                name="section",
+                public_submissions=False,
+            )
+            form = forms.ArticleInfoSubmit(instance=article)
+            self.assertTrue(section not in form.fields["section"].queryset)
