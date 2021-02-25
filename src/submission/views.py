@@ -145,7 +145,7 @@ def submit_info(request, article_id):
                              journal=request.journal)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article,
+        form = forms.ArticleInfoSubmit(request.POST, instance=article,
                                  additional_fields=additional_fields,
                                  submission_summary=submission_summary,
                                  journal=request.journal)
