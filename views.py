@@ -211,6 +211,13 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
     except UnicodeDecodeError:
         messages.add_message(request, messages.ERROR,
                              "Uploaded file is not UTF-8 encoded")
+    except production_logic.ZippedGalleyError:
+        messages.add_message(
+            request, messages.ERROR,
+            "You tried to upload a compressed file. "
+            "Please upload each Typeset File separately",
+        )
+
 
     if 'prod' in request.POST:
         for uploaded_file in request.FILES.getlist('prod-file'):
@@ -224,18 +231,20 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
     if assignment and galley:
         assignment.galleys_created.add(galley)
 
-        return redirect(
-            reverse(
-                'typesetting_assignment',
-                kwargs={'assignment_id': assignment.pk}
-            )
-        )
 
     if not galley:
         messages.add_message(
             request,
             messages.WARNING,
             'No typeset file uploaded',
+        )
+
+    if assignment:
+        return redirect(
+            reverse(
+                'typesetting_assignment',
+                kwargs={'assignment_id': assignment.pk}
+            )
         )
 
     return redirect(
