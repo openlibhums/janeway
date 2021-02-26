@@ -96,6 +96,19 @@ def typesetting_article(request, article_id):
     elif request.POST and "complete-typesetting" in request.POST:
         return logic.complete_typesetting(request, article)
 
+    elif request.POST and 'source' in request.POST:
+        for uploaded_file in request.FILES.getlist('source-file'):
+            production_logic.save_source_file(
+                article,
+                request,
+                uploaded_file,
+            )
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Source files uploaded',
+            )
+
     template = 'typesetting/typesetting_article.html'
     context = {
         'article': article,

@@ -49,6 +49,17 @@
                 </p>
                 {% include "typesetting/elements/galleys.html" %}
             </div>
+                <div class="title-area">
+                    <h2>Upload Source Files (optional)</h2>
+                </div>
+                <div class="content">
+                    <p><small>
+                        Source Files are intermediate files uploaded by the  used to generate the final Typeset files (e.g. Adobe In Design files).
+                        Uploading these files (where used) is important in case any changes need to be made to the article in the future.
+                    </small></p>
+                    {% include "typesetting/elements/typesetter/source_files.html" %}
+
+                </div>
         </div>
 
     </div>
@@ -57,6 +68,7 @@
     </div>
 
     {% include "typesetting/elements/new_galley.html" %}
+    {% include "elements/production/source_files_upload.html" %}
     {% include "typesetting/elements/new_production_file.html" %}
     {% include "admin/elements/summary_modal.html" %}
 {% endblock body %}
