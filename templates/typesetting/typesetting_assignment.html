@@ -43,6 +43,14 @@
                     {% include "typesetting/elements/typesetter/galleys.html" %}
 
                 </div>
+                <div class="title-area">
+                    <h2>Upload Source Files</h2>
+                </div>
+                <div class="content">
+                    <p><small>Source Files are intermediate files used to generate the final Typeset files (e.g. Adobe In Design files)</small></p>
+                    {% include "typesetting/elements/typesetter/source_files.html" %}
+
+                </div>
                 {% endif %}
             </div>
             <div class="box">
@@ -104,6 +112,7 @@
 
 
     {% include "typesetting/elements/new_galley.html" with assignment=assignment %}
+    {% include "elements/production/source_files_upload.html" %}
 {% endblock body %}
 
 

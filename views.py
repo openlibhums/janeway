@@ -731,13 +731,26 @@ def typesetting_assignment(request, assignment_id):
         completed__isnull=True,
         round__article__journal=request.journal
     )
+    article = assignment.round.article
     galleys = core_models.Galley.objects.filter(
-        article=assignment.round.article,
+        article=article,
     )
 
     form = forms.TypesetterDecision()
 
     if request.POST:
+        if 'source' in request.POST:
+            for uploaded_file in request.FILES.getlist('source-file'):
+                production_logic.save_source_file(
+                    article,
+                    request,
+                    uploaded_file,
+                )
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    'Source files uploaded',
+                )
 
         if assignment.cancelled:
             messages.add_message(

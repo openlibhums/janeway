@@ -1,0 +1,30 @@
+{% load static from staticfiles %}
+{% load render_string %}
+<table class="scroll small">
+    <tr style="text-align: left">
+        <th>ID</th>
+        <th width="25%">Filename</th>
+        <th>Uploaded</th>
+        <th>Download</th>
+    </tr>
+    {% for source_file in article.source_files.all %}
+        <tr>
+            <td>{{ source_file.pk }}</td>
+            <td>{{ source_file.original_filename|truncatechars:40 }}</td>
+            <td>{{ source_file.date_modified|date:"Y-m-d G:i" }}</td>
+            <td>
+                <a href="{% url 'article_file_download' 'id' article.pk source_file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
+            </td>
+        {% empty %}
+        <tr>
+            <td colspan="10">No source files have been uploaded.</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<div class="float-right"><a class="button success" data-open="sourceupload"><i
+        class="fa fa-cloud-upload">
+    &nbsp;</i>Upload New Source File</a>
+</div>
+<br />
