@@ -1564,6 +1564,10 @@ def manage_archive_article(request, article_id):
                         messages.ERROR,
                         "Uploaded file is not UTF-8 encoded",
                     )
+                except production_logic.ZippedGalleyError:
+                    messages.add_message(request, messages.ERROR,
+                        "Galleys must be uploaded individually, not zipped",
+                    )
 
         if 'delete_note' in request.POST:
             note_id = int(request.POST['delete_note'])
