@@ -308,6 +308,11 @@ def production_article(request, article_id):
         except UnicodeDecodeError:
             messages.add_message(request, messages.ERROR,
                 "Uploaded file is not UTF-8 encoded")
+        except logic.ZippedGalleyError:
+            messages.add_message(request, messages.ERROR,
+                "Galleys must be uploaded individually, not zipped",
+            )
+
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
@@ -731,6 +736,10 @@ def do_typeset_task(request, typeset_id):
                 except UnicodeDecodeError:
                     messages.add_message(request, messages.ERROR,
                         "Uploaded file is not UTF-8 encoded")
+                except logic.ZippedGalleyError:
+                    messages.add_message(request, messages.ERROR,
+                        "Galleys must be uploaded individually, not zipped",
+                    )
 
         if 'source' in request.POST:
             for uploaded_file in request.FILES.getlist('source-file'):
