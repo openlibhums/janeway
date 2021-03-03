@@ -21,7 +21,7 @@ from django.core import exceptions
 from django.utils.html import mark_safe
 
 from core.file_system import JanewayFileSystemStorage
-from core import workflow
+from core import workflow, model_utils
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
@@ -1412,14 +1412,19 @@ class Section(models.Model):
                   " (e.g: Article -> Articles)",
     )
 
+    objects = model_utils.JanewayMultilingualManager()
+
     class Meta:
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.safe_translation_getter('name', str(self.pk))
+        return self.name
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
+
+    def article_count(self):
+        return Article.objects.filter(section=self).count()
 
     def editor_emails(self):
         return [editor.email for editor in self.editors.all()]
@@ -1431,10 +1436,9 @@ class Section(models.Model):
         return [editor.email for editor in self.section_editors.all() + self.editors.all()]
 
     def issue_display(self):
-        if self.lazy_translation_getter('plural', str(self.pk)):
-            return self.lazy_translation_getter('plural', str(self.pk))
-        else:
-            return self.lazy_translation_getter('name', str(self.pk))
+        if self.plural:
+            return self.plural
+        return self.name
 
 
 class Licence(models.Model):

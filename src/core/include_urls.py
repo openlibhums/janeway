@@ -147,9 +147,11 @@ urlpatterns = [
 
     # Journal Sections
     url(r'^manager/sections/$',
-        core_views.sections, name='core_manager_sections'),
+        core_views.section_list, name='core_manager_sections'),
+    url(r'^manager/sections/add/$',
+        core_views.manage_section, name='core_manager_section_add'),
     url(r'^manager/sections/(?P<section_id>\d+)/$',
-        core_views.sections, name='core_manager_section'),
+        core_views.manage_section, name='core_manager_section'),
 
     # Pinned Articles
     url(r'^manager/articles/pinned/$',

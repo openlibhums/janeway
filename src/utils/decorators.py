@@ -9,6 +9,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import time
 from functools import wraps
 
+from django.utils import translation
+
 from utils.logger import get_logger
 
 
@@ -41,3 +43,20 @@ def retry(attempts=3, throttle=0, exc=Exception):
 
         return decorator
     return wrapper
+
+
+def GET_language_override(func):
+    """
+    A function decorated by this can override its language using the a get param as in
+    templates/admin/elements/translations/form_tabs.html
+    Usage: adding ?language=code eg language=es will override the language for the view.
+    """
+    def language_override_wrapper(request, *args, **kwargs):
+        language = request.GET.get('language', None)
+        request.override_language = language if language else translation.get_language()
+        return func(request, *args, **kwargs)
+
+    return language_override_wrapper
+
+
+

@@ -148,7 +148,6 @@ class ReviewAssignment(models.Model):
                 },
             )
 
-
     @property
     def review_rating(self):
         try:
@@ -234,7 +233,6 @@ class ReviewAssignment(models.Model):
 
         return u'{0} - Article: {1}, Reviewer: {2}'.format(
             self.id, self.article.title, reviewer_name)
-
 
 
 class ReviewForm(models.Model):
