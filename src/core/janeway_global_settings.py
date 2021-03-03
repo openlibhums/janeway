@@ -154,6 +154,7 @@ TEMPLATES = [
             ],
             'builtins': [
                 'core.templatetags.fqdn',
+                'django.templatetags.i18n',
             ]
         },
     },

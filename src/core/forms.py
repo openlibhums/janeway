@@ -16,6 +16,7 @@ from django.contrib.auth.forms import UserCreationForm
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
+from modeltranslation.forms import TranslationModelForm
 
 from core import models, validators
 from utils.logic import get_current_request
@@ -353,7 +354,7 @@ class ArticleMetaImageForm(forms.ModelForm):
         fields = ('meta_image',)
 
 
-class SectionForm(forms.ModelForm):
+class SectionForm(TranslationModelForm):
     class Meta:
         model = submission_models.Section
         fields = [
@@ -367,7 +368,9 @@ class SectionForm(forms.ModelForm):
         request = kwargs.pop('request', None)
         super(SectionForm, self).__init__(*args, **kwargs)
         if request:
-            self.fields['section_editors'].queryset = request.journal.users_with_role('section-editor')
+            self.fields['section_editors'].queryset = request.journal.users_with_role(
+                'section-editor',
+            )
             self.fields['section_editors'].required = False
             self.fields['editors'].queryset = request.journal.users_with_role('editor')
             self.fields['editors'].required = False

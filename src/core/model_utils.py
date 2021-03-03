@@ -16,6 +16,11 @@ from django.db.models.fields.related_descriptors import (
 )
 from django.http.request import split_domain_port
 from django.utils.functional import cached_property
+from django.utils import translation
+from django.conf import settings
+
+from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
+from modeltranslation.utils import auto_populate
 
 from utils import logic
 
@@ -113,6 +118,41 @@ def merge_models(src, dest):
                 pass
     src.delete()
 
+
+class JanewayMultilingualQuerySet(MultilingualQuerySet):
+
+    def check_kwargs(self, **kwargs):
+        for k, v in kwargs.items():
+            if k.endswith('_{}'.format(settings.LANGUAGE_CODE)):
+                return False
+        return True
+
+    def check_base_language(self, **kwargs):
+        lang = translation.get_language()
+        if lang and lang != settings.LANGUAGE_CODE and self.check_kwargs(**kwargs):
+            raise Exception(
+                'When creating a new translation you must provide'
+                ' a translation for the base language, {}'.format(
+                    settings.LANGUAGE_CODE
+                )
+            )
+
+    def get_or_create(self, **kwargs):
+        self.check_base_language(**kwargs)
+        return super(JanewayMultilingualQuerySet, self).get_or_create(**kwargs)
+
+    def create(self, **kwargs):
+        self.check_base_language(**kwargs)
+        return super(JanewayMultilingualQuerySet, self).create(**kwargs)
+
+    def update_or_create(self, **kwargs):
+        self.check_base_language(**kwargs)
+        return super(JanewayMultilingualQuerySet, self).update_or_create(**kwargs)
+
+
+class JanewayMultilingualManager(MultilingualManager):
+    def get_queryset(self):
+        return JanewayMultilingualQuerySet(self.model)
 
 class M2MOrderedThroughField(ManyToManyField):
     """ Orders m2m related objects by their 'through' Model

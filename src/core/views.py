@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+import pytz
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,8 +14,7 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.urls import reverse
-from django.http import Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
 from django.http import HttpResponse
@@ -26,7 +26,9 @@ from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
-import pytz
+from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
+from django.db.models import Q
 
 from core import models, forms, logic, workflow, models as core_models
 from security.decorators import editor_user_required, article_author_required, has_journal
@@ -39,8 +41,8 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
+from utils.decorators import GET_language_override
 
-from django.db.models import Q
 
 logger = get_logger(__name__)
 
@@ -1721,29 +1723,61 @@ def email_templates(request):
 
 
 @editor_user_required
-def sections(request, section_id=None):
+def section_list(request):
+    """
+    Displays a list of the journals sections.
+    :praram request: HttpRequest object
+    :return: HttpResponse
+    """
+    section_objects = submission_models.Section.objects.filter(
+        journal=request.journal,
+    )
+
+    if request.POST and 'delete' in request.POST:
+        section_id = request.POST.get('delete')
+        section_to_delete = get_object_or_404(submission_models.Section, pk=section_id)
+
+        if section_to_delete.article_count():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    'You cannot remove a section that contains articles. Remove articles'
+                    ' from the section if you want to delete it.'
+                ),
+            )
+        else:
+            section_to_delete.delete()
+        return redirect(reverse('core_manager_sections'))
+
+    template = 'core/manager/sections/section_list.html'
+    context = {
+        'section_objects': section_objects,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@GET_language_override
+def manage_section(request, section_id=None):
     """
     Displays a list of sections, allows them to be added, edited and deleted.
     :param request: HttpRequest object
     :param section_id: Section object PK, optional
     :return: HttpResponse object
     """
-    section = get_object_or_404(submission_models.Section, pk=section_id,
-                                journal=request.journal) if section_id else None
-    sections = submission_models.Section.objects.filter(journal=request.journal)
+    with translation.override(request.override_language):
+        section = get_object_or_404(submission_models.Section, pk=section_id,
+                                    journal=request.journal) if section_id else None
+        sections = submission_models.Section.objects.filter(journal=request.journal)
 
-    if section:
-        form = forms.SectionForm(instance=section, request=request)
-    else:
-        form = forms.SectionForm(request=request)
-
-    if request.POST:
-
-        if 'delete' in request.POST:
-            id = request.POST.get('delete')
-            object = get_object_or_404(submission_models.Section, pk=id)
-            object.delete()
+        if section:
+            form = forms.SectionForm(instance=section, request=request)
         else:
+            form = forms.SectionForm(request=request)
+
+        if request.POST:
+
             if section:
                 form = forms.SectionForm(request.POST, instance=section, request=request)
             else:
@@ -1755,15 +1789,23 @@ def sections(request, section_id=None):
                 form_section.save()
                 form.save_m2m()
 
-        return redirect(reverse('core_manager_sections'))
+            reverse_url = '{url}?language={lang}'.format(
+                url=reverse(
+                    'core_manager_section',
+                    kwargs={'section_id': section.pk or form_section.pk},
+                ),
+                lang=request.override_language,
+            )
+            return redirect(
+                reverse_url
+            )
 
-    template = 'core/manager/sections/sections.html'
-    context = {
-        'sections': sections,
-        'section': section,
-        'form': form,
-    }
-
+        template = 'core/manager/sections/manage_section.html'
+        context = {
+            'sections': sections,
+            'section': section,
+            'form': form,
+        }
     return render(request, template, context)
 
 
