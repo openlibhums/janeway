@@ -807,15 +807,21 @@ def repository_manager_article(request, preprint_id):
                     'You must assign at least one galley file.',
                 )
             else:
-                # TODO: Handle DOIs
-                kwargs = {
+                date_kwargs = {
                     'date': request.POST.get('date', timezone.now().date()),
                     'time': request.POST.get('time', timezone.now().time()),
                 }
                 if preprint.date_published:
-                    preprint.update_date_published(**kwargs)
+                    preprint.update_date_published(**date_kwargs)
                 else:
-                    preprint.accept(**kwargs)
+                    preprint.accept(**date_kwargs)
+                    event_logic.Events.raise_event(
+                        event_logic.Events.ON_PREPRINT_PUBLICATION,
+                        {
+                            'request': request,
+                            'preprint': preprint,
+                        },
+                    )
                     return redirect(
                         reverse(
                             'repository_notification',
@@ -1037,7 +1043,7 @@ def repository_notification(request, preprint_id):
             'email_content': email_content,
         }
         event_logic.Events.raise_event(
-            event_logic.Events.ON_PREPRINT_PUBLICATION,
+            event_logic.Events.ON_PREPRINT_NOTIFICATION,
             **kwargs,
         )
         return redirect(
