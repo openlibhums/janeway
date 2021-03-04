@@ -685,20 +685,49 @@ class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().select_related('author')
 
+
 class PreprintAuthor(models.Model):
     preprint = models.ForeignKey('Preprint')
-    author = models.ForeignKey('Author')
+    account = models.ForeignKey('core.Account', null=True)
+    author = models.ForeignKey('Author', null=True)
     order = models.PositiveIntegerField(default=0)
     objects = PreprintAuthorManager()
+    affiliation = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('order',)
-        unique_together = ('author', 'preprint')
+        unique_together = ('account', 'preprint')
 
     def __str__(self):
         return '{author} linked to {preprint}'.format(
-            author=self.author.full_name,
+            author=self.account.full_name() if self.account else '',
             preprint=self.preprint.title,
+        )
+
+    @property
+    def full_name(self):
+        if not self.account.middle_name:
+            return '{} {}'.format(self.account.first_name, self.account.last_name)
+        else:
+            return '{} {} {}'.format(
+                self.account.first_name,
+                self.account.middle_name,
+                self.account.last_name,
+            )
+
+    def dc_name(self):
+        if not self.account.middle_name:
+            return '{}, {}'.format(self.account.last_name, self.account.first_name)
+        else:
+            return '{}. {} {}'.format(
+                self.account.last_name,
+                self.account.first_name,
+                self.account.middle_name,
+            )
+
+    def to_dc(self):
+        return '<meta name="DC.Contributor" content="{}">'.format(
+            self.dc_name,
         )
 
 
@@ -714,38 +743,6 @@ class Author(models.Model):
         null=True,
         verbose_name=_('ORCID')
     )
-
-    class Meta:
-        ordering = ('last_name',)
-
-    def __str__(self):
-        return self.full_name
-
-    @property
-    def full_name(self):
-        if not self.middle_name:
-            return '{} {}'.format(self.first_name, self.last_name)
-        else:
-            return '{} {} {}'.format(
-                self.first_name,
-                self.middle_name,
-                self.last_name,
-            )
-
-    def dc_name(self):
-        if not self.middle_name:
-            return '{}, {}'.format(self.last_name, self.first_name)
-        else:
-            return '{}. {} {}'.format(
-                self.last_name,
-                self.first_name,
-                self.middle_name,
-            )
-
-    def to_dc(self):
-        return '<meta name="DC.Contributor" content="{}">'.format(
-            self.dc_name,
-        )
 
 
 class PreprintVersion(models.Model):

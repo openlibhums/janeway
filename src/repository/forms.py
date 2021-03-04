@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 from django_summernote.widgets import SummernoteWidget
 from django.conf import settings
@@ -180,7 +179,6 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
         self.preprint = kwargs.pop('preprint')
         super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
 
-
     def save(self, commit=True):
         link = super(PreprintSupplementaryFileForm, self).save(commit=False)
         link.preprint = self.preprint
@@ -191,32 +189,13 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
         return link
 
 
-
-
-class AuthorForm(forms.ModelForm):
-    class Meta:
-        model = models.Author
-        fields = (
-            'email_address',
-            'first_name',
-            'middle_name',
-            'last_name',
-            'affiliation',
-            'orcid',
-        )
-
-
-AuthorFormSet = modelformset_factory(
-    models.Author,
-    fields=(
-        'email_address',
-        'first_name',
-        'middle_name',
-        'last_name',
-        'affiliation',
-        'orcid',
-    )
-)
+class AuthorForm(forms.Form):
+    email_address = forms.EmailField(required=True)
+    first_name = forms.CharField(max_length=200)
+    middle_name = forms.CharField(max_length=200)
+    last_name = forms.CharField(max_length=200)
+    affiliation = forms.CharField(max_length=200)
+    preprint_id = forms.IntegerField(widget=forms.HiddenInput)
 
 
 class CommentForm(forms.ModelForm):

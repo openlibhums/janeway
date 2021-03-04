@@ -12,7 +12,7 @@
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
     <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
     <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
-    <li>Edit Metadata</li>
+    <li>Edit Authors</li>
 {% endblock %}
 
 {% block body %}
@@ -20,15 +20,36 @@
         <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
-                    <h2>Metadata</h2>
-                    <a class="button" href="{% url 'repository_manager_article' preprint.pk %}">< Back</a>
+                    <h2>{% if author %}Edit {{ author.account.full_name }}{% else %}Add Author{% endif %}</h2>
                 </div>
                 <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            Below you can edit each of the authors of this {{ request.repository.object_name }}.
+                            Alternatively use the blank form at the bottom to add more authors.
+                        {% endblocktrans %}
+                    </p>
                     <div class="row expanded">
+                        {% if author_formset.errors %}
+                            <div class="large-12 columns bs-callout bs-callout-danger">
+                                <p>Error(s) detected in one of your forms: </p>
+                                <p>{% for dict in author_formset.errors %}
+                                    {% for error in dict.values %}
+                                        {{ error }}
+                                    {% endfor %}
+                                {% endfor %}</p>
+                            </div>
+                        {% endif %}
                         <form method="POST">
                             {% csrf_token %}
-                            {% include "admin/elements/repository/metadata_form.html" with form=metadata_form %}
-                            <button name="metadata" class="button"><span class="fa fa-save" aria-hidden="true">&nbsp;</span> Save Metadata</button>
+                            {{ form|foundation }}
+                            <div class="row expanded">
+
+                                <button name="authors" class="button"><span class="fa fa-save"
+                                                                            aria-hidden="true">&nbsp;</span>Save
+                                    Author
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

@@ -919,36 +919,7 @@ def repository_edit_metadata(request, preprint_id):
         admin=True,
     )
 
-    author_formset = forms.AuthorFormSet(
-        queryset=preprint.author_objects(),
-    )
-
-    fire_redirect = False
-
     if request.POST:
-        if 'authors' in request.POST:
-            author_formset = forms.AuthorFormSet(request.POST)
-            if author_formset.is_valid():
-                authors = author_formset.save()
-                for author in authors:
-                    models.PreprintAuthor.objects.get_or_create(
-                        preprint=preprint,
-                        author=author,
-                        defaults={
-                            'order': preprint.next_author_order(),
-                        }
-                    )
-                fire_redirect = True
-
-        if 'delete_author' in request.POST:
-            author_id = request.POST.get('delete_author')
-            author = get_object_or_404(
-                models.PreprintAuthor,
-                author__pk=author_id,
-                preprint=preprint,
-            ).delete()
-            fire_redirect = True
-
         if 'metadata' in request.POST:
             metadata_form = forms.PreprintInfo(
                 request.POST,
@@ -959,24 +930,53 @@ def repository_edit_metadata(request, preprint_id):
 
             if metadata_form.is_valid():
                 metadata_form.save()
-                fire_redirect = True
 
-        if fire_redirect:
-            return redirect(
-                reverse(
-                    'repository_edit_metadata',
-                    kwargs={'preprint_id': preprint.pk},
+                return redirect(
+                    reverse(
+                        'repository_edit_metadata',
+                        kwargs={'preprint_id': preprint.pk},
+                    )
                 )
-            )
 
     template = 'admin/repository/edit_metadata.html'
     context = {
         'preprint': preprint,
         'metadata_form': metadata_form,
-        'author_formset': author_formset,
         'additional_fields': request.repository.additional_submission_fields(),
     }
 
+    return render(request, template, context)
+
+
+@is_article_preprint_editor
+def repository_edit_author(request, preprint_id, author_id):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository
+    )
+    author = get_object_or_404(
+        models.PreprintAuthor,
+        pk=author_id,
+        preprint=preprint,
+    )
+    form = forms.AuthorForm(
+        initial={
+            'email_address': author.account.email,
+            'first_name': author.account.first_name,
+            'middle_name': author.account.middle_name,
+            'last_name': author.account.last_name,
+            'affiliation': author.affiliation or author.account.institution,
+            'id': author.pk,
+        }
+    )
+
+    template = 'admin/repository/edit_authors.html'
+    context = {
+        'preprint': preprint,
+        'form': form,
+        'author': author,
+    }
     return render(request, template, context)
 
 

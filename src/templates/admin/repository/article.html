@@ -185,6 +185,7 @@
                             <th>{% trans 'Name' %}</th>
                             <th>{% trans 'Email' %}</th>
                             <th>{% trans 'Affiliation' %}</th>
+                            <th>{% trans 'Edit' %}</th>
                             <th>{% trans 'Delete' %}</th>
                         </tr>
                         </thead>
@@ -194,6 +195,11 @@
                                 <td><span class="fa fa-sort"></span> {{ author.full_name }}</td>
                                 <td>{{ author.email_address }}</td>
                                 <td>{{ author.affiliation }}</td>
+                                <td>
+                                    <a href="{% url 'repository_edit_authors' preprint.pk author.pk %}">
+                                        Edit
+                                    </a>
+                                </td>
                                 <td>
                                     <button class="del" name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span>
                                     </button>

@@ -97,9 +97,12 @@ urlpatterns = [
         views.repository_manager_article,
         name='repository_manager_article'),
 
-    url(r'^manager/(?P<preprint_id>\d+)/edit/$',
+    url(r'^manager/(?P<preprint_id>\d+)/edit/metadata/$',
         views.repository_edit_metadata,
         name='repository_edit_metadata'),
+    url(r'^manager/(?P<preprint_id>\d+)/edit/authors/(?P<author_id>\d+)/$',
+        views.repository_edit_author,
+        name='repository_edit_authors'),
 
     url(r'^manager/(?P<preprint_id>\d+)/download/(?P<file_id>\d+)/$',
         views.repository_download_file,

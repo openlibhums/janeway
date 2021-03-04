@@ -74,7 +74,6 @@ admin_list = [
     (models.Preprint, PreprintAdmin),
     (models.PreprintFile, PreprintFileAdmin),
     (models.PreprintSupplementaryFile, PreprintSupplementaryFileAdmin),
-    (models.Author,),
     (models.PreprintAuthor,),
     (models.RepositoryField,),
     (models.RepositoryFieldAnswer,),
