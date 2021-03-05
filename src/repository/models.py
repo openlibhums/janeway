@@ -17,7 +17,7 @@ from django.shortcuts import reverse
 from django.http.request import split_domain_port
 
 from core.file_system import JanewayFileSystemStorage
-from core import model_utils, files
+from core import model_utils, files, models as core_models
 from utils import logic
 from repository import install
 from utils.function_cache import cache
@@ -434,9 +434,9 @@ class Preprint(models.Model):
     def authors(self):
         preprint_authors = PreprintAuthor.objects.filter(
             preprint=self,
-        ).select_related('author')
+        ).select_related('account')
 
-        return [pa.author for pa in preprint_authors]
+        return [pa.account for pa in preprint_authors]
 
     @property
     def supplementaryfiles(self):
@@ -445,34 +445,16 @@ class Preprint(models.Model):
         )
 
     def author_objects(self):
-        pks = [author.pk for author in self.authors]
-        return Author.objects.filter(pk__in=pks)
+        pks = [author.account.pk for author in self.authors]
+        return core_models.Account.objects.filter(pk__in=pks)
 
     def display_authors(self):
-        return ", ".join([author.full_name for author in self.authors])
+        return ", ".join([author.full_name() for author in self.authors])
 
     def add_user_as_author(self, user):
-
-        author_dict = {
-            'first_name': user.first_name if user.first_name else '',
-            'middle_name': user.middle_name if user.middle_name else '',
-            'last_name': user.last_name if user.last_name else '',
-            'affiliation': user.affiliation() if user.affiliation else '',
-            'orcid': user.orcid if user.orcid else '',
-        }
-
-        author, a_created = Author.objects.get_or_create(
-            email_address=user.email,
-            defaults=author_dict,
-        )
-
-        # if the author object already exists, but does not have an orcid, the default given above will not be used... solution: go back and update the orcid
-        if not author.orcid and user.orcid:
-            author.orcid = user.orcid
-            author.save()
-
         preprint_author, created = PreprintAuthor.objects.get_or_create(
-            author=author,
+            account=user,
+            affiliation=user.institution,
             preprint=self,
             defaults={'order': self.next_author_order()},
         )
