@@ -711,6 +711,11 @@ class PreprintAuthor(models.Model):
             self.dc_name,
         )
 
+    def display_affiliation(self):
+        if self.affiliation:
+            return self.affiliation
+        return self.account.institution
+
 
 class Author(models.Model):
     email_address = models.EmailField(unique=True)
