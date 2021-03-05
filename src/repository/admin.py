@@ -60,9 +60,14 @@ class PreprintAccessAdmin(admin.ModelAdmin):
     save_as = True
 
 
+class PreprintAuthorAdmin(admin.ModelAdmin):
+    list_display = ('account', 'preprint', 'order')
+    list_filter = ('account', 'preprint',)
+    raw_id_fields = ('preprint', 'preprint')
+
+
 class PreprintSupplementaryFileAdmin(admin.ModelAdmin):
     pass
-
 
 
 admin_list = [
@@ -74,7 +79,7 @@ admin_list = [
     (models.Preprint, PreprintAdmin),
     (models.PreprintFile, PreprintFileAdmin),
     (models.PreprintSupplementaryFile, PreprintSupplementaryFileAdmin),
-    (models.PreprintAuthor,),
+    (models.PreprintAuthor, PreprintAuthorAdmin),
     (models.RepositoryField,),
     (models.RepositoryFieldAnswer,),
     (models.PreprintAccess, PreprintAccessAdmin),
