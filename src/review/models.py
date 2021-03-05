@@ -111,7 +111,7 @@ class ReviewAssignment(models.Model):
     review_type = models.CharField(max_length=20, choices=review_type(), default='traditional',
                                    help_text='Currently only traditional, form based, review is available.')
     visibility = models.CharField(max_length=20, choices=review_visibilty(), default='double-blind')
-    form = models.ForeignKey('ReviewForm')
+    form = models.ForeignKey('ReviewForm', null=True, on_delete=models.SET_NULL)
     access_code = models.CharField(max_length=100, blank=True, null=True)
 
     # Dates
@@ -273,7 +273,7 @@ def element_width_choices():
     )
 
 
-class ReviewFormElement(models.Model):
+class BaseReviewFormElement(models.Model):
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=element_kind_choices())
     choices = models.CharField(max_length=1000, null=True, blank=True,
@@ -289,6 +289,7 @@ class ReviewFormElement(models.Model):
 
     class Meta:
         ordering = ('order', 'name')
+        abstract = True
 
     def __str__(self):
         return "Element: {0} ({1})".format(self.name, self.kind)
@@ -298,9 +299,33 @@ class ReviewFormElement(models.Model):
             return
 
 
+class ReviewFormElement(BaseReviewFormElement):
+
+    class Meta(BaseReviewFormElement.Meta):
+        pass
+
+    def snapshot(self, answer):
+        frozen , _= FrozenReviewFormElement.objects.update_or_create(
+            answer=answer,
+            defaults=dict(
+                form_element=self,
+                name=self.name,
+                kind=self.kind,
+                choices=self.choices,
+                required=self.required,
+                order=self.order,
+                width=self.width,
+                help_text=self.help_text,
+                default_visibility=self.default_visibility,
+            )
+        )
+        return frozen
+
+
 class ReviewAssignmentAnswer(models.Model):
     assignment = models.ForeignKey(ReviewAssignment)
-    element = models.ForeignKey(ReviewFormElement)
+    original_element = models.ForeignKey(
+        ReviewFormElement, null=True, on_delete=models.SET_NULL)
     answer = models.TextField(blank=True, null=True)
     edited_answer = models.TextField(null=True, blank=True)
     author_can_see = models.BooleanField(default=True)
@@ -308,11 +333,27 @@ class ReviewAssignmentAnswer(models.Model):
     def __str__(self):
         return "{0}, {1}".format(self.assignment, self.element)
 
+    @property
+    def element(self):
+        return self.frozen_element
+
+
+class FrozenReviewFormElement(BaseReviewFormElement):
+    """ A snapshot of a review form element at the time an answer is created"""
+    form_element = models.ForeignKey(
+        ReviewFormElement, null=True, on_delete=models.SET_NULL)
+    answer = models.OneToOneField(
+        ReviewAssignmentAnswer, related_name="frozen_element")
+
+    class Meta(BaseReviewFormElement.Meta):
+        pass
+
 
 class ReviewFormAnswer(models.Model):
     review_assignment = models.ForeignKey(ReviewAssignment)
     form_element = models.ForeignKey(ReviewFormElement)
     answer = models.TextField()
+
 
 
 class ReviewerRating(models.Model):
