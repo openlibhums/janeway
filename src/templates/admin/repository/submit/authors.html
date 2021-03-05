@@ -83,11 +83,11 @@
                                 </tr>
                             </thead>
                             <tbody id="sortable">
-                                {% for author in preprint.authors %}
+                                {% for author in preprint.preprintauthor_set.all %}
                                 <tr id="authors-{{ author.pk }}">
-                                    <td><span class="fa fa-sort"></span> {{ author.full_name }}</td>
-                                    <td>{{ author.email_address }}</td>
-                                    <td>{{ author.affiliation }}</td>
+                                    <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
+                                    <td>{{ author.account.email }}</td>
+                                    <td>{{ author.display_affiliation }}</td>
                                     <td>
                                         <button name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span></button>
                                     </td>

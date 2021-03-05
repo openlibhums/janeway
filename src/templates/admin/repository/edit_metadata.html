@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
-{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title %}{{ preprint.title|striptags }} - Metadata{% endblock %}
 {% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
 {% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}

@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
-{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title %}{{ preprint.title|striptags }} - Authors{% endblock %}
 {% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
 {% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
@@ -21,6 +21,7 @@
             <div class="box">
                 <div class="title-area">
                     <h2>{% if author %}Edit {{ author.account.full_name }}{% else %}Add Author{% endif %}</h2>
+                    <a class="button" href="{% url 'repository_manager_article' preprint.pk %}">< Back</a>
                 </div>
                 <div class="content">
                     <p>
@@ -30,16 +31,7 @@
                         {% endblocktrans %}
                     </p>
                     <div class="row expanded">
-                        {% if author_formset.errors %}
-                            <div class="large-12 columns bs-callout bs-callout-danger">
-                                <p>Error(s) detected in one of your forms: </p>
-                                <p>{% for dict in author_formset.errors %}
-                                    {% for error in dict.values %}
-                                        {{ error }}
-                                    {% endfor %}
-                                {% endfor %}</p>
-                            </div>
-                        {% endif %}
+                        {% include "elements/forms/errors.html" with form=form %}
                         <form method="POST">
                             {% csrf_token %}
                             {{ form|foundation }}
@@ -57,23 +49,4 @@
         </div>
     </div>
 
-{% endblock %}
-
-{% block js %}
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script src="{% static "common/js/tagit.js" %}"></script>
-    <script type="text/javascript" src="{% static 'common/js/tree.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#id_keywords").tagit(
-                {allowSpaces: true});
-            $('#add_more').click(function () {
-                console.log('test')
-                var form_idx = $('#id_form-TOTAL_FORMS').val();
-                $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, form_idx));
-                $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
-            });
-        });
-    </script>
 {% endblock %}
