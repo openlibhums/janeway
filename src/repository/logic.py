@@ -442,11 +442,11 @@ def check_duplicates(version_queue):
 def search_for_authors(request, preprint):
     search_term = request.POST.get('search')
     try:
-        search_author = models.Author.objects.get(
-            Q(email_address=search_term) | Q(orcid=search_term)
+        search_author = core_models.Account.objects.get(
+            Q(email=search_term) | Q(orcid=search_term)
         )
         pa, created = models.PreprintAuthor.objects.get_or_create(
-            author=search_author,
+            account=search_author,
             preprint=preprint,
             defaults={'order': preprint.next_author_order()},
         )
@@ -459,7 +459,7 @@ def search_for_authors(request, preprint):
                     request.repository.object_name,
                 )
             )
-    except models.Author.DoesNotExist:
+    except core_models.Account.DoesNotExist:
         messages.add_message(
             request,
             messages.INFO,
