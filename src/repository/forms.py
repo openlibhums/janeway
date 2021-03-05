@@ -4,11 +4,13 @@ from django_summernote.widgets import SummernoteWidget
 from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
+from django.contrib import messages
 
 from submission import models as submission_models
 from repository import models
 from press import models as press_models
 from review.forms import render_choices
+from core import models as core_models
 
 
 class PreprintInfo(forms.ModelForm):
@@ -173,7 +175,7 @@ class PreprintInfo(forms.ModelForm):
 class PreprintSupplementaryFileForm(forms.ModelForm):
     class Meta:
         model = models.PreprintSupplementaryFile
-        fields = ( 'label', 'url',)
+        fields = ('label', 'url',)
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop('preprint')
@@ -192,10 +194,68 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
 class AuthorForm(forms.Form):
     email_address = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=200)
-    middle_name = forms.CharField(max_length=200)
+    middle_name = forms.CharField(max_length=200, required=False)
     last_name = forms.CharField(max_length=200)
     affiliation = forms.CharField(max_length=200)
-    preprint_id = forms.IntegerField(widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop('instance')
+        self.request = kwargs.pop('request')
+        self.preprint = kwargs.pop('preprint')
+        super(AuthorForm, self).__init__(*args, **kwargs)
+
+        if self.instance:
+            self.fields['email_address'].initial = self.instance.account.email
+            self.fields['first_name'].initial = self.instance.account.first_name
+            self.fields['middle_name'].initial = self.instance.account.middle_name
+            self.fields['last_name'].initial = self.instance.account.last_name
+            self.fields['affiliation'].initial = self.instance.affiliation or self.instance.account.institution
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        if self.instance:
+            account = self.instance.account
+            account.email = cleaned_data.get('email_address')
+            account.first_name = cleaned_data.get('first_name')
+            account.middle_name = cleaned_data.get('middle_name')
+            account.last_name = cleaned_data.get('last_name')
+            self.instance.affiliation = cleaned_data.get('affiliation')
+
+            account.save()
+            self.instance.save()
+            return self.instance
+        else:
+            account, ac = core_models.Account.objects.get_or_create(
+                email=cleaned_data.get('email_address'),
+                defaults={
+                    'first_name': cleaned_data.get('first_name'),
+                    'middle_name': cleaned_data.get('middle_name'),
+                    'last_name': cleaned_data.get('last_name'),
+                }
+            )
+            preprint_author, pc = models.PreprintAuthor.objects.get_or_create(
+                account=account,
+                preprint=self.preprint,
+                defaults={
+                    'affiliation': cleaned_data.get('affiliation'),
+                    'order': self.preprint.next_author_order()
+                }
+            )
+
+            if not ac:
+                messages.add_message(
+                    self.request,
+                    messages.WARNING,
+                    'A user with this email address was found. They have been added.'
+                )
+            else:
+                messages.add_message(
+                    self.request,
+                    messages.SUCCESS,
+                    'User added as Author.',
+                )
+
+            return preprint_author
 
 
 class CommentForm(forms.ModelForm):
