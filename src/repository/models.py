@@ -484,9 +484,8 @@ class Preprint(models.Model):
         orderings = [supp_file.order for supp_file in self.supplementaryfiles]
         return max(orderings) + 1 if orderings else 0
 
-
     def user_is_author(self, user):
-        if user.email in [author.email_address for author in self.authors]:
+        if user.email in [author.email for author in self.authors]:
             return True
 
         return False
