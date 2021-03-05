@@ -134,19 +134,20 @@ class ReviewAssignment(models.Model):
     display_review_file = models.BooleanField(default=False)
 
     def review_form_answers(self):
-        return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('element__order')
+        return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('frozen_element__order')
 
     def save_review_form(self, review_form, assignment):
         for k, v in review_form.cleaned_data.items():
             form_element = ReviewFormElement.objects.get(reviewform=assignment.form, name=k)
-            ReviewAssignmentAnswer.objects.update_or_create(
+            answer, _ = ReviewAssignmentAnswer.objects.update_or_create(
                 assignment=self,
-                element=form_element,
+                original_element=form_element,
                 defaults={
                     "author_can_see": form_element.default_visibility,
                     "answer": v,
                 },
             )
+            form_element.snapshot(answer)
 
 
     @property
