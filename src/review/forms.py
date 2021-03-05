@@ -121,7 +121,7 @@ class GeneratedForm(forms.Form):
         fields_required = kwargs.pop('fields_required', True)
         answer = kwargs.pop('answer', None)
         preview = kwargs.pop('preview', None)
-        if 'initial' not in kwargs:
+        if 'initial' not in kwargs and review_assignment:
             kwargs["initial"] = {
                 a.original_element.name: a.answer
                 for a in review_assignment.review_form_answers()
