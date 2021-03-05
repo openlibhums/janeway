@@ -15,7 +15,6 @@ def create_accounts_for_authors(apps, schema_editor):
 
         for preprint_author in preprint.preprintauthor_set.all():
             acc, c = Account.objects.get_or_create(
-                email=preprint_author.author.email_address.lower(),
                 username=preprint_author.author.email_address.lower(),
                 defaults={
                     'first_name': preprint_author.author.first_name,
@@ -24,6 +23,7 @@ def create_accounts_for_authors(apps, schema_editor):
                     'institution': preprint_author.affiliation,
                     'orcid': preprint_author.author.orcid,
                     'is_active': True,
+                    'email': preprint_author.author.email_address.lower(),
                 }
             )
             preprint_author.account = acc
