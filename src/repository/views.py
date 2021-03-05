@@ -959,20 +959,24 @@ def repository_edit_author(request, preprint_id, author_id=None):
     )
 
     if request.POST:
-        form = forms.AuthorForm(
-            request.POST,
-            instance=author,
-            preprint=preprint,
-            request=request,
-        )
-        if form.is_valid():
-            author_save = form.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Author information saved'),
-            )
 
+        if 'search' in request.POST:
+            author_save = repository_logic.search_for_authors(request, preprint)
+        else:
+            form = forms.AuthorForm(
+                request.POST,
+                instance=author,
+                preprint=preprint,
+                request=request,
+            )
+            if form.is_valid():
+                author_save = form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Author information saved'),
+                )
+        if author_save:
             return redirect(
                 reverse('repository_edit_authors', args=[preprint.pk, author_save.pk])
             )

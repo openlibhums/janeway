@@ -26,13 +26,33 @@
                 <div class="content">
                     <p>
                         {% blocktrans %}
-                            Below you can edit each of the authors of this {{ request.repository.object_name }}.
-                            Alternatively use the blank form at the bottom to add more authors.
-                        {% endblocktrans %}
+                            You can search for an existing author or add them using the form below. If you
+                            complete the form with an email address of an existing user, that user will be added
+                            to the{% endblocktrans %} {{ request.repository.object }}.
                     </p>
                     <div class="row expanded">
-                        {% include "elements/forms/errors.html" with form=form %}
+                        {% if not author %}
                         <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <label for="search">
+                                        Search for Authors
+                                    </label>
+                                    <input id="search" name="search" type="text"
+                                           placeholder="Search by Email Address or ORCID">
+                                    <button class="button">
+                                        <i class="fa fa-search"> </i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <hr />
+                        {% endif %}
+
+                        <form method="POST">
+                            {% include "elements/forms/errors.html" with form=form %}
                             {% csrf_token %}
                             {{ form|foundation }}
                             <div class="row expanded">
