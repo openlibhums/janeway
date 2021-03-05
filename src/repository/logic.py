@@ -459,6 +459,8 @@ def search_for_authors(request, preprint):
                     request.repository.object_name,
                 )
             )
+
+        return pa
     except core_models.Account.DoesNotExist:
         messages.add_message(
             request,
