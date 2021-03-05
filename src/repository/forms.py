@@ -196,7 +196,7 @@ class AuthorForm(forms.Form):
     first_name = forms.CharField(max_length=200)
     middle_name = forms.CharField(max_length=200, required=False)
     last_name = forms.CharField(max_length=200)
-    affiliation = forms.CharField(max_length=200)
+    affiliation = forms.CharField(max_length=200, required=False)
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
