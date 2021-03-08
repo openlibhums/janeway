@@ -11,11 +11,14 @@ NEW_COMPLETE = "<p>Dear editors,</p><p>This is an automatic notification to info
 
 
 def update_setting_values(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-    queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_typesetter_complete'))
-    replace_value(queryset, old=OLD_TASK_COMPLETE, new=NEW_TASK_COMPLETE)
-    queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
-    replace_value(queryset, old=OLD_COMPLETE, new=NEW_COMPLETE)
+    try:
+        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+        queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_typesetter_complete'))
+        replace_value(queryset, old=OLD_TASK_COMPLETE, new=NEW_TASK_COMPLETE)
+        queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
+        replace_value(queryset, old=OLD_COMPLETE, new=NEW_COMPLETE)
+    except LookupError:
+        pass  # If no SettingValueTranslation model is found we don't need to run this.
 
 
 def replace_value(qs, old, new):
@@ -26,12 +29,14 @@ def replace_value(qs, old, new):
 
 
 def reverse_code(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-    queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_typesetter_complete'))
-    replace_value(queryset, old=NEW_TASK_COMPLETE, new=OLD_TASK_COMPLETE)
-    queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
-    replace_value(queryset, old=NEW_COMPLETE, new=OLD_COMPLETE)
-
+    try:
+        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+        queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_typesetter_complete'))
+        replace_value(queryset, old=NEW_TASK_COMPLETE, new=OLD_TASK_COMPLETE)
+        queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
+        replace_value(queryset, old=NEW_COMPLETE, new=OLD_COMPLETE)
+    except LookupError:
+        pass  # If no SettingValueTranslation model is found we don't need to run this.
 
 class Migration(migrations.Migration):
 
