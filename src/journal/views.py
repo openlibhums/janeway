@@ -1487,7 +1487,7 @@ def issue_article_order(request, issue_id=None):
                     " %s" % ids
                 )
                 continue
-            order_obj, c = models.ArticleOrdering.objects.get_or_create(
+            models.ArticleOrdering.objects.update_or_create(
                 issue=issue,
                 article=article,
                 defaults={
@@ -1495,11 +1495,6 @@ def issue_article_order(request, issue_id=None):
                     'section': article.section,
                 }
             )
-            if not c:
-                # When an object is not created, update it.
-                order_obj.order = order
-                order_obj.section = article.section
-            order_obj.save()
 
     return JsonResponse({'status': 'okay'})
 
