@@ -1768,6 +1768,23 @@ def manage_section(request, section_id=None):
 
 
 @editor_user_required
+def section_articles(request, section_id):
+    """
+    Displays a list of articles in a given section.
+    """
+    section = get_object_or_404(
+        submission_models.Section,
+        pk=section_id,
+        journal=request.journal,
+    )
+    template = 'core/manager/sections/section_articles.html'
+    context = {
+        'section': section,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
 def pinned_articles(request):
     """
     Allows an Editor to pin articles to the top of the article page.

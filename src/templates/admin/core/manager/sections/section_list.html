@@ -53,7 +53,7 @@
                                 <td>{{ section.name }}</td>
                                 <td>{{ section.public_submissions|bool_fa }}</td>
                                 <td>{{ section.number_of_reviewers }}</td>
-                                <td>{{ section.article_count }}</td>
+                                <td><a href="{% url 'core_manager_section_articles' section.pk %}">{{ section.article_count }}</a></td>
                                 <td>
                                     <a href="{% url 'core_manager_section' section.pk %}" class="tiny warning button">
                                         <i class="fa fa-edit"></i> Edit

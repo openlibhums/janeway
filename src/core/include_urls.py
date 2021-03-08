@@ -152,6 +152,8 @@ urlpatterns = [
         core_views.manage_section, name='core_manager_section_add'),
     url(r'^manager/sections/(?P<section_id>\d+)/$',
         core_views.manage_section, name='core_manager_section'),
+    url(r'^manager/sections/(?P<section_id>\d+)/articles/$',
+        core_views.section_articles, name='core_manager_section_articles'),
 
     # Pinned Articles
     url(r'^manager/articles/pinned/$',
