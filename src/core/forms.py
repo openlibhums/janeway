@@ -16,7 +16,7 @@ from django.contrib.auth.forms import UserCreationForm
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
-from modeltranslation.forms import TranslationModelForm
+from modeltranslation import forms as mt_forms, translator
 
 from core import models, validators
 from utils.logic import get_current_request
@@ -31,6 +31,13 @@ from submission import models as submission_models
 setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))
 
 logger = get_logger(__name__)
+
+
+class JanewayTranslationModelForm(mt_forms.TranslationModelForm):
+    def __init__(self, *args, **kwargs):
+        super(JanewayTranslationModelForm, self).__init__(*args, **kwargs)
+        opts = translator.translator.get_options_for_model(self._meta.model)
+        self.translated_field_names = opts.get_field_names()
 
 
 class EditKey(forms.Form):
@@ -354,7 +361,7 @@ class ArticleMetaImageForm(forms.ModelForm):
         fields = ('meta_image',)
 
 
-class SectionForm(TranslationModelForm):
+class SectionForm(JanewayTranslationModelForm):
     class Meta:
         model = submission_models.Section
         fields = [
