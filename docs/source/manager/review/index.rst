@@ -23,6 +23,9 @@ Under review settings we can control how peer review operates for the given jour
     - The default review form that will be automatically selected when assigning a reviewer.
 - Reviewer Form Download
     - If enabled this allows the Reviewer to download a copy of the review form in DOCX format to complete offline and then upload.
+- Enable save review progress
+    - If enabled, reviewers will be able to save the progress in a peer-review assignment and come back later to complete it later (Only recommended for journals using custom review forms that are particularly long)
+
     
     
 Review Forms

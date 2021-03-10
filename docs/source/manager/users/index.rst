@@ -59,3 +59,9 @@ Selecting *Members* for a role will present two lists, one with users who have t
 Authenticated Users
 -------------------
 Presents a list of users who are currently logged into your install of Janeway. Only accessible to staff.
+
+Merge Users (Press Manager only)
+--------------------------------
+From the press manager, staff memebers can now merge two accounts together, in order to remove any potential duplicates.
+All linked objects (tasks, articles, roles, files...) will be transferred from the source account onto the destination account.
+The account profile itself is left untouched, so any profile details on the source account will be lost.
