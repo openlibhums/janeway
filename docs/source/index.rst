@@ -17,6 +17,7 @@ This guide has been written to avoid using language like "easy", "just" or simpl
    manager
    styling
    published
+   changelog
 
 # Indices and tables
 
