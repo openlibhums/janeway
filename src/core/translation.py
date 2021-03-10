@@ -1,4 +1,5 @@
 from modeltranslation.translator import register, TranslationOptions
+
 from core import models
 
 
