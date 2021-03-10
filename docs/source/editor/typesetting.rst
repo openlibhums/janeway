@@ -9,7 +9,7 @@ Usually typeset files include but are not limited to:
 
  - A PDF file
  - An HTML file
- - An XML file such as JATS-XML (Janeway can render JATS-XML files on the website as HTML with the use of XSLT [TODO: link to xslt])
+ - An XML file such as JATS-XML (Janeway can render JATS-XML files on the website as HTML with the use of XSLT)
 
 .. figure:: ../nstatic/typesetting/article_files_download.png
    :alt: Detail of a published article, showing the option to download the Tyepset files
