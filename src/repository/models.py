@@ -449,7 +449,7 @@ class Preprint(models.Model):
         return core_models.Account.objects.filter(pk__in=pks)
 
     def display_authors(self):
-        return ", ".join([author.full_name() for author in self.authors])
+        return ", ".join([author.full_name() for author in self.authors if author is not None])
 
     def add_user_as_author(self, user):
         preprint_author, created = PreprintAuthor.objects.get_or_create(
@@ -714,7 +714,8 @@ class PreprintAuthor(models.Model):
     def display_affiliation(self):
         if self.affiliation:
             return self.affiliation
-        return self.account.institution
+        if self.account is not None:
+            return self.account.institution
 
 
 class Author(models.Model):
