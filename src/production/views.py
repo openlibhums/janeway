@@ -1081,7 +1081,7 @@ def supp_file_doi(request, article_id, supp_file_id):
                                                              article.journal).processed_value,
                    'parent_doi': article.get_doi()
                    }
-    xml_content = render_to_string('admin/identifiers/crossref_component.xml', xml_context, request)
+    xml_content = render_to_string('common/identifiers/crossref_component.xml', xml_context, request)
 
     if request.POST:
         from identifiers import logic
