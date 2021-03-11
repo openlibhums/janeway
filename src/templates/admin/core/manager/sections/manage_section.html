@@ -24,7 +24,11 @@
                 <h2>{% if section %}{% trans 'Editing Section' %}: {{ section.name }}{% else %}{% trans 'Add a Section' %}{% endif %}</h2>
             </div>
             <div class="content">
-                {% include "admin/elements/translations/form_tabs.html" with object=section %}
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        {% include "admin/elements/translations/form_tabs.html" with object=section %}
+                    </div>
+                </div>
                 <form method="POST">
                     {% include "elements/forms/errors.html" with form=form %}
                     {% csrf_token %}

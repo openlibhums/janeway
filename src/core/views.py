@@ -654,6 +654,7 @@ def settings_index(request):
 
     return render(request, template, context)
 
+
 @staff_member_required
 def default_settings_index(request):
     """ Proxy view for edit_setting allowing to edit defaults
@@ -741,6 +742,7 @@ def edit_default_setting(request, setting_group, setting_name):
     return edit_setting(request, setting_group, setting_name)
 
 
+@GET_language_override
 @editor_user_required
 def edit_settings_group(request, group):
     """
@@ -750,70 +752,65 @@ def edit_settings_group(request, group):
     :param group: string, name of a group of settings
     :return: HttpResponse object
     """
-    if request.journal:
-        journal_id = None
-        journal = request.journal
-    else:
-        journal_id = request.GET.get('journal')
-        journal = get_object_or_404(journal_models.Journal, pk=journal_id)
-        # Set request.journal
-        request.journal = journal
+    with translation.override(request.override_language):
+        settings, setting_group = logic.get_settings_to_edit(group, request.journal)
+        edit_form = forms.GeneratedSettingForm(settings=settings)
 
-    settings, setting_group = logic.get_settings_to_edit(group, journal)
+        if group == 'journal':
+            attr_form_object = forms.JournalAttributeForm
+        elif group == 'journal_images':
+            attr_form_object = forms.JournalImageForm
 
-    if not settings:
-        raise Http404
+        attr_form = attr_form_object(instance=request.journal)
 
-    edit_form = forms.GeneratedSettingForm(settings=settings)
+        if not settings:
+            raise Http404
 
-    if journal_id:
-        attr_form = forms.PressJournalAttrForm(instance=journal)
-    else:
-        attr_form = forms.JournalAttributeForm(instance=journal)
+        if request.POST:
+            edit_form = forms.GeneratedSettingForm(
+                request.POST,
+                settings=settings,
+            )
 
-    if request.POST:
-        edit_form = forms.GeneratedSettingForm(request.POST, settings=settings)
+            attr_form = attr_form_object(
+                request.POST,
+                instance=request.journal,
+            )
 
-        if journal_id:
-            attr_form = forms.PressJournalAttrForm(request.POST, request.FILES, instance=journal)
-        else:
-            attr_form = forms.JournalAttributeForm(request.POST, request.FILES, instance=journal)
+            if edit_form.is_valid() and attr_form.is_valid():
+                edit_form.save(
+                    group=setting_group,
+                    journal=request.journal,
+                )
+                attr_form.save()
 
-        if edit_form.is_valid():
-            edit_form.save(group=setting_group, journal=journal)
+                if group == 'journal_images':
+                    # Evaluate this form for this group only, otherwise booleans
+                    # will all get set to False
+                    logic.handle_default_thumbnail(request, request.journal, attr_form)
+                    logic.handle_press_override_image(request, request.journal, attr_form)
 
-        if group == 'journal' and attr_form.is_valid():
-            # Evaluate this form for this group only, otherwise booleans
-            # will all get set to False
-            attr_form.save()
-            logic.handle_default_thumbnail(request, journal, attr_form)
-            logic.handle_press_override_image(request, journal, attr_form)
+                    if request.journal.default_large_image:
+                        path = django_settings.BASE_DIR + request.journal.default_large_image.url
+                        logic.resize_and_crop(path, [750, 324], 'middle')
 
-            if group == 'journal' and journal.default_large_image:
-                path = django_settings.BASE_DIR + journal.default_large_image.url
-                logic.resize_and_crop(path, [750, 324], 'middle')
+                cache.clear()
 
-            cache.clear()
+                return redirect(
+                    reverse(
+                        'core_edit_settings_group', kwargs={'group': group},
+                    )
+                )
 
-            # Unset request.journal
-            if journal_id:
-                request.journal = None
+        template = 'core/manager/settings/group.html'
+        context = {
+            'group': group,
+            'settings_list': settings,
+            'edit_form': edit_form,
+            'attr_form': attr_form,
+        }
 
-            if request.journal:
-                return redirect(reverse('core_edit_settings_group', kwargs={'group': group}))
-            else:
-                return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': group}),
-                                                         journal_id))
-
-    template = 'core/manager/settings/group.html'
-    context = {
-        'group': group,
-        'settings': settings,
-        'edit_form': edit_form,
-        'attr_form': attr_form,
-    }
-
-    return render(request, template, context)
+        return render(request, template, context)
 
 
 @editor_user_required

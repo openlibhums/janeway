@@ -50,7 +50,7 @@
         },
         "setting": {
             "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
-            "is_translatable": false,
+            "is_translatable": true,
             "name": "publisher_name",
             "pretty_name": "Publisher Name",
             "type": "char"
@@ -650,7 +650,7 @@
         },
         "setting": {
             "description": "The ISSN of the journal.",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "journal_issn",
             "pretty_name": "Journal ISSN",
             "type": "char"

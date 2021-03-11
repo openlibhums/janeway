@@ -90,10 +90,21 @@ class Journal(AbstractSiteModel):
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
-    is_remote = models.BooleanField(default=False)
+    is_remote = models.BooleanField(
+        default=False,
+        help_text='When enabled the journal is marked as not hosted in Janeway.',
+    )
     is_conference = models.BooleanField(default=False)
-    remote_submit_url = models.URLField(blank=True, null=True)
-    remote_view_url = models.URLField(blank=True, null=True)
+    remote_submit_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text='If the journal is remote you can link to its submission page.',
+    )
+    remote_view_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text='If the journal is remote you can link to its home page.',
+    )
     view_pdf_button = models.BooleanField(
         default=False,
         help_text='Enables a "View PDF" link on article pages.'
