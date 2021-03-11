@@ -4,12 +4,13 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import uuid
+import copy
 
 from django import forms
 from django.forms.fields import Field
 from django_summernote.widgets import SummernoteWidget
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 
@@ -285,10 +286,10 @@ class GeneratedSettingForm(forms.Form):
     def __init__(self, *args, **kwargs):
         settings = kwargs.pop('settings', None)
         super(GeneratedSettingForm, self).__init__(*args, **kwargs)
-
+        self.translatable_field_names = []
         for field in settings:
-
             object = field['object']
+
             if object.setting.types == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
             elif object.setting.types == 'rich-text' or object.setting.types == 'text':
@@ -309,6 +310,9 @@ class GeneratedSettingForm(forms.Form):
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=False)
 
+            if object.setting.is_translatable:
+                self.translatable_field_names.append(object.setting.name)
+
             self.fields[field['name']].label = object.setting.pretty_name
             self.fields[field['name']].initial = object.processed_value
             self.fields[field['name']].help_text = object.setting.description
@@ -318,24 +322,32 @@ class GeneratedSettingForm(forms.Form):
             setting_handler.save_setting('general', setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(KeywordModelForm):
+class JournalAttributeForm(KeywordModelForm, JanewayTranslationModelForm):
 
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+           'contact_info',
+           'is_remote',
+           'remote_view_url',
+           'remote_submit_url',
+        )
+
+
+class JournalImageForm(forms.ModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 
     class Meta:
         model = journal_models.Journal
         fields = (
-           'contact_info', 'header_image', 'default_cover_image',
+           'header_image', 'default_cover_image',
            'default_large_image', 'favicon',
-           'is_remote', 'remote_view_url', 'remote_submit_url',
-           'disable_metrics_display', 'disable_article_images',
-           'enable_correspondence_authors', 'full_width_navbar',
-           'view_pdf_button',
+           'disable_article_images',
         )
 
 
-class PressJournalAttrForm(KeywordModelForm):
+class PressJournalAttrForm(KeywordModelForm, JanewayTranslationModelForm):
     default_thumbnail = forms.FileField(required=False)
     press_image_override = forms.FileField(required=False)
 

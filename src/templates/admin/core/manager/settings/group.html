@@ -13,17 +13,22 @@
 {% endblock %}
 
 {% block body %}
-    <section>
+    <section class="group-settings">
         <div class="row expanded">
             <div class="large-12 columns">
                 <div class="box">
-                    {% include "elements/forms/errors.html" with form=edit_form %}
+                    {% include "admin/elements/translations/form_tabs.html" with object=request.journal %}
+                    {% include "admin/elements/forms/errors.html" with form=edit_form %}
                     <form action="" method="POST" enctype="multipart/form-data">
 
                         {% csrf_token %}
-                        {% include "elements/forms/submission.html" with form=edit_form %}
+
                         {% if group == 'journal' %}
-                        {% include "elements/forms/submission.html" with form=attr_form %}
+                            {% include "admin/elements/forms/group_journal.html" with form=attr_form %}
+                        {% elif group == 'journal_images' %}
+                            {% include "admin/elements/forms/group_journal.html" %}
+                        {% else %}
+                            {% include "admin/elements/forms/submission.html" with form=edit_form %}
                         {% endif %}
 
                         <button type="submit" class="button success">
