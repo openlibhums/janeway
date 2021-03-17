@@ -2751,7 +2751,7 @@
         "setting": {
             "type": "rich-text",
             "pretty_name": "Review File Help",
-            "is_translatable": false,
+            "is_translatable": true,
             "description": "Text displayed when a journal defaults to blind or double-blind review ensuring that files are anonymous.",
             "name": "review_file_help"
         },

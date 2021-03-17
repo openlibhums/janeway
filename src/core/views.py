@@ -762,15 +762,23 @@ def edit_settings_group(request, group):
     with translation.override(request.override_language):
         settings, setting_group = logic.get_settings_to_edit(group, request.journal)
         edit_form = forms.GeneratedSettingForm(settings=settings)
+        attr_form_object, attr_form, display_tabs, fire_redirect = None, None, None, True
 
         if group == 'journal':
             attr_form_object = forms.JournalAttributeForm
-        elif group == 'journal_images':
+        elif group == 'images':
             attr_form_object = forms.JournalImageForm
+            display_tabs = False
+        elif group == 'article':
+            attr_form_object = forms.JournalArticleForm
+            display_tabs = False
+        elif group == 'styling':
+            attr_form_object = forms.JournalStylingForm
 
-        attr_form = attr_form_object(instance=request.journal)
+        if attr_form_object:
+            attr_form = attr_form_object(instance=request.journal)
 
-        if not settings:
+        if not settings and not attr_form_object:
             raise Http404
 
         if request.POST:
@@ -779,30 +787,32 @@ def edit_settings_group(request, group):
                 settings=settings,
             )
 
-            attr_form = attr_form_object(
-                request.POST,
-                instance=request.journal,
-            )
-
-            if edit_form.is_valid() and attr_form.is_valid():
+            if edit_form.is_valid():
                 edit_form.save(
                     group=setting_group,
                     journal=request.journal,
                 )
-                attr_form.save()
+            else:
+                fire_redirect = False
 
-                if group == 'journal_images':
-                    # Evaluate this form for this group only, otherwise booleans
-                    # will all get set to False
-                    logic.handle_default_thumbnail(request, request.journal, attr_form)
-                    logic.handle_press_override_image(request, request.journal, attr_form)
+            if attr_form_object:
+                attr_form = attr_form_object(
+                    request.POST,
+                    request.FILES,
+                    instance=request.journal,
+                )
+                if attr_form.is_valid():
+                    attr_form.save()
 
-                    if request.journal.default_large_image:
-                        path = django_settings.BASE_DIR + request.journal.default_large_image.url
-                        logic.resize_and_crop(path, [750, 324], 'middle')
+                    if group == 'images':
+                        logic.handle_default_thumbnail(request, request.journal, attr_form)
+                        logic.handle_press_override_image(request, request.journal, attr_form)
+                else:
+                    fire_redirect = False
 
-                cache.clear()
+            cache.clear()
 
+            if fire_redirect:
                 return redirect(
                     reverse(
                         'core_edit_settings_group', kwargs={'group': group},
@@ -815,6 +825,7 @@ def edit_settings_group(request, group):
             'settings_list': settings,
             'edit_form': edit_form,
             'attr_form': attr_form,
+            'display_tabs': display_tabs,
         }
 
         return render(request, template, context)

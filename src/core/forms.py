@@ -293,7 +293,7 @@ class GeneratedSettingForm(forms.Form):
             if object.setting.types == 'char':
                 self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
             elif object.setting.types == 'rich-text' or object.setting.types == 'text':
-                self.fields[field['name']] = forms.CharField(widget=forms.Textarea, required=False)
+                self.fields[field['name']] = forms.CharField(widget=SummernoteWidget, required=False)
             elif object.setting.types == 'json':
                 self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                                        choices=field['choices'],
@@ -319,11 +319,10 @@ class GeneratedSettingForm(forms.Form):
 
     def save(self, journal, group, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
-            setting_handler.save_setting('general', setting_name, journal, setting_value)
+            setting_handler.save_setting(group, setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(KeywordModelForm, JanewayTranslationModelForm):
-
+class JournalAttributeForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
@@ -344,6 +343,31 @@ class JournalImageForm(forms.ModelForm):
            'header_image', 'default_cover_image',
            'default_large_image', 'favicon',
            'disable_article_images',
+        )
+
+
+class JournalStylingForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'full_width_navbar',
+        )
+
+
+class JournalSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'enable_correspondence_authors',
+        )
+
+
+class JournalArticleForm(forms.ModelForm):
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            'view_pdf_button',
+            'disable_metrics_display',
         )
 
 

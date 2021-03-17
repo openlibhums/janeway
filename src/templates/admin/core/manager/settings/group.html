@@ -8,7 +8,6 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'core_settings_index' %}">Settings</a></li>
     <li><a href="{% url 'core_edit_settings_group' group %}">{{ group|capfirst }} Settings</a></li>
 {% endblock %}
 
@@ -17,16 +16,27 @@
         <div class="row expanded">
             <div class="large-12 columns">
                 <div class="box">
-                    {% include "admin/elements/translations/form_tabs.html" with object=request.journal %}
+                    {% if display_tabs %}
+                        {% include "admin/elements/translations/form_tabs.html" with object=request.journal %}
+                    {% endif %}
                     {% include "admin/elements/forms/errors.html" with form=edit_form %}
+                    {% include "admin/elements/forms/errors.html" with form=attr_form %}
                     <form action="" method="POST" enctype="multipart/form-data">
 
                         {% csrf_token %}
 
                         {% if group == 'journal' %}
                             {% include "admin/elements/forms/group_journal.html" with form=attr_form %}
-                        {% elif group == 'journal_images' %}
-                            {% include "admin/elements/forms/group_journal.html" %}
+                        {% elif group == 'images' %}
+                            {% include "admin/elements/forms/group_journal_images.html" with form=attr_form %}
+                        {% elif group == 'submission' %}
+                            {% include "admin/elements/forms/group_submission.html" %}
+                        {% elif group == 'styling' %}
+                            {% include "admin/elements/forms/group_styling.html" %}
+                        {% elif group == 'article' %}
+                            {% include "admin/elements/forms/group_article.html" %}
+                        {% elif group == 'review' %}
+                            {% include "admin/elements/forms/group_review.html" %}
                         {% else %}
                             {% include "admin/elements/forms/submission.html" with form=edit_form %}
                         {% endif %}
@@ -42,7 +52,6 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/jqte.html" %}
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script src="{% static "common/js/tagit.js" %}"></script>

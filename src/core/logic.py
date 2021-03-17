@@ -311,10 +311,6 @@ def get_settings_to_edit(group, journal):
                 'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
             },
             {
-                'name': 'default_review_days',
-                'object': setting_handler.get_setting('general', 'default_review_days', journal),
-            },
-            {
                 'name': 'enable_one_click_access',
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
             },
@@ -397,6 +393,12 @@ def get_settings_to_edit(group, journal):
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
+    elif group == 'styling':
+        settings = [{
+            'name': 'enable_editorial_images',
+            'object': setting_handler.get_setting('general', 'enable_editorial_images', journal),
+        }]
+        setting_group = 'general'
     else:
         settings = []
         setting_group = None
@@ -413,8 +415,12 @@ def get_theme_list():
 
 def handle_default_thumbnail(request, journal, attr_form):
     if request.FILES.get('default_thumbnail'):
-        new_file = files.save_file_to_journal(request, request.FILES.get('default_thumbnail'), 'Default Thumb',
-                                              'default')
+        new_file = files.save_file_to_journal(
+            request,
+            request.FILES.get('default_thumbnail'),
+            'Default Thumb',
+            'default',
+        )
 
         if journal.thumbnail_image:
             journal.thumbnail_image.unlink_file(journal=journal)
