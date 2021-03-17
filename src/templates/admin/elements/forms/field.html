@@ -4,12 +4,11 @@
 <label for="{{ field.id_for_label }}">
     <strong>{{ field.label }}</strong>
     {% if languages|length > 1 and field.name in edit_form.translatable_field_names %}
-        <small>[{% trans 'translatable' %}]</small>
+        <small class="green">[{% trans 'translatable' %}]</small>
     {% endif %}
-{{ field }}
 </label>
+{{ field }}
 <p class="help-text">{{ field.help_text|safe }}</p>
-
 {% for error in field.errors %}
     <small{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
 {% endfor %}
