@@ -322,7 +322,7 @@ class GeneratedSettingForm(forms.Form):
             setting_handler.save_setting(group, setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(forms.ModelForm):
+class JournalAttributeForm(JanewayTranslationModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (

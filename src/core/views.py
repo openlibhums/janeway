@@ -774,6 +774,8 @@ def edit_settings_group(request, group):
             display_tabs = False
         elif group == 'styling':
             attr_form_object = forms.JournalStylingForm
+        elif group == 'submission':
+            attr_form_object = forms.JournalSubmissionForm
 
         if attr_form_object:
             attr_form = attr_form_object(instance=request.journal)
