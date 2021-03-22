@@ -15,6 +15,7 @@ from core import files
 from core import models as core_models
 from core.forms import XSLFileForm
 from journal import models as journal_models
+from utils import setting_handler
 
 
 @editor_user_required
@@ -24,10 +25,15 @@ def index(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    pages = models.Page.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
-    top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
-                                                         object_id=request.site_type.pk,
-                                                         top_level_nav__isnull=True)
+    pages = models.Page.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
+    top_nav_items = models.NavigationItem.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+        top_level_nav__isnull=True,
+    )
     collection_nav_items = None
     if request.journal:
         collection_nav_items = models.NavigationItem.get_issue_types_for_nav(
@@ -39,8 +45,12 @@ def index(request):
 
     if request.POST and 'delete' in request.POST:
         page_id = request.POST.get('delete')
-        page = get_object_or_404(models.Page, pk=page_id,
-                                 content_type=request.model_content_type, object_id=request.site_type.pk)
+        page = get_object_or_404(
+            models.Page,
+            pk=page_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
         page.delete()
         return redirect(reverse('cms_index'))
 
@@ -176,6 +186,20 @@ def nav(request, nav_id=None):
         request.journal.save()
         return redirect(reverse('cms_nav'))
 
+    elif "editorial_team" in request.POST:
+        setting_handler.toggle_boolean_setting(
+            setting_group_name="general",
+            setting_name="enable_editorial_display",
+            journal=request.journal,
+        )
+
+    elif 'keyword_list_page' in request.POST:
+        setting_handler.toggle_boolean_setting(
+            setting_group_name="general",
+            setting_name="keyword_list_page",
+            journal=request.journal,
+        )
+
     elif "delete_nav" in request.POST:
         nav_to_delete = get_object_or_404(
                 models.NavigationItem,
@@ -209,6 +233,14 @@ def nav(request, nav_id=None):
         'form': form,
         'top_nav_items': top_nav_items,
         'collection_nav_items': collection_nav_items,
+        'enable_editorial_display': request.journal.get_setting(
+            "general",
+            "enable_editorial_display",
+        ),
+        'keyword_list_page': request.journal.get_setting(
+            "general",
+            "keyword_list_page",
+        ),
     }
 
     return render(request, template, context)

@@ -393,10 +393,20 @@ def get_settings_to_edit(group, journal):
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
     elif group == 'styling':
-        settings = [{
-            'name': 'enable_editorial_images',
-            'object': setting_handler.get_setting('general', 'enable_editorial_images', journal),
-        }]
+        settings = [
+            {
+                'name': 'enable_editorial_images',
+                'object': setting_handler.get_setting('general',
+                                                      'enable_editorial_images',
+                                                      journal),
+            },
+            {
+                'name': 'multi_page_editorial',
+                'object': setting_handler.get_setting('general',
+                                                      'multi_page_editorial',
+                                                      journal),
+            }
+        ]
         setting_group = 'general'
     else:
         settings = []
