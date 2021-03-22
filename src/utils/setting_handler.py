@@ -216,6 +216,23 @@ def get_email_subject_setting(
         return setting_name
 
 
+def toggle_boolean_setting(setting_name, setting_group_name, journal):
+    setting_value = get_setting(
+        setting_group_name,
+        setting_name,
+        journal,
+    )
+
+    if setting_value.setting.types == "boolean":
+        save_setting(
+            setting_group_name=setting_group_name,
+            setting_name=setting_name,
+            journal=journal,
+            value=False if setting_value.processed_value else True,
+        )
+
+
+
 def fetch_defaults_value(setting):
     with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), 'r+', encoding='utf-8') as json_data:
         default_data = json.load(json_data)
