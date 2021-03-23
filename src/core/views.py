@@ -648,8 +648,7 @@ def settings_index(request):
     """
     template = 'core/manager/settings/index.html'
     context = {
-        'settings': [{group.name: models.Setting.objects.filter(group=group).order_by('name')} for group in
-                     models.SettingGroup.objects.all().order_by('name')],
+        'settings': models.Setting.objects.order_by('name')
     }
 
     return render(request, template, context)
@@ -668,6 +667,7 @@ def default_settings_index(request):
     return settings_index(request)
 
 
+@GET_language_override
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
     """
@@ -677,57 +677,58 @@ def edit_setting(request, setting_group, setting_name):
     :param setting_name: string, Setting.name
     :return: HttpResponse object
     """
-    setting = models.Setting.objects.get(
-            name=setting_name, group__name=setting_group)
-    setting_value = setting_handler.get_setting(
-            setting_group,
-            setting_name,
-            request.journal,
-            default=False
+    with translation.override(request.override_language):
+        setting = models.Setting.objects.get(
+                name=setting_name, group__name=setting_group)
+        setting_value = setting_handler.get_setting(
+                setting_group,
+                setting_name,
+                request.journal,
+                default=False
+            )
+
+        if setting_value and setting_value.setting.types == 'rich-text':
+            setting_value.value = linebreaksbr(setting_value.value)
+
+        edit_form = forms.EditKey(
+                key_type=setting.types,
+                value=setting_value.value if setting_value else None
         )
 
-    if setting_value and setting_value.setting.types == 'rich-text':
-        setting_value.value = linebreaksbr(setting_value.value)
-
-    edit_form = forms.EditKey(
-            key_type=setting.types,
-            value=setting_value.value if setting_value else None
-    )
-
-    if request.POST and 'delete' in request.POST and setting_value:
-        setting_value.delete()
-
-        return redirect(reverse('core_settings_index'))
-
-    if request.POST:
-        if 'delete' in request.POST and setting_value:
+        if request.POST and 'delete' in request.POST and setting_value:
             setting_value.delete()
-        else:
-            value = request.POST.get('value')
-            if request.FILES:
-                value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-            try:
-                setting_value = setting_handler.save_setting(
-                    setting_group, setting_name, request.journal, value)
-            except ValidationError as error:
-                messages.add_message( request, messages.ERROR, error)
+            return redirect(reverse('core_settings_index'))
+
+        if request.POST:
+            if 'delete' in request.POST and setting_value:
+                setting_value.delete()
             else:
-                cache.clear()
+                value = request.POST.get('value')
+                if request.FILES:
+                    value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        if "email_template" in request.GET:
-            return redirect(reverse('core_email_templates'))
-        return redirect(reverse('core_settings_index'))
+                try:
+                    setting_value = setting_handler.save_setting(
+                        setting_group, setting_name, request.journal, value)
+                except ValidationError as error:
+                    messages.add_message( request, messages.ERROR, error)
+                else:
+                    cache.clear()
 
-    template = 'core/manager/settings/edit_setting.html'
-    context = {
-        'setting': setting,
-        'setting_value': setting_value,
-        'group': setting.group,
-        'edit_form': edit_form,
-        'value': setting_value.value if setting_value else None
-    }
-    return render(request, template, context)
+            if "email_template" in request.GET:
+                return redirect(reverse('core_email_templates'))
+            return redirect(reverse('core_settings_index'))
+
+        template = 'core/manager/settings/edit_setting.html'
+        context = {
+            'setting': setting,
+            'setting_value': setting_value,
+            'group': setting.group,
+            'edit_form': edit_form,
+            'value': setting_value.value if setting_value else None
+        }
+        return render(request, template, context)
 
 
 @staff_member_required
@@ -755,7 +756,7 @@ def edit_settings_group(request, group):
     with translation.override(request.override_language):
         settings, setting_group = logic.get_settings_to_edit(group, request.journal)
         edit_form = forms.GeneratedSettingForm(settings=settings)
-        attr_form_object, attr_form, display_tabs, fire_redirect = None, None, None, True
+        attr_form_object, attr_form, display_tabs, fire_redirect = None, None, True, True
 
         if group == 'journal':
             attr_form_object = forms.JournalAttributeForm
@@ -767,6 +768,7 @@ def edit_settings_group(request, group):
             display_tabs = False
         elif group == 'styling':
             attr_form_object = forms.JournalStylingForm
+            display_tabs = False
         elif group == 'submission':
             attr_form_object = forms.JournalSubmissionForm
 
