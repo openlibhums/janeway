@@ -42,6 +42,7 @@ from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
+from utils.shared import language_override_redirect
 
 
 logger = get_logger(__name__)
@@ -716,9 +717,11 @@ def edit_setting(request, setting_group, setting_name):
                 else:
                     cache.clear()
 
-            if "email_template" in request.GET:
-                return redirect(reverse('core_email_templates'))
-            return redirect(reverse('core_settings_index'))
+            return language_override_redirect(
+                request,
+                'core_edit_setting',
+                {'group': setting_group, 'setting_name': setting_name},
+            )
 
         template = 'core/manager/settings/edit_setting.html'
         context = {
@@ -811,9 +814,7 @@ def edit_settings_group(request, group):
 
             if fire_redirect:
                 return redirect(
-                    reverse(
-                        'core_edit_settings_group', kwargs={'group': group},
-                    )
+
                 )
 
         template = 'core/manager/settings/group.html'
