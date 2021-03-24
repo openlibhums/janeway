@@ -1346,7 +1346,7 @@
             "type": "boolean"
         },
         "value": {
-            "default": ""
+            "default": "on"
         }
     },
     {
