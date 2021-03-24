@@ -1,13 +1,17 @@
+import time
+import uuid
+
 from django.db import transaction
 from django.shortcuts import redirect, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.template.loader import render_to_string
 
 from core import models as core_models, files
 from events import logic as event_logic
+from identifiers import logic as ident_logic
 from production import logic
-from utils import render_template
-from production.logic import remove_css_from_html
+from utils import setting_handler, render_template
 
 from plugins.typesetting import models, plugin_settings
 from plugins.typesetting.notifications import notify
@@ -97,7 +101,8 @@ def get_typesetter_notification(assignment, article, request):
 
 
 def get_proofreader_notification(assignment, article, request):
-    url = request.journal.site_url(reverse("typesetting_proofreading_assignments"))
+    url = request.journal.site_url(
+        reverse("typesetting_proofreading_assignments"))
     context = {
         'article': article,
         'assignment': assignment,
@@ -223,3 +228,41 @@ def get_next_element(handshake_url, request):
     except IndexError:
         # An index error will occur here when the workflow is complete
         return None
+
+
+def mint_supp_file_doi(supp_file, doi_suffix=None):
+    article = supp_file.file.article
+    article_doi = article.get_doi()
+    if not article_doi:
+        raise RuntimeError(
+            "Can't issue doi for file %s: Article %s has no doi"
+            "" % (supp_file.pk, article.pk)
+        )
+    if not doi_suffix:
+        doi_suffix = "s%s" % supp_file.pk
+    doi = "%s.%s" % (article_doi, doi_suffix)
+    xml_context = {
+        'supp_file': supp_file,
+        'article': article,
+        'batch_id': uuid.uuid4(),
+        'timestamp': int(time.time()),
+        'depositor_name': setting_handler.get_setting(
+            'Identifiers', 'crossref_name', article.journal,
+        ).processed_value,
+        'depositor_email': setting_handler.get_setting(
+            'Identifiers', 'crossref_email', article.journal,
+        ).processed_value,
+        'registrant': setting_handler.get_setting(
+            'Identifiers', 'crossref_registrant', article.journal,
+        ).processed_value,
+        'parent_doi': article_doi,
+        'doi': doi,
+    }
+    xml_content = render_to_string(
+        'typesetting/crossref/crossref_component.xml', xml_context)
+    ident_logic.register_crossref_component(article, xml_content, supp_file)
+
+    supp_file.doi = doi
+    supp_file.save()
+
+    return doi
