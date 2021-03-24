@@ -138,7 +138,7 @@ class ReviewAssignment(models.Model):
 
     def save_review_form(self, review_form, assignment):
         for k, v in review_form.cleaned_data.items():
-            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, name=k)
+            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, pk=k)
             answer, _ = ReviewAssignmentAnswer.objects.update_or_create(
                 assignment=self,
                 original_element=form_element,
@@ -148,7 +148,6 @@ class ReviewAssignment(models.Model):
                 },
             )
             form_element.snapshot(answer)
-
 
     @property
     def review_rating(self):
@@ -354,7 +353,6 @@ class ReviewFormAnswer(models.Model):
     review_assignment = models.ForeignKey(ReviewAssignment)
     form_element = models.ForeignKey(ReviewFormElement)
     answer = models.TextField()
-
 
 
 class ReviewerRating(models.Model):
