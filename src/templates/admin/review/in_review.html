@@ -88,10 +88,13 @@
                                     <div class="callout breakdown reviewer">
                                         <div class="title-area">
                                             <h4>{{ review.reviewer.full_name }}
-                                                <a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span data-tooltip title="Email peer reviewer." class="fa fa-envelope">&nbsp;</span></a>
+                                                <span data-tooltip title="Email peer reviewer."><a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span class="fa fa-envelope">&nbsp;</span></a></span>
                                                 {% if request.user.is_admin %}
-                                                <a href="{% url 'admin:core_account_change' review.reviewer.pk %}" target="_blank">
-                                                    <span data-tooltip title="Edit account in admin." class="fa fa-cogs"></span></a>
+                                                    <span data-tooltip title="Edit account in admin.">
+                                                    <a href="{% url 'admin:core_account_change' review.reviewer.pk %}"
+                                                   target="_blank">
+                                                    <span class="fa fa-cogs"></span></a>
+                                                    </span>
                                                 {% endif %}
                                             </h4>
                                         </div>
