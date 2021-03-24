@@ -3855,8 +3855,7 @@ a.thumbnail {
   position: relative;
   display: inline-block;
   border-bottom: dotted 1px #5b5e61;
-  font-weight: bold;
-  cursor: help; }
+  font-weight: bold;}
 
 .tooltip {
   position: absolute;
