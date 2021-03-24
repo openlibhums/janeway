@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}}
+{% load static from staticfiles %}
 
 {% block title %}View Review{% endblock title %}
 {% block title-section %}View Review{% endblock %}
@@ -33,7 +34,7 @@
                             <th></th>
                         </tr>
                         <tr>
-                            <td>{{ review.reviewer.full_name }}</td>
+                            <td>{{ review.reviewer.full_name }} <span data-tooltip title="Email peer reviewer."><a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span class="fa fa-envelope">&nbsp;</span></a></span></td>
                             <td>{{ review.date_requested|date:"Y-m-d" }}</td>
                             <td>{% if review.decision == 'withdrawn' %}Withdrawn {{ review.date_complete|date:"Y-m-d" }}
                             {% elif review.date_accepted %}Accepted {{ review.date_accepted|date:"Y-m-d" }}
@@ -170,4 +171,8 @@
 
         </form>
     </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
 {% endblock %}
