@@ -1944,7 +1944,7 @@ def send_user_email(request, user_id, article_id=None):
             )
             close = True
 
-    template = 'journal/send_user_email.html'
+    template = 'admin/journal/send_user_email.html'
     context = {
         'user': user,
         'close': close,
