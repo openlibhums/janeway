@@ -505,6 +505,8 @@ def resend_email(article, log_entry, request, form):
 
 
 def send_email(user, form, request, article):
+    cc_list = [x.strip() for x in form.cleaned_data['cc'].split(';') if x]
+    valid_cc_email_addresses = validate_to_list(cc_list)
 
     subject = form.cleaned_data['subject']
     message = form.cleaned_data['body']
@@ -521,6 +523,7 @@ def send_email(user, form, request, article):
         subject,
         user.email,
         message,
+        cc=valid_cc_email_addresses,
         log_dict=log_dict,
     )
 
