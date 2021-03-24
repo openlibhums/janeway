@@ -88,8 +88,11 @@
                                     <div class="callout breakdown reviewer">
                                         <div class="title-area">
                                             <h4>{{ review.reviewer.full_name }}
-                                                <a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>
-                                                <a href="{% url 'admin:core_account_change' review.reviewer.pk %}" target="_blank"><span class="fa fa-cogs"></span></a>
+                                                <a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span data-tooltip title="Email peer reviewer." class="fa fa-envelope">&nbsp;</span></a>
+                                                {% if request.user.is_admin %}
+                                                <a href="{% url 'admin:core_account_change' review.reviewer.pk %}" target="_blank">
+                                                    <span data-tooltip title="Edit account in admin." class="fa fa-cogs"></span></a>
+                                                {% endif %}
                                             </h4>
                                         </div>
                                         <div class="table-scroll">
@@ -113,7 +116,7 @@
                                                         {{ review.date_declined|date:"Y-m-d" }}
                                                     {% else %}Awaiting acknowledgement{% endif %}
                                                     </td>
-                                                    <td>{{ review.date_due|date:"Y-m-d" }} {% if not review.is_complete %}<a href="{% if not review.date_accepted and not review.date_declined %}{% url 'review_send_reminder' article.pk review.pk 'request' %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}"><i class="fa fa-envelope-o"></i>&nbsp; <i class="fa fa-clock-o"></i></a>{% endif %}</td>
+                                                    <td>{{ review.date_due|date:"Y-m-d" }}</td>
                                                     <td>{% if review.decision %}
                                                         {{ review.get_decision_display|capfirst }}{% else %}
                                                         --{% endif %}</td>
@@ -141,6 +144,13 @@
                                                                     <a href="{% url 'review_edit_review' article.pk review.pk %}"><i
                                                                             class="fa fa-pencil action-icon">&nbsp;</i>Edit</a>
                                                                 </li>
+                                                                {% if not review.is_complete %}
+                                                                    <li>
+                                                                        <a href="{% if not review.date_accepted and not review.date_declined %}{% url 'review_send_reminder' article.pk review.pk 'request' %}{% elif not review.decision %}{% url 'review_send_reminder' article.pk review.pk 'accepted' %}{% endif %}">
+                                                                            <i class="fa fa-clock-o action-icon"></i> Send Reminder
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
                                                                 <li>
                                                                     <a href="{% url 'review_rate_reviewer' article.pk review.pk %}"><i
                                                                             class="fa fa-star action-icon">&nbsp;</i>Rate</a>
