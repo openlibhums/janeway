@@ -729,6 +729,11 @@ class Article(models.Model):
             or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
             or self.stage == "Typesetting" or self.stage == "Proofing"
 
+    def peer_reviews_for_author_consumption(self):
+        return self.reviewassignment_set.filter(
+            for_author_consumption=True,
+        )
+
     def __str__(self):
         return u'%s - %s' % (self.pk, self.title)
 

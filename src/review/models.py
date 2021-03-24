@@ -237,7 +237,6 @@ class ReviewAssignment(models.Model):
             self.id, self.article.title, reviewer_name)
 
 
-
 class ReviewForm(models.Model):
     journal = models.ForeignKey('journal.Journal')
 
