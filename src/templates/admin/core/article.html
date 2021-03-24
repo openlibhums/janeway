@@ -22,17 +22,18 @@
         </div>
     </div>
 
-    {% if article.reviewassignment_set.all %}
     <div class="box">
         <div class="title-area">
             <h2>Reviews</h2>
         </div>
         <div class="box">
+            {% if journal_settings.general.enable_peer_review_data_block %}
             <table class="scroll">
                 <tr>
                     <th>Date Requested</th>
                     <th>Date Due</th>
                     <th>Date Completed</th>
+                    <th>Status</th>
                     <th></th>
                 </tr>
                 {% for review in article.reviewassignment_set.all %}
@@ -40,14 +41,30 @@
                         <td>{{ review.date_requested }}</td>
                         <td>{{ review.date_due }}</td>
                         <td>{{ review.date_complete }}</td>
+                        <td>
+                            <span class="{{ review.status.span_class }}">{{ review.status.display }}</span>
+                        </td>
                         <td>{% if review.for_author_consumption %}<a href="{% url 'review_author_view' article.pk %}">View Reviews</a>{% else %}Access has not been granted.{% endif %}</td>
                     </tr>
                 {% endfor %}
             </table>
-
+            {% else %}
+                <table class="table scroll">
+                    {% for review in article.peer_reviews_for_author_consumption %}
+                        <tr>
+                            <th>Review #{{ review.pk }}</th>
+                            <td><a href="{% url 'review_author_view' article.pk %}">View Reviews</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>No review data to display</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
+
 
     {% if article.is_published %}
     <div class="box">
