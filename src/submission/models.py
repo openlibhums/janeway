@@ -1287,6 +1287,15 @@ class Article(models.Model):
 
         return article_link_count + book_link_count
 
+    def hidden_completed_reviews(self):
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_complete__isnull=False,
+            for_author_consumption=False,
+        ).exclude(
+            decision='withdrawn',
+        )
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
