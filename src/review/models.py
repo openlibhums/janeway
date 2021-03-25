@@ -149,7 +149,6 @@ class ReviewAssignment(models.Model):
             )
             form_element.snapshot(answer)
 
-
     @property
     def review_rating(self):
         try:
