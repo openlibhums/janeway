@@ -319,7 +319,7 @@ class KeywordArticle(models.Model):
         unique_together = ('keyword', 'article')
 
     def __str__(self):
-        return self.word
+        return self.keyword.word
 
     def __repr__(self):
         return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
