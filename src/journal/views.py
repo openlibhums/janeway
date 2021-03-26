@@ -293,6 +293,7 @@ def issue(request, issue_id, show_sidebar=True):
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
         issue_type=issue_object.issue_type,
+        date__lte=timezone.now(),
     )
 
     editors = models.IssueEditor.objects.filter(
