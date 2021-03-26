@@ -9,40 +9,7 @@
         <div class="card-section">
             <p>We request that this review be done by <strong>{{ review_request.date_due|date:"Y-m-d" }}</strong>.</p>
 
-            <p><strong>The editor handling this piece is:</strong></p>
-
-            <ul>
-                {% if review_request.article.section_editors %}
-                    {% for editor in review_request.article.section_editors %}
-                        <li>{{ editor }} <a href="mailto:{{ editor.email }}?subject={{ review_request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
-                    {% endfor %}
-                {% elif review_request.article.editors %}
-                    {% for editor_dict in review_request.article.editors %}
-                        <li>{{ editor_dict.editor }} <a href="mailto:{{ editor_dict.editor.email }}?subject={{ review_request.journal.name }} Review"><i class="fa fa-envelope"></i></a></li>
-                    {% endfor %}
-                {% else %}
-                    <li>This article has no editors.</li>
-                {% endif %}
-            </ul>
-
-
-            <p><strong>Abstract</strong></p>
-            {{ review_request.article.abstract|safe }}
-            <hr />
-            <p><strong>Keywords</strong></p>
-            {{ article.keywords.all }}
-            <p>
-                {% for keyword in review_request.article.keywords.all %}
-                {{ keyword.word }}{% if not forloop.last %}, {% endif %}
-                {% empty %}
-                Article has no keywords.
-                {% endfor %}
-            </p>
-            <p><strong>Section</strong></p>
-            <p>{{ review_request.article.section.name }}</p>
-
-            <p><strong>Language</strong></p>
-            <p>{{ review_request.article.get_language_display }}</p>
+            {% include "admin/elements/review/review_meta_block.html" %}
         </div>
     </div>
     <button class="close-button" data-close aria-label="Close reveal" type="button">
