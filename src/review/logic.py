@@ -128,14 +128,30 @@ def get_review_url(request, review_assignment):
     return review_url
 
 
-def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
+def get_reviewer_notification(
+    request, article, editor, review_assignment,
+    reminder=False,
+):
     review_url = get_review_url(request, review_assignment)
+    article_details = """
+    <b>Article Details:</b>
+        <b>Title</b>: {article.title}
+        <b>Section</b>: {section}
+        Keywords: {keywords}
+        Abstract:
+            {article.abstract}
+    """.format(
+        article=article,
+        section=article.section.name if article.section else None,
+        keywords= ", ".join(kw.word for kw in article.keywords.all()),
+    )
 
     email_context = {
         'article': article,
         'editor': editor,
         'review_assignment': review_assignment,
-        'review_url': review_url
+        'review_url': review_url,
+        'article_details': article_details,
     }
 
     if reminder and reminder == 'request':
