@@ -1042,7 +1042,7 @@ def add_review_assignment(request, article_id):
             try:
                 user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
                 user.add_account_role('reviewer', request.journal)
-            except:
+            except core_models.Account.DoesNotExist:
                 user = None
 
             if user:
@@ -1065,7 +1065,7 @@ def add_review_assignment(request, article_id):
             try:
                 user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
                 user.add_account_role('reviewer', request.journal)
-            except:
+            except core_models.Account.DoesNotExist:
                 user = None
 
             if user:
