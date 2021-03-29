@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from utils import (
     notify_helpers,
@@ -263,7 +264,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
 
     review_in_review_url = request.journal.site_url(
         path=reverse(
-            'review_unassigned_article',
+            'review_in_review',
             kwargs={'article_id': article.pk},
         )
     )
@@ -284,6 +285,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
 
     # send to reviewer
     if accepted:
+        context["reviewer_decision"] = _("accepted")
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_accept_acknowledgement',
@@ -293,6 +295,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         )
 
     else:
+        context["reviewer_decision"] = _("declined")
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_decline_acknowledgement',
@@ -306,8 +309,8 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
     for editor in editors:
         notify_helpers.send_email_with_body_from_setting_template(
             request,
-            'review_acknowledgement',
-            'subject_review_acknowledgement',
+            'reviewer_acknowledgement',
+            'subject_reviewer_acknowledgement',
             editor.email,
             editor_context,
         )
