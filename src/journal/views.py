@@ -327,7 +327,10 @@ def collections(request, issue_type_code="collection"):
         code=issue_type_code,
     )
     collections = models.Issue.objects.filter(
-        journal=request.journal, issue_type=issue_type)
+        journal=request.journal,
+        issue_type=issue_type,
+        date__lte=timezone.now(),
+    )
 
     template = 'journal/collections.html'
     context = {
