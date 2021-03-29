@@ -342,7 +342,7 @@ def quick_assign(request, article, reviewer_user=None):
         default_due = setting_handler.get_setting('general',
                                                   'default_review_days',
                                                   request.journal).value
-    except BaseException:
+    except Exception:
         errors.append('This journal does not have either default visibilty or default due.')
 
     if not reviewer_user:
