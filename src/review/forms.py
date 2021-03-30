@@ -30,7 +30,7 @@ class DraftDecisionForm(forms.ModelForm):
 class ReviewAssignmentForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
-        fields = ('review_type', 'visibility', 'form', 'date_due')
+        fields = ('visibility', 'form', 'date_due')
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', None)
