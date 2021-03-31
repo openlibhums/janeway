@@ -1,0 +1,45 @@
+<script>
+    {% if not draft %}
+    function get_decision_text(selector, date) {
+        data = {
+            'decision': selector.val(),
+            'date': date,
+        }
+        $.ajax(
+            {
+                "type": "POST",
+                "dataType": "json",
+                "url": "{% url 'review_draft_decision_text' article.pk %}",
+                "data": data,
+                "success": function (data) {
+                    $("#id_email_message").jqteVal(data.decision_text)
+                    toastr.success('Text updated.')
+                },
+                "error": function (xhr, status, error) {
+                    console.log(error)
+                    toastr.error("Error.")
+                },
+            }
+        )
+    }
+    function decision_change() {
+        decision_selector = $('#id_decision');
+        date = $('#id_revision_request_due_date').val();
+
+        if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
+            $('#div_due_date').show();
+            get_decision_text(decision_selector, date)
+        } else {
+            $('#div_due_date').hide();
+            get_decision_text(decision_selector, null)
+        }
+
+    }
+    {% endif %}
+    window.addEventListener("load", function(){
+        decision_selector = $('#id_decision');
+        if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
+            $('#div_due_date').show();
+        }
+    });
+</script>

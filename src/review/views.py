@@ -2045,7 +2045,7 @@ def draft_decision(request, article_id):
 
                 return redirect(
                     reverse(
-                        'decision_helper',
+                        'review_draft_decision',
                         kwargs={'article_id': article.pk},
                     ),
                 )
@@ -2072,6 +2072,13 @@ def draft_decision_text(request, article_id):
         journal=request.journal,
     )
     decision = request.POST.get('decision')
+    date = request.POST.get('date', None)
+
+    if isinstance(date, str) and date != '':
+        date = shared.make_timezone_aware(date, '%Y-%m-%d')
+    else:
+        date = timezone.now() + timedelta(days=14)
+
     author_review_url = request.journal.site_url(
         reverse(
             'review_author_view',
@@ -2096,7 +2103,7 @@ def draft_decision_text(request, article_id):
             editor=request.user,
             type=decision,
             date_requested=timezone.now,
-            date_due=(timezone.now() + timedelta(days=14)).date(),
+            date_due=date.strftime("%Y-%m-%d"),
             editor_note="[[Add Editor Note Here]]",
         )
         decision_text = logic.get_revision_request_content(
@@ -2115,9 +2122,6 @@ def manage_draft(request, article_id, draft_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
 
-    if request.POST:
-        draft.closed = True
-
     if 'decline_draft' in request.POST:
         draft.editor_decision = 'declined'
         draft.save()
@@ -2129,7 +2133,18 @@ def manage_draft(request, article_id, draft_id):
         # Action the decision
         logic.handle_decision_action(article, draft, request)
 
-    return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+    messages.add_message(
+        request,
+        messages.INFO,
+        'Draft {}'.format(draft.editor_decision)
+    )
+
+    return redirect(
+        reverse(
+            'decision_helper',
+            kwargs={'article_id': article.pk},
+        ),
+    )
 
 
 @editor_is_not_author

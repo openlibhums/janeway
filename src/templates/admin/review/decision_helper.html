@@ -4,6 +4,7 @@
 
 {% block title %}#{{ article.pk }} Decision Helper{% endblock title %}
 {% block title-section %}#{{ article.pk }} Decision Helper{% endblock %}
+{% block title-sub %}{{ article.title|safe }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

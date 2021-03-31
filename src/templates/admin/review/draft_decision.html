@@ -9,7 +9,8 @@
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
-    <li>Draft a Decisions</li>
+    <li><a href="{% url 'decision_helper' article.pk %}">Decision Helper</a></li>
+    <li class="active">Draft a Decisions</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -17,29 +18,34 @@
     <div class="large-8 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Add a Draft</h2>
+                <h2>{% if draft %}Edit a Draft{% else %}Add a Draft{% endif %}</h2>
             </div>
             <div class="content">
-                <form method="POST"
-                      {% if draft and user_is_editor %}action="{% url 'review_manage_draft' article.pk draft.pk %}"{% endif %}>
-                    {% csrf_token %}
+                {% if draft %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p><span class="fa fa-exclamation-triangle"></span> As this draft has been completed, any
+                            changes to the
+                            email text (eg. Due Date) will need to be made manually.</p>
+                    </div>
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <p>Select a draft decison below and the </p>
-                        </div>
-                        <div class="large-12 columns">
-                            <label for="id_decision">
-                                Draft Decision <span class="red">*</span>
-                            </label>
-                            <select name="decision" required="" id="id_decision" onchange="decision_change($(this), {{ article.pk }})">
-                                <option value="" selected="">---------</option>
-                                <option value="accept">Accept Without Revisions</option>
-                                <option value="minor_revisions">Minor Revisions Required</option>
-                                <option value="major_revisions">Major Revisions Required</option>
-                                <option value="decline">Reject</option>
-                            </select>
+                            <hr/>
+                            <small>
+                                <p><strong>Message from {{ draft.section_editor.full_name }}</strong></p>
+                                {{ draft.message_to_editor|safe }}
+                            </small>
+                            <hr/>
                         </div>
                     </div>
+                {% else %}
+                    <p>Select a decision (and if Revisions also set a due date). The Email message for the Author will
+                        update to the
+                        correct template. Note: Changing the decision or due date <em>after</em> making changes will
+                        reset it.</p>
+                {% endif %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.decision|foundation }}
                     <div id="div_due_date" style="display: none">
                         {{ form.revision_request_due_date|foundation }}
                     </div>
@@ -47,10 +53,16 @@
                     {{ form.email_message|foundation }}
                     <button type="submit" class="success button">{% if not draft %}Submit Draft for Review{% else %}
                         Save{% endif %}</button>
+
                     {% if draft and user_is_editor %}
                         <div class="float-right">
-                            <button name="accept_draft" type="submit" class="success button">Accept Draft</button>
-                            <button name="decline_draft" type="submit" class="alert button">Decline Draft</button>
+                            <button name="accept_draft" type="submit" class="success button"
+                                    formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Accept Draft
+                            </button>
+                            <button name="decline_draft" type="submit"
+                                    class="alert button"
+                                    formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Decline Draft
+                            </button>
                         </div>
                     {% endif %}
                 </form>
@@ -64,37 +76,31 @@
                 <h2>Existing Drafts</h2>
             </div>
             <div class="content">
-                <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {% for draft in article.decisiondraft_set.all %}
-                            <li class="accordion-item{% if forloop.first %} is-active{% endif %}" data-accordion-item>
-                                <a href="#"
-                                   class="accordion-title">{{ forloop.counter }}. {{ draft.get_decision_display }}</a>
-                                <div class="accordion-content" data-tab-content>
-                                    <p>
-                                        <small>
-                                            Section Editor: {{ draft.section_editor.full_name }}<br/>
-                                            Editor: {{ draft.editor.full_name }}<br/>
-                                            Drafted: {{ draft.drafted }}<br/>
-                                            {% if draft.editor_decision %}Editor Decision:
-                                                {{ draft.get_editor_decision_display }}{% endif %}
-                                        </small>
-                                    </p>
-                                    {% if not draft.editor_decision %}
-                                        <div class="float-right">
-                                            <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}"
-                                               class="tiny warning button"><i class="fa fa-edit"></i></a>
-                                            <button type="submit" name="delete" value="{{ draft.pk }}"
-                                                    class="tiny alert button"><i class="fa fa-trash"></i></button>
-                                        </div>
-                                    {% endif %}
-                                    <br/>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </form>
-                </ul>
+                {% for draft in article.decisiondraft_set.all %}
+                    <p>{{ draft.get_decision_display }}</p>
+                    <p>
+                        <small>
+                            Section Editor: {{ draft.section_editor.full_name }}<br/>
+                            Editor: {{ draft.editor.full_name }}<br/>
+                            Drafted: {{ draft.drafted }}<br/>
+                            {% if draft.editor_decision %}Editor Decision:
+                                {{ draft.get_editor_decision_display }}{% endif %}
+                        </small>
+                    </p>
+                    {% if not draft.editor_decision %}
+                        <form method="POST" action="{% url 'review_draft_decision' article.pk %}">
+                            {% csrf_token %}
+                            <div class="float-left">
+                                <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}"
+                                   class="tiny warning button"><i class="fa fa-edit"></i> Edit</a>
+                                <button type="submit" name="delete" value="{{ draft.pk }}"
+                                        class="tiny alert button"><i class="fa fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                    <hr/>
+                {% endfor %}
             </div>
         </div>
 
@@ -102,39 +108,7 @@
 {% endblock %}
 
 {% block js %}
-    {% include "elements/jqte.html" %}
+    {% include "admin/elements/jqte.html" %}
     <script src="{% static "admin/js/csrf.js" %}"></script>
-    <script>
-        function get_decision_text(selector, article_id) {
-            console.log(selector)
-            data = {
-                'decision': selector.val(),
-            }
-            $.ajax(
-                {
-                    "type": "POST",
-                    "dataType": "json",
-                    "url": "{% url 'review_draft_decision_text' article.pk %}",
-                    "data": data,
-                    "success": function (data) {
-                        $("#id_email_message").jqteVal(data.decision_text)
-                        toastr.success('Text updated.')
-                    },
-                    "error": function (xhr, status, error) {
-                        console.log(error)
-                        toastr.error("Error.")
-                    },
-                }
-            )
-        }
-        function decision_change(selector, article_id) {
-
-            if ((selector.val() === 'minor_revisions') || (selector.val() === 'major_revisions')) {
-                $('#div_due_date').show();
-            } else {
-                $('#div_due_date').hide();
-            }
-            get_decision_text(selector, article_id)
-        }
-    </script>
+    {% include "admin/elements/review/draft_decisions_js.html" %}
 {% endblock %}

@@ -69,7 +69,7 @@ class EditorOverrideAdmin(admin.ModelAdmin):
 
 
 class DraftAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'section_editor', 'decision', 'drafted', 'editor_decision', 'closed')
+    list_display = ('pk', 'article', 'section_editor', 'decision', 'drafted', 'editor_decision')
     list_filter = ('article', 'section_editor', 'decision', 'editor_decision')
     raw_id_fields = ('article', 'section_editor')
 

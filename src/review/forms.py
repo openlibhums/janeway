@@ -22,13 +22,22 @@ class DraftDecisionForm(forms.ModelForm):
     class Meta:
         model = models.DecisionDraft
         exclude = (
-            'section_editor', 'article', 'editor_decision', 'closed')
+            'section_editor', 'article', 'editor_decision'
+        )
 
     def __init__(self, *args, **kwargs):
+        self._newly_created = kwargs.get('instance') is None
         message_to_editor = kwargs.pop('message_to_editor', None)
         super(DraftDecisionForm, self).__init__(*args, **kwargs)
         self.fields['message_to_editor'].initial = linebreaksbr(message_to_editor)
         self.fields['revision_request_due_date'].widget = HTMLDateInput()
+        self.fields['revision_request_due_date'].widget.attrs['onchange'] = 'decision_change()'
+        self.fields['decision'].widget.attrs[
+            'onchange'] = 'decision_change()'
+
+        if not self._newly_created:
+            self.fields['message_to_editor'].widget = forms.HiddenInput()
+
 
 
 class ReviewAssignmentForm(forms.ModelForm):

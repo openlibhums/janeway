@@ -5,8 +5,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import random
 import mimetypes
+from datetime import datetime
 
 from django.core.cache import cache
+from django.utils import timezone
 
 # NB: this module should not import any others in the application.
 # It is a space for communal functions to avoid
@@ -90,3 +92,11 @@ def set_order(objects, order_attr_name, pk_list):
   
 def day_month(date):
     return date.strftime("%d-%b")
+
+
+def make_timezone_aware(date_string, date_string_format):
+    print(date_string, date_string_format)
+    return timezone.make_aware(
+        datetime.strptime(date_string, date_string_format),
+        timezone.get_current_timezone(),
+    )

@@ -269,7 +269,6 @@ def group_files(article, reviews):
 
 
 def handle_decision_action(article, draft, request):
-    from submission import models as submission_models
     kwargs = {
         'article': article,
         'request': request,
@@ -280,23 +279,47 @@ def handle_decision_action(article, draft, request):
 
     if draft.decision == 'accept':
         article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_ACCEPTED,
+            task_object=article,
+            **kwargs,
+        )
     elif draft.decision == 'decline':
         article.decline_article()
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_DECLINED,
+            task_object=article,
+            **kwargs,
+        )
     elif draft.decision == 'minor_revisions' or draft.decision == 'major_revisions':
         revision = models.RevisionRequest.objects.create(
             article=article,
             editor=draft.section_editor,
             editor_note='',
             type=draft.decision,
-            date_due=timezone.now() + timedelta(days=14)
+            date_due=draft.revision_request_due_date
+        )
+        do_revisions_url = request.journal.site_url(path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ))
+        kwargs['user_message_content'] = render_template.get_message_content(
+            request,
+            {'do_revisions_url': do_revisions_url},
+            kwargs['user_message_content'],
+            template_is_setting=True,
         )
         article.stage = submission_models.STAGE_UNDER_REVISION
         article.save()
 
         kwargs['revision'] = revision
-        event_logic.Events.raise_event(event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,
+            **kwargs,
+        )
 
 
 def get_access_code(request):

@@ -422,7 +422,6 @@ class DecisionDraft(models.Model):
     decision = models.CharField(
         max_length=100,
         choices=review_decision(),
-        verbose_name='Recommendation',
     )
     message_to_editor = models.TextField(
         null=True,
@@ -439,7 +438,6 @@ class DecisionDraft(models.Model):
                                        choices=(('accept', 'Accept'), ('decline', 'Decline')),
                                        null=True,
                                        blank=True)
-    closed = models.BooleanField(default=False)
     revision_request_due_date = models.DateTimeField(
         blank=True,
         null=True,
