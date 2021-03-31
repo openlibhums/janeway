@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load roles %}
+{% load static from staticfiles %}
 
 {% block title %}Draft Decision{% endblock title %}
 {% block admin-header %}Draft Decision{% endblock %}
@@ -22,7 +23,28 @@
                 <form method="POST"
                       {% if draft and user_is_editor %}action="{% url 'review_manage_draft' article.pk draft.pk %}"{% endif %}>
                     {% csrf_token %}
-                    {{ form|foundation }}
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <p>Select a draft decison below and the </p>
+                        </div>
+                        <div class="large-12 columns">
+                            <label for="id_decision">
+                                Draft Decision <span class="red">*</span>
+                            </label>
+                            <select name="decision" required="" id="id_decision" onchange="decision_change($(this), {{ article.pk }})">
+                                <option value="" selected="">---------</option>
+                                <option value="accept">Accept Without Revisions</option>
+                                <option value="minor_revisions">Minor Revisions Required</option>
+                                <option value="major_revisions">Major Revisions Required</option>
+                                <option value="decline">Reject</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="div_due_date" style="display: none">
+                        {{ form.revision_request_due_date|foundation }}
+                    </div>
+                    {{ form.message_to_editor|foundation }}
+                    {{ form.email_message|foundation }}
                     <button type="submit" class="success button">{% if not draft %}Submit Draft for Review{% else %}
                         Save{% endif %}</button>
                     {% if draft and user_is_editor %}
@@ -81,4 +103,38 @@
 
 {% block js %}
     {% include "elements/jqte.html" %}
-{% endblock js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script>
+        function get_decision_text(selector, article_id) {
+            console.log(selector)
+            data = {
+                'decision': selector.val(),
+            }
+            $.ajax(
+                {
+                    "type": "POST",
+                    "dataType": "json",
+                    "url": "{% url 'review_draft_decision_text' article.pk %}",
+                    "data": data,
+                    "success": function (data) {
+                        $("#id_email_message").jqteVal(data.decision_text)
+                        toastr.success('Text updated.')
+                    },
+                    "error": function (xhr, status, error) {
+                        console.log(error)
+                        toastr.error("Error.")
+                    },
+                }
+            )
+        }
+        function decision_change(selector, article_id) {
+
+            if ((selector.val() === 'minor_revisions') || (selector.val() === 'major_revisions')) {
+                $('#div_due_date').show();
+            } else {
+                $('#div_due_date').hide();
+            }
+            get_decision_text(selector, article_id)
+        }
+    </script>
+{% endblock %}

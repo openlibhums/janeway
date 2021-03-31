@@ -103,7 +103,13 @@ class ReviewAssignment(models.Model):
 
     # Info
     review_round = models.ForeignKey(ReviewRound, blank=True, null=True)
-    decision = models.CharField(max_length=20, blank=True, null=True, choices=review_decision())
+    decision = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=review_decision(),
+        verbose_name='Recommendation',
+    )
     competing_interests = models.TextField(blank=True, null=True,
                                            help_text="If any of the authors or editors "
                                                      "have any competing interests please add them here. "
@@ -413,9 +419,20 @@ class EditorOverride(models.Model):
 class DecisionDraft(models.Model):
     article = models.ForeignKey('submission.Article')
     section_editor = models.ForeignKey('core.Account', related_name='draft_section_editor')
-    decision = models.CharField(max_length=100, choices=review_decision())
-    message_to_editor = models.TextField(null=True, blank=True)
-    email_message = models.TextField(null=True, blank=True)
+    decision = models.CharField(
+        max_length=100,
+        choices=review_decision(),
+        verbose_name='Recommendation',
+    )
+    message_to_editor = models.TextField(
+        null=True,
+        blank=True,
+    )
+    email_message = models.TextField(
+        null=True,
+        blank=True,
+        help_text='This is a draft of the email that will be sent to the author.',
+    )
     drafted = models.DateTimeField(auto_now=True)
 
     editor_decision = models.CharField(max_length=20,
@@ -423,6 +440,11 @@ class DecisionDraft(models.Model):
                                        null=True,
                                        blank=True)
     closed = models.BooleanField(default=False)
+    revision_request_due_date = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Stores a due date for a Drafted Revision Request.",
+    )
 
     def __str__(self):
         return "{0}: {1}".format(self.article.title,

@@ -85,6 +85,8 @@ urlpatterns = [
         name='review_edit_draft_decision'),
     url(r'^article/(?P<article_id>\d+)/decision/draft/(?P<draft_id>\d+)/action/$', views.manage_draft,
         name='review_manage_draft'),
+    url(r'^article/(?P<article_id>\d+)/decision/draft/text/$', views.draft_decision_text,
+        name='review_draft_decision_text'),
 
     url(r'^requests/$', views.review_requests, name='review_requests'),
     url(r'^requests/(?P<assignment_id>\d+)/accept/$', views.accept_review_request, name='accept_review'),

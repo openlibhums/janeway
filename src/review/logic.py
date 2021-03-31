@@ -192,20 +192,23 @@ def get_decision_content(request, article, decision, author_review_url):
     return render_template.get_message_content(request, email_context, template_name)
 
 
-def get_revision_request_content(request, article, revision):
-    do_revisions_url = request.journal.site_url(path=reverse(
-        'do_revisions',
-        kwargs={
-            'article_id': article.pk,
-            'revision_id': revision.pk,
-        }
-    ))
-
+def get_revision_request_content(request, article, revision, draft=False):
     email_context = {
         'article': article,
         'revision': revision,
-        'do_revisions_url': do_revisions_url,
     }
+
+    if not draft:
+        do_revisions_url = request.journal.site_url(path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ))
+        email_context['do_revisions_url'] = do_revisions_url
+    else:
+        email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
     return render_template.get_message_content(request, email_context, 'request_revisions')
 

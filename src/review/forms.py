@@ -13,18 +13,22 @@ from review import models
 from review.logic import render_choices
 from core import models as core_models
 from utils import setting_handler
-from utils.forms import FakeModelForm
+from utils.forms import FakeModelForm, HTMLDateInput
 
 
 class DraftDecisionForm(forms.ModelForm):
+    widgets = {'revision_request_due_date': HTMLDateInput()}
+
     class Meta:
         model = models.DecisionDraft
-        exclude = ('section_editor', 'article', 'editor_decision', 'closed')
+        exclude = (
+            'section_editor', 'article', 'editor_decision', 'closed')
 
     def __init__(self, *args, **kwargs):
-        email_message = kwargs.pop('email_message', None)
+        message_to_editor = kwargs.pop('message_to_editor', None)
         super(DraftDecisionForm, self).__init__(*args, **kwargs)
-        self.fields['email_message'].initial = linebreaksbr(email_message)
+        self.fields['message_to_editor'].initial = linebreaksbr(message_to_editor)
+        self.fields['revision_request_due_date'].widget = HTMLDateInput()
 
 
 class ReviewAssignmentForm(forms.ModelForm):

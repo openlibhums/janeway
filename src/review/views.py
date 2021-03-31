@@ -6,10 +6,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from uuid import uuid4
 from collections import Counter
+from datetime import timedelta
 
 from django.contrib import messages
 from django.urls import reverse
-from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
@@ -17,7 +17,7 @@ from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
@@ -1547,7 +1547,6 @@ def author_view_reviews(request, article_id):
     return render(request, template, context)
 
 
-@section_editor_draft_decisions
 @editor_is_not_author
 @editor_user_required
 def request_revisions(request, article_id):
@@ -1601,7 +1600,6 @@ def request_revisions(request, article_id):
     return render(request, template, context)
 
 
-@section_editor_draft_decisions
 @editor_is_not_author
 @editor_user_required
 def request_revisions_notification(request, article_id, revision_id):
@@ -2002,9 +2000,11 @@ def draft_decision(request, article_id):
 
     article = get_object_or_404(submission_models.Article, pk=article_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
-    email_message = logic.get_draft_email_message(request, article)
+    message_to_editor = logic.get_draft_email_message(request, article)
 
-    form = forms.DraftDecisionForm(email_message=email_message)
+    form = forms.DraftDecisionForm(
+        message_to_editor=message_to_editor,
+    )
 
     if request.POST:
 
@@ -2012,10 +2012,18 @@ def draft_decision(request, article_id):
             delete_id = request.POST.get('delete')
             draft = get_object_or_404(models.DecisionDraft, pk=delete_id, article=article)
             draft.delete()
-            return redirect(reverse('review_draft_decision', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'review_draft_decision',
+                    kwargs={'article_id': article.pk},
+                ),
+            )
 
         else:
-            form = forms.DraftDecisionForm(request.POST, email_message=email_message)
+            form = forms.DraftDecisionForm(
+                request.POST,
+                message_to_editor=message_to_editor,
+            )
 
             if form.is_valid():
                 new_draft = form.save(commit=False)
@@ -2023,12 +2031,24 @@ def draft_decision(request, article_id):
                 new_draft.section_editor = request.user
                 new_draft.article = article
                 new_draft.save()
-                messages.add_message(request, messages.SUCCESS, 'A draft has been saved, the editor has been notified.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'A draft has been saved, the editor has been notified.',
+                )
 
                 kwargs = {'request': request, 'article': article, 'draft': new_draft}
-                event_logic.Events.raise_event(event_logic.Events.ON_DRAFT_DECISION, **kwargs)
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_DRAFT_DECISION,
+                    **kwargs,
+                )
 
-                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+                return redirect(
+                    reverse(
+                        'decision_helper',
+                        kwargs={'article_id': article.pk},
+                    ),
+                )
 
     template = 'review/draft_decision.html'
     context = {
@@ -2038,6 +2058,55 @@ def draft_decision(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@require_POST
+@editor_user_required
+def draft_decision_text(request, article_id):
+    """
+    Takes a POST and returns decision text.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    decision = request.POST.get('decision')
+    author_review_url = request.journal.site_url(
+        reverse(
+            'review_author_view',
+            kwargs={'article_id': article.id},
+        )
+    )
+
+    if not decision:
+        raise Http404
+
+    if decision in ['accept', 'decline']:
+        decision_text = logic.get_decision_content(
+            request=request,
+            article=article,
+            decision=decision,
+            author_review_url=author_review_url,
+        )
+
+    elif decision in ['minor_revisions', 'major_revisions']:
+        revision = models.RevisionRequest(
+            article=article,
+            editor=request.user,
+            type=decision,
+            date_requested=timezone.now,
+            date_due=(timezone.now() + timedelta(days=14)).date(),
+            editor_note="[[Add Editor Note Here]]",
+        )
+        decision_text = logic.get_revision_request_content(
+            request=request,
+            article=article,
+            revision=revision,
+            draft=True,
+        )
+
+    return JsonResponse({'decision_text': decision_text})
 
 
 @editor_is_not_author
@@ -2077,8 +2146,12 @@ def edit_draft_decision(request, article_id, draft_id):
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.SUCCESS, 'Draft has been updated')
-            return redirect(reverse('review_edit_draft_decision',
-                                    kwargs={'article_id': article.pk, 'draft_id': draft.pk}))
+            return redirect(
+                reverse(
+                    'review_edit_draft_decision',
+                    kwargs={'article_id': article.pk, 'draft_id': draft.pk},
+                ),
+            )
 
     template = 'review/draft_decision.html'
     context = {
@@ -2094,7 +2167,7 @@ def edit_draft_decision(request, article_id, draft_id):
 @senior_editor_user_required
 def review_forms(request):
     """
-    Displays a list of review formd and allows new ones to be created.
+    Displays a list of review forms and allows new ones to be created.
     :param request: HttpRequest object
     :return: HttpResponse or HttpRedirect
     """
@@ -2326,7 +2399,7 @@ def decision_helper(request, article_id):
          review.decision]
     )
 
-    template = 'review/decision_helper.html'
+    template = 'admin/review/decision_helper.html'
     context = {
         'article': article,
         'complete_reviews': complete_reviews,

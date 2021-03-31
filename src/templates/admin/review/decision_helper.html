@@ -20,12 +20,18 @@
                 <h2 style="color: #5bc0de;"><span class="fa fa-clipboard"></span> Reviewer Recommendations</h2>
                 <div class="bs-callout bs-callout-info">
                     {% for decision, counter in decisions.items %}
-                    <p><strong>{{ decision }}</strong>: {{ counter }}</p>
+                    <p><strong>{{ decision|capfirst }}</strong>: {{ counter }}</p>
                     {% endfor %}
                 </div>
             </div>
             <div class="large-6 columns">
                 <h2><span class="fa fa-gavel"></span> Make a Decision</h2>
+                {% if article.active_revision_requests %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p>This article has active Revision Requests.</p>
+                    </div>
+                    <br />
+                {% endif %}
                 <div class="button-group small stacked">
                     {% if journal_settings.general.draft_decisions and in_review_stage %}
                         <a class="button" href="{% url 'review_draft_decision' article.pk %}"><i
@@ -48,10 +54,6 @@
                                 </button>
                             </form>
                         {% endif %}
-                        <a href="{% url 'review_request_revisions' article.pk %}"
-                           class="button warning"><i
-                                class="fa fa-inbox action-icon">&nbsp;</i>Request
-                            Revisions</a>
 
                         {% if in_review_stage %}
                             <a href="{% url 'review_decision' article.id 'decline' %}"
@@ -59,6 +61,10 @@
                                     class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
                                 Article</a>
                         {% endif %}
+                        <a href="{% url 'review_request_revisions' article.pk %}"
+                           class="button warning"><i
+                                class="fa fa-inbox action-icon">&nbsp;</i>Request
+                            Revisions</a>
                     {% endif %}
                 </div>
             </div>
