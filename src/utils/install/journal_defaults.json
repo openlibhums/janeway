@@ -2944,7 +2944,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, authors will see detailed (anonymous) information about peer reviews inc. due and completed dates on the article information page.",
+            "description": "If enabled, authors will see the requested, due, and complete date for their papers' review assignment. Otherwise, they will only have access to the review comments.",
             "is_translatable": false,
             "name": "enable_peer_review_data_block",
             "pretty_name": "Enable Peer Review Data Block",
