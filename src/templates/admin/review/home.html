@@ -50,8 +50,18 @@
                                     {% for review in article.reviewassignment_set.all %}
 
                                         <tr>
-                                            <td><a href="{% url 'review_view_review' article.pk review.pk %}">{{ review.reviewer.initials }}</a></td>
-                                            <td><span class="{{ review.status.span_class }}">{{ review.status.display|safe }}</span></td>
+                                            <td>({{ review.review_round.round_number }}) <a href="{% url 'review_view_review' article.pk review.pk %}">{{ review.reviewer.initials }}</a></td>
+                                            <td>
+                                                <span class="{{ review.status.span_class }}">
+                                                    {% if review.status.code == 'complete' %}
+                                                    <span data-tooltip class="top" tabindex="2" title="Recommendation: {{ review.get_decision_display }}">
+                                                    {% endif %}
+                                                    {{ review.status.display|safe }}
+                                                    {% if review.status.code == 'complete' %}
+                                                    </span>
+                                                    {% endif %}
+                                                </span>
+                                            </td>
                                             <td>{{ review.status.date }}</td>
                                             <td>{% if review.status.reminder %}<a href="{% url 'review_send_reminder' article.pk review.pk review.status.reminder %}">{% endif %}Due {{ review.date_due|date:"d-m" }}{% if review.status.reminder %}</a>{% endif %}</td>
                                         </tr>
