@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.core.validators import validate_email, ValidationError
 
 from simplemathcaptcha.fields import MathCaptchaField
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
@@ -14,7 +15,7 @@ from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django_summernote.widgets import SummernoteWidget
 
 from core import models as core_models
-from journal import models as journal_models
+from journal import models as journal_models, logic
 
 SEARCH_SORT_OPTIONS = [
         ('title', 'Titles A-Z'),
@@ -94,6 +95,16 @@ class EmailForm(forms.Form):
     cc = forms.CharField(max_length=1000, help_text='Separate email addresses with ;')
     subject = forms.CharField(max_length=1000)
     body = forms.CharField(widget=SummernoteWidget)
+
+    def clean_cc(self):
+        to_list = [x.strip() for x in self.cleaned_data['cc'].split(';') if x]
+        for address in to_list:
+            try:
+                validate_email(address)
+            except ValidationError:
+                self.add_error('cc', 'Invalid email address ({}).'.format(address))
+
+        return to_list
 
 
 class SearchForm(forms.Form):
