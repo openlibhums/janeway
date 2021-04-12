@@ -92,19 +92,27 @@ class ResendEmailForm(forms.Form):
 
 
 class EmailForm(forms.Form):
-    cc = forms.CharField(max_length=1000, help_text='Separate email addresses with ;')
+    cc = forms.CharField(
+        required=False,
+        max_length=1000,
+        help_text='Separate email addresses with ;',
+    )
     subject = forms.CharField(max_length=1000)
     body = forms.CharField(widget=SummernoteWidget)
 
     def clean_cc(self):
-        to_list = [x.strip() for x in self.cleaned_data['cc'].split(';') if x]
-        for address in to_list:
+        cc = self.cleaned_data['cc']
+        if not cc or cc == '':
+            return []
+
+        cc_list = [x.strip() for x in cc.split(';') if x]
+        for address in cc_list:
             try:
                 validate_email(address)
             except ValidationError:
                 self.add_error('cc', 'Invalid email address ({}).'.format(address))
 
-        return to_list
+        return cc_list
 
 
 class SearchForm(forms.Form):
