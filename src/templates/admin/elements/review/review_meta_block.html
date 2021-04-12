@@ -1,19 +1,13 @@
-<p><strong>The editor handling this piece is:</strong></p>
+<p><strong>Handling Editor(s):</strong></p>
 
 <ul>
-    {% if review_request.article.section_editors %}
-        {% for editor in review_request.article.section_editors %}
+    {% if review_request.article.editor_list %}
+        {% for editor in review_request.article.editor_list %}
             <li>{{ editor }} <a href="mailto:{{ editor.email }}?subject={{ review_request.article.journal.name }} Review"><i
                     class="fa fa-envelope"></i></a></li>
+        {% empty %}
+            <li>This article has no editors.</li>
         {% endfor %}
-    {% elif review_request.article.editors %}
-        {% for editor_dict in review_request.article.editors %}
-            <li>{{ editor_dict.editor }} <a
-                    href="mailto:{{ editor_dict.editor.email }}?subject={{ review_request.article.journal.name }} Review"><i
-                    class="fa fa-envelope"></i></a></li>
-        {% endfor %}
-    {% else %}
-        <li>This article has no editors.</li>
     {% endif %}
 </ul>
 
