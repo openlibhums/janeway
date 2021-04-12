@@ -91,7 +91,7 @@ class ResendEmailForm(forms.Form):
 
 
 class EmailForm(forms.Form):
-    cc = forms.CharField(max_length=1000, help_text='Seperate email addresses with ;')
+    cc = forms.CharField(max_length=1000, help_text='Separate email addresses with ;')
     subject = forms.CharField(max_length=1000)
     body = forms.CharField(widget=SummernoteWidget)
 
