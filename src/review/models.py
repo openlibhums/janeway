@@ -204,7 +204,7 @@ class ReviewAssignment(models.Model):
         elif self.date_accepted:
             return {
                 'code': 'accept',
-                'display': 'Accept',
+                'display': 'Yes',
                 'span_class': 'green',
                 'date': shared.day_month(self.date_accepted),
                 'reminder': 'accepted',
@@ -212,7 +212,7 @@ class ReviewAssignment(models.Model):
         elif self.date_declined:
             return {
                 'code': 'declined',
-                'display': 'Declined',
+                'display': 'No',
                 'span_class': 'red',
                 'date': shared.day_month(self.date_declined),
                 'reminder': None,
