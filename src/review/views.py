@@ -1819,7 +1819,12 @@ def replace_file(request, article_id, revision_id, file_id):
             new_file = files.save_file_to_article(uploaded_file, revision_request.article, request.user,
                                                   replace=file, is_galley=False, label=label)
 
-            files.replace_file(revision_request.article, file, new_file)
+            files.replace_file(
+                revision_request.article,
+                file,
+                new_file,
+                replace_label=False,
+            )
             logic.log_revision_event(
                 'File {0} ({1}) replaced with {2} ({3})'.format(file.label, file.original_filename, new_file.label,
                                                                 new_file.original_filename),
@@ -1855,7 +1860,11 @@ def upload_new_file(request, article_id, revision_id):
         uploaded_file = request.FILES.get('file')
         label = request.POST.get('label')
         new_file = files.save_file_to_article(
-            uploaded_file, article, request.user, label=label)
+            uploaded_file,
+            article,
+            request.user,
+            label=label,
+        )
 
         if file_type == 'manuscript':
             article.manuscript_files.add(new_file)
@@ -2249,7 +2258,6 @@ def order_review_elements(request, form_id):
     )
 
     return HttpResponse('Ok')
-
 
 
 @reviewer_user_for_assignment_required
