@@ -475,7 +475,7 @@ def delete_file(article_object, file_object):
         article_object.data_figure_files.remove(file_object)
 
 
-def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, galley=None, replace_label=True):
+def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, galley=None, retain_label=True):
     """ Replaces an existing file with a new record
 
     :param article_to_replace: the article in which we replace the file
@@ -493,7 +493,7 @@ def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, g
             new_file = get_object_or_404(models.File, pk=new_file.pk)
             new_file.parent = file_to_replace
 
-            if replace_label:
+            if retain_label:
                 new_file.label = file_to_replace.label
 
             new_file.save()
