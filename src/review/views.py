@@ -2004,6 +2004,9 @@ def draft_decision(request, article_id):
 
     form = forms.DraftDecisionForm(
         message_to_editor=message_to_editor,
+        initial={
+            'revision_request_due_date': timezone.now() + timedelta(days=14),
+        }
     )
 
     if request.POST:

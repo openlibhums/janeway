@@ -422,15 +422,20 @@ class DecisionDraft(models.Model):
     decision = models.CharField(
         max_length=100,
         choices=review_decision(),
+        verbose_name='Draft Decision',
     )
     message_to_editor = models.TextField(
         null=True,
         blank=True,
+        help_text='This is the email that will be sent to the editor notifying them that you are '
+                  'logging your draft decision.',
+        verbose_name='Email to Editor',
     )
     email_message = models.TextField(
         null=True,
         blank=True,
-        help_text='This is a draft of the email that will be sent to the author.',
+        help_text='This is a draft of the email that will be sent to the author. Your editor will check this.',
+        verbose_name='Draft Email to Author',
     )
     drafted = models.DateTimeField(auto_now=True)
 

@@ -18,7 +18,7 @@
     <div class="large-8 columns">
         <div class="box">
             <div class="title-area">
-                <h2>{% if draft %}Edit a Draft{% else %}Add a Draft{% endif %}</h2>
+                <h2>{% if draft %}Edit a Draft Decision{% else %}Add a Draft Decision{% endif %}</h2>
             </div>
             <div class="content">
                 {% if draft %}
@@ -38,10 +38,9 @@
                         </div>
                     </div>
                 {% else %}
-                    <p>Select a decision (and if Revisions also set a due date). The Email message for the Author will
-                        update to the
-                        correct template. Note: Changing the decision or due date <em>after</em> making changes will
-                        reset it.</p>
+                    <p>First select a decision (and also set a due date for any revisions). Once you have done this the Email to Author  will
+                        update to the correct template.</p><p><strong>Note: Changing the decision or due date <em>after</em> making changes to the email will
+                            reset the template and cause you to lose your changes.</strong></p>
                 {% endif %}
                 <form method="POST">
                     {% csrf_token %}
