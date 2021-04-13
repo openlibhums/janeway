@@ -993,6 +993,12 @@ class Article(models.Model):
         except review_models.ReviewAssignment.DoesNotExist:
             return None
 
+    def reviews_not_withdrawn(self):
+        return self.reviewassignment_set.exclude(decision='withdrawn')
+
+    def number_of_withdrawn_reviews(self):
+        return self.reviewassignment_set.filter(decision='withdrawn').count()
+
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
         self.date_declined = None
@@ -1041,6 +1047,9 @@ class Article(models.Model):
             return True
         else:
             return False
+
+    def active_revisions(self):
+        return self.revisionrequest_set.filter(date_completed__isnull=True)
 
     def get_next_galley_sequence(self):
         galley_sequences = [galley.sequence for galley in self.galley_set.all()]
