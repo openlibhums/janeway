@@ -720,7 +720,7 @@ def edit_setting(request, setting_group, setting_name):
             return language_override_redirect(
                 request,
                 'core_edit_setting',
-                {'group': setting_group, 'setting_name': setting_name},
+                {'setting_group': setting_group, 'setting_name': setting_name},
             )
 
         template = 'core/manager/settings/edit_setting.html'
@@ -813,8 +813,10 @@ def edit_settings_group(request, group):
             cache.clear()
 
             if fire_redirect:
-                return redirect(
-
+                return language_override_redirect(
+                    request,
+                    'core_edit_settings_group',
+                    {'group': group},
                 )
 
         template = 'core/manager/settings/group.html'
