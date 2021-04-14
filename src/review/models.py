@@ -68,6 +68,18 @@ class ReviewRound(models.Model):
     def __repr__(self):
         return u'%s - %s round number: %s' % (self.pk, self.article.title, self.round_number)
 
+    def active_reviews(self):
+        return self.reviewassignment_set.exclude(
+            Q(decision='complete') | Q(decision='withdrawn')
+        )
+
+    def inactive_reviews(self):
+        return self.reviewassignment_set.filter(
+            Q(decision='complete') | Q(decision='withdrawn')
+        ).order_by(
+            'decision',
+        )
+
     @classmethod
     def latest_article_round(cls, article):
         """ Works out and returns the latest article review round
