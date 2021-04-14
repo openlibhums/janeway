@@ -330,6 +330,9 @@ def collections(request, issue_type_code="collection"):
         journal=request.journal,
         issue_type=issue_type,
         date__lte=timezone.now(),
+    ).exclude(
+        # This has to be an .exclude because.filter won't do an INNER join
+        articles__isnull=True,
     )
 
     template = 'journal/collections.html'
