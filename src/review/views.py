@@ -1823,7 +1823,7 @@ def replace_file(request, article_id, revision_id, file_id):
                 revision_request.article,
                 file,
                 new_file,
-                retain_label=False,
+                retain_old_label=False,
             )
             logic.log_revision_event(
                 'File {0} ({1}) replaced with {2} ({3})'.format(file.label, file.original_filename, new_file.label,
