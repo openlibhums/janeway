@@ -652,7 +652,6 @@ def decline_review_request(request, assignment_id):
     :param assignment_id: the assignment ID to handle
     :return: a context for a Django template
     """
-
     access_code = logic.get_access_code(request)
 
     if access_code:
@@ -2095,7 +2094,7 @@ def draft_decision_text(request, article_id):
     if not decision:
         raise Http404
 
-    if decision in ['accept', 'decline']:
+    if decision in ['accept', 'reject']:
         decision_text = logic.get_decision_content(
             request=request,
             article=article,

@@ -187,7 +187,10 @@ def get_decision_content(request, article, decision, author_review_url):
         'review_url': author_review_url,
     }
 
-    template_name = "review_decision_{0}".format(decision)
+    if decision == 'reject':
+        template_name = "review_decision_decline"
+    else:
+        template_name = "review_decision_{0}".format(decision)
 
     return render_template.get_message_content(request, email_context, template_name)
 
