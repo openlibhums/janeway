@@ -70,12 +70,12 @@ class ReviewRound(models.Model):
 
     def active_reviews(self):
         return self.reviewassignment_set.exclude(
-            Q(decision='complete') | Q(decision='withdrawn')
+            Q(date_declined__isnull=False) | Q(date_accepted__isnull=False) | Q(decision='withdrawn')
         )
 
     def inactive_reviews(self):
         return self.reviewassignment_set.filter(
-            Q(decision='complete') | Q(decision='withdrawn')
+            Q(date_declined__isnull=False) | Q(date_accepted__isnull=False) | Q(decision='withdrawn')
         ).order_by(
             'decision',
         )
@@ -246,7 +246,6 @@ class ReviewAssignment(models.Model):
 
         return u'{0} - Article: {1}, Reviewer: {2}'.format(
             self.id, self.article.title, reviewer_name)
-
 
 
 class ReviewForm(models.Model):
