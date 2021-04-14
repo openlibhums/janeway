@@ -418,6 +418,7 @@ class EditorOverride(models.Model):
 
 class DecisionDraft(models.Model):
     article = models.ForeignKey('submission.Article')
+    editor = models.ForeignKey('core.Account', related_name='draft_editor', null=True)
     section_editor = models.ForeignKey('core.Account', related_name='draft_section_editor')
     decision = models.CharField(
         max_length=100,

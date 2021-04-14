@@ -34,13 +34,12 @@
                     <br />
                 {% endif %}
                 <div class="button-group small stacked">
-                    {% if journal_settings.general.draft_decisions and in_review_stage %}
+                    {% if journal_settings.general.draft_decisions %}
                         <a class="button" href="{% url 'review_draft_decision' article.pk %}"><i
-                                class="fa fa-pencil-square action-icon">&nbsp;</i>Draft a
-                            Decision</a>
+                                class="fa fa-pencil-square action-icon">&nbsp;</i>Draft
+                            Decisions</a>
                     {% endif %}
                     {% if not journal_settings.general.draft_decisions or editor %}
-                        {% if in_review_stage %}
                             <a href="{% url 'review_decision' article.id 'accept' %}"
                                class="button success"><i
                                     class="fa fa-check-circle action-icon">&nbsp;</i>Accept
@@ -54,14 +53,11 @@
                                     Review Round
                                 </button>
                             </form>
-                        {% endif %}
 
-                        {% if in_review_stage %}
                             <a href="{% url 'review_decision' article.id 'decline' %}"
                                class="button alert"><i
                                     class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
                                 Article</a>
-                        {% endif %}
                         <a href="{% url 'review_request_revisions' article.pk %}"
                            class="button warning"><i
                                 class="fa fa-inbox action-icon">&nbsp;</i>Request

@@ -45,10 +45,19 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form.decision|foundation }}
+
+                    {% if draft %}<div style="display: none">{% endif %}
+                    {{ form.editor|foundation }}
+                    {% if draft %}</div>{% endif %}
+
                     <div id="div_due_date" style="display: none">
                         {{ form.revision_request_due_date|foundation }}
                     </div>
+
+                    {% if draft %}<div style="display: none">{% endif %}
                     {{ form.message_to_editor|foundation }}
+                    {% if draft %}</div>{% endif %}
+
                     {{ form.email_message|foundation }}
                     <button type="submit" class="success button">{% if not draft %}Submit Draft for Review{% else %}
                         Save{% endif %}</button>

@@ -2001,9 +2001,11 @@ def draft_decision(request, article_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
     message_to_editor = logic.get_draft_email_message(request, article)
+    editors = request.journal.editors()
 
     form = forms.DraftDecisionForm(
         message_to_editor=message_to_editor,
+        editors=editors,
         initial={
             'revision_request_due_date': timezone.now() + timedelta(days=14),
         }
@@ -2025,6 +2027,7 @@ def draft_decision(request, article_id):
         else:
             form = forms.DraftDecisionForm(
                 request.POST,
+                editors=editors,
                 message_to_editor=message_to_editor,
             )
 
@@ -2156,10 +2159,18 @@ def edit_draft_decision(request, article_id, draft_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
-    form = forms.DraftDecisionForm(instance=draft)
+    editors = request.journal.editors()
+    form = forms.DraftDecisionForm(
+        instance=draft,
+        editors=editors,
+    )
 
     if request.POST:
-        form = forms.DraftDecisionForm(request.POST, instance=draft)
+        form = forms.DraftDecisionForm(
+            request.POST,
+            instance=draft,
+            editors=editors,
+        )
 
         if form.is_valid():
             form.save()
