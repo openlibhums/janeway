@@ -22,6 +22,9 @@
                         <a href="#" data-open="issue" class="button">
                             <i class="fa fa-plus">&nbsp;</i>Create Issue
                         </a>
+                        <a href="{% url 'manage_issue_display' %}" class="button">
+                            <i class="fa fa-edit">&nbsp;</i>Edit Display Settings
+                        </a>
                     {% else %}
                         <a class="button" href="{% url 'journal_issue' issue.pk %}">
                             View Issue
@@ -75,14 +78,6 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    {% if issue %}
-                    <p>You can alter the way the issue title is displayed to the reader. Currently this issue will
-                        display as: </p>
-                        <p>{{ issue.display_title }}.</p>
-                    <a href="{% url 'manage_issue_display' %}" class="button">
-                        <i class="fa fa-edit">&nbsp;</i>Edit Display Settings
-                    </a>
-                    {% endif %}
                 </div>
             </div>
         </div>
