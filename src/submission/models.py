@@ -1048,9 +1048,6 @@ class Article(models.Model):
         else:
             return False
 
-    def active_revisions(self):
-        return self.revisionrequest_set.filter(date_completed__isnull=True)
-
     def get_next_galley_sequence(self):
         galley_sequences = [galley.sequence for galley in self.galley_set.all()]
         return len(galley_sequences) + 1
