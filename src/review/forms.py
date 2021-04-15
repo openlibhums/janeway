@@ -26,7 +26,7 @@ class DraftDecisionForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        self._newly_created = kwargs.get('instance') is None
+        newly_created = kwargs.get('instance') is None
         message_to_editor = kwargs.pop('message_to_editor', None)
         editors = kwargs.pop('editors', [])
         super(DraftDecisionForm, self).__init__(*args, **kwargs)
@@ -36,10 +36,9 @@ class DraftDecisionForm(forms.ModelForm):
         self.fields['decision'].widget.attrs[
             'onchange'] = 'decision_change()'
         self.fields['editor'].queryset = editors
-        if not self._newly_created:
+        if not newly_created:
             self.fields['message_to_editor'].widget = forms.HiddenInput()
             self.fields['editor'].widget = forms.HiddenInput()
-
 
 
 class ReviewAssignmentForm(forms.ModelForm):
