@@ -378,7 +378,7 @@ class SectionForm(TranslatableModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'first_name', 'last_name')
+        fields = ('email', 'salutation', 'first_name', 'last_name')
 
 
 class LoginForm(forms.Form):
