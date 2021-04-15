@@ -33,63 +33,87 @@
         </tr>
     </table>
 
-    <h5>Note from Editor ({{ revision_request.editor.full_name }})</h5>
-    {{ revision_request.editor_note|safe }}
-    <br /><br />
+    <div class="title-area">
+        <h2>Note from Editor ({{ revision_request.editor.full_name }})</h2>
+    </div>
+    <div class="content">
+        {{ revision_request.editor_note|safe }}
+        <br /><br />
+    </div>
 
-    <h5>Covering Letter from Author</h5>
-    {{ revision_request.author_note|safe }}
-    <br /><br />
-    <h5>Files</h5>
-    <table class="scroll small">
-        <tr>
-            <th>Label</th>
-            <th>Filename</th>
-            <th>Type</th>
-            <th>Uploaded</th>
-            <th>Size</th>
-            <th>Download</th>
-            <th>History</th>
-        </tr>
-        {% for file in article.manuscript_files.all %}
-        <tr>
-            <td>{{ file.label }}</td>
-            <td>{{ file.original_filename }}</td>
-            <td>Manuscript</td>
-            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
-            <td>{% file_size file article %}</td>
-            <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
-            <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'view_revision' article.pk revision_request.pk %}"><i class="fa fa-history">&nbsp;</i></a></td
-        </tr>
-        {% endfor %}
-        {% for file in article.data_figure_files.all %}
-        <tr>
-            <td>{{ file.label }}</td>
-            <td>{{ file.original_filename }}</td>
-            <td>Data/Figure</td>
-            <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
-            <td>{% file_size file article %}</td>
-            <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
-            <td><a href="{% url 'file_history' article.pk file.pk %}?return={% url 'view_revision' article.pk revision_request.pk %}"><i class="fa fa-history">&nbsp;</i></a></td
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="title-area">
+        <h2>Covering Letter from Author</h2>
+    </div>
+    <div class="content">
+        {{ revision_request.author_note|safe }}
+        <br /><br />
+    </div>
 
-    <h5>Actions</h5>
-    <table class="scroll">
-        <tr>
-            <th>Date Logged</th>
-            <th>Action</th>
-        </tr>
-        {% for action in revision_request.actions.all %}
-        <tr>
-            <td>{{ action.logged|date:"Y-m-d Hm" }}</td>
-            <td>{{ action.text }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="title-area">
+        <h2>Files</h2>
+    </div>
+    <div class="content">
+        <table class="scroll small">
+            <tr>
+                <th>Label</th>
+                <th>Filename</th>
+                <th>Type</th>
+                <th>Uploaded</th>
+                <th>Size</th>
+                <th>Download</th>
+                <th>History</th>
+            </tr>
+            {% for file in article.manuscript_files.all %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    <td>Manuscript</td>
+                    <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                    <td>{% file_size file article %}</td>
+                    <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i
+                            class="fa fa-download">&nbsp;</i></a></td>
+                    <td>
+                        <a href="{% url 'file_history' article.pk file.pk %}?return={% url 'view_revision' article.pk revision_request.pk %}"><i
+                                class="fa fa-history">&nbsp;</i></a></td
+                </tr>
+            {% endfor %}
+            {% for file in article.data_figure_files.all %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    <td>Data/Figure</td>
+                    <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                    <td>{% file_size file article %}</td>
+                    <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i
+                            class="fa fa-download">&nbsp;</i></a></td>
+                    <td>
+                        <a href="{% url 'file_history' article.pk file.pk %}?return={% url 'view_revision' article.pk revision_request.pk %}"><i
+                                class="fa fa-history">&nbsp;</i></a></td
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 
-    <a href="{% url 'review_in_review' article.pk %}" class="button primary">Back</a>
+
+    <div class="title-area">
+        <h2>Actions</h2>
+    </div>
+    <div class="content">
+        <table class="scroll">
+            <tr>
+                <th>Date Logged</th>
+                <th>Action</th>
+            </tr>
+            {% for action in revision_request.actions.all %}
+                <tr>
+                    <td>{{ action.logged|date:"Y-m-d Hm" }}</td>
+                    <td>{{ action.text }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <a href="{% url 'review_in_review' article.pk %}" class="button primary">Back</a>
+    </div>
 </div><!--/col-lg-12 -->
 
 {% endblock body %}
