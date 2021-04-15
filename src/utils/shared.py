@@ -89,4 +89,4 @@ def set_order(objects, order_attr_name, pk_list):
 
   
 def day_month(date):
-    return date.strftime("%d-%M")
+    return date.strftime("%d-%b")
