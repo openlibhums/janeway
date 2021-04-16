@@ -7,7 +7,7 @@ crossrefapi
 Django==1.11.29
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
-django-debug-toolbar==1.8
+django-debug-toolbar==1.11.1
 django-hvad==1.8.0
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git#egg=django-mailgun
 django-markdown-deux==1.0.5
