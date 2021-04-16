@@ -27,43 +27,51 @@
             </div>
             <div class="large-6 columns">
                 <h2><span class="fa fa-gavel"></span> Make a Decision</h2>
-                {% if article.active_revision_requests %}
-                    <div class="bs-callout bs-callout-danger">
-                        <p>This article has active Revision Requests.</p>
+                {% if article.date_accepted or article.date_declined %}
+                    <div class="large-12 columns">
+                        <div class="bs-callout bs-callout-warning">
+                            <p><span class="fa fa-exclamation-triangle"> </span> <strong>Note: </strong> Decision options have been disabled as this article has already been {% if article.date_accepted %}accepted{% else %}rejected{% endif %}.</p>
+                        </div>
                     </div>
-                    <br />
+                {% else %}
+                    {% if article.active_revision_requests %}
+                        <div class="bs-callout bs-callout-danger">
+                            <p>This article has active Revision Requests.</p>
+                        </div>
+                        <br />
+                    {% endif %}
+                    <div class="button-group small stacked">
+                        {% if journal_settings.general.draft_decisions %}
+                            <a class="button" href="{% url 'review_draft_decision' article.pk %}"><i
+                                    class="fa fa-pencil-square action-icon">&nbsp;</i>Draft
+                                Decisions</a>
+                        {% endif %}
+                        {% if not journal_settings.general.draft_decisions or editor %}
+                                <a href="{% url 'review_decision' article.id 'accept' %}"
+                                   class="button success"><i
+                                        class="fa fa-check-circle action-icon">&nbsp;</i>Accept
+                                    Article</a> Accept Article</a>
+
+                                <form method="POST"
+                                      action="{% url 'review_in_review' article.pk %}">{% csrf_token %}
+                                    <button name="new_review_round" type="submit"
+                                            class="button warning"><i
+                                            class="fa fa-plus-circle action-icon">&nbsp;</i>New
+                                        Review Round
+                                    </button>
+                                </form>
+
+                                <a href="{% url 'review_decision' article.id 'decline' %}"
+                                   class="button alert"><i
+                                        class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
+                                    Article</a>
+                            <a href="{% url 'review_request_revisions' article.pk %}"
+                               class="button warning"><i
+                                    class="fa fa-inbox action-icon">&nbsp;</i>Request
+                                Revisions</a>
+                        {% endif %}
+                    </div>
                 {% endif %}
-                <div class="button-group small stacked">
-                    {% if journal_settings.general.draft_decisions %}
-                        <a class="button" href="{% url 'review_draft_decision' article.pk %}"><i
-                                class="fa fa-pencil-square action-icon">&nbsp;</i>Draft
-                            Decisions</a>
-                    {% endif %}
-                    {% if not journal_settings.general.draft_decisions or editor %}
-                            <a href="{% url 'review_decision' article.id 'accept' %}"
-                               class="button success"><i
-                                    class="fa fa-check-circle action-icon">&nbsp;</i>Accept
-                                Article</a> Accept Article</a>
-
-                            <form method="POST"
-                                  action="{% url 'review_in_review' article.pk %}">{% csrf_token %}
-                                <button name="new_review_round" type="submit"
-                                        class="button warning"><i
-                                        class="fa fa-plus-circle action-icon">&nbsp;</i>New
-                                    Review Round
-                                </button>
-                            </form>
-
-                            <a href="{% url 'review_decision' article.id 'decline' %}"
-                               class="button alert"><i
-                                    class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
-                                Article</a>
-                        <a href="{% url 'review_request_revisions' article.pk %}"
-                           class="button warning"><i
-                                class="fa fa-inbox action-icon">&nbsp;</i>Request
-                            Revisions</a>
-                    {% endif %}
-                </div>
             </div>
         </div>
     </div>
@@ -95,7 +103,11 @@
                         <p>This review was assigned
                             on {{ review.date_requested }} and was due
                             on {{ review.date_due }}</p>
-                        <p>{% if review.date_accepted %}The reviewer agreed to do this review on {{ review.date_accepted }}.{% else %}The reviewer has not agreed to complete this review.{% endif %}</p>
+                        {% if not review.decision == 'withdrawn' %}
+                            <p>{% if review.date_accepted %}The reviewer agreed to do this review on {{ review.date_accepted }}.{% else %}The reviewer has not agreed to complete this review.{% endif %}</p>
+                        {% else %}
+                            <p>This review was withdrawn by an editor on {{ review.date_complete }}</p>
+                        {% endif %}
                     </div>
                     <br />
                 {% endfor %}
@@ -106,4 +118,7 @@
     {% for review in complete_reviews %}
     {% include "elements/review/decision_form_modal.html" with review=review %}
     {% endfor %}
+
+
+
 {% endblock body %}

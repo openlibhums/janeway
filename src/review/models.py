@@ -440,14 +440,22 @@ class DecisionDraft(models.Model):
     )
     drafted = models.DateTimeField(auto_now=True)
 
-    editor_decision = models.CharField(max_length=20,
-                                       choices=(('accept', 'Accept'), ('decline', 'Decline')),
-                                       null=True,
-                                       blank=True)
+    editor_decision = models.CharField(
+        max_length=20,
+        choices=(('accept', 'Accept'), ('decline', 'Decline')),
+        null=True,
+        blank=True,
+    )
     revision_request_due_date = models.DateTimeField(
         blank=True,
         null=True,
         help_text="Stores a due date for a Drafted Revision Request.",
+    )
+    editor_decline_rationale = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Provide the section editor with a rationale for declining their drafted decision.",
+        verbose_name="Rationale for Declining Draft Decision",
     )
 
     def __str__(self):

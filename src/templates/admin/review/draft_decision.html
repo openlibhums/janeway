@@ -67,10 +67,7 @@
                             <button name="accept_draft" type="submit" class="success button"
                                     formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Accept Draft
                             </button>
-                            <button name="decline_draft" type="submit"
-                                    class="alert button"
-                                    formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Decline Draft
-                            </button>
+                            <a href="#" data-open="declinemodal" class="alert button">Decline Draft</a>
                         </div>
                     {% endif %}
                 </form>
@@ -113,6 +110,32 @@
         </div>
 
     </div>
+
+    {% if draft %}
+    <div class="reveal" id="declinemodal" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4>Decline Draft Decision</h4>
+            </div>
+            <div class="card-section">
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p>Please provide a rationale for declining this draft decision. This will be sent to the Section Editor to make them aware.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <textarea name="editor_decline_rationale" placeholder="Add rationale here"></textarea>
+                    <button name="decline_draft" type="submit"
+                            class="alert button"
+                            formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Decline Draft
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block js %}

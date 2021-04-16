@@ -17,8 +17,7 @@ from django.db.models import (
     Prefetch,
     Subquery,
 )
-
-from django.urls import reverse
+from django.shortcuts import redirect, reverse
 from django.utils import timezone
 from docx import Document
 
@@ -241,10 +240,10 @@ def log_revision_event(text, user, revision_request):
     revision_request.actions.add(action)
 
 
-def get_draft_email_message(request, article):
+def get_draft_email_message(request, article, ):
     review_in_review_url = request.journal.site_url(
         path=reverse(
-            'review_in_review', args=[article.pk]
+            'review_draft_decision', args=[article.pk]
         )
     )
     email_context = {
@@ -271,6 +270,29 @@ def group_files(article, reviews):
     return files
 
 
+def handle_draft_declined(article, draft_decision, request):
+    """
+    Raises an event when a draft decision is declined by an editor.
+    """
+    kwargs = {
+        'article': article,
+        'request': request,
+        'draft_decision': draft_decision,
+        'skip': False,
+    }
+
+    draft_decision.editor_decline_rationale = request.POST.get(
+        'editor_decline_rationale',
+        '<p>Editor provided no rationale.</p>'
+    )
+
+    return event_logic.Events.raise_event(
+        event_logic.Events.ON_DRAFT_DECISION_DECLINED,
+        task_object=article,
+        **kwargs,
+    )
+
+
 def handle_decision_action(article, draft, request):
     kwargs = {
         'article': article,
@@ -287,7 +309,19 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **kwargs,
         )
-    elif draft.decision == 'decline':
+        # Call workflow element complete event
+        workflow_kwargs = {
+            'handshake_url': 'review_home',
+            'request': request,
+            'article': article,
+            'switch_stage': True,
+        }
+        return event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            task_object=article,
+            **workflow_kwargs,
+        )
+    elif draft.decision == 'reject':
         article.decline_article()
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_DECLINED,
@@ -323,6 +357,17 @@ def handle_decision_action(article, draft, request):
             event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,
             **kwargs,
         )
+        return redirect(
+            reverse(
+                'view_revision',
+                kwargs={
+                    'article_id': article.pk,
+                    'revision_id': revision.pk,
+                }
+            )
+        )
+
+    return None
 
 
 def get_access_code(request):

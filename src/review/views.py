@@ -1440,7 +1440,7 @@ def review_decision(request, article_id, decision):
             kwargs['skip'] = True
 
         if decision == 'accept':
-            article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
+            article.accept_article()
             article.snapshot_authors(article, force_update=False)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
@@ -2130,13 +2130,15 @@ def manage_draft(request, article_id, draft_id):
     if 'decline_draft' in request.POST:
         draft.editor_decision = 'declined'
         draft.save()
+        logic.handle_draft_declined(article, draft, request)
 
     if 'accept_draft' in request.POST:
-        # draft.editor_decision = 'accept'
+        draft.editor_decision = 'accept'
         draft.save()
+        decision_action = logic.handle_decision_action(article, draft, request)
 
-        # Action the decision
-        logic.handle_decision_action(article, draft, request)
+        if decision_action:
+            return decision_action
 
     messages.add_message(
         request,
@@ -2319,7 +2321,6 @@ def preview_form(request, form_id):
     generated_form = forms.GeneratedForm(preview=form)
     decision_form = forms.FakeReviewerDecisionForm()
 
-
     template = 'review/manager/preview_form.html'
     context = {
         'form': form,
@@ -2351,7 +2352,6 @@ def order_review_elements(request, form_id):
     )
 
     return HttpResponse('Ok')
-
 
 
 @reviewer_user_for_assignment_required
@@ -2420,7 +2420,13 @@ def decision_helper(request, article_id):
         article=article,
         is_complete=True,
         date_complete__isnull=False,
+    ).exclude(
+        decision='withdrawn',
     )
+    withdraw_reviews = reviews.filter(
+        decision='withdrawn',
+    )
+    uncomplete_reviews = uncomplete_reviews.union(withdraw_reviews)
 
     decisions = Counter(
         [review.get_decision_display() for review in reviews if
