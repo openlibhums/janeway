@@ -5,18 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-def migrate_settings(apps, schema_editor):
-    SettingValue = apps.get_model('core', 'SettingValue')
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-
-    translations = SettingValueTranslation.objects.all()
-
-    for translation in translations:
-        setting = SettingValue.objects.get(pk=translation.master_id)
-        setattr(setting, 'value_{}'.format(translation.language_code), translation.hvad_value)
-        setting.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -53,22 +41,5 @@ class Migration(migrations.Migration):
             model_name='settingvalue',
             name='value_fr',
             field=models.TextField(blank=True, null=True),
-        ),
-        migrations.RunPython(migrate_settings, reverse_code=migrations.RunPython.noop),
-        migrations.AlterUniqueTogether(
-            name='settingvaluetranslation',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='settingvaluetranslation',
-            name='master',
-        ),
-        migrations.AlterModelManagers(
-            name='settingvalue',
-            managers=[
-            ],
-        ),
-        migrations.DeleteModel(
-            name='SettingValueTranslation',
         ),
     ]
