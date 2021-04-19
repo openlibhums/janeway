@@ -1143,10 +1143,6 @@ def send_draft_decison(**kwargs):
     request = kwargs['request']
     draft = kwargs['draft']
     article = kwargs['article']
-    emails = article.section.editor_emails()
-
-    if not emails:
-        emails = request.journal.editor_emails
 
     description = "Section Editor {0} has drafted a decision for Article {1}".format(
         draft.section_editor.full_name(), article.title)
@@ -1171,7 +1167,7 @@ def send_draft_decison(**kwargs):
         request,
         'draft_editor_message',
         'subject_draft_editor_message',
-        emails,
+        draft.editor.email if draft.editor else request.journal.editor_emails,
         context,
         log_dict=log_dict,
     )
@@ -1336,3 +1332,31 @@ def get_review_assignment_editors(review_assignment):
         editors = [r.user for r in core_models.AccountRole.objects.filter(
             role__slug='editor', journal=article.journal)]
     return editors
+
+
+def send_draft_decision_declined(**kwargs):
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    draft_decision = kwargs.get('draft_decision')
+
+    description = '{user} has declined a draft decision {draft} written by {section_editor}'.format(
+        user=request.user,
+        draft=draft_decision.pk,
+        section_editor=draft_decision.section_editor.full_name,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Draft Decision Declined',
+        'target': article,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_se_draft_declined',
+        'subject_notify_se_draft_declined',
+        draft_decision.section_editor.email,
+        context=kwargs,
+        log_dict=log_dict,
+    )

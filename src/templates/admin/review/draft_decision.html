@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load roles %}
+{% load static from staticfiles %}
 
 {% block title %}Draft Decision{% endblock title %}
 {% block admin-header %}Draft Decision{% endblock %}
@@ -8,7 +9,8 @@
 {% block breadcrumbs %}
     {{ block.super }}
     {% include "elements/breadcrumbs/review_base.html" %}
-    <li>Draft a Decisions</li>
+    <li><a href="{% url 'decision_helper' article.pk %}">Decision Helper</a></li>
+    <li class="active">Draft a Decisions</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -16,19 +18,56 @@
     <div class="large-8 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Add a Draft</h2>
+                <h2>{% if draft %}Edit a Draft Decision{% else %}Add a Draft Decision{% endif %}</h2>
             </div>
             <div class="content">
-                <form method="POST"
-                      {% if draft and user_is_editor %}action="{% url 'review_manage_draft' article.pk draft.pk %}"{% endif %}>
+                {% if draft %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p><span class="fa fa-exclamation-triangle"></span> As this draft has been completed, any
+                            changes to the
+                            email text (eg. Due Date) will need to be made manually.</p>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <hr/>
+                            <small>
+                                <p><strong>Message from {{ draft.section_editor.full_name }}</strong></p>
+                                {{ draft.message_to_editor|safe }}
+                            </small>
+                            <hr/>
+                        </div>
+                    </div>
+                {% else %}
+                    <p>First select a decision (and also set a due date for any revisions). Once you have done this the Email to Author  will
+                        update to the correct template.</p><p><strong>Note: Changing the decision or due date <em>after</em> making changes to the email will
+                            reset the template and cause you to lose your changes.</strong></p>
+                {% endif %}
+                <form method="POST">
                     {% csrf_token %}
-                    {{ form|foundation }}
+                    {{ form.decision|foundation }}
+
+                    {% if draft %}<div style="display: none">{% endif %}
+                    {{ form.editor|foundation }}
+                    {% if draft %}</div>{% endif %}
+
+                    <div id="div_due_date" style="display: none">
+                        {{ form.revision_request_due_date|foundation }}
+                    </div>
+
+                    {% if draft %}<div style="display: none">{% endif %}
+                    {{ form.message_to_editor|foundation }}
+                    {% if draft %}</div>{% endif %}
+
+                    {{ form.email_message|foundation }}
                     <button type="submit" class="success button">{% if not draft %}Submit Draft for Review{% else %}
                         Save{% endif %}</button>
+
                     {% if draft and user_is_editor %}
                         <div class="float-right">
-                            <button name="accept_draft" type="submit" class="success button">Accept Draft</button>
-                            <button name="decline_draft" type="submit" class="alert button">Decline Draft</button>
+                            <button name="accept_draft" type="submit" class="success button"
+                                    formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Accept Draft
+                            </button>
+                            <a href="#" data-open="declinemodal" class="alert button">Decline Draft</a>
                         </div>
                     {% endif %}
                 </form>
@@ -42,43 +81,65 @@
                 <h2>Existing Drafts</h2>
             </div>
             <div class="content">
-                <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {% for draft in article.decisiondraft_set.all %}
-                            <li class="accordion-item{% if forloop.first %} is-active{% endif %}" data-accordion-item>
-                                <a href="#"
-                                   class="accordion-title">{{ forloop.counter }}. {{ draft.get_decision_display }}</a>
-                                <div class="accordion-content" data-tab-content>
-                                    <p>
-                                        <small>
-                                            Section Editor: {{ draft.section_editor.full_name }}<br/>
-                                            Editor: {{ draft.editor.full_name }}<br/>
-                                            Drafted: {{ draft.drafted }}<br/>
-                                            {% if draft.editor_decision %}Editor Decision:
-                                                {{ draft.get_editor_decision_display }}{% endif %}
-                                        </small>
-                                    </p>
-                                    {% if not draft.editor_decision %}
-                                        <div class="float-right">
-                                            <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}"
-                                               class="tiny warning button"><i class="fa fa-edit"></i></a>
-                                            <button type="submit" name="delete" value="{{ draft.pk }}"
-                                                    class="tiny alert button"><i class="fa fa-trash"></i></button>
-                                        </div>
-                                    {% endif %}
-                                    <br/>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </form>
-                </ul>
+                {% for draft in article.decisiondraft_set.all %}
+                    <p>{{ draft.get_decision_display }}</p>
+                    <p>
+                        <small>
+                            Section Editor: {{ draft.section_editor.full_name }}<br/>
+                            Editor: {{ draft.editor.full_name }}<br/>
+                            Drafted: {{ draft.drafted }}<br/>
+                            {% if draft.editor_decision %}Editor Decision:
+                                {{ draft.get_editor_decision_display }}{% endif %}
+                        </small>
+                    </p>
+                    {% if not draft.editor_decision %}
+                        <form method="POST" action="{% url 'review_draft_decision' article.pk %}">
+                            {% csrf_token %}
+                            <div class="float-left">
+                                <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}"
+                                   class="tiny warning button"><i class="fa fa-edit"></i> Edit</a>
+                                <button type="submit" name="delete" value="{{ draft.pk }}"
+                                        class="tiny alert button"><i class="fa fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                    <hr/>
+                {% endfor %}
             </div>
         </div>
 
     </div>
+
+    {% if draft %}
+    <div class="reveal" id="declinemodal" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4>Decline Draft Decision</h4>
+            </div>
+            <div class="card-section">
+                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p>Please provide a rationale for declining this draft decision. This will be sent to the Section Editor to make them aware.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <textarea name="editor_decline_rationale" placeholder="Add rationale here"></textarea>
+                    <button name="decline_draft" type="submit"
+                            class="alert button"
+                            formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Decline Draft
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 {% endblock %}
 
 {% block js %}
-    {% include "elements/jqte.html" %}
-{% endblock js %}
+    {% include "admin/elements/jqte.html" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    {% include "admin/elements/review/draft_decisions_js.html" %}
+{% endblock %}
