@@ -127,14 +127,30 @@ def get_review_url(request, review_assignment):
     return review_url
 
 
-def get_reviewer_notification(request, article, editor, review_assignment, reminder=False):
+def get_reviewer_notification(
+    request, article, editor, review_assignment,
+    reminder=False,
+):
     review_url = get_review_url(request, review_assignment)
+    article_details = """
+    <b>Article Details:</b>
+        <b>Title</b>: {article.title}
+        <b>Section</b>: {section}
+        Keywords: {keywords}
+        Abstract:
+            {article.abstract}
+    """.format(
+        article=article,
+        section=article.section.name if article.section else None,
+        keywords= ", ".join(kw.word for kw in article.keywords.all()),
+    )
 
     email_context = {
         'article': article,
         'editor': editor,
         'review_assignment': review_assignment,
-        'review_url': review_url
+        'review_url': review_url,
+        'article_details': article_details,
     }
 
     if reminder and reminder == 'request':
@@ -380,7 +396,7 @@ def get_access_code(request):
     return access_code
 
 
-def quick_assign(request, article):
+def quick_assign(request, article, reviewer_user=None):
     errors = []
     try:
         default_review_form_id = setting_handler.get_setting('general',
@@ -401,11 +417,14 @@ def quick_assign(request, article):
         default_due = setting_handler.get_setting('general',
                                                   'default_review_days',
                                                   request.journal).value
-    except BaseException:
+    except Exception:
         errors.append('This journal does not have either default visibilty or default due.')
 
-    user_id = request.POST.get('quick_assign')
-    user = core_models.Account.objects.get(pk=user_id)
+    if not reviewer_user:
+        user_id = request.POST.get('quick_assign')
+        user = core_models.Account.objects.get(pk=user_id)
+    else:
+        user = reviewer_user
 
     if user not in request.journal.users_with_role('reviewer'):
         errors.append('This user is not a reviewer for this journal.')
@@ -453,6 +472,7 @@ def handle_reviewer_form(request, new_reviewer_form):
     account.save()
     account.add_account_role('reviewer', request.journal)
     messages.add_message(request, messages.INFO, 'A new account has been created.')
+    return account
 
 
 def get_enrollable_users(request):

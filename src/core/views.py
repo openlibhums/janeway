@@ -1668,7 +1668,10 @@ def email_templates(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    template_list = models.Setting.objects.filter(group__name='email')
+    template_list = (
+        (setting, 'subject_%s' % setting.name)
+        for setting in models.Setting.objects.filter(group__name='email')
+    )
 
     template = 'core/manager/email/email_templates.html'
     context = {

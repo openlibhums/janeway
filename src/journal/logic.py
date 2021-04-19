@@ -505,7 +505,6 @@ def resend_email(article, log_entry, request, form):
 
 
 def send_email(user, form, request, article):
-
     subject = form.cleaned_data['subject']
     message = form.cleaned_data['body']
 
@@ -521,6 +520,7 @@ def send_email(user, form, request, article):
         subject,
         user.email,
         message,
+        cc=form.cleaned_data['cc'],
         log_dict=log_dict,
     )
 

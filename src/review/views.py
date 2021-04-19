@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
+from urllib import parse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
 
@@ -1037,13 +1038,50 @@ def add_review_assignment(request, article_id):
         if 'quick_assign' in request.POST:
             logic.quick_assign(request, article)
             return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
-        elif 'assign' in request.POST:
+        elif 'add_and_assign' in request.POST:
+            # first check whether the user exists
             new_reviewer_form = core_forms.QuickUserForm(request.POST)
-            if new_reviewer_form.is_valid():
-                logic.handle_reviewer_form(request, new_reviewer_form)
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}))
+
+            try:
+                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
+                user.add_account_role('reviewer', request.journal)
+            except core_models.Account.DoesNotExist:
+                user = None
+
+            if user:
+                logic.quick_assign(request, article, reviewer_user=user)
+                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+
+            valid = new_reviewer_form.is_valid()
+
+            if valid:
+                acc = logic.handle_reviewer_form(request, new_reviewer_form)
+                logic.quick_assign(request, article, reviewer_user=acc)
+                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
             else:
                 modal = 'reviewer'
+
+        elif 'assign' in request.POST:
+            # first check whether the user exists
+            new_reviewer_form = core_forms.QuickUserForm(request.POST)
+
+            try:
+                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
+                user.add_account_role('reviewer', request.journal)
+            except core_models.Account.DoesNotExist:
+                user = None
+
+            if user:
+                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)}))
+
+            valid = new_reviewer_form.is_valid()
+
+            if valid:
+                acc = logic.handle_reviewer_form(request, new_reviewer_form)
+                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
+            else:
+                modal = 'reviewer'
+
         elif 'enrollusers' in request.POST:
             user_ids = request.POST.getlist('user_id')
             users = core_models.Account.objects.filter(pk__in=user_ids)
@@ -1817,7 +1855,12 @@ def replace_file(request, article_id, revision_id, file_id):
             new_file = files.save_file_to_article(uploaded_file, revision_request.article, request.user,
                                                   replace=file, is_galley=False, label=label)
 
-            files.replace_file(revision_request.article, file, new_file)
+            files.replace_file(
+                revision_request.article,
+                file,
+                new_file,
+                retain_old_label=False,
+            )
             logic.log_revision_event(
                 'File {0} ({1}) replaced with {2} ({3})'.format(file.label, file.original_filename, new_file.label,
                                                                 new_file.original_filename),
@@ -1853,7 +1896,11 @@ def upload_new_file(request, article_id, revision_id):
         uploaded_file = request.FILES.get('file')
         label = request.POST.get('label')
         new_file = files.save_file_to_article(
-            uploaded_file, article, request.user, label=label)
+            uploaded_file,
+            article,
+            request.user,
+            label=label,
+        )
 
         if file_type == 'manuscript':
             article.manuscript_files.add(new_file)

@@ -3,20 +3,23 @@
 {% block title %}Articles in Review{% endblock %}
 
 {% block breadcrumbs %}
-{{ block.super }}
-{% include "elements/breadcrumbs/review_base.html" %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
 {% endblock breadcrumbs %}
 
 {% block body %}
-<div class="large-12 columns">
-    <div class="box">
-        <div class="title-area">
-            <h2>Articles in Review</h2>
-            {% if filter == 'me' %}<a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>{% else %}<a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>{% endif %}
-        </div>
-        <div class="content">
-            <table class="small scroll" id="unassigned">
-                <thead>
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Articles in Review</h2>
+                {% if filter == 'me' %}
+                    <a class="button" href="{% url 'review_home' %}?filter=all">All Submissions</a>{% else %}
+                    <a class="button" href="{% url 'review_home' %}?filter=me">My Assignments</a>{% endif %}
+                <a href="#" data-open="statuskey" class="button">Review Status Key</a>
+            </div>
+            <div class="content">
+                <table class="small scroll" id="unassigned">
+                    <thead>
                     <tr>
                         <th>ID</th>
                         <th style="width: 25%">Title</th>
@@ -26,64 +29,177 @@
                         <th>Section</th>
                         <th>Projected Issue</th>
                         {% if journal_settings.general.enable_expanded_review_details %}
-                        <th>Review Status</th>
+                            <th>Review Status</th>
                         {% else %}
-                        <th>No. Complete Reviews</th>
+                            <th>No. Complete Reviews</th>
                         {% endif %}
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for article in articles %}
-                    <tr>
-                        <td>{{ article.pk }}</td>
-                        <td><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></td>
-                        <td>{{ article.date_submitted }}</td>
-                        <td>{{ article.correspondence_author.full_name }}</td>
-                        <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                        <td>{{ article.section.name }}</td>
-                        <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}None{% endif %}</td>
-                        {% if journal_settings.general.enable_expanded_review_details %}
-                        <td>
-                            {% if article.reviewassignment_set.exists %}
-
-                                <table style="width:100%; min-width:230px;" class="table table-stack small no-pad no-bottom-margin">
-                                    {% for review in article.reviewassignment_set.all %}
-
-                                        <tr>
-                                            <td><a href="{% url 'review_view_review' article.pk review.pk %}">{{ review.reviewer.initials }}</a></td>
-                                            <td><span class="{{ review.status.span_class }}">{{ review.status.display|safe }}</span></td>
-                                            <td>{{ review.status.date }}</td>
-                                            <td>{% if review.status.reminder %}<a href="{% url 'review_send_reminder' article.pk review.pk review.status.reminder %}">{% endif %}Due {{ review.date_due|date:"d-m" }}{% if review.status.reminder %}</a>{% endif %}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </table>
-                             {% else %}
-                             No Review assignments
+                        <tr>
+                            <td>{{ article.pk }}</td>
+                            <td><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></td>
+                            <td>{{ article.date_submitted }}</td>
+                            <td>{{ article.correspondence_author.full_name }}</td>
+                            <td>{% for editor in article.editors %}{{ editor.editor.full_name }}
+                                {% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            <td>{{ article.section.name }}</td>
+                            <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}
+                                None{% endif %}</td>
+                            {% if journal_settings.general.enable_expanded_review_details %}
+                                <td>
+                                    {% if article.reviewassignment_set.exists %}
+                                        <table style="width:100%; min-width:230px;"
+                                               class="table table-stack small no-pad no-bottom-margin">
+                                            {% for review in article.reviews_not_withdrawn %}
+                                                <tr>
+                                                    <td>{{ review.review_round.round_number }}</td>
+                                                    <td>
+                                                        <a href="{% url 'review_view_review' article.pk review.pk %}">{{ review.reviewer.initials }}</a>
+                                                    </td>
+                                                    <td>
+                                                <span class="{{ review.status.span_class }}">
+                                                    {% if review.status.code == 'complete' %}
+                                                        <span data-tooltip class="top" tabindex="2"
+                                                              title="Recommendation: {{ review.get_decision_display }}">
+                                                    {% endif %}
+                                                    {{ review.status.display|safe }}
+                                                    {% if review.status.code == 'complete' %}
+                                                        </span>
+                                                    {% endif %}
+                                                </span>
+                                                    </td>
+                                                    <td>{{ review.status.date }}</td>
+                                                    <td>{% if review.status.reminder %}
+                                                        <a href="{% url 'review_send_reminder' article.pk review.pk review.status.reminder %}">{% endif %}
+                                                        Due
+                                                        {{ review.date_due|date:"d-M" }}{% if review.status.reminder %}
+                                                            </a>{% endif %}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            {% if article.number_of_withdrawn_reviews > 0 %}
+                                                <tr>
+                                                    <td colspan="5">
+                                                        {{ article.number_of_withdrawn_reviews }} review request(s)
+                                                        withdrawn.
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                            {% for revision in article.revisionrequest_set.all %}
+                                                <tr>
+                                                    <td colspan="4">
+                                                        {% if revision.date_completed %}
+                                                            Completed Revision Request
+                                                        {% else %}
+                                                            Revision Request
+                                                        {% endif %}
+                                                    </td>
+                                                    <td colspan="1">
+                                                        <a href="{% url 'view_revision' article.pk revision.pk %}">
+                                                        {% if revision.date_completed %}
+                                                            {{ revision.date_completed|date:"d-M" }}
+                                                        {% else %}
+                                                            Due {{ revision.date_due|date:"d-M" }}
+                                                        {% endif %}
+                                                        </a>
+                                                    </td>
+                                                <tr>
+                                            {% endfor %}
+                                        </table>
+                                    {% else %}
+                                        No Review assignments
+                                    {% endif %}
+                                </td>
+                            {% else %}
+                                <td>{{ article.completed_reviews|length }} Complete</td>
                             {% endif %}
-                        </td>
-                        {% else %}
-                        <td>{{ article.completed_reviews|length }} Complete</td>
-                        {% endif %}
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td>No articles in this stage</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td>No articles in this stage</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+
+    <div class="reveal medium" id="statuskey" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <div class="card">
+            <div class="card-divider">
+                <h4>Review Status Key</h4>
+            </div>
+            <div class="card-section">
+                <div class="title-area">
+                    <h2>Review Requests</h2>
+                </div>
+                <div class="content">
+                    <ul>
+                        <li>Column one shows the round to which the assignment belongs.</li>
+                        <li>Column two has the initials of the Peer Reviewer. Clicking on this link will take you to the
+                            assignment page.
+                        </li>
+                        <li>
+                            Column three has the current status of the review.
+                            <ul>
+                                <li>Wait - Newly assigned, awaiting a response from the reviewer.</li>
+                                <li>No - The reviewer has decided not to review the paper.</li>
+                                <li>Yes - The reviewer has agreed to review the paper</li>
+                                <li>Complete - The reviewer has completed the review.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Column four shows a context specific date for the current status.
+                            <ul>
+                                <li>Wait - Date the review was assigned.</li>
+                                <li>No - Date the reviewer declined.</li>
+                                <li>Yes - Date the reviewer accepted.</li>
+                                <li>Complete - Date the reviewer completed.</li>
+                            </ul>
+                        </li>
+                        <li>Column five shows the due date with a link to the manual reminder screen for uncompleted
+                            reviews.
+                        </li>
+                        <li>When a review is complete you can hover over <em>Complete</em> to see the reviewer's
+                            recommendation.
+                        </li>
+                    </ul>
+                </div>
+                <div class="title-area">
+                    <h2>Revision Requests</h2>
+                </div>
+                <div class="content">
+                    Revision requests only have two columns:
+                    <ul>
+                        <li>Column 1 shows if the request is active or completed.</li>
+                        <li>
+                            Column 2 shows a contextual date based on the status in column one.
+                            <ul>
+                                <li>If the request is active this will display the due date.</li>
+                                <li>If the request is complete it will show the completed date.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 {% endblock body %}
 
 {% block js %}
-{% include "elements/datatables.html" with target="#unassigned" %}
+    {% include "elements/datatables.html" with target="#unassigned" %}
 {% endblock js %}

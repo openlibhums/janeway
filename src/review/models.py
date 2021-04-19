@@ -68,6 +68,18 @@ class ReviewRound(models.Model):
     def __repr__(self):
         return u'%s - %s round number: %s' % (self.pk, self.article.title, self.round_number)
 
+    def active_reviews(self):
+        return self.reviewassignment_set.exclude(
+            Q(date_declined__isnull=False) | Q(date_accepted__isnull=False) | Q(decision='withdrawn')
+        )
+
+    def inactive_reviews(self):
+        return self.reviewassignment_set.filter(
+            Q(date_declined__isnull=False) | Q(date_accepted__isnull=False) | Q(decision='withdrawn')
+        ).order_by(
+            'decision',
+        )
+
     @classmethod
     def latest_article_round(cls, article):
         """ Works out and returns the latest article review round
@@ -144,7 +156,7 @@ class ReviewAssignment(models.Model):
 
     def save_review_form(self, review_form, assignment):
         for k, v in review_form.cleaned_data.items():
-            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, name=k)
+            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, pk=k)
             answer, _ = ReviewAssignmentAnswer.objects.update_or_create(
                 assignment=self,
                 original_element=form_element,
@@ -154,7 +166,6 @@ class ReviewAssignment(models.Model):
                 },
             )
             form_element.snapshot(answer)
-
 
     @property
     def review_rating(self):
@@ -211,7 +222,7 @@ class ReviewAssignment(models.Model):
         elif self.date_accepted:
             return {
                 'code': 'accept',
-                'display': 'Accept',
+                'display': 'Yes',
                 'span_class': 'green',
                 'date': shared.day_month(self.date_accepted),
                 'reminder': 'accepted',
@@ -219,7 +230,7 @@ class ReviewAssignment(models.Model):
         elif self.date_declined:
             return {
                 'code': 'declined',
-                'display': 'Declined',
+                'display': 'No',
                 'span_class': 'red',
                 'date': shared.day_month(self.date_declined),
                 'reminder': None,
@@ -241,7 +252,6 @@ class ReviewAssignment(models.Model):
 
         return u'{0} - Article: {1}, Reviewer: {2}'.format(
             self.id, self.article.title, reviewer_name)
-
 
 
 class ReviewForm(models.Model):
@@ -360,7 +370,6 @@ class ReviewFormAnswer(models.Model):
     review_assignment = models.ForeignKey(ReviewAssignment)
     form_element = models.ForeignKey(ReviewFormElement)
     answer = models.TextField()
-
 
 
 class ReviewerRating(models.Model):

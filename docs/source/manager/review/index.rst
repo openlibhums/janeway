@@ -25,8 +25,8 @@ Under review settings we can control how peer review operates for the given jour
     - If enabled this allows the Reviewer to download a copy of the review form in DOCX format to complete offline and then upload.
 - Enable save review progress
     - If enabled, reviewers will be able to save the progress in a peer-review assignment and come back later to complete it later (Only recommended for journals using custom review forms that are particularly long)
-
-    
+- Enable Peer Review Data Block
+    - When this setting is enabled authors will have access to view more information about the reviews for their article (requested, due, and complete dates). If it is left off they will only have access to the review comments.
     
 Review Forms
 ------------

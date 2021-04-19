@@ -85,13 +85,9 @@
                 </div>
                 <div class="content">
                     <div class="row expanded">
-                        <div class="large-6 columns">{{ form.review_type|foundation }}</div>
-                        <div class="large-6 columns">{{ form.visibility|foundation }}</div>
-                    </div>
-                    <div class="row expanded">
-                        <div class="large-6 columns">{{ form.form|foundation }}</div>
-                        <div class="large-6 columns">{{ form.date_due|foundation }}</div>
-                    </div>
+                        <div class="large-4 columns">{{ form.form|foundation }}</div>
+                        <div class="large-4 columns">{{ form.visibility|foundation }}</div>
+                        <div class="large-4 columns">{{ form.date_due|foundation }}</div>
                     <div class="row expanded">
                         <div class="large-12 columns">
                             <button class="button success" name="delete" type="submit">Add Reviewer</button>
@@ -122,6 +118,7 @@
                         {% csrf_token %}
                         {{ new_reviewer_form|foundation }}
                         <button type="submit" class="button success" name="assign" id="assign">Add Reviewer</button>
+                        <button type="submit" class="button success" name="add_and_assign" id="assign">Add Reviewer and Assign with Defaults</button>
                     </form>
                 </div>
             </div>
@@ -181,4 +178,34 @@
         {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
     {% include "elements/datatables.html" with target="#enrolluser" %}
+
+    <script lang="javascript">
+    function getQueryStrings()
+    {
+        let vars = [], hash;
+        let hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(let i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1].split('#')[0];
+        }
+        return vars;
+    }
+
+    // populate the query box when ready
+    $( document ).ready(function() {
+        let urls = getQueryStrings();
+        let user = urls["user"];
+        let user_id = urls["id"];
+
+        if (user !== '') {
+            $('#reviewers').DataTable().search(decodeURIComponent(user)).draw();
+
+            if (user_id !== '') {
+                $("input[value=" + decodeURIComponent(user_id) + "]").attr('checked', 'checked');
+            }
+        }
+    });
+    </script>
 {% endblock js %}
