@@ -219,7 +219,7 @@ def send_review_complete_acknowledgements(**kwargs):
 
     # send to editor
     context['review_in_review_url'] = review_in_review_url
-    editors = get_review_assignment_editors(review_assignment)
+    editors = get_assignment_editors(review_assignment)
     for editor in editors:
         notify_helpers.send_email_with_body_from_setting_template(
             request,
@@ -476,18 +476,22 @@ def send_revisions_complete(**kwargs):
     for action in revision.actions.all():
         action_text = "{0}<br><br>{1} - {2}".format(action_text, action.logged, action.text)
 
-    description = '<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'.format(request.user.full_name(),
-                                                                                      revision.article.title,
-                                                                                      action_text)
+    description = ('<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'
+        ''.format(request.user.full_name(), revision.article.title, action_text)
+    )
 
-    notify_helpers.send_email_with_body_from_user(request,
-                                                  'Article Revisions Complete',
-                                                  revision.editor.email,
-                                                  description)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'Article Revisions Complete',
+        get_assignment_editors(assignment),
+        description,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
-    util_models.LogEntry.add_entry(types='Revisions Complete', description=action_text, level='Info',
-                                   request=request, target=revision.article)
+    util_models.LogEntry.add_entry(
+        types='Revisions Complete', description=action_text, level='Info',
+        request=request, target=revision.article,
+    )
 
 
 def send_copyedit_assignment(**kwargs):
@@ -1313,24 +1317,25 @@ def send_cancel_corrections(**kwargs):
     )
 
 
-def get_review_assignment_editors(review_assignment):
-    """ Get editors relevant to a review assignment
+def get_assignment_editors(assignment):
+    """ Get editors relevant to a review or revision assignment
 
     This is a helper function to retrieve the editors that should be
-    notified of changes in a review assignment. It exists to handle edge-cases
-    where a review assignment might not have an editor assigned (e.g.:
-    migrated reviews from another system)
+    notified of changes in a review/ revision assignment.
+    It exists to handle edge-cases where anassignment might not have an editor
+    assigned (e.g.: migrated submissions from another system)
+    :param assignment: an instance of ReviewAssignment or RevisionRequest
+    :return: A list of Account objects
     """
-    article = review_assignment.article
-    if review_assignment.editor:
-        editors = [review_assignment.editor]
+    article = assignment.article
+    if assignment.editor:
+        editors = [assignment.editor]
     elif article.editorassignment_set.exists():
         # Try article assignment
         editors = [ass.editor for ass in article.editorassignment_set.all()]
     else:
         # Fallback to all editors
-        editors = [r.user for r in core_models.AccountRole.objects.filter(
-            role__slug='editor', journal=article.journal)]
+        editors = assignment.article.journal.editors
     return editors
 
 
