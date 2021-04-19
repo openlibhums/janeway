@@ -1353,7 +1353,7 @@ def send_draft_decision_declined(**kwargs):
         request,
         'notify_se_draft_declined',
         'subject_notify_se_draft_declined',
-        decision.section_editor.email,
+        draft_decision.section_editor.email,
         context=kwargs,
         log_dict=log_dict,
     )

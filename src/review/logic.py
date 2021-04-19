@@ -285,6 +285,7 @@ def handle_draft_declined(article, draft_decision, request):
         'editor_decline_rationale',
         '<p>Editor provided no rationale.</p>'
     )
+    draft_decision.save()
 
     return event_logic.Events.raise_event(
         event_logic.Events.ON_DRAFT_DECISION_DECLINED,
