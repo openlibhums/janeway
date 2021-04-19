@@ -240,7 +240,7 @@ def log_revision_event(text, user, revision_request):
     revision_request.actions.add(action)
 
 
-def get_draft_email_message(request, article, ):
+def get_draft_email_message(request, article):
     review_in_review_url = request.journal.site_url(
         path=reverse(
             'review_draft_decision', args=[article.pk]
