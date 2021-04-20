@@ -32,10 +32,10 @@
             <td>
                 {% if supp.doi %}
                     {{ supp.doi }}
-                    &nbsp;<a href="{% url 'supp_file_doi' article.pk supp.pk %}"><i
+                    &nbsp;<a data-open="mint_doi_{{supp.pk}}" article.pk supp.pk %}"><i
                         class="fa fa-refresh"></i></a>
                 {% else %}
-                    <a href="{% url 'supp_file_doi' article.pk supp.pk %}">Issue DOI</a>
+                    <a data-open="mint_doi_{{supp.pk}}" article.pk supp.pk %}">Mint DOI</a>
                 {% endif %}
             </td>
         </tr>

@@ -34,6 +34,15 @@
                     <p><small>The following files have been selected for use in generating the typset articles.</small></p>
                     {% include "typesetting/elements/typesetter/files.html" %}
                 </div>
+                {% if article.supplementary_files.exists %}
+                <div class="title-area">
+                    <h2>Supplementary Files</h2>
+                </div>
+                <div class="content">
+                    <p><small>The Editor has uploaded the following Supplementary files</small></p>
+                    {% include "typesetting/elements/typesetter/supplementary_files.html" %}
+                </div>
+                {% endif %}
                 {% if not assignment.cancelled %}
                 <div class="title-area">
                     <h2>Upload Typeset Files</h2>
