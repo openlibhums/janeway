@@ -88,6 +88,10 @@
     {% include "elements/production/new_supp_file.html" %}
     {% include "typesetting/elements/new_production_file.html" %}
     {% include "admin/elements/summary_modal.html" %}
+    {% for supp_file in article.supplementary_files.all %}
+        {% include "typesetting/elements/supp_file_doi.html" with supp_file=supp_file %}
+    {% endfor %}
+
 {% endblock body %}
 
 
