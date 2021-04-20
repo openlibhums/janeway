@@ -531,7 +531,7 @@ def handle_add_users_to_role(users, role, request):
 
     for user in users:
         user.add_account_role(role.slug, request.journal)
-        messages.add_message(request, messages.INFO, '{0} added to {1}'.format(user.full_name(), role.name))
+        messages.add_message(request, messages.INFO, '{0} added to {1} role.'.format(user.full_name(), role.name))
 
 
 def clear_active_elements(elements, workflow, plugins):

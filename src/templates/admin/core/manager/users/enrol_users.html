@@ -1,0 +1,77 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_users' %}">Enrol Users</a></li>
+{% endblock %}
+
+{% block title %}Enrol Users{% endblock %}
+{% block title-section %}Enrol Users{% endblock %}
+{% block title-sub %}Enrol users from a list of all users across the press.{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Enrol Users</h2>
+                <a href="{% url 'core_manager_index' %}" class="button">< Go back</a>
+            </div>
+            <div class="content">
+
+                <form method="GET">
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <p>Select the users you want and then the role you want to assign them from the drop down below.</p>
+                        </div>
+                        <div class="medium-2 columns">
+                            <input type="text" name="first_name" placeholder="First Name" {% if first_name %}value="{{ first_name }}"{% endif %}>
+                        </div>
+                        <div class="medium-2 columns">
+                            <input type="text" name="last_name" placeholder="Last Name" {% if last_name %}value="{{ last_name }}"{% endif %}>
+                        </div>
+                    <div class="medium-2 columns">
+                            <input type="text" name="email" placeholder="Email" {% if email %}value="{{ email }}"{% endif %}>
+                        </div>
+                        <div class="medium-2 columns end">
+                            <button class="success button">Search Users</button>
+                        </div>
+                    </div>
+                    <table class="small scroll" id='users'>
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Username</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th width="75%">Roles</th>
+                            {% if settings.DEBUG %}<th>Hijack</th>{% endif %}
+                        </tr>
+                        </thead>
+                        {% for user in user_search %}
+                            {% include "admin/elements/core/user_search_list.html" %}
+                        {% empty %}
+                            <tr>
+                                <td colspan="{% if settings.DEBUG %}6{% else %}5{% endif %}">
+                                    {% if search %}No user found. <a href="{% url 'core_manager_users' %}">Add a new user.</a>{% else %}Search using the text box above.{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+{% block js %}
+    <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
+    <script type="text/javascript">
+        function add_role(user_id, role_id, journal_id) {
+
+        }
+    </script>
+{% endblock js %}
