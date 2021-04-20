@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
+from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
 
 from plugins.typesetting import plugin_settings, models, logic, forms, security
@@ -13,6 +14,9 @@ from core import models as core_models, files
 from production import logic as production_logic
 from journal.views import article_figure
 from journal import logic as journal_logic
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @decorators.has_journal
@@ -694,6 +698,9 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
         file in assignment.files_to_typeset.all()
         or assignment.proofing_assignments_for_corrections().filter(
             annotated_files__id=file_id)
+        or file.pk in assignment.round.article.supplementary_files.values_list(
+            'file__pk', flat=True,
+            )
     ):
         return files.serve_any_file(
             request,
@@ -1350,3 +1357,51 @@ def article_file_make_galley(request, article_id, file_id):
         file_object, article_object, owner=request.user)
 
     return redirect(request.GET['return'])
+
+
+@require_POST
+@decorators.production_user_or_editor_required
+def mint_supp_doi(request, supp_file_id):
+    supp_file = get_object_or_404(
+        core_models.SupplementaryFile,
+        id=supp_file_id,
+    )
+    # Cope with file not having foreign key to article
+    if supp_file.file.article.journal != request.journal:
+        raise Http4()
+
+    doi = request.POST.get("doi")
+    if not doi:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            'The DOI field must be filled in',
+        )
+    else:
+        try:
+            logic.validate_supp_file_doi(supp_file, doi)
+            doi = logic.mint_supp_file_doi(supp_file, doi)
+        except ValidationError as e:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Invalid DOI: %s' % e.message,
+            )
+        except Exception as e:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'There was a problem minting the DOI,'
+                ' the site administrator has been alerted',
+            )
+            logger.exception("Error minting supplementary file DOI %s", e)
+        else:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Minted DOI for supplementary file #%d' % supp_file.pk,
+            )
+
+
+    return redirect(request.META.get('HTTP_REFERER'))
+

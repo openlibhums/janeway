@@ -129,4 +129,8 @@ urlpatterns = [
         views.typesetting_delete_galley,
         name='typesetting_delete_galley'
         ),
+    url(r'^supp-file/(?P<supp_file_id>\d+)/doi/$',
+        views.mint_supp_doi,
+        name='typesetting_mint_supp_doi'
+        ),
 ]
