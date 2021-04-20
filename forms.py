@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from django_summernote.widgets import SummernoteWidget
 
@@ -123,6 +124,36 @@ class ManagerDecision(forms.ModelForm):
             decision.save()
 
         return decision
+
+
+class SupplementaryFileChoiceForm(forms.ModelForm):
+    label = forms.CharField(
+        required=False,
+        help_text=_("Text to show as the download link on the article page")
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.article = kwargs.pop('article')
+        super().__init__(*args, **kwargs)
+        files = core_models.File.objects.filter(
+            article_id=self.article.pk,
+        ).exclude(
+            supplementaryfile__file__article_id = self.article.pk
+        )
+        self.fields['file'].queryset = files
+
+    class Meta:
+        model = core_models.SupplementaryFile
+        fields = ('file',)
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        if commit:
+            if self.cleaned_data.get("label"):
+                instance.file.label = self.cleaned_data["label"]
+                instance.file.save()
+            self.article.supplementary_files.add(instance)
+        return instance
 
 
 class EditProofingAssignment(forms.ModelForm):

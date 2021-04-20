@@ -67,6 +67,7 @@ def typesetting_article(request, article_id):
         article=article,
     )
     manuscript_files = logic.production_ready_files(article)
+    supp_choice_form = forms.SupplementaryFileChoiceForm(article=article)
 
     if not rounds:
         logic.new_typesetting_round(article, rounds, request.user)
@@ -123,6 +124,22 @@ def typesetting_article(request, article_id):
                 'Supplementary file uploaded: %s' % label,
             )
 
+    elif request.POST and 'choice-supp' in request.POST:
+        form = forms.SupplementaryFileChoiceForm(request.POST, article=article)
+        if form.is_valid():
+            supp = form.save()
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Supplementary file created'
+        )
+        return redirect(
+            reverse(
+                'typesetting_article',
+                kwargs={'article_id': article.pk},
+            )
+        )
+
     template = 'typesetting/typesetting_article.html'
     context = {
         'article': article,
@@ -131,6 +148,7 @@ def typesetting_article(request, article_id):
         'manuscript_files': manuscript_files,
         'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
         'next_element': logic.get_next_element('typesetting_articles', request),
+        'supp_choice_form': supp_choice_form,
     }
 
     return render(request, template, context)
