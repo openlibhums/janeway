@@ -108,6 +108,16 @@ def typesetting_article(request, article_id):
                 messages.INFO,
                 'Source files uploaded',
             )
+    elif request.POST and 'supp' in request.POST:
+        for uploaded_file in request.FILES.getlist('supp-file'):
+            label = request.POST.get('label', 'Supplementary File')
+            production_logic.save_supp_file(
+                article, request, uploaded_file, label)
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Supplementary file uploaded: %s' % label,
+            )
 
     template = 'typesetting/typesetting_article.html'
     context = {

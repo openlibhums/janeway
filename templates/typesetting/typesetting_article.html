@@ -49,10 +49,25 @@
                 </p>
                 {% include "typesetting/elements/galleys.html" %}
             </div>
-                <div class="title-area">
-                    <h2>Upload Source Files (optional)</h2>
+        </div>
+        <div class="box">
+            <div class="title-area">
+                <h2>Optional Files</h2>
+            </div>
+          <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true" data-deep-link="true" data-update-history="true" data-deep-link-smudge="true" id="optional-files">
+            <li class="accordion-item{% if article.supplementary_files.exists %} is-active{% endif %}" data-accordion-item>
+                <a href="#supp-files" class="accordion-title"><h4>Supplementary files</h4></a>
+                <div class="accordion-content" data-tab-content id="supp-files">
+                    <p>
+                        <small>Data files that should be made available to the reader as a download link. You can also register a DOI for these files if you have DOI registration enabled</small>
+                        <small>(HTML/XML figures are always available for download and don't need to be added as supplementary files)</small>
+                    </p>
+                    {% include "typesetting/elements/supplementary_files.html" %}
                 </div>
-                <div class="content">
+            </li>
+            <li class="accordion-item{% if article.source_files.exists %} is-active{% endif %}" data-accordion-item>
+                <a href="#source-files" class="accordion-title"><h4>Source Files</h4></a>
+                <div class="accordion-content" data-tab-content id="source-files">
                     <p><small>
                         Source Files are intermediate files uploaded by the typesetter, that are used to generate the final Typeset files (e.g. Adobe In Design files used to generate the PDF).
                         Uploading these files (where available) is important in case any changes need to be made to the article in the future.
@@ -60,6 +75,7 @@
                     {% include "typesetting/elements/typesetter/source_files.html" %}
 
                 </div>
+            </ul>
         </div>
 
     </div>
@@ -69,6 +85,7 @@
 
     {% include "typesetting/elements/new_galley.html" %}
     {% include "elements/production/source_files_upload.html" %}
+    {% include "elements/production/new_supp_file.html" %}
     {% include "typesetting/elements/new_production_file.html" %}
     {% include "admin/elements/summary_modal.html" %}
 {% endblock body %}
