@@ -28,7 +28,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
 import pytz
 
-from core import models, forms, logic, workflow
+from core import models, forms, logic, workflow, models as core_models
 from security.decorators import editor_user_required, article_author_required, has_journal
 from submission import models as submission_models
 from review import models as review_models
@@ -875,8 +875,13 @@ def roles(request):
     :return: HttpResponse object
     """
     template = 'core/manager/roles/roles.html'
+
+    roles = models.Role.objects.all()
+    for role in roles:
+        role.user_count = request.journal.users_with_role_count(role.slug)
+
     context = {
-        'roles': models.Role.objects.all(),
+        'roles': roles,
     }
 
     return render(request, template, context)
@@ -893,13 +898,10 @@ def role(request, slug):
     role_obj = get_object_or_404(models.Role, slug=slug)
 
     account_roles = models.AccountRole.objects.filter(journal=request.journal, role=role_obj)
-    users_with_role = [assignment.user.pk for assignment in account_roles]
-    user_list = models.Account.objects.all().order_by('last_name').exclude(pk__in=users_with_role)
 
     template = 'core/manager/roles/role.html'
     context = {
         'role': role_obj,
-        'users': user_list,
         'account_roles': account_roles
     }
 
@@ -1116,6 +1118,35 @@ def user_history(request, user_id):
         'log_entries': log_entries,
     }
 
+    return render(request, template, context)
+
+
+@editor_user_required
+def enrol_users(request):
+    user_search = []
+    first_name = request.GET.get('first_name', '')
+    last_name = request.GET.get('last_name', '')
+    email = request.GET.get('email', '')
+
+    if first_name or last_name or email:
+        filters = {}
+        if first_name:
+            filters['first_name'] = first_name
+        if last_name:
+            filters['last_name'] = last_name
+        if email:
+            filters['email'] = email
+
+        user_search = core_models.Account.objects.filter(**filters)
+
+    template = 'core/manager/users/enrol_users.html'
+    context = {
+        'user_search': user_search,
+        'roles': models.Role.objects.all().order_by(('name')),
+        'first_name': first_name,
+        'last_name': last_name,
+        'email': email,
+    }
     return render(request, template, context)
 
 

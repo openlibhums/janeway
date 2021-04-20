@@ -1,0 +1,19 @@
+<tr>
+    <td><input type="checkbox" name="users" value="{{ user.pk }}"></td>
+    <td>{{ user.username }}</td>
+    <td>{{ user.first_name }}</td>
+    <td>{{ user.last_name }}</td>
+    <td>
+        <div class="tiny button-group">
+            {% for role in roles %}
+                <button name="role" value="{{ role.slug }}" class="button">{{ role.name }}</button>{% endfor %}
+        </div>
+    </td>
+    {% if settings.DEBUG %}
+        <td>
+            <button type="submit" class="tiny button"
+                    formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
+                Hijack User
+            </button>
+        </td>{% endif %}
+</tr>

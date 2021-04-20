@@ -262,6 +262,12 @@ class Journal(AbstractSiteModel):
         ]
         return core_models.Account.objects.filter(pk__in=pks)
 
+    def users_with_role_count(self, role):
+        return core_models.AccountRole.objects.filter(
+            role__slug=role,
+            journal=self,
+        ).count()
+
     def editor_pks(self):
         return [[str(role.user.pk), str(role.user.pk)] for role in
                 core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]

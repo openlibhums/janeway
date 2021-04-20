@@ -108,9 +108,10 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_manager_users' %}">Users</a>
-                        {% if request.user.is_staff %}<a class="button" href="{% url 'core_manager_inactive_users' %}">Inactive Users</a>{% endif %}
+                        <a class="button" href="{% url 'core_manager_users' %}">Enrolled Users</a>
+                        <a class="button" href="{% url 'core_manager_enrol_users' %}">Enrol Users</a>
                         <a class="button" href="{% url 'core_manager_roles' %}">Roles</a>
+                        {% if request.user.is_staff %}<a class="button" href="{% url 'core_manager_inactive_users' %}">Inactive Users</a>{% endif %}
                         {% if request.user.is_staff %}<a class="button" href="{% url 'core_logged_in_users' %}">Authenticated Users</a>{% endif %}
                     </div>
                 </div>

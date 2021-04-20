@@ -9,10 +9,6 @@
             {% csrf_token %}
             <button class="django-hijack-button-default">{% blocktrans with user=request.user %}release {{ user }}{% endblocktrans %}</button>
         </form>
-        <form action="{% url 'hijack:disable_hijack_warning' %}?next={{ request.path }}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="django-hijack-button-default">{% trans "hide" %}</button>
-        </form>
     </div>
 </div>
 </div>
