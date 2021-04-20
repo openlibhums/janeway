@@ -17,7 +17,7 @@
                     <titles>
                         <title>{{ supp_file.file.label }}</title>
                     </titles>
-                    <format mime_type="{{ supp_file.mime_type }}"/>
+                    <format mime_type="{{ supp_file.file.mime_type }}"/>
                     <doi_data>
                         <doi>{{ doi }}</doi>
                         <resource>{{ supp_file.url }}</resource>

@@ -5,11 +5,13 @@ from django.db import transaction
 from django.shortcuts import redirect, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 
 from core import models as core_models, files
 from events import logic as event_logic
 from identifiers import logic as ident_logic
+from identifiers.models import DOI_RE
 from production import logic
 from utils import setting_handler, render_template
 
@@ -230,17 +232,20 @@ def get_next_element(handshake_url, request):
         return None
 
 
-def mint_supp_file_doi(supp_file, doi_suffix=None):
+def mint_supp_file_doi(supp_file, doi=None):
     article = supp_file.file.article
     article_doi = article.get_doi()
     if not article_doi:
         raise RuntimeError(
-            "Can't issue doi for file %s: Article %s has no doi"
+            "Can't issue doi for supp file %s: Article %s has no doi"
             "" % (supp_file.pk, article.pk)
         )
-    if not doi_suffix:
-        doi_suffix = "s%s" % supp_file.pk
-    doi = "%s.%s" % (article_doi, doi_suffix)
+
+    if not doi and supp_file.doi:
+        doi = supp_file.doi
+    elif not doi:
+        doi = "%s.s%s" % (article_doi, supp_file.pk)
+
     xml_context = {
         'supp_file': supp_file,
         'article': article,
@@ -266,3 +271,23 @@ def mint_supp_file_doi(supp_file, doi_suffix=None):
     supp_file.save()
 
     return doi
+
+def validate_supp_file_doi(supp_file, doi):
+    journal = supp_file.file.article.journal
+    try:
+        submitted_prefix = doi.split("/")[0]
+    except (TypeError, ValueError):
+        raise ValidationError("'%s' is not a valid DOI" % doi)
+
+    if not DOI_RE.match(doi):
+        raise ValidationError("'%s' is not a valid DOI" % doi)
+
+    prefix = setting_handler.get_setting(
+        'Identifiers', 'crossref_prefix', journal,
+    ).processed_value
+    if prefix != submitted_prefix:
+        raise ValidationError(
+            "'%s' doesn't match the configured prefix '%s'" % (doi, prefix)
+        )
+
+    return True
