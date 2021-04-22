@@ -21,7 +21,7 @@
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>
-                                <p>Posted by {{ news_item.posted_by.full_name }} on {{ news_item.posted|date:"Y-m-d" }}</p>
+                                <p>Posted by {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</p>
                             </figcaption>
                         </div>
                     </li>

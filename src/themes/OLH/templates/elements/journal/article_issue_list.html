@@ -1,6 +1,6 @@
 
 {% with issue_length=article.issues_list|length %}
-<h3>{% if issue_length > 1 %}Issues{% else %}Issue{% endif %}</h3>
+<h3>{% if issue_length > 1 %}{% trans "Issues" %}{% else %}{% trans "Issue" %}{% endif %}</h3>
 {% endwith %}
 <ul>
     {% if article.primary_issue %}
