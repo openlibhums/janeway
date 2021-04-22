@@ -68,6 +68,10 @@ class ReviewAssignmentForm(forms.ModelForm):
             form = models.ReviewForm.objects.get(pk=default_form)
             self.fields['form'].initial = form
 
+        if self.instance.date_accepted:
+            self.fields['form'].required = False
+            self.fields['review_type'].required = False
+
 
 class ReviewerDecisionForm(forms.ModelForm):
 
