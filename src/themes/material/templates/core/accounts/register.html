@@ -22,7 +22,7 @@
                     <p>{% blocktrans %}Your password should be at minimum 12 characters long. It does not need
                         to contain specific characters but you should make it as long as possible. For more
                         information read on
-                        <a href="#passwordmodal" class="modal-trigger"> password guide</a>
+                        <a href="#passwordmodal" class="modal-trigger">{% trans "password guide" %}</a>
                         .{% endblocktrans %}</p>
                     <form method="POST">
                         {% csrf_token %}
@@ -44,7 +44,7 @@
 
     <div id="passwordmodal" class="modal">
         <div class="modal-content">
-            <h4>Password Guide</h4>
+            <h4>{% trans "Password Guide" %}</h4>
             <p class="lead">{% trans "When it comes to passwords, length is better than complexity." %}</p>
             <p>{% trans "Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and uncomplicated password (our awesome moon base rocks)." %}</p>
             <p>{% blocktrans %}We recommend selecting a long, but easy to remember password such as <i>our awesome moon base
@@ -52,7 +52,7 @@
                 like <i>Jfjfy&65^87</i> which would take just over 600 years on a standard computer.{% endblocktrans %}</p>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
         </div>
     </div>
 {% endblock body %}
