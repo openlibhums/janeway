@@ -17,7 +17,7 @@
                 {% include "common/elements/static-error-messages.html" with form=form %}
                     {% csrf_token %}
                     <div class="card-content">
-                        <span class="card-title">Login</span>
+                        <span class="card-title">{% trans "Login" %}</span>
                         <div class="input-field col s12">
                             {{ form.user_name }}
                             <label for="email">{% trans form.user_name.label %}</label>

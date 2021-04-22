@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-content">
                     {% if account %}
-                        <span class="card-title">Activate Account</span>
+                        <span class="card-title">{% trans "Activate Account" %}</span>
                         <form method="POST">
                             {% csrf_token %}
                             <p>{% trans "You can complete the activation process by clicking the button below." %}</p>

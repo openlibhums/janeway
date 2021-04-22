@@ -7,7 +7,7 @@
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h3>News</h3>
+            <h3>{% trans "News" %}</h3>
             {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
         </div>
         {% for item in news_items %}
