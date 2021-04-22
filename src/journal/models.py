@@ -17,6 +17,7 @@ from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext
 
 from core import (
         files,
@@ -507,9 +508,9 @@ class Issue(models.Model):
     def pretty_issue_identifier(self):
         journal = self.journal
 
-        volume = "Volume {}".format(
+        volume = ugettext("Volume") + " {}".format(
             self.volume) if journal.display_issue_volume else ""
-        issue = "Issue {}".format(
+        issue = ugettext("Issue") + " {}".format(
             self.issue) if journal.display_issue_number else ""
         year = "{}".format(
             self.date.year) if journal.display_issue_year else ""
