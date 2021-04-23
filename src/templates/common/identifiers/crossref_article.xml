@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doi_batch
-    xmlns="http://www.crossref.org/schema/4.4.1"
+    xmlns="http://www.crossref.org/schema/4.4.2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    version="4.4.1"
-    xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 http://www.crossref.org/schemas/crossref4.4.1.xsd"
+    version="4.4.2"
+    xsi:schemaLocation="http://www.crossref.org/schema/4.4. http://www.crossref.org/schemas/crossref4.4.1.xsd"
     xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
 >
     <head>
@@ -68,12 +68,18 @@
                   {%  endfor %}
                 </contributors>
                 {% endif %}
-
                 <publication_date media_type="online">
                     <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
                     <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
                     <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
                 </publication_date>
+                {% if date_accepted %}
+                <acceptance_date media_type="online">
+                    <month>{{ date_accepted.month }}</month>
+                    <day>{{ date_accepted.day }}</day>
+                    <year>{{ date_accepted.year }}</year>
+                </acceptance_date>
+                {% endif %}
                 {% if license %}
                 <ai:program name="AccessIndicators">
                     <ai:license_ref>{{ license }}</ai:license_ref>
