@@ -60,6 +60,9 @@
                         {% if author.institution %}
                         <affiliation>{{ author.affiliation }}</affiliation>
                         {% endif %}
+                        {% if author.author.orcid %}
+                        <ORCID>{{ author.orcid }}</ORCID>
+                        {% endif %}
                     </person_name>
                     {% endif %}
                   {%  endfor %}
