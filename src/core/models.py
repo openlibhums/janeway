@@ -1036,10 +1036,15 @@ class SupplementaryFile(models.Model):
         return files.file_path_mime(self.path())
 
     def url(self):
-        base_url = self.file.article.journal.full_url()
-        path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
-                                                             'supp_file_id': self.pk})
-        return '{base}{path}'.format(base=base_url, path=path)
+        path = reverse(
+            'article_download_supp_file',
+            kwargs={
+                'article_id': self.file.article.pk,
+                'supp_file_id': self.pk,
+            },
+        )
+
+        return self.file.article.journal.site_url(path=path)
 
 
 class Task(models.Model):
