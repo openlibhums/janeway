@@ -82,13 +82,28 @@
                         class="fa fa-check-square"></i> {{ complete_reviews.count }}
                     completed reviews</h2>
                 {% for review in complete_reviews %}
-                    <div class="bs-callout bs-callout-success">
-                        <h4>{{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})</h4>
+                    <div class="bs-callout bs-callout-{% if review.for_author_consumption %}success{% else %}warning{% endif %}">
+                        <h4>
+                            {{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})
+                            {% if review.form %}[Form: {{ review.form.name }}] {% endif %}
+                            </h4>
+                        {% if not review.for_author_consumption %}
+                        <p><i class="fa fa-warning"></i> The author won't be able to see this review </p> 
+                        {% endif %}
                         <p>This review was completed on {{ review.date_complete }} and the reviewers recommendation was : <strong>{{ review.get_decision_display }}</strong></p>
-                        <div class="button-group small">
+                        <form method="POST">
+                          {% csrf_token %}
+                          <div class="button-group small">
                             <button data-open="review_form_{{ review.pk }}" class="button">View Details</button>
-                            {% if review.review_file %}<a href="{% url 'editor_file_download' review.article.id review.review_file.id %}" class="button">View Review File</a>{% endif %}
-                        </div>
+                              <input type="hidden" name="review" value="{{ review.pk }}">
+                              {% if review.review_file %}<a href="{% url 'editor_file_download' review.article.id review.review_file.id %}" class="button">View Review File</a>{% endif %}
+                              {% if review.for_author_consumption %}
+                              <button name="hide_review" class="button alert pull-right"><span class="fa fa-eye-slash"></span> Hide from author</button>
+                              {% else%}
+                              <button name="reveal_review" class="button success pull-right"><span class="fa fa-eye"></span> Reveal to author</button>
+                              {% endif %}
+                          </div>
+                        </form>
                     </div>
                     <br />
                 {% endfor %}

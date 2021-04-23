@@ -2477,8 +2477,34 @@ def decision_helper(request, article_id):
 
     decisions = Counter(
         [review.get_decision_display() for review in reviews if
-         review.decision]
+        review.decision]
     )
+
+    if 'reveal_review' in request.POST:
+        review = get_object_or_404(
+            models.ReviewAssignment,
+            article=article,
+            id=request.POST.get('review'),
+        )
+        review.for_author_consumption=True
+        review.save()
+        messages.add_message(
+            request, messages.SUCCESS,
+            "The author can now see review #%s" % review.pk,
+        )
+
+    if 'hide_review' in request.POST:
+        review = get_object_or_404(
+            models.ReviewAssignment,
+            article=article,
+            id=request.POST.get('review'),
+        )
+        review.for_author_consumption=False
+        review.save()
+        messages.add_message(
+            request, messages.WARNING,
+            "The author won't see the review #%s" % review.pk,
+        )
 
     template = 'admin/review/decision_helper.html'
     context = {
