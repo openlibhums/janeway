@@ -1256,7 +1256,9 @@ def edit_review_answer(request, article_id, review_id, answer_id):
     if request.POST:
         form = forms.GeneratedForm(request.POST, answer=answer)
         if form.is_valid():
-            answer.edited_answer = form.cleaned_data[answer.element.name]
+            # Form element keys are posted as str
+            element_key = str(answer.element.pk)
+            answer.edited_answer = form.cleaned_data[element_key]
             answer.save()
 
             return redirect(
