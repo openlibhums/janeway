@@ -65,7 +65,7 @@
                         {% endif %}
                     </person_name>
                     {% endif %}
-                  {%  endfor %}
+                  {% endfor %}
                 </contributors>
                 {% endif %}
                 <publication_date media_type="online">
@@ -79,6 +79,11 @@
                     <day>{{ date_accepted.day }}</day>
                     <year>{{ date_accepted.year }}</year>
                 </acceptance_date>
+                {% endif %}
+                {% if pages %}
+                <pages>
+                    <other_pages>{{ pages }}</other_pages>
+                </pages>
                 {% endif %}
                 {% if license %}
                 <ai:program name="AccessIndicators">
