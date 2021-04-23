@@ -5,6 +5,7 @@
     version="4.4.2"
     xsi:schemaLocation="http://www.crossref.org/schema/4.4. http://www.crossref.org/schemas/crossref4.4.1.xsd"
     xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+    xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
 >
     <head>
         <doi_batch_id>{{ batch_id }}</doi_batch_id>
@@ -68,6 +69,9 @@
                   {% endfor %}
                 </contributors>
                 {% endif %}
+                {% if abstract %}
+                <jats:abstract><jats:p>{{ abstract }}</jats:p></jats:abstract>
+                {% endif %}
                 <publication_date media_type="online">
                     <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
                     <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
@@ -79,11 +83,6 @@
                     <day>{{ date_accepted.day }}</day>
                     <year>{{ date_accepted.year }}</year>
                 </acceptance_date>
-                {% endif %}
-                {% if pages %}
-                <pages>
-                    <other_pages>{{ pages }}</other_pages>
-                </pages>
                 {% endif %}
                 {% if license %}
                 <ai:program name="AccessIndicators">
