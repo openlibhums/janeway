@@ -2941,6 +2941,32 @@
     },
     {
         "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to a section editor when a senior editor declines their draft decision.",
+            "is_translatable": true,
+            "name": "notify_se_draft_declined",
+            "pretty_name": "Draft Decision Declined",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ draft_decision.section_editor.full_name }},</p><p>Thank you for logging your draft decision. The editor has declined this draft and has added the following message for you: </p>{{ draft_decision.editor_decline_rationale|safe }}<p>Regards</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Draft Decision Declined email",
+            "is_translatable": true,
+            "name": "subject_notify_se_draft_declined",
+            "pretty_name": "Draft Decision Declined Subject",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Draft Decision Declined"
             "name": "general"
         },
         "setting": {

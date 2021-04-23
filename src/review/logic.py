@@ -17,8 +17,7 @@ from django.db.models import (
     Prefetch,
     Subquery,
 )
-
-from django.urls import reverse
+from django.shortcuts import redirect, reverse
 from django.utils import timezone
 from docx import Document
 
@@ -203,25 +202,31 @@ def get_decision_content(request, article, decision, author_review_url):
         'review_url': author_review_url,
     }
 
-    template_name = "review_decision_{0}".format(decision)
+    if decision == 'reject':
+        template_name = "review_decision_decline"
+    else:
+        template_name = "review_decision_{0}".format(decision)
 
     return render_template.get_message_content(request, email_context, template_name)
 
 
-def get_revision_request_content(request, article, revision):
-    do_revisions_url = request.journal.site_url(path=reverse(
-        'do_revisions',
-        kwargs={
-            'article_id': article.pk,
-            'revision_id': revision.pk,
-        }
-    ))
-
+def get_revision_request_content(request, article, revision, draft=False):
     email_context = {
         'article': article,
         'revision': revision,
-        'do_revisions_url': do_revisions_url,
     }
+
+    if not draft:
+        do_revisions_url = request.journal.site_url(path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ))
+        email_context['do_revisions_url'] = do_revisions_url
+    else:
+        email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
     return render_template.get_message_content(request, email_context, 'request_revisions')
 
@@ -254,7 +259,7 @@ def log_revision_event(text, user, revision_request):
 def get_draft_email_message(request, article):
     review_in_review_url = request.journal.site_url(
         path=reverse(
-            'review_in_review', args=[article.pk]
+            'review_draft_decision', args=[article.pk]
         )
     )
     email_context = {
@@ -281,8 +286,31 @@ def group_files(article, reviews):
     return files
 
 
+def handle_draft_declined(article, draft_decision, request):
+    """
+    Raises an event when a draft decision is declined by an editor.
+    """
+    kwargs = {
+        'article': article,
+        'request': request,
+        'draft_decision': draft_decision,
+        'skip': False,
+    }
+
+    draft_decision.editor_decline_rationale = request.POST.get(
+        'editor_decline_rationale',
+        '<p>Editor provided no rationale.</p>'
+    )
+    draft_decision.save()
+
+    return event_logic.Events.raise_event(
+        event_logic.Events.ON_DRAFT_DECISION_DECLINED,
+        task_object=article,
+        **kwargs,
+    )
+
+
 def handle_decision_action(article, draft, request):
-    from submission import models as submission_models
     kwargs = {
         'article': article,
         'request': request,
@@ -293,23 +321,70 @@ def handle_decision_action(article, draft, request):
 
     if draft.decision == 'accept':
         article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
-    elif draft.decision == 'decline':
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_ACCEPTED,
+            task_object=article,
+            **kwargs,
+        )
+        # Call workflow element complete event
+        workflow_kwargs = {
+            'handshake_url': 'review_home',
+            'request': request,
+            'article': article,
+            'switch_stage': True,
+        }
+        return event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            task_object=article,
+            **workflow_kwargs,
+        )
+    elif draft.decision == 'reject':
         article.decline_article()
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_DECLINED, task_object=article, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_ARTICLE_DECLINED,
+            task_object=article,
+            **kwargs,
+        )
     elif draft.decision == 'minor_revisions' or draft.decision == 'major_revisions':
         revision = models.RevisionRequest.objects.create(
             article=article,
             editor=draft.section_editor,
             editor_note='',
             type=draft.decision,
-            date_due=timezone.now() + timedelta(days=14)
+            date_due=draft.revision_request_due_date
+        )
+        do_revisions_url = request.journal.site_url(path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ))
+        kwargs['user_message_content'] = render_template.get_message_content(
+            request,
+            {'do_revisions_url': do_revisions_url},
+            kwargs['user_message_content'],
+            template_is_setting=True,
         )
         article.stage = submission_models.STAGE_UNDER_REVISION
         article.save()
 
         kwargs['revision'] = revision
-        event_logic.Events.raise_event(event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY, **kwargs)
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,
+            **kwargs,
+        )
+        return redirect(
+            reverse(
+                'view_revision',
+                kwargs={
+                    'article_id': article.pk,
+                    'revision_id': revision.pk,
+                }
+            )
+        )
+
+    return None
 
 
 def get_access_code(request):

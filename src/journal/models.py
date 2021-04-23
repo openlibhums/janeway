@@ -250,8 +250,8 @@ class Journal(AbstractSiteModel):
         return Issue.objects.filter(journal=self)
 
     def editors(self):
-        pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
-        return core_models.Account.objects.filter(pk__in=pks)
+        return [role.user for role in core_models.AccountRole.objects.filter(
+            role__slug='editor', journal=self)]
 
     def users_with_role(self, role):
         pks = [
