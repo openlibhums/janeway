@@ -120,7 +120,7 @@ def create_crossref_context(identifier):
             identifier.article.title,
             ' ' if identifier.article.subtitle is not None else '',
             identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
+        'authors': identifier.article.frozenauthor_set.all(),
         'doi': identifier.identifier,
         'article_url': identifier.article.url,
         'now': timezone.now(),
