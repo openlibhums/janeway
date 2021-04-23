@@ -150,7 +150,7 @@
                                 <td>{{ file.original_filename }}</td>
                                 <td>Manuscript</td>
                                 <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
+                                <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
                                         class="fa fa-download">&nbsp;</i></a></td>
                                 <td>
                                     <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={% url 'review_unassigned_article' article.pk %}"><i
@@ -179,8 +179,8 @@
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>
                             <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
-                            <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
-                                    class="fa fa-download">&nbsp;</i></a></td>
+                            <td><a href="{% url 'editor_file_download' article.id file.id %}"><i
+                                        class="fa fa-download">&nbsp;</i></a></td>
                             <td>n/a</td>
                         </tr>
                     {% endfor %}
