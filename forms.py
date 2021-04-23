@@ -138,7 +138,7 @@ class SupplementaryFileChoiceForm(forms.ModelForm):
         files = core_models.File.objects.filter(
             article_id=self.article.pk,
         ).exclude(
-            supplementaryfile__file__article_id = self.article.pk
+            supplementaryfile__file__article_id = self.article.pk,
         )
         self.fields['file'].queryset = files
 

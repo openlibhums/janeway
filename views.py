@@ -128,11 +128,11 @@ def typesetting_article(request, article_id):
         form = forms.SupplementaryFileChoiceForm(request.POST, article=article)
         if form.is_valid():
             supp = form.save()
-        messages.add_message(
-            request,
-            messages.INFO,
-            'Supplementary file created'
-        )
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Supplementary file created',
+            )
         return redirect(
             reverse(
                 'typesetting_article',
@@ -1386,7 +1386,7 @@ def mint_supp_doi(request, supp_file_id):
     )
     # Cope with file not having foreign key to article
     if supp_file.file.article.journal != request.journal:
-        raise Http4()
+        raise Http404()
 
     doi = request.POST.get("doi")
     if not doi:
