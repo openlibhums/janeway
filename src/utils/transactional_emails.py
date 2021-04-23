@@ -305,7 +305,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
         )
 
     # send to editor
-    editors = get_review_assignment_editors(review_assignment)
+    editors = get_assignment_editors(review_assignment)
     for editor in editors:
         notify_helpers.send_email_with_body_from_setting_template(
             request,
@@ -483,7 +483,7 @@ def send_revisions_complete(**kwargs):
     notify_helpers.send_email_with_body_from_user(
         request,
         'Article Revisions Complete',
-        get_assignment_editors(assignment),
+        get_assignment_editors(revision),
         description,
     )
     notify_helpers.send_slack(request, description, ['slack_editors'])
