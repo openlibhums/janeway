@@ -26,7 +26,14 @@ class ArticleAdmin(admin.ModelAdmin):
                     'owner', 'is_import', 'ithenticate_score')
     search_fields = ('pk', 'title', 'subtitle')
     list_filter = ('stage', 'is_import', 'journal')
-    raw_id_fields = ('section',)
+    raw_id_fields = (
+        'section',
+        'owner',
+        'license',
+        'correspondence_author',
+        'primary_issue',
+        'projected_issue',
+    )
     filter_horizontal = (
         'authors',
         'manuscript_files',

@@ -13,24 +13,38 @@ from review import models
 from review.logic import render_choices
 from core import models as core_models
 from utils import setting_handler
-from utils.forms import FakeModelForm
+from utils.forms import FakeModelForm, HTMLDateInput
 
 
 class DraftDecisionForm(forms.ModelForm):
+    widgets = {'revision_request_due_date': HTMLDateInput()}
+
     class Meta:
         model = models.DecisionDraft
-        exclude = ('section_editor', 'article', 'editor_decision', 'closed')
+        exclude = (
+            'section_editor', 'article', 'editor_decision'
+        )
 
     def __init__(self, *args, **kwargs):
-        email_message = kwargs.pop('email_message', None)
+        newly_created = kwargs.get('instance') is None
+        message_to_editor = kwargs.pop('message_to_editor', None)
+        editors = kwargs.pop('editors', [])
         super(DraftDecisionForm, self).__init__(*args, **kwargs)
-        self.fields['email_message'].initial = linebreaksbr(email_message)
+        self.fields['message_to_editor'].initial = linebreaksbr(message_to_editor)
+        self.fields['revision_request_due_date'].widget = HTMLDateInput()
+        self.fields['revision_request_due_date'].widget.attrs['onchange'] = 'decision_change()'
+        self.fields['decision'].widget.attrs[
+            'onchange'] = 'decision_change()'
+        self.fields['editor'].queryset = editors
+        if not newly_created:
+            self.fields['message_to_editor'].widget = forms.HiddenInput()
+            self.fields['editor'].widget = forms.HiddenInput()
 
 
 class ReviewAssignmentForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
-        fields = ('review_type', 'visibility', 'form', 'date_due')
+        fields = ('visibility', 'form', 'date_due')
 
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', None)
@@ -53,6 +67,10 @@ class ReviewAssignmentForm(forms.ModelForm):
         if default_form:
             form = models.ReviewForm.objects.get(pk=default_form)
             self.fields['form'].initial = form
+
+        if self.instance.date_accepted:
+            self.fields['form'].required = False
+            self.fields['review_type'].required = False
 
 
 class ReviewerDecisionForm(forms.ModelForm):
@@ -138,37 +156,37 @@ class GeneratedForm(forms.Form):
 
         for element in elements:
             if element.kind == 'text':
-                self.fields[element.name] = forms.CharField(
+                self.fields[str(element.pk)] = forms.CharField(
                     widget=forms.TextInput(attrs={'div_class': element.width}),
                     required=element.required if fields_required else False)
             elif element.kind == 'textarea':
-                self.fields[element.name] = forms.CharField(widget=forms.Textarea,
+                self.fields[str(element.pk)] = forms.CharField(widget=forms.Textarea,
                                                             required=element.required if fields_required else False)
             elif element.kind == 'date':
-                self.fields[element.name] = forms.CharField(
+                self.fields[str(element.pk)] = forms.CharField(
                     widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
                     required=element.required if fields_required else False)
             elif element.kind == 'upload':
-                self.fields[element.name] = forms.FileField(required=element.required if fields_required else False)
+                self.fields[str(element.pk)] = forms.FileField(required=element.required if fields_required else False)
             elif element.kind == 'select':
                 choices = render_choices(element.choices)
-                self.fields[element.name] = forms.ChoiceField(
+                self.fields[str(element.pk)] = forms.ChoiceField(
                     widget=forms.Select(attrs={'div_class': element.width}), choices=choices,
                     required=element.required if fields_required else False)
             elif element.kind == 'email':
-                self.fields[element.name] = forms.EmailField(
+                self.fields[str(element.pk)] = forms.EmailField(
                     widget=forms.TextInput(attrs={'div_class': element.width}),
                     required=element.required if fields_required else False)
             elif element.kind == 'check':
-                self.fields[element.name] = forms.BooleanField(
+                self.fields[str(element.pk)] = forms.BooleanField(
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=element.required if fields_required else False)
 
-            self.fields[element.name].help_text = element.help_text
-            self.fields[element.name].label = element.name
+            self.fields[str(element.pk)].help_text = element.help_text
+            self.fields[str(element.pk)].label = element.name
 
             if answer:
-                self.fields[element.name].initial = answer.edited_answer if answer.edited_answer else answer.answer
+                self.fields[str(element.pk)].initial = answer.edited_answer if answer.edited_answer else answer.answer
 
 
 class NewForm(forms.ModelForm):

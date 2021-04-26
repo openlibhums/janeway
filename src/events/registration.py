@@ -38,6 +38,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       transactional_emails.send_article_decision)
 event_logic.Events.register_for_event(event_logic.Events.ON_DRAFT_DECISION,
                                       transactional_emails.send_draft_decison)
+event_logic.Events.register_for_event(event_logic.Events.ON_DRAFT_DECISION_DECLINED,
+                                      transactional_emails.send_draft_decision_declined)
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEW_SECURITY_OVERRIDE,
                                       transactional_emails.review_sec_override_notification)
 

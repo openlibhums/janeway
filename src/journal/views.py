@@ -293,6 +293,7 @@ def issue(request, issue_id, show_sidebar=True):
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
         issue_type=issue_object.issue_type,
+        date__lte=timezone.now(),
     )
 
     editors = models.IssueEditor.objects.filter(
@@ -326,7 +327,13 @@ def collections(request, issue_type_code="collection"):
         code=issue_type_code,
     )
     collections = models.Issue.objects.filter(
-        journal=request.journal, issue_type=issue_type)
+        journal=request.journal,
+        issue_type=issue_type,
+        date__lte=timezone.now(),
+    ).exclude(
+        # This has to be an .exclude because.filter won't do an INNER join
+        articles__isnull=True,
+    )
 
     template = 'journal/collections.html'
     context = {
@@ -1940,7 +1947,7 @@ def send_user_email(request, user_id, article_id=None):
             )
             close = True
 
-    template = 'journal/send_user_email.html'
+    template = 'admin/journal/send_user_email.html'
     context = {
         'user': user,
         'close': close,

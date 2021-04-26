@@ -340,6 +340,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'peer_review_upload_text',
                 'object': setting_handler.get_setting('general', 'peer_review_upload_text', journal),
             },
+            {
+                'name': 'enable_peer_review_data_block',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
+            },
         ]
         setting_group = 'general'
 

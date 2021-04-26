@@ -319,7 +319,7 @@ class KeywordArticle(models.Model):
         unique_together = ('keyword', 'article')
 
     def __str__(self):
-        return self.word
+        return self.keyword.word
 
     def __repr__(self):
         return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
@@ -729,6 +729,11 @@ class Article(models.Model):
             or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
             or self.stage == "Typesetting" or self.stage == "Proofing"
 
+    def peer_reviews_for_author_consumption(self):
+        return self.reviewassignment_set.filter(
+            for_author_consumption=True,
+        )
+
     def __str__(self):
         return u'%s - %s' % (self.pk, self.title)
 
@@ -992,6 +997,12 @@ class Article(models.Model):
                                                     reviewer=user).first()
         except review_models.ReviewAssignment.DoesNotExist:
             return None
+
+    def reviews_not_withdrawn(self):
+        return self.reviewassignment_set.exclude(decision='withdrawn')
+
+    def number_of_withdrawn_reviews(self):
+        return self.reviewassignment_set.filter(decision='withdrawn').count()
 
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
@@ -1286,6 +1297,15 @@ class Article(models.Model):
         book_link_count = self.booklink_set.all().count()
 
         return article_link_count + book_link_count
+
+    def hidden_completed_reviews(self):
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_complete__isnull=False,
+            for_author_consumption=False,
+        ).exclude(
+            decision='withdrawn',
+        )
 
 
 class FrozenAuthor(models.Model):

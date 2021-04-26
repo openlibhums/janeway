@@ -21,19 +21,20 @@
                 <div class="row expanded">
                     <form method="POST">
                         {% csrf_token %}
+                      <div class="row expanded">
+                        <div class="large-4 columns">{{ form.visibility|foundation }}</div>
                         {% if not review.date_accepted %}
-                            <div class="large-6 columns">{{ form.review_type|foundation }}</div>
+                            <div class="large-4 columns">{{ form.form|foundation }}</div>
                         {% endif %}
-                        <div class="large-6 columns">{{ form.visibility|foundation }}</div>
-                        {% if not review.date_accepted %}
-                            <div class="large-6 columns">{{ form.form|foundation }}</div>
-                        {% endif %}
-                        <div class="large-6 columns">{{ form.date_due|foundation }}</div>
+                        <div class="large-4 columns">{{ form.date_due|foundation }}</div>
+                      </div>
+                      <div class="row expanded">
                         <div class="large-12 columns">
                             <button class="button success" name="update" type="submit">Update Review</button>
                             <a href="{% url 'review_in_review' article.pk %}" class="button alert"
                                type="submit">Cancel</a>
                         </div>
+                      </div>
                     </form>
                 </div>
             </div>

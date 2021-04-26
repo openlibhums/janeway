@@ -333,6 +333,7 @@ th {
     border: 1px solid #eee;
     border-left-width: 5px;
     border-radius: 3px;
+    margin-bottom: 10px;
 }
 
 .bs-callout h4 {

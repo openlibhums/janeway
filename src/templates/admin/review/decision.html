@@ -1,4 +1,5 @@
 {% extends "admin/core/base.html" %}
+{% load i18n %}
 
 {% block title %}{{ decision|capfirst }} Article{% endblock title %}
 {% block title-section %}{{ decision|capfirst }} Article{% endblock %}
@@ -13,10 +14,21 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Are you sure you want to {{ decision }} {{ article.title }}?</h2>
+                <h2>Article Decision</h2>
             </div>
             <div class="content">
-                <p>You can provide some information to the Authors below: </p>
+                <p>Are you sure you want to {{ decision }} {{ article.title }}? You can provide some information to the Authors below: </p>
+                {% if article.hidden_completed_reviews %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p>{% trans 'Note: This article has completed reviews that have not been made available to the author:' %}</p>
+                        <ul>
+                            {% for review in article.hidden_completed_reviews %}
+                                <li><a target="_blank" href="{% url 'review_view_review' article.pk review.pk %}">#{{ review.pk }} - {{ review.reviewer.full_name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <br />
+                {% endif %}
                 <form method="POST">
                     {% csrf_token %}
                     <div class="card">
