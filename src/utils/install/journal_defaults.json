@@ -2967,6 +2967,10 @@
         },
         "value": {
             "default": "Draft Decision Declined"
+        }
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
