@@ -73,7 +73,6 @@ src/core/settings.py
 /src/media/django-summernote
 /src/media/*
 /src/collected-static
-/db/*
 
 mydatabase
 node_modules/
