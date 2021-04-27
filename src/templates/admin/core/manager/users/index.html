@@ -52,7 +52,7 @@
                             {% if settings.DEBUG %}<th width="9%">Hijack</th>{% endif %}
                         </tr>
                         </thead>
-                        {% for user in user_search %}
+                        {% for user in users %}
                             <tr>
                                 <td><input type="checkbox" name="users" value="{{ user.pk }}"></td>
                                 <td>{{ user.username }}</td>

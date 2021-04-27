@@ -1,19 +1,46 @@
-<tr>
-    <td><input type="checkbox" name="users" value="{{ user.pk }}"></td>
-    <td>{{ user.username }}</td>
-    <td>{{ user.first_name }}</td>
-    <td>{{ user.last_name }}</td>
-    <td>
-        <div class="tiny button-group">
-            {% for role in roles %}
-                <button name="role" value="{{ role.slug }}" class="button">{{ role.name }}</button>{% endfor %}
-        </div>
-    </td>
-    {% if settings.DEBUG %}
-        <td>
-            <button type="submit" class="tiny button"
-                    formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
-                Hijack User
-            </button>
-        </td>{% endif %}
-</tr>
+{% load roles %}
+{% user_roles request.journal user as account_roles %}
+
+<table class="small scroll" id='users'>
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        {% if settings.DEBUG %}
+            <th>Hijack</th>{% endif %}
+    </tr>
+    </thead>
+    <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        {% if settings.DEBUG %}
+            <td>
+                <button type="submit" class="tiny button"
+                        formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
+                    Hijack User
+                </button>
+            </td>{% endif %}
+    </tr>
+    <tr>
+        <th colspan="{% if settings.DEBUG %}4{% else %}3{% endif %}">Current Roles</th>
+    </tr>
+    <tr>
+        <td colspan="{% if settings.DEBUG %}4{% else %}3{% endif %}" id="user-{{ user.pk }}-current-roles">{% for role in account_roles %}{{ role|capfirst }}{% if not forloop.last %}, {% endif %}{% empty %}User has no roles on this journal.{% endfor %}</td>
+    </tr>
+    <tr>
+        <th colspan="{% if settings.DEBUG %}4{% else %}3{% endif %}">Available Roles</th>
+    </tr>
+    <tr>
+        <td colspan="{% if settings.DEBUG %}4{% else %}3{% endif %}">
+            <div class="tiny button-group">
+                {% for role in roles %}
+                    {% if not role.slug in account_roles %}
+                        <button id="role-{{ role.pk }}-user-{{ user.pk }}" value="{{ role.slug }}" class="button" onclick="add_role({{ user.pk }}, {{ role.pk }}, {{ request.journal.pk }})">{{ role.name }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </td>
+    </tr>
+</table>

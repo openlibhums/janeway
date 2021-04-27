@@ -13,6 +13,11 @@ def user_has_role(request, role):
 
 
 @register.simple_tag
+def user_roles(journal, user):
+    return [ar.role.slug for ar in models.AccountRole.objects.filter(user=user, journal=journal)]
+
+
+@register.simple_tag
 def role_users(request, role_slug):
     role_holders = models.AccountRole.objects.filter(role__slug=role_slug)
     return [holder.user for holder in role_holders]
