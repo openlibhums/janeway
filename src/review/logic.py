@@ -57,6 +57,9 @@ def get_reviewer_candidates(article, user=None):
     rating_average = models.ReviewerRating.objects.filter(
         assignment__article__journal=article.journal,
         assignment__reviewer=OuterRef("id"),
+    ).values(
+        # Without this .values call, results are grouped by assignment...
+        "assignment__article__journal",
     ).annotate(
         rating_average=Avg("rating"),
     ).values("rating_average")
