@@ -16,7 +16,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Enrol Users</h2>
-                <a href="{% if return %}{{ return }}{% else %}{% url 'core_manager_index' %}{% endif %}" class="button">< Go back</a>
+                <a href="{% if return %}{{ return }}{% else %}{% url 'core_manager_index' %}{% endif %}" class="button">&lt; Go back</a>
             </div>
             <div class="content">
 
@@ -27,15 +27,15 @@
                             <p>Search by First Name, Last Name or Email Address. </p>
                         </div>
                         <div class="medium-2 columns">
-                            <input type="text" name="first_name" placeholder="First Name"
+                            <input minlength=2 type="text" name="first_name" placeholder="First Name"
                                    {% if first_name %}value="{{ first_name }}"{% endif %}>
                         </div>
                         <div class="medium-2 columns">
-                            <input type="text" name="last_name" placeholder="Last Name"
+                            <input minlength=2 type="text" name="last_name" placeholder="Last Name"
                                    {% if last_name %}value="{{ last_name }}"{% endif %}>
                         </div>
                         <div class="medium-2 columns">
-                            <input type="text" name="email" placeholder="Email"
+                            <input minlength=2 type="text" name="email" placeholder="Email"
                                    {% if email %}value="{{ email }}"{% endif %}>
                         </div>
                         <div class="medium-2 columns end">
