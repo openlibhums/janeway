@@ -29,6 +29,8 @@ services:
             - PG_ADMIN_LISTEN_ADDRESS=0.0.0.0
             - GUNICORN_THREADS=2
             - PGADMIN_SERVER_JSON_FILE=/var/lib/pgadmin/servers.json
+            - PGADMIN_CONFIG_SERVER_MODE=False
+            - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
 
   janeway-mysql:
     image: mysql:5.7
