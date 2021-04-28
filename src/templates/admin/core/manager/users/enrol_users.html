@@ -75,14 +75,54 @@
                 "dataType": "json",
                 "url": '/api/accountrole/',
                 "data": data,
-                "success": function (data) {
+                "success": function (response) {
+                    console.log(response)
                     $(button_name).remove();
                     if ($(roles_td).html() === "User has no roles on this journal.") {
-                        $(roles_td).html(old_text);
-                    } else {
-                        $(roles_td).append(", " + old_text);
+                        $(roles_td).html();
                     }
-                    toastr.success('User has been granted role.')
+                    var del_button = $('<button/>').attr({
+                        id: `delete-role-${role_id}-user-${user_id}`,
+                        class: "button alert",
+                        value: $(button_name).attr("value"),
+                        onClick: `delete_role(${user_id}, ${role_id}, ${journal_id}, ${response.pk})`
+                    }).html(`<span class=\"fa fa-minus-circle\"></span> ${old_text}`)
+                    $(roles_td).append(del_button);
+                    toastr.success(`User has been granted role. ${old_text}`)
+                },
+                "error": function (xhr, status, error) {
+                    $(button_name).html(old_html);
+                    toastr.error(xhr.responseText)
+                },
+            })
+
+        }
+        function delete_role(user_id, role_id, journal_id, account_role_id) {
+            var button_name = `#delete-role-${role_id}-user-${user_id}`;
+            var roles_holder = "#user-" + user_id + "-add-roles";
+            var old_html = $(button_name).html()
+            var old_text = $(button_name).text()
+            $(button_name).html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+            var data = {
+                'user': user_id,
+                'role': role_id,
+                'journal': journal_id
+            }
+            $.ajax({
+                "type": "DELETE",
+                "dataType": "json",
+                "url": `/api/accountrole/${account_role_id}`,
+                "data": data,
+                "success": function (data) {
+                    $(button_name).remove();
+                    var add_button = $('<button/>').attr({
+                        id: `role-${role_id}-user-${user_id}`,
+                        class: "button",
+                        value: $(button_name).attr("value"),
+                        onClick: `add_role(${user_id}, ${role_id}, ${journal_id})`
+                    }).html(`<span class=\"fa fa-plus-circle\"></span> ${old_text}`)
+                    $(roles_holder).append(add_button);
+                    toastr.warning(`User has been revoked role ${old_text}`)
                 },
                 "error": function (xhr, status, error) {
                     $(button_name).html(old_html);
