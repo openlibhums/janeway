@@ -20,7 +20,7 @@
                 <h2>Users with this role</h2>
             </div>
             <div class="content">
-                <p>To enrol users use the <a href="{% url 'core_manager_enrol_users' %}">Enrol Users</a> interface.</p>
+                <p>To enrol users use the <a href="{% url 'core_manager_enrol_users' %}?return={% url 'core_manager_role' role.slug %}">Enrol Users</a> interface.</p>
                 <table class="small scroll" cellspacing="0" width="100%" id='users-with'>
                     <thead>
                     <tr>

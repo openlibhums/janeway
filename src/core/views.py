@@ -1146,6 +1146,7 @@ def enrol_users(request):
         'first_name': first_name,
         'last_name': last_name,
         'email': email,
+        'return': request.GET.get('return')
     }
     return render(request, template, context)
 
