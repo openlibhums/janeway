@@ -39,7 +39,7 @@
             <div class="tiny button-group">
                 {% for role in roles %}
                     {% if not role.slug in account_roles %}
-                        <button id="role-{{ role.pk }}-user-{{ user.pk }}" value="{{ role.slug }}" class="button" onclick="add_role({{ user.pk }}, {{ role.pk }}, {{ request.journal.pk }})">{{ role.name }}</button>
+                    <button id="role-{{ role.pk }}-user-{{ user.pk }}" value="{{ role.slug }}" class="button" onclick="add_role({{ user.pk }}, {{ role.pk }}, {{ request.journal.pk }})"><span class="fa fa-plus-circle"></span> {{ role.name }}</button>
                     {% endif %}
                 {% endfor %}
             </div>
