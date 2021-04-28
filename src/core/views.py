@@ -1130,12 +1130,12 @@ def enrol_users(request):
 
     if first_name or last_name or email:
         filters = {}
-        if first_name:
-            filters['first_name'] = first_name
-        if last_name:
-            filters['last_name'] = last_name
-        if email:
-            filters['email'] = email
+        if first_name and len(first_name) >= 2:
+            filters['first_name__icontains'] = first_name
+        if last_name and len(last_name) >= 2:
+            filters['last_name__icontains'] = last_name
+        if email and len(email) >= 2:
+            filters['email__icontains'] = email
 
         user_search = core_models.Account.objects.filter(**filters)
 
