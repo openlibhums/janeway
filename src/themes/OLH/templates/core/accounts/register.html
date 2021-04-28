@@ -75,8 +75,13 @@
                             <div class="large-12 columns">
                                 {{ form.are_you_a_robot|foundation }}
                                 <br/>
-                                <p>{% trans "By registering an account you agree to our" %} <a
-                                        href="/site/privacy/">{% trans "Privacy Policy" %}</a>.</p>
+                                <p>{% trans "By registering an account you agree to our" %}
+                                  {% if journal_settings.general.privacy_policy_url %}
+                                    <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
+                                  {% else %}
+                                    <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
+                                  {% endif %}
+                                </p>
                             </div>
                         </div>
                         <p>
