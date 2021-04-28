@@ -27,7 +27,7 @@
                     {% csrf_token %}
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <p>All of the users who have a role on your journal are listed below. If you wish to add an un-enrolled user you can do so from the <a href="{% url 'core_manager_enrol_users' %}">Enrol User</a> interface.</p>
+                            <p>All of the users who have a role on your journal are listed below. If you wish to add an un-enrolled user you can do so from the <a href="{% url 'core_manager_enrol_users' %}?return={% url 'core_manager_users' %}">Enrol User</a> interface.</p>
                         </div>
                         <div class="medium-4 columns">
                             <select name="role">

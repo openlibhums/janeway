@@ -16,7 +16,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Enrol Users</h2>
-                <a href="{% url 'core_manager_index' %}" class="button">< Go back</a>
+                <a href="{% if return %}{{ return }}{% else %}{% url 'core_manager_index' %}{% endif %}" class="button">< Go back</a>
             </div>
             <div class="content">
 
@@ -41,6 +41,7 @@
                         <div class="medium-2 columns end">
                             <button class="success button">Search Users</button>
                         </div>
+                        {% if return %}<input type="hidden" name="return" value="{{ return }}">{% endif %}
                     </form>
                 </div>
 
