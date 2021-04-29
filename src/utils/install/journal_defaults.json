@@ -1211,7 +1211,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br/>{{ core_confirm_account_url }} br/></p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Thank you for registering for {{ request.journal.name }}. You can confirm your account at the following link:</p><p><br/>{{ core_confirm_account_url }} <br/></p>"
         }
     },
     {
