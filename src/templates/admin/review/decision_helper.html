@@ -94,7 +94,7 @@
                         <form method="POST">
                           {% csrf_token %}
                           <div class="button-group small">
-                            <button data-open="review_form_{{ review.pk }}" class="button">View Details</button>
+                            <a href="#" data-open="review_form_{{ review.pk }}" class="button">View Details</a>
                               <input type="hidden" name="review" value="{{ review.pk }}">
                               {% if review.review_file %}<a href="{% url 'editor_file_download' review.article.id review.review_file.id %}" class="button">View Review File</a>{% endif %}
                               {% if review.for_author_consumption %}
