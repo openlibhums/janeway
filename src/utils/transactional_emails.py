@@ -479,11 +479,10 @@ def send_revisions_complete(**kwargs):
     description = ('<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'
         ''.format(request.user.full_name(), revision.article.title, action_text)
     )
-
     notify_helpers.send_email_with_body_from_user(
         request,
         'Article Revisions Complete',
-        get_assignment_editors(revision),
+        {editor.email for editor in get_assignment_editors(revision)},
         description,
     )
     notify_helpers.send_slack(request, description, ['slack_editors'])
