@@ -1,21 +1,15 @@
 Installation Guide
 ==================
+There are a number of ways to get Janeway up and running. For development we recommend you use Docker with Postgres as the DB_VENDOR. A Lando configuration is also included.
 
-Janeway includes an environment setup script that will install virtual
-environment, its apt requirements and pip requirements. Please read the
-script to ensure it wont cause any issues with your current install. The
-command can be called directly from the command line:
-
-Ubuntu:
-``wget -O - https://raw.githubusercontent.com/BirkbeckCTP/janeway/master/setup_scripts/ubuntu.sh | bash``
-
-Debian:
-``wget -O - https://raw.githubusercontent.com/BirkbeckCTP/janeway/master/setup_scripts/debian.sh | bash``
-
-This command has been tested in 14.04, 15.04 and 16.04
-
-You should now proceed to “Database Setup and Final Installation”,
-below.
+Docker
+---------
+1. Install docker, docker-compose and make.
+2. From the root directory run `make install`.
+3. Follow instructions on screen.
+4. Once install is complete run `make run` to run the django server.
+5. For Janeway browse `http://localhost`/.
+6. If using Postgres you can also browse `http://localhost:8001` for pgadmin.
 
 Using Lando for a development environment (optional)
 -----------------------------------------------------------------
