@@ -3,9 +3,10 @@
 {% load static from staticfiles %}
 
 {% user_has_role request 'editor' as user_is_editor %}
+{% user_has_role request 'section-editor' as user_is_section_editor %}
 {% user_has_role request 'production' as user_is_production %}
 
-{% if user_is_editor or user_is_production %}
+{% if user_is_editor or user_is_production or user_is_section_editor %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
             class="fa fa-edit">&nbsp;</i>Edit</a>
 {% endif %}
