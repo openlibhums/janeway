@@ -71,7 +71,7 @@
                             <ul>
                                 <li>Date Uploaded: {{ xsl.date_uploaded|date:"Y-m-d" }}</li>
                                 {% if xsl.comments %}
-                                <li>Comments: {{ xsl.comments }}</li>
+                                <li>Comments: {{ xsl.comments|linebreaksbr }}</li>
                                 {% endif %}
                             </ul>
                             {% if journal.xsl != xsl %}

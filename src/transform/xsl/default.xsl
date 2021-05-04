@@ -2316,12 +2316,22 @@
   <!-- misc stuff -->
 
   <xsl:template match="pub-id" mode="nscitation">
+    <xsl:variable name="pub-id-type" select="@pub-id-type"/>
     <xsl:choose>
+      <!-- Handle identifier as URL -->
       <xsl:when test="starts-with(current(), 'http')">
         <xsl:value-of select="@pub-id-type"/>
         <xsl:text>:&#160;</xsl:text>
         <a href="{current()}" target="_blank">
         <xsl:apply-templates/>
+        </a>
+      </xsl:when>
+      <!-- Handle identifier as DOI but not URL -->
+      <xsl:when test="$pub-id-type='doi'">
+        <xsl:text>&#160;</xsl:text>
+        <a href="https://doi.org/{current()}" target="_blank">
+          <xsl:text>http://doi.org/</xsl:text>
+          <xsl:apply-templates/>
         </a>
       </xsl:when>
       <xsl:otherwise>
