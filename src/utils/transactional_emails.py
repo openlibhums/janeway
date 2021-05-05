@@ -1334,7 +1334,7 @@ def get_assignment_editors(assignment):
         editors = [ass.editor for ass in article.editorassignment_set.all()]
     else:
         # Fallback to all editors
-        editors = assignment.article.journal.editors()
+        editors = [e for e in assignment.article.journal.editors()]
     return editors
 
 
