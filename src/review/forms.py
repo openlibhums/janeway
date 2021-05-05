@@ -70,7 +70,6 @@ class ReviewAssignmentForm(forms.ModelForm):
 
         if self.instance.date_accepted:
             self.fields['form'].required = False
-            self.fields['review_type'].required = False
 
 
 class ReviewerDecisionForm(forms.ModelForm):
