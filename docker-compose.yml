@@ -19,8 +19,7 @@ services:
     image: dpage/pgadmin4
     user: root
     ports:
-      - target: 80
-        published: "${PGADMIN_PORT}"
+      - "${PGADMIN_PORT}:80"
     volumes:
       - ./db/pgadmin:/var/lib/pgadmin
     environment:
@@ -72,8 +71,7 @@ services:
       - ./logs:/vol/janeway/logs
       - ./db/janeway.sqlite3:/db/janeway.sqlite3
     ports:
-      - target: 8000
-        published: "${JANEWAY_PORT}"
+      - "${JANEWAY_PORT}:8000"
     environment:
       - DB_VENDOR
       - DB_HOST
