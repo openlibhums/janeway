@@ -113,7 +113,7 @@ Requesting revisions will allow you to ask the Author to make changes to the man
 
 Draft a Decision
 ----------------
-Draft Decisions is an optional workflow that forces Section Editors to make a draft of their decision for approval by an Editor before it is actioned in the system. When enable a Section Editor will only see the Draft Decision decision on the Decision Helper page.
+Draft Decisions is an optional workflow that requests that Section Editors submit a draft of their editorial decision for approval by an Editor before it is sent to the author via the system. When enabled, a Section Editor will only see the Draft Decision feature on the Decision Helper page.
 
 Section Editors:
 
