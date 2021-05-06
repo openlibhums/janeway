@@ -129,7 +129,7 @@ Editors:
 4. Edit, Accept or Decline the Draft.
 5. If accepted the decision event will fire.
 
-
+.. figure:: ../nstatic/review_draft_a_decision.gif
 
 Managing a Review
 -----------------
