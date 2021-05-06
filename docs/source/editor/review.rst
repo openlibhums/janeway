@@ -111,24 +111,6 @@ Requesting revisions will allow you to ask the Author to make changes to the man
 5. Action based on reviewer feedback
 
 
-Draft a Decision
-----------------
-Draft Decisions is an optional workflow that forces Section Editors to make a draft of their decision for approval by an Editor before it is actioned in the system. When enable a Section Editor will only see the Draft Decision decision on the Decision Helper page.
-
-Section Editors:
-
-1. Go to the Decision Helper page.
-2. Select Draft Decision.
-3. Complete the form, following the onscreen instructions.
-
-Editors:
-
-1. Will be notified when a Draft Decision is made.
-2. Open the link in email.
-3. Review the draft.
-4. Edit, Accept or Decline the Draft.
-5. If accepted the decision event will fire.
-
 .. figure:: ../nstatic/review_draft_a_decision.gif
 
 Managing a Review
