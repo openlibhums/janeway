@@ -1880,7 +1880,7 @@ def manage_article_log(request, article_id):
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
 
     if request.POST and settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
-        call_command('check_mailgun_stat')
+        call_command('check_mailgun_stat', article_id=article_id)
         return redirect(reverse('manage_article_log', kwargs={'article_id': article.pk}))
 
     template = 'journal/article_log.html'
