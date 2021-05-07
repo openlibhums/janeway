@@ -96,7 +96,6 @@
                           <div class="button-group small">
                             <a href="#" data-open="review_form_{{ review.pk }}" class="button">View Details</a>
                               <input type="hidden" name="review" value="{{ review.pk }}">
-                              {% if review.review_file %}<a href="{% url 'editor_file_download' review.article.id review.review_file.id %}" class="button">View Review File</a>{% endif %}
                               {% if review.for_author_consumption %}
                               <button name="hide_review" class="button alert pull-right"><span class="fa fa-eye-slash"></span> Hide from author</button>
                               {% else%}

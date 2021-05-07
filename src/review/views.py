@@ -2507,6 +2507,14 @@ def decision_helper(request, article_id):
             request, messages.WARNING,
             "The author won't see the review #%s" % review.pk,
         )
+    if 'review_file_visible' in request.POST:
+        review = get_object_or_404(
+            models.ReviewAssignment,
+            article=article,
+            id=request.POST.get('review'),
+        )
+        logic.handle_review_file_switch(review, request.POST.get('review_file_visible'))
+        messages.add_message(request, messages.SUCCESS, 'Review File visibility updated.')
 
     template = 'admin/review/decision_helper.html'
     context = {
