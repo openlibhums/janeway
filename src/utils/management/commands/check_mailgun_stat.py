@@ -37,25 +37,29 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('article_id', type=int, nargs='?', default='-1')
+        parser.add_argument('--article-id', type=int)
+        parser.add_argument('--email-log-id', type=int)
 
     def handle(self, *args, **options):
 
         if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
             article_id = options.get('article_id')
+            email_log_id = options.get('email_log_id')
 
-            if article_id == -1:
-                email_logs = models.LogEntry.objects.filter(is_email=True,
-                                                            message_id__isnull=False,
-                                                            status_checks_complete=False)
-            else:
+            email_logs = models.LogEntry.objects.filter(
+                    is_email=True,
+                    message_id__isnull=False,
+                    status_checks_complete=False,
+            )
+            if article_id:
                 article = submission_models.Article.objects.get(pk=article_id)
                 content_type = ContentType.objects.get_for_model(article)
-                email_logs = models.LogEntry.objects.filter(content_type=content_type,
-                                                            object_id=article.pk,
-                                                            is_email=True,
-                                                            message_id__isnull=False,
-                                                            status_checks_complete=False)
+                email_logs = email_logs.filter(
+                        content_type=content_type,
+                        object_id=article.pk,
+                )
+            if email_log_id:
+                email_logs.filter(pk=email_log_id)
 
             for log in email_logs:
                 logs = get_logs(log.message_id.replace('<', '').replace('>', ''))
