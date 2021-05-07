@@ -520,8 +520,8 @@ def send_email(user, form, request, article):
         subject,
         user.email,
         message,
-        cc=form.cleaned_data['cc'],
         log_dict=log_dict,
+        cc=form.cleaned_data['cc'],
     )
 
 
