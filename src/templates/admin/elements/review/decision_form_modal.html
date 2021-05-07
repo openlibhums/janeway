@@ -15,15 +15,19 @@
             </div>
             <div class="content">
                 {% for answer in review.review_form_answers %}
-                    <strong>{{ answer.element.name }}</strong>
+                <strong>
+                    {{ answer.element.name }}
+                    {% if not answer.author_can_see %} (Won't be shown to the authors){% endif %}
+                </strong>
                     <br/>
                     {{ answer.answer|linebreaksbr }}
                     <br/><br/>
                 {% endfor %}
             </div>
+            {% include "elements/review/review_file_table_modal.html" with review=review %}
             {% if review.comments_for_editor %}
                 <div class="title-area">
-                    <h2>Comments for the Editor</h2>
+                    <h2>Comments for the Editor (Won't be shown to the authors)</h2>
                 </div>
                 <div class="content">
                     <p>{{ review.comments_for_editor|linebreaksbr }}</p>
