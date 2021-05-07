@@ -1,10 +1,12 @@
 import requests
 from pprint import pprint
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from utils import models
+from submission import models as submission_models
 
 
 def get_logs(message_id):
@@ -29,12 +31,31 @@ class Command(BaseCommand):
 
     help = "Attempts to update delivery status for mailgun emails."
 
+    def add_arguments(self, parser):
+        """Adds arguments to Django's management command-line parser.
+
+        :param parser: the parser to which the required arguments will be added
+        :return: None
+        """
+        parser.add_argument('article_id', type=int, nargs='?', default='-1')
+
     def handle(self, *args, **options):
 
         if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
-            email_logs = models.LogEntry.objects.filter(is_email=True,
-                                                        message_id__isnull=False,
-                                                        status_checks_complete=False)
+            article_id = options.get('article_id')
+
+            if article_id == -1:
+                email_logs = models.LogEntry.objects.filter(is_email=True,
+                                                            message_id__isnull=False,
+                                                            status_checks_complete=False)
+            else:
+                article = submission_models.Article.objects.get(pk=article_id)
+                content_type = ContentType.objects.get_for_model(article)
+                email_logs = models.LogEntry.objects.filter(content_type=content_type,
+                                                            object_id=article.pk,
+                                                            is_email=True,
+                                                            message_id__isnull=False,
+                                                            status_checks_complete=False)
 
             for log in email_logs:
                 logs = get_logs(log.message_id.replace('<', '').replace('>', ''))
