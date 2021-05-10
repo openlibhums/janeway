@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import translation
 
 from security.decorators import editor_user_required
 from cms import models, forms
@@ -16,6 +17,8 @@ from core import models as core_models
 from core.forms import XSLFileForm
 from journal import models as journal_models
 from utils import setting_handler
+from utils.decorators import GET_language_override
+from utils.shared import language_override_redirect
 
 
 @editor_user_required
@@ -114,6 +117,7 @@ def view_page(request, page_name):
 
 
 @editor_user_required
+@GET_language_override
 def page_manage(request, page_id=None):
     """
     Allows a staff member to add a new or edit an existing page.
@@ -121,31 +125,36 @@ def page_manage(request, page_id=None):
     :param page_id: pk of a Page object, not required
     :return: HttpResponse object
     """
-    if page_id:
-        page = get_object_or_404(models.Page, pk=page_id,
-                                 content_type=request.model_content_type, object_id=request.site_type.pk)
-        page_form = forms.PageForm(instance=page)
-        edit = True
-    else:
-        page = None
-        page_form = forms.PageForm()
-        edit = False
-
-    if request.POST:
-
+    with translation.override(request.override_language):
         if page_id:
-            page_form = forms.PageForm(request.POST, instance=page)
+            page = get_object_or_404(models.Page, pk=page_id,
+                                     content_type=request.model_content_type, object_id=request.site_type.pk)
+            page_form = forms.PageForm(instance=page)
+            edit = True
         else:
-            page_form = forms.PageForm(request.POST)
+            page = None
+            page_form = forms.PageForm()
+            edit = False
 
-        if page_form.is_valid():
-            page = page_form.save(commit=False)
-            page.content_type = request.model_content_type
-            page.object_id = request.site_type.pk
-            page.save()
+        if request.POST:
 
-            messages.add_message(request, messages.INFO, 'Page saved.')
-            return redirect(reverse('cms_index'))
+            if page_id:
+                page_form = forms.PageForm(request.POST, instance=page)
+            else:
+                page_form = forms.PageForm(request.POST)
+
+            if page_form.is_valid():
+                page = page_form.save(commit=False)
+                page.content_type = request.model_content_type
+                page.object_id = request.site_type.pk
+                page.save()
+
+                messages.add_message(request, messages.INFO, 'Page saved.')
+                return language_override_redirect(
+                    request,
+                    'cms_page_edit',
+                    {'page_id': page.pk},
+                )
 
     template = 'cms/page_manage.html'
     context = {
@@ -158,6 +167,7 @@ def page_manage(request, page_id=None):
 
 
 @editor_user_required
+@GET_language_override
 def nav(request, nav_id=None):
     """
     Allows a staff member to edit or add nav objects.
@@ -165,67 +175,72 @@ def nav(request, nav_id=None):
     :param nav_id: pk of a Navigation object, not required
     :return: HttpResponse object
     """
-    if nav_id:
-        nav_to_edit = get_object_or_404(models.NavigationItem, pk=nav_id)
-        form = forms.NavForm(instance=nav_to_edit, request=request)
-    else:
-        nav_to_edit = None
-        form = forms.NavForm(request=request)
-
-    top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
-                                                         object_id=request.site_type.pk,
-                                                         top_level_nav__isnull=True)
-    collection_nav_items = None
-    if request.journal:
-        collection_nav_items = models.NavigationItem.get_issue_types_for_nav(
-            request.journal)
-
-    if request.POST.get('nav'):
-        attr = request.POST.get('nav')
-        setattr(request.journal, attr, not getattr(request.journal, attr))
-        request.journal.save()
-        return redirect(reverse('cms_nav'))
-
-    elif "editorial_team" in request.POST:
-        setting_handler.toggle_boolean_setting(
-            setting_group_name="general",
-            setting_name="enable_editorial_display",
-            journal=request.journal,
-        )
-
-    elif 'keyword_list_page' in request.POST:
-        setting_handler.toggle_boolean_setting(
-            setting_group_name="general",
-            setting_name="keyword_list_page",
-            journal=request.journal,
-        )
-
-    elif "delete_nav" in request.POST:
-        nav_to_delete = get_object_or_404(
-                models.NavigationItem,
-                pk=request.POST["delete_nav"])
-        nav_to_delete.delete()
-    elif "toggle_collection_nav" in request.POST:
-        issue_type = get_object_or_404(
-            journal_models.IssueType,
-            journal=request.journal,
-            pk=request.POST["toggle_collection_nav"],
-        )
-        models.NavigationItem.toggle_collection_nav(issue_type)
-
-    if request.POST:
-        if nav_to_edit:
-            form = forms.NavForm(request.POST, request=request, instance=nav_to_edit)
+    with translation.override(request.override_language):
+        if nav_id:
+            nav_to_edit = get_object_or_404(models.NavigationItem, pk=nav_id)
+            form = forms.NavForm(instance=nav_to_edit, request=request)
         else:
-            form = forms.NavForm(request.POST, request=request)
+            nav_to_edit = None
+            form = forms.NavForm(request=request)
 
-        if form.is_valid():
-            new_nav_item = form.save(commit=False)
-            new_nav_item.content_type = request.model_content_type
-            new_nav_item.object_id = request.site_type.pk
-            new_nav_item.save()
+        top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
+                                                             object_id=request.site_type.pk,
+                                                             top_level_nav__isnull=True)
+        collection_nav_items = None
+        if request.journal:
+            collection_nav_items = models.NavigationItem.get_issue_types_for_nav(
+                request.journal)
 
+        if request.POST.get('nav'):
+            attr = request.POST.get('nav')
+            setattr(request.journal, attr, not getattr(request.journal, attr))
+            request.journal.save()
             return redirect(reverse('cms_nav'))
+
+        elif "editorial_team" in request.POST:
+            setting_handler.toggle_boolean_setting(
+                setting_group_name="general",
+                setting_name="enable_editorial_display",
+                journal=request.journal,
+            )
+
+        elif 'keyword_list_page' in request.POST:
+            setting_handler.toggle_boolean_setting(
+                setting_group_name="general",
+                setting_name="keyword_list_page",
+                journal=request.journal,
+            )
+
+        elif "delete_nav" in request.POST:
+            nav_to_delete = get_object_or_404(
+                    models.NavigationItem,
+                    pk=request.POST["delete_nav"])
+            nav_to_delete.delete()
+        elif "toggle_collection_nav" in request.POST:
+            issue_type = get_object_or_404(
+                journal_models.IssueType,
+                journal=request.journal,
+                pk=request.POST["toggle_collection_nav"],
+            )
+            models.NavigationItem.toggle_collection_nav(issue_type)
+
+        if request.POST:
+            if nav_to_edit:
+                form = forms.NavForm(request.POST, request=request, instance=nav_to_edit)
+            else:
+                form = forms.NavForm(request.POST, request=request)
+
+            if form.is_valid():
+                new_nav_item = form.save(commit=False)
+                new_nav_item.content_type = request.model_content_type
+                new_nav_item.object_id = request.site_type.pk
+                new_nav_item.save()
+
+                return language_override_redirect(
+                    request,
+                    'cms_nav_edit',
+                    {'nav_id': new_nav_item.pk},
+                )
 
     template = 'cms/nav.html'
     context = {

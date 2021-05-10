@@ -18,10 +18,17 @@ class Page(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
-    name = models.CharField(max_length=300, help_text="Page name displayed in the URL bar eg. about or contact")
-    display_name = models.CharField(max_length=100, help_text='Name of the page, max 100 chars, displayed '
-                                                              'in the nav and on the header of the page eg. '
-                                                              'About or Contact')
+    name = models.CharField(
+        max_length=300,
+        help_text="Page name displayed in the URL bar eg. about or contact",
+        verbose_name="URL Name"
+    )
+    display_name = models.CharField(
+        max_length=100,
+        help_text='Name of the page, max 100 chars, displayed '
+                  'in the nav and on the header of the page eg. '
+                  'About or Contact',
+    )
     content = models.TextField(null=True, blank=True)
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)

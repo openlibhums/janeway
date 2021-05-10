@@ -16,5 +16,5 @@ def language_name(language_code):
     try:
         info = LANG_INFO.get(language_code)
         return info.get('name_local')
-    except KeyError:
+    except (KeyError, AttributeError):
         return language_code
