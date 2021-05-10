@@ -1745,10 +1745,12 @@ def do_revisions(request, article_id, revision_id):
     :param revision_id: PK of a RevisionRequest
     :return:
     """
-    revision_request = get_object_or_404(models.RevisionRequest,
-                                         article__pk=article_id,
-                                         pk=revision_id,
-                                         date_completed__isnull=True)
+    revision_request = get_object_or_404(
+        models.RevisionRequest,
+        article__pk=article_id,
+        pk=revision_id,
+        date_completed__isnull=True,
+    )
 
     reviews = models.ReviewAssignment.objects.filter(
         article=revision_request.article,
@@ -1783,6 +1785,24 @@ def do_revisions(request, article_id, revision_id):
                 )
             )
 
+        elif 'save' in request.POST:
+            covering_letter = request.POST.get('author_note')
+            revision_request.author_note = covering_letter
+            revision_request.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Thanks. Your covering letter has been saved.',
+            )
+            return redirect(
+                reverse(
+                    'do_revisions',
+                    kwargs={
+                        'article_id': article_id,
+                        'revision_id': revision_id
+                    }
+                )
+            )
         else:
 
             form = forms.DoRevisions(request.POST, instance=revision_request)
@@ -1807,7 +1827,7 @@ def do_revisions(request, article_id, revision_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Revisions Complete.',
+                    'Thank you for submitting your revisions. The Editor has been notified.',
                 )
 
                 revision_request.date_completed = timezone.now()
@@ -1827,7 +1847,7 @@ def do_revisions(request, article_id, revision_id):
             )
             return files.serve_file(request, file, revision_request.article)
 
-    template = 'review/revision/do_revision.html'
+    template = 'admin/review/revision/do_revision.html'
     context = {
         'revision_request': revision_request,
         'form': form,

@@ -406,7 +406,13 @@ class RevisionRequest(models.Model):
     article = models.ForeignKey('submission.Article')
     editor = models.ForeignKey('core.Account')
     editor_note = models.TextField()  # Note from Editor to Author
-    author_note = models.TextField(blank=True, null=True, verbose_name="Covering Letter")  # Note from Author to Editor
+    author_note = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Covering Letter",
+        help_text="You can add an optional covering letter to the editor with details of the "
+                  "changes that you have made to your revised manuscript."
+    )  # Note from Author to Editor
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
     type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
 
