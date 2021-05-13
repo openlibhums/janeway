@@ -69,7 +69,7 @@ Once a reviewer has completed their review, you can mark the review as available
 
 .. figure:: ../nstatic/review_author_consumption.gif
 
-You can also edit review form answers to ensure they do not identify te reviewer. The author will see the edited version, the system will retain the original.
+You can also edit review form answers to ensure they do not identify the reviewer. The author will see the edited version, the system will retain the original.
 
 Decision Helper
 -----------------
@@ -83,7 +83,7 @@ One of the options under Actions is "Make a Decision" this will take you to the 
 - New Review Round
     - This option adds a new review round, a clean slate of review! Any open review assignments on the current round are withdrawn and a new round is set up. This process is often done after round 1 is complete and the author has also completed some form of revisions. You will still be able to see Round 1 via a tab at the top of the page.
 - Reject Article
-    - Rejects the article, removes if from the workflow and allows you to email the author.
+    - Rejects the article, removes it from the workflow and allows you to email the author.
 - Request Revisions
     - Allows you to request the author revise their paper.
 - If enabled, Draft a Decision
@@ -151,7 +151,7 @@ Here is an example of a review round.
 3. Add Reviewer B to Round 1.
 4. Add Reviewer N to Round 1.
 5. Wait for responses from Reviewers (Editor will be notified by email when Reviewer makes an action).
-6. When responses are back Make a Decision (Accept, Decline or Request Revisions).
+6. When responses are back: Make a Decision (Accept, Decline or Request Revisions).
     1. If Draft Decision is enabled and you are a Section Editor you will be asked to Draft a Decision for a Senior Editor to approve.
     2. Accept will move the article to the next stage.
     3. Reject will remove the article from the workflow.
