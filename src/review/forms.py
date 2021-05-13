@@ -5,6 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from datetime import timedelta
 
+from django_summernote.widgets import SummernoteWidget
+
 from django import forms
 from django.utils import timezone
 from django.template.defaultfilters import linebreaksbr
@@ -130,6 +132,9 @@ class DoRevisions(forms.ModelForm):
         fields = (
             'author_note',
         )
+        widgets = {
+            'author_note': SummernoteWidget(),
+        }
 
 
 class GeneratedForm(forms.Form):

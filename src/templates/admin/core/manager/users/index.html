@@ -65,7 +65,8 @@
                                 {% if settings.DEBUG %}
                                     <td>
                                         <button type="submit" class="tiny button" formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
-                                            Hijack User</button>
+                                            Hijack User
+                                        </button>
                                     </td>{% endif %}
                             </tr>
                         {% endfor %}

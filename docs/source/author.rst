@@ -117,6 +117,28 @@ The review page displays a run down of the article you've submitted, metadata, f
     The review page for the article
 
 
+Revisions
+---------
+Editors may request that authors revise their files based on recommendations from reviewers. There are two types of Revision decision:
+
+1. Minor Revisions.
+2. Major Revisions.
+
+With Major Revisions you may find that the Editor will send the paper for a second round of review once you have completed your revisions.
+
+When an Editor request revisions there are two ways to start this process:
+
+1. Click the link in the email sent to you.
+2. Via the Journal Dashboard:
+    1. Login to the Journal
+    2. Go to the journal Dashboard
+    3. Scroll down to "Submitted Articles"
+    4. Click the "Revision Request" button next to the article.
+
+Once you have accessed the revision request you will be able to view available peer reviews and download, revise or upload new files. Once you've uploaded a revised manuscript and any additional image files you can fill in the covering letter and save the revision.
+
+ .. figure:: /nstatic/review_do_revisions.gif
+
 Proofing
 --------
 After your paper has been accepted and copyediting, the editors might send you a request to proof the 'Typesetting Files'.
