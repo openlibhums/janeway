@@ -12,50 +12,58 @@
 {% endblock %}
 
 {% block body %}
-    <div class="large-6 columns">
+    <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Current Contacts</h2>
-                <a class="float-right small button success" href="{% url 'core_journal_contacts' %}"><i
-                class="fa fa-plus">&nbsp;</i>Add New Contact</a>
+                <a class="float-right small button success" href="{% url 'core_new_journal_contact' %}"><i
+                        class="fa fa-plus">&nbsp;</i>Add New Contact</a>
+                <a class="button" href="{% url 'contact' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Contacts Page</a>
             </div>
             <div class="content">
-                <ul class="list-group" id="sortable">
-                        {% for contact in contacts %}
-                            <li class="list-group-item" id="contact-{{ contact.pk }}">
-                                <div class="float-right">
-                                    <form method="POST">
-                                        {% csrf_token %}
-                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
-                                            class="fa fa-edit">&nbsp;</i>Edit</a>
-
-                                        <button type="submit" name="delete" value="{{ contact.pk }}"
-                                       class="tiny alert button"><i class="fa fa-trash"></i></button>
-                                    </form>
-                                </div>
-
-                                {{ contact.name }}, {{ contact.email }}<br/>
-                                <small>
-                                    {{ contact.role }}<br/>
-                                </small>
-                            </li>
-                        {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>{% if action == 'new' %}Add New Contact{% else %}Edit Contact{% endif %}</h2>
-            </div>
-            <div class="content">
+                <p>
+                    Journal Contacts are listed below. You can alter their order by dragging and dropping them into the
+                    order you require.
+                </p>
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form|foundation }}
-                    <button class="success button" type="submit">{% if action == 'new' %}Add Item{% else %}Update
-                        Item{% endif %}</button>
+                    <table class="table scroll">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Contact Name</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for contact in contacts %}
+                            <tr id="contact-{{ contact.pk }}">
+                                <td><i class="fa fa-sort"></i></td>
+                                <td>{{ contact.name }}</td>
+                                <td>{{ contact.email }}</td>
+                                <td>{{ contact.role }}</td>
+                                <td>
+                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
+                                            class="fa fa-edit">&nbsp;</i>Edit Contact</a>
+                                </td>
+                                <td>
+                                    <button type="submit" name="delete" value="{{ contact.pk }}"
+                                            class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Contact</button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    This journal has no contacts. <a href="{% url 'core_new_journal_contact' %}">Add a new contact.</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
                 </form>
             </div>
         </div>
@@ -80,4 +88,5 @@
         });
         $("#sortable").disableSelection();
     </script>
+    {% include "admin/elements/post_check.html" %}
 {% endblock js %}

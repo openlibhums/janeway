@@ -5266,3 +5266,15 @@ button.list-group-item-danger.active:focus {
 
 .small-caps {
   font-variant: small-caps; }
+
+.flag-button {
+  height: 25px;
+  width: 33px;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-top: 5px; }
+
+.flag-active {
+  text-decoration: #404554 underline;
+  text-underline-offset: 10px;
+  text-decoration-thickness: 3px; }

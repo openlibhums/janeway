@@ -1318,14 +1318,19 @@ def contacts(request):
     :return: HttpResponse object
     """
     form = forms.JournalContactForm()
-    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
+    contacts = models.Contacts.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
 
     if 'delete' in request.POST:
         contact_id = request.POST.get('delete')
-        contact = get_object_or_404(models.Contacts,
-                                    pk=contact_id,
-                                    content_type=request.model_content_type,
-                                    object_id=request.site_type.pk)
+        contact = get_object_or_404(
+            models.Contacts,
+            pk=contact_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
         contact.delete()
         return redirect(reverse('core_journal_contacts'))
 
@@ -1351,31 +1356,51 @@ def contacts(request):
 
 
 @editor_user_required
-def edit_contacts(request, contact_id):
+@GET_language_override
+def edit_contacts(request, contact_id=None):
     """
     Allows for editing of existing Contact objects
     :param request: HttpRequest object
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
-    contact = get_object_or_404(models.Contacts,
-                                pk=contact_id,
-                                content_type=request.model_content_type,
-                                object_id=request.site_type.pk)
-    form = forms.JournalContactForm(instance=contact)
-    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
+    with translation.override(request.override_language):
+        if contact_id:
+            contact = get_object_or_404(
+                models.Contacts,
+                pk=contact_id,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+            )
+            form = forms.JournalContactForm(instance=contact)
+        else:
+            contact = None
+            form = forms.JournalContactForm(
+                next_sequence=request.site_type.next_contact_order(),
+            )
 
-    if request.POST:
-        form = forms.JournalContactForm(request.POST, instance=contact)
+        if request.POST:
+            form = forms.JournalContactForm(request.POST, instance=contact)
 
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('core_journal_contacts'))
+            if form.is_valid():
+                if contact:
+                    contact = form.save()
+                else:
+                    contact = form.save(commit=False)
+                    contact.content_type = request.model_content_type
+                    contact.object_id = request.site_type.pk
+                    contact.save()
 
-    template = 'core/manager/contacts/index.html'
+                return language_override_redirect(
+                    request,
+                    'core_journal_contact',
+                    {'contact_id': contact.pk},
+                )
+
+    template = 'core/manager/contacts/manage.html'
     context = {
         'form': form,
-        'contacts': contacts
+        'contact': contact,
     }
 
     return render(request, template, context)
@@ -1407,7 +1432,6 @@ def editorial_team(request):
     :return: HttpResponse object
     """
     editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
-    form = forms.EditorialGroupForm(next_sequence=request.journal.next_group_order())
 
     if 'delete' in request.POST:
         delete_id = request.POST.get('delete')
@@ -1415,47 +1439,54 @@ def editorial_team(request):
         group.delete()
         return redirect(reverse('core_editorial_team'))
 
-    if request.POST:
-        form = forms.EditorialGroupForm(request.POST)
-
-        if form.is_valid():
-            group = form.save(commit=False)
-            group.journal = request.journal
-            group.save()
-
-            return redirect(reverse('core_editorial_team'))
-
     template = 'core/manager/editorial/index.html'
     context = {
         'editorial_groups': editorial_groups,
-        'form': form,
     }
 
     return render(request, template, context)
 
 
 @editor_user_required
-def edit_editorial_group(request, group_id):
+@GET_language_override
+def edit_editorial_group(request, group_id=None):
     """
     Allows editors to edit existing EditorialGroup objects
     :param request: HttpRequest object
     :param group_id: EditorialGroup object PK
     :return: HttpResponse object
     """
-    editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
-    group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
-    form = forms.EditorialGroupForm(instance=group)
+    with translation.override(request.override_language):
+        if group_id:
+            group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
+            form = forms.EditorialGroupForm(
+                instance=group,
+            )
+        else:
+            group = None
+            form = forms.EditorialGroupForm(
+                next_sequence=request.journal.next_group_order(),
+            )
 
-    if request.POST:
-        form = forms.EditorialGroupForm(request.POST, instance=group)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('core_editorial_team'))
+        if request.POST:
+            form = forms.EditorialGroupForm(request.POST, instance=group)
+            if form.is_valid():
+                if group:
+                    group = form.save()
+                else:
+                    group = form.save(commit=False)
+                    group.journal = request.journal
+                    group.save()
 
-    template = 'core/manager/editorial/index.html'
+                return language_override_redirect(
+                    request,
+                    'core_edit_editorial_team',
+                    {'group_id': group.pk},
+                )
+
+    template = 'core/manager/editorial/manage_group.html'
     context = {
         'group': group,
-        'editorial_groups': editorial_groups,
         'form': form,
     }
 
@@ -1804,15 +1835,10 @@ def manage_section(request, section_id=None):
                 form_section.save()
                 form.save_m2m()
 
-            reverse_url = '{url}?language={lang}'.format(
-                url=reverse(
-                    'core_manager_section',
-                    kwargs={'section_id': section.pk or form_section.pk},
-                ),
-                lang=request.override_language,
-            )
-            return redirect(
-                reverse_url
+            return language_override_redirect(
+                request,
+                'core_manager_section',
+                {'section_id': section.pk or form_section.pk},
             )
 
         template = 'core/manager/sections/manage_section.html'

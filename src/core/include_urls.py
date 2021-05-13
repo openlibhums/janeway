@@ -117,6 +117,7 @@ urlpatterns = [
 
     # Journal Contacts
     url(r'^manager/contacts/$', core_views.contacts, name='core_journal_contacts'),
+    url(r'^manager/contacts/add/$', core_views.edit_contacts, name='core_new_journal_contact'),
     url(r'^manager/contacts/(?P<contact_id>\d+)/$', core_views.edit_contacts, name='core_journal_contact'),
     url(r'^manager/contacts/order/$', core_views.contacts_order, name='core_journal_contacts_order'),
 
@@ -124,6 +125,8 @@ urlpatterns = [
     url(r'^manager/editorial/$', core_views.editorial_team, name='core_editorial_team'),
     url(r'^manager/editorial/(?P<group_id>\d+)/$', core_views.edit_editorial_group,
         name='core_edit_editorial_team'),
+    url(r'^manager/editorial/new/$', core_views.edit_editorial_group,
+        name='core_add_editorial_team'),
     url(r'^manager/editorial/(?P<group_id>\d+)/add/$', core_views.add_member_to_group,
         name='core_editorial_member_to_group'),
     url(r'^manager/editorial/(?P<group_id>\d+)/add/(?P<user_id>\d+)/$', core_views.add_member_to_group,
