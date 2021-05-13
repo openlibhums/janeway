@@ -136,7 +136,7 @@ class ToAddress(models.Model):
 
 
 class Version(models.Model):
-    number = models.CharField(max_length=5)
+    number = models.CharField(max_length=10)
     date = models.DateTimeField(default=timezone.now)
     rollback = models.DateTimeField(blank=True, null=True)
 
