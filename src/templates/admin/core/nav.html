@@ -11,6 +11,26 @@
     </button>
     <ul class="vertical menu">
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
+             {% if journal_settings.general.switch_language %}
+        <li class="subtitle"><a href="#">Switch Language</a></li>
+        <li>
+            <div class="small-12 small-centered columns">
+                 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.PATH }}" />
+                    <select name="language" onchange="this.form.submit()">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                {{ language.name_local }} ({{ language.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </li>
+        {% endif %}
         <li class="subtitle"><a href="#">Dashboards</a></li>
         <li><a href="{% url 'core_dashboard' %}"><i class="fa fa-tachometer">&nbsp;</i>
             Main</a></li>
@@ -49,26 +69,6 @@
             <li><a href="{% url 'core_journal_workflow' %}"><i class="fa fa-code-fork">&nbsp;</i>
             Workflow</a></li>
             {% hook 'journal_admin_nav_block' %}
-        {% endif %}
-        {% if journal_settings.general.switch_language %}
-        <li class="subtitle"><a href="#">Language</a></li>
-        <li>
-            <div class="small-12 small-centered columns">
-                 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-                    <input name="next" type="hidden" value="{{ request.PATH }}" />
-                    <select name="language" onchange="this.form.submit()">
-                        {% get_current_language as LANGUAGE_CODE %}
-                        {% get_available_languages as LANGUAGES %}
-                        {% get_language_info_list for LANGUAGES as languages %}
-                        {% for language in languages %}
-                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                                {{ language.name_local }} ({{ language.code }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-        </li>
         {% endif %}
     </ul>
 </div>

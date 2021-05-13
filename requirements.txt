@@ -1,4 +1,4 @@
-beautifulsoup4==4.4.1
+beautifulsoup4==4.9.3
 boto==2.46.1
 bs4==0.0.1
 colorlog==3.1.4
@@ -49,3 +49,4 @@ user-agents==1.0.1
 django-hijack==2.1.10
 geoip2==3.0.0 # Newer versions require python >= 3.6
 maxminddb==1.5.4
+six==1.14.0

@@ -71,23 +71,29 @@ class EditKey(forms.Form):
         return cleaned_data
 
 
-class JournalContactForm(forms.ModelForm):
+class JournalContactForm(JanewayTranslationModelForm):
+    def __init__(self, *args, **kwargs):
+        next_sequence = kwargs.pop('next_sequence', None)
+        super(JournalContactForm, self).__init__(*args, **kwargs)
+        if next_sequence:
+            self.fields['sequence'].initial = next_sequence
 
     class Meta:
         model = models.Contacts
-        exclude = ('content_type', 'object_id', 'sequence',)
+        fields = ('name', 'email', 'role', 'sequence',)
+        exclude = ('content_type', 'object_id',)
 
 
-class EditorialGroupForm(forms.ModelForm):
+class EditorialGroupForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop('next_sequence', None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
-
         if next_sequence:
             self.fields['sequence'].initial = next_sequence
 
     class Meta:
         model = models.EditorialGroup
+        fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
 
 
