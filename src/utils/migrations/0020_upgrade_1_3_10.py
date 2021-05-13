@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.db import migrations
+
+from django.db import migrations, models
 from django.utils import timezone
 
 VERSION = "1.3.10"
@@ -23,5 +24,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='version',
+            name='number',
+            field=models.CharField(max_length=10),
+        ),
         migrations.RunPython(upgrade, reverse_code=rollback),
     ]
