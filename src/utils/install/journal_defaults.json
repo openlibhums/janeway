@@ -199,7 +199,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editors when requesting revisions.",
+            "description": "Email sent to authors when requesting revisions.",
             "is_translatable": true,
             "name": "request_revisions",
             "pretty_name": "Request Revisions",
