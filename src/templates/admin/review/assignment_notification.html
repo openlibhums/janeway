@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load settings %}
 
 {% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 {% block page_title %}Editor Assignment Notification{% endblock %}
@@ -29,7 +30,8 @@
                             <form method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="card-section">
-                                    <p>Subject: <strong>Editor Assignment</strong></p>
+                                    {% setting_var request.journal 'subject_editor_assignment' as subject %}
+                                    <p>Subject: <strong>{{ subject }}</strong></p>
                                     <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
                                     <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                                     <input type="file" name="attachment" multiple>
