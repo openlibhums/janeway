@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load settings %}
 
 
 {% block title %}Add Review Assignment{% endblock title %}
@@ -31,7 +32,8 @@
 
                         {% csrf_token %}
 
-                        <p>Subject: <strong>Review Assignment</strong></p>
+                        {% setting_var request.journal 'subject_review_assignment' as subject %}
+                        <p>Subject: <strong>{{ subject }}</strong></p>
                         <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
                         <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                         <input type="file" name="attachment" multiple>

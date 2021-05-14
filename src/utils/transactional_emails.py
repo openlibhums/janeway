@@ -155,7 +155,7 @@ def send_reviewer_requested_acknowledgements(**kwargs):
     if not skip:
         notify_helpers.send_email_with_body_from_user(
             request,
-            'subject_review_request_sent',
+            'subject_review_assignment',
             review_assignment.reviewer.email,
             user_message_content,
             log_dict=log_dict,

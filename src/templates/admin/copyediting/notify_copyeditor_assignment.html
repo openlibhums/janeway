@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load static from staticfiles %}
+{% load settings %}
+
 
 {% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 {% block title %}Editor Assignment Notification{% endblock %}
@@ -21,7 +23,8 @@
                         <h5>From {{ request.user.full_name }}</h5>
                     </div>
                     <div class="card-section">
-                         <p>Subject: <strong>Copyedit Assignment</strong></p>
+                        {% setting_var request.journal 'subject_copyeditor_assignment_notification' as subject %}
+                        <p>Subject: <strong>{{ subject }}</strong></p>
                         <textarea rows="10" name="content_email">{{ user_message_content|linebreaksbr }}</textarea>
                         <label for="attachment"><p>Attachment (You can select multiple files): </p></label>
                         <input type="file" name="attachment" multiple>
