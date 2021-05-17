@@ -107,10 +107,14 @@
                         <li>
                             <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
                                 <input name="next" type="hidden" value="{{ request.PATH }}"/>
+                                {% if journal_settings.general.enable_language_text %}
+                                    <button name="language" value="{{ language.code }}" class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name }}</button>&nbsp;
+                                {% else %}
                                 <button class="flag-button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}" name="language" value="{{ language.code }}"
                                         style="background: url(/static/common/img/flags/{{ language.code }}.png) no-repeat;">
                                     &nbsp;
                                 </button>
+                                {% endif %}
                             </form>
                         </li>
                     {% endfor %}

@@ -46,6 +46,9 @@
     <p>You can enable the Switch Language field from here which will enable internationalisation.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.switch_language %}
 
+    <p>If you don't want to display language flags - you can </p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_language_text %}
+
     <p>You can include a google analytics code here if you want to track user visits.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
 </div>
