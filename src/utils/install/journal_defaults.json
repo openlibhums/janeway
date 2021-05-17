@@ -2983,5 +2983,20 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled the language buttons will use text rather than flags.",
+            "is_translatable": false,
+            "name": "enable_language_text",
+            "pretty_name": "Language Button Text Override",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

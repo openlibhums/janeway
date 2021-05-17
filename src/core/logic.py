@@ -365,7 +365,7 @@ def get_settings_to_edit(group, journal):
             'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
             'main_contact', 'publisher_name', 'publisher_url', 'privacy_policy_url',
             'auto_signature', 'slack_logging', 'slack_webhook', 'twitter_handle',
-            'switch_language', 'google_analytics_code',
+            'switch_language', 'enable_language_text', 'google_analytics_code',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
