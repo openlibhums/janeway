@@ -1796,7 +1796,7 @@ def manage_section(request, section_id=None):
             return language_override_redirect(
                 request,
                 'core_manager_section',
-                {'section_id': section.pk or form_section.pk},
+                {'section_id': section.pk if section else form_section.pk},
             )
 
         template = 'core/manager/sections/manage_section.html'
