@@ -58,7 +58,7 @@
                         <affiliation>{{ author.affiliation }}</affiliation>
                         {% endif %}
                         {% if author.author.orcid %}
-                        <ORCID>{{ author.orcid }}</ORCID>
+                        <ORCID>{{ author.author.orcid }}</ORCID>
                         {% endif %}
                     </person_name>
                     {% endif %}
