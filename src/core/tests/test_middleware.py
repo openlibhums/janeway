@@ -149,7 +149,7 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone.zone, None)
+        self.assertEqual(request.timezone, None)
 
     def test_user_preference_case(self):
         request = self.request_factory.get("/test/", SERVER_NAME="press.org")

@@ -37,7 +37,7 @@ def get_thumbnails_url(url):
     """
     logger.info("Extracting thumbnails URL.")
 
-    section_filters = ["f=%d" % i for i in range(1,100)]
+    section_filters = ["f=%d" % i for i in range(1,10)]
     flt = "&".join(section_filters)
     url_to_use = url + '/articles/?' + flt + '&order=date_published&app=100000'
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url_to_use)
