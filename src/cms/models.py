@@ -102,3 +102,20 @@ class NavigationItem(models.Model):
                 link_name=issue_type.plural_name,
             ).exists():
                 yield issue_type
+
+
+class SubmissionItem(models.Model):
+    journal = models.ForeignKey('journal.Journal')
+    title = models.CharField(max_length=255)
+    text = models.TextField()
+    order = models.IntegerField(default=99)
+    existing_setting = models.ForeignKey('core.Setting', blank=True, null=True)
+
+    def get_display_text(self):
+        if self.existing_setting:
+            return self.journal.get_setting(
+                self.existing_setting.group.name,
+                self.existing_setting.name,
+            )
+        else:
+            return self.text

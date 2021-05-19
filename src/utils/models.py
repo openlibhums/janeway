@@ -10,11 +10,11 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from django.utils import timezone
-from django.core.serializers import json
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
+from django.utils.text import slugify
 
 from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
@@ -161,11 +161,16 @@ class Plugin(models.Model):
     def __repr__(self):
         return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
 
-    def best_name(self):
+    def best_name(self, slug=False):
         if self.display_name:
-            return self.display_name.lower()
+            name = self.display_name.lower()
+        else:
+            name = self.name.lower()
 
-        return self.name.lower()
+        if slug:
+            return slugify(name)
+        else:
+            return name
 
 
 setting_types = (
