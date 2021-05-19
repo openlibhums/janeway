@@ -20,6 +20,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
+from django.utils.timezone import make_aware
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -220,8 +221,6 @@ def handle_set_pubdate(request, article):
     time = request.POST.get('time')
 
     date_time_str = "{0} {1}".format(date, time)
-
-    from django.utils.timezone import make_aware
 
     try:
         date_time = make_aware(dateparser.parse(date_time_str))
