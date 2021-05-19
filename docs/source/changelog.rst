@@ -1,5 +1,73 @@
 Changelog
 =========
+v1.3.10
+-------
+Version 1.3.10 includes updates mainly for Peer Review. Updates to documentation will be released with a later Release Candidate.
+
+Bugfixes
+^^^^^^^^
+* The Edit Metadata link now shows for Section Editors (https://github.com/BirkbeckCTP/janeway/pull/2183)
+* Fixed a bug where the review assignment page wouldn't load if a reviewer had multiple ratings for the same review (https://github.com/BirkbeckCTP/janeway/issues/2168)
+* Fixed wrong URL name in review_accept_acknowledgement (https://github.com/BirkbeckCTP/janeway/pull/2165)
+* Section editors are now authorised by the `article_stage_accepted_or_later_or_staff_required` security decorator (https://github.com/BirkbeckCTP/janeway/pull/2162)
+* The edit review assignment form now works properly after a review has been accepted (https://github.com/BirkbeckCTP/janeway/pull/2156)
+* When a revision request has no editor we now fallback to email journal editors rather than sending no email (https://github.com/BirkbeckCTP/janeway/pull/2150)
+* Only published issues display in the Issue sidebar (https://github.com/BirkbeckCTP/janeway/issues/2113)
+* Empty collections are now excluded from the collections page (https://github.com/BirkbeckCTP/janeway/pull/2139)
+* When revising a file the supplied label is retained and defaults now to "Revised Manuscript" (https://github.com/BirkbeckCTP/janeway/issues/2128)
+* Guest Editors now display properly on Issue pages (https://github.com/BirkbeckCTP/janeway/issues/2134)
+* Fixed potential validation error when sending emails using the contact popup (https://github.com/BirkbeckCTP/janeway/issues/1967)
+* Fixed issue where when two or more review form elements had the same name the review would not save (https://github.com/BirkbeckCTP/janeway/pull/2108)
+
+
+Workflow (Review)
+^^^^^^^^^^^^^^^^^
+* The draft decisions workflow has been updated to be more user friendly (https://github.com/BirkbeckCTP/janeway/issues/1809)
+* Article decisions have been moved from the main review screen to a Decision Helper page (https://github.com/BirkbeckCTP/janeway/issues/1809)
+* When using the enrol pop up when assigning a reviewer you can now select a salutation (https://github.com/BirkbeckCTP/janeway/issues/2143)
+* The Request Revisions page has had some of its wording updated (https://github.com/BirkbeckCTP/janeway/issues/2131)
+* The Articles in Review page has has some of its wording updated and now displays even more useful information (https://github.com/BirkbeckCTP/janeway/issues/2122)
+* Review Type has been removed from the Review Assignment form (https://github.com/BirkbeckCTP/janeway/pull/2119)
+* The Review Form page now displays useful metadata for the Reviewer (https://github.com/BirkbeckCTP/janeway/issues/2101)
+* Added a Email Reviewer link to the Review Detail page (https://github.com/BirkbeckCTP/janeway/issues/1967)
+* Added tooltips to user action icons and moved reminder link to dropdown (https://github.com/BirkbeckCTP/janeway/issues/2002)
+
+Emails
+^^^^^^
+* The Peer Review Request email now contains useful metadata (https://github.com/BirkbeckCTP/janeway/issues/2100)
+* `send_reviewer_accepted_or_decline_acknowledgements` now has the correct link and more useful information (https://github.com/BirkbeckCTP/janeway/issues/2102)
+
+Author Dashboard
+^^^^^^^^^^^^^^^^
+* You can enable the display of additional review metadata for authors. Originally this was always available but is now a toggle-able setting that is off by default (https://github.com/BirkbeckCTP/janeway/issues/2103)
+
+Manager
+^^^^^^^
+https://github.com/BirkbeckCTP/janeway/issues/2149
+* The Users and Roles pages have been updated to:
+    * Enrolled Users (those users who already have a role on your journal)
+    * Enrol Users (allows you to search, but not browse, users to enrol them on your journal)
+    * Roles (now only displays users with the given role)
+* One click access is now enabled by default for all new journals (https://github.com/BirkbeckCTP/janeway/pull/2105)
+
+
+Front End
+^^^^^^^^^
+* Added support for linguistic glosses (https://github.com/BirkbeckCTP/janeway/issues/2031)
+* Privacy Policy links are now more visible on Registration pages (https://github.com/BirkbeckCTP/janeway/pull/2174)
+
+## Crossref & Identifiers
+https://github.com/BirkbeckCTP/janeway/issues/2157
+* Crossref deposit has been update:
+    * Authors are now in the correct order
+    * Abstracts are included
+    * Date accepted is included
+    * Page numbers are included
+* Publisher IDs can now have . (dots) in them (https://github.com/BirkbeckCTP/janeway/pull/2173)
+
+## Docker
+* When running docker using Postgres a pgadmin container is automatically connected (https://github.com/BirkbeckCTP/janeway/pull/2172)
+
 
 v1.3.9
 ------
