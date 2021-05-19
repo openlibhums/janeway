@@ -224,7 +224,7 @@ if plugins:
     for plugin in plugins:
         try:
             urlpatterns += [
-                url(r'^plugins/{0}/'.format(plugin.best_name()), include('plugins.{0}.urls'.format(plugin.name))),
+                url(r'^plugins/{0}/'.format(plugin.best_name(slug=True)), include('plugins.{0}.urls'.format(plugin.name))),
             ]
             if settings.DEBUG:
                 print("Loaded URLs for {0}".format(plugin.name))

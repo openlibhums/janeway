@@ -11,3 +11,8 @@ class PageTranslationOptions(TranslationOptions):
 @register(models.NavigationItem)
 class NavigationItemTranslationOptions(TranslationOptions):
     fields = ('link_name',)
+
+
+@register(models.SubmissionItem)
+class SubmissionItemTranslationOption(TranslationOptions):
+    fields = ('title', 'text')

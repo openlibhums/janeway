@@ -48,6 +48,8 @@ def update_settings(journal_object=None, management_command=False,
                 defaults=setting_defaults
             )
 
+            print(setting)
+
             if not created:
                 for k, v in setting_defaults.items():
                     if not getattr(setting, k) == v:
