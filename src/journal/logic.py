@@ -221,9 +221,10 @@ def handle_set_pubdate(request, article):
 
     date_time_str = "{0} {1}".format(date, time)
 
-    try:
-        date_time = dateparser.parse(date_time_str)
+    from django.utils.timezone import make_aware
 
+    try:
+        date_time = make_aware(dateparser.parse(date_time_str))
         article.date_published = date_time
         article.fixedpubcheckitems.set_pub_date = True
         article.fixedpubcheckitems.save()
