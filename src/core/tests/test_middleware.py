@@ -155,7 +155,7 @@ class TestTimezoneMiddleware(TestCase):
         request = self.request_factory.get("/test/", SERVER_NAME="press.org")
         request.session = {}
         user = Account.objects.get(email='regularuser@timezone.com')
-        user.preferred_timezone.zone = "Europe/London"
+        user.preferred_timezone = "Europe/London"
         user.save()
 
         request.user = user
