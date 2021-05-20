@@ -96,6 +96,8 @@ def user_login(request):
 
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
+                elif request.journal:
+                    return redirect(reverse('core_dashboard'))
                 else:
                     return redirect(reverse('website_index'))
             else:
@@ -138,7 +140,9 @@ def user_login_orcid(request):
 
     if orcid_code and django_settings.ENABLE_ORCID:
         orcid_id = orcid.retrieve_tokens(
-            orcid_code, request.site_type)
+            orcid_code,
+            request.site_type,
+        )
 
         if orcid_id:
             try:
@@ -148,8 +152,11 @@ def user_login_orcid(request):
 
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
-                else:
+                elif request.journal:
                     return redirect(reverse('core_dashboard'))
+                else:
+                    return redirect(reverse('website_index'))
+
             except models.Account.DoesNotExist:
                 # Set Token and Redirect
                 models.OrcidToken.objects.filter(orcid=orcid_id).delete()
