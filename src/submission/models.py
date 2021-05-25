@@ -1312,6 +1312,11 @@ class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
 
+    salutation_override= models.CharField(
+            max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
+            verbose_name=_('Salutation Override'),
+            help_text="If blank, the user account salutation will be used",
+    )
     first_name = models.CharField(max_length=300, null=True, blank=True)
     middle_name = models.CharField(max_length=300, null=True, blank=True)
     last_name = models.CharField(max_length=300, null=True, blank=True)
@@ -1337,10 +1342,12 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
-        elif self.middle_name:
-            return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        else:
-            return u"%s %s" % (self.first_name, self.last_name)
+        full_name = u"%s %s" % (self.first_name, self.last_name)
+        if self.middle_name:
+            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+        if self.salutation:
+            full_name = "%s %s" % (_(self.salutation), full_name)
+        return full_name
 
     @property
     def corporate_name(self):
@@ -1348,6 +1355,14 @@ class FrozenAuthor(models.Model):
         if self.department:
             name = "{}, {}".format(self.department, name)
         return name
+
+    @property
+    def salutation(self):
+        if self.salutation_override:
+            return self.salutation_override
+        elif self.author:
+            return self.author.salutation
+        return None
 
     def citation_name(self):
         if self.is_corporate:
