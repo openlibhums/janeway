@@ -1312,10 +1312,9 @@ class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
 
-    salutation_override= models.CharField(
+    salutation = models.CharField(
             max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True,
-            verbose_name=_('Salutation Override'),
-            help_text="If blank, the user account salutation will be used",
+            verbose_name=_('Salutation'),
     )
     first_name = models.CharField(max_length=300, null=True, blank=True)
     middle_name = models.CharField(max_length=300, null=True, blank=True)
@@ -1355,14 +1354,6 @@ class FrozenAuthor(models.Model):
         if self.department:
             name = "{}, {}".format(self.department, name)
         return name
-
-    @property
-    def salutation(self):
-        if self.salutation_override:
-            return self.salutation_override
-        elif self.author:
-            return self.author.salutation
-        return None
 
     def citation_name(self):
         if self.is_corporate:
