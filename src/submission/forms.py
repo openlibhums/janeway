@@ -291,16 +291,20 @@ class EditFrozenAuthor(forms.ModelForm):
         if instance:
             del self.fields["is_corporate"]
             if instance.is_corporate:
+                del self.fields["name_prefix"]
                 del self.fields["first_name"]
                 del self.fields["middle_name"]
                 del self.fields["last_name"]
+                del self.fields["name_suffix"]
 
     class Meta:
         model = models.FrozenAuthor
         fields = (
+            'name_prefix',
             'first_name',
             'middle_name',
             'last_name',
+            'name_suffix',
             'institution',
             'department',
             'country',
