@@ -51,6 +51,7 @@ class ReviewAssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         journal = kwargs.pop('journal', None)
         super(ReviewAssignmentForm, self).__init__(*args, **kwargs)
+        self.fields['form'].empty_label = None
         default_visibility = setting_handler.get_setting('general', 'default_review_visibility', journal, create=True)
         default_due = setting_handler.get_setting('general', 'default_review_days', journal, create=True).value
         default_form = setting_handler.get_setting('general',
