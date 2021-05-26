@@ -448,6 +448,12 @@ class Preprint(models.Model):
         pks = [author.pk for author in self.authors]
         return Author.objects.filter(pk__in=pks)
 
+    def display_authors_compact(self):
+        etal = ", ".join([author.full_name for author in self.authors[:3]])
+        if len(self.authors) > 3:
+            etal = etal + ", et. al."
+        return etal
+
     def display_authors(self):
         return ", ".join([author.full_name for author in self.authors])
 
