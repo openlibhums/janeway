@@ -107,7 +107,6 @@ class RegistrationForm(forms.ModelForm):
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if settings.CAPTCHA_TYPE == 'simple_math':
@@ -378,7 +377,7 @@ class SectionForm(TranslatableModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'last_name')
+        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
 
 
 class LoginForm(forms.Form):
