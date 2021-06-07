@@ -83,6 +83,7 @@ class TestAccount(TestCase):
             first_name="Test",
             last_name="Last Name",
             email=email_a,
+            institution="A.N. Institution",
         )
         form_a = forms.QuickUserForm(data=data)
         form_a.save()
