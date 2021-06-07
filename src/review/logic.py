@@ -467,10 +467,6 @@ def quick_assign(request, article, reviewer_user=None):
 
 def handle_reviewer_form(request, new_reviewer_form):
     account = new_reviewer_form.save(commit=False)
-    account.username = account.email
-    from core import models as core_models
-    account.country = core_models.Country.objects.filter(code='GB')[0]
-    account.institution = 'N/a'
     account.is_active = True
     account.save()
     account.add_account_role('reviewer', request.journal)
