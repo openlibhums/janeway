@@ -247,6 +247,16 @@
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
+                        {% with article.get_doi_url as doi_url %}
+                        {% if doi_url %}
+                         <div class="section">
+                             <h3>{% trans "Identifiers" %}</h3>
+                             <ul>
+                                 <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                             </ul>
+                         </div>
+                         {% endif %}
+                        {% endwith %}
 
                         {% if article.supplementary_files.all %}
                             <div class="section">
@@ -278,6 +288,7 @@
                             </ul>
                         </div>
                         {% endif %}
+
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">
