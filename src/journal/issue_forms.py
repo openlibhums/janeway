@@ -18,8 +18,10 @@ class NewIssue(forms.ModelForm):
 
     class Meta:
         model = models.Issue
-        fields = ('issue_title', 'volume', 'issue', 'date', 'issue_description', 'cover_image', 'large_image',
-                  'issue_type')
+        fields = (
+            'issue_title', 'volume', 'issue', 'date', 'issue_description', 
+            'short_description', 'cover_image', 'large_image', 'issue_type',
+        )
 
 
 class IssueGalleyForm(core_forms.FileUploadForm):
