@@ -201,6 +201,14 @@
                                 <span class="fa fa-gavel"></span> Make a Decision
                             </a>
                         </li>
+                        <li>
+                          <form method="POST">
+                            {% csrf_token %}
+                            <button name="new_review_round" type="submit" class="expanded">
+                                <i class="fa fa-plus-circle action-icon">&nbsp;</i> New Review Round
+                            </button>
+                          </form>
+                        </li>
                     </ul>
                 </div>
             </div>

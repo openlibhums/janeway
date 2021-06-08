@@ -1312,6 +1312,15 @@ class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
 
+    name_prefix = models.CharField(
+        max_length=300, null=True, blank=True,
+        help_text=_("Optional name prefix (e.g: Prof or Dr)")
+
+        )
+    name_suffix = models.CharField(
+        max_length=300, null=True, blank=True,
+        help_text=_("Optional name suffix (e.g.: Jr or III)")
+    )
     first_name = models.CharField(max_length=300, null=True, blank=True)
     middle_name = models.CharField(max_length=300, null=True, blank=True)
     last_name = models.CharField(max_length=300, null=True, blank=True)
@@ -1337,10 +1346,14 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
-        elif self.middle_name:
-            return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        else:
-            return u"%s %s" % (self.first_name, self.last_name)
+        full_name = u"%s %s" % (self.first_name, self.last_name)
+        if self.middle_name:
+            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+        if self.name_prefix:
+            full_name = "%s %s" % (_(self.name_prefix), full_name)
+        if self.name_suffix:
+            full_name = "%s %s" % (full_name, self.name_suffix)
+        return full_name
 
     @property
     def corporate_name(self):
@@ -1359,7 +1372,11 @@ class FrozenAuthor(models.Model):
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
 
-        return '{last} {first}{middle}'.format(last=self.last_name, first=first_initial, middle=middle_initial)
+        citation = '{last} {first}{middle}'.format(
+            last=self.last_name, first=first_initial, middle=middle_initial)
+        if self.name_suffix:
+            citation = '{}, {}'.format(citation, self.name_suffix)
+        return citation
 
     def given_names(self):
         if self.middle_name:

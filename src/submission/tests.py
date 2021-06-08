@@ -223,6 +223,36 @@ class SubmissionTests(TestCase):
             msg="Frozen author edits have been overriden by snapshot_authors",
         )
 
+    def test_frozen_author_prefix(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: a test article",
+        )
+        author, _ = self.create_authors()
+        logic.add_user_as_author(author, article)
+        article.snapshot_authors()
+
+        prefix = "Lord"
+        article.frozen_authors().update(name_prefix=prefix)
+        frozen = article.frozen_authors().all()[0]
+
+        self.assertTrue(frozen.full_name().startswith(prefix))
+
+    def test_frozen_author_prefix(self):
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: a test article",
+        )
+        author, _ = self.create_authors()
+        logic.add_user_as_author(author, article)
+        article.snapshot_authors()
+
+        suffix = "Jr"
+        article.frozen_authors().update(name_suffix=suffix)
+        frozen = article.frozen_authors().all()[0]
+
+        self.assertTrue(frozen.full_name().endswith(suffix))
+
     def test_snapshot_author_order_author_added_later(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
