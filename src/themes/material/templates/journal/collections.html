@@ -23,7 +23,7 @@
                         {% endif %}
                             <a href="{% url 'journal_collection' collection.id %}" class="carousel-text-wrapper card-title" style="width:100%">{{ collection.issue_title }}</a>
                     </div>
-                        <div class="card-content">
+                        <div class="card-content scroll-y">
                             <p>Published: {{ collection.date|date:"d/m/y" }}</p>
                             {% if collection.short_description %}
                             <p>{{ collection.short_description|safe }}</p>

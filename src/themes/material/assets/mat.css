@@ -540,3 +540,12 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .linkedin-bg:hover {
     background-color: var(--linkedin-hover);
 }
+
+.flexbox {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.scroll-y {
+    overflow-y: auto !important;
+}
