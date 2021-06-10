@@ -81,22 +81,28 @@ def import_article(journal, user, url, thumb_path=None, update=False):
 
     # try to do a license lookup
     pattern = re.compile(r'creativecommons')
-    license_tag = soup_object.find(href=pattern)
-    license_object = models.Licence.objects.filter(url=license_tag['href'].replace('http:', 'https:'), journal=journal)
+    license_object = []
+    license_tag = soup_object.find(href=pattern) or ''
+    license_object = models.Licence.objects.filter(
+        url=license_tag['href'].replace('http:', 'https:'), journal=journal)
 
     if len(license_object) > 0 and license_object[0] is not None:
         license_object = license_object[0]
         logger.info("Found a license for this article: {0}".format(
             license_object.short_name))
-    else:
-        license_object = models.Licence.objects.get(name='All rights reserved', journal=journal)
+        article.license = license_object
+
+    if not article.license:
+        license_object = models.Licence.objects.get(
+            name='All rights reserved', journal=journal,
+        )
         logger.warning(
             "Did not find a license for this article. Using: {0}".format(
-                license_object.short_name
+                license_object.short_name,
             )
         )
+        article.license = license_object
 
-    article.license = license_object
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
