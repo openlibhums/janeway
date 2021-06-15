@@ -1759,22 +1759,30 @@ def do_revisions(request, article_id, revision_id):
     ).exclude(decision='withdrawn')
 
     form = forms.DoRevisions(instance=revision_request)
-    revision_files = logic.group_files(revision_request.article, reviews)
+    manageable_files = logic.group_files(revision_request.article, reviews, manageable=True)
+    downloadable_files = logic.group_files(revision_request.article, reviews)
 
     if request.POST:
 
         if 'delete' in request.POST:
             file_id = request.POST.get('delete')
             file = get_object_or_404(core_models.File, pk=file_id)
-            files.delete_file(revision_request.article, file)
-            logic.log_revision_event(
-                'File {0} ({1}) deleted.'.format(
-                    file.id,
-                    file.original_filename
-                ),
-                request.user,
-                revision_request,
-            )
+            if file in manageable_files:
+                files.unassociate_file(revision_request.article, file)
+                logic.log_revision_event(
+                    'File {0} ({1}) deleted.'.format(
+                        file.id,
+                        file.original_filename
+                    ),
+                    request.user,
+                    revision_request,
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Given file ID not found in article files.',
+                )
             return redirect(
                 reverse(
                     'do_revisions',
@@ -1837,7 +1845,7 @@ def do_revisions(request, article_id, revision_id):
     if request.GET.get('file_id', None):
         file_id = request.GET.get('file_id')
         file = get_object_or_404(core_models.File, pk=file_id)
-        if file in revision_files:
+        if file in downloadable_files:
             logic.log_revision_event(
                 'Downloaded file {0} ({1}).'.format(
                     file.label,
