@@ -549,3 +549,8 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .scroll-y {
     overflow-y: auto !important;
 }
+
+/* Allow the use of default <li> */
+.default-li ul>li {
+    list-style-type: initial;
+}
