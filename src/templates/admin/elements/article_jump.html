@@ -4,25 +4,29 @@
 {% is_section_editor as section_editor %}
 
 {% if editor or section_editor %}
-<button class="tiny secondary button float-right dropdown" data-toggle="articledropdown">Article Stages & Logs</button>
-<div class="dropdown-pane bottom small" id="articledropdown" data-dropdown>
-    <ul>
-        <li>
-            <a href="{% url 'review_unassigned_article' article.pk %}">Editor Assignment</a>
-        </li>
+    <div class="small expanded button-group">
+        <a class="button" href="{% url 'review_unassigned_article' article.pk %}">Editor Assignment</a>
         {% for stage in article.workflow_stages %}
-            <li>
-                <a href="{% url stage.element.jump_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
-            </li>
+            <a class="button"
+               href="{% url stage.element.jump_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
         {% endfor %}
-        <li><a href="{% url 'manage_article_log' article.pk %}">Log</a></li>
-        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Documents</a></li>
+        <button class="button" type="button" data-toggle="more-dropdown">Logs, Documents and More</button>
+
+
+
+    </div>
+{% endif %}
+<div class="dropdown-pane bottom" id="more-dropdown" data-dropdown>
+    <ul>
+        <li><a href="{% url 'manage_article_log' article.pk %}">Logs</a></li>
+        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Document Management</a></li>
         {% if article.is_published %}
-            <li><a href="{{ article.url }}">Live Article</a></li>{% endif %}
+            <li><a href="{{ article.url }}">Live Article</a></li>
+        {% endif %}
         {% if request.user.is_superuser %}
             <li><a target="_blank" href="/admin/submission/article/{{ article.pk }}/">Admin <i
-                    class="fa fa-external-link"></i></a></li>
+                    class="fa fa-cogs"></i></a></li>
         {% endif %}
     </ul>
 </div>
-{% endif %}
+
