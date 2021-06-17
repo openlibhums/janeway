@@ -3,6 +3,7 @@
 
 {% block title %}Notify Proofreader{% endblock title %}
 {% block title-section %}Notify Proofreader{% endblock %}}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

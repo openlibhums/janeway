@@ -4,6 +4,7 @@
 {% load foundation %}
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>

@@ -2,7 +2,8 @@
 {% load foundation %}
 {% load static from staticfiles %}
 
-{% block title %}Assigning Proofreader to Article #{{ article.pk }}{% endblock %}
+{% block title %}Assign Proofreader{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

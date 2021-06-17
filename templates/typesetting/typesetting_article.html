@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 
 {% block title %}Typesetting Article #{{ article.pk }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
