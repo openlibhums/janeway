@@ -5,10 +5,10 @@
 
 {% block title %}Projected Issue {{ article.title }}{% endblock %}
 {% block title-section %}Projected Issue{% endblock %}
-{% block title-sub %}Set projected issue for {{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block body %}
-	<div class="row">
+	<div class="row expanded">
 		<div class="large-6 columns">
 			<div class="box">
 				<div class="title-area">

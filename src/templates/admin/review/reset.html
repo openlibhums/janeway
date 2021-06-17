@@ -3,6 +3,7 @@
 
 {% block title %}Reset Review{% endblock title %}
 {% block title-section %}Reset Review{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}

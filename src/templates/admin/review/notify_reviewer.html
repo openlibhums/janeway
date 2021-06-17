@@ -5,6 +5,8 @@
 
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+
 {% block css %}
     <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 

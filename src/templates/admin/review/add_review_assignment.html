@@ -2,7 +2,7 @@
 {% load foundation %}
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
-{% block title-sub %}Select the Reviewer you'd like to review this article.{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

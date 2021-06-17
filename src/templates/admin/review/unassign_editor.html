@@ -3,6 +3,7 @@
 
 {% block title %}Unassign Editor Request{% endblock title %}
 {% block title-section %}Unassign Editor Request{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

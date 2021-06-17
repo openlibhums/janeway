@@ -3,6 +3,7 @@
 
 {% block title %}{{ decision|capfirst }} Article{% endblock title %}
 {% block title-section %}{{ decision|capfirst }} Article{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

@@ -4,7 +4,7 @@
 
 {% block title %}Review {{ article.title }}{% endblock %}
 {% block title-section %}Peer Review{% endblock %}
-{% block title-sub %}Breakdown{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

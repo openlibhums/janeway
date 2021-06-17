@@ -3,6 +3,7 @@
 
 {% block title %}Edit Review{% endblock title %}
 {% block title-section %}Edit Review{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

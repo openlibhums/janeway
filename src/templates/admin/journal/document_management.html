@@ -6,6 +6,7 @@
 
 {% block title %}Article Document Management{% endblock title %}
 {% block title-section %}Article Document Management{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block body %}
     {% csrf_token %}
