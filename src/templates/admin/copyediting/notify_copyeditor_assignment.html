@@ -5,7 +5,7 @@
 
 {% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 {% block title %}Editor Assignment Notification{% endblock %}
-{% block title-section %}Editor Assignment Notification{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block body %}
 

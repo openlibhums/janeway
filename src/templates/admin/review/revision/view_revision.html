@@ -2,13 +2,14 @@
 {% load foundation %}
 {% load files %}
 
-{% block title %}Revisions for {{ revision_request.article.title }}{% endblock title %}
-{% block admin-header %}Revisions for {{ revision_request.article.title }}{% endblock %}
+{% block title %}Revision Request{% endblock title %}
+{% block admin-header %}Revision Request{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
 {% include "elements/breadcrumbs/review_base.html" %}
-<li>Revisions for {{ revision_request.article.title }}</li>
+<li>Revision Request</li>
 {% endblock breadcrumbs %}
 
 {% block body %}

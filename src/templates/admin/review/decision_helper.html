@@ -4,7 +4,7 @@
 
 {% block title %}#{{ article.pk }} Decision Helper{% endblock title %}
 {% block title-section %}#{{ article.pk }} Decision Helper{% endblock %}
-{% block title-sub %}{{ article.title|safe }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
