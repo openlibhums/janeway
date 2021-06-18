@@ -63,7 +63,7 @@
                         <td>{% if can_edit_file_flag %}
                         <a href="{% url 'file_reinstate' article.pk file.pk file_history.pk %}?return={% url 'file_history' article.pk file.pk %}%3Freturn%3D{{ request.GET.return|urlencode }}"><i class="fa fa-recycle">
                             &nbsp;</i></a>{% endif %}</td>
-                        {% if request.user.is_admin %}<td><a href="{% url 'admin:core_file_change' file_history.pk %}"><span class="fa fa-cogs"> </span></a></td>{% endif %}
+                        {% if request.user.is_admin %}<td><a href="{% url 'admin:core_filehistory_change' file_history.pk %}"><span class="fa fa-cogs"> </span></a></td>{% endif %}
                     </tr>
                 {% empty %}
                     <tr>
