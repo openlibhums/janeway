@@ -612,6 +612,19 @@ def serve_article_file(request, identifier_type, identifier, file_id):
         return redirect(static('common/img/default_carousel/carousel1.png'))
 
 
+@has_request
+@file_user_required
+def serve_article_file_history(
+    request, identifier_type, identifier, file_id,
+):
+    filehistory = get_object_or_404(core_models.FileHistory, pk=file_id)
+    # File History objects are not storing article ids, check parent's instead
+    file = filehistory.file_set.first()
+    if file:
+        return files.serve_file(request, filehistory, file.article)
+    raise Http404
+
+
 @login_required
 @article_exists
 @file_edit_user_required
