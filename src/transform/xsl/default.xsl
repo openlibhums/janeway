@@ -1571,7 +1571,6 @@
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
       <xsl:apply-templates select="ext-link"/>
-      <xsl:apply-templates select="uri"/>
     </p>
   </xsl:template>
 
@@ -2058,6 +2057,11 @@
 
   <xsl:template match="article-title" mode="nscitation">
     <xsl:apply-templates/>
+  </xsl:template>
+  <xsl:template match="uri" mode="nscitation">
+    <a href="{self::uri}" target="_blank">
+      <xsl:apply-templates/>
+    </a>
   </xsl:template>
 
   <xsl:template match="article-title" mode="book">
