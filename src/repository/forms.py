@@ -333,19 +333,30 @@ class FileForm(forms.ModelForm):
 
 
 class VersionForm(forms.ModelForm):
+    keywords = forms.CharField(required=False)
     class Meta:
         model = models.VersionQueue
-        fields = ('title', 'abstract')
+        fields = ('title', 'abstract', 'doi',)
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop('preprint')
         super(VersionForm, self).__init__(*args, **kwargs)
         self.fields['title'].initial = self.preprint.title
         self.fields['abstract'].initial = self.preprint.abstract
+        self.fields['doi'].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
         version.preprint = self.preprint
+
+        posted_keywords = self.cleaned_data['keywords'].split(',')
+        for keyword in posted_keywords:
+            new_keyword, c = submission_models.Keyword.objects.get_or_create(word=keyword)
+            version.preprint.keywords.add(new_keyword)
+
+        for keyword in version.preprint.keywords.all():
+            if keyword.word not in posted_keywords:
+                version.preprint.keywords.remove(keyword)
 
         if commit:
             version.save()

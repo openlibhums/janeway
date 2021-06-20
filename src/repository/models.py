@@ -354,7 +354,7 @@ class Preprint(models.Model):
         null=True,
         verbose_name='Published DOI',
         help_text='You can add a DOI linking to this item\'s published version using this field. '
-                  'Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.'
+                  'example: 10.1017/CBO9781316161012.'
     )
     preprint_doi = models.CharField(
         max_length=100,
@@ -762,6 +762,19 @@ class PreprintVersion(models.Model):
         max_length=300,
         help_text=_('Your article title'),
     )
+    doi = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Published DOI',
+        help_text='You can add a DOI linking to this item\'s published version using this field. '
+                  'example: 10.1017/CBO9781316161012.'
+    )
+    keywords = models.ManyToManyField(
+        'submission.Keyword',
+        blank=True,
+        null=True,
+    )
     abstract = models.TextField(
         blank=True,
         null=True,
@@ -884,6 +897,19 @@ class VersionQueue(models.Model):
             'pasting here.',
         )
 
+    )
+    doi = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Published DOI',
+        help_text='You can add a DOI linking to this item\'s published version using this field. '
+                  'example: 10.1017/CBO9781316161012.'
+    )
+    keywords = models.ManyToManyField(
+        'submission.Keyword',
+        blank=True,
+        null=True,
     )
 
     def approve(self):

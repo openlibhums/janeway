@@ -43,6 +43,12 @@
                             <td colspan="2"><small>{{ preprint.abstract }}</small></td>
                         </tr>
                         <tr>
+                            <th colspan="2">Published DOI</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{% if preprint.doi %}<a target="_blank" href="https://doi.org/{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
+                        </tr>
+                        <tr>
                             <th colspan="2">
                                 Subjects
                             </th>
