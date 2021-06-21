@@ -36,9 +36,22 @@ tooling:
   python:
     service: appserver
     cmd: python
+    dir: /app/src
+  pip:
+    service: appserver
+    description: run pip commands to manage Python package installation in this environment
+    cmd: pip
+    dir: /app/src
   manage:
     service: appserver
-    cmd: cd /app/src && python manage.py
+    cmd: python manage.py
+    dir: /app/src
+  restart-runserver:
+    service: appserver
+    description: Quickly restarts the Django runserver process, follows logs, and enables interactive debugging
+    cmd: killall python || python /app/src/manage.py runserver 0.0.0.0:8000 -v 3
+    dir: /app/src
+    user: root
   psql:
     service: db
     cmd: psql -U postgres
