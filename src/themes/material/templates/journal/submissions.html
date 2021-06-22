@@ -26,7 +26,7 @@
                     {% if journal_settings.general.disable_journal_submission %}
                     <p><strong>{% trans 'Submission is currently disabled for this journal.' %}</strong></p>
                     {% endif %}
-                    {{ journal_settings.general.submission_intro_text|safe }}
+                    <div class="default-li">{{ journal_settings.general.submission_intro_text|safe }}</div>
                     <br />
                     {% if not journal_settings.general.disable_journal_submission %}
                     <div class="button-group">
@@ -39,31 +39,31 @@
 
                     {% if journal_settings.general.display_about_on_submissions and journal_settings.general.journal_description %}
                     <span class="card-title">{% trans 'About' %} {{ request.journal.name }}</span>
-                    {{ journal_settings.general.journal_description|safe }}
+                    <div class="default-li">{{ journal_settings.general.journal_description|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
                     {% if journal_settings.general.focus_and_scope %}
                     <span class="card-title">{% trans 'Focus and Scope for' %} {{ request.journal.name }}</span>
-                    {{ journal_settings.general.focus_and_scope|safe }}
+                    <div class="default-li">{{ journal_settings.general.focus_and_scope|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
                     {% if journal_settings.general.submission_checklist %}
                     <span class="card-title">{% trans 'Submission Checklist' %}</span>
-                    {{ journal_settings.general.submission_checklist|safe }}
+                    <div class="default-li">{{ journal_settings.general.submission_checklist|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
                     {% if not journal_settings.general.acceptance_criteria == '' %}
                     <span class="card-title">{% trans 'Acceptance Criteria' %}</span>
-                    {{ journal_settings.general.acceptance_criteria|safe }}
+                    <div class="default-li">{{ journal_settings.general.acceptance_criteria|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
                     {% if journal_settings.general.copyright_notice %}
                     <span class="card-title">{% trans 'Copyright Notice' %}</span>
-                    {{ journal_settings.general.copyright_notice|safe }}
+                    <div class="default-li">{{ journal_settings.general.copyright_notice|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
@@ -74,20 +74,20 @@
 
                     {% if journal_settings.general.publication_fees %}
                     <span class="card-title">{% trans 'Publication Fees' %}</span>
-                    {{ journal_settings.general.publication_fees|safe }}
+                    <div class="default-li">{{ journal_settings.general.publication_fees|safe }}</div>
                     {% hook 'publication_fees' %}
                     <div class="divider spacer"></div>
                     {% endif %}
 
                     {% if journal_settings.general.peer_review_info %}
                     <span class="card-title">{% trans 'Peer Review' %}</span>
-                    {{ journal_settings.general.peer_review_info|safe }}
+                    <div class="default-li">{{ journal_settings.general.peer_review_info|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
                     {% if journal_settings.general.publication_cycle %}
                     <span class="card-title">{% trans 'Publication Cycle' %}</span>
-                    {{ journal_settings.general.publication_cycle|safe }}
+                    <div class="default-li">{{ journal_settings.general.publication_cycle|safe }}</div>
                     <div class="divider spacer"></div>
                     {% endif %}
 
