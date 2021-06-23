@@ -15,7 +15,7 @@
         <div class="row">
             <div class="large-8 columns border-right">
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
-                <h1>Pinned Articles</h1>
+                <h1>{% trans 'Pinned Articles' %}</h1>
                     {% for article in pinned_articles %}
                         {% include "elements/journal/box_article.html" with article=article %}
                     {% endfor %}
@@ -24,7 +24,7 @@
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% empty %}
-                    <h3>There are no articles published in this journal yet.</h3>
+                    <h3>{% trans 'There are no articles published in this journal yet' %}.</h3>
                 {% endfor %}
 
                 <div class="pagination-block">

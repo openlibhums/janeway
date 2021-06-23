@@ -1,0 +1,20 @@
+{% load svg from press_url %}
+{% load i18n %}
+<div class="row">
+    <div class="col-md-2">
+        {% if request.journal.press_image_override %}
+            {% svg request.journal_cover %}
+        {% else %}
+            {% svg request.press_cover %}
+        {% endif %}
+    </div>
+    <div class="col-md-10">
+        <small><p>
+            {% if request.journal %}
+                {% include "elements/journal_footer.html" %}
+            {% else %}
+                {% include "elements/press_footer.html" %}
+            {% endif %}
+        </p></small>
+    </div>
+</div>

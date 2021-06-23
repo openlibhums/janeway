@@ -33,7 +33,7 @@
                             <input type="password" placeholder="Password" name="user_pass">
                         </label>
                         <input name="orcid_token" type="hidden" value="{{ token.token }}">
-                        <p><button type="submit" class="button expanded">Log In</button></p>
+                        <p><button type="submit" class="button expanded">{% trans 'Log In' %}</button></p>
                         <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgot your password?" %}</a></p>
                     </div>
                 </div>

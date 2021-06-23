@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block title %}{% trans 'Submissions' %}{% endblock title %}
+
+{% block body %}
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{% trans 'Submissions' %}</h1>
+                {{ journal_settings.general.submission_intro_text|safe }}
+
+                <div class="button-group">
+                    {% if not request.user.is_authenticated %}<a href="{% url 'core_register' %}" class="btn btn-primary">{% trans 'Register' %}</a>
+                    <a href="{% url 'core_login' %}" class="btn btn-primary">{% trans 'Login' %}</a>{% else %}
+                    <a href="{% url 'submission_start' %}" class="btn btn-primary">{% trans 'Start Submission' %}</a>{% endif %}
+                </div>
+                <hr />
+                {% if journal_settings.general.journal_description %}
+                <h2>{% trans 'About' %} {{ request.journal.name }}</h2>
+                {{ journal_settings.general.journal_description|safe }}
+                <hr />
+                {% endif %}
+                {% if journal_settings.general.focus_and_scope %}
+                <h2>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h2>
+                {{ journal_settings.general.focus_and_scope|safe }}
+                <hr />
+                {% endif %}
+                {% if journal_settings.general.peer_review_info %}
+                <h2>{% trans 'Peer Review' %}</h2>
+                {{ journal_settings.general.peer_review_info|safe }}
+                <hr/>
+                {% endif %}
+                {% if journal_settings.general.submission_checklist %}
+                <h2>{% trans 'Submission Checklist' %}</h2>
+                {{ journal_settings.general.submission_checklist|safe }}
+                <hr />
+                {% endif %}
+                {% if journal_settings.general.copyright_notice %}
+                <h2>{% trans 'Copyright Notice' %}</h2>
+                {{ journal_settings.general.copyright_notice|safe }}
+                <hr />
+                {% endif %}
+                <h2>{% trans 'Licences' %}</h2>
+                <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                {% include "elements/license_block.html" %}
+                <hr />
+                {% if journal_settings.general.publication_fees %}
+                <h2>{% trans 'Publication Fees' %}</h2>
+                {{ journal_settings.general.publication_fees|safe }}
+                <hr />
+                {% endif %}
+                {% if journal_settings.general.publication_cycle %}
+                <h2>{% trans 'Publication Cycle' %}</h2>
+                {{ journal_settings.general.publication_cycle|safe }}
+                <hr/>
+                {% endif %}
+                <h2>{% trans 'Sections' %}</h2>
+
+                <table class="table">
+                    <caption>{% trans 'Sections submission information' %}</caption>
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Section' %}</th>
+                            <th>{% trans 'Public Submissions' %}</th>
+                            <th>{% trans 'Peer Reviewed' %}</th>
+                            <th>{% trans 'Indexed' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for section in sections %}
+                            <tr>
+                                <td>{{ section.name }}</td>
+                                <td>{% if section.public_submissions %}<span class="fa fa-check"> Yes</span>{% else %}<span class="fa fa-times"> No</span>{% endif %}</td>
+                                <td>{% if section.number_of_reviewers > 0 %}<span class="fa fa-check"> Yes</span>{% else %}<span class="fa fa-times"> No</span>{% endif %}</td>
+                                <td>{% if section.indexing %}<span class="fa fa-check"> Yes</span>{% else %}<span class="fa fa-times"> No</span>{% endif %}</td>
+                            </tr>
+                        {% empty %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+		</div>
+{% endblock body %}

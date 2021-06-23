@@ -1,0 +1,37 @@
+{% load static from staticfiles %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-md-12">
+        {% if most_downloaded %}
+            <h1 class="index-header">{% trans 'Most Popular Articles' %}</h1>
+        {% else %}
+            <h1 class="index-header">{% trans 'Featured Articles' %}</h1>
+        {% endif %}
+    </div>
+    {% for article in popular_articles %}
+        <div class="col-md-4 row-eq-height">
+            <div class="card">
+                {% if article.large_image_file %}
+                    <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% elif article.journal.default_large_image %}
+                    <img src="{{ article.journal.default_large_image.url }}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% else %}
+                    <img src="{% static 'common/img/sample/article-small.jpg' %}"
+                         alt="{{ article.title|striptags }}"
+                         class="card-img-top">
+                {% endif %}
+                <div class="card-body">
+                    <p class="card-text">{{ article.author_list }}</p>
+                    <p class="card-text"><strong></strong><a href="
+                        {% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
+                        {{ article.title|safe|truncatechars:200 }}</a></strong></p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

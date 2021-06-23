@@ -1,0 +1,78 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-block">
+                <h5 id="changeemail">{% trans 'Change Your Email Address' %}</h5>
+                <p>{% blocktrans %}If you want to change your email address you may do so
+                    below, however, you will be logged out and
+                    your account will be marked as inactive until you follow the
+                    instructions in the verfication email.{% endblocktrans %}
+                    <strong>{% trans 'Note' %}: </strong>
+                    {% blocktrans %}Changing your email address will also change your username
+                    as these are one and the same.{% endblocktrans %}</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="email" name="email_address"
+                               class="form-control"
+                               placeholder="janeway@voyager.com"
+                                aria-labelledby="changeemail">
+                    </div>
+                    <button type="submit" name="email" class="btn btn-warning">
+                        {% trans 'Update Email Address' %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-block">
+                <h5>{% trans 'Update Password' %}</h5>
+                <p>{% trans 'You can update your password by entering your existing password plus your new password' %}.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="current_password">{% trans 'Current Password' %}</label><input type="password" name="current_password" id="current_password">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="new_password_one">{% trans 'Enter New Password' %}</label>
+                            <input type="password" name="new_password_one" id="new_password_one">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="new_password_two">{% trans 'Enter New Password Again' %}</label>
+                            <input type="password" name="new_password_two" id="new_password_two">
+                        </div>
+                    </div>
+                    <br/>
+                    <button type="submit" name="change_password"
+                            class="btn btn-warning">{% trans 'Update Password' %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-block">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% include "elements/accounts/user_form.html" with form=form %}
+                    <p>
+                        <button type="submit" name="edit_profile"
+                                class="btn btn-primary float-right">{% trans 'Update' %}
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
