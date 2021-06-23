@@ -107,9 +107,12 @@ class NavigationItem(models.Model):
 class SubmissionItem(models.Model):
     journal = models.ForeignKey('journal.Journal')
     title = models.CharField(max_length=255)
-    text = models.TextField()
+    text = models.TextField(blank=True, null=True)
     order = models.IntegerField(default=99)
     existing_setting = models.ForeignKey('core.Setting', blank=True, null=True)
+
+    class Meta:
+        ordering = ('order', 'title')
 
     def get_display_text(self):
         if self.existing_setting:
@@ -119,3 +122,10 @@ class SubmissionItem(models.Model):
             )
         else:
             return self.text
+
+    def __str__(self):
+        return "{journal} {title} - {setting}".format(
+            journal=self.journal,
+            title=self.title,
+            setting=self.existing_setting,
+        )

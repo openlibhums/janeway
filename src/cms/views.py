@@ -6,9 +6,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.urls import reverse
 from django.utils import translation
+from django.views.decorators.http import require_POST
 
 from security.decorators import editor_user_required
 from cms import models, forms
@@ -18,7 +19,7 @@ from core.forms import XSLFileForm
 from journal import models as journal_models
 from utils import setting_handler
 from utils.decorators import GET_language_override
-from utils.shared import language_override_redirect
+from utils.shared import language_override_redirect, set_order
 
 
 @editor_user_required
@@ -259,3 +260,100 @@ def nav(request, nav_id=None):
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def submission_items(request):
+    """
+    Displays a list of a journals Submissions page items.
+    """
+    item_list = models.SubmissionItem.objects.filter(
+        journal=request.journal,
+    )
+    if request.POST and 'delete' in request.POST:
+        item_id = request.POST.get('delete')
+        try:
+            models.SubmissionItem.objects.get(
+                pk=item_id,
+                journal=request.journal,
+            ).delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Item deleted.',
+            )
+        except models.SubmissionItem.DoesNotExist:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'No matching Submission Item found.',
+            )
+
+        return redirect(
+            reverse('cms_submission_items'),
+        )
+    template = 'admin/cms/submission_item_list.html'
+    context = {
+        'item_list': item_list,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@GET_language_override
+def edit_or_create_submission_item(request, item_id=None):
+    with translation.override(request.override_language):
+        if item_id:
+            item = get_object_or_404(
+                models.SubmissionItem,
+                pk=item_id,
+                journal=request.journal,
+            )
+        else:
+            item = None
+
+        form = forms.SubmissionItemForm(
+            instance=item,
+            journal=request.journal,
+        )
+        if request.POST:
+            form = forms.SubmissionItemForm(
+                request.POST,
+                instance=item,
+                journal=request.journal
+            )
+            if form.is_valid():
+                saved_item = form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'New item created.' if not item else 'Item updated.'
+                )
+                return redirect(
+                    reverse(
+                        'cms_edit_submission_item',
+                        kwargs={'item_id': saved_item.pk},
+                    )
+                )
+
+    template = 'admin/cms/submission_item_form.html'
+    context = {
+        'form': form,
+        'item': item,
+    }
+    return render(request, template, context)
+
+
+@require_POST
+@editor_user_required
+def order_submission_items(request):
+    items = models.SubmissionItem.objects.filter(
+        journal=request.journal,
+    )
+    print(request.POST.getlist('item[]'))
+    set_order(
+        items,
+        'order',
+        [int(item_pk) for item_pk in request.POST.getlist('item[]')]
+    )
+    return HttpResponse('Ok')
