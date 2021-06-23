@@ -25,7 +25,7 @@
             <br />
                 <ul>
                     {% for sub_nav in nav.sub_nav_items %}
-                        <li>{{ sub_nav.link_name }} ({{ sub_nav.link }})
+                        <li class="padded-group-item">{{ sub_nav.link_name }} ({{ sub_nav.link }})
                             <span class="float-right">
                             <a class="tiny button" href="{% url 'cms_nav_edit' sub_nav.pk %}"><i class="fa fa-edit"></i> Edit</a>
                             <button class="tiny button alert" name="delete_nav" value="{{ sub_nav.pk }}">
@@ -83,8 +83,29 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Editorial Team <i
-                    class="fa {% if journal_settings.general.enable_editorial_display %}fa-check{% else %}fa-times{% endif %}"></i>
+            <li class="list-group-item">Editorial Team
+                <button name="editorial_team" value="editorial_team"
+                    class="tiny button float-right
+                  {% if enable_editorial_display %}
+                    warning">
+                    <i class="fa fa-times warning"></i> Disable
+                  {% else %}
+                    success">
+                    <i class="fa fa-check"></i> Enable
+                  {% endif %}
+                </button>
+            </li>
+            <li class="list-group-item">Keyword List
+                <button name="keyword_list_page" value="keyword_list_page"
+                    class="tiny button float-right
+                  {% if keyword_list_page %}
+                    warning">
+                    <i class="fa fa-times warning"></i> Disable
+                  {% else %}
+                    success">
+                    <i class="fa fa-check"></i> Enable
+                  {% endif %}
+                </button>
             </li>
             <li class="list-group-item">Submissions
                 <button name="nav" value="nav_sub"

@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}{% trans 'Sections' %}{% endblock title %}
+{% block title-section %}{% trans 'Sections' %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a></li>
+    <li><a href="{% url 'core_manager_sections' %}">{% trans 'Sections' %}</a></li>
+    <li><a href="{% url 'core_manager_section' section.pk %}">{{ section.name }} {% trans 'Articles' %}</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{{ section.name }} {% trans 'Articles' %}</h2>
+                <a href="{% url 'core_manager_sections' %}" class="button">< {% trans 'Back' %}</a>
+            </div>
+            <div class="content">
+                <p>
+                    {% trans 'Articles that belong to the' %} "{{ section.name }}" {% trans 'section are listed below.' %}
+                </p>
+                <table class="small">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <th>{% trans 'D/T Submitted' %}</th>
+                            <th>{% trans 'Stage' %}</th>
+                            <th>{% trans 'Main Author' %}</th>
+                            <th>{% trans 'Editors' %}</th>
+                            <th>{% trans 'Article Archive' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in section.article_set.all %}
+                            <tr>
+                                <td>{{ article.title|safe }}</td>
+                                <td>{{ article.date_submitted }}</td>
+                                <td>{{ article.stage }}</td>
+                                <td>{{ article.correspondence_author.full_name }}</td>
+                                <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                                <td><a href="{% url 'manage_archive_article' article.pk %}">Article Archive</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">{% trans 'This section has no articles.' %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

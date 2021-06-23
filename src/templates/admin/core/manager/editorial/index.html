@@ -13,44 +13,41 @@
 {% endblock %}
 
 {% block body %}
-    <div class="large-6 columns">
+    <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Editorial Groups</h2>
-                <a class="button" href="{% url 'core_editorial_team' %}">Add New Group</a>
+                <a class="button" href="{% url 'core_add_editorial_team' %}"><i class="fa fa-plus">&nbsp;</i>Add New Group</a>
+                 <a class="button" href="{% url 'editorial_team' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Editorial Team Page</a>
             </div>
             <div class="box">
+                <p>
+                    Editorial team groups are listed below. You can change the order by dragging and dropping table rows into the order you want them to appear.
+                </p>
                 <form method="POST">
                     {% csrf_token %}
-                    <ul class="list-group" id="sortable">
-                        {% for group in editorial_groups %}
-                        <li class="list-group-item" id="group-{{ group.pk }}">
-                            <div class="float-right">
-                                <a href="{% url 'core_editorial_member_to_group' group.pk %}" class="tiny success button"><i class="fa fa-users" ></i></a>
-                                <a href="{% url 'core_edit_editorial_team' group.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
-                                <button type="submit" name="delete" value="{{ group.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
-                            </div>
-                            <small>
-                                {{ group.name }}<br />
-                            </small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Add New Group</h2>
-            </div>
-            <div class="content">
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ form|foundation }}
-                    <button class="success button" type="submit">{% if group %}Edit Group{% else %}Add New Group{% endif %}</button>
+                    <table class="scroll">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Group Name</th>
+                                <th>Manage Members</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sortable">
+                            {% for group in editorial_groups %}
+                                <tr id="group-{{ group.pk }}">
+                                    <td><i class="fa fa-sort"></i></td>
+                                    <td>{{ group.name }}</td>
+                                    <td><a href="{% url 'core_editorial_member_to_group' group.pk %}" class="tiny success button"><i class="fa fa-users" ></i> Manage Group Members</a></td>
+                                    <td><a href="{% url 'core_edit_editorial_team' group.pk %}" class="tiny warning button"><i class="fa fa-edit"></i> Edit Group Details</a></td>
+                                    <td><button type="submit" name="delete" value="{{ group.pk }}" class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Group</button></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </form>
             </div>
         </div>
@@ -58,24 +55,25 @@
 {% endblock body %}
 
 {% block js %}
-{% include "elements/datatables.html" with target="#featured" %}
-<script src="{% static "admin/js/csrf.js" %}"></script>
-<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-<script>
-    $( "#sortable" ).sortable({
-        update: function (event, ui) {
-            var data = $(this).sortable('serialize');
-            console.log(data);
-            // POST to server using $.post or $.ajax
-            $.ajax({
-                data: data,
-                type: 'POST',
-                url: '{% url 'core_editorial_ordering' 'group' %}'
-            });
-        }
-    });
-    $( "#sortable" ).disableSelection();
-</script>
+    {% include "elements/datatables.html" with target="#featured" %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $( "#sortable" ).sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'core_editorial_ordering' 'group' %}'
+                });
+            }
+        });
+        $( "#sortable" ).disableSelection();
+    </script>
+    {% include "admin/elements/post_check.html" %}
 {% endblock js %}
 
 

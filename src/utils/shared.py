@@ -8,7 +8,9 @@ import mimetypes
 from datetime import datetime
 
 from django.core.cache import cache
+from django.shortcuts import reverse, redirect
 from django.utils import timezone
+from django.shortcuts import reverse, redirect
 
 # NB: this module should not import any others in the application.
 # It is a space for communal functions to avoid
@@ -94,9 +96,29 @@ def day_month(date):
     return date.strftime("%d-%b")
 
 
+def language_override_redirect(request, url_name, kwargs):
+    reverse_string = "{}?language={}".format(
+        reverse(url_name, kwargs=kwargs),
+        request.override_language,
+    )
+    if "email_template" in request.GET:
+        reverse_string = reverse_string + "&email_template=true"
+    return redirect(reverse_string)
+
+
 def make_timezone_aware(date_string, date_string_format):
     print(date_string, date_string_format)
     return timezone.make_aware(
         datetime.strptime(date_string, date_string_format),
         timezone.get_current_timezone(),
     )
+
+
+def language_override_redirect(request, url_name, kwargs):
+    reverse_string = "{}?language={}".format(
+        reverse(url_name, kwargs=kwargs),
+        request.override_language,
+    )
+    if "email_template" in request.GET:
+        reverse_string = reverse_string + "&email_template=true"
+    return redirect(reverse_string)

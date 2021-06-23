@@ -23,6 +23,9 @@
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'home_settings_index' %}">Journal Home Settings</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">Journal Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "images" %}">Images Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "styling" %}">Styling Settings</a>
                         <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
                     </div>
                 </div>
@@ -68,10 +71,10 @@
                 <div class="content">
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
+                        <a class="button" href="{% url 'cms_submission_items' %}">Submission Page Items</a>
                         <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
                         <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
                         <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display Settings</a>
                     </div>
                 </div>
 

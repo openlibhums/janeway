@@ -1,0 +1,33 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Contact Manager{% endblock title %}
+{% block title-section %}Contact Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_journal_contacts' %}">Contact Manager</a></li>
+    <li class="active">{% if contact %}Edit Contact{% else %}Add New Contact{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+       <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if contact %}Edit Contact{% else %}Add New Contact{% endif %}</h2>
+                <a class="button" href="{% url 'core_journal_contacts' %}">< Back</a>
+            </div>
+            <div class="content">
+                {% include "admin/elements/translations/form_tabs.html" with object=contact %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button class="success button" type="submit">{% if contact %}Edit Contact{% else %}Add New Contact{% endif %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+

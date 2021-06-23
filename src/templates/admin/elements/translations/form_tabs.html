@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load translations %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+        <ul class="menu simple lang-tabs">
+            {% if object and languages|length > 1 %}
+                {% for lang in languages %}
+                    <li class="lang-tab{% if lang.code == request.override_language %} lang-tab-active{% endif %}">
+                        <a href="?language={{ lang.code }}">{{ lang.name_local }} ({{ lang.code }})</a>
+                    </li>
+                {% endfor %}
+                {{ lang }}
+                {% if not request.override_language == settings.LANGUAGE_CODE %}
+                <p>
+                <small>Note: If the language you have selected ({{ request.override_language|language_name }}) has no existing translation the default language ({{ settings.LANGUAGE_CODE|language_name }}) will be displayed. To add a translation override it.</small>
+                </p>
+                {% endif %}
+            {% else %}
+                <p>Before translations become available you must create the section in the base language ({{ LANGUAGE_CODE|language_name }}).</p>
+            {% endif %}
+        </ul>

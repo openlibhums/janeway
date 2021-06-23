@@ -2,51 +2,31 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
 {% block title %}Sections{% endblock title %}
 {% block title-section %}Sections{% endblock %}
-{% block title-sub %}Manager{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_manager_sections' %}">Sections</a></li>
+    <li>{% if section %}{% trans 'Editing Section' %}: {{ section.name }}{% else %}{% trans 'Add a Section' %}{% endif %}</li>
 {% endblock %}
 
 {% block body %}
-    <div class="large-6 columns">
+    <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Journal's Sections</h2>
-                {% if section %}<a href="{% url 'core_manager_sections' %}" class="button">Add Section</a>{% endif %}
+                <h2>{% if section %}{% trans 'Editing Section' %}: {{ section.name }}{% else %}{% trans 'Add a Section' %}{% endif %}</h2>
             </div>
             <div class="content">
-                <form method="POST">
-                    {% csrf_token %}
-                    <ul class="list-group" id="sortable">
-                    {% for section in sections %}
-                        <li class="list-group-item" id="section-{{ section.pk }}">
-                            <i class="fa fa-sort">&nbsp;</i>{{ section.name }}
-                            <div class="float-right">
-                                <a href="{% url 'core_manager_section' section.pk %}" class="tiny warning button">
-                                    <i class="fa fa-edit"></i>
-                                </a>
-                                <button type="submit" class="tiny alert button delete" name="delete" value="{{ section.pk }}">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>{% if section %}Edit Section{% else %} Add Section{% endif %}</h2>
-            </div>
-            <div class="content">
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        {% include "admin/elements/translations/form_tabs.html" with object=section %}
+                    </div>
+                </div>
                 <form method="POST">
                     {% include "elements/forms/errors.html" with form=form %}
                     {% csrf_token %}

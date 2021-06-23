@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+import pytz
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,8 +14,7 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.urls import reverse
-from django.http import Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.utils import timezone
 from django.http import HttpResponse
@@ -26,7 +26,9 @@ from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.contenttypes.models import ContentType
-import pytz
+from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
+from django.db.models import Q
 
 from core import models, forms, logic, workflow, models as core_models
 from security.decorators import editor_user_required, article_author_required, has_journal
@@ -39,8 +41,9 @@ from proofing import logic as proofing_logic
 from proofing import models as proofing_models
 from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
+from utils.decorators import GET_language_override
+from utils.shared import language_override_redirect
 
-from django.db.models import Q
 
 logger = get_logger(__name__)
 
@@ -653,11 +656,11 @@ def settings_index(request):
     """
     template = 'core/manager/settings/index.html'
     context = {
-        'settings': [{group.name: models.Setting.objects.filter(group=group).order_by('name')} for group in
-                     models.SettingGroup.objects.all().order_by('name')],
+        'settings': models.Setting.objects.order_by('name')
     }
 
     return render(request, template, context)
+
 
 @staff_member_required
 def default_settings_index(request):
@@ -672,6 +675,7 @@ def default_settings_index(request):
     return settings_index(request)
 
 
+@GET_language_override
 @editor_user_required
 def edit_setting(request, setting_group, setting_name):
     """
@@ -681,57 +685,60 @@ def edit_setting(request, setting_group, setting_name):
     :param setting_name: string, Setting.name
     :return: HttpResponse object
     """
-    setting = models.Setting.objects.get(
-            name=setting_name, group__name=setting_group)
-    setting_value = setting_handler.get_setting(
-            setting_group,
-            setting_name,
-            request.journal,
-            default=False
+    with translation.override(request.override_language):
+        setting = models.Setting.objects.get(
+                name=setting_name, group__name=setting_group)
+        setting_value = setting_handler.get_setting(
+                setting_group,
+                setting_name,
+                request.journal,
+                default=False
+            )
+
+        if setting_value and setting_value.setting.types == 'rich-text':
+            setting_value.value = linebreaksbr(setting_value.value)
+
+        edit_form = forms.EditKey(
+                key_type=setting.types,
+                value=setting_value.value if setting_value else None
         )
 
-    if setting_value and setting_value.setting.types == 'rich-text':
-        setting_value.value = linebreaksbr(setting_value.value)
-
-    edit_form = forms.EditKey(
-            key_type=setting.types,
-            value=setting_value.value if setting_value else None
-    )
-
-    if request.POST and 'delete' in request.POST and setting_value:
-        setting_value.delete()
-
-        return redirect(reverse('core_settings_index'))
-
-    if request.POST:
-        if 'delete' in request.POST and setting_value:
+        if request.POST and 'delete' in request.POST and setting_value:
             setting_value.delete()
-        else:
-            value = request.POST.get('value')
-            if request.FILES:
-                value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-            try:
-                setting_value = setting_handler.save_setting(
-                    setting_group, setting_name, request.journal, value)
-            except ValidationError as error:
-                messages.add_message( request, messages.ERROR, error)
+            return redirect(reverse('core_settings_index'))
+
+        if request.POST:
+            if 'delete' in request.POST and setting_value:
+                setting_value.delete()
             else:
-                cache.clear()
+                value = request.POST.get('value')
+                if request.FILES:
+                    value = logic.handle_file(request, setting_value, request.FILES['value'])
 
-        if "email_template" in request.GET:
-            return redirect(reverse('core_email_templates'))
-        return redirect(reverse('core_settings_index'))
+                try:
+                    setting_value = setting_handler.save_setting(
+                        setting_group, setting_name, request.journal, value)
+                except ValidationError as error:
+                    messages.add_message( request, messages.ERROR, error)
+                else:
+                    cache.clear()
 
-    template = 'core/manager/settings/edit_setting.html'
-    context = {
-        'setting': setting,
-        'setting_value': setting_value,
-        'group': setting.group,
-        'edit_form': edit_form,
-        'value': setting_value.value if setting_value else None
-    }
-    return render(request, template, context)
+            return language_override_redirect(
+                request,
+                'core_edit_setting',
+                {'setting_group': setting_group, 'setting_name': setting_name},
+            )
+
+        template = 'core/manager/settings/edit_setting.html'
+        context = {
+            'setting': setting,
+            'setting_value': setting_value,
+            'group': setting.group,
+            'edit_form': edit_form,
+            'value': setting_value.value if setting_value else None
+        }
+        return render(request, template, context)
 
 
 @staff_member_required
@@ -746,6 +753,7 @@ def edit_default_setting(request, setting_group, setting_name):
     return edit_setting(request, setting_group, setting_name)
 
 
+@GET_language_override
 @editor_user_required
 def edit_settings_group(request, group):
     """
@@ -755,70 +763,79 @@ def edit_settings_group(request, group):
     :param group: string, name of a group of settings
     :return: HttpResponse object
     """
-    if request.journal:
-        journal_id = None
-        journal = request.journal
-    else:
-        journal_id = request.GET.get('journal')
-        journal = get_object_or_404(journal_models.Journal, pk=journal_id)
-        # Set request.journal
-        request.journal = journal
+    with translation.override(request.override_language):
+        settings, setting_group = logic.get_settings_to_edit(group, request.journal)
+        edit_form = forms.GeneratedSettingForm(settings=settings)
+        attr_form_object, attr_form, display_tabs, fire_redirect = None, None, True, True
 
-    settings, setting_group = logic.get_settings_to_edit(group, journal)
+        if group == 'journal':
+            attr_form_object = forms.JournalAttributeForm
+        elif group == 'images':
+            attr_form_object = forms.JournalImageForm
+            display_tabs = False
+        elif group == 'article':
+            attr_form_object = forms.JournalArticleForm
+            display_tabs = False
+        elif group == 'styling':
+            attr_form_object = forms.JournalStylingForm
+            display_tabs = False
+        elif group == 'submission':
+            attr_form_object = forms.JournalSubmissionForm
 
-    if not settings:
-        raise Http404
+        if attr_form_object:
+            attr_form = attr_form_object(instance=request.journal)
 
-    edit_form = forms.GeneratedSettingForm(settings=settings)
+        if not settings and not attr_form_object:
+            raise Http404
 
-    if journal_id:
-        attr_form = forms.PressJournalAttrForm(instance=journal)
-    else:
-        attr_form = forms.JournalAttributeForm(instance=journal)
+        if request.POST:
+            edit_form = forms.GeneratedSettingForm(
+                request.POST,
+                settings=settings,
+            )
 
-    if request.POST:
-        edit_form = forms.GeneratedSettingForm(request.POST, settings=settings)
+            if edit_form.is_valid():
+                edit_form.save(
+                    group=setting_group,
+                    journal=request.journal,
+                )
+            else:
+                fire_redirect = False
 
-        if journal_id:
-            attr_form = forms.PressJournalAttrForm(request.POST, request.FILES, instance=journal)
-        else:
-            attr_form = forms.JournalAttributeForm(request.POST, request.FILES, instance=journal)
+            if attr_form_object:
+                attr_form = attr_form_object(
+                    request.POST,
+                    request.FILES,
+                    instance=request.journal,
+                )
+                if attr_form.is_valid():
+                    attr_form.save()
 
-        if edit_form.is_valid():
-            edit_form.save(group=setting_group, journal=journal)
-
-        if group == 'journal' and attr_form.is_valid():
-            # Evaluate this form for this group only, otherwise booleans
-            # will all get set to False
-            attr_form.save()
-            logic.handle_default_thumbnail(request, journal, attr_form)
-            logic.handle_press_override_image(request, journal, attr_form)
-
-            if group == 'journal' and journal.default_large_image:
-                path = django_settings.BASE_DIR + journal.default_large_image.url
-                logic.resize_and_crop(path, [750, 324], 'middle')
+                    if group == 'images':
+                        logic.handle_default_thumbnail(request, request.journal, attr_form)
+                        logic.handle_press_override_image(request, request.journal, attr_form)
+                else:
+                    fire_redirect = False
 
             cache.clear()
 
-            # Unset request.journal
-            if journal_id:
-                request.journal = None
+            if fire_redirect:
+                return language_override_redirect(
+                    request,
+                    'core_edit_settings_group',
+                    {'group': group},
+                )
 
-            if request.journal:
-                return redirect(reverse('core_edit_settings_group', kwargs={'group': group}))
-            else:
-                return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': group}),
-                                                         journal_id))
+        template = 'core/manager/settings/group.html'
+        context = {
+            'group': group,
+            'settings_list': settings,
+            'edit_form': edit_form,
+            'attr_form': attr_form,
+            'display_tabs': display_tabs,
+        }
 
-    template = 'core/manager/settings/group.html'
-    context = {
-        'group': group,
-        'settings': settings,
-        'edit_form': edit_form,
-        'attr_form': attr_form,
-    }
-
-    return render(request, template, context)
+        return render(request, template, context)
 
 
 @editor_user_required
@@ -1301,14 +1318,19 @@ def contacts(request):
     :return: HttpResponse object
     """
     form = forms.JournalContactForm()
-    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
+    contacts = models.Contacts.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
 
     if 'delete' in request.POST:
         contact_id = request.POST.get('delete')
-        contact = get_object_or_404(models.Contacts,
-                                    pk=contact_id,
-                                    content_type=request.model_content_type,
-                                    object_id=request.site_type.pk)
+        contact = get_object_or_404(
+            models.Contacts,
+            pk=contact_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
         contact.delete()
         return redirect(reverse('core_journal_contacts'))
 
@@ -1334,31 +1356,51 @@ def contacts(request):
 
 
 @editor_user_required
-def edit_contacts(request, contact_id):
+@GET_language_override
+def edit_contacts(request, contact_id=None):
     """
     Allows for editing of existing Contact objects
     :param request: HttpRequest object
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
-    contact = get_object_or_404(models.Contacts,
-                                pk=contact_id,
-                                content_type=request.model_content_type,
-                                object_id=request.site_type.pk)
-    form = forms.JournalContactForm(instance=contact)
-    contacts = models.Contacts.objects.filter(content_type=request.model_content_type, object_id=request.site_type.pk)
+    with translation.override(request.override_language):
+        if contact_id:
+            contact = get_object_or_404(
+                models.Contacts,
+                pk=contact_id,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+            )
+            form = forms.JournalContactForm(instance=contact)
+        else:
+            contact = None
+            form = forms.JournalContactForm(
+                next_sequence=request.site_type.next_contact_order(),
+            )
 
-    if request.POST:
-        form = forms.JournalContactForm(request.POST, instance=contact)
+        if request.POST:
+            form = forms.JournalContactForm(request.POST, instance=contact)
 
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('core_journal_contacts'))
+            if form.is_valid():
+                if contact:
+                    contact = form.save()
+                else:
+                    contact = form.save(commit=False)
+                    contact.content_type = request.model_content_type
+                    contact.object_id = request.site_type.pk
+                    contact.save()
 
-    template = 'core/manager/contacts/index.html'
+                return language_override_redirect(
+                    request,
+                    'core_journal_contact',
+                    {'contact_id': contact.pk},
+                )
+
+    template = 'core/manager/contacts/manage.html'
     context = {
         'form': form,
-        'contacts': contacts
+        'contact': contact,
     }
 
     return render(request, template, context)
@@ -1390,7 +1432,6 @@ def editorial_team(request):
     :return: HttpResponse object
     """
     editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
-    form = forms.EditorialGroupForm(next_sequence=request.journal.next_group_order())
 
     if 'delete' in request.POST:
         delete_id = request.POST.get('delete')
@@ -1398,47 +1439,54 @@ def editorial_team(request):
         group.delete()
         return redirect(reverse('core_editorial_team'))
 
-    if request.POST:
-        form = forms.EditorialGroupForm(request.POST)
-
-        if form.is_valid():
-            group = form.save(commit=False)
-            group.journal = request.journal
-            group.save()
-
-            return redirect(reverse('core_editorial_team'))
-
     template = 'core/manager/editorial/index.html'
     context = {
         'editorial_groups': editorial_groups,
-        'form': form,
     }
 
     return render(request, template, context)
 
 
 @editor_user_required
-def edit_editorial_group(request, group_id):
+@GET_language_override
+def edit_editorial_group(request, group_id=None):
     """
     Allows editors to edit existing EditorialGroup objects
     :param request: HttpRequest object
     :param group_id: EditorialGroup object PK
     :return: HttpResponse object
     """
-    editorial_groups = models.EditorialGroup.objects.filter(journal=request.journal)
-    group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
-    form = forms.EditorialGroupForm(instance=group)
+    with translation.override(request.override_language):
+        if group_id:
+            group = get_object_or_404(models.EditorialGroup, pk=group_id, journal=request.journal)
+            form = forms.EditorialGroupForm(
+                instance=group,
+            )
+        else:
+            group = None
+            form = forms.EditorialGroupForm(
+                next_sequence=request.journal.next_group_order(),
+            )
 
-    if request.POST:
-        form = forms.EditorialGroupForm(request.POST, instance=group)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('core_editorial_team'))
+        if request.POST:
+            form = forms.EditorialGroupForm(request.POST, instance=group)
+            if form.is_valid():
+                if group:
+                    group = form.save()
+                else:
+                    group = form.save(commit=False)
+                    group.journal = request.journal
+                    group.save()
 
-    template = 'core/manager/editorial/index.html'
+                return language_override_redirect(
+                    request,
+                    'core_edit_editorial_team',
+                    {'group_id': group.pk},
+                )
+
+    template = 'core/manager/editorial/manage_group.html'
     context = {
         'group': group,
-        'editorial_groups': editorial_groups,
         'form': form,
     }
 
@@ -1721,29 +1769,61 @@ def email_templates(request):
 
 
 @editor_user_required
-def sections(request, section_id=None):
+def section_list(request):
+    """
+    Displays a list of the journals sections.
+    :praram request: HttpRequest object
+    :return: HttpResponse
+    """
+    section_objects = submission_models.Section.objects.filter(
+        journal=request.journal,
+    )
+
+    if request.POST and 'delete' in request.POST:
+        section_id = request.POST.get('delete')
+        section_to_delete = get_object_or_404(submission_models.Section, pk=section_id)
+
+        if section_to_delete.article_count():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    'You cannot remove a section that contains articles. Remove articles'
+                    ' from the section if you want to delete it.'
+                ),
+            )
+        else:
+            section_to_delete.delete()
+        return redirect(reverse('core_manager_sections'))
+
+    template = 'core/manager/sections/section_list.html'
+    context = {
+        'section_objects': section_objects,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@GET_language_override
+def manage_section(request, section_id=None):
     """
     Displays a list of sections, allows them to be added, edited and deleted.
     :param request: HttpRequest object
     :param section_id: Section object PK, optional
     :return: HttpResponse object
     """
-    section = get_object_or_404(submission_models.Section, pk=section_id,
-                                journal=request.journal) if section_id else None
-    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal)
+    with translation.override(request.override_language):
+        section = get_object_or_404(submission_models.Section, pk=section_id,
+                                    journal=request.journal) if section_id else None
+        sections = submission_models.Section.objects.filter(journal=request.journal)
 
-    if section:
-        form = forms.SectionForm(instance=section, request=request)
-    else:
-        form = forms.SectionForm(request=request)
-
-    if request.POST:
-
-        if 'delete' in request.POST:
-            id = request.POST.get('delete')
-            object = get_object_or_404(submission_models.Section, pk=id)
-            object.delete()
+        if section:
+            form = forms.SectionForm(instance=section, request=request)
         else:
+            form = forms.SectionForm(request=request)
+
+        if request.POST:
+
             if section:
                 form = forms.SectionForm(request.POST, instance=section, request=request)
             else:
@@ -1755,15 +1835,35 @@ def sections(request, section_id=None):
                 form_section.save()
                 form.save_m2m()
 
-        return redirect(reverse('core_manager_sections'))
+            return language_override_redirect(
+                request,
+                'core_manager_section',
+                {'section_id': section.pk if section else form_section.pk},
+            )
 
-    template = 'core/manager/sections/sections.html'
+        template = 'core/manager/sections/manage_section.html'
+        context = {
+            'sections': sections,
+            'section': section,
+            'form': form,
+        }
+    return render(request, template, context)
+
+
+@editor_user_required
+def section_articles(request, section_id):
+    """
+    Displays a list of articles in a given section.
+    """
+    section = get_object_or_404(
+        submission_models.Section,
+        pk=section_id,
+        journal=request.journal,
+    )
+    template = 'core/manager/sections/section_articles.html'
     context = {
-        'sections': sections,
         'section': section,
-        'form': form,
     }
-
     return render(request, template, context)
 
 

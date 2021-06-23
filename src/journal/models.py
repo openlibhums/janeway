@@ -17,6 +17,7 @@ from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext
 
 from core import (
         files,
@@ -90,10 +91,21 @@ class Journal(AbstractSiteModel):
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
-    is_remote = models.BooleanField(default=False)
+    is_remote = models.BooleanField(
+        default=False,
+        help_text='When enabled the journal is marked as not hosted in Janeway.',
+    )
     is_conference = models.BooleanField(default=False)
-    remote_submit_url = models.URLField(blank=True, null=True)
-    remote_view_url = models.URLField(blank=True, null=True)
+    remote_submit_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text='If the journal is remote you can link to its submission page.',
+    )
+    remote_view_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text='If the journal is remote you can link to its home page.',
+    )
     view_pdf_button = models.BooleanField(
         default=False,
         help_text='Enables a "View PDF" link on article pages.'
@@ -157,10 +169,9 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting(group_name, setting_name, self, create=False).processed_value
 
     @property
-    @cache(300)
     def name(self):
         try:
-            return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+            return setting_handler.get_setting('general', 'journal_name', self, create=False).value
         except IndexError:
             self.name = 'Janeway Journal'
             return self.name
@@ -171,7 +182,7 @@ class Journal(AbstractSiteModel):
 
     @property
     def publisher(self):
-        return setting_handler.get_setting('general', 'publisher_name', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'publisher_name', self, create=False).value
 
     @publisher.setter
     def publisher(self, value):
@@ -180,7 +191,7 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def issn(self):
-        return setting_handler.get_setting('general', 'journal_issn', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'journal_issn', self, create=False).value
 
     @property
     @cache(120)
@@ -189,8 +200,7 @@ class Journal(AbstractSiteModel):
             return setting_handler.get_setting('Identifiers',
                                                'crossref_prefix',
                                                self,
-                                               create=False,
-                                               fallback='en').processed_value
+                                               create=False).processed_value
         except IndexError:
             return False
 
@@ -498,9 +508,9 @@ class Issue(models.Model):
     def pretty_issue_identifier(self):
         journal = self.journal
 
-        volume = "Volume {}".format(
+        volume = ugettext("Volume") + " {}".format(
             self.volume) if journal.display_issue_volume else ""
-        issue = "Issue {}".format(
+        issue = ugettext("Issue") + " {}".format(
             self.issue) if journal.display_issue_number else ""
         year = "{}".format(
             self.date.year) if journal.display_issue_year else ""
@@ -886,7 +896,7 @@ class Notifications(models.Model):
 @receiver(post_save, sender=Journal)
 def setup_default_section(sender, instance, created, **kwargs):
     if created:
-        submission_models.Section.objects.language('en').get_or_create(
+        submission_models.Section.objects.get_or_create(
             journal=instance,
             number_of_reviewers=2,
             name='Article',

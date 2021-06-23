@@ -5118,3 +5118,8 @@ ul.actions li a {
 .submission-content {
   padding-bottom: 25px !important;
 }
+
+.padded-group-item {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}

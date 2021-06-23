@@ -432,7 +432,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
             for section_order, section in enumerate(sections_to_order):
 
                 logger.info('[{0}] {1}'.format(section_order, section.getText()))
-                order_section, c = models.Section.objects.language('en').get_or_create(
+                order_section, c = models.Section.objects.get_or_create(
                     name=section.getText().strip(),
                     journal=journal)
                 journal_models.SectionOrdering.objects.create(issue=issue,
@@ -669,8 +669,10 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
 
         # Get or create the article's section
         try:
-            section = models.Section.objects.language().fallbacks('en').get(journal=journal,
-                                                                            name=article_dict.get('section'))
+            section = models.Section.objects.get(
+                journal=journal,
+                name=article_dict.get('section'),
+            )
         except models.Section.DoesNotExist:
             section = None
 

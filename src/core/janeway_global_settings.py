@@ -49,6 +49,7 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,7 +84,6 @@ INSTALLED_APPS = [
     # 3rd Party
     'django_summernote',
     'markdown_deux',
-    'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
@@ -172,6 +172,7 @@ SETTINGS_EXPORT = [
     'ENABLE_ORCID',
     'DEBUG',
     'LANGUAGE_CODE',
+    'URL_CONFIG',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -237,6 +238,9 @@ LANGUAGES = (
     ('cy', ugettext('Welsh')),
 )
 
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_PREPOPULATE_LANGUAGE = 'en'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -273,7 +277,7 @@ SUMMERNOTE_CONFIG = {
 
     # Change editor size
     'width': '100%',
-    'height': '480',
+    'height': '350',
 
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,

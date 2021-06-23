@@ -83,6 +83,7 @@ def attempt_actor_email(event):
                                                   body,
                                                   log_dict=None)
 
+
 def build_url_for_request(request=None, path="", query=None, fragment=""):
     """ Builds a url from the base url relevant for the current request context
     :request: An instance of django.http.HTTPRequest

@@ -1,0 +1,26 @@
+<div class="title-area">
+    <h2>General Review Settings</h2>
+</div>
+<div class="content">
+    <p>{% trans 'You can set review file guidance and default review settings below. Review forms can be managed in the' %} <a href="{% url 'review_review_forms' %}">{% trans 'Review Form manager' %}.</a>.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.review_file_help %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.default_review_form %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.default_review_days %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.default_review_visibility %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_one_click_access %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_expanded_review_details %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.draft_decisions %}
+</div>
+
+<div class="title-area">
+    <h2>Review Forms</h2>
+</div>
+<div class="content">
+    <p>{% trans "Settings here determine the review form experience." %}.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_guidelines %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_save_review_progress %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_form_download %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.peer_review_upload_text %}
+</div>
+
+

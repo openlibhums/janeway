@@ -48,13 +48,15 @@ def update_settings(journal_object=None, management_command=False,
                 defaults=setting_defaults
             )
 
+            print(setting)
+
             if not created:
                 for k, v in setting_defaults.items():
                     if not getattr(setting, k) == v:
                         setattr(setting, k, v)
                         setting.save()
 
-            setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+            setting_value, created = core_models.SettingValue.objects.get_or_create(
                 journal=journal_object,
                 setting=setting
             )
@@ -97,7 +99,7 @@ def update_emails(journal_object=None, management_command=False):
                     defaults=setting_defaults
                 )
 
-                setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+                setting_value, created = core_models.SettingValue.objects.get_or_create(
                     journal=journal_object,
                     setting=setting
                 )
