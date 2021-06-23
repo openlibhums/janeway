@@ -20,7 +20,7 @@
         <conference>
             <event_metadata>
                 {% if issue.issue_title %}
-                <conference_name>{{ issue.title }}</conference_name>
+                <conference_name>{{ issue.issue_title }}</conference_name>
                 {% else %}
                 <conference_name>{{ journal_title }} - {{ issue.year }}</conference_name>
                 {% endif %}
@@ -42,19 +42,33 @@
                 <noisbn reason="simple_series"/>
             </proceedings_metadata>
             <conference_paper publication_type="full_text">
+                {# Order matters! conferences MUST send contributors before titles #}
+                {% if authors %}
                 <contributors>
-                    {% for author in authors %}
+                  {% for author in authors %}
+                    {% if author.is_corporate %}
+                    <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
+                        {{ author.corporate_name }}
+                    </organization>
+                    {% else %}
                     <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        <given_name>{{ author.first_names }}</given_name>
+                        <given_name>{{ author.given_names }}</given_name>
                         <surname>{{ author.last_name }}</surname>
+                        {% if author.institution %}
+                        <affiliation>{{ author.affiliation }}</affiliation>
+                        {% endif %}
+                        {% if author.author.orcid %}
+                        <ORCID>https://orcid.org/{{ author.author.orcid }}</ORCID>
+                        {% endif %}
                     </person_name>
-                    {%  endfor %}
+                    {% endif %}
+                  {%  endfor %}
                 </contributors>
                 {% endif %}
                 <titles>
                     <title>{{ article_title }}</title>
                 </titles>
-                {% if authors %}
+
                 <publication_date>
                     <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
                     <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>

@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.db import models
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Max, Q, Value
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 
@@ -68,6 +68,44 @@ class ReviewRound(models.Model):
     def __repr__(self):
         return u'%s - %s round number: %s' % (self.pk, self.article.title, self.round_number)
 
+    def active_reviews(self):
+        return self.reviewassignment_set.exclude(
+            Q(date_declined__isnull=False) | Q(decision='withdrawn')
+        ).order_by(
+            '-decision',
+        )
+
+    def inactive_reviews(self):
+        return self.reviewassignment_set.filter(
+            Q(date_declined__isnull=False) | Q(decision='withdrawn')
+        ).order_by(
+            'decision',
+        )
+
+    @classmethod
+    def latest_article_round(cls, article):
+        """ Works out and returns the latest article review round
+        MS: I'm still not quite sure why it works but it does
+        the round with a single query:
+            SELECT "review_reviewround"."*"
+            "FROM "review_reviewround"
+            WHERE ("review_reviewround"."article_id" = {id}
+            AND "review_reviewround"."round_number" = (
+                SELECT MAX(U0."round_number") AS "latest_round"
+                FROM "review_reviewround" U0 WHERE U0."article_id" = {id})
+            )
+            ORDER BY "review_reviewround"."round_number" DESC
+
+        """
+        latest_round = cls.objects.filter( article=article,).annotate(
+            # Annotate all rows with the same value to force a group by
+            constant=Value(1),
+        ).values("constant").annotate(
+            latest_round=Max('round_number'),
+        ).values("latest_round")
+
+        return cls.objects.get(article=article, round_number=latest_round)
+
 
 class ReviewAssignment(models.Model):
     # FKs
@@ -79,7 +117,13 @@ class ReviewAssignment(models.Model):
 
     # Info
     review_round = models.ForeignKey(ReviewRound, blank=True, null=True)
-    decision = models.CharField(max_length=20, blank=True, null=True, choices=review_decision())
+    decision = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=review_decision(),
+        verbose_name='Recommendation',
+    )
     competing_interests = models.TextField(blank=True, null=True,
                                            help_text="If any of the authors or editors "
                                                      "have any competing interests please add them here. "
@@ -87,7 +131,7 @@ class ReviewAssignment(models.Model):
     review_type = models.CharField(max_length=20, choices=review_type(), default='traditional',
                                    help_text='Currently only traditional, form based, review is available.')
     visibility = models.CharField(max_length=20, choices=review_visibilty(), default='double-blind')
-    form = models.ForeignKey('ReviewForm')
+    form = models.ForeignKey('ReviewForm', null=True, on_delete=models.SET_NULL)
     access_code = models.CharField(max_length=100, blank=True, null=True)
 
     # Dates
@@ -110,20 +154,20 @@ class ReviewAssignment(models.Model):
     display_review_file = models.BooleanField(default=False)
 
     def review_form_answers(self):
-        return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('element__order')
+        return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('frozen_element__order')
 
     def save_review_form(self, review_form, assignment):
         for k, v in review_form.cleaned_data.items():
-            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, name=k)
-            ReviewAssignmentAnswer.objects.update_or_create(
+            form_element = ReviewFormElement.objects.get(reviewform=assignment.form, pk=k)
+            answer, _ = ReviewAssignmentAnswer.objects.update_or_create(
                 assignment=self,
-                element=form_element,
+                original_element=form_element,
                 defaults={
                     "author_can_see": form_element.default_visibility,
                     "answer": v,
                 },
             )
-
+            form_element.snapshot(answer)
 
     @property
     def review_rating(self):
@@ -180,7 +224,7 @@ class ReviewAssignment(models.Model):
         elif self.date_accepted:
             return {
                 'code': 'accept',
-                'display': 'Accept',
+                'display': 'Yes',
                 'span_class': 'green',
                 'date': shared.day_month(self.date_accepted),
                 'reminder': 'accepted',
@@ -188,7 +232,7 @@ class ReviewAssignment(models.Model):
         elif self.date_declined:
             return {
                 'code': 'declined',
-                'display': 'Declined',
+                'display': 'No',
                 'span_class': 'red',
                 'date': shared.day_month(self.date_declined),
                 'reminder': None,
@@ -210,7 +254,6 @@ class ReviewAssignment(models.Model):
 
         return u'{0} - Article: {1}, Reviewer: {2}'.format(
             self.id, self.article.title, reviewer_name)
-
 
 
 class ReviewForm(models.Model):
@@ -249,7 +292,7 @@ def element_width_choices():
     )
 
 
-class ReviewFormElement(models.Model):
+class BaseReviewFormElement(models.Model):
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=element_kind_choices())
     choices = models.CharField(max_length=1000, null=True, blank=True,
@@ -265,6 +308,7 @@ class ReviewFormElement(models.Model):
 
     class Meta:
         ordering = ('order', 'name')
+        abstract = True
 
     def __str__(self):
         return "Element: {0} ({1})".format(self.name, self.kind)
@@ -274,15 +318,54 @@ class ReviewFormElement(models.Model):
             return
 
 
+class ReviewFormElement(BaseReviewFormElement):
+
+    class Meta(BaseReviewFormElement.Meta):
+        pass
+
+    def snapshot(self, answer):
+        frozen , _= FrozenReviewFormElement.objects.update_or_create(
+            answer=answer,
+            defaults=dict(
+                form_element=self,
+                name=self.name,
+                kind=self.kind,
+                choices=self.choices,
+                required=self.required,
+                order=self.order,
+                width=self.width,
+                help_text=self.help_text,
+                default_visibility=self.default_visibility,
+            )
+        )
+        return frozen
+
+
 class ReviewAssignmentAnswer(models.Model):
     assignment = models.ForeignKey(ReviewAssignment)
-    element = models.ForeignKey(ReviewFormElement)
+    original_element = models.ForeignKey(
+        ReviewFormElement, null=True, on_delete=models.SET_NULL)
     answer = models.TextField(blank=True, null=True)
     edited_answer = models.TextField(null=True, blank=True)
     author_can_see = models.BooleanField(default=True)
 
     def __str__(self):
         return "{0}, {1}".format(self.assignment, self.element)
+
+    @property
+    def element(self):
+        return self.frozen_element
+
+
+class FrozenReviewFormElement(BaseReviewFormElement):
+    """ A snapshot of a review form element at the time an answer is created"""
+    form_element = models.ForeignKey(
+        ReviewFormElement, null=True, on_delete=models.SET_NULL)
+    answer = models.OneToOneField(
+        ReviewAssignmentAnswer, related_name="frozen_element")
+
+    class Meta(BaseReviewFormElement.Meta):
+        pass
 
 
 class ReviewFormAnswer(models.Model):
@@ -323,7 +406,13 @@ class RevisionRequest(models.Model):
     article = models.ForeignKey('submission.Article')
     editor = models.ForeignKey('core.Account')
     editor_note = models.TextField()  # Note from Editor to Author
-    author_note = models.TextField(blank=True, null=True, verbose_name="Covering Letter")  # Note from Author to Editor
+    author_note = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Covering Letter",
+        help_text="You can add an optional covering letter to the editor with details of the "
+                  "changes that you have made to your revised manuscript."
+    )  # Note from Author to Editor
     actions = models.ManyToManyField(RevisionAction)  # List of actions Author took during Revision Request
     type = models.CharField(max_length=20, choices=revision_type(), default='minor_revisions')
 
@@ -346,17 +435,45 @@ class EditorOverride(models.Model):
 
 class DecisionDraft(models.Model):
     article = models.ForeignKey('submission.Article')
+    editor = models.ForeignKey('core.Account', related_name='draft_editor', null=True)
     section_editor = models.ForeignKey('core.Account', related_name='draft_section_editor')
-    decision = models.CharField(max_length=100, choices=review_decision())
-    message_to_editor = models.TextField(null=True, blank=True)
-    email_message = models.TextField(null=True, blank=True)
+    decision = models.CharField(
+        max_length=100,
+        choices=review_decision(),
+        verbose_name='Draft Decision',
+    )
+    message_to_editor = models.TextField(
+        null=True,
+        blank=True,
+        help_text='This is the email that will be sent to the editor notifying them that you are '
+                  'logging your draft decision.',
+        verbose_name='Email to Editor',
+    )
+    email_message = models.TextField(
+        null=True,
+        blank=True,
+        help_text='This is a draft of the email that will be sent to the author. Your editor will check this.',
+        verbose_name='Draft Email to Author',
+    )
     drafted = models.DateTimeField(auto_now=True)
 
-    editor_decision = models.CharField(max_length=20,
-                                       choices=(('accept', 'Accept'), ('decline', 'Decline')),
-                                       null=True,
-                                       blank=True)
-    closed = models.BooleanField(default=False)
+    editor_decision = models.CharField(
+        max_length=20,
+        choices=(('accept', 'Accept'), ('decline', 'Decline')),
+        null=True,
+        blank=True,
+    )
+    revision_request_due_date = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Stores a due date for a Drafted Revision Request.",
+    )
+    editor_decline_rationale = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Provide the section editor with a rationale for declining their drafted decision.",
+        verbose_name="Rationale for Declining Draft Decision",
+    )
 
     def __str__(self):
         return "{0}: {1}".format(self.article.title,

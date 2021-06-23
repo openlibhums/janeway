@@ -333,6 +333,7 @@ th {
     border: 1px solid #eee;
     border-left-width: 5px;
     border-radius: 3px;
+    margin-bottom: 10px;
 }
 
 .bs-callout h4 {
@@ -483,4 +484,66 @@ th {
 
 .fixed-table {
     table-layout: fixed;
+}
+
+<!-- Glossing -->
+ol {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+}
+
+ol ol {
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+
+ol.gloss-sentence {
+    display: inline !important;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.gloss-item {
+    overflow: auto;
+}
+
+.gloss-sentence li {
+    padding-left: 4px !important;
+    padding-bottom: 2px;
+
+}
+
+.gloss-sentence ol {
+    list-style: none !important;
+}
+
+ol.gloss-word {
+    padding-right: .5em !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 2px !important;
+    background: white !important;
+    display: inline-block !important;
+    margin-inline-start: 0 !important;
+}
+
+.gloss-first {
+  padding-left: 0 !important;
+}
+
+.gloss-header {
+    float: left;
+    display: flex;
+    min-width: 40px;
+}
+
+.gloss-wrapper {
+    overflow: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0;
 }

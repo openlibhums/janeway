@@ -93,8 +93,10 @@ def import_all(**options):
     journal = journal_models.Journal.objects.get(code=options['journal_code'])
     user = core_models.Account.objects.get(pk=options['user_id'])
     url = options['url']
+    update = options.get("update", False)
 
-    up.import_issue_images(journal, user, url, import_missing=True)
+    up.import_issue_images(
+        journal, user, url, import_missing=True, update=update)
 
 
 def import_issue_images(**options):

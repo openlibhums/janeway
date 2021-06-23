@@ -34,13 +34,29 @@ class Command(BaseCommand):
         tab = CronTab(user=True)
         virtualenv = os.environ.get('VIRTUAL_ENV', None)
 
+        cwd = settings.PROJECT_DIR.replace('/', '_')
+
         jobs = [
-            {'name': 'janeway_cron_job', 'time': 30, 'task': 'execute_cron_tasks'},
-            {'name': 'janeway_ithenticate_job', 'time': 30, 'task': 'store_ithenticate_scores'},
+            {
+                'name': '{}_janeway_cron_job'.format(cwd),
+                'time': 30,
+                'task': 'execute_cron_tasks',
+            },
+            {
+                'name': '{}_janeway_ithenticate_job'.format(cwd),
+                'time': 30,
+                'task': 'store_ithenticate_scores',
+            },
         ]
 
         if settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
-            jobs.append({'name': 'janeway_mailgun_job', 'time': 60, 'task': 'check_mailgun_stat'})
+            jobs.append(
+                {
+                    'name': '{}_janeway_mailgun_job'.format(cwd),
+                    'time': 60,
+                    'task': 'check_mailgun_stat',
+                }
+            )
 
         for job in jobs:
             current_job = find_job(tab, job['name'])

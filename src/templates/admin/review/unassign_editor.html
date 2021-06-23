@@ -1,7 +1,9 @@
 {% extends "admin/core/base.html" %}
+{% load settings %}
 
 {% block title %}Unassign Editor Request{% endblock title %}
 {% block title-section %}Unassign Editor Request{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -25,7 +27,8 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="card-section">
-                            <p>Subject: <strong>Unassigned from article</strong></p>
+                            {% setting_var request.journal 'subject_unassign_editor' as subject %}
+                            <p>Subject: <strong>{{ subject }}</strong></p>
                             <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
                         </div>
                         <div class="card-divider">

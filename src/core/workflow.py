@@ -178,8 +178,10 @@ def articles_in_workflow_plugins(request):
                 settings_module = import_module(settings.WORKFLOW_PLUGINS[element.element_name])
 
                 element_dict = {
-                    'articles':submission_models.Article.objects.filter(
-                        stage=element.stage),
+                    'articles': submission_models.Article.objects.filter(
+                        stage=element.stage,
+                        journal=request.journal,
+                    ),
                     'name': element.element_name,
                     'template': settings_module.KANBAN_CARD,
                 }

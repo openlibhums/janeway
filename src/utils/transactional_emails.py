@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from utils import (
     notify_helpers,
@@ -124,18 +125,6 @@ def send_editor_assigned_acknowledgements(**kwargs):
 
 def send_reviewer_requested_acknowledgements(**kwargs):
     """
-    This function is called via the event handling framework and it notifies that an editor has been assigned.
-    It is wired up in core/urls.py.
-    :param kwargs: a list of kwargs that includes editor_assignment, user_message_content, skip (boolean) and request
-    :return: None
-    """
-    kwargs['acknowledgement'] = True
-
-    send_reviewer_requested_acknowledgements_mandatory(**kwargs)
-
-
-def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
-    """
     This function is called via the event handling framework and it notifies that a reviewer has been requested.
     It is wired up in core/urls.py.
     :param kwargs: a list of kwargs that includes review_assignment, user_message_content, skip (boolean) and request
@@ -146,21 +135,16 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
     article = review_assignment.article
     request = kwargs['request']
     user_message_content = kwargs['user_message_content']
-    acknowledgement = kwargs['acknowledgement']
 
     if 'skip' not in kwargs:
         kwargs['skip'] = True
 
     skip = kwargs['skip']
 
-    description = 'A review request was added to "{0}" for user {1}'.format(article.title,
-                                                                            review_assignment.reviewer.full_name())
-
-    context = {
-        'article': article,
-        'request': request,
-        'review_assignment': review_assignment
-    }
+    description = 'A review request was added to "{0}" for user {1}'.format(
+        article.title,
+        review_assignment.reviewer.full_name(),
+    )
 
     log_dict = {'level': 'Info',
                 'action_text': description,
@@ -169,18 +153,16 @@ def send_reviewer_requested_acknowledgements_mandatory(**kwargs):
 
     # send to requested reviewer
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_review_request_sent',
-                                                      review_assignment.reviewer.email,
-                                                      user_message_content, log_dict=log_dict)
-    if not acknowledgement:
-        # send slack
-        notify_helpers.send_slack(request, description, ['slack_editors'])
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_review_assignment',
+            review_assignment.reviewer.email,
+            user_message_content,
+            log_dict=log_dict,
+        )
 
-        # send to editor
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_request_sent',
-                                                                  'subject_review_request_sent',
-                                                                  review_assignment.editor.email, context,
-                                                                  log_dict=log_dict)
+    # send slack
+    notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
 def send_review_complete_acknowledgements(**kwargs):
@@ -195,33 +177,57 @@ def send_review_complete_acknowledgements(**kwargs):
     request = kwargs['request']
     request.user = review_assignment.reviewer
 
-    description = '{0} completed the review of "{1}": {2}'.format(review_assignment.reviewer.full_name(),
-                                                                  article.title,
-                                                                  review_assignment.get_decision_display())
+    description = '{0} completed the review of "{1}": {2}'.format(
+        review_assignment.reviewer.full_name(),
+        article.title,
+        review_assignment.get_decision_display(),
+    )
 
-    util_models.LogEntry.add_entry(types='Review Complete', description=description, level='Info', actor=request.user,
-                                   target=article,
-                                   request=request)
+    util_models.LogEntry.add_entry(
+        types='Review Complete',
+        description=description,
+        level='Info',
+        actor=request.user,
+        target=article,
+        request=request,
+    )
+
+    review_in_review_url = request.journal.site_url(
+        path=reverse(
+            'review_in_review',
+            kwargs={'article_id': article.pk},
+        )
+    )
 
     context = {
         'article': article,
         'request': request,
-        'review_assignment': review_assignment
+        'review_assignment': review_assignment,
     }
 
     # send slack
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
     # send to reviewer
-    notify_helpers.send_email_with_body_from_setting_template(request, 'review_complete_reviewer_acknowledgement',
-                                                              'subject_review_complete_reviewer_acknowledgement',
-                                                              review_assignment.reviewer.email,
-                                                              context)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'review_complete_reviewer_acknowledgement',
+        'subject_review_complete_reviewer_acknowledgement',
+        review_assignment.reviewer.email,
+        context,
+    )
 
     # send to editor
-    notify_helpers.send_email_with_body_from_setting_template(request, 'review_complete_acknowledgement',
-                                                              'subject_review_complete_reviewer_acknowledgement',
-                                                              review_assignment.editor.email, context)
+    context['review_in_review_url'] = review_in_review_url
+    editors = get_assignment_editors(review_assignment)
+    for editor in editors:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'review_complete_acknowledgement',
+            'subject_review_complete_reviewer_acknowledgement',
+            editor.email,
+            context,
+        )
 
 
 def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
@@ -236,52 +242,78 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
     request = kwargs['request']
     accepted = kwargs['accepted']
 
-    description = '{0} {1} to review {2}'.format(review_assignment.reviewer.full_name(),
-                                                 ('accepted' if accepted else 'declined'),
-                                                 article.title)
+    description = '{0} {1} to review {2}'.format(
+        review_assignment.reviewer.full_name(),
+        ('accepted' if accepted else 'declined'),
+        article.title,
+    )
 
-    util_models.LogEntry.add_entry(types='Review request {0}'.format(('accepted' if accepted else 'declined')),
-                                   description=description, level='Info', actor=request.user, target=article,
-                                   request=request)
+    util_models.LogEntry.add_entry(
+        types='Review request {0}'.format(('accepted' if accepted else 'declined')),
+        description=description,
+        level='Info',
+        actor=request.user,
+        target=article,
+        request=request,
+    )
 
     review_url = review_logic.get_review_url(
         request,
         review_assignment,
     )
 
+    review_in_review_url = request.journal.site_url(
+        path=reverse(
+            'review_in_review',
+            kwargs={'article_id': article.pk},
+        )
+    )
+
     context = {
         'article': article,
         'request': request,
         'review_assignment': review_assignment,
-        'review_url': review_url,
     }
+
+    reviewer_context = context
+    reviewer_context['review_url'] = review_url
+    editor_context = context
+    editor_context['review_in_review_url'] = review_in_review_url
 
     # send to slack
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
     # send to reviewer
     if accepted:
+        context["reviewer_decision"] = _("accepted")
         notify_helpers.send_email_with_body_from_setting_template(
             request,
             'review_accept_acknowledgement',
             'subject_review_accept_acknowledgement',
             review_assignment.reviewer.email,
-            context,
+            reviewer_context,
         )
 
-        # send to editor
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',
-                                                                  'subject_review_acknowledgement',
-                                                                  review_assignment.editor.email, context)
     else:
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_decline_acknowledgement',
-                                                                  'subject_review_decline_acknowledgement',
-                                                                  review_assignment.reviewer.email, context)
+        context["reviewer_decision"] = _("declined")
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'review_decline_acknowledgement',
+            'subject_review_decline_acknowledgement',
+            review_assignment.reviewer.email,
+            reviewer_context,
+        )
 
-        # send to editor
-        notify_helpers.send_email_with_body_from_setting_template(request, 'review_acknowledgement',
-                                                                  'subject_review_acknowledgement',
-                                                                  review_assignment.editor.email, context)
+    # send to editor
+    editors = get_assignment_editors(review_assignment)
+    for editor in editors:
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            'reviewer_acknowledgement',
+            'subject_reviewer_acknowledgement',
+            editor.email,
+            editor_context,
+        )
 
 
 def send_submission_acknowledgement(**kwargs):
@@ -305,11 +337,6 @@ def send_submission_acknowledgement(**kwargs):
         request=request,
     )
 
-    context = {
-        'article': article,
-        'request': request
-    }
-
     log_dict = {
         'level': 'Info',
         'action_text': 'A new article {0} was submitted'.format(article.title),
@@ -317,18 +344,27 @@ def send_submission_acknowledgement(**kwargs):
         'target': article,
     }
 
-    # send to slack
-    slack_url = request.journal.site_url(
-        path=reverse('review_unassigned_article',
-                     kwargs={'article_id': article.pk})
+    # generate URL
+    review_unassigned_article_url = request.journal.site_url(
+        path=reverse(
+            'review_unassigned_article',
+            kwargs={'article_id': article.pk},
+        )
     )
     notify_helpers.send_slack(
         request,
-        'New submission: {0} {1}'.format(article.title,
-                                         slack_url),
+        'New submission: {0} {1}'.format(
+            article.title,
+            review_unassigned_article_url,
+        ),
         ['slack_editors'])
 
     # send to author
+    context = {
+        'article': article,
+        'request': request,
+        'review_unassigned_article_url': review_unassigned_article_url,
+    }
     notify_helpers.send_email_with_body_from_setting_template(
         request,
         'submission_acknowledgement',
@@ -344,8 +380,12 @@ def send_submission_acknowledgement(**kwargs):
 
     if editors_to_email:
         editor_pks = [int(pk) for pk in editors_to_email]
-        editor_emails = {role.user.email for role in core_models.AccountRole.objects.filter(
-            role__slug='editor', user__id__in=editor_pks)}
+        editor_emails = {
+            role.user.email for role in core_models.AccountRole.objects.filter(
+                role__slug='editor',
+                user__id__in=editor_pks,
+            )
+        }
     else:
         editor_emails = set(request.journal.editor_emails)
 
@@ -354,11 +394,14 @@ def send_submission_acknowledgement(**kwargs):
 
     editor_emails |= {editor.email for editor in assigned_to_section}
 
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'editor_new_submission',
-                                                              'subject_editor_new_submission',
-                                                              editor_emails,
-                                                              context, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'editor_new_submission',
+        'subject_editor_new_submission',
+        editor_emails,
+        context,
+        log_dict=log_dict,
+    )
 
 
 def send_article_decision(**kwargs):
@@ -399,20 +442,30 @@ def send_revisions_request(**kwargs):
 
     skip = kwargs['skip']
 
-    description = '{0} has requested revisions for {1} due on {2}'.format(request.user.full_name(),
-                                                                          revision.article.title,
-                                                                          revision.date_due)
+    description = '{0} has requested revisions for {1} due on {2}'.format(
+        request.user.full_name(),
+        revision.article.title,
+        revision.date_due,
+    )
 
     log_dict = {'level': 'Info',
                 'action_text': description,
                 'types': 'Revision Request',
-                'target': revision.article}
+                'target': revision.article,
+                }
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_request_revisions',
-                                                      revision.article.correspondence_author.email,
-                                                      user_message_content, log_dict=log_dict)
-        notify_helpers.send_slack(request, description, ['slack_editors'])
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_request_revisions',
+            revision.article.correspondence_author.email,
+            user_message_content,
+            log_dict=log_dict,
+        )
+        notify_helpers.send_slack(
+            request,
+            description,['slack_editors'],
+        )
 
 
 def send_revisions_complete(**kwargs):
@@ -423,18 +476,21 @@ def send_revisions_complete(**kwargs):
     for action in revision.actions.all():
         action_text = "{0}<br><br>{1} - {2}".format(action_text, action.logged, action.text)
 
-    description = '<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'.format(request.user.full_name(),
-                                                                                      revision.article.title,
-                                                                                      action_text)
-
-    notify_helpers.send_email_with_body_from_user(request,
-                                                  'Article Revisions Complete',
-                                                  revision.editor.email,
-                                                  description)
+    description = ('<p>{0} has completed revisions for {1}</p> Actions:<br>{2}'
+        ''.format(request.user.full_name(), revision.article.title, action_text)
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'Article Revisions Complete',
+        {editor.email for editor in get_assignment_editors(revision)},
+        description,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
-    util_models.LogEntry.add_entry(types='Revisions Complete', description=action_text, level='Info',
-                                   request=request, target=revision.article)
+    util_models.LogEntry.add_entry(
+        types='Revisions Complete', description=action_text, level='Info',
+        request=request, target=revision.article,
+    )
 
 
 def send_copyedit_assignment(**kwargs):
@@ -443,16 +499,23 @@ def send_copyedit_assignment(**kwargs):
     user_message_content = kwargs['user_message_content']
     skip = kwargs.get('skip', False)
 
-    description = '{0} has requested copyediting for {1} due on {2}'.format(request.user.full_name(),
-                                                                            copyedit_assignment.article.title,
-                                                                            copyedit_assignment.due)
+    description = '{0} has requested copyediting for {1} due on {2}'.format(
+        request.user.full_name(),
+        copyedit_assignment.article.title,
+        copyedit_assignment.due,
+    )
 
     if not skip:
-        log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Assignment',
-                    'target': copyedit_assignment.article}
-        response = notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_assignment_notification',
-                                                                 copyedit_assignment.copyeditor.email,
-                                                                 user_message_content, log_dict)
+        log_dict = {
+            'level': 'Info', 'action_text': description,
+            'types': 'Copyedit Assignment',
+            'target': copyedit_assignment.article,
+        }
+        response = notify_helpers.send_email_with_body_from_user(
+            request, 'subject_copyeditor_assignment_notification',
+            copyedit_assignment.copyeditor.email,
+            user_message_content, log_dict,
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -552,17 +615,33 @@ def send_copyedit_complete(**kwargs):
     copyedit_assignment = kwargs['copyedit_assignment']
     article = kwargs['article']
 
-    description = 'Copyediting requested by {0} from {1} for article {2} has been completed'.format(
-        request.user.full_name(),
-        copyedit_assignment.copyeditor.full_name(),
-        article.title)
+    description = 'Copyediting requested by {0} from {1} for article {2} ' \
+        'has been completed'.format(
+            request.user.full_name(),
+            copyedit_assignment.copyeditor.full_name(),
+            article.title
+    )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Copyedit Complete',
-                'target': copyedit_assignment.article}
+    log_dict = {
+        'level': 'Info', 'action_text': description,
+        'types': 'Copyedit Complete',
+        'target': article,
+    }
+    article_copyediting_url = request.journal.site_url(reverse(
+        'article_copyediting', args=[article.pk],
+    ))
 
-    notify_helpers.send_email_with_body_from_user(request, 'subject_copyeditor_notify_editor',
-                                                  copyedit_assignment.editor.email,
-                                                  description, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'copyeditor_notify_editor',
+        'subject_copyeditor_notify_editor',
+        copyedit_assignment.editor.email,
+        context={
+            'assignment': copyedit_assignment,
+            'article_copyediting_url': article_copyediting_url,
+        },
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -675,12 +754,34 @@ def send_typeset_complete(**kwargs):
         typeset_task.note_from_typesetter,
     )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Typesetting Assignment Complete',
-                'target': typeset_task.assignment.article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Typesetting Assignment Complete',
+        'target': typeset_task.assignment.article,
+    }
 
-    notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_complete_notification',
-                                                  typeset_task.assignment.production_manager.email,
-                                                  description, log_dict=log_dict)
+    production_article_url = request.journal.site_url(
+        path=reverse(
+            'production_article',
+            kwargs={'article_id': typeset_task.assignment.article.pk},
+        )
+    )
+
+    context = {
+        'production_article_url': production_article_url,
+        'typeset_task': typeset_task,
+        'production_assignment': typeset_task.assignment,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'typesetter_complete_notification',
+        'subject_typesetter_complete_notification',
+        typeset_task.assignment.production_manager.email,
+        context,
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -692,19 +793,34 @@ def send_production_complete(**kwargs):
 
     description = 'Production has been completed for article {0}.'.format(article.title)
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Production Complete',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Production Complete',
+        'target': article,
+    }
 
     for task in assignment.typesettask_set.all():
-        notify_helpers.send_email_with_body_from_user(request, 'Article Production Complete', task.typesetter.email,
-                                                      user_content_message)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'Article Production Complete',
+            task.typesetter.email,
+            user_content_message,
+        )
 
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'production_complete',
-                                                              'subject_production_complete',
-                                                              article.editor_emails(),
-                                                              {'article': article, 'assignment': assignment},
-                                                              log_dict=log_dict)
+    context = {
+        'article': article,
+        'assignment': assignment,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'production_complete',
+        'subject_production_complete',
+        article.editor_emails(),
+        context,
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -717,15 +833,32 @@ def fire_proofing_manager_assignment(**kwargs):
         proofing_assignment.proofing_manager.full_name(),
         article.title,
     )
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Manager Assigned',
-                'target': article}
-    context = {'request': request, 'proofing_assignment': proofing_assignment, 'article': article}
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'notify_proofing_manager',
-                                                              'subject_notify_proofing_manager',
-                                                              proofing_assignment.proofing_manager.email,
-                                                              context,
-                                                              log_dict=log_dict)
+    log_dict = {
+        'level': 'Info', 'action_text': description,
+        'types': 'Proofing Manager Assigned',
+        'target': article,
+    }
+
+    proofing_url = request.journal.site_url(reverse(
+        'proofing_article', args=[article.pk]
+    ))
+
+    context = {
+        'request': request,
+        'proofing_assignment': proofing_assignment,
+        'article': article,
+        'proofing_article_url': proofing_url,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_proofing_manager',
+        'subject_notify_proofing_manager',
+        proofing_assignment.proofing_manager.email,
+        context,
+        log_dict=log_dict,
+    )
+
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -818,12 +951,22 @@ def send_proofreader_complete_notification(**kwargs):
         proofing_task.proofreader.full_name(),
         article.title,
     )
+    proofing_url = request.journal.site_url(reverse(
+        'proofing_article', args=[article.pk]
+    ))
+    context = {
+        'proofing_task': proofing_task,
+        'proofing_article_url': proofing_url,
+
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_proofreader_complete',
+        'subject_notify_proofreader_complete',
+        proofing_task.round.assignment.proofing_manager.email,
+        context,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'notify_proofreader_complete',
-                                                              'subject_notify_proofreader_complete',
-                                                              proofing_task.round.assignment.proofing_manager.email,
-                                                              {'proofing_task': proofing_task})
 
 
 def send_proofing_typeset_request(**kwargs):
@@ -871,16 +1014,36 @@ def send_corrections_complete(**kwargs):
     typeset_task = kwargs['typeset_task']
     article = kwargs['article']
 
-    description = '{0} has completed corrections task for article {1} (proofing task {2}'.format(
+    description = '{0} has completed corrections task for article {1} (proofing task {2})'.format(
         request.user.full_name(),
         article.title,
         typeset_task.pk,
     )
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Typesetting Complete',
-                'target': typeset_task.proofing_task.round.assignment.article}
-    notify_helpers.send_email_with_body_from_user(request, 'subject_typesetter_corrections_complete',
-                                                  article.proofingassignment.proofing_manager.email,
-                                                  description, log_dict=log_dict)
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Proofing Typesetting Complete',
+        'target': typeset_task.proofing_task.round.assignment.article,
+    }
+    proofing_article_url = request.journal.site_url(
+        path=reverse(
+            'production_article',
+            kwargs={'article_id': typeset_task.proofing_task.assignment.article.pk},
+        )
+    )
+    context = {
+        'typeset_task': typeset_task,
+        'proofing_article_url': proofing_article_url,
+        'production_assignment': typeset_task.proofing_task.assignment,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'typesetter_corrections_complete',
+        'subject_typesetter_corrections_complete',
+        article.proofingassignment.proofing_manager.email,
+        context,
+        log_dict=log_dict,
+    )
     notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -911,12 +1074,20 @@ def send_proofing_complete(**kwargs):
     skip = kwargs['skip']
 
     description = "Proofing is now complete for {0}".format(article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Proofing Complete',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Proofing Complete',
+        'target': article,
+    }
     if not skip:
-        notify_helpers.send_email_with_body_from_user(request, 'subject_notify_editor_proofing_complete',
-                                                      article.editor_emails(),
-                                                      user_message, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            'subject_notify_editor_proofing_complete',
+            article.editor_emails(),
+            user_message,
+            log_dict=log_dict,
+        )
         notify_helpers.send_slack(request, description, ['slack_editors'])
 
 
@@ -975,22 +1146,34 @@ def send_draft_decison(**kwargs):
     request = kwargs['request']
     draft = kwargs['draft']
     article = kwargs['article']
-    emails = article.section.editor_emails()
-
-    if not emails:
-        emails = request.journal.editor_emails
 
     description = "Section Editor {0} has drafted a decision for Article {1}".format(
         draft.section_editor.full_name(), article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Draft Decision',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Draft Decision',
+        'target': article,
+    }
+    review_edit_draft_decision_url = request.journal.site_url(
+        path=reverse(
+            'review_edit_draft_decision', args=[article.pk, draft.pk]
+        )
+    )
+    context = {
+        'draft': draft,
+        'article': article,
+        'review_edit_draft_decision_url': review_edit_draft_decision_url,
+    }
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'draft_editor_message',
-                                                              'subject_draft_editor_message',
-                                                              emails,
-                                                              {'draft': draft, 'article': article},
-                                                              log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'draft_editor_message',
+        'subject_draft_editor_message',
+        draft.editor.email if draft.editor else request.journal.editor_emails,
+        context,
+        log_dict=log_dict,
+    )
 
 
 def send_author_copyedit_complete(**kwargs):
@@ -998,16 +1181,33 @@ def send_author_copyedit_complete(**kwargs):
     copyedit = kwargs['copyedit']
     author_review = kwargs['author_review']
 
+    editor_review_url = request.journal.site_url(
+        path=reverse(
+            'editor_review',
+            kwargs={
+                'article_id': copyedit.article.pk,
+                'copyedit_id': copyedit.pk,
+            }
+        )
+    )
     description = "Author {0} has completed their copyediting task for article {1}".format(
         author_review.author.full_name(),
         copyedit.article.title,
     )
+    context = {
+        'copyedit': copyedit,
+        'author_review': author_review,
+        'editor_review_url': editor_review_url,
+    }
     notify_helpers.send_slack(request, description, ['slack_editors'])
-    notify_helpers.send_email_with_body_from_setting_template(request,
-                                                              'author_copyedit_complete',
-                                                              'subject_author_copyedit_complete',
-                                                              copyedit.editor.email,
-                                                              {'copyedit': copyedit, 'author_review': author_review})
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'author_copyedit_complete',
+        'subject_author_copyedit_complete',
+        copyedit.editor.email,
+        context,
+    )
+
 
 
 def preprint_submission(**kwargs):
@@ -1111,6 +1311,56 @@ def send_cancel_corrections(**kwargs):
         'notify_correction_cancelled',
         'subject_notify_correction_cancelled',
         correction.typesetter.email,
+        context=kwargs,
+        log_dict=log_dict,
+    )
+
+
+def get_assignment_editors(assignment):
+    """ Get editors relevant to a review or revision assignment
+
+    This is a helper function to retrieve the editors that should be
+    notified of changes in a review/ revision assignment.
+    It exists to handle edge-cases where anassignment might not have an editor
+    assigned (e.g.: migrated submissions from another system)
+    :param assignment: an instance of ReviewAssignment or RevisionRequest
+    :return: A list of Account objects
+    """
+    article = assignment.article
+    if assignment.editor:
+        editors = [assignment.editor]
+    elif article.editorassignment_set.exists():
+        # Try article assignment
+        editors = [ass.editor for ass in article.editorassignment_set.all()]
+    else:
+        # Fallback to all editors
+        editors = [e for e in assignment.article.journal.editors()]
+    return editors
+
+
+def send_draft_decision_declined(**kwargs):
+    request = kwargs.get('request')
+    article = kwargs.get('article')
+    draft_decision = kwargs.get('draft_decision')
+
+    description = '{user} has declined a draft decision {draft} written by {section_editor}'.format(
+        user=request.user,
+        draft=draft_decision.pk,
+        section_editor=draft_decision.section_editor.full_name,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Draft Decision Declined',
+        'target': article,
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'notify_se_draft_declined',
+        'subject_notify_se_draft_declined',
+        draft_decision.section_editor.email,
         context=kwargs,
         log_dict=log_dict,
     )

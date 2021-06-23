@@ -3,6 +3,7 @@
 
 {% block title %}Request Revisions{% endblock title %}
 {% block title-section %}Request Revisions{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -17,13 +18,29 @@
             <div class="box">
                 <div class="title-area">
                     <h2>Revision Request Information</h2>
-
                 </div>
+                    {% if pending_approval.exists or incomplete.exists %}
+                    <div class="callout bs-callout-warning">
+                        <h4><strong><span class="fa fa-warning"></span> Potential problems detected</strong></h4>
+                        <p>Please, make sure you look over and address the following warnings where necessary</p>
+                        <ul>
+                            {% for rev in pending_approval %}
+
+                            <li><p>Review #{{ rev.pk }} has not been marked as "allow author to see" <a href="{% url 'review_view_review' article.pk rev.pk %}" target="_blank">[change] <i class="fa fa-external-link"></i></a></p></li>
+                            {% endfor %}
+                            {% for rev in incomplete %}
+                            <li><p>Review #{{ rev.pk }} has not been completed by the peer reviewer <a href="{% url 'review_withdraw_review' article.pk rev.pk %}" target="_blank">[withdraw] <i class="fa fa-external-link"></i></a></p></li>
+                            {% endfor %}
+                            <a class="button small" onClick="window.location.reload();"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</a>
+
+                        </ul>
+                    </div>
+                    {% endif %}
+
 
                 <div class="content">
                     <div class="row expanded">
-                        <p>You can request that an author make revisions to their article by selecting a due date and
-                            supplying them with feedback below.</p>
+                        <p>You can request that an author make revisions to their article by selecting a due date and supplying them with feedback below. If you need to attach any documents, after you've filled in your revisions request you can add attachments on the next page.</p>
                              {% include "elements/forms/errors.html" with form=form %}
                         <div class="large-6 columns">
                             {{ form.editor_note|foundation }}
@@ -35,7 +52,7 @@
                             {{ form.date_due|foundation }}
                         </div>
                     </div>
-                    <button class="button success">Request Revisions</button>
+                    <button class="button success">Next</button>
                 </div>
             </div>
         </form>

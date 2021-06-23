@@ -542,6 +542,8 @@ def article_stage_accepted_or_later_or_staff_required(func):
             deny_access(request)
         elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
             return func(request, *args, **kwargs)
+        elif request.user in article_object.section_editors():
+            return func(request, *args, **kwargs)
         else:
             deny_access(request)
 

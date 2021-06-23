@@ -675,7 +675,11 @@ def typesetting_corrections(request, typeset_task_id):
             typeset_task.save()
 
             kwargs = {'article': article, 'typeset_task': typeset_task, 'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_CORRECTIONS_COMPLETE, task_object=article, **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_CORRECTIONS_COMPLETE,
+                task_object=article,
+                **kwargs,
+            )
 
             messages.add_message(request, messages.INFO, 'Corrections task complete')
             return redirect(reverse('proofing_correction_requests'))

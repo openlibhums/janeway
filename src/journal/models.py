@@ -250,8 +250,13 @@ class Journal(AbstractSiteModel):
         return Issue.objects.filter(journal=self)
 
     def editors(self):
-        pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
-        return core_models.Account.objects.filter(pk__in=pks)
+        """ Returns all users enrolled as editors for the journal
+        :return: A queryset of core.models.Account
+        """
+        return core_models.Account.objects.filter(
+                accountrole__role__slug="editor",
+                accountrole__journal=self,
+        )
 
     def users_with_role(self, role):
         pks = [
@@ -261,6 +266,12 @@ class Journal(AbstractSiteModel):
             ).prefetch_related('user')
         ]
         return core_models.Account.objects.filter(pk__in=pks)
+
+    def users_with_role_count(self, role):
+        return core_models.AccountRole.objects.filter(
+            role__slug=role,
+            journal=self,
+        ).count()
 
     def editor_pks(self):
         return [[str(role.user.pk), str(role.user.pk)] for role in
@@ -448,6 +459,7 @@ class Issue(models.Model):
     # To be deprecated in 1.3.7
     old_issue_type = models.CharField(max_length=200, default='Issue', choices=ISSUE_TYPES, null=True, blank=True)
     issue_description = models.TextField(blank=True, null=True)
+    short_description = models.CharField(max_length=600, blank=True, null=True)
 
     cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
@@ -728,7 +740,12 @@ class IssueType(models.Model):
     custom_plural = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{self.code}".format(self=self)
+        return (
+            self.custom_plural
+            or self.pretty_name
+            or "{self.code}".format(self=self)
+        )
+
 
     @property
     def plural_name(self):

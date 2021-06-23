@@ -107,7 +107,6 @@ class RegistrationForm(forms.ModelForm):
     password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
     password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if settings.CAPTCHA_TYPE == 'simple_math':
@@ -378,19 +377,7 @@ class SectionForm(TranslatableModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'first_name', 'last_name')
-
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        if self.instance.email == email:
-            return email
-        try:
-            models.Account.objects.get(email=email)
-        except models.Account.DoesNotExist:
-            return email
-        raise forms.ValidationError(
-            'This email address is already in use.'
-        )
+        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
 
 
 class LoginForm(forms.Form):

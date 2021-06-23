@@ -65,7 +65,9 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
 
                 # this is a Ubiquity Press-specific fix to rewrite the path so that we don't hit OJS's dud backend
                 if not url.startswith('/') and not url.startswith('http'):
-                    url_to_use = root.replace('/article/view', '/articles') + '/' + url
+                    # Resolve article redirects before building image URLs
+                    real_root = requests.head(root, allow_redirects=True).url
+                    url_to_use = real_root.replace('/article/view', '/articles') + '/' + url
 
                 #guess extension from url
                 suffixes = Path(url_to_use).suffixes
@@ -160,9 +162,9 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
     if handle_images:
         try:
             resp = resp.decode()
+            resp = fetch_images_and_rewrite_xml_paths(base, root, resp, article, user)
         except UnicodeDecodeError:
             logger.warning("Cant extract images from %s" % url)
-            resp = fetch_images_and_rewrite_xml_paths(base, root, resp, article, user)
 
     if isinstance(resp, str):
         resp = bytes(resp, 'utf-8')
@@ -425,6 +427,8 @@ def create_new_article(date_published, date_submitted, journal, soup_object, use
         'page_numbers': get_soup(soup_object.find('meta', attrs={'name': 'DC.Identifier.pageNumber'}), 'content', ''),
         'is_import': True,
     }
+    if not article_dict.get("title"):
+        article_dict["title"] = "# No Title found #"
 
     new_article = submission_models.Article.objects.create(**article_dict)
 
@@ -592,11 +596,15 @@ def set_article_keywords(article, soup_object):
         'content',
     ))
     if keyword_string:
-        for word in keyword_string.split(";"):
+        for i, word in enumerate(keyword_string.split(";")):
             if word:
                 keyword, created = submission_models.Keyword.objects \
                     .get_or_create(word=word.lstrip())
-                article.keywords.add(keyword)
+                submission_models.KeywordArticle.objects.update_or_create(
+                    article=article,
+                    keyword=keyword,
+                    defaults = {"order": i},
+                )
 
 
 def set_article_galleys(domain, galleys, article, url, user):
@@ -609,10 +617,12 @@ def set_article_galleys(domain, galleys, article, url, user):
     :param user: the user who should own the new file
     :return: None
     """
+    article.galley_set.all().delete()
     for galley_name, galley in galleys.items():
         if galley:
             if galley_name == 'PDF' or galley_name == 'XML':
                 handle_images = True if galley_name == 'XML' else False
+
                 filename, mime = fetch_file(domain, galley, url, galley_name.lower(), article, user,
                                             handle_images=handle_images)
                 add_file('application/{0}'.format(galley_name.lower()), galley_name.lower(),

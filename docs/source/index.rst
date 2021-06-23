@@ -13,10 +13,12 @@ This guide has been written to avoid using language like "easy", "just" or simpl
    :caption: Contents:
 
    installation
+   faq
    workflow
    manager
    styling
    published
+   changelog
 
 # Indices and tables
 

@@ -56,9 +56,6 @@
 
     <div class="row expanded">
         <div class="large-12 columns">
-            {% if article.pk %}
-                {% if not article.is_preprint %}{% include "elements/article_jump.html" %}{% endif %}
-            {% endif %}
             <nav aria-label="You are here:" role="navigation">
                 <ul class="breadcrumbs">
                     {% block breadcrumbs %}
@@ -67,7 +64,9 @@
                     {% endblock breadcrumbs %}
                 </ul>
             </nav>
-
+            {% if article.pk %}
+                {% if not article.is_preprint %}{% include "elements/article_jump.html" %}{% endif %}
+            {% endif %}
         </div>
     </div>
 

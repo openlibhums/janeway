@@ -1,0 +1,42 @@
+<div class="reveal small" id="review_form_{{ review.pk }}" data-reveal
+     data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>Review by {{ review.reviewer.full_name }}</h4>
+            <div class="title-area">
+                <h2>Recommendation</h2>
+            </div>
+            <div class="content">
+                <p>{{ review.get_decision_display }}</p>
+            </div>
+            <div class="title-area">
+                <h2>Summary of Review</h2>
+            </div>
+            <div class="content">
+                {% for answer in review.review_form_answers %}
+                <strong>
+                    {{ answer.element.name }}
+                    {% if not answer.author_can_see %} (Won't be shown to the authors){% endif %}
+                </strong>
+                    <br/>
+                    {{ answer.answer|linebreaksbr }}
+                    <br/><br/>
+                {% endfor %}
+            </div>
+            {% include "elements/review/review_file_table_modal.html" with review=review %}
+            {% if review.comments_for_editor %}
+                <div class="title-area">
+                    <h2>Comments for the Editor (Won't be shown to the authors)</h2>
+                </div>
+                <div class="content">
+                    <p>{{ review.comments_for_editor|linebreaksbr }}</p>
+                </div>
+            {% endif %}
+        </div>
+        <button class="close-button" data-close aria-label="Close reveal"
+                type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>

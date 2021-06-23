@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doi_batch
-    xmlns="http://www.crossref.org/schema/4.4.1"
+    xmlns="http://www.crossref.org/schema/4.4.2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    version="4.4.1"
-    xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 http://www.crossref.org/schemas/crossref4.4.1.xsd"
+    version="4.4.2"
+    xsi:schemaLocation="http://www.crossref.org/schema/4.4. http://www.crossref.org/schemas/crossref4.4.1.xsd"
     xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+    xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
 >
     <head>
         <doi_batch_id>{{ batch_id }}</doi_batch_id>
@@ -48,20 +49,41 @@
                 </titles>
                 {% if authors %}
                 <contributors>
-                    {% for author in authors %}
+                  {% for author in authors %}
+                    {% if author.is_corporate %}
+                    <organization contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
+                        {{ author.corporate_name }}
+                    </organization>
+                    {% else %}
                     <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-                        <given_name>{{ author.first_names }}</given_name>
+                        <given_name>{{ author.given_names }}</given_name>
                         <surname>{{ author.last_name }}</surname>
+                        {% if author.institution %}
+                        <affiliation>{{ author.affiliation }}</affiliation>
+                        {% endif %}
+                        {% if author.author.orcid %}
+                        <ORCID>https://orcid.org/{{ author.author.orcid }}</ORCID>
+                        {% endif %}
                     </person_name>
-                    {%  endfor %}
+                    {% endif %}
+                  {% endfor %}
                 </contributors>
                 {% endif %}
-
+                {% if abstract %}
+                <jats:abstract><jats:p>{{ abstract }}</jats:p></jats:abstract>
+                {% endif %}
                 <publication_date media_type="online">
                     <month>{% if date_published %}{{ date_published.month }}{% else %}{{ now.month }}{% endif %}</month>
                     <day>{% if date_published %}{{ date_published.day }}{% else %}{{ now.day }}{% endif %}</day>
                     <year>{% if date_published %}{{ date_published.year }}{% else %}{{ now.year }}{% endif %}</year>
                 </publication_date>
+                {% if date_accepted %}
+                <acceptance_date media_type="online">
+                    <month>{{ date_accepted.month }}</month>
+                    <day>{{ date_accepted.day }}</day>
+                    <year>{{ date_accepted.year }}</year>
+                </acceptance_date>
+                {% endif %}
                 {% if license %}
                 <ai:program name="AccessIndicators">
                     <ai:license_ref>{{ license }}</ai:license_ref>

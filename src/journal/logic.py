@@ -20,6 +20,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import get_template
 from django.core.validators import validate_email, ValidationError
+from django.utils.timezone import make_aware
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
@@ -223,13 +224,15 @@ def handle_set_pubdate(request, article):
 
     try:
         date_time = dateparser.parse(date_time_str)
-
-        article.date_published = date_time
+        article.date_published = make_aware(date_time)
         article.fixedpubcheckitems.set_pub_date = True
         article.fixedpubcheckitems.save()
         article.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Publication Date set to {0}'.format(date_time_str))
+        messages.add_message(
+            request, messages.SUCCESS,
+            'Publication Date set to {0}'.format(article.date_published)
+        )
 
         return [date_time, []]
     except ValueError:
@@ -505,7 +508,6 @@ def resend_email(article, log_entry, request, form):
 
 
 def send_email(user, form, request, article):
-
     subject = form.cleaned_data['subject']
     message = form.cleaned_data['body']
 
@@ -522,6 +524,7 @@ def send_email(user, form, request, article):
         user.email,
         message,
         log_dict=log_dict,
+        cc=form.cleaned_data['cc'],
     )
 
 

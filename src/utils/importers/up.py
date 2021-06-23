@@ -1,3 +1,4 @@
+import hashlib
 import re
 import uuid
 import os
@@ -7,7 +8,11 @@ import json
 from dateutil import parser as dateparser
 from urllib.parse import urlparse
 
+from django.conf import settings
+from django.core.files.base import ContentFile
 from django.utils import timezone
+from django.utils.html import strip_tags
+from django.contrib.contenttypes.models import ContentType
 
 from utils.importers import shared
 from submission import models
@@ -17,6 +22,7 @@ from utils import models as utils_models, setting_handler
 from core import models as core_models, files as core_files
 from review import models as review_models
 from utils.logger import get_logger
+from cms import models as cms_models
 
 logger = get_logger(__name__)
 
@@ -31,7 +37,9 @@ def get_thumbnails_url(url):
     """
     logger.info("Extracting thumbnails URL.")
 
-    url_to_use = url + '/articles/?f=1&f=3&f=2&f=4&f=5&order=date_published&app=100000'
+    section_filters = ["f=%d" % i for i in range(1,10)]
+    flt = "&".join(section_filters)
+    url_to_use = url + '/articles/?' + flt + '&order=date_published&app=100000'
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url_to_use)
 
     soup = BeautifulSoup(resp)
@@ -73,22 +81,28 @@ def import_article(journal, user, url, thumb_path=None, update=False):
 
     # try to do a license lookup
     pattern = re.compile(r'creativecommons')
-    license_tag = soup_object.find(href=pattern)
-    license_object = models.Licence.objects.filter(url=license_tag['href'].replace('http:', 'https:'), journal=journal)
+    license_object = []
+    license_tag = soup_object.find(href=pattern) or ''
+    license_object = models.Licence.objects.filter(
+        url=license_tag['href'].replace('http:', 'https:'), journal=journal)
 
     if len(license_object) > 0 and license_object[0] is not None:
         license_object = license_object[0]
         logger.info("Found a license for this article: {0}".format(
             license_object.short_name))
-    else:
-        license_object = models.Licence.objects.get(name='All rights reserved', journal=journal)
+        article.license = license_object
+
+    if not article.license:
+        license_object = models.Licence.objects.get(
+            name='All rights reserved', journal=journal,
+        )
         logger.warning(
             "Did not find a license for this article. Using: {0}".format(
-                license_object.short_name
+                license_object.short_name,
             )
         )
+        article.license = license_object
 
-    article.license = license_object
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
@@ -122,9 +136,10 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         'XML': xml,
         'HTML': html
     }
+    shared.set_article_galleys(domain, galleys, article, url, user)
     if not already_exists:
-        # The code below is not safe for updates yet
-        shared.set_article_galleys_and_identifiers(doi, domain, galleys, article, url, user)
+        # The code below is not safe for updates
+        shared.set_article_identifier(doi, article)
     # fetch thumbnails
     if thumb_path is None:
         parsed_url = urlparse(url)
@@ -167,7 +182,7 @@ def import_article(journal, user, url, thumb_path=None, update=False):
     stats = soup_object.findAll('div', {'class': 'stat-number'})
 
     try:
-        if stats and not already_exists:
+        if stats and (not already_exists or update):
             from metrics import models as metrics_models
             views = stats[0].contents[0]
             if len(stats) > 1:
@@ -175,10 +190,16 @@ def import_article(journal, user, url, thumb_path=None, update=False):
             else:
                 downloads = 0
 
-            metrics_models.HistoricArticleAccess.objects.create(
-                article=article, views=views, downloads=downloads)
+            o, _ = metrics_models.HistoricArticleAccess.objects.get_or_create(
+                article=article)
+
+            o.downloads = downloads
+            o.views=views
+            o.save()
     except (IndexError, AttributeError):
         logger.info("No article metrics found")
+
+    return article
 
 
 def import_oai(journal, user, soup, domain, update=False):
@@ -320,7 +341,7 @@ def map_review_recommendation(recommentdation):
     return recommendations.get(recommentdation, None)
 
 
-def import_issue_images(journal, user, url, import_missing=False):
+def import_issue_images(journal, user, url, import_missing=False, update=False):
     """ Imports all issue images and other issue related content
     Currently also reorders all issues, articles and sections within issues,
     article thumbnails and issue titles.
@@ -328,6 +349,7 @@ def import_issue_images(journal, user, url, import_missing=False):
     :param user: the owner of the imported content as a core.models.Account
     :param url: the base url of the journal to import from
     :param load_missing: Bool. If true, attempt to import missing articles
+    :param update: Bool. If true, update existing article records
     """
     base_url = url
 
@@ -417,58 +439,8 @@ def import_issue_images(journal, user, url, import_missing=False):
                                                               section=order_section,
                                                               order=section_order).save()
 
-            logger.info("Extracting article orders within the issue...")
+            import_issue_articles(soup_issue, issue, user, base_url, import_missing, update)
 
-            # delete existing order models for issue
-            journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
-
-            pattern = re.compile(r'\/articles\/(.+?)/(.+?)/')
-            articles = soup_issue.find_all(href=pattern)
-
-            article_order = 0
-
-            processed = []
-
-            for article_link in articles:
-                # parse the URL into a DOI and prefix
-                article_url = article_link["href"]
-                match = pattern.match(article_url)
-                prefix = match.group(1)
-                doi = match.group(2)
-
-                # get a proper article object
-                article = models.Article.get_article(journal, 'doi', '{0}/{1}'.format(prefix, doi))
-                if not article and import_missing:
-                    logger.debug(
-                        "Article %s not found, importing...", article_url)
-                    import_article(journal,user, base_url + article_url)
-
-
-                if article and article not in processed:
-                    thumb_img = article_link.find("img")
-                    if thumb_img:
-                        thumb_path = thumb_img["src"]
-                        filename, mime = shared.fetch_file(
-                            base_url,
-                            thumb_path, "",
-                            'graphic',
-                            article, user,
-                        )
-                        shared.add_file(
-                            mime, 'graphic', 'Thumbnail',
-                            user, filename, article,
-                            thumbnail=True,
-                        )
-                    journal_models.ArticleOrdering.objects.get_or_create(
-                        issue=issue,
-                        article=article,
-                        section=article.section,
-                        order=article_order,
-                    )
-
-                    article_order += 1
-
-                processed.append(article)
             issue.save()
 
 
@@ -655,9 +627,14 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
     # Add keywords
     keywords = article_dict.get('keywords')
     if keywords:
-        for keyword in keywords.split(';'):
+        for i, keyword in enumerate(keywords.split(';')):
+            keyword = strip_tags(keyword)
             word, created = models.Keyword.objects.get_or_create(word=keyword)
-            article.keywords.add(word)
+            models.KeywordArticle.objects.update_or_create(
+                keyword=keyword,
+                article=article,
+                defaults={"order":i},
+            )
 
     # Add authors
     for author in article_dict.get('authors'):
@@ -1027,3 +1004,409 @@ def complete_article_with_production_content(article, article_dict, journal, aut
         process_for_typesetting(article, article_dict, auth_file, base_url)
     else:
         process_for_copyediting(article, article_dict, auth_file, base_url)
+
+
+def import_collections(journal, base_url, owner, update=False):
+    collections_url = base_url + '/collections/special'
+    resp, mime = utils_models.ImportCacheEntry.fetch(url=collections_url)
+    soup = BeautifulSoup(resp, 'html.parser')
+
+    collections_div = soup.find("ul", attrs={"id": "special-collection-grid"})
+    if collections_div:
+        collections = collections_div.find_all("li")
+        for idx, collection_div in enumerate(collections):
+            collection_link = collection_div.find(
+                "a", attrs={"class": "collection-image"})
+            collection_path = shared.get_soup(collection_link, "href")
+            coll_url = base_url + collection_path
+            collection, created = import_collection(
+                journal, coll_url, owner, update)
+
+            collection.order = idx
+            if created or update:
+                try:
+                    desc_div = collection_div.find(
+                        "div", attrs={"class": "collections-description"})
+                    description = desc_div.find("p").text
+                    collection.short_description = description.strip()
+                except AttributeError:
+                    logger.debug("No description in %s", desc_div)
+
+            collection.save()
+
+
+def import_collection(journal, url, owner, update=False):
+    resp, mime = utils_models.ImportCacheEntry.fetch(url=url)
+    soup = BeautifulSoup(resp, 'html.parser')
+    base_url = url.split("/collections/special/")[0]
+
+    img_div = soup.find("div", attrs={"class": "collection-image"})
+    title = img_div.find("h1").text.strip()
+    blurb_div = soup.find("div", attrs={"class": "main-body-block"})
+    date_launched = extract_date_launched(blurb_div.find_all("h5"))
+    blurb = ''.join(str(tag) for tag in blurb_div.contents)
+
+    coll_type = journal_models.IssueType.objects.get(
+        journal=journal, code="collection")
+    collection, c = journal_models.Issue.objects.get_or_create(
+        issue_type=coll_type,
+        journal=journal,
+        issue_title=title,
+        defaults={"date": date_launched},
+    )
+    if c:
+        logger.info("Created collection: %s", title)
+
+    if c or update:
+        import_collection_images(img_div, collection, base_url)
+        collection.issue_description = blurb
+        collection.date = date_launched
+        collection.save()
+        articles_div = soup.find("div", attrs={"class": "featured-block"})
+        import_issue_articles(
+            articles_div, collection, owner, base_url, update, update)
+
+    return collection, c
+
+
+def import_collection_images(soup, collection, base_url):
+    img_path = shared.get_soup(soup.find("img"), "src")
+    blob, mime = utils_models.ImportCacheEntry.fetch(url=base_url + img_path)
+    image_file = ContentFile(blob)
+    image_file.name = "collection-{}-cover.graphic".format(collection.id)
+    collection.cover_image = collection.large_image = image_file
+    collection.save()
+
+
+def import_issue_articles(soup, issue, user, base_url, import_missing=False, update=False):
+    journal = issue.journal
+    logger.info("Extracting article orders within issue...", )
+    # delete existing order models for issue
+    journal_models.ArticleOrdering.objects.filter(issue=issue).delete()
+
+    pattern = re.compile(r'\/articles\/(.+?)/(.+?)/')
+    articles = soup.find_all(href=pattern)
+
+    article_order = 0
+
+    processed = []
+
+    for article_link in articles:
+        # parse the URL into a DOI and prefix
+        article_url = article_link["href"]
+        match = pattern.match(article_url)
+        prefix = match.group(1)
+        doi = match.group(2)
+
+        # get a proper article object
+        article = models.Article.get_article(
+            journal, 'doi', '{0}/{1}'.format(prefix, doi))
+        if not article and import_missing:
+            logger.info(
+                "Article %s not found, importing...", article_url)
+            article = import_article(journal,user, base_url + article_url)
+
+        if article and article not in processed:
+            import_article(journal,user, base_url + article_url, update=update)
+            thumb_img = article_link.find("img")
+            if thumb_img:
+                thumb_path = thumb_img["src"]
+                filename, mime = shared.fetch_file(
+                    base_url,
+                    thumb_path, "",
+                    'graphic',
+                    article, user,
+                )
+                shared.add_file(
+                    mime, 'graphic', 'Thumbnail',
+                    user, filename, article,
+                    thumbnail=True,
+                )
+
+            # Add article to collection
+            if issue.issue_type.code == "collection":
+                article.issues.add(issue)
+
+            obj, c = journal_models.ArticleOrdering.objects.get_or_create(
+                issue=issue,
+                article=article,
+                section=article.section,
+            )
+            obj.order = article_order
+            obj.save()
+
+
+            article_order += 1
+
+        processed.append(article)
+
+
+def extract_date_launched(headers):
+    for header in headers:
+        text = header.text
+        if text and "Collection launched" in text:
+            try:
+                raw_date = text.split("Collection launched: ")[-1]
+                header.extract()
+                return dateparser.parse(raw_date)
+            except(IndexError, ValueError):
+                logger.debug("Failed to parse collection date: %s", text)
+    return None
+
+
+def split_affiliation(affiliation):
+    parts = [p.strip() for p in affiliation.split(',')]
+    country = institution = department = None
+
+    if len(parts) == 1:
+        institution = parts[0]
+    elif len(parts) == 2:
+        institution = parts[0]
+        country = parts[1]
+    else:
+        department = parts[0]
+        institution = parts[1]
+        country = parts[2]
+    try:
+        country = core_models.Country.objects.get(name=country)
+    except core_models.Country.DoesNotExist:
+        country = None
+
+    return department, institution, country
+
+
+def split_name(name):
+    parts = name.split(' ')
+    return parts[0], parts[1]
+
+
+def scrape_editorial_team(journal, base_url):
+    logger.info("Scraping editorial team page")
+    editorial_team_path = '/about/editorialteam/'
+    page = requests.get('{}{}'.format(base_url, editorial_team_path))
+
+    soup = BeautifulSoup(page.content, 'lxml')
+    main_block = soup.find('div', {'class': 'major-floating-block'})
+    divs = main_block.find_all('div', {'class': 'col-md-12'})
+
+    for div in divs:
+        # Try to grab the headers
+        header = div.find('h2')
+        header_sequence = 0
+        if header:
+            group, c = core_models.EditorialGroup.objects.get_or_create(
+                name=header.text.strip(),
+                journal=journal,
+                sequence=header_sequence
+            )
+            header_sequence = header_sequence + 1
+        else:
+            # look for team group
+            member_sequence = 0
+            member_divs = div.find_all('div', {'class': 'col-md-6'})
+            for member_div in member_divs:
+                name = member_div.find('h6')
+                if name and name.text.strip():
+                    affiliation = member_div.find('h5')
+                    email_link = member_div.find('a', {'class': 'fa-envelope'})
+                    department, institution, country = split_affiliation(affiliation.text)
+                    first_name, last_name = split_name(name.text.strip())
+                    profile_dict = {
+                            'first_name': first_name,
+                            'last_name': last_name,
+                            'department': department,
+                            'institution': institution,
+                    }
+                    if email_link:
+                        email_search = re.search(r'[\w\.-]+@[\w\.-]+', email_link.get('href'))
+                        email = email_search.group(0)
+                    else:
+                        email = generate_dummy_email(profile_dict)
+                    profile_dict["username"] = email
+                    profile_dict["country"] = country
+
+
+
+                    account, c = core_models.Account.objects.update_or_create(
+                        email=email,
+                        defaults=profile_dict,
+                    )
+                    bio_div = member_div.find("div", attrs={"class": "well"})
+                    if bio_div:
+                        bio = bio_div.text.strip()
+                        account.biography = bio
+                        account.enable_public_profile = True
+                        account.save()
+
+                    core_models.EditorialGroupMember.objects.get_or_create(
+                        group=group,
+                        user=account,
+                        sequence=member_sequence
+                    )
+                    member_sequence = member_sequence + 1
+
+
+# Checking links and rewrite the ones we know about
+# Remove the authorship link
+
+def scrape_policies_page(journal, base_url):
+    logger.info("Scraping editorial policies page")
+    policy_page_path = '/about/editorialpolicies/'
+    page = requests.get('{}{}'.format(base_url, policy_page_path))
+
+    soup = BeautifulSoup(page.content, 'lxml')
+    h2 = soup.find('h2', text=' Peer Review Process')
+
+    peer_review_text = ''
+    for element in h2.next_siblings:
+        if element.name == 'p':
+            peer_review_text = peer_review_text + str(element)
+
+    setting_handler.save_setting(
+        'general',
+        'peer_review_info',
+        journal,
+        peer_review_text,
+    )
+
+
+def process_header_tags(content, tag):
+    headers = content.find_all(tag)
+
+    sections = {}
+
+    for header in headers:
+        section_text = ''
+        for element in header.next_siblings:
+            if element.name == tag:
+                break
+            else:
+                section_text = section_text + str(element)
+        sections[header.text.strip()] = section_text
+
+    return sections
+
+
+def scrape_submissions_page(journal, base_url):
+    logger.info("Scraping policies page")
+    submission_path = '/about/submissions/'
+    page = requests.get('{}{}'.format(base_url, submission_path))
+    soup = BeautifulSoup(page.content, 'lxml')
+    main_block = soup.find('div', {'class': 'featured-block'})
+
+    sections = process_header_tags(main_block, 'h1')
+
+    if sections.get('Author Guidelines'):
+        create_cms_page(
+            'author-guidelines',
+            'Author Guidelines',
+            sections.get('Author Guidelines'),
+            journal
+        )
+
+    if sections.get('Submission Preparation Checklist'):
+        setting_handler.save_setting(
+            'general',
+            'submission_checklist',
+            journal,
+            sections.get('Submission Preparation Checklist'),
+        )
+    if sections.get('Copyright Notice'):
+        setting_handler.save_setting(
+            'general',
+            'copyright_notice',
+            journal,
+            sections.get('Copyright Notice')
+        )
+    if sections.get('Publication Fees'):
+        setting_handler.save_setting(
+            'general',
+            'publication_fees',
+            journal,
+            sections.get('Publication Fees')
+        )
+
+
+def scrape_page(page_url, block_to_find='featured-block'):
+    page = requests.get(page_url)
+    soup = BeautifulSoup(page.content, 'lxml')
+    return str(soup.find('div', {'class': block_to_find}))
+
+
+def create_cms_page(url, name, content, journal):
+    content_type = ContentType.objects.get_for_model(journal)
+    defaults = {
+        'display_name': name,
+        'content': content,
+        'is_markdown': False,
+    }
+    cms_models.Page.objects.get_or_create(
+        content_type=content_type,
+        object_id=journal.pk,
+        name=url,
+        defaults=defaults
+    )
+
+
+def scrape_research_integrity_page(journal, base_url):
+    logger.info("Scraping research integrity page")
+    research_integrity_url = '{}/about/research-integrity/'.format(base_url)
+    content = scrape_page(
+        research_integrity_url,
+    )
+
+    soup = BeautifulSoup(content, 'lxml')
+    content = soup
+    for div in soup.find_all('div', {'class': 'person-image'}):
+        div.decompose()
+
+    soup.select_one('.main-color-text').decompose()
+    soup.find('style').decompose()
+
+    for div in soup.find_all('div', {'style': 'border-top: 1px dashed #b3cfd4;'}):
+        div.decompose()
+
+    soup.section.unwrap()
+    soup.section.unwrap()
+
+    create_cms_page(
+        'research-integrity',
+        'Research Integrity',
+        str(content),
+        journal
+    )
+
+
+def scrape_about_page(journal, base_url):
+    logger.info("Scraping about page")
+    about_url = '{}/about/'.format(base_url)
+    content = scrape_page(about_url, block_to_find='main-body-block')
+    soup = BeautifulSoup(content, 'lxml')
+    sections = process_header_tags(soup, 'h2')
+
+    if sections.get('Focus and Scope'):
+        setting_handler.save_setting(
+            'general',
+            'focus_and_scope',
+            journal,
+            sections.get('Focus and Scope')
+        )
+    if sections.get('Publication Frequency'):
+        setting_handler.save_setting(
+            'general',
+            'publication_cycle',
+            journal,
+            sections.get('Publication Frequency')
+        )
+    create_cms_page(
+        'about',
+        'About',
+        str(content),
+        journal
+    )
+
+
+def generate_dummy_email(profile_dict):
+    seed = ''.join(str(val) for val in profile_dict.values())
+    hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()
+    return "{0}@{1}".format(hashed, settings.DUMMY_EMAIL_DOMAIN)

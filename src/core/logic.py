@@ -21,6 +21,7 @@ from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
+from django.shortcuts import reverse
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -35,33 +36,82 @@ logger = get_logger(__name__)
 
 
 def send_reset_token(request, reset_token):
-    context = {'reset_token': reset_token}
+    core_reset_password_url = request.site_type.site_url(
+        reverse(
+            'core_reset_password',
+            kwargs={'token': reset_token.token},
+        )
+    )
+    context = {
+        'reset_token': reset_token,
+        'core_reset_password_url': core_reset_password_url,
+    }
     log_dict = {'level': 'Info', 'types': 'Reset Token', 'target': None}
     if not request.journal:
-        message = render_template.get_message_content(request, context, request.press.password_reset_text,
-                                                      template_is_setting=True)
+        message = render_template.get_message_content(
+            request,
+            context,
+            request.press.password_reset_text,
+            template_is_setting=True,
+        )
         subject = 'Password Reset'
     else:
-        message = render_template.get_message_content(request, context, 'password_reset')
+        message = render_template.get_message_content(
+            request,
+            context,
+            'password_reset',
+        )
         subject = 'subject_password_reset'
 
-    notify_helpers.send_email_with_body_from_user(request, subject, reset_token.account.email, message,
-                                                  log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        reset_token.account.email,
+        message,
+        log_dict=log_dict,
+    )
 
 
 def send_confirmation_link(request, new_user):
-    context = {'user': new_user}
+    core_confirm_account_url = request.site_type.site_url(
+        reverse(
+            'core_confirm_account',
+            kwargs={'token': new_user.confirmation_code},
+        )
+    )
+    context = {
+        'user': new_user,
+        'core_confirm_account_url': core_confirm_account_url,
+    }
     if not request.journal:
-        message = render_template.get_message_content(request, context, request.press.registration_text,
-                                                      template_is_setting=True)
+        message = render_template.get_message_content(
+            request,
+            context,
+            request.press.registration_text,
+            template_is_setting=True,
+        )
         subject = 'Registration Confirmation'
     else:
-        message = render_template.get_message_content(request, context, 'new_user_registration')
+        message = render_template.get_message_content(
+            request,
+            context,
+            'new_user_registration',
+        )
         subject = 'subject_new_user_registration'
 
-    notify_helpers.send_slack(request, 'New registration: {0}'.format(new_user.full_name()), ['slack_admins'])
+    notify_helpers.send_slack(
+        request,
+        'New registration: {0}'.format(new_user.full_name()),
+        ['slack_admins'],
+    )
     log_dict = {'level': 'Info', 'types': 'Account Confirmation', 'target': None}
-    notify_helpers.send_email_with_body_from_user(request, subject, new_user.email, message, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        new_user.email,
+        message,
+        log_dict=log_dict,
+    )
 
 
 def resize_and_crop(img_path, size, crop_type='middle'):
@@ -290,6 +340,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'peer_review_upload_text',
                 'object': setting_handler.get_setting('general', 'peer_review_upload_text', journal),
             },
+            {
+                'name': 'enable_peer_review_data_block',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
+            },
         ]
         setting_group = 'general'
 
@@ -338,6 +392,9 @@ def get_settings_to_edit(group, journal):
         article_settings = [
             'suppress_how_to_cite',
             'display_guest_editors',
+            'suppress_citations_metric',
+            'display_altmetric_badge',
+            'altmetric_badge_type',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
@@ -436,9 +493,28 @@ def handle_email_change(request, email_address):
     request.user.clean()
     request.user.save()
 
-    context = {'user': request.user}
-    message = render_template.get_message_content(request, context, 'user_email_change')
-    notify_helpers.send_email_with_body_from_user(request, 'subject_user_email_change', request.user.email, message)
+    core_confirm_account_url = request.site_type.site_url(
+        reverse(
+            'core_confirm_account',
+            kwargs={'token': request.user.confirmation_code},
+        )
+    )
+
+    context = {
+        'user': request.user,
+        'core_confirm_account_url': core_confirm_account_url,
+    }
+    message = render_template.get_message_content(
+        request,
+        context,
+        'user_email_change',
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'subject_user_email_change',
+        request.user.email,
+        message,
+    )
 
     logout(request)
 
@@ -455,7 +531,7 @@ def handle_add_users_to_role(users, role, request):
 
     for user in users:
         user.add_account_role(role.slug, request.journal)
-        messages.add_message(request, messages.INFO, '{0} added to {1}'.format(user.full_name(), role.name))
+        messages.add_message(request, messages.INFO, '{0} added to {1} role.'.format(user.full_name(), role.name))
 
 
 def clear_active_elements(elements, workflow, plugins):

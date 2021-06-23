@@ -16,7 +16,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q, Count
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -293,6 +293,7 @@ def issue(request, issue_id, show_sidebar=True):
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
         issue_type=issue_object.issue_type,
+        date__lte=timezone.now(),
     )
 
     editors = models.IssueEditor.objects.filter(
@@ -326,7 +327,13 @@ def collections(request, issue_type_code="collection"):
         code=issue_type_code,
     )
     collections = models.Issue.objects.filter(
-        journal=request.journal, issue_type=issue_type)
+        journal=request.journal,
+        issue_type=issue_type,
+        date__lte=timezone.now(),
+    ).exclude(
+        # This has to be an .exclude because.filter won't do an INNER join
+        articles__isnull=True,
+    )
 
     template = 'journal/collections.html'
     context = {
@@ -603,6 +610,19 @@ def serve_article_file(request, identifier_type, identifier, file_id):
         # return a default image instead
 
         return redirect(static('common/img/default_carousel/carousel1.png'))
+
+
+@has_request
+@file_user_required
+def serve_article_file_history(
+    request, identifier_type, identifier, file_id,
+):
+    filehistory = get_object_or_404(core_models.FileHistory, pk=file_id)
+    # File History objects are not storing article ids, check parent's instead
+    file = filehistory.file_set.first()
+    if file:
+        return files.serve_file(request, filehistory, file.article)
+    raise Http404
 
 
 @login_required
@@ -1507,16 +1527,16 @@ def issue_article_order(request, issue_id=None):
                     " %s" % ids
                 )
                 continue
-            order_obj, c = models.ArticleOrdering.objects.get_or_create(
+            models.ArticleOrdering.objects.update_or_create(
                 issue=issue,
                 article=article,
+                defaults={
+                    'order': order,
+                    'section': article.section,
+                }
             )
 
-            order_obj.order = order
-            order_obj.section = article.section
-            order_obj.save()
-
-    return HttpResponse('Thanks')
+    return JsonResponse({'status': 'okay'})
 
 
 @editor_user_required
@@ -1582,6 +1602,10 @@ def manage_archive_article(request, article_id):
                         request,
                         messages.ERROR,
                         _("Uploaded file is not UTF-8 encoded"),
+                    )
+                except production_logic.ZippedGalleyError:
+                    messages.add_message(request, messages.ERROR,
+                        "Galleys must be uploaded individually, not zipped",
                     )
 
         if 'delete_note' in request.POST:
@@ -1897,7 +1921,7 @@ def manage_article_log(request, article_id):
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
 
     if request.POST and settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
-        call_command('check_mailgun_stat')
+        call_command('check_mailgun_stat', article_id=article_id)
         return redirect(reverse('manage_article_log', kwargs={'article_id': article.pk}))
 
     template = 'journal/article_log.html'
@@ -1964,7 +1988,7 @@ def send_user_email(request, user_id, article_id=None):
             )
             close = True
 
-    template = 'journal/send_user_email.html'
+    template = 'admin/journal/send_user_email.html'
     context = {
         'user': user,
         'close': close,

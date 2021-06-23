@@ -34,12 +34,14 @@
                 <div class="content">
                     <form method="POST">
                         {% csrf_token %}
+                        {% if not issue %}
                         <button name="sort" value="date_sort_desc" class="button">
                             <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
                         </button>
                         <button name="sort" value="date_sort_asc" class="button">
                             <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
                         </button>
+                        {% endif %}
                     </form>
                     <table class="scroll">
                         <thead>
@@ -51,7 +53,7 @@
                             <th>Number</th>
                             <th>Date</th>
                             <th>No. Articles</th>
-                            <th colspan="3"></th>
+                            <th colspan="4"></th>
                         </tr>
                         </thead>
                         <tbody {% if not issue %}class="sortable"{% endif %}>
@@ -65,8 +67,10 @@
                                 <td>{{ i.date|date:"Y-m-d" }}</td>
                                 <td>{{ i.articles.all|length }}</td>
                                 <td>
-                                    {% if issue %}<a href="#" data-open="issue"><i class="fa fa-edit">&nbsp;</i>Edit Details</a>{% endif %}
-                                    {%  if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i class="fa fa-eye">&nbsp;</i>View</a>{%  endif %}
+                                    {% if issue %}
+                                        <a href="#" data-open="issue"><i class="fa fa-edit">&nbsp;</i>Edit Details</a>
+                                    {% endif %}
+                                    {% if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i class="fa fa-eye">&nbsp;</i>View</a>{%  endif %}
                                 </td>
                                 <td><a href="{% url 'manage_issues_event' i.pk 'delete' %}"><i class="fa fa-trash">&nbsp;</i>Delete</a></td>
                                 <td>{% if request.journal.current_issue != i %}<form method="POST">{% csrf_token %}<button name="make_current" type="submit" class="button" value="{{ i.pk }}" style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current</button></form>{% endif %}</td>
@@ -80,12 +84,12 @@
     </div>
 
 {% if issue %}
-    {% include "elements/issue/table_of_contents.html" with issue=issue %}
-    {% include "elements/issue/guest_editors.html" with issue=issue %}
-    {% include "elements/issue/galleys.html" with issue=issue galleys=galleys %}
+    {% include "admin/elements/issue/table_of_contents.html" with issue=issue %}
+    {% include "admin/elements/issue/guest_editors.html" with issue=issue %}
+    {% include "admin/elements/issue/galleys.html" with issue=issue galleys=galleys %}
 {% endif %}
-{% include "elements/issue/issue_modal.html" %}
-{% include "elements/issue/delete_modal.html" %}
+{% include "admin/elements/issue/issue_modal.html" %}
+{% include "admin/elements/issue/delete_modal.html" %}
 {% endblock body %}
 
 {% block js %}
@@ -109,4 +113,5 @@
         });
         $( ".sortable" ).disableSelection();
     </script>
+{% include "elements/jqte.html" %}
 {% endblock js %}

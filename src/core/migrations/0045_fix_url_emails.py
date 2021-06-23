@@ -29,6 +29,9 @@ def fix_url(setting):
 
     """
     value = setting.value
+    # BS4 will auto close <br> tags by appending a number of </br> at the end
+    # so we autoclose the tags ourselves instead
+    value = value.replace("<br>", "<br />")
     soup = BeautifulSoup(value, "html.parser")
     for anchor_tag in soup.findAll("a"):
         href = anchor_tag.get("href")

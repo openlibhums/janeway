@@ -1,0 +1,56 @@
+{% load roles %}
+{% user_roles request.journal user as account_roles %}
+{% user_roles request.journal user 'True' as account_role_slugs %}
+
+<table class="small scroll" id='users'>
+    <thead>
+    <tr>
+        <th>Email Address</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Account Active</th>
+        {% if settings.DEBUG %}
+            <th>Hijack</th>{% endif %}
+    </tr>
+    </thead>
+    <tr>
+        <td>{{ user.email }}</td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{% if user.is_active %}Yes{% else %}No{% endif %}</td>
+        {% if settings.DEBUG %}
+            <td>
+                <button type="submit" class="tiny button"
+                        formaction="/hijack/{{ user.id }}/?next={% url 'core_dashboard' %}">
+                    Hijack User
+                </button>
+           </td>{% endif %}
+    </tr>
+    <tr>
+        <th colspan="{% if settings.DEBUG %}5{% else %}4{% endif %}">Current Roles</th>
+    </tr>
+    <tr>
+        <td colspan="{% if settings.DEBUG %}5{% else %}4{% endif %}">
+          <div class="tiny button-group" id="user-{{ user.pk }}-current-roles">
+            {% for acc_role in account_roles %}
+            <button id="delete-role-{{ acc_role.role.pk }}-user-{{ acc_role.user.pk }}" value="{{ acc_role.role.slug }}" class="button alert" onclick="delete_role({{ user.pk }}, {{ acc_role.role.pk }}, {{ request.journal.pk }}, {{ acc_role.pk }})"><span class="fa fa-minus-circle"></span> {{ acc_role.role.name }}</button>
+            {% empty %}User has no roles on this journal.
+            {% endfor %}
+          </div>
+        </td>
+    </tr>
+    <tr>
+        <th colspan="{% if settings.DEBUG %}5{% else %}4{% endif %}">Available Roles</th>
+    </tr>
+    <tr>
+        <td colspan="{% if settings.DEBUG %}5{% else %}4{% endif %}">
+            <div class="tiny button-group" id="user-{{ user.pk }}-add-roles">
+                {% for role in roles %}
+                    {% if not role.slug in account_role_slugs %}
+                    <button id="role-{{ role.pk }}-user-{{ user.pk }}" value="{{ role.slug }}" class="button" onclick="add_role({{ user.pk }}, {{ role.pk }}, {{ request.journal.pk }})"><span class="fa fa-plus-circle"></span> {{ role.name }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </td>
+    </tr>
+</table>

@@ -79,10 +79,12 @@
                         <div class="large-6 columns">
                             <ul class="menu vertical medium-horizontal"
                                 data-responsive-menu="drilldown medium-dropdown">
+                              {% with article.get_doi_url as doi_url %}
                                 <li>{% trans "Share" %}:</li>
-                                <li><a href="https://www.facebook.com/share.php?p[url]={{ article.url }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {{ article.url }}" target="_blank"><i class="fa fa-twitter"></i></a></li>
-                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={{ article.url }}" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+                              {% endwith %}
                             </ul>
                         </div>
                         <div class="large-6 columns">
@@ -155,23 +157,25 @@
                                     {% if not request.journal.disable_metrics_display %}
                                         <div class="top">
                                             <div class="row">
-                                                <div class="large-4 columns">
+                                                <div class="large-{% if article.citation_count and not journal_settings.article.suppress_citations_metric %}4{% else %}6{% endif %} columns">
                                                     <h4 class="number">
                                                         {{ article.metrics.views }}
                                                         <span>{% trans "Views" %}</span>
                                                     </h4>
                                                 </div>
-                                                <div class="large-4 columns">
+                                                <div class="large-{% if article.citation_count and not journal_settings.article.suppress_citations_metric %}4{% else %}6{% endif %} columns">
                                                     <h4 class="number">
                                                         {{ article.metrics.downloads }}
                                                         <span>{% trans "Downloads" %}</span>
                                                     </h4>
                                                 </div>
+                                                {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                                 <div class="large-4 columns">
                                                     <h4 class="number">
                                                         {{ article.citation_count }}<span>{% trans "Citations" %}</span>
                                                     </h4>
                                                 </div>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     {% endif %}
@@ -212,18 +216,20 @@
                     <div class="sticky" data-sticky data-margin-top="0"
                          data-sticky data-anchor="content">
                         {% if article.is_published %}
-                            <div class="section">
-                                {% if journal.disable_article_images %}
+
+                            {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
+                            {% if journal.disable_article_images %}
+                                <div class="section">
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
                                             <li>{{ author.full_name }} ({{ author.affiliation }})</li>
                                         {% endfor %}
                                     </ul>
-                                {% endif %}
-                            </div>
+                                </div>
+                            {% endif %}
                             <div class="section">
-                            <h3>{% trans "Download" %}</h3>
+                                <h3>{% trans "Download" %}</h3>
                             <ul>
                                 {% for galley in galleys %}
                                     <li>
@@ -241,6 +247,16 @@
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
+                        {% with article.get_doi_url as doi_url %}
+                        {% if doi_url %}
+                         <div class="section">
+                             <h3>{% trans "Identifiers" %}</h3>
+                             <ul>
+                                 <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                             </ul>
+                         </div>
+                         {% endif %}
+                        {% endwith %}
 
                         {% if article.supplementary_files.all %}
                             <div class="section">
@@ -272,6 +288,7 @@
                             </ul>
                         </div>
                         {% endif %}
+
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">

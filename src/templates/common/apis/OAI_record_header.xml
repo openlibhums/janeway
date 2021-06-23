@@ -1,4 +1,4 @@
 <header>
   <identifier>id:{{ article.pk }}</identifier>
-  <datestamp>{{article.date_published}}</datestamp>
+  <datestamp>{{article.date_published|date:"c"}}</datestamp>
 </header>
