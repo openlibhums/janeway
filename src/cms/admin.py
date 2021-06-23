@@ -11,9 +11,16 @@ class PageAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'name', 'object')
 
 
+class SubmissionItemAdmin(admin.ModelAdmin):
+    list_display = ('title', 'journal', 'order')
+    list_filter = ('journal',)
+    raw_id_fields = ('journal', 'existing_setting')
+
+
 admin_list = [
     (models.NavigationItem,),
     (models.Page, PageAdmin),
+    (models.SubmissionItem, SubmissionItemAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

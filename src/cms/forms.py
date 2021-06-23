@@ -8,6 +8,7 @@ from django import forms
 from django_summernote.widgets import SummernoteWidget
 
 from cms import models
+from core import models as core_models
 from core.forms import JanewayTranslationModelForm
 
 
@@ -40,3 +41,31 @@ class NavForm(JanewayTranslationModelForm):
             object_id=request.site_type.pk,
             has_sub_nav=True,
         )
+
+
+class SubmissionItemForm(JanewayTranslationModelForm):
+
+    class Meta:
+        model = models.SubmissionItem
+        fields = ('title', 'text', 'order', 'existing_setting')
+        exclude = ('journal',)
+        widgets = {
+            'text': SummernoteWidget(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal')
+        super(SubmissionItemForm, self).__init__(*args, **kwargs)
+
+        self.fields['existing_setting'].queryset = core_models.Setting.objects.filter(
+            types='rich-text',
+        )
+
+    def save(self, commit=True):
+        item = super(SubmissionItemForm, self).save(commit=False)
+        item.journal = self.journal
+
+        if commit:
+            item.save()
+
+        return item

@@ -1847,7 +1847,8 @@ def submissions(request):
         'licenses': submission_models.Licence.objects.filter(
             journal=request.journal,
             available_for_submission=True,
-        )
+        ),
+        'submission_items': cms_models.SubmissionItem.objects.filter(journal=request.journal)
     }
 
     return render(request, template, context)
