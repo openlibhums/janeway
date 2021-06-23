@@ -3,7 +3,7 @@
 
 <div class="top-bar" id="main-menu" style="display: block;">
     <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
-        <li><a href="/">Home</a></li>
+        <li><a href="/">{% trans 'Home' %}</a></li>
         {% for item in navigation_items %}
             {% if item.has_sub_nav %}
                 <li class=".is-dropdown-submenu-parent"><a href="/{{ item.link }}"
@@ -19,41 +19,41 @@
             {% endif %}
         {% endfor %}
         {% if request.press.publishes_journals %}
-        <li><a href="{% url 'press_journals' %}">Journals</a></li>
+        <li><a href="{% url 'press_journals' %}">{% trans 'Journals' %}</a></li>
         {% endif %}
         {% if request.press.publishes_conferences%}
-        <li><a href="{% url 'press_conferences' %}">Conferences</a></li>
+        <li><a href="{% url 'press_conferences' %}">{% trans 'Conferences' %}</a></li>
         {% endif %}
         {% if request.press.enable_preprints %}
             <li class=".is-dropdown-submenu-parent"><a href="{% url 'preprints_home' %}"
-                                                       data-options="is_hover:true; hover_timeout:5000">Preprints</a>
+                                                       data-options="is_hover:true; hover_timeout:5000">{% trans 'Preprints' %}</a>
                 <ul class="menu vertical medium-horizontal">
-                    <li><a href="{% url 'preprints_home' %}">Preprints Home</a></li>
-                    <li><a href="{% url 'preprints_list' %}">All Preprints</a></li>
-                    <li><a href="{% url 'preprints_about' %}">About Preprints</a></li>
-                    {% if display_preprint_editors == 'On' %}<li><a href="{% url 'preprints_editors' %}">Preprint Editors</a></li>{% endif %}
-                    <li><a href="{% url 'preprints_submit' %}">Submit a Preprint</a></li>
+                    <li><a href="{% url 'preprints_home' %}">{% trans 'Preprints Home' %}</a></li>
+                    <li><a href="{% url 'preprints_list' %}">{% trans 'All Preprints' %}</a></li>
+                    <li><a href="{% url 'preprints_about' %}">{% trans 'About Preprints' %}</a></li>
+                    {% if display_preprint_editors == 'On' %}<li><a href="{% url 'preprints_editors' %}">{% trans 'Preprint Editors' %}</a></li>{% endif %}
+                    <li><a href="{% url 'preprints_submit' %}">{% trans 'Submit a Preprint' %}</a></li>
                 </ul>
             </li>
         {% endif %}
         {% if journal_settings.general.enable_editorial_display %}
-            <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>{% endif %}
-        <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'editorial_team' %}">{% trans 'Editorial Team' %}</a></li>{% endif %}
+        <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
         {% hook 'nav_block' %}
         <li class=".is-dropdown-submenu-parent show-for-small-only">
-            <a href="#" data-options="is_hover:true; hover_timeout:5000">Account</a>
+            <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Account' %}</a>
             <ul class="menu vertical medium-horizontal">
                 {% if request.user.is_authenticated %}
                     {% if user_is_editor or request.user.is_staff %}
                         <li class="divider"></li>
-                        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                        <li><a href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a></li>
                     {% endif %}
                     {% if request.user.is_staff %}
-                        <li><a href="/admin/">Admin</a></li>
+                        <li><a href="/admin/">{% trans 'Admin' %}</a></li>
                     {% endif %}
                     <li class="divider"></li>
-                    <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-                    <li><a href="{% url 'core_logout' %}">Logout</a></li>
+                    <li><a href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
+                    <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
                 {% else %}
                     <li><a href="{% url 'core_login' %}">{% trans "Login" %}</a></li>
                     <li><a href="{% url 'core_register' %}"> {% trans "Register" %}</a></li>
