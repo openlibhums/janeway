@@ -2,7 +2,12 @@ ifndef DB_VENDOR
 	DB_VENDOR=postgres
 endif
 
+# Exposed ports
+JANEWAY_PORT ?= 8000
+PGADMIN_PORT ?= 8001
+
 unexport NO_DEPS
+DB_NAME ?= janeway
 DB_NAME ?= janeway
 DB_HOST=janeway-postgres
 DB_PORT=5432
@@ -46,7 +51,9 @@ export DB_PORT
 export DB_NAME
 export DB_USER
 export DB_PASSWORD
-SUFFIX ?= $(shell python -c "from time import time; print(hex(int(time()*10000000))[2:])")
+export JANEWAY_PORT
+export PGADMIN_PORT
+SUFFIX ?= $(shell date +%s)
 SUFFIX := ${SUFFIX}
 DATE := `date +"%y-%m-%d"`
 

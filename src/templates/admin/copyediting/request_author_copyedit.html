@@ -5,6 +5,7 @@
 {% block title-section %}
     Request Author Copyedit #{{ author_review.id }}
 {% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

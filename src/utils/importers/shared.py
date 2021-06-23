@@ -596,11 +596,15 @@ def set_article_keywords(article, soup_object):
         'content',
     ))
     if keyword_string:
-        for word in keyword_string.split(";"):
+        for i, word in enumerate(keyword_string.split(";")):
             if word:
                 keyword, created = submission_models.Keyword.objects \
                     .get_or_create(word=word.lstrip())
-                article.keywords.add(keyword)
+                submission_models.KeywordArticle.objects.update_or_create(
+                    article=article,
+                    keyword=keyword,
+                    defaults = {"order": i},
+                )
 
 
 def set_article_galleys(domain, galleys, article, url, user):

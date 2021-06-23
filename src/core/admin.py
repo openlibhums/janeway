@@ -104,6 +104,17 @@ class FileAdmin(admin.ModelAdmin):
             return '-'
 
 
+class FileHistoryAdmin(admin.ModelAdmin):
+    """displays file history objects"""
+    search_fields = ('original_filename', 'article_id')
+    list_display = (
+        'id', 'original_filename', 'article_id', 'mime_type', 'label',
+        'history_seq',
+    )
+    list_filter = ('mime_type', 'article_id')
+    raw_id_fields = ('owner',)
+
+
 class XSLFileAdmin(admin.ModelAdmin):
     """Displays Setting objects in the Django admin interface."""
     list_display = ('date_uploaded', 'label', 'file')
@@ -197,6 +208,7 @@ admin_list = [
     (models.SettingGroup, SettingGroupAdmin),
     (models.SettingValue, SettingValueAdmin),
     (models.File, FileAdmin),
+    (models.FileHistory, FileHistoryAdmin),
     (models.XSLFile, XSLFileAdmin),
     (models.Interest,),
     (models.Task,),

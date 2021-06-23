@@ -5,8 +5,9 @@
 {% load static from staticfiles %}
 {% load render_string %}
 
-{% block title %}Article - {{ article.pk }}{% endblock title %}
-{% block admin-header %}Article - {{ article.pk }}{% endblock %}
+{% block title %}Article Production{% endblock title %}
+{% block admin-header %}}Article Production{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

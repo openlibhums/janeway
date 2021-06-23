@@ -15,7 +15,11 @@
                         src="{{ request.press.default_carousel_image.url }}"
                     {% endif %}
                         alt="{{ news_item.title }}"/>
-                    <span class="card-title">{{ news_item.title }}</span>
+                    <span class="card-title">
+                      <div class="carousel-text-wrapper">
+                        {{ news_item.title }}
+                      </div>
+                    </span>
                 </div>
                 <div class="card-content">
                     <h6><em>{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</em>

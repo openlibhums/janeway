@@ -100,6 +100,7 @@ urlpatterns = [
 
     # Users
     url(r'^manager/user/$', core_views.users, name='core_manager_users'),
+    url(r'^manager/user/enrol/$', core_views.enrol_users, name='core_manager_enrol_users'),
     url(r'^manager/user/inactive/$', core_views.inactive_users, name='core_manager_inactive_users'),
     url(r'^manager/user/authenticated/$', core_views.logged_in_users, name='core_logged_in_users'),
     url(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),

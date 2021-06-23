@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from django.test import TestCase
 
-from core import models
+from core import forms, models
 from core.model_utils import merge_models
 from journal import models as journal_models
 from utils.testing import helpers
@@ -41,6 +41,22 @@ class TestAccount(TestCase):
         obj = models.Account.objects.create(**data)
         self.assertEquals(obj.username, email.lower())
 
+    def test_username_normalised_quick_form(self):
+        email = "QUICK@test.com"
+        data = {
+            'email': email,
+            'is_active': True,
+            'password': 'this_is_a_password',
+            'salutation': 'Prof.',
+            'first_name': 'Martin',
+            'last_name': 'Eve',
+            'department': 'English & Humanities',
+            'institution': 'Birkbeck, University of London',
+        }
+        form = forms.QuickUserForm(data=data)
+        acc = form.save()
+        self.assertEquals(acc.username, email.lower())
+
     def test_email_normalised(self):
         email = "TEST@TEST.com"
         expected = "TEST@test.com"
@@ -59,6 +75,24 @@ class TestAccount(TestCase):
             msg="Managed to register account with duplicate email",
         ):
             models.Account.objects.create(email=email_b)
+
+    def test_no_duplicates_quick_form(self):
+        email_a = "TEST@TEST.com"
+        email_b = "test@TEST.com"
+        data = dict(
+            first_name="Test",
+            last_name="Last Name",
+            email=email_a,
+            institution="A.N. Institution",
+        )
+        form_a = forms.QuickUserForm(data=data)
+        form_a.save()
+        with self.assertRaises(
+            ValueError,
+            msg="Managed to quick-register account with duplicate email",
+        ):
+            form_b = forms.QuickUserForm(data=dict(data, email=email_b))
+            form_b.save()
 
     def test_merge_accounts_m2m(self):
         """Test merging of m2m elements when mergint two accounts"""

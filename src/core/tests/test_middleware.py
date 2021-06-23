@@ -160,7 +160,7 @@ class TestTimezoneMiddleware(TestCase):
 
         request.user = user
         response = self.middleware.process_request(request)
-        self.assertEqual(request.timezone, user.preferred_timezone)
+        self.assertEqual(request.timezone.zone, user.preferred_timezone)
 
     def test_browser_timezone_case(self):
         user = AnonymousUser()
@@ -173,7 +173,7 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone, tzname)
+        self.assertEqual(request.timezone.zone, tzname)
 
     def test_user_preference_over_browser(self):
         user_timezone = "Europe/Madrid"
@@ -190,6 +190,6 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone, user_timezone)
+        self.assertEqual(request.timezone.zone, user_timezone)
 
 

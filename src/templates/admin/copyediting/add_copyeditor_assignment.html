@@ -4,6 +4,7 @@
 
 {% block title %}Add Copyeditor{% endblock %}
 {% block title-section %}Add Copyeditor{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

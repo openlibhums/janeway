@@ -2235,7 +2235,8 @@ select {
     margin: 0;
     margin-right: 1px;
     margin-bottom: 1px;
-    font-size: 0.9rem; }
+    font-size: 0.9rem;
+    border-radius: 0;}
     .button-group .button:last-child {
       margin-right: 0; }
   .button-group.tiny .button {
@@ -3855,8 +3856,7 @@ a.thumbnail {
   position: relative;
   display: inline-block;
   border-bottom: dotted 1px #5b5e61;
-  font-weight: bold;
-  cursor: help; }
+  font-weight: bold;}
 
 .tooltip {
   position: absolute;

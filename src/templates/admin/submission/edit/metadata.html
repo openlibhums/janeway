@@ -115,7 +115,7 @@
                                 <td>{{ f_author.full_name }}</td>
                                 <td>{{ f_author.author.email }}</td>
                                 <td>{{ f_author.institution }}</td>
-                                <td>{% if f_author.author == article.correspondence_author %}
+                                <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
                                     <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
                                 <td><a href="?author={{ f_author.pk }}&return={{ return }}"><i
                                         class="fa fa-edit">&nbsp;</i>Edit</a></td>

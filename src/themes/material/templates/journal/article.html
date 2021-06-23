@@ -170,7 +170,7 @@
                     </div>
                 {% endif %}
             </div>
-            {% if article.is_published and article_content %}
+            {% if article_content %}
                 <article>
                     <div id="main_article" itemprop="articleBody" class="article-body">
                         <div class="card">
@@ -187,6 +187,7 @@
         <div class="col m4">
             <div class="card">
                 <div class="card-content">
+                    {% include "common/elements/altmetric_badges.html" with article=article %}
                     <h4>
                         {% trans "Share" %}
                     </h4>
@@ -312,6 +313,18 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
+
+                    {% with article.get_doi_url as doi_url %}
+                    {% if doi_url %}
+                    <h4>{% trans "Identifiers" %}</h4>
+                    <ul>
+                        <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                    </ul>
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
 
                     <h4>
                         {% trans "Peer Review" %}

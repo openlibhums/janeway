@@ -27,7 +27,13 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% materialize_form form=form %}
-                        <p>{% trans "By registering an account you agree to our" %} <a href="/site/privacy/">{% trans "Privacy Policy" %}</a>.</p>
+                        <p>{% trans "By registering an account you agree to our" %}
+                          {% if journal_settings.general.privacy_policy_url %}
+                            <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
+                          {% else %}
+                            <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a>
+                          {% endif %}
+                        </p>
                         <button type="submit"
                                 class="btn btn-primary float-right">{% trans "Register" %}</button>
                     </form>

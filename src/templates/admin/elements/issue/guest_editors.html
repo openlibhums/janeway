@@ -13,7 +13,7 @@
                     <th>Email</th>
                 </tr>
                 <tbody id="sortable">
-                {% for editor in issue.guest_editors.all %}
+                {% for editor in issue.editors.all %}
                 <tr>
                     <td>{{ editor.pk }}</td>
                     <td>{{ editor.first_name }}</td>

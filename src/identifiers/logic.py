@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
+from django.utils.html import strip_tags
 from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
@@ -113,14 +114,17 @@ def create_crossref_context(identifier):
         'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
                                                   identifier.article.journal).processed_value,
         'journal_title': identifier.article.journal.name,
+        'abstract': strip_tags(identifier.article.abstract or ''),
         'journal_issn': identifier.article.journal.issn,
         'date_published': identifier.article.date_published,
+        'date_accepted': identifier.article.date_accepted,
+        'pages': identifier.article.page_numbers,
         'issue': identifier.article.issue,
         'article_title': '{0}{1}{2}'.format(
             identifier.article.title,
             ' ' if identifier.article.subtitle is not None else '',
             identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
+        'authors': identifier.article.frozenauthor_set.all(),
         'doi': identifier.identifier,
         'article_url': identifier.article.url,
         'now': timezone.now(),

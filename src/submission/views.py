@@ -96,7 +96,7 @@ def submit_funding(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
     additional_fields = models.Field.objects.filter(journal=request.journal)
     submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
-    form = forms.ArticleInfo(instance=article,
+    form = forms.ArticleInfoSubmit(instance=article,
                              additional_fields=additional_fields,
                              submission_summary=submission_summary,
                              journal=request.journal)
@@ -139,13 +139,13 @@ def submit_info(request, article_id):
     article = get_object_or_404(models.Article, pk=article_id)
     additional_fields = models.Field.objects.filter(journal=request.journal)
     submission_summary = setting_handler.get_setting('general', 'submission_summary', request.journal).processed_value
-    form = forms.ArticleInfo(instance=article,
+    form = forms.ArticleInfoSubmit(instance=article,
                              additional_fields=additional_fields,
                              submission_summary=submission_summary,
                              journal=request.journal)
 
     if request.POST:
-        form = forms.ArticleInfo(request.POST, instance=article,
+        form = forms.ArticleInfoSubmit(request.POST, instance=article,
                                  additional_fields=additional_fields,
                                  submission_summary=submission_summary,
                                  journal=request.journal)

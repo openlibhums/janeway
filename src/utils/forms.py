@@ -44,20 +44,11 @@ class KeywordModelForm(ModelForm):
         instance = super().save(commit=commit, *args, **kwargs)
 
         posted_keywords = self.cleaned_data.get('keywords', '').split(',')
+        instance.keywords.clear()
         for i, keyword in enumerate(posted_keywords):
-            if keyword != '':
                 obj, _ = submission_models.Keyword.objects.get_or_create(
                         word=keyword)
-                submission_models.KeywordArticle.objects.update_or_create(
-                    keyword=obj,
-                    article=instance,
-                    defaults={"order":i},
-                )
-
-        for keyword in instance.keywords.all():
-            if keyword.word not in posted_keywords:
-                instance.keywords.remove(keyword)
-
+                instance.keywords.add(obj)
         if commit:
             instance.save()
         return instance
@@ -65,3 +56,7 @@ class KeywordModelForm(ModelForm):
 
 class HTMLDateInput(DateInput):
     input_type = 'date'
+
+    def __init__(self, **kwargs):
+        kwargs["format"] = "%Y-%m-%d"
+        super().__init__(**kwargs)

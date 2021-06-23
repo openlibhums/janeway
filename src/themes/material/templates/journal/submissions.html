@@ -26,7 +26,7 @@
                     {% if journal_settings.general.disable_journal_submission %}
                     <p><strong>{% trans 'Submission is currently disabled for this journal.' %}</strong></p>
                     {% endif %}
-                    {{ journal_settings.general.submission_intro_text|safe }}
+                    <div class="default-li">{{ journal_settings.general.submission_intro_text|safe }}</div>
                     <br />
                     {% if not journal_settings.general.disable_journal_submission %}
                     <div class="button-group">

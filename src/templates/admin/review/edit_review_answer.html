@@ -2,6 +2,7 @@
 
 {% block title %}Edit Review Answer{% endblock title %}
 {% block admin-header %}Edit Review Answer{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

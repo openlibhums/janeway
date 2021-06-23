@@ -21,9 +21,20 @@
                 <a href="{% url 'core_manager_index' %}" class="button">< Go back</a>
             </div>
             <div class="content">
-                <ul class="list-group" id="group_files_sort">
-                  {% for role in roles %}<li id="group-{{ group.id }}" class="list-group-item"><i class="fa fa-users">&nbsp;&nbsp;</i>{{ role.name }}<span style="float: right;"><a href="{% url 'core_manager_role' role.slug %}">Members</a></span></li>{% endfor %}
-                </ul>
+                <table class="table scroll">
+                    <tr>
+                        <th>Role Name</th>
+                        <th>No. Enrolled Users</th>
+                        <th></th>
+                    </tr>
+                    {% for role in roles %}
+                        <tr>
+                            <td>{{ role.name }}</td>
+                            <td>{{ role.user_count }}</td>
+                            <td><a href="{% url 'core_manager_role' role.slug %}">View Enrolled Users</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
         </div>
     </div>

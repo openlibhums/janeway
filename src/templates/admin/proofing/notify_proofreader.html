@@ -4,6 +4,7 @@
 {% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 {% block title %}Notify Proofreader{% endblock title %}
 {% block title-section %}Notify Proofreader{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}

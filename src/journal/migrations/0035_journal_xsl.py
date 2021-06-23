@@ -11,6 +11,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('journal', '0034_migrate_issue_types'),
+        ('core', '0037_journal_xsl_files'),
+
+        
     ]
 
     operations = [
