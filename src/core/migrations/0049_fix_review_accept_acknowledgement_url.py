@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import re
 
 from django.db import migrations
+from django.conf import settings as django_settings
 
 FROM_RE = re.compile("{{ ?do_review_url ?}}")
 TO = "{{ review_url }}"
@@ -25,9 +26,10 @@ def replace_setting_urls(apps, schema_editor):
 
 
 def fix_url(setting):
-    value = setting.value
+    value_attr_name = "value_{}".format(django_settings.LANGUAGE_CODE)
+    value = getattr(setting, value_attr_name)
     new_value = FROM_RE.sub(TO, value)
-    setting.value = new_value
+    setattr(setting, value_attr_name, new_value)
     setting.save()
 
 
