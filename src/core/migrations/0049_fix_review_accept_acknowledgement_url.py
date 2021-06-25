@@ -10,10 +10,18 @@ TO = "{{ review_url }}"
 
 
 def replace_setting_urls(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-    settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
-    for s in settings:
-        fix_url(s)
+    try:
+        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+        settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
+        for s in settings:
+            fix_url(s)
+    except LookupError:
+        SettingValue = apps.get_model('core', 'SettingValue')
+        settings = SettingValue.objects.filter(
+            setting__group__name='email',
+        )
+        for s in settings:
+            fix_url(s)
 
 
 def fix_url(setting):
