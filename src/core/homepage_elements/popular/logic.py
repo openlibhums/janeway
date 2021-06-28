@@ -17,7 +17,7 @@ def get_popular_article_settings(journal):
             'most_popular',
             journal,
         ).processed_value
-    except IndexError:
+    except AttributeError:
         most_popular = False
 
     try:
@@ -26,7 +26,7 @@ def get_popular_article_settings(journal):
             'num_most_popular',
             journal,
         ).processed_value
-    except IndexError:
+    except AttributeError:
         num_most_popular = 0
     try:
         most_popular_time = setting_handler.get_plugin_setting(
@@ -34,7 +34,7 @@ def get_popular_article_settings(journal):
             'most_popular_time',
             journal,
         ).processed_value
-    except IndexError:
+    except AttributeError:
         most_popular_time = 'weekly'
 
     return most_popular, num_most_popular, most_popular_time

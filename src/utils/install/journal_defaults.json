@@ -1415,7 +1415,7 @@
         },
         "setting": {
             "description": "You can set your DOI pattern, fallback is 10.xxxx/{{ article.pk }}",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "doi_pattern",
             "pretty_name": "DOI Pattern",
             "type": "char"

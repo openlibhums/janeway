@@ -232,7 +232,6 @@ def toggle_boolean_setting(setting_name, setting_group_name, journal):
         )
 
 
-
 def fetch_defaults_value(setting):
     with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), 'r+', encoding='utf-8') as json_data:
         default_data = json.load(json_data)

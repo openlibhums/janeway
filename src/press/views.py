@@ -117,8 +117,11 @@ def manager_index(request):
             install.update_license(new_journal)
             install.update_issue_types(new_journal)
             new_journal.setup_directory()
-            return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
-                                                     new_journal.pk))
+            return redirect(
+                new_journal.site_url(
+                    path=reverse('core_manager_index')
+                )
+            )
 
     template = 'press/press_manager_index.html'
     context = {
@@ -129,6 +132,7 @@ def manager_index(request):
             stage=submission_models.STAGE_PUBLISHED
         ).select_related('journal')[:50],
         'version': version,
+        'url_config': settings.URL_CONFIG,
     }
 
     return render(request, template, context)

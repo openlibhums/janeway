@@ -41,9 +41,13 @@ def install():
     if c:
         logger.debug('Plugin installed.')
 
-    setting, c = models.PluginSetting.objects.get_or_create(
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    setting_group, c = core_models.SettingGroup.objects.get_or_create(
+        name=plugin_group_name,
+    )
+    setting, c = core_models.Setting.objects.get_or_create(
         name='about_title',
-        plugin=plugin,
+        group=setting_group,
         defaults={
             'pretty_name': 'About Block Title',
             'types': 'text',
