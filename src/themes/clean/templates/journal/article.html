@@ -172,7 +172,7 @@
                             <li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
                         {% if article.metrics.alm.reddit %}
                             <li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
-                        {% if article.citation_count %}
+                        {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                             <li>{% trans "Citations" %}: {{ article.citation_count }}</li>{% endif %}
                     </ul>
                     {% endif %}
