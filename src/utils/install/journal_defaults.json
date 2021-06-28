@@ -1730,7 +1730,7 @@
         },
         "setting": {
             "description": "Allow users to change their language.",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "switch_language",
             "pretty_name": "Switch Language",
             "type": "boolean"
