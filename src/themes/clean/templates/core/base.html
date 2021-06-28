@@ -27,6 +27,7 @@
     {% if request.journal %}
         <link href="{% static "clean/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
     {% endif %}
+    <link href="{% static "common/css/common.css" %}" rel="stylesheet">
     {% block head %}{% endblock head %}
 </head>
 <body>
