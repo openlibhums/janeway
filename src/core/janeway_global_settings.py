@@ -235,6 +235,7 @@ LANGUAGES = (
     ('en', ugettext('English')),
     ('fr', ugettext('French')),
     ('de', ugettext('German')),
+    ('nl', ugettext('Dutch')),
     ('cy', ugettext('Welsh')),
 )
 
