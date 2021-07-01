@@ -102,7 +102,7 @@ class ArticleInfo(KeywordModelForm):
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
-            self.fields['section'].queryset = models.Section.objects.filter(
+            section_queryset = models.Section.objects.filter(
                 journal=article.journal,
             )
             license_queryset = models.Licence.objects.filter(
