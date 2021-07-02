@@ -29,6 +29,7 @@ class Plugin:
         plugin, created = cls.get_or_create_plugin_object()
 
         if not created and plugin.version != cls.version:
+            print('Plugin updated: {0} -> {1}'.format(cls.version, plugin.version))
             plugin.version = cls.version
             plugin.save()
 
@@ -42,9 +43,29 @@ class Plugin:
     def get_or_create_plugin_object(cls):
         plugin, created = models.Plugin.objects.get_or_create(
             name=cls.short_name,
-            display_name=cls.display_name,
-            press_wide=cls.press_wide,
-            defaults={'version': cls.version, 'enabled': True},
+            defaults={
+                'display_name': cls.display_name,
+                'version': cls.version,
+                'enabled': True,
+                'press_wide': cls.press_wide,
+            },
         )
 
         return plugin, created
+
+    @classmethod
+    def get_self(cls):
+        try:
+            plugin = models.Plugin.objects.get(
+                name=cls.short_name,
+            )
+        except models.Plugin.MultipleObjectsReturned:
+            plugin = models.Plugin.objects.filter(
+                name=cls.short_name,
+            ).order_by(
+                '-version'
+            ).first()
+        except models.Plugin.DoesNotExist:
+            return None
+
+        return plugin
