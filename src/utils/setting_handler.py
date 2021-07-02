@@ -76,11 +76,10 @@ def get_setting(
 
     with translation.override(lang):
         try:
-            return core_models.SettingValue.objects \
-                .get(
-                    setting__group__name=setting_group_name,
-                    setting=setting,
-                    journal=journal,
+            return core_models.SettingValue.objects.get(
+                setting__group__name=setting_group_name,
+                setting=setting,
+                journal=journal,
             )
         except ObjectDoesNotExist:
             if journal is not None:
@@ -180,7 +179,7 @@ def get_plugin_setting(
             setting_name=setting_name,
             journal=journal,
             create=False,
-            default=False,
+            default=True,
         )
     except core_models.Setting.DoesNotExist as e:
         if create:
