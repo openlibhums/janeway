@@ -15,11 +15,20 @@
                 <p><strong>{% trans 'Country' %}:</strong><br>{{ user.country }}</p>
             </div>
             <div class="col-md-9">
-                <h3>{% trans 'Publications' %}</h3>
-                <hr />
-                {% for article in user.articles %}
-                    {% include "elements/article_listing.html" with article=article %}
-                {% endfor %}
+                {% if user.biography %}
+                    <h3>{% trans "Biography" %}</h3>
+                    <hr />
+                    {{ user.biography|safe }}
+                    <br/><br/>
+                {% endif %}
+                {% if user.published_articles %}
+                    <h3>{% trans "Publications" %}</h3>
+                    <hr />
+                    {% for article in user.published_articles %}
+                        {% include "elements/journal/box_article.html" with article=article %}
+                        <hr />
+                    {% endfor %}
+                {% endif %}
             </div>
 		</div>
 	</section>
