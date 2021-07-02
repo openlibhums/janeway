@@ -7,6 +7,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 PLUGIN_NAME = 'Popular Articles'
+SHORT_NAME = 'popular_articles'
 DESCRIPTION = 'This is a homepage element that renders popular articles.'
 AUTHOR = 'Martin Paul Eve'
 VERSION = '1.0'
@@ -37,7 +38,7 @@ def install():
     if c:
         logger.debug('Plugin {} created'.format(PLUGIN_NAME))
 
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=SHORT_NAME)
     setting_handler.create_setting(
         setting_group_name=plugin_group_name,
         setting_name='most_popular',
