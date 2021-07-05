@@ -336,11 +336,10 @@ def edit_or_create_submission_item(request, item_id=None):
                     messages.SUCCESS,
                     'New item created.' if not item else 'Item updated.'
                 )
-                return redirect(
-                    reverse(
-                        'cms_edit_submission_item',
-                        kwargs={'item_id': saved_item.pk},
-                    )
+                return language_override_redirect(
+                    request,
+                    'cms_edit_submission_item',
+                    {'item_id': saved_item.pk}
                 )
 
     template = 'admin/cms/submission_item_form.html'
