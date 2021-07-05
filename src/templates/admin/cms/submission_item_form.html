@@ -28,6 +28,11 @@
                         {% include "admin/elements/translations/form_tabs.html" with object=item %}
                         <p>You can either create custom text using the Text field or link this Submission Page Item to an existing setting eg. peer_review_info. Selecting an Existing Setting will take precedence.</p>
                         {% if item.existing_setting %}<p>This item is linked to a Setting. You can edit it via the <a target="_blank" href="{% url 'core_edit_setting' item.existing_setting.group.name item.existing_setting.name %}">Settings</a> interface</p>{% endif %}
+                        <p>There are two "Special Display" submission items. These display a special block and do not require to be linked to a setting or to have text. To create them simply create an item with either of these titles:</p>
+                        <ul>
+                            <li>licenses</li>
+                            <li>sections</li>
+                        </ul>
                     </div>
 
                 </div>
