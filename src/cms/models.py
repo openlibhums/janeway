@@ -105,6 +105,10 @@ class NavigationItem(models.Model):
 
 
 class SubmissionItem(models.Model):
+    """
+    Model containing information to render the Submission page.
+    SubmissionItems is registered for translation in cms.translation.
+    """
     journal = models.ForeignKey('journal.Journal')
     title = models.CharField(max_length=255)
     text = models.TextField(blank=True, null=True)
