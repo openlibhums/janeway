@@ -33,83 +33,21 @@
                 </div>
                 {% endif %}
                 <hr />
-                {% if journal_settings.general.display_about_on_submissions and journal_settings.general.journal_description %}
-                <h3>{% trans 'About' %} {{ request.journal.name }}</h3>
-                {{ journal_settings.general.journal_description|safe }}
-                <hr />
-                {% endif %}
-                {% if journal_settings.general.focus_and_scope %}
-                <h3>{% trans 'Focus and Scope for' %} {{ request.journal.name }}</h3>
-                {{ journal_settings.general.focus_and_scope|safe }}
-                <hr />
-                {% endif %}
-                {% if journal_settings.general.submission_checklist %}
-                <h3>{% trans 'Submission Checklist' %}</h3>
-                {{ journal_settings.general.submission_checklist|safe }}
-                <hr />
-                {% endif %}
-                {% if not journal_settings.general.acceptance_criteria == '' %}
-                <h3>{% trans 'Acceptance Criteria' %}</h3>
-                {{ journal_settings.general.acceptance_criteria|safe }}
-                <hr />
-                {% endif %}
-                {% if journal_settings.general.copyright_notice %}
-                <h3>{% trans 'Copyright Notice' %}</h3>
-                {{ journal_settings.general.copyright_notice|safe }}
-                <hr />
-                {% endif %}
-                <h3>{% trans 'Licences' %}</h3>
-                <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
-                {% include "elements/license_block.html" %}
-                <hr />
-                {% if journal_settings.general.publication_fees %}
-                <h3>{% trans 'Publication Fees' %}</h3>
-                {{ journal_settings.general.publication_fees|safe }}
-                <hr />
-                {% endif %}
-                {% if journal_settings.general.peer_review_info %}
-                <h3>{% trans 'Peer Review' %}</h3>
-                {{ journal_settings.general.peer_review_info|safe }}
-                <hr/>
-                {% endif %}
-                {% if journal_settings.general.publication_cycle %}
-                <h3>{% trans 'Publication Cycle' %}</h3>
-                {{ journal_settings.general.publication_cycle|safe }}
-                <hr/>
-                {% endif %}
-                <h3>{% trans 'Sections' %}</h3>
-                    <div class="row">
-                        <div class="medium-6 columns">
 
-                        </div>
-                        <div class="medium-2 columns">
-                            <p>{% trans "Public Submissions" %}</p>
-                        </div>
-                        <div class="medium-2 columns">
-                            <p>{% trans "Peer Reviewed" %}</p>
-                        </div>
-                        <div class="medium-2 columns">
-                            <p>{% trans "Indexed" %}</p>
-                        </div>
-                    </div>
-                    <hr/>
-                {% for section in sections %}
-                    <div class="row">
-                        <div class="medium-6 columns">
-                            <p>{{ section.name }}</p>
-                        </div>
-                        <div class="medium-2 columns">
-                            <strong>{% if section.public_submissions %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</strong>
-                        </div>
-                        <div class="medium-2 columns">
-                            <strong>{% if section.number_of_reviewers > 0 %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</strong>
-                        </div>
-                        <div class="medium-2 columns">
-                            <strong>{% if section.indexing %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</strong>
-                        </div>
+                {% for item in submission_items %}
+                    {% if item.title == 'licences' %}
+                        <h3>{% trans 'Licences' %}</h3>
+                        <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                        {% include "elements/license_block.html" %}
                         <hr />
-                    </div>
+                    {% elif item.title == 'sections' %}
+                        {% include "elements/section_block.html" %}
+                    {% elif item.get_display_text %}
+                        <h3>{{ item.title|capfirst }}</h3>
+                        {{ item.get_display_text|safe }}
+                    {% endif %}
                 {% endfor %}
+
             </div>
 
         </div>
