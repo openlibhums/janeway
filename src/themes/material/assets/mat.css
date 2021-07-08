@@ -308,6 +308,16 @@ a:hover .article-title {
     overflow-x: auto;
 }
 
+.table-center {
+    text-align: center;
+}
+.table-left {
+    text-align: left;
+}
+.table-right {
+    text-align: right;
+}
+
 .alm {
     display: inline-block;
     text-align: center;
