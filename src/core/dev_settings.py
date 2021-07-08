@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     'hijack',
     'compat',
 ]
+# Combine our apps and middleware classes with the defaults
+MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE_CLASSES"}
 
 
 def show_toolbar(request):

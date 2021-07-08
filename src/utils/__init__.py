@@ -16,7 +16,7 @@ from core import janeway_global_settings
 
 LOCK = threading.Lock()
 
-MERGEABLE_SETTINGS = {"INSTALLED_APPS", "MIDDLEWARE_CLASSES"}
+MERGEABLE_SETTINGS = {}
 
 def load_janeway_settings():
 
@@ -43,8 +43,9 @@ def load_janeway_settings():
                     "Loading the following custom settings: %s" %(
                     custom_settings.keys(),
             ))
+            mergeable_settings = custom_settings.get("MERGEABLE_SETTINGS", {})
             for k, v in custom_settings.items():
-                if k in MERGEABLE_SETTINGS:
+                if k in mergeable_settings:
                     janeway_settings[k] = merge_settings(janeway_settings[k], v)
                 else:
                     janeway_settings[k] = v
