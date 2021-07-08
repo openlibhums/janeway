@@ -3184,6 +3184,7 @@
     </xsl:template>
 
     <xsl:template match="inline-graphic">
+        <xsl:variable name="graphics" select="./@xlink:href"/>
         <xsl:variable name="ig-variant">
             <xsl:choose>
                 <xsl:when test="//article/@article-type = 'research-article'">
@@ -3208,7 +3209,7 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        [inline-graphic-<xsl:value-of select="@xlink:href"/>-<xsl:value-of select="$ig-variant"/>]
+        <img src="{$graphics}" class="responsive-img" />
     </xsl:template>
 
     <xsl:template name="appendices-main-text">
