@@ -988,6 +988,9 @@
         <table>
           <xsl:if test="./@content-type != 'example'">
             <xsl:attribute name="class">striped</xsl:attribute>
+            <xsl:attribute name="content-type">
+              <xsl:value-of select="./@content-type"/>
+            </xsl:attribute>
           </xsl:if>
           <xsl:apply-templates/>
         </table>
@@ -1045,7 +1048,9 @@
                     <xsl:value-of select="@style"/>
                 </xsl:attribute>
             </xsl:if>
-
+            <xsl:if test="ancestor::table[@content-type ='example']">
+              <xsl:attribute name="style">vertical-align: top;</xsl:attribute>
+            </xsl:if>
             <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
