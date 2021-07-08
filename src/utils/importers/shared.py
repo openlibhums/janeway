@@ -47,7 +47,8 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
     # so 'img':'src' means look for elements called 'img' with an attribute 'src'
     elements = {
         'img': 'src',
-        'graphic': 'xlink:href'
+        'graphic': 'xlink:href',
+        'inline-graphic': 'xlink:href',
     }
 
     # iterate over all found elements
