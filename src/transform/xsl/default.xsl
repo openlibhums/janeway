@@ -984,8 +984,12 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/table">
-        <table class="striped">
-            <xsl:apply-templates/>
+      <xsl:variable name="graphics" select="./@xlink:href"/>
+        <table>
+          <xsl:if test="./@content-type != 'example'">
+            <xsl:attribute name="class">striped</xsl:attribute>
+          </xsl:if>
+          <xsl:apply-templates/>
         </table>
     </xsl:template>
 
