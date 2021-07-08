@@ -294,6 +294,7 @@ def issue(request, issue_id, show_sidebar=True):
         journal=request.journal,
         issue_type=issue_object.issue_type,
         date__lte=timezone.now(),
+        articles__isnull=False,
     )
 
     editors = models.IssueEditor.objects.filter(
