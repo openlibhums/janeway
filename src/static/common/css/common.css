@@ -162,8 +162,8 @@ ol.gloss-sentence {
 }
 
 .gloss-sentence img {
-    max-width: auto !important;
-    pading-top: 5px;
+    width: auto !important;
+    padding-top: 5px;
 }
 
 ol.gloss-word {
