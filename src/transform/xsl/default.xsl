@@ -986,13 +986,17 @@
     <xsl:template match="table-wrap/table">
       <xsl:variable name="graphics" select="./@xlink:href"/>
         <table>
-          <xsl:if test="./@content-type != 'example'">
-            <xsl:attribute name="class">striped</xsl:attribute>
+         <xsl:choose>
+          <xsl:when test="./@content-type = 'example'">
             <xsl:attribute name="content-type">
               <xsl:value-of select="./@content-type"/>
             </xsl:attribute>
-          </xsl:if>
-          <xsl:apply-templates/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="class">striped</xsl:attribute>
+          </xsl:otherwise>
+         </xsl:choose>
+         <xsl:apply-templates/>
         </table>
     </xsl:template>
 
