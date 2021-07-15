@@ -55,6 +55,7 @@ SALUTATION_CHOICES = (
     ('Ms', 'Ms'),
     ('Mrs', 'Mrs'),
     ('Mr', 'Mr'),
+    ('Mx', 'Mx'),
     ('Dr', 'Dr'),
     ('Prof.', 'Prof.'),
 )
