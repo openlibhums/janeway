@@ -125,6 +125,8 @@ class TypesettingAssignment(models.Model):
 
     @property
     def time_to_due(self):
+        if not self.due:
+            return ''
         due = self.due - timezone.now().date()
         if due == timedelta(0):
             return 'Due Today'
