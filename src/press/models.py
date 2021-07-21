@@ -72,7 +72,7 @@ class Press(AbstractSiteModel):
         help_text='Additional HTML for the press footer.',
     )
     main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
-    theme = models.CharField(max_length=255, default='default', blank=False, null=False)
+    theme = models.CharField(max_length=255, default='OLH', blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
     carousel_type = models.CharField(max_length=30, default='articles', choices=press_carousel_choices())
     carousel_items = models.PositiveIntegerField(default=4)

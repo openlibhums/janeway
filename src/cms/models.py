@@ -113,6 +113,7 @@ class SubmissionItem(models.Model):
 
     class Meta:
         ordering = ('order', 'title')
+        unique_together = (('journal', 'existing_setting'), ('journal', 'title'))
 
     def get_display_text(self):
         if self.existing_setting:

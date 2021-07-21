@@ -184,9 +184,11 @@ def nav(request, nav_id=None):
             nav_to_edit = None
             form = forms.NavForm(request=request)
 
-        top_nav_items = models.NavigationItem.objects.filter(content_type=request.model_content_type,
-                                                             object_id=request.site_type.pk,
-                                                             top_level_nav__isnull=True)
+        top_nav_items = models.NavigationItem.objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+            top_level_nav__isnull=True,
+        )
         collection_nav_items = None
         if request.journal:
             collection_nav_items = models.NavigationItem.get_issue_types_for_nav(
@@ -214,8 +216,11 @@ def nav(request, nav_id=None):
 
         elif "delete_nav" in request.POST:
             nav_to_delete = get_object_or_404(
-                    models.NavigationItem,
-                    pk=request.POST["delete_nav"])
+                models.NavigationItem,
+                pk=request.POST["delete_nav"],
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+            )
             nav_to_delete.delete()
         elif "toggle_collection_nav" in request.POST:
             issue_type = get_object_or_404(
@@ -249,15 +254,17 @@ def nav(request, nav_id=None):
         'form': form,
         'top_nav_items': top_nav_items,
         'collection_nav_items': collection_nav_items,
-        'enable_editorial_display': request.journal.get_setting(
-            "general",
-            "enable_editorial_display",
-        ),
-        'keyword_list_page': request.journal.get_setting(
+    }
+
+    if request.journal:
+        context['keyword_list_page'] = request.journal.get_setting(
             "general",
             "keyword_list_page",
-        ),
-    }
+        )
+        context['enable_editorial_display'] = request.journal.get_setting(
+            "general",
+            "enable_editorial_display",
+        )
 
     return render(request, template, context)
 
@@ -350,7 +357,6 @@ def order_submission_items(request):
     items = models.SubmissionItem.objects.filter(
         journal=request.journal,
     )
-    print(request.POST.getlist('item[]'))
     set_order(
         items,
         'order',

@@ -19,12 +19,12 @@ def replace_setting_urls(apps, schema_editor):
             setting.value = setting.value.replace("url }}.", "url }} ")
             setting.save()
     except LookupError:
-        translation.activate(django_settings.LANGUAGE_CODE)
-        SettingValue = apps.get_model('core', 'SettingValue')
-        settings = SettingValue.objects.filter(setting__group__name="email")
-        for setting in settings:
-            setting.value = setting.value.replace("url }}.", "url }} ")
-            setting.save()
+        with translation.activate(django_settings.LANGUAGE_CODE):
+            SettingValue = apps.get_model('core', 'SettingValue')
+            settings = SettingValue.objects.filter(setting__group__name="email")
+            for setting in settings:
+                setting.value = setting.value.replace("url }}.", "url }} ")
+                setting.save()
 
 
 class Migration(migrations.Migration):

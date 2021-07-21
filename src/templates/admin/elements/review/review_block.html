@@ -1,6 +1,6 @@
 <div class="callout breakdown reviewer">
     <div class="title-area">
-        <h4>{{ review.reviewer.full_name }}
+        <h4>#{{ review.pk }} - {{ review.reviewer.full_name }}
             <span data-tooltip title="Email peer reviewer."><a
                     onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span
                     class="fa fa-envelope">&nbsp;</span></a></span>
