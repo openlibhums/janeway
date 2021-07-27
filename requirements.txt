@@ -1,4 +1,4 @@
-beautifulsoup4==4.4.1
+beautifulsoup4==4.9.3
 boto==2.46.1
 bs4==0.0.1
 colorlog==3.1.4
@@ -8,7 +8,7 @@ Django==1.11.29
 -e git+https://github.com/GabrielUlici/django-bootstrap4@d230ec23d9f8f08c1505e0679ce0c6dba8090f0a#egg=django_bootstrap4
 -e git+https://github.com/BirkbeckCTP/django-foundation-form.git#egg=foundationform
 django-debug-toolbar==1.11.1
-django-hvad==1.8.0
+django-modeltranslation==0.13
 -e git+https://github.com/BirkbeckCTP/django-mailgun.git#egg=django-mailgun
 django-markdown-deux==1.0.5
 django-settings-export==1.2.1
@@ -41,7 +41,7 @@ python-magic==0.4.13
 python-docx==0.8.6
 raven==6.0.0 # TODO: Optional for sentry
 requests==2.25.1
-six==1.10.0
+six==1.14.0
 sqlparse==0.2.3
 ua-parser==0.7.2
 user-agents==1.0.1

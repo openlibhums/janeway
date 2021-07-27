@@ -50,7 +50,7 @@
         },
         "setting": {
             "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
-            "is_translatable": false,
+            "is_translatable": true,
             "name": "publisher_name",
             "pretty_name": "Publisher Name",
             "type": "char"
@@ -650,7 +650,7 @@
         },
         "setting": {
             "description": "The ISSN of the journal.",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "journal_issn",
             "pretty_name": "Journal ISSN",
             "type": "char"
@@ -1415,7 +1415,7 @@
         },
         "setting": {
             "description": "You can set your DOI pattern, fallback is 10.xxxx/{{ article.pk }}",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "doi_pattern",
             "pretty_name": "DOI Pattern",
             "type": "char"
@@ -1730,7 +1730,7 @@
         },
         "setting": {
             "description": "Allow users to change their language.",
-            "is_translatable": true,
+            "is_translatable": false,
             "name": "switch_language",
             "pretty_name": "Switch Language",
             "type": "boolean"
@@ -2616,7 +2616,7 @@
         "setting": {
             "type": "boolean",
             "pretty_name": "Disable Submission",
-            "is_translatable": true,
+            "is_translatable": false,
             "description": "If true, users cannot submit new articles.",
             "name": "disable_journal_submission"
         },
@@ -2751,7 +2751,7 @@
         "setting": {
             "type": "rich-text",
             "pretty_name": "Review File Help",
-            "is_translatable": false,
+            "is_translatable": true,
             "description": "Text displayed when a journal defaults to blind or double-blind review ensuring that files are anonymous.",
             "name": "review_file_help"
         },
@@ -2978,6 +2978,21 @@
             "is_translatable": false,
             "name": "enable_peer_review_data_block",
             "pretty_name": "Enable Peer Review Data Block",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled the language buttons will use text rather than flags.",
+            "is_translatable": false,
+            "name": "enable_language_text",
+            "pretty_name": "Language Button Text Override",
             "type": "boolean"
         },
         "value": {

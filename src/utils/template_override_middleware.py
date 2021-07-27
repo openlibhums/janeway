@@ -48,25 +48,25 @@ class Loader(BaseLoader):
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
                     theme_setting = self.query_theme_dirs(_local.request.journal)
-                except BaseException:
-                    theme_setting = 'default'
+                except Exception:
+                    theme_setting = 'clean'
             else:
                 # this is the press site
                 theme_setting = _local.request.press.theme
         else:
             # for some reason the request has not been pulled into the local thread.
             # we shouldn't really ever arrive here during a request that requires a template
-            theme_setting = 'default'
+            theme_setting = 'clean'
 
         # this is a backup for a missed setting get above.
         if not theme_setting:
-            theme_setting = 'default'
+            theme_setting = 'clean'
 
         if settings.DEBUG and hasattr(_local, 'request') and _local.request.GET.get('theme'):
             theme_setting = _local.request.GET.get('theme')
 
         return [os.path.join(settings.BASE_DIR, 'themes', theme_setting, 'templates'),
-                os.path.join(settings.BASE_DIR, 'themes', 'default', 'templates')] + self.engine.dirs
+                os.path.join(settings.BASE_DIR, 'themes', 'clean', 'templates')] + self.engine.dirs
 
     def get_dirs(self):
         return self.get_theme_dirs()

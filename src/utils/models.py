@@ -10,13 +10,12 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from django.utils import timezone
-from django.core.serializers import json
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
+from django.utils.text import slugify
 
-from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
 
@@ -162,11 +161,16 @@ class Plugin(models.Model):
     def __repr__(self):
         return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
 
-    def best_name(self):
+    def best_name(self, slug=False):
         if self.display_name:
-            return self.display_name.lower()
+            name = self.display_name.lower()
+        else:
+            name = self.name.lower()
 
-        return self.name.lower()
+        if slug:
+            return slugify(name)
+        else:
+            return name
 
 
 setting_types = (
@@ -179,63 +183,6 @@ setting_types = (
     ('select', 'Select'),
     ('json', 'JSON'),
 )
-
-
-class PluginSetting(models.Model):
-    name = models.CharField(max_length=100)
-    plugin = models.ForeignKey(Plugin)
-    types = models.CharField(max_length=20, choices=setting_types, default='text')
-    pretty_name = models.CharField(max_length=100, default='')
-    description = models.TextField(null=True, blank=True)
-    is_translatable = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ('plugin', 'name')
-
-    def __str__(self):
-        return u'%s' % self.name
-
-    def __repr__(self):
-        return u'%s' % self.name
-
-
-class PluginSettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    setting = models.ForeignKey(PluginSetting)
-
-    translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
-    )
-
-    def __repr__(self):
-        return "{0}, {1}".format(self.setting.name, self.value)
-
-    def __str__(self):
-        return "[{0}]: {1}".format(self.journal, self.setting.name)
-
-    @property
-    def processed_value(self):
-        return self.process_value()
-
-    def process_value(self):
-        """ Converts string values of settings to proper values
-
-        :return: a value
-        """
-
-        if self.setting.types == 'boolean' and self.value == 'on':
-            return True
-        elif self.setting.types == 'boolean':
-            return False
-        elif self.setting.types == 'number':
-            try:
-                return int(self.value)
-            except BaseException:
-                return 0
-        elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
-        else:
-            return self.value
 
 
 class ImportCacheEntry(models.Model):

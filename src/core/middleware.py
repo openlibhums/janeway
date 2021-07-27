@@ -35,7 +35,7 @@ def get_site_resources(request):
     :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
     """
     journal = press = redirect_obj = None
-    try: # try journal site
+    try:  # try journal site
         if settings.URL_CONFIG == 'path':
             code = request.path.split('/')[1]
             journal = journal_models.Journal.objects.get(code=code)

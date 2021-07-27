@@ -1,0 +1,2625 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: POEditor.com\n"
+"Project-Id-Version: Janeway\n"
+"Language: nl\n"
+
+#: src/core/janeway_global_settings.py:234
+msgid "English"
+msgstr "Engels"
+
+#: src/core/janeway_global_settings.py:235
+msgid "French"
+msgstr "Frans"
+
+#: src/core/janeway_global_settings.py:236
+msgid "German"
+msgstr "Duits"
+
+#: src/core/forms.py:88
+msgid "Password 1"
+msgstr "Wachtwoord 1"
+
+#: src/core/forms.py:89
+msgid "Password 2"
+msgstr "Wachtwoord 2"
+
+#: src/core/homepage_elements/carousel/models.py:9
+msgid "Off"
+msgstr "Uit"
+
+#: src/core/homepage_elements/carousel/models.py:10
+msgid "Latest Articles"
+msgstr "Laatste artikels"
+
+#: src/themes/OLH/templates/core/nav.html:8
+#: src/themes/OLH/templates/core/news/index.html:5
+#: src/themes/OLH/templates/core/news/index.html:10
+#: src/themes/OLH/templates/core/news/item.html:5
+#: src/themes/OLH/templates/core/news/item.html:53
+#: src/themes/OLH/templates/press/core/news/index.html:5
+#: src/themes/OLH/templates/press/core/news/index.html:10
+#: src/themes/OLH/templates/press/core/news/item.html:5
+#: src/themes/clean/templates/core/nav.html:18
+#: src/themes/material/templates/core/nav.html:26
+#: src/themes/material/templates/core/nav.html:72
+#: src/themes/material/templates/core/news/index.html:5
+#: src/themes/material/templates/core/news/index.html:10
+#: src/themes/material/templates/core/news/item.html:5
+#: src/themes/material/templates/press/core/news/index.html:5
+#: src/themes/material/templates/press/core/news/index.html:10
+#: src/themes/material/templates/press/core/news/item.html:5
+msgid "News"
+msgstr "Nieuws"
+
+#: src/core/homepage_elements/carousel/models.py:12
+msgid "Selected Articles"
+msgstr "Geselecteerde artikels"
+
+#: src/core/homepage_elements/carousel/models.py:13
+msgid "Latest Articles and News"
+msgstr "Laatste artikels en nieuws"
+
+#: src/core/homepage_elements/carousel/models.py:14
+msgid "Selected Articles and News"
+msgstr "Laatste artikels en nieuws"
+
+#: src/core/models.py:190 src/templates/admin/submission/submit_authors.html:65
+#: src/themes/OLH/templates/core/accounts/get_reset_token.html:26
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:29
+#: src/themes/OLH/templates/preprints/authors.html:57
+#: src/themes/OLH/templates/press/core/login.html:27
+#: src/themes/clean/templates/core/accounts/get_reset_token.html:16
+#: src/themes/material/templates/core/accounts/get_reset_token.html:18
+msgid "Email"
+msgstr "E-mail"
+
+#: src/core/models.py:191
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: src/core/models.py:193
+msgid "First name"
+msgstr "Voornaam"
+
+#: src/core/models.py:194
+msgid "Middle name"
+msgstr "Tweede naam"
+
+#: src/core/models.py:195
+msgid "Last name"
+msgstr "Familienaam"
+
+#: src/core/models.py:199
+msgid "Salutation"
+msgstr "Aanspreking"
+
+#: src/core/models.py:200
+#: src/themes/OLH/templates/core/accounts/public_profile.html:19
+#: src/themes/material/templates/core/accounts/public_profile.html:19
+msgid "Biography"
+msgstr "Biografie"
+
+#: src/core/models.py:201
+msgid "ORCiD"
+msgstr "ORCiD"
+
+#: src/core/models.py:202
+msgid "Institution"
+msgstr "Instelling"
+
+#: src/core/models.py:203
+msgid "Department"
+msgstr "Departement"
+
+#: src/core/models.py:215
+#: src/themes/OLH/templates/core/accounts/public_profile.html:15
+#: src/themes/clean/templates/core/accounts/public_profile.html:15
+#: src/themes/material/templates/core/accounts/public_profile.html:15
+msgid "Country"
+msgstr "Land"
+
+#: src/core/models.py:706 src/core/models.py:857
+#: src/templates/admin/submission/submit_files.html:42
+#: src/templates/admin/submission/submit_files.html:81
+#: src/templates/admin/submission/submit_review.html:84
+#: src/templates/admin/submission/submit_review.html:104
+#: src/themes/OLH/templates/preprints/review.html:76
+#: src/themes/OLH/templates/preprints/review.html:95
+#: src/themes/OLH/templates/preprints/submit_files.html:38
+#: src/themes/OLH/templates/preprints/submit_files.html:74
+msgid "Label"
+msgstr "Label"
+
+#: src/core/models.py:707 src/core/models.py:858
+msgid "Description"
+msgstr "Beschrijving"
+
+#: src/core/models.py:1154
+msgid "Your contact email address"
+msgstr "Uw contact e-mailadres"
+
+#: src/core/models.py:1155
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: src/core/models.py:1156
+msgid "Your message"
+msgstr "Uw bericht"
+
+#: src/core/forms.py:114 src/core/forms.py:416 src/journal/forms.py:53
+msgid "What is %(num1)i %(operator)s %(num2)i? "
+msgstr "Wat is %(num1)i %(operator)s %(num2)i? "
+
+#: src/core/forms.py:115 src/journal/forms.py:54
+msgid "Answer this question: "
+msgstr "Beantwoord deze vraag: "
+
+#: src/journal/views.py:1660
+msgid "You must login before you can become a reviewer. Click the button below to login."
+msgstr "U dient ingelogd te zijn om een reviewer te worden. Klik op de knop hieronder om in te loggen."
+
+#: src/journal/views.py:1665
+msgid "You are not yet a reviewer for this journal. Click the button below to become a reviewer."
+msgstr "U bent geen reviewer voor dit tijdschrift. Klik op de knop hieronder om reviewer te worden."
+
+#: src/journal/views.py:1670
+msgid "You are already a reviewer."
+msgstr "U bent al een reviewer."
+
+#: src/journal/views.py:1677
+msgid "You are now a reviewer"
+msgstr "U bent nu een reviewer"
+
+#: src/preprint/forms.py:19 src/submission/forms.py:76
+#: src/templates/admin/submission/submit_review.html:30
+#: src/themes/OLH/templates/journal/articles.html:66
+#: src/themes/OLH/templates/preprints/list.html:67
+#: src/themes/OLH/templates/preprints/review.html:25
+#: src/themes/OLH/templates/preprints/search.html:52
+#: src/themes/clean/templates/journal/articles.html:63
+#: src/themes/material/templates/journal/articles.html:90
+#: src/themes/material/templates/preprints/list.html:78
+msgid "Title"
+msgstr "Titel"
+
+#: src/preprint/forms.py:20 src/submission/forms.py:77
+#: src/templates/admin/submission/submit_review.html:31
+#: src/themes/OLH/templates/preprints/review.html:26
+msgid "Subtitle"
+msgstr "Ondertitel"
+
+#: src/preprint/forms.py:22 src/submission/forms.py:80
+msgid "Enter your article's abstract here"
+msgstr "Geef hier de samenvatting van uw artikel in"
+
+#: src/submission/models.py:360
+msgid "Your article title"
+msgstr "Titel van uw artikel"
+
+#: src/submission/models.py:362
+msgid "Subtitle of the article display format; Title: Subtitle"
+msgstr "Ondertitel van het artikel weergave formaat: Titel: Ondertitel"
+
+#: src/submission/models.py:375
+msgid "The primary language of the article"
+msgstr "De primaire taal van het artikel"
+
+#: src/templates/admin/elements/publisher_notes.html:34
+msgid "Add A Publisher Note"
+msgstr "Uitgeversnotitie toevoegen"
+
+#: src/templates/admin/elements/publisher_notes.html:43
+msgid "Add Publisher Note"
+msgstr "Uitgeversnotitie toevoegen"
+
+#: src/templates/admin/elements/publisher_notes.html:54
+msgid "Edit A Publisher Note"
+msgstr "Uitgeversnotitie bewerken"
+
+#: src/templates/admin/elements/publisher_notes.html:63
+msgid "Save Publisher Note"
+msgstr "Uitgeversnotitie opslaan"
+
+#: src/themes/OLH/templates/core/accounts/get_reset_token.html:25
+#: src/themes/clean/templates/core/accounts/get_reset_token.html:15
+#: src/themes/material/templates/core/accounts/get_reset_token.html:14
+msgid "Enter your email address to begin the reset process"
+msgstr "Geef uw e-mailadres in om het reset proces te beginnen"
+
+#: src/themes/OLH/templates/core/accounts/get_reset_token.html:27
+msgid "somebody"
+msgstr "iemand"
+
+#: src/themes/OLH/templates/core/accounts/get_reset_token.html:29
+#: src/themes/clean/templates/core/accounts/get_reset_token.html:21
+#: src/themes/material/templates/core/accounts/get_reset_token.html:21
+msgid "Request Token"
+msgstr "Token aanvragen"
+
+#: src/templates/admin/journal/submissions.html:34
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:48
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:50
+#: src/themes/OLH/templates/core/accounts/register.html:6
+#: src/themes/OLH/templates/core/accounts/register.html:83
+#: src/themes/OLH/templates/core/base.html:111
+#: src/themes/OLH/templates/core/nav.html:77
+#: src/themes/OLH/templates/journal/submissions.html:30
+#: src/themes/OLH/templates/press/nav.html:59
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:41
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:43
+#: src/themes/clean/templates/core/accounts/register.html:6
+#: src/themes/clean/templates/core/accounts/register.html:34
+#: src/themes/clean/templates/core/nav.html:103
+#: src/themes/clean/templates/journal/submissions.html:14
+#: src/themes/material/templates/core/accounts/register.html:7
+#: src/themes/material/templates/core/accounts/register.html:32
+#: src/themes/material/templates/core/nav.html:63
+#: src/themes/material/templates/core/nav.html:105
+#: src/themes/material/templates/journal/submissions.html:33
+#: src/themes/material/templates/press/nav.html:40
+#: src/themes/material/templates/press/nav.html:64
+msgid "Register"
+msgstr "Registreren"
+
+#: src/themes/OLH/templates/core/accounts/reset_password.html:26
+#: src/themes/clean/templates/core/accounts/reset_password.html:16
+#: src/themes/material/templates/core/accounts/reset_password.html:16
+msgid "Enter your new password twice to complete the reset process"
+msgstr "Geef uw wachtwoord twee keer in om het reset proces te voltooien"
+
+#: src/themes/OLH/templates/core/accounts/reset_password.html:6
+#: src/themes/OLH/templates/core/accounts/reset_password.html:33
+#: src/themes/clean/templates/core/accounts/get_reset_token.html:4
+#: src/themes/clean/templates/core/accounts/reset_password.html:5
+#: src/themes/clean/templates/core/accounts/reset_password.html:25
+#: src/themes/material/templates/core/accounts/get_reset_token.html:4
+#: src/themes/material/templates/core/accounts/reset_password.html:5
+#: src/themes/material/templates/core/accounts/reset_password.html:24
+msgid "Reset Password"
+msgstr "Wachtwoord opnieuw instellen"
+
+#: src/templates/admin/journal/submissions.html:35
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:28
+#: src/themes/OLH/templates/core/base.html:111
+#: src/themes/OLH/templates/core/login.html:6
+#: src/themes/OLH/templates/core/nav.html:76
+#: src/themes/OLH/templates/elements/journal_footer.html:16
+#: src/themes/OLH/templates/journal/become_reviewer.html:16
+#: src/themes/OLH/templates/journal/submissions.html:31
+#: src/themes/OLH/templates/press/core/login.html:5
+#: src/themes/OLH/templates/press/elements/press_footer.html:15
+#: src/themes/OLH/templates/press/nav.html:58
+#: src/themes/clean/templates/core/login.html:6
+#: src/themes/clean/templates/core/nav.html:102
+#: src/themes/clean/templates/journal/become_reviewer.html:13
+#: src/themes/clean/templates/journal/submissions.html:15
+#: src/themes/material/templates/core/login.html:6
+#: src/themes/material/templates/core/login.html:32
+#: src/themes/material/templates/core/nav.html:62
+#: src/themes/material/templates/core/nav.html:104
+#: src/themes/material/templates/journal/become_reviewer.html:16
+#: src/themes/material/templates/journal/submissions.html:34
+#: src/themes/material/templates/press/nav.html:39
+#: src/themes/material/templates/press/nav.html:63
+msgid "Login"
+msgstr "Inloggen"
+
+#: src/themes/OLH/templates/core/accounts/register.html:79
+#: src/themes/OLH/templates/elements/journal_footer.html:10
+#: src/themes/OLH/templates/elements/journal_footer.html:12
+#: src/themes/OLH/templates/press/elements/press_footer.html:9
+#: src/themes/OLH/templates/press/elements/press_footer.html:11
+#: src/themes/clean/templates/core/accounts/register.html:31
+#: src/themes/clean/templates/elements/journal_footer.html:19
+#: src/themes/clean/templates/elements/journal_footer.html:23
+#: src/themes/clean/templates/elements/press_footer.html:9
+#: src/themes/clean/templates/elements/press_footer.html:11
+#: src/themes/material/templates/core/accounts/register.html:30
+msgid "Privacy Policy"
+msgstr "Privacybeleid"
+
+#: src/themes/OLH/templates/elements/journal_footer.html:14
+#: src/themes/OLH/templates/press/elements/press_footer.html:13
+#: src/themes/clean/templates/elements/journal_footer.html:25
+#: src/themes/clean/templates/elements/press_footer.html:13
+msgid "Sitemap"
+msgstr "Sitemap"
+
+#: src/themes/OLH/templates/core/nav.html:41
+#: src/themes/OLH/templates/elements/journal_footer.html:15
+#: src/themes/OLH/templates/journal/contact.html:6
+#: src/themes/OLH/templates/journal/contact.html:31
+#: src/themes/OLH/templates/press/elements/press_footer.html:14
+#: src/themes/OLH/templates/press/journal/contact.html:5
+#: src/themes/OLH/templates/press/journal/contact.html:18
+#: src/themes/OLH/templates/press/nav.html:41
+#: src/themes/clean/templates/core/nav.html:67
+#: src/themes/clean/templates/elements/journal_footer.html:26
+#: src/themes/clean/templates/elements/press_footer.html:14
+#: src/themes/clean/templates/journal/contact.html:6
+#: src/themes/clean/templates/journal/contact.html:26
+#: src/themes/material/templates/core/nav.html:41
+#: src/themes/material/templates/core/nav.html:87
+#: src/themes/material/templates/journal/contact.html:6
+#: src/themes/material/templates/journal/contact.html:43
+msgid "Contact"
+msgstr "Contacteer"
+
+#: src/themes/OLH/templates/core/login.html:32
+#: src/themes/OLH/templates/press/core/login.html:25
+#: src/themes/clean/templates/core/login.html:19
+msgid "Log in with your account"
+msgstr "Inloggen met uw account"
+
+#: src/themes/OLH/templates/core/login.html:33
+#: src/themes/clean/templates/core/login.html:21
+#: src/themes/material/templates/core/login.html:37
+msgid "Log in with ORCiD"
+msgstr "Inloggen met ORCiD"
+
+#: src/themes/OLH/templates/core/login.html:42
+#: src/themes/clean/templates/core/login.html:38
+msgid "Log in"
+msgstr "Inloggen"
+
+#: src/themes/OLH/templates/core/login.html:43
+#: src/themes/clean/templates/core/login.html:42
+msgid "Forgotten your password?"
+msgstr "Wachtwoord vergeten?"
+
+#: src/themes/OLH/templates/elements/journal/article_issue_list.html:4
+#: src/themes/OLH/templates/journal/issue.html:4
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:8
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:12
+#: src/themes/material/templates/journal/issue.html:3
+msgid "Issue"
+msgstr "Nummer"
+
+#: src/templates/admin/elements/submit/author.html:8
+#: src/templates/admin/submission/submit_authors.html:49
+#: src/themes/OLH/templates/elements/submit/author.html:8
+#: src/themes/OLH/templates/preprints/authors.html:42
+#: src/themes/OLH/templates/preprints/authors.html:44
+msgid "Add New Author"
+msgstr "Nieuwe auteur toevoegen"
+
+#: src/templates/admin/elements/submit/author.html:64
+#: src/themes/OLH/templates/elements/submit/author.html:64
+msgid "Add Author"
+msgstr "Auteur toevoegen"
+
+#: src/templates/admin/elements/submit/file.html:7
+#: src/themes/OLH/templates/elements/submit/file.html:6
+#: src/themes/OLH/templates/elements/submit/preprint_file.html:6
+msgid "Add New File"
+msgstr "Nieuw bestand toevoegen"
+
+#: src/templates/admin/elements/submit/file.html:12
+#: src/themes/OLH/templates/elements/submit/file.html:8
+msgid "Please supply any original figure files or supporting information. The journal urges you to submit this document to a repository such as Figshare so that a DOI can be assigned to it, but this is not required."
+msgstr ""
+
+#: src/templates/admin/elements/submit/file.html:61
+#: src/themes/OLH/templates/elements/submit/file.html:25
+#: src/themes/OLH/templates/elements/submit/preprint_file.html:25
+msgid "Add File"
+msgstr "Bestand toevoegen"
+
+#: src/themes/OLH/templates/journal/article.html:39
+#: src/themes/OLH/templates/journal/article.html:217
+#: src/themes/OLH/templates/journal/authors.html:4
+#: src/themes/OLH/templates/journal/authors.html:5
+#: src/themes/OLH/templates/journal/authors.html:11
+#: src/themes/OLH/templates/journal/print.html:15
+#: src/themes/OLH/templates/preprints/article.html:23
+#: src/themes/clean/templates/journal/article.html:35
+#: src/themes/clean/templates/journal/article.html:103
+#: src/themes/clean/templates/journal/print.html:15
+#: src/themes/material/templates/journal/article.html:190
+#: src/themes/material/templates/preprints/article.html:28
+msgid "Authors"
+msgstr "Auteurs"
+
+#: src/themes/OLH/templates/journal/article.html:39
+#: src/themes/OLH/templates/journal/print.html:15
+#: src/themes/clean/templates/journal/article.html:36
+#: src/themes/clean/templates/journal/print.html:15
+msgid "Author"
+msgstr "Auteur"
+
+#: src/themes/OLH/templates/journal/article.html:82
+msgid "Share"
+msgstr "Delen"
+
+#: src/themes/OLH/templates/journal/article.html:96
+msgid "Dyslexia"
+msgstr "Dyslexie"
+
+#: src/themes/OLH/templates/journal/article.html:100
+#: src/themes/OLH/templates/journal/article.html:101
+#: src/themes/OLH/templates/journal/article.html:102
+#: src/themes/OLH/templates/press/press_journals.html:61
+#: src/themes/OLH/templates/press/press_journals.html:68
+#: src/themes/clean/templates/journal/article.html:123
+#: src/themes/material/templates/journal/article.html:223
+msgid "View"
+msgstr "Bekijken"
+
+#: src/templates/admin/submission/submit_review.html:41
+#: src/themes/OLH/templates/journal/article.html:123
+#: src/themes/OLH/templates/journal/print.html:30
+#: src/themes/OLH/templates/preprints/article.html:38
+#: src/themes/OLH/templates/preprints/review.html:33
+#: src/themes/clean/templates/journal/article.html:71
+#: src/themes/clean/templates/journal/print.html:30
+#: src/themes/material/templates/journal/article.html:72
+#: src/themes/material/templates/preprints/article.html:43
+msgid "Abstract"
+msgstr "Samenvatting"
+
+#: src/templates/admin/submission/submit_info.html:68
+#: src/themes/OLH/templates/journal/article.html:126
+#: src/themes/OLH/templates/journal/keywords.html:6
+#: src/themes/OLH/templates/journal/keywords.html:12
+#: src/themes/OLH/templates/journal/print.html:33
+#: src/themes/OLH/templates/journal/search.html:56
+#: src/themes/OLH/templates/preprints/list.html:68
+#: src/themes/OLH/templates/preprints/search.html:53
+#: src/themes/clean/templates/journal/article.html:74
+#: src/themes/clean/templates/journal/keywords.html:4
+#: src/themes/clean/templates/journal/keywords.html:5
+#: src/themes/clean/templates/journal/print.html:33
+#: src/themes/clean/templates/journal/search.html:46
+#: src/themes/material/templates/journal/article.html:81
+#: src/themes/material/templates/journal/keywords.html:4
+#: src/themes/material/templates/journal/keywords.html:5
+#: src/themes/material/templates/journal/search.html:50
+#: src/themes/material/templates/preprints/list.html:79
+msgid "Keywords"
+msgstr "Trefwoorden"
+
+#: src/themes/OLH/templates/journal/article.html:128
+#: src/themes/OLH/templates/journal/print.html:35
+#: src/themes/clean/templates/journal/article.html:78
+#: src/themes/clean/templates/journal/print.html:35
+#: src/themes/material/templates/journal/article.html:89
+msgid "How to Cite"
+msgstr "Hoe citeren"
+
+#: src/themes/OLH/templates/journal/article.html:133
+#: src/themes/clean/templates/journal/article.html:83
+#: src/themes/material/templates/journal/article.html:98
+msgid "Publisher Notes"
+msgstr "Uitgeversnotities"
+
+#: src/themes/OLH/templates/journal/article.html:161
+#: src/themes/OLH/templates/preprints/article.html:114
+#: src/themes/clean/templates/journal/article.html:166
+#: src/themes/material/templates/journal/article.html:127
+#: src/themes/material/templates/preprints/article.html:132
+msgid "Views"
+msgstr "Views"
+
+#: src/themes/OLH/templates/elements/journal/issue_sidebar.html:6
+#: src/themes/OLH/templates/journal/article.html:167
+#: src/themes/OLH/templates/preprints/article.html:115
+#: src/themes/clean/templates/elements/journal/issue_sidebar.html:5
+#: src/themes/clean/templates/journal/article.html:167
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:4
+#: src/themes/material/templates/journal/article.html:133
+#: src/themes/material/templates/preprints/article.html:133
+msgid "Downloads"
+msgstr "Downloads"
+
+#: src/themes/OLH/templates/journal/article.html:183
+#: src/themes/OLH/templates/preprints/article.html:105
+#: src/themes/clean/templates/journal/article.html:142
+#: src/themes/material/templates/preprints/article.html:123
+msgid "Published on"
+msgstr "Gepubliceerd op"
+
+#: src/templates/admin/journal/submissions.html:91
+#: src/themes/OLH/templates/journal/article.html:191
+#: src/themes/OLH/templates/journal/submissions.html:89
+#: src/themes/clean/templates/journal/article.html:146
+#: src/themes/clean/templates/journal/submissions.html:66
+#: src/themes/material/templates/journal/submissions.html:103
+msgid "Peer Reviewed"
+msgstr "Peer reviewed"
+
+#: src/themes/OLH/templates/journal/article.html:194
+#: src/themes/OLH/templates/preprints/article.html:106
+#: src/themes/clean/templates/journal/article.html:149
+#: src/themes/material/templates/preprints/article.html:124
+msgid "License"
+msgstr "Licentie"
+
+#: src/themes/OLH/templates/journal/article.html:6
+#: src/themes/material/templates/journal/article.html:7
+msgid "Article"
+msgstr "Artikel"
+
+#: src/themes/OLH/templates/journal/article.html:226
+#: src/themes/OLH/templates/journal/article.html:230
+#: src/themes/OLH/templates/preprints/article.html:95
+#: src/themes/OLH/templates/preprints/article.html:99
+#: src/themes/OLH/templates/preprints/article.html:138
+#: src/themes/clean/templates/journal/article.html:114
+#: src/themes/clean/templates/journal/article.html:119
+#: src/themes/material/templates/journal/article.html:213
+#: src/themes/material/templates/journal/article.html:219
+#: src/themes/material/templates/preprints/article.html:113
+#: src/themes/material/templates/preprints/article.html:117
+#: src/themes/material/templates/preprints/article.html:139
+msgid "Download"
+msgstr "Download"
+
+#: src/themes/OLH/templates/journal/article.html:269
+msgid "Jump to"
+msgstr "Spring naar"
+
+#: src/themes/OLH/templates/core/nav.html:24
+#: src/themes/OLH/templates/journal/articles.html:7
+#: src/themes/OLH/templates/journal/articles.html:23
+#: src/themes/OLH/templates/journal/search.html:26
+#: src/themes/clean/templates/core/nav.html:21
+#: src/themes/clean/templates/journal/articles.html:5
+#: src/themes/clean/templates/journal/articles.html:10
+#: src/themes/material/templates/core/nav.html:29
+#: src/themes/material/templates/core/nav.html:75
+#: src/themes/material/templates/journal/articles.html:6
+#: src/themes/material/templates/journal/articles.html:8
+#: src/themes/material/templates/journal/articles.html:13
+#: src/themes/material/templates/journal/search.html:19
+msgid "Articles"
+msgstr "Artikels"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:19
+#: src/themes/OLH/templates/journal/articles.html:51
+#: src/themes/clean/templates/journal/articles.html:48
+#: src/themes/material/templates/journal/articles.html:82
+msgid "Show"
+msgstr "Tonen"
+
+#: src/themes/OLH/templates/journal/articles.html:61
+#: src/themes/clean/templates/journal/articles.html:58
+#: src/themes/material/templates/journal/articles.html:85
+msgid "Sort"
+msgstr "Sorteren"
+
+#: src/themes/OLH/templates/journal/articles.html:64
+#: src/themes/clean/templates/journal/articles.html:61
+#: src/themes/material/templates/journal/articles.html:88
+msgid "Date"
+msgstr "Datum"
+
+#: src/themes/OLH/templates/journal/articles.html:71
+#: src/themes/OLH/templates/journal/articles.html:79
+#: src/themes/OLH/templates/journal/search.html:52
+#: src/themes/OLH/templates/press/press_journals.html:88
+#: src/themes/OLH/templates/press/press_journals.html:89
+#: src/themes/clean/templates/journal/articles.html:79
+#: src/themes/clean/templates/journal/search.html:60
+#: src/themes/material/templates/journal/articles.html:95
+#: src/themes/material/templates/journal/articles.html:106
+msgid "Filter"
+msgstr "Filter"
+
+#: src/themes/OLH/templates/journal/articles.html:80
+#: src/themes/clean/templates/journal/articles.html:82
+#: src/themes/material/templates/journal/articles.html:109
+msgid "Clear Filters"
+msgstr "Verwijder filters"
+
+#: src/themes/OLH/templates/core/nav.html:44
+#: src/themes/OLH/templates/journal/become_reviewer.html:5
+#: src/themes/OLH/templates/journal/become_reviewer.html:10
+#: src/themes/OLH/templates/journal/become_reviewer.html:20
+#: src/themes/clean/templates/core/nav.html:73
+#: src/themes/clean/templates/journal/become_reviewer.html:4
+#: src/themes/clean/templates/journal/become_reviewer.html:5
+#: src/themes/clean/templates/journal/become_reviewer.html:17
+#: src/themes/material/templates/core/nav.html:55
+#: src/themes/material/templates/journal/become_reviewer.html:4
+#: src/themes/material/templates/journal/become_reviewer.html:5
+#: src/themes/material/templates/journal/become_reviewer.html:10
+#: src/themes/material/templates/journal/become_reviewer.html:21
+msgid "Become a Reviewer"
+msgstr "Reviewer worden"
+
+#: src/themes/OLH/templates/journal/contact.html:17
+#: src/themes/material/templates/journal/contact.html:19
+msgid "Journal Representatives"
+msgstr "Vertegenwoordigers van het tijdschrift"
+
+#: src/themes/OLH/templates/journal/contact.html:19
+#: src/themes/OLH/templates/press/journal/contact.html:11
+#: src/themes/material/templates/journal/contact.html:21
+msgid "Press Representatives"
+msgstr "Vertegenwoordigers van de uitgever"
+
+#: src/themes/OLH/templates/journal/contact.html:35
+#: src/themes/OLH/templates/press/journal/contact.html:22
+#: src/themes/clean/templates/journal/contact.html:32
+msgid "Who would you like to contact?"
+msgstr "Wie wilt u contacteren?"
+
+#: src/themes/OLH/templates/journal/contact.html:44
+#: src/themes/OLH/templates/press/journal/contact.html:30
+#: src/themes/clean/templates/journal/contact.html:42
+#: src/themes/material/templates/journal/contact.html:51
+msgid "Send Message"
+msgstr "Bericht versturen"
+
+#: src/core/homepage_elements/about/hooks.py:23
+msgid "About this Journal"
+msgstr "Over dit tijdschrift"
+
+#: src/themes/OLH/templates/journal/homepage_elements/featured.html:6
+#: src/themes/clean/templates/journal/homepage_elements/featured.html:6
+#: src/themes/clean/templates/journal/homepage_elements/popular.html:9
+#: src/themes/material/templates/journal/homepage_elements/featured.html:6
+msgid "Featured Articles"
+msgstr "Uitgelichte artikels"
+
+#: src/core/homepage_elements/carousel/models.py:11
+#: src/themes/OLH/templates/journal/homepage_elements/news.html:9
+#: src/themes/clean/templates/journal/homepage_elements/news.html:8
+#: src/themes/material/templates/journal/homepage_elements/news.html:11
+msgid "Latest News"
+msgstr "Laatste nieuws"
+
+#: src/themes/OLH/templates/core/news/item.html:39
+#: src/themes/OLH/templates/journal/homepage_elements/news.html:13
+#: src/themes/OLH/templates/press/core/news/item.html:33
+#: src/themes/material/templates/core/news/index.html:28
+#: src/themes/material/templates/core/news/item.html:21
+#: src/themes/material/templates/journal/homepage_elements/news.html:17
+#: src/themes/material/templates/press/core/news/index.html:26
+#: src/themes/material/templates/press/core/news/item.html:21
+msgid "Posted by"
+msgstr "Geplaatst door"
+
+#: src/themes/OLH/templates/core/news/index.html:30
+#: src/themes/OLH/templates/journal/homepage_elements/news.html:15
+#: src/themes/OLH/templates/press/core/news/index.html:30
+#: src/themes/material/templates/core/news/index.html:32
+#: src/themes/material/templates/journal/homepage_elements/news.html:23
+#: src/themes/material/templates/press/core/news/index.html:30
+msgid "Read More"
+msgstr "Lees meer"
+
+#: src/themes/OLH/templates/journal/homepage_elements/news.html:18
+msgid "This journal currently has no news items to display"
+msgstr "Dit tijdschrift heeft momenteel geen nieuwsitems om weer te geven"
+
+#: src/themes/OLH/templates/elements/journal/issue_sidebar.html:10
+#: src/themes/clean/templates/elements/journal/issue_sidebar.html:9
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:17
+msgid "Issue Archive"
+msgstr "Alle nummers"
+
+#: src/themes/OLH/templates/core/nav.html:25
+#: src/themes/OLH/templates/elements/journal/article_issue_list.html:4
+#: src/themes/OLH/templates/journal/issues.html:6
+#: src/themes/OLH/templates/journal/issues.html:8
+#: src/themes/OLH/templates/journal/issues.html:15
+#: src/themes/clean/templates/core/nav.html:24
+#: src/themes/clean/templates/journal/issues.html:6
+#: src/themes/clean/templates/journal/issues.html:12
+#: src/themes/material/templates/core/nav.html:32
+#: src/themes/material/templates/core/nav.html:78
+#: src/themes/material/templates/journal/issues.html:6
+#: src/themes/material/templates/journal/issues.html:14
+msgid "Issues"
+msgstr "Nummers"
+
+#: src/themes/OLH/templates/journal/issues.html:25
+#: src/themes/clean/templates/journal/issues.html:19
+#: src/themes/clean/templates/journal/issues.html:28
+#: src/themes/material/templates/journal/issues.html:29
+#: src/themes/material/templates/journal/issues.html:32
+msgid "items"
+msgstr "Items"
+
+#: src/templates/admin/submission/submit_authors.html:35
+#: src/themes/OLH/templates/journal/search.html:8
+#: src/themes/OLH/templates/preprints/authors.html:37
+#: src/themes/clean/templates/journal/search.html:7
+#: src/themes/clean/templates/journal/search.html:9
+#: src/themes/material/templates/journal/articles.html:68
+#: src/themes/material/templates/journal/search.html:7
+#: src/themes/material/templates/journal/search.html:59
+msgid "Search"
+msgstr "Zoeken"
+
+#: src/themes/OLH/templates/journal/submissions.html:5
+#: src/themes/OLH/templates/journal/submissions.html:22
+#: src/themes/clean/templates/journal/submissions.html:5
+#: src/themes/clean/templates/journal/submissions.html:10
+#: src/themes/material/templates/journal/submissions.html:6
+#: src/themes/material/templates/journal/submissions.html:23
+msgid "Submissions"
+msgstr "Inzendingen"
+
+#: src/templates/admin/journal/submissions.html:36
+#: src/templates/admin/submission/start.html:84
+#: src/themes/OLH/templates/core/nav.html:43
+#: src/themes/OLH/templates/journal/submissions.html:32
+#: src/themes/OLH/templates/preprints/submit_start.html:97
+#: src/themes/clean/templates/core/nav.html:70
+#: src/themes/clean/templates/journal/submissions.html:16
+#: src/themes/material/templates/journal/submissions.html:35
+msgid "Start Submission"
+msgstr "Inzending starten"
+
+#: src/templates/admin/journal/submissions.html:41
+#: src/themes/OLH/templates/journal/submissions.html:37
+#: src/themes/OLH/templates/preprints/about.html:15
+#: src/themes/clean/templates/journal/submissions.html:20
+#: src/themes/material/templates/journal/submissions.html:41
+#: src/themes/material/templates/preprints/about.html:4
+#: src/themes/material/templates/preprints/about.html:9
+#: src/themes/material/templates/press/nav.html:99
+#: src/themes/material/templates/press/nav.html:108
+msgid "About"
+msgstr "Over"
+
+#: src/templates/admin/journal/submissions.html:46
+#: src/themes/OLH/templates/journal/submissions.html:42
+#: src/themes/clean/templates/journal/submissions.html:25
+#: src/themes/material/templates/journal/submissions.html:47
+msgid "Focus and Scope for"
+msgstr "Focus en scope voor"
+
+#: src/templates/admin/journal/submissions.html:51
+#: src/templates/admin/submission/start.html:43
+#: src/themes/OLH/templates/journal/submissions.html:47
+#: src/themes/clean/templates/journal/submissions.html:35
+#: src/themes/material/templates/journal/submissions.html:53
+msgid "Submission Checklist"
+msgstr "Checklist voor inzending"
+
+#: src/templates/admin/journal/submissions.html:61
+#: src/templates/admin/submission/start.html:55
+#: src/themes/OLH/templates/journal/submissions.html:57
+#: src/themes/clean/templates/journal/submissions.html:40
+#: src/themes/material/templates/journal/submissions.html:65
+msgid "Copyright Notice"
+msgstr "Copyright verklaring"
+
+#: src/templates/admin/journal/submissions.html:70
+#: src/templates/admin/submission/start.html:30
+#: src/themes/OLH/templates/journal/submissions.html:66
+#: src/themes/clean/templates/journal/submissions.html:49
+#: src/themes/material/templates/journal/submissions.html:76
+msgid "Publication Fees"
+msgstr "Publicatiekosten"
+
+#: src/templates/admin/journal/submissions.html:75
+#: src/themes/OLH/templates/journal/submissions.html:71
+#: src/themes/clean/templates/journal/submissions.html:30
+#: src/themes/material/templates/journal/article.html:298
+#: src/themes/material/templates/journal/submissions.html:83
+msgid "Peer Review"
+msgstr "Peer review"
+
+#: src/templates/admin/journal/submissions.html:79
+#: src/themes/OLH/templates/journal/submissions.html:76
+#: src/themes/clean/templates/journal/submissions.html:54
+#: src/themes/material/templates/journal/submissions.html:89
+msgid "Publication Cycle"
+msgstr "Publicatie cyclus"
+
+#: src/templates/admin/journal/submissions.html:82
+#: src/themes/OLH/templates/journal/submissions.html:80
+#: src/themes/clean/templates/journal/submissions.html:58
+#: src/themes/material/templates/journal/submissions.html:94
+msgid "Sections"
+msgstr "Secties"
+
+#: src/templates/admin/submission/start.html:7
+msgid "Submit an Article"
+msgstr "Artikel inzenden"
+
+#: src/templates/admin/submission/start.html:9
+msgid "Author Agreement"
+msgstr "Auteur overeenkomst"
+
+#: src/templates/admin/submission/start.html:11
+msgid "Please carefully read through the statements below before checking items"
+msgstr "Lees de onderstaande verklaringen zorgvuldig door voordat u items controleert"
+
+#: src/templates/admin/submission/start.html:37
+msgid "Author(s) agrees to the above statement"
+msgstr "Auteur(s) gaat / gaan akkoord met de bovenstaande verklaring."
+
+#: src/templates/admin/submission/start.html:49
+msgid "Author(s) confirms that this article adheres to the above requirements"
+msgstr "Auteur(s) bevestigt / bevestigen dat dit artikel voldoet aan de bovenstaande vereisten"
+
+#: src/templates/admin/submission/start.html:67
+msgid "Competing Interests"
+msgstr "Strijdige belangen"
+
+#: src/templates/admin/submission/start.html:76
+msgid "Comments to the Editor"
+msgstr "Opmerkingen voor de redacteur"
+
+#: src/templates/admin/submission/submit_authors.html:5
+#: src/templates/admin/submission/timeline.html:20
+#: src/templates/admin/submission/timeline.html:21
+msgid "Author Information"
+msgstr "Auteur informatie"
+
+#: src/templates/admin/submission/submit_authors.html:18
+#: src/themes/OLH/templates/preprints/authors.html:22
+msgid "Search for Existing Authors"
+msgstr "Naar bestaande auteurs zoeken"
+
+#: src/templates/admin/submission/submit_authors.html:25
+#: src/themes/OLH/templates/preprints/authors.html:27
+msgid "Search for a user using email address or ORCiD. If a user is matched, they will be automatically added as an author. This search only returns exact matches."
+msgstr "Zoek een gebruiker met behulp van het e-mailadres of ORCiD. Als een gebruiker overeenkomt, wordt deze automatisch als auteur toegevoegd. Deze zoekopdracht levert alleen exacte overeenkomsten op."
+
+#: src/templates/admin/submission/submit_authors.html:31
+#: src/themes/OLH/templates/preprints/authors.html:33
+msgid "Search by email address or ORCiD"
+msgstr "Zoek op e-mailadres of ORCiD"
+
+#: src/templates/admin/submission/submit_authors.html:44
+msgid "By default, your account is the owner of this submission, but is not an Author on record. You can add yourself using the button below."
+msgstr ""
+
+#: src/templates/admin/submission/submit_authors.html:46
+msgid "Add Self as Author"
+msgstr "Uzelf toevoegen als auteur"
+
+#: src/templates/admin/submission/submit_authors.html:48
+#: src/themes/OLH/templates/preprints/authors.html:43
+msgid "If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details."
+msgstr ""
+
+#: src/templates/admin/submission/submit_authors.html:55
+#: src/themes/OLH/templates/preprints/authors.html:49
+msgid "Current Authors"
+msgstr "Huidige auteurs"
+
+#: src/templates/admin/submission/submit_authors.html:64
+#: src/templates/admin/submission/submit_funding.html:49
+#: src/themes/OLH/templates/preprints/authors.html:56
+msgid "Name"
+msgstr "Naam"
+
+#: src/templates/admin/submission/submit_authors.html:81
+#: src/themes/OLH/templates/preprints/authors.html:73
+msgid "No authors yet, add one!"
+msgstr "Nog geen auteurs, voeg er één toe!"
+
+#: src/templates/admin/submission/submit_authors.html:88
+msgid "You are required to select a main author, this author will receive the communications regarding your articles process through our systems. This does not have to be you."
+msgstr "U moet een hoofdauteur selecteren, deze auteur ontvangt de communicatie met betrekking tot de voortgang van uw artikel in ons systeem. Dit hoeft u niet te zijn."
+
+#: src/templates/admin/submission/submit_authors.html:89
+msgid "Select main author"
+msgstr "Hoofdauteur selecteren"
+
+#: src/templates/admin/submission/submit_authors.html:99
+#: src/templates/admin/submission/submit_files.html:113
+#: src/templates/admin/submission/submit_funding.html:75
+#: src/templates/admin/submission/submit_info.html:95
+#: src/themes/OLH/templates/preprints/authors.html:83
+#: src/themes/OLH/templates/preprints/submit_files.html:105
+msgid "Save and Continue"
+msgstr "Opslaan en doorgaan"
+
+#: src/templates/admin/submission/submit_files.html:23
+#: src/themes/OLH/templates/preprints/submit_files.html:21
+msgid "Submission guidelines"
+msgstr "Inzendingsrichtlijnen"
+
+#: src/templates/admin/submission/submit_files.html:23
+#: src/themes/OLH/templates/preprints/submit_files.html:21
+msgid "To upload a file, select it\n"
+"                    using one of the 'Choose file' buttons, then upload it with the 'Upload file' button next to it. You\n"
+"                    will then be asked for some additional information (label, description etc.)"
+msgstr "Om een bestand op te laden, selecteer het bestand door te klikken op 'Bestand kiezen', en laadt het dan op door te klikken op de knop 'Bestand opladen'. U wordt dan om wat aanvullende informatie gevraagd (label, beschirjving, etc.)"
+
+#: src/themes/OLH/templates/preprints/submit_files.html:24
+msgid "Manuscript File"
+msgstr "Manuscript-bestand"
+
+#: src/templates/admin/submission/submit_files.html:35
+#: src/templates/admin/submission/submit_files.html:75
+#: src/themes/OLH/templates/preprints/submit_files.html:31
+#: src/themes/OLH/templates/preprints/submit_files.html:68
+msgid "Upload"
+msgstr "Opladen"
+
+#: src/templates/admin/submission/submit_files.html:43
+#: src/templates/admin/submission/submit_files.html:82
+#: src/templates/admin/submission/submit_review.html:85
+#: src/templates/admin/submission/submit_review.html:105
+#: src/themes/OLH/templates/preprints/review.html:77
+#: src/themes/OLH/templates/preprints/review.html:96
+#: src/themes/OLH/templates/preprints/submit_files.html:39
+#: src/themes/OLH/templates/preprints/submit_files.html:75
+msgid "File Name"
+msgstr "Bestandsnaam"
+
+#: src/templates/admin/submission/submit_files.html:60
+#: src/templates/admin/submission/submit_files.html:98
+#: src/templates/admin/submission/submit_review.html:94
+#: src/templates/admin/submission/submit_review.html:114
+#: src/themes/OLH/templates/preprints/review.html:86
+#: src/themes/OLH/templates/preprints/review.html:105
+#: src/themes/OLH/templates/preprints/submit_files.html:56
+#: src/themes/OLH/templates/preprints/submit_files.html:91
+msgid "No files uploaded"
+msgstr "Geen bestanden opgeladen"
+
+#: src/templates/admin/submission/submit_funding.html:7
+#: src/templates/admin/submission/submit_info.html:7
+#: src/templates/admin/submission/submit_review.html:27
+#: src/themes/OLH/templates/preprints/review.html:22
+msgid "Article Info"
+msgstr "Artikel info"
+
+#: src/templates/admin/submission/submit_review.html:10
+#: src/templates/admin/submission/timeline.html:44
+#: src/templates/admin/submission/timeline.html:45
+#: src/themes/OLH/templates/preprints/review.html:11
+msgid "Review"
+msgstr "Review"
+
+#: src/templates/admin/submission/submit_review.html:24
+#: src/themes/OLH/templates/preprints/review.html:18
+msgid "Comments to Editor"
+msgstr "Opmerkingen voor de redacteur"
+
+#: src/templates/admin/submission/submit_review.html:49
+#: src/themes/OLH/templates/preprints/review.html:39
+msgid "Language"
+msgstr "Taal"
+
+#: src/templates/admin/submission/submit_review.html:50
+#: src/themes/OLH/templates/preprints/review.html:40
+#: src/themes/clean/templates/journal/submissions.html:64
+msgid "Section"
+msgstr "Sectie"
+
+#: src/templates/admin/submission/submit_review.html:51
+#: src/themes/OLH/templates/preprints/review.html:41
+#: src/themes/material/templates/journal/article.html:288
+msgid "Licence"
+msgstr "Licentie"
+
+#: src/templates/admin/submission/submit_review.html:60
+#: src/themes/OLH/templates/preprints/review.html:51
+msgid "Author Info"
+msgstr "Auteur info"
+
+#: src/templates/admin/submission/submit_review.html:70
+#: src/themes/OLH/templates/preprints/review.html:61
+msgid "No authors yet! Add one."
+msgstr "Nog geen auteurs! Auteur toevoegen."
+
+#: src/templates/admin/submission/submit_review.html:78
+#: src/templates/admin/submission/timeline.html:28
+#: src/templates/admin/submission/timeline.html:29
+#: src/themes/OLH/templates/preprints/review.html:70
+msgid "Article Files"
+msgstr "Artikel bestanden"
+
+#: src/templates/admin/submission/submit_review.html:81
+#: src/themes/OLH/templates/preprints/review.html:73
+msgid "Manuscript Files"
+msgstr "Manuscript-bestanden"
+
+#: src/templates/admin/submission/submit_review.html:101
+#: src/themes/OLH/templates/preprints/review.html:92
+msgid "Figure/Data"
+msgstr "Figuren/Data"
+
+#: src/templates/admin/submission/submit_review.html:125
+#: src/themes/OLH/templates/preprints/review.html:113
+#, fuzzy
+msgid "Complete"
+msgstr "Voltooien"
+
+#: src/templates/admin/submission/submit_review.html:125
+#: src/themes/OLH/templates/core/nav.html:40
+#: src/themes/OLH/templates/preprints/review.html:113
+#: src/themes/clean/templates/core/nav.html:47
+#: src/themes/material/templates/core/nav.html:38
+#: src/themes/material/templates/core/nav.html:84
+msgid "Submission"
+msgstr "Inzending"
+
+#: src/templates/admin/submission/timeline.html:6
+msgid "Submission Started"
+msgstr "Inzending gestart"
+
+#: src/templates/admin/submission/timeline.html:12
+#: src/templates/admin/submission/timeline.html:13
+msgid "Article Information"
+msgstr "Artikel informatie"
+
+#: src/themes/clean/templates/core/accounts/reset_password.html:17
+msgid "Your password should be at minimum 12 characters long. It does not\n"
+"                                    need to contain specific\n"
+"                                    characters but you should make it as long as possible. For more information read our\n"
+"                                    <a href=\"#\" data-toggle=\"modal\" data-target=\"#passwordmodal\">password\n"
+"                                        guide</a>."
+msgstr "Uw wachtwoord moet minstens 12 karakters lang zijn. Het hoeft geen speciale karakters te bevatten, maar u moet het zo lang mogelijk maken. Voor meer informatie lees de <a href=\"#passwordmodal\" class=\"modal-trigger\"> wachtwoordgids</a>."
+
+#: src/themes/material/templates/elements/summary_modal.html:13
+msgid "Close"
+msgstr "Sluiten"
+
+#: src/themes/clean/templates/journal/article.html:139
+msgid "Information"
+msgstr "Informatie"
+
+#: src/themes/OLH/templates/preprints/article.html:112
+#: src/themes/clean/templates/journal/article.html:164
+#: src/themes/material/templates/preprints/article.html:130
+msgid "Metrics"
+msgstr "Metrieken"
+
+#: src/themes/OLH/templates/preprints/article.html:117
+#: src/themes/clean/templates/journal/article.html:178
+#: src/themes/material/templates/preprints/article.html:145
+msgid "Citation"
+msgstr "Citatie"
+
+#: src/core/forms.py:107
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:32
+#: src/themes/OLH/templates/press/core/login.html:30
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: src/core/forms.py:108
+msgid "Repeat Password"
+msgstr "Wachtwoord herhalen"
+
+#: src/submission/models.py:1524
+#: src/templates/admin/submission/submit_files.html:70
+msgid "Figures and Data Files"
+msgstr "Figuren en databestanden"
+
+#: src/submission/models.py:1531
+msgid "The default license applied when no option is presented"
+msgstr ""
+
+#: src/submission/models.py:1538
+msgid "The default language of articles when lang is hidden"
+msgstr ""
+
+#: src/submission/models.py:1544
+msgid "The default section of articles when no option is presented"
+msgstr "De standaard sectie van artikels wanneer geen optie gepresenteerd wordt"
+
+#: src/templates/admin/elements/submit/file.html:15
+#: src/themes/OLH/templates/elements/submit/file.html:11
+msgid "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage."
+msgstr "Upload uw manuscript-bestand in PDF, RTF, ODT of DOC / X hebben. LaTeX kan later in het proces worden geaccepteerd, maar in dit stadium is een eenvoudig, leesbaar bestand vereist."
+
+#: src/templates/admin/elements/submit/file.html:17
+#: src/themes/OLH/templates/elements/submit/file.html:13
+msgid "Please upload your manuscript file, it should be in RTF, ODT or DOC/X format. LaTeX may be accepted later in the process but a simple, readable file is required at this stage."
+msgstr "Upload uw manuscript-bestand in RTF, ODT of DOC/X formaat. LaTeX kan later in het proces worden geaccepteerd, maar in dit stadium is een eenvoudig, leesbaar bestand vereist."
+
+#: src/templates/admin/submission/submit_authors.html:40
+msgid "Add Authors"
+msgstr "Auteurs toevoegen"
+
+#: src/templates/admin/submission/submit_files.html:5
+msgid "Upload files"
+msgstr "Bestanden opladen"
+
+#: src/templates/admin/submission/submit_info.html:17
+msgid "This article is a preprint"
+msgstr "Dit artikel is een preprint"
+
+#: src/templates/admin/submission/submit_info.html:111
+msgid "allows the following licenses for submission"
+msgstr "laat de volgende licenties toe bij inzendingen"
+
+#: src/themes/OLH/templates/403.html:17
+msgid "Permission Denied"
+msgstr "Geen toestemming"
+
+#: src/themes/OLH/templates/404.html:13
+msgid "Page Not Found"
+msgstr "Pagina niet gevonden"
+
+#: src/themes/OLH/templates/404.html:14
+msgid "Sorry, the page you were looking for was not found."
+msgstr "Excuseer, de pagina die u zocht werd niet gevonden."
+
+#: src/themes/OLH/templates/500.html:13
+msgid "Server Error"
+msgstr "Serverfout"
+
+#: src/themes/OLH/templates/500.html:14
+msgid "Sorry, there was a server error. Our team has been notified."
+msgstr "Excuseer, er was een serverfout. Ons team werd op de hoogte gebracht."
+
+#: src/themes/OLH/templates/core/accounts/activate_account.html:5
+#: src/themes/OLH/templates/core/accounts/activate_account.html:22
+#: src/themes/OLH/templates/core/accounts/activate_account.html:26
+#: src/themes/clean/templates/core/accounts/activate_account.html:5
+#: src/themes/clean/templates/core/accounts/activate_account.html:13
+#: src/themes/clean/templates/core/accounts/activate_account.html:17
+#: src/themes/material/templates/core/accounts/activate_account.html:5
+#: src/themes/material/templates/core/accounts/activate_account.html:14
+#: src/themes/material/templates/core/accounts/activate_account.html:19
+msgid "Activate Account"
+msgstr "Account activeren"
+
+#: src/themes/OLH/templates/core/accounts/activate_account.html:32
+#: src/themes/clean/templates/core/accounts/activate_account.html:22
+#: src/themes/material/templates/core/accounts/activate_account.html:26
+msgid "login"
+msgstr "Inloggen"
+
+#: src/themes/OLH/templates/core/accounts/activate_account.html:29
+#: src/themes/clean/templates/core/accounts/activate_account.html:20
+#: src/themes/material/templates/core/accounts/activate_account.html:23
+msgid "Error"
+msgstr "Fout"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:6
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:5
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:6
+msgid "Change Your Email Address"
+msgstr "E-mailadres wijzigen"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:7
+msgid "\n"
+"                <p>If you want to change your email address you may do so below, however, you will be logged out and your\n"
+"                account will be marked as inactive until you follow the instructions in the verfication email. <strong>Note: </strong>\n"
+"                Changing your email address will also change your username as these are one and the same.</p>\n"
+"                "
+msgstr "\n"
+"<p> Als u uw e-mailadres wilt wijzigen, kunt u dit hieronder doen, maar u wordt uitgelogd en uw account wordt als inactief gemarkeerd totdat u de instructies in de verificatie-e-mail volgt. <strong> Opmerking: </strong>\n"
+"Als u uw e-mailadres wijzigt, wordt ook uw gebruikersnaam gewijzigd, aangezien deze hetzelfde zijn. </p>"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:15
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:22
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:17
+msgid "Update Email Address"
+msgstr "Update e-mailadres"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:24
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:42
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:34
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:53
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:40
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:59
+msgid "Update Password"
+msgstr "Update wachtwoord"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:25
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:41
+msgid "You can update your password by entering your existing password plus your new password."
+msgstr "U kunt uw wachtwoord bijwerken door uw bestaande wachtwoord en uw nieuwe wachtwoord in te voeren."
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:30
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:40
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:47
+msgid "Current Password"
+msgstr "Huidig wachtwoord"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:34
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:51
+msgid "New Password"
+msgstr "Nieuw wachtwoord"
+
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:38
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:55
+msgid "Enter Password Again"
+msgstr "Geef wachtwoord opnieuw in"
+
+#: src/themes/OLH/templates/core/accounts/get_reset_token.html:5
+#: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:58
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:71
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:75
+msgid "Update"
+msgstr "Update"
+
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:5
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:19
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:4
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:9
+msgid "Unregistered ORCiD"
+msgstr "Ongeregistreerde ORCiD"
+
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:37
+#: src/themes/OLH/templates/press/core/login.html:34
+msgid "Forgot your password?"
+msgstr "Wachtwoord vergeten?"
+
+#: src/themes/OLH/templates/core/accounts/public_profile.html:5
+#: src/themes/OLH/templates/core/nav.html:73
+#: src/themes/OLH/templates/elements/right_hand_menu.html:37
+#: src/themes/OLH/templates/press/elements/right_hand_menu.html:16
+#: src/themes/OLH/templates/press/nav.html:55
+#: src/themes/clean/templates/core/accounts/public_profile.html:4
+#: src/themes/clean/templates/core/nav.html:97
+#: src/themes/material/templates/core/accounts/public_profile.html:5
+#: src/themes/material/templates/core/nav.html:131
+#: src/themes/material/templates/core/nav.html:166
+#: src/themes/material/templates/press/nav.html:79
+#: src/themes/material/templates/press/nav.html:90
+msgid "Profile"
+msgstr "Profiel"
+
+#: src/themes/OLH/templates/core/accounts/public_profile.html:13
+#: src/themes/clean/templates/core/accounts/public_profile.html:13
+#: src/themes/material/templates/core/accounts/public_profile.html:13
+msgid "Roles"
+msgstr "Rollen"
+
+#: src/themes/OLH/templates/core/accounts/public_profile.html:14
+#: src/themes/clean/templates/core/accounts/public_profile.html:14
+#: src/themes/material/templates/core/accounts/public_profile.html:14
+msgid "Affiliation"
+msgstr "Affiliatie"
+
+#: src/themes/OLH/templates/core/accounts/public_profile.html:24
+#: src/themes/clean/templates/core/accounts/public_profile.html:18
+#: src/themes/material/templates/core/accounts/public_profile.html:24
+msgid "Publications"
+msgstr "Publicaties"
+
+#: src/themes/OLH/templates/core/accounts/register.html:30
+#: src/themes/clean/templates/core/accounts/register.html:22
+#: src/themes/material/templates/core/accounts/register.html:19
+msgid "Register for"
+msgstr "Registreren voor"
+
+#: src/themes/OLH/templates/core/accounts/register.html:32
+msgid "Your password should be at minimum 12 characters long. It does not need to\n"
+"                            contain specific characters but you should make it as long as possible. For more information\n"
+"                            read on <a href=\"#\" data-open=\"password-modal\">password guide</a>."
+msgstr "Uw wachtwoord moet minstens 12 karakters lang zijn. Het hoeft geen speciale karakters te bevatten, maar u moet het zo lang mogelijk maken. Voor meer informatie lees de <a href=\"#passwordmodal\" class=\"modal-trigger\"> wachtwoordgids</a>."
+
+#: src/themes/OLH/templates/core/accounts/register.html:78
+#: src/themes/clean/templates/core/accounts/register.html:31
+#: src/themes/material/templates/core/accounts/register.html:30
+msgid "By registering an account you agree to our"
+msgstr "Als u een account registreert gaat u akkoord met onze"
+
+#: src/themes/OLH/templates/core/accounts/register.html:93
+#: src/themes/OLH/templates/core/accounts/reset_password.html:43
+msgid "Password Guide"
+msgstr "Wachtwoordgids"
+
+#: src/themes/OLH/templates/core/accounts/register.html:94
+#: src/themes/OLH/templates/core/accounts/reset_password.html:44
+#: src/themes/clean/templates/core/accounts/reset_password.html:45
+#: src/themes/material/templates/core/accounts/register.html:42
+#: src/themes/material/templates/core/accounts/reset_password.html:37
+msgid "When it comes to passwords, length is better than complexity."
+msgstr "Lengte is beter dan complexiteit voor wat betreft wachtwoorden."
+
+#: src/themes/OLH/templates/core/accounts/register.html:95
+#: src/themes/OLH/templates/core/accounts/reset_password.html:45
+#: src/themes/material/templates/core/accounts/register.html:43
+#: src/themes/material/templates/core/accounts/reset_password.html:38
+msgid "Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and uncomplicated password (our awesome moon base rocks)."
+msgstr "Het is een mythe dat een kort en complex wachtwoord (Jfjfy&65^87) veiliger is dan een lang en eenvoudig wachtwoord (our awesome moon base rocks)."
+
+#: src/themes/OLH/templates/core/accounts/register.html:96
+#: src/themes/OLH/templates/core/accounts/reset_password.html:46
+msgid "We recommend selecting a long, but easy to remember password such as our awesome moon base rocks which would take an estimated septillion years to crack as opposed to a complex one like Jfjfy&65^87 which would take just over 600 years on a standard computer."
+msgstr "We raden aan om een lang, maar makkelijk te onthouden wachtwoord te kiezen. Bijvoorbeeld om het wachtwoord 'our awesome moon base rocks' te kraken zijn heeft een standaard computer naar schatting een septiljoen jaren nodig ten opzichte van 600 jaar voor een complex wachtwoord als 'Jfjfy&65^87'. "
+
+#: src/themes/OLH/templates/core/accounts/reset_password.html:27
+msgid "Your password should be at minimum 12 characters long. It does not need to\n"
+"                            contain specific\n"
+"                            characters but you should make it as long as possible. For more information read our\n"
+"                            <a href=\"#\" data-open=\"password-modal\">password guide</a>"
+msgstr "Uw wachtwoord moet minstens 12 karakters lang zijn. Het hoeft geen speciale karakters te bevatten, maar u moet het zo lang mogelijk maken. Voor meer informatie lees de <a href=\"#passwordmodal\" class=\"modal-trigger\">wachtwoordgids</a>"
+
+#: src/themes/OLH/templates/core/login.html:44
+#: src/themes/clean/templates/core/login.html:46
+msgid "Register a new account"
+msgstr "Nieuwe account registreren"
+
+#: src/themes/OLH/templates/core/news/index.html:11
+#: src/themes/material/templates/core/news/index.html:11
+#: src/themes/material/templates/press/core/news/index.html:11
+msgid "Filtering tag"
+msgstr ""
+
+#: src/themes/OLH/templates/core/news/index.html:37
+#: src/themes/material/templates/core/news/index.html:37
+#: src/themes/material/templates/press/core/news/index.html:35
+msgid "This journal currently has no news items to display."
+msgstr "Dit tijdschrift heeft momenteel geen nieuws items om weer te geven"
+
+#: src/themes/OLH/templates/elements/submit/preprint_file.html:8
+msgid "Please supply any supporting information or data files."
+msgstr ""
+
+#: src/themes/OLH/templates/elements/submit/preprint_file.html:11
+msgid "Please upload your manuscript file, it should be in PDF format."
+msgstr "Upload uw manuscript-bestand in PDF formaat."
+
+#: src/themes/OLH/templates/elements/submit/preprint_file.html:13
+msgid "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X format."
+msgstr "Upload uw manuscript-bestand in PDF, RTF, ODT of DOC/X formaat."
+
+#: src/themes/OLH/templates/journal/article.html:186
+#: src/themes/clean/templates/journal/article.html:144
+msgid "Accepted on"
+msgstr "Geaccepteerd op"
+
+#: src/themes/OLH/templates/journal/article.html:247
+#: src/themes/clean/templates/journal/article.html:131
+#: src/themes/material/templates/journal/article.html:241
+msgid "Supplementary Files"
+msgstr "Aanvullende bestanden"
+
+#: src/themes/OLH/templates/elements/journal/summary_modal.html:3
+#: src/themes/OLH/templates/journal/article.html:260
+#: src/themes/clean/templates/journal/article.html:154
+#: src/themes/material/templates/elements/summary_modal.html:5
+#: src/themes/material/templates/journal/article.html:255
+msgid "Non Specialist Summary"
+msgstr ""
+
+#: src/themes/OLH/templates/journal/article.html:262
+msgid "View Summary"
+msgstr "Samenvatting bekijken"
+
+#: src/themes/OLH/templates/journal/article.html:286
+msgid "File Checksums (MD5)"
+msgstr "Checksums (MD5) van bestanden"
+
+#: src/themes/OLH/templates/journal/contact.html:26
+#: src/themes/clean/templates/journal/contact.html:21
+#: src/themes/material/templates/journal/contact.html:30
+msgid "Contact Information"
+msgstr "Contact informatie"
+
+#: src/themes/OLH/templates/core/nav.html:29
+#: src/themes/OLH/templates/core/nav.html:37
+#: src/themes/OLH/templates/journal/editorial_team.html:10
+#: src/themes/OLH/templates/journal/editorial_team.html:20
+#: src/themes/OLH/templates/press/nav.html:40
+#: src/themes/clean/templates/core/nav.html:32
+#: src/themes/clean/templates/core/nav.html:41
+#: src/themes/clean/templates/journal/editorial_team.html:4
+#: src/themes/clean/templates/journal/editorial_team.html:9
+#: src/themes/material/templates/core/nav.html:35
+#: src/themes/material/templates/core/nav.html:81
+#: src/themes/material/templates/journal/editorial_team.html:11
+#: src/themes/material/templates/preprints/editors.html:5
+#: src/themes/material/templates/preprints/editors.html:6
+msgid "Editorial Team"
+msgstr "Redactie"
+
+#: src/themes/OLH/templates/journal/homepage_elements/journals.html:5
+#: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:7
+#: src/themes/clean/templates/journal/homepage_elements/journals.html:4
+#: src/themes/material/templates/journal/homepage_elements/journals.html:6
+#: src/themes/material/templates/press/homepage_elements/journals_and_html.html:5
+msgid "Featured Journals"
+msgstr "Uitgelichte tijdschriften"
+
+#: src/themes/OLH/templates/journal/homepage_elements/journals.html:23
+#: src/themes/OLH/templates/journal/homepage_elements/journals.html:28
+#: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:30
+msgid "Unnamed Journal"
+msgstr "Naamloos tijdschrift"
+
+#: src/themes/OLH/templates/journal/homepage_elements/preprints.html:6
+#: src/themes/clean/templates/journal/homepage_elements/preprints.html:6
+msgid "Featured Preprints"
+msgstr "Uitgelichte preprints"
+
+#: src/themes/OLH/templates/elements/journal/issue_sidebar.html:7
+#: src/themes/OLH/templates/elements/journal/issue_sidebar.html:8
+msgid "Download Issue"
+msgstr "Nummer downloaden"
+
+#: src/themes/OLH/templates/journal/issues.html:33
+msgid "There are no issues published in this journal yet."
+msgstr "Dit tijdschrift heeft nog geen nummers gepubliceerd"
+
+#: src/templates/admin/journal/submissions.html:65
+#: src/themes/OLH/templates/journal/submissions.html:61
+#: src/themes/clean/templates/journal/submissions.html:44
+#: src/themes/material/templates/journal/submissions.html:70
+msgid "Licences"
+msgstr "Licenties"
+
+#: src/templates/admin/journal/submissions.html:66
+#: src/themes/OLH/templates/journal/submissions.html:62
+#: src/themes/clean/templates/journal/submissions.html:45
+#: src/themes/material/templates/journal/submissions.html:71
+msgid "allows the following licences for submission"
+msgstr "laat de volgende licenties toe bij inzendingen"
+
+#: src/templates/admin/journal/submissions.html:88
+#: src/themes/OLH/templates/journal/submissions.html:86
+#: src/themes/clean/templates/journal/submissions.html:65
+#: src/themes/material/templates/journal/submissions.html:100
+msgid "Public Submissions"
+msgstr "Publieke inzendingen"
+
+#: src/templates/admin/journal/submissions.html:94
+#: src/themes/OLH/templates/journal/submissions.html:92
+#: src/themes/clean/templates/journal/submissions.html:67
+#: src/themes/material/templates/journal/submissions.html:106
+msgid "Indexed"
+msgstr "Geïndexeerd"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:9
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:30
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:54
+#: src/themes/OLH/templates/preprints/about.html:4
+#: src/themes/OLH/templates/preprints/about.html:15
+#: src/themes/OLH/templates/preprints/home.html:15
+#: src/themes/OLH/templates/preprints/list.html:6
+#: src/themes/OLH/templates/press/nav.html:29
+#: src/themes/material/templates/preprints/about.html:4
+#: src/themes/material/templates/preprints/about.html:9
+#: src/themes/material/templates/preprints/home.html:4
+#: src/themes/material/templates/preprints/home.html:10
+#: src/themes/material/templates/press/nav.html:20
+#: src/themes/material/templates/press/nav.html:47
+#: src/themes/material/templates/press/nav.html:97
+#: src/themes/material/templates/press/nav.html:98
+#: src/themes/material/templates/press/nav.html:99
+#: src/themes/material/templates/press/nav.html:106
+#: src/themes/material/templates/press/nav.html:107
+#: src/themes/material/templates/press/nav.html:108
+msgid "Preprints"
+msgstr "Preprints"
+
+#: src/themes/OLH/templates/preprints/article.html:51
+#: src/themes/OLH/templates/preprints/submit_start.html:72
+#: src/themes/material/templates/preprints/article.html:63
+msgid "Comments"
+msgstr "Opmerkingen"
+
+#: src/themes/OLH/templates/preprints/article.html:85
+msgid "There are no comments or no comments have been made public for this article."
+msgstr "Er zijn geen opmerkingen of ze zijn niet publiek gemaakt"
+
+#: src/themes/OLH/templates/preprints/article.html:103
+#: src/themes/material/templates/preprints/article.html:121
+msgid "Metadata"
+msgstr "Metadata"
+
+#: src/themes/OLH/templates/preprints/article.html:130
+#: src/themes/OLH/templates/preprints/list.html:6
+#: src/themes/OLH/templates/preprints/list.html:15
+#: src/themes/OLH/templates/press/nav.html:32
+#: src/themes/material/templates/preprints/list.html:6
+#: src/themes/material/templates/preprints/list.html:14
+msgid "All Preprints"
+msgstr "Alle preprints"
+
+#: src/themes/OLH/templates/preprints/article.html:134
+#: src/themes/material/templates/preprints/article.html:135
+msgid "Versions"
+msgstr "Versies"
+
+#: src/themes/OLH/templates/preprints/article.html:141
+msgid "This is the only version of the preprint."
+msgstr "Dit is de enige versie van de preprint"
+
+#: src/themes/OLH/templates/preprints/authors.html:7
+#: src/themes/OLH/templates/preprints/authors.html:15
+msgid "Preprint Authors"
+msgstr "Preprint auteurs"
+
+#: src/themes/OLH/templates/preprints/authors.html:16
+msgid "Add authors to"
+msgstr "Auteurs toevoegen aan"
+
+#: src/themes/OLH/templates/preprints/authors.html:80
+msgid "When you've added all the authors, select Save and Continue to move to the next step of your submission."
+msgstr "Als u alle auteurs hebt toegevoegd, klik op 'Opslaan en doorgaan' om naar de volgende stap van uw inzending te gaan."
+
+#: src/themes/OLH/templates/preprints/editors.html:5
+#: src/themes/OLH/templates/preprints/editors.html:16
+#: src/themes/OLH/templates/press/nav.html:34
+msgid "Preprint Editors"
+msgstr "Preprint editors"
+
+#: src/themes/OLH/templates/preprints/editors.html:46
+msgid "This repository has no subjects or editors to display."
+msgstr "Deze repository heeft geen onderwerpen of editors om weer te geven."
+
+#: src/themes/OLH/templates/preprints/home.html:29
+msgid "Read about"
+msgstr "Lees over"
+
+#: src/themes/OLH/templates/preprints/home.html:29
+#: src/themes/material/templates/preprints/home.html:25
+msgid "preprints"
+msgstr "preprints"
+
+#: src/themes/OLH/templates/preprints/home.html:30
+#: src/themes/material/templates/preprints/home.html:25
+msgid "or view list of"
+msgstr "of bekijk een lijst van"
+
+#: src/themes/OLH/templates/preprints/home.html:30
+#: src/themes/material/templates/preprints/home.html:26
+msgid "all preprints"
+msgstr "alle preprints"
+
+#: src/themes/OLH/templates/preprints/home.html:36
+#: src/themes/material/templates/preprints/home.html:32
+msgid "Latest Preprints"
+msgstr "Laatste preprints"
+
+#: src/themes/OLH/templates/preprints/list.html:61
+#: src/themes/OLH/templates/preprints/search.html:46
+msgid "Search preprints"
+msgstr "Preprints zoeken"
+
+#: src/themes/OLH/templates/preprints/list.html:65
+#: src/themes/OLH/templates/preprints/search.html:50
+msgid "Searching by"
+msgstr "Zoeken op"
+
+#: src/themes/OLH/templates/preprints/list.html:69
+#: src/themes/OLH/templates/preprints/search.html:54
+#: src/themes/material/templates/preprints/list.html:80
+msgid "Author Name"
+msgstr "Naam auteur"
+
+#: src/themes/OLH/templates/preprints/list.html:70
+#: src/themes/OLH/templates/preprints/search.html:55
+msgid "Author Affiliation"
+msgstr "Affiliatie auteur"
+
+#: src/themes/OLH/templates/preprints/list.html:76
+#: src/themes/material/templates/press/nav.html:101
+#: src/themes/material/templates/press/nav.html:110
+msgid "Editors"
+msgstr "Redacteuren"
+
+#: src/themes/OLH/templates/preprints/list.html:87
+msgid "Filter by Subject"
+msgstr "Filter op onderwerp"
+
+#: src/themes/OLH/templates/preprints/review.html:5
+msgid "Review Preprint Submission"
+msgstr "Preprint inzending reviewen"
+
+#: src/themes/OLH/templates/preprints/search.html:6
+#: src/themes/OLH/templates/preprints/search.html:14
+#: src/themes/material/templates/preprints/home.html:18
+#: src/themes/material/templates/preprints/list.html:71
+msgid "Search Preprints"
+msgstr "Preprints zoeken"
+
+#: src/themes/OLH/templates/preprints/submit_files.html:5
+#: src/themes/OLH/templates/preprints/submit_files.html:13
+msgid "Preprint Files"
+msgstr "Preprint bestanden"
+
+#: src/themes/OLH/templates/preprints/submit_start.html:7
+#: src/themes/OLH/templates/preprints/submit_start.html:14
+#: src/themes/OLH/templates/press/nav.html:35
+msgid "Submit a Preprint"
+msgstr "Preprint inzenden"
+
+#: src/themes/OLH/templates/preprints/submit_start.html:15
+msgid "Please read the following carefully before you submit your preprints."
+msgstr "Lees het volgende aandachtig door voordat u uw preprints inzendt."
+
+#: src/themes/OLH/templates/preprints/submit_start.html:33
+#: src/themes/OLH/templates/preprints/submit_start.html:74
+msgid "If you have any additional information you'd like to supply to the preprints editor, do so here"
+msgstr "Als u aanvullende informatie hebt die u aan de preprints-editor wilt verstrekken, dan kan je dat hier doen"
+
+#: src/themes/OLH/templates/preprints/submit_start.html:55
+#: src/utils/forms.py:34
+msgid "Hit Enter to add a new keyword."
+msgstr "Druk op Enter om een ​​nieuw trefwoord toe te voegen."
+
+#: src/templates/admin/submission/submit_info.html:83
+#: src/themes/OLH/templates/preprints/submit_start.html:83
+msgid "Additional Fields"
+msgstr "Bijkomende velden"
+
+#: src/themes/OLH/templates/press/core/login.html:26
+msgid "Login with ORCiD"
+msgstr "Inloggen met ORCiD"
+
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:36
+#: src/themes/OLH/templates/press/core/login.html:33
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:29
+msgid "Log In"
+msgstr "Inloggen"
+
+#: src/themes/OLH/templates/press/core/news/index.html:37
+msgid "This press currently has no news items to display."
+msgstr ""
+
+#: src/themes/OLH/templates/press/core/news/item.html:33
+#: src/themes/material/templates/core/news/index.html:28
+#: src/themes/material/templates/core/news/item.html:21
+#: src/themes/material/templates/press/core/news/index.html:26
+#: src/themes/material/templates/press/core/news/item.html:21
+msgid "on"
+msgstr "aan"
+
+#: src/themes/OLH/templates/press/core/news/item.html:40
+#: src/themes/material/templates/core/news/item.html:26
+#: src/themes/material/templates/press/core/news/item.html:26
+msgid "Tags"
+msgstr "Tags"
+
+#: src/themes/OLH/templates/press/core/news/item.html:45
+#: src/themes/material/templates/core/news/item.html:34
+#: src/themes/material/templates/press/core/news/item.html:34
+msgid "Back to News List"
+msgstr "Terug naar de nieuws lijst"
+
+#: src/themes/OLH/templates/press/nav.html:22
+#: src/themes/OLH/templates/press/press_journals.html:5
+msgid "Journals"
+msgstr "Tijdschriften"
+
+#: src/themes/clean/templates/elements/journal/editorial_social_content.html:3
+#: src/themes/clean/templates/journal/article.html:169
+msgid "Twitter"
+msgstr "Twitter"
+
+#: src/themes/clean/templates/journal/article.html:171
+#: src/themes/material/templates/journal/article.html:148
+msgid "Wikipedia"
+msgstr "Wikipedia"
+
+#: src/themes/clean/templates/journal/article.html:173
+#: src/themes/material/templates/journal/article.html:156
+msgid "Reddit"
+msgstr "Reddit"
+
+#: src/themes/OLH/templates/core/accounts/edit_profile.html:4
+#: src/themes/clean/templates/core/accounts/edit_profile.html:5
+#: src/themes/material/templates/core/accounts/edit_profile.html:4
+msgid "Edit Profile"
+msgstr "Profiel bewerken"
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:7
+msgid "If you want to change your email address you may do so below, however, you will be logged out and your account will be marked as inactive until you follow the instructions in the verification email."
+msgstr "Als u uw e-mailadres wilt wijzigen, kunt u dit hieronder doen, maar u wordt uitgelogd en uw account wordt gemarkeerd als inactief totdat u de instructies in de verificatie-e-mail volgt."
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:8
+msgid "Note:"
+msgstr "Notitie:"
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:9
+msgid "Changing your email address will also change your username as these are one and the same."
+msgstr "Alsu uw e-mailadres wijzigt, verandert ook uw gebruikersnaam, aangezien deze hetzelfde zijn"
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:15
+msgid "Email Address"
+msgstr "E-mailadres"
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:25
+msgid "Data Export"
+msgstr "Data export"
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:26
+msgid "You may export your data into a JSON file for reuse."
+msgstr "U kan uw data exporteren in JSON formaat voor hergebruik."
+
+#: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:29
+msgid "Export"
+msgstr "Exporteren"
+
+#: src/themes/material/templates/core/accounts/register.html:22
+msgid "Your password should be at minimum 12 characters long. It does not need\n"
+"                        to contain specific characters but you should make it as long as possible. For more\n"
+"                        information read on\n"
+"                        <a href=\"#passwordmodal\" class=\"modal-trigger\"> password guide</a>\n"
+"                        ."
+msgstr "Uw wachtwoord moet minstens 12 karakters lang zijn. Het hoeft geen speciale karakters te bevatten, maar u moet het zo lang mogelijk maken. Voor meer informatie lees de <a href=\"#passwordmodal\" class=\"modal-trigger\">wachtwoordgids</a>"
+
+#: src/themes/material/templates/core/accounts/register.html:44
+#: src/themes/material/templates/core/accounts/reset_password.html:39
+msgid "We recommend selecting a long, but easy to remember password such as <i>our awesome moon base\n"
+"                rocks</i> which would take an estimated septillion years to crack as opposed to a complex one\n"
+"                like <i>Jfjfy&65^87</i> which would take just over 600 years on a standard computer."
+msgstr "We raden aan om een ​​lang, maar gemakkelijk te onthouden wachtwoord te kiezen, zoals <i>our awesome moon base rocks</i>  waarvoor een standaardcomputer naar schatting een septiljoen jaar nodig heeft om het te kraken, ten opzicht van ongeveer 600 jaar voor een complex wachtwoord zoals <i>Jfjfy&65^87</i>."
+
+#: src/themes/material/templates/core/accounts/reset_password.html:17
+msgid "Your password should be at minimum 12 characters long. It does not\n"
+"                                    need to contain specific\n"
+"                                    characters but you should make it as long as possible. For more information read our\n"
+"                                    <a href=\"#passwordmodal\" class=\"modal-trigger\"> password guide</a>."
+msgstr "Uw wachtwoord moet minstens 12 karakters lang zijn. Het hoeft geen speciale karakters te bevatten, maar u moet het zo lang mogelijk maken. Voor meer informatie lees de <a href=\"#passwordmodal\" class=\"modal-trigger\">wachtwoordgids</a>"
+
+#: src/themes/material/templates/core/login.html:33
+msgid "Register an Account"
+msgstr "Een account registreren"
+
+#: src/themes/material/templates/core/login.html:34
+msgid "Reset Your Password"
+msgstr "Uw wachtwoord opnieuw instellen"
+
+#: src/themes/OLH/templates/core/nav.html:7
+#: src/themes/OLH/templates/press/nav.html:6
+#: src/themes/clean/templates/core/nav.html:16
+#: src/themes/material/templates/core/nav.html:23
+#: src/themes/material/templates/core/nav.html:69
+#: src/themes/material/templates/press/nav.html:97
+msgid "Home"
+msgstr "Home"
+
+#: src/themes/OLH/templates/core/nav.html:47
+#: src/themes/OLH/templates/press/nav.html:44
+#: src/themes/material/templates/core/nav.html:59
+#: src/themes/material/templates/core/nav.html:101
+#: src/themes/material/templates/press/nav.html:36
+#: src/themes/material/templates/press/nav.html:60
+msgid "Account"
+msgstr "Account"
+
+#: src/themes/OLH/templates/core/nav.html:50
+#: src/themes/OLH/templates/elements/right_hand_menu.html:3
+#: src/themes/clean/templates/core/nav.html:84
+#: src/themes/material/templates/core/nav.html:115
+#: src/themes/material/templates/core/nav.html:136
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: src/themes/OLH/templates/core/nav.html:56
+#: src/themes/OLH/templates/elements/right_hand_menu.html:4
+#: src/themes/clean/templates/core/nav.html:88
+#: src/themes/material/templates/core/nav.html:119
+#: src/themes/material/templates/core/nav.html:137
+msgid "Kanban"
+msgstr "Kanban"
+
+#: src/themes/OLH/templates/core/nav.html:52
+#: src/themes/OLH/templates/elements/right_hand_menu.html:7
+#: src/themes/OLH/templates/press/press_journals.html:58
+#: src/themes/OLH/templates/press/press_journals.html:65
+#: src/themes/clean/templates/core/nav.html:85
+#: src/themes/material/templates/core/nav.html:117
+#: src/themes/material/templates/core/nav.html:139
+#: src/themes/material/templates/press/nav.html:102
+#: src/themes/material/templates/press/nav.html:111
+msgid "Submit"
+msgstr ""
+
+#: src/themes/OLH/templates/core/nav.html:57
+#: src/themes/OLH/templates/elements/right_hand_menu.html:12
+#: src/themes/OLH/templates/press/elements/right_hand_menu.html:7
+#: src/themes/OLH/templates/press/nav.html:49
+#: src/themes/clean/templates/core/nav.html:89
+#: src/themes/material/templates/core/nav.html:120
+#: src/themes/material/templates/core/nav.html:142
+#: src/themes/material/templates/press/nav.html:74
+#: src/themes/material/templates/press/nav.html:85
+msgid "Manager"
+msgstr "Beheerder"
+
+#: src/themes/OLH/templates/core/nav.html:70
+#: src/themes/OLH/templates/elements/right_hand_menu.html:34
+#: src/themes/OLH/templates/press/elements/right_hand_menu.html:8
+#: src/themes/OLH/templates/press/nav.html:52
+#: src/themes/clean/templates/core/nav.html:95
+#: src/themes/material/templates/core/nav.html:129
+#: src/themes/material/templates/core/nav.html:164
+#: src/themes/material/templates/press/nav.html:77
+#: src/themes/material/templates/press/nav.html:88
+msgid "Admin"
+msgstr "Admin"
+
+#: src/themes/OLH/templates/core/nav.html:74
+#: src/themes/OLH/templates/elements/right_hand_menu.html:38
+#: src/themes/OLH/templates/press/elements/right_hand_menu.html:17
+#: src/themes/OLH/templates/press/nav.html:56
+#: src/themes/clean/templates/core/nav.html:98
+#: src/themes/material/templates/core/nav.html:132
+#: src/themes/material/templates/core/nav.html:167
+#: src/themes/material/templates/press/nav.html:80
+#: src/themes/material/templates/press/nav.html:91
+msgid "Logout"
+msgstr "Uitloggen"
+
+#: src/themes/OLH/templates/elements/right_hand_menu.html:14
+#: src/themes/material/templates/core/nav.html:144
+msgid "Edit Submissions Page"
+msgstr "Inzendingen pagina bewerken"
+
+#: src/themes/OLH/templates/elements/right_hand_menu.html:15
+#: src/themes/material/templates/core/nav.html:145
+msgid "Edit Journal Info"
+msgstr "Tijdschrift info bewerken"
+
+#: src/themes/OLH/templates/elements/right_hand_menu.html:18
+#: src/themes/OLH/templates/press/elements/right_hand_menu.html:10
+#: src/themes/material/templates/core/nav.html:148
+msgid "Edit Page"
+msgstr "Pagina bewerken"
+
+#: src/themes/OLH/templates/elements/right_hand_menu.html:21
+#: src/themes/material/templates/core/nav.html:151
+msgid "Manage Editorial Team"
+msgstr "Redactie beheren"
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:5
+#: src/themes/clean/templates/elements/accounts/user_form.html:5
+#: src/themes/material/templates/elements/accounts/user_form.html:6
+msgid "Core Data"
+msgstr "Kerngegevens"
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:38
+#: src/themes/clean/templates/elements/accounts/user_form.html:35
+#: src/themes/material/templates/elements/accounts/user_form.html:36
+msgid "Social Media and Accounts"
+msgstr "Sociale media en accounts"
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:62
+#: src/themes/clean/templates/elements/accounts/user_form.html:59
+#: src/themes/material/templates/elements/accounts/user_form.html:60
+msgid "Biography and Signature"
+msgstr "Biografie en ondertekening"
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:71
+#: src/themes/clean/templates/elements/accounts/user_form.html:68
+#: src/themes/material/templates/elements/accounts/user_form.html:69
+msgid "Review Interests"
+msgstr "Review-interesses"
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:72
+#: src/themes/clean/templates/elements/accounts/user_form.html:69
+#: src/themes/material/templates/elements/accounts/user_form.html:70
+msgid "Hit Enter to add a new interest"
+msgstr "Druk op Enter om een ​​nieuwe interesse toe te voegen."
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:92
+#: src/themes/clean/templates/elements/accounts/user_form.html:89
+#: src/themes/material/templates/elements/accounts/user_form.html:90
+msgid "Options"
+msgstr "Opties"
+
+#: src/themes/OLH/templates/elements/journal/summary_modal.html:7
+#: src/themes/material/templates/elements/summary_modal.html:9
+msgid "This article has no summary"
+msgstr "Dit artikel heeft geen samenvatting"
+
+#: src/themes/material/templates/journal/article.html:263
+msgid "Dates"
+msgstr "Data"
+
+#: src/themes/material/templates/journal/article.html:268
+msgid "Submitted"
+msgstr "Ingezonden"
+
+#: src/themes/material/templates/journal/article.html:273
+msgid "Accepted"
+msgstr "Geaccepteerd"
+
+#: src/themes/OLH/templates/journal/collections.html:24
+#: src/themes/material/templates/journal/article.html:278
+msgid "Published"
+msgstr "Gepubliceerd"
+
+#: src/themes/material/templates/journal/article.html:307
+msgid "This article has not been peer reviewed."
+msgstr "Dit aritkel heeft geen 'peer review' ondergaan."
+
+#: src/themes/material/templates/journal/article.html:323
+msgid "File Checksums"
+msgstr "Checksums van bestanden"
+
+#: src/themes/material/templates/journal/article.html:339
+#: src/themes/material/templates/journal/submissions.html:136
+msgid "Table of Contents"
+msgstr "Inhoudstafel"
+
+#: src/themes/material/templates/journal/collections.html:25
+msgid "View Collection"
+msgstr "Collectie bekijken"
+
+#: src/themes/material/templates/journal/collections.html:31
+msgid "There are no collections to display"
+msgstr "Er zijn geen collecties om weer te geven"
+
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:8
+#: src/themes/material/templates/elements/journal/issue_sidebar.html:12
+msgid "Collection"
+msgstr "Collectie"
+
+#: src/themes/material/templates/journal/issues.html:40
+msgid "View Issue"
+msgstr "Nummer bekijken"
+
+#: src/themes/material/templates/journal/search.html:23
+msgid "No articles to display."
+msgstr "Geen artikels om weer te geven."
+
+#: src/themes/material/templates/journal/search.html:28
+msgid "Searching"
+msgstr "Bezig met zoeken"
+
+#: src/templates/admin/journal/submissions.html:56
+#: src/themes/OLH/templates/journal/submissions.html:52
+#: src/themes/material/templates/journal/submissions.html:59
+msgid "Acceptance Criteria"
+msgstr "Acceptatiecriteria"
+
+#: src/themes/material/templates/preprints/editors.html:10
+msgid "Subject Area Editors"
+msgstr ""
+
+#: src/themes/material/templates/preprints/home.html:16
+msgid "search"
+msgstr "zoeken"
+
+#: src/themes/material/templates/preprints/home.html:24
+msgid "Read about "
+msgstr "Lees over "
+
+#: src/themes/material/templates/preprints/list.html:37
+msgid "There are no preprints to display"
+msgstr "Er zijn geen preprints om weer te geven"
+
+#: src/themes/material/templates/preprints/list.html:74
+msgid "You can search by:"
+msgstr "U kan zoeken op: "
+
+#: src/themes/material/templates/preprints/list.html:81
+msgid "Author Institution"
+msgstr "Instelling auteur"
+
+#: src/themes/material/templates/press/nav.html:67
+msgid "menu"
+msgstr "menu"
+
+#: src/themes/material/templates/press/nav.html:98
+#: src/themes/material/templates/press/nav.html:107
+msgid "All"
+msgstr "Alle"
+
+#: src/themes/OLH/templates/journal/article.html:6
+#: src/themes/material/templates/journal/article.html:7
+#: src/themes/material/templates/press/nav.html:101
+#: src/themes/material/templates/press/nav.html:102
+#: src/themes/material/templates/press/nav.html:110
+#: src/themes/material/templates/press/nav.html:111
+msgid "Preprint"
+msgstr "Preprint"
+
+#: src/core/forms.py:417
+msgid "Anti-spam captcha"
+msgstr "Anti-spam captcha"
+
+#: src/core/forms.py:450
+msgid "E-mail"
+msgstr "E-mail"
+
+#: src/core/janeway_global_settings.py:237
+msgid "Welsh"
+msgstr "Welsh"
+
+#: src/core/validators.py:15
+msgid "Extension {extension} is not allowed. Allowed extensions are: {validator.extensions}"
+msgstr "Extensie {extension} is niet toegestaan. Toegestane extensies zijn: {validator.extensions}"
+
+#: src/core/validators.py:17
+msgid "MIME type {mimetype} is not valid. Valid types are: {validator.mimetypes}"
+msgstr "MIME type {mimetype} is niet geldig. Geldige types zijn: {validator.mimetypes}"
+
+#: src/journal/views.py:642
+msgid "No file uploaded"
+msgstr "Geen bestand opgeladen"
+
+#: src/journal/views.py:899
+msgid "Your article must have a section assigned."
+msgstr "Aan uw artikel moet een sectie zijn toegewezen."
+
+#: src/journal/views.py:1014
+msgid "Article set for publication."
+msgstr "Artikel klaar voor publicatie."
+
+#: src/journal/views.py:1267
+msgid "You cannot move the first section up the order list"
+msgstr "U kunt de eerste sectie niet hoger in de lijst plaatsen"
+
+#: src/journal/views.py:1299
+msgid "You cannot move the last section down the order list"
+msgstr "U kunt de laatste sectie niet lager in de lijst plaatsen"
+
+#: src/journal/views.py:1306
+msgid "This page accepts post requests only."
+msgstr ""
+
+#: src/journal/views.py:1335
+msgid "Articles without a section cannot be added to an issue."
+msgstr "Artikels zonder een sectie kunnen niet aan een nummer worden toegekend."
+
+#: src/journal/views.py:1379
+msgid "User is already a guest editor."
+msgstr "Gebruiker is al een gast editor."
+
+#: src/journal/views.py:1385
+msgid "This user is not a member of this journal."
+msgstr "Deze gebruiker is niet ingeschreven voor dit tijdschrift."
+
+#: src/journal/views.py:1431
+msgid "Editor removed from Issue."
+msgstr "Editor verwijderd van nummer"
+
+#: src/journal/views.py:1437
+msgid "Issue Editor not found."
+msgstr ""
+
+#: src/journal/views.py:1443
+msgid "No Issue Editor ID supplied."
+msgstr ""
+
+#: src/journal/views.py:1584
+msgid "Uploaded file is not UTF-8 encoded"
+msgstr "Opgeladen bestand is niet UTF-8 gecodeerd"
+
+#: src/journal/views.py:1717
+msgid "Your message has been sent."
+msgstr "Uw bericht is verzonden"
+
+#: src/journal/views.py:2091 src/journal/views.py:2101
+msgid "Production file uploaded."
+msgstr "Productiebestand opgeladen."
+
+#: src/journal/views.py:2111
+msgid "Proofing file uploaded."
+msgstr "Proefbestand opgeladen"
+
+#: src/submission/decorators.py:20
+msgid "This page can only be accessed on Journals."
+msgstr ""
+
+#: src/submission/decorators.py:28
+msgid "Submission is disabled for this journal."
+msgstr "Inzenden is uitgeschakeld voor dit tijdschrift"
+
+#: src/submission/models.py:366
+msgid "Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here."
+msgstr "Plak alstublieft geen inhoud van tekstverwerkers, aangezien deze ongewenste opmaak aan de samenvatting kunnen toevoegen. U kunt de samenvatting hier opnieuw typen of eerst kopiëren en plakken in Kladblok of een andere eenvoudige text editor voordat u deze hier plakt."
+
+#: src/submission/views.py:237 src/submission/views.py:272
+#: src/submission/views.py:297
+msgid "{author_name} added to the article."
+msgstr "{author_name} toegevoegd aan het artikel."
+
+#: src/submission/views.py:265
+msgid "Errors found in the new author form"
+msgstr "Fouten gevonden in het formulier voor nieuwe auteur"
+
+#: src/submission/views.py:286
+msgid "An empty search is not allowed."
+msgstr "Een lege zoekopdracht is niet toegestaan."
+
+#: src/submission/views.py:304
+msgid "No author found with those details."
+msgstr "Geen auteur gevonden met die gegevens."
+
+#: src/submission/views.py:314
+msgid "You must select a main author."
+msgstr "U moet een hoofdauteur selecteren."
+
+#: src/submission/views.py:423
+msgid "File deleted"
+msgstr "Bestand verwijderd"
+
+#: src/submission/views.py:520
+msgid "Article {title} submitted"
+msgstr "Artikel {title} ingezonden."
+
+#: src/submission/views.py:611
+msgid "Metadata updated."
+msgstr "Metadata aangepast"
+
+#: src/submission/views.py:628
+msgid "Author {author_name} updated."
+msgstr "Auteur {author_name} bijgewerkt"
+
+#: src/submission/views.py:646
+msgid "Frozen Author deleted."
+msgstr "Bevroren auteur verwijderd."
+
+#: src/submission/views.py:759
+msgid "License saved."
+msgstr "Licentie opgeslagen."
+
+#: src/submission/views.py:804
+msgid "License {license_name} deleted."
+msgstr "Licentie {license_name} verwijderd."
+
+#: src/submission/views.py:840
+msgid "Configuration updated."
+msgstr "Configuratie aangepast."
+
+#: src/templates/admin/elements/fundref/fundref.html:22
+#: src/templates/admin/elements/fundref/fundref.html:111
+#: src/templates/admin/submission/submit_funding.html:93
+msgid "Funder"
+msgstr "Financier"
+
+#: src/templates/admin/elements/fundref/fundref.html:59
+#: src/templates/admin/elements/fundref/fundref.html:79
+#: src/templates/admin/elements/fundref/fundref.html:163
+#: src/templates/admin/submission/submit_funding.html:85
+#: src/templates/admin/submission/submit_funding.html:108
+msgid "Add funder"
+msgstr "Financier toevoegen"
+
+#: src/templates/admin/elements/fundref/fundref.html:134
+msgid "Funder DOI (optional)"
+msgstr "DOI financier (optioneel)"
+
+#: src/templates/admin/elements/fundref/fundref.html:155
+msgid "Funder grant number (optional)"
+msgstr "Financieringsbeurs nummer (optioneel)"
+
+#: src/templates/admin/journal/submissions.html:28
+#: src/themes/OLH/templates/journal/submissions.html:24
+#: src/themes/material/templates/journal/submissions.html:27
+msgid "Submission is currently disabled for this journal."
+msgstr "Inzendingen zijn momenteel uitgeschakeld voor dit tijdschrift."
+
+#: src/templates/admin/proofing/proofing_article.html:272
+msgid "Each proofing round is limited to"
+msgstr "Elke proefleesronde is beperkt tot"
+
+#: src/templates/admin/proofing/proofing_article.html:272
+msgid "proofreaders"
+msgstr "proeflezers"
+
+#: src/templates/admin/review/projected_issue.html:20
+msgid "Save Projected Issue"
+msgstr "Geplande nummer opslaan"
+
+#: src/templates/admin/review/projected_issue.html:30
+msgid "What is this for?"
+msgstr "Waar dient dit voor?"
+
+#: src/templates/admin/review/projected_issue.html:31
+msgid "The projected issue setting helps you track which issue an article is intended to be published with."
+msgstr "De settings voor geplande nummers helpen u om bij te houden in welk nummer een artikel zal gepubliceerd worden."
+
+#: src/templates/admin/review/projected_issue.html:32
+msgid "How does it work?"
+msgstr "Hoe werkt het?"
+
+#: src/templates/admin/review/projected_issue.html:33
+msgid "Select an issue from the drop down on the left and press save, this articles projected issue will now be set."
+msgstr "Selecteer een nummer in de drop down links en klik op opslaan, om het geplande nummer voor dit artikel te registreren."
+
+#: src/templates/admin/review/projected_issue.html:34
+msgid "Can I unset a projected issue?"
+msgstr "Kan ik een gepland nummer ongedaan maken?"
+
+#: src/templates/admin/review/projected_issue.html:35
+msgid "Yes, simply select the blank option (-------) from the drop down."
+msgstr "Ja, selecteer gewoon de blanco optie (-------) in de keuzelijst."
+
+#: src/templates/admin/review/unassigned_article.html:116
+msgid "Edit"
+msgstr "Bewerken"
+
+#: src/templates/admin/review/unassigned_article.html:116
+msgid "Assign"
+msgstr "Toewijzen"
+
+#: src/templates/admin/review/unassigned_article.html:116
+msgid "Projected Issue"
+msgstr "Gepland nummer"
+
+#: src/templates/admin/review/unassigned_article.html:121
+msgid "This article is projected to be published as part of"
+msgstr "Dit artikel is gepland om gepubliceerd te worden als deel van"
+
+#: src/templates/admin/review/unassigned_article.html:123
+msgid "This article is not projected to be published as part of any issue."
+msgstr "Dit artikel is niet gepland om gepubliceerd te worden in een nummer"
+
+#: src/templates/admin/submission/manager/delete_license.html:26
+msgid "This license is currently used by the following articles. If you delete it these articles will no longer have a license listed."
+msgstr "Deze licentie wordt momenteel gebruikt door de volgende artikels. Als u deze licentie verwijderd hebben deze artikels geen licentie meer."
+
+#: src/templates/admin/submission/manager/delete_license.html:27
+msgid "You should only delete this license if you are absolutley sure you want to remove it."
+msgstr "Verwijder deze licentie enkel wanneer u er heel zeker van bent."
+
+#: src/templates/admin/submission/start.html:24
+msgid "In order to submit an article to %(request.journal.name)s all authors have to agree to the below statements.\n"
+"                        Unfortunately, if you do not agree with them you will be unable to proceed with your submission."
+msgstr "Om een artikel in te zenden voor %(request.journal.name)s moeten alle auteurs akkoord zijn met onderstaande stellingen. Als u niet akkoord bent met deze stellingen kan u helaas niet doorgaan met uw inzending."
+
+#: src/templates/admin/submission/submit_authors.html:57
+msgid "Drag and drop an author to re-order them."
+msgstr "Versleep een auteur om de volgorde te wijzigen."
+
+#: src/templates/admin/submission/submit_funding.html:16
+#: src/templates/admin/submission/timeline.html:36
+#: src/templates/admin/submission/timeline.html:37
+#: src/themes/OLH/templates/journal/article.html:144
+#: src/themes/material/templates/journal/article.html:108
+msgid "Funding"
+msgstr "Financiering"
+
+#: src/templates/admin/submission/submit_funding.html:20
+msgid "Add Funding Source"
+msgstr "Financieringsbron toevoegen"
+
+#: src/templates/admin/submission/submit_funding.html:27
+msgid "Search for funder"
+msgstr "Financier zoeken"
+
+#: src/templates/admin/submission/submit_funding.html:31
+msgid "Add funder manually"
+msgstr "Financier handmatig toevoegen"
+
+#: src/templates/admin/submission/submit_funding.html:41
+msgid "Current Funders"
+msgstr "Huidige financiers"
+
+#: src/templates/admin/submission/submit_funding.html:50
+msgid "Grant Number"
+msgstr "Beurs nummer"
+
+#: src/templates/admin/submission/submit_funding.html:65
+msgid "No funders added."
+msgstr "Geen financiers toegevoegd"
+
+#: src/templates/admin/submission/submit_funding.html:99
+msgid "Funder DOI"
+msgstr "DOI financier"
+
+#: src/templates/admin/submission/submit_funding.html:99
+#: src/templates/admin/submission/submit_funding.html:105
+msgid "(optional)"
+msgstr "(optioneel)"
+
+#: src/templates/admin/submission/submit_funding.html:105
+msgid "Funder grant number"
+msgstr "Financieringsbeurs nummer"
+
+#: src/templates/admin/submission/submit_info.html:59
+msgid "View license information"
+msgstr "Licentie informatie bekijken"
+
+#: src/templates/admin/submission/submit_info.html:108
+msgid "License Information"
+msgstr "Licentie informatie"
+
+#: src/templates/common/elements/hijack-notification.html:6
+msgid "You are currently working on behalf of %(user)s."
+msgstr "U werkt momenteel namens %(user)s."
+
+#: src/templates/common/elements/hijack-notification.html:10
+msgid "release %(user)s"
+msgstr "%(user)s vrijgeven"
+
+#: src/templates/common/elements/hijack-notification.html:14
+msgid "hide"
+msgstr "verbergen"
+
+#: src/themes/OLH/templates/core/accounts/activate_account.html:25
+#: src/themes/clean/templates/core/accounts/activate_account.html:16
+#: src/themes/material/templates/core/accounts/activate_account.html:17
+msgid "You can complete the activation process by clicking the button below."
+msgstr "U kunt het activeringsproces voltooien door op de onderstaande knop te klikken."
+
+#: src/themes/OLH/templates/core/accounts/activate_account.html:31
+msgid "There was no inactive account with this activation code found. It is possible that your account is already active, you can check by attempting to"
+msgstr "Er is geen inactief account met deze activeringscode gevonden. Het is mogelijk dat uw account al actief is, u kunt dit controleren door te proberen"
+
+#: src/themes/OLH/templates/core/accounts/orcid_registration.html:20
+msgid "The ORCiD you logged in with is not currently linked with an account in our system. You can either register a new account, or login with an existing account to link your ORCiD for future use."
+msgstr "De ORCiD waarmee u bent ingelogd, is momenteel niet gekoppeld aan een account in ons systeem. U kunt een nieuw account registreren of inloggen met een bestaand account om uw ORCiD te koppelen voor toekomstig gebruik."
+
+#: src/themes/OLH/templates/core/nav.html:59
+#: src/themes/OLH/templates/elements/right_hand_menu.html:24
+#: src/themes/clean/templates/core/nav.html:91
+#: src/themes/material/templates/core/nav.html:122
+#: src/themes/material/templates/core/nav.html:154
+msgid "Edit Article"
+msgstr "Artikel bewerken"
+
+#: src/themes/OLH/templates/core/nav.html:62
+#: src/themes/OLH/templates/elements/right_hand_menu.html:27
+#: src/themes/material/templates/core/nav.html:125
+#: src/themes/material/templates/core/nav.html:157
+msgid "Edit Issue"
+msgstr "Nummer bewerken"
+
+#: src/themes/OLH/templates/core/nav.html:66
+#: src/themes/OLH/templates/elements/right_hand_menu.html:30
+#: src/themes/material/templates/core/nav.html:160
+msgid "Edit News Item"
+msgstr "Nieuwsitem bewerken"
+
+#: src/themes/OLH/templates/elements/accounts/user_form.html:76
+#: src/themes/clean/templates/elements/accounts/user_form.html:73
+msgid "Profile Image"
+msgstr "Profiel afbeelding"
+
+#: src/themes/OLH/templates/elements/edit_author.html:4
+msgid "You are editing the frozen metadata record for this author, not their live user profile"
+msgstr ""
+
+#: src/themes/OLH/templates/elements/edit_author.html:9
+msgid "Save Metadata"
+msgstr "Metadata bewaren"
+
+#: src/themes/OLH/templates/elements/journal/article_issue_list.html:19
+msgid "This article is not a part of any issues"
+msgstr "Dit artikel maakt geen deel uit van een nummer"
+
+#: src/themes/OLH/templates/elements/journal/box_article.html:27
+#: src/themes/clean/templates/elements/article_listing.html:43
+#: src/themes/material/templates/elements/article_listing.html:44
+msgid "Also a part of:"
+msgstr "Ook onderdeel van:"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:5
+#: src/themes/clean/templates/elements/journal/citation_modals.html:6
+msgid "Harvard-Style Citation"
+msgstr "Harvard-stijl citatie"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:19
+msgid "Vancouver Citation Style"
+msgstr "Vancouver citatie stijl"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:19
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:40
+msgid "APA Citation Style"
+msgstr "APA citatie stijl"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:27
+#: src/themes/clean/templates/elements/journal/citation_modals.html:28
+msgid "Vancouver-Style Citation"
+msgstr "Vancouver-stijl citatie"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:40
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:63
+msgid "Harvard Citation Style"
+msgstr "Harvard citatie stijl"
+
+#: src/themes/OLH/templates/elements/journal/citation_modals.html:49
+#: src/themes/clean/templates/elements/journal/citation_modals.html:49
+msgid "APA-Style Citation"
+msgstr "APA-stijl citatie"
+
+#: src/themes/OLH/templates/journal/article.html:172
+#: src/themes/clean/templates/journal/article.html:175
+#: src/themes/material/templates/journal/article.html:164
+msgid "Citations"
+msgstr "Citaties"
+
+#: src/themes/OLH/templates/journal/articles.html:18
+msgid "Pinned Articles"
+msgstr "Gepinde artikels"
+
+#: src/themes/OLH/templates/journal/articles.html:27
+msgid "There are no articles published in this journal yet"
+msgstr "Er zijn nog geen artikels gepubliceerd in dit tijdschrift"
+
+#: src/themes/OLH/templates/journal/homepage_elements/popular.html:6
+#: src/themes/clean/templates/journal/homepage_elements/popular.html:7
+#: src/themes/material/templates/journal/homepage_elements/popular.html:6
+msgid "Most Popular Articles"
+msgstr "Meest populaire artikels"
+
+#: src/themes/OLH/templates/journal/keyword.html:6
+#: src/themes/OLH/templates/journal/keyword.html:12
+#: src/themes/OLH/templates/journal/search.html:23
+#: src/themes/clean/templates/journal/keyword.html:4
+#: src/themes/clean/templates/journal/keyword.html:5
+#: src/themes/material/templates/journal/keyword.html:4
+#: src/themes/material/templates/journal/keyword.html:5
+#: src/themes/material/templates/journal/search.html:14
+msgid "Keyword"
+msgstr "Trefwoord"
+
+#: src/themes/OLH/templates/journal/keyword.html:14
+#: src/themes/clean/templates/journal/keyword.html:10
+#: src/themes/material/templates/journal/keyword.html:9
+msgid "Back to Keywords List"
+msgstr "Terug naar de trefwoordenlijst"
+
+#: src/themes/OLH/templates/journal/keyword.html:16
+#: src/themes/clean/templates/journal/keyword.html:12
+#: src/themes/material/templates/journal/keyword.html:10
+msgid "Articles that use this keyword are listed below."
+msgstr "Artikels met dit trefwoord zijn hier opgelijst."
+
+#: src/themes/OLH/templates/journal/search.html:21
+#: src/themes/material/templates/journal/search.html:12
+msgid "Searching for"
+msgstr "Zoeken naar"
+
+#: src/themes/OLH/templates/journal/search.html:43
+msgid "You are currently browsing by keyword"
+msgstr "U bladert momenteel op trefwoord"
+
+#: src/themes/OLH/templates/journal/search.html:43
+msgid "Search for an article"
+msgstr "Een artikel zoeken"
+
+#: src/themes/OLH/templates/preprints/article.html:18
+#: src/themes/material/templates/preprints/article.html:19
+msgid "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight."
+msgstr "Dit artikel is een preprint, het heeft geen peer review ondergaan, noch een uitgebreid redactioneel overzicht."
+
+#: src/themes/OLH/templates/press/elements/right_hand_menu.html:13
+msgid "Preprints Dashboard"
+msgstr "Preprints dashboard"
+
+#: src/themes/OLH/templates/press/nav.html:25
+msgid "Conferences"
+msgstr "Conferenties"
+
+#: src/themes/OLH/templates/press/nav.html:31
+msgid "Preprints Home"
+msgstr "Preprints home"
+
+#: src/themes/OLH/templates/press/nav.html:33
+msgid "About Preprints"
+msgstr "Over preprints"
+
+#: src/themes/OLH/templates/press/press_journals.html:48
+msgid "Disciplines"
+msgstr "Disciplines"
+
+#: src/themes/OLH/templates/press/press_journals.html:70
+msgid "Current Issue"
+msgstr "Huidig nummer"
+
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:10
+msgid "The ORCiD you logged in with is not currently linked with an account in our system. You can either\n"
+"            register a new account, or login with an existing account to link your ORCiD for future use."
+msgstr "De ORCiD waarmee u bent ingelogd, is momenteel niet gekoppeld aan een account in ons systeem. U kunt een nieuw account registreren of inloggen met een bestaand account om uw ORCiD te koppelen voor toekomstig gebruik."
+
+#: src/themes/clean/templates/core/accounts/orcid_registration.html:30
+msgid "Forgot your password"
+msgstr "Wachtwoord vergeten"
+
+#: src/themes/clean/templates/core/accounts/public_profile.html:10
+msgid "profile photo"
+msgstr "profielfoto"
+
+#: src/themes/clean/templates/core/accounts/register.html:24
+msgid "Your password should be at minimum 12 characters long. It does not need\n"
+"                                to contain specific characters but you should make it as long as possible. For more\n"
+"                                information read on the\n"
+"                                <a href=\"#\" data-toggle=\"modal\" data-target=\"#passwordmodal\"> password guide</a>\n"
+"                                ."
+msgstr "Uw wachtwoord moet minstens 12 karakters lang zijn. Het hoeft geen speciale karakters te bevatten, maar u moet het zo lang mogelijk maken. Voor meer informatie lees de <a href=\"#passwordmodal\" class=\"modal-trigger\">wachtwoordgids</a>"
+
+#: src/themes/clean/templates/core/accounts/reset_password.html:46
+msgid "Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and\n"
+"                        uncomplicated password (our awesome moon base rocks)."
+msgstr "Het is een mythe dat een kort en complex wachtwoord (Jfjfy&65^87) veiliger is dan een lang en eenvoudig wachtwoord (our awesome moon base rocks)."
+
+#: src/themes/clean/templates/core/accounts/reset_password.html:48
+msgid "We recommend selecting a long, but easy to remember password such as <em>our awesome moon base\n"
+"                        rocks</em> which would take an estimated septillion years to crack as opposed to a complex one\n"
+"                        like <em>Jfjfy&65^87</em> which would take just over 600 years on a standard computer."
+msgstr "We raden aan om een ​​lang, maar gemakkelijk te onthouden wachtwoord te kiezen, zoals <i>our awesome moon base rocks</i>  waarvoor een standaardcomputer naar schatting een septiljoen jaar nodig heeft om het te kraken, ten opzicht van ongeveer 600 jaar voor een complex wachtwoord zoals <i>Jfjfy&65^87</i>."
+
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:6
+msgid "If you want to change your email address you may do so\n"
+"                    below, however, you will be logged out and\n"
+"                    your account will be marked as inactive until you follow the\n"
+"                    instructions in the verfication email."
+msgstr "Als u uw e-mailadres wilt wijzigen, kunt u dit hieronder doen, maar u wordt uitgelogd en uw account wordt gemarkeerd als inactief totdat u de instructies in de verificatie-e-mail volgt."
+
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:10
+msgid "Note"
+msgstr "Notitie"
+
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:11
+msgid "Changing your email address will also change your username\n"
+"                    as these are one and the same."
+msgstr "Als u uw e-mailadres wijzigt, verandert ook uw gebruikersnaam aangezien deze een en dezelfde zijn."
+
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:35
+msgid "You can update your password by entering your existing password plus your new password"
+msgstr "U kunt uw wachtwoord bijwerken door uw bestaande wachtwoord en uw nieuwe wachtwoord in te voeren."
+
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:43
+msgid "Enter New Password"
+msgstr "Nieuw wachtwoord ingeven"
+
+#: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:47
+msgid "Enter New Password Again"
+msgstr "Nieuw wachtwoord nogmaals ingeven"
+
+#: src/themes/clean/templates/elements/journal/editorial_social_content.html:2
+msgid "Website"
+msgstr "Website"
+
+#: src/themes/clean/templates/elements/journal/editorial_social_content.html:4
+msgid "Facebook"
+msgstr "Facebook"
+
+#: src/themes/clean/templates/elements/journal/editorial_social_content.html:5
+msgid "Github"
+msgstr "Github"
+
+#: src/themes/clean/templates/elements/journal/editorial_social_content.html:6
+msgid "Linkedin"
+msgstr "Linkedin"
+
+#: src/themes/clean/templates/elements/journal/keywords_block.html:4
+msgid "Keywords used by articles in this journal are listed below. Select a keyword to view which articles use it."
+msgstr ""
+
+#: src/themes/clean/templates/elements/journal/keywords_block.html:10
+msgid "This journal has no keywords to display."
+msgstr "Dit tijdschrift heeft geen trefwoorden om weer te geven."
+
+#: src/themes/clean/templates/journal/articles.html:46
+msgid "Sort and Filter"
+msgstr "Sorteren en filteren"
+
+#: src/themes/clean/templates/journal/contact.html:15
+msgid "Journal Contacts"
+msgstr "Contacten voor het tijdschrift"
+
+#: src/themes/clean/templates/journal/homepage_elements/carousel.html:5
+msgid "Latest Articles & News"
+msgstr "Laatste artikels en nieuws"
+
+#: src/themes/clean/templates/journal/homepage_elements/carousel.html:28
+msgid "Previous"
+msgstr "Vorige"
+
+#: src/themes/clean/templates/journal/homepage_elements/carousel.html:32
+msgid "Next"
+msgstr "Volgende"
+
+#: src/themes/clean/templates/journal/homepage_elements/carousel.html:37
+#: src/themes/clean/templates/journal/homepage_elements/carousel.html:42
+msgid "Play"
+msgstr "Speel"
+
+#: src/themes/clean/templates/journal/issues.html:16
+msgid "The current issue is"
+msgstr "Het huidige nummer is"
+
+#: src/themes/clean/templates/journal/issues.html:30
+msgid "This journal has no issues"
+msgstr "Dit tijdschrift heeft geen nummers"
+
+#: src/themes/clean/templates/journal/submissions.html:61
+msgid "Sections submission information"
+msgstr ""
+
+#: src/themes/material/templates/core/accounts/activate_account.html:25
+msgid "There was no inactive account with this activation code found. It is possible that your account is already active, you can check by attempting to "
+msgstr "Er is geen inactief account met deze activeringscode gevonden. Het is mogelijk dat uw account al actief is, u kunt dit controleren door te proberen "
+
+#: src/themes/material/templates/journal/article.html:140
+msgid "Tweets"
+msgstr "Tweets"
+
+#: src/themes/material/templates/journal/article.html:303
+msgid "This article has been peer reviewed."
+msgstr "Dit artikel heeft 'peer review' ondergaan."
+

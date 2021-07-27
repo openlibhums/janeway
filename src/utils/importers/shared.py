@@ -544,7 +544,7 @@ def set_article_section(article, soup_object, element='h4', attributes=None, def
     if section_name and section_name != '':
         print('Adding article to section {0}'.format(section_name))
 
-        section, created = submission_models.Section.objects.language('en').get_or_create(journal=article.journal, name=section_name)
+        section, created = submission_models.Section.objects.get_or_create(journal=article.journal, name=section_name)
         article.section = section
     else:
         print('No section information found. Reverting to default of "Articles"')

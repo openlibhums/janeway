@@ -16,7 +16,8 @@ from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.translation import ugettext
 
 from core import (
         files,
@@ -90,13 +91,24 @@ class Journal(AbstractSiteModel):
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
-    is_remote = models.BooleanField(default=False)
+    is_remote = models.BooleanField(
+        default=False,
+        help_text=ugettext('When enabled, the journal is marked as not hosted in Janeway.'),
+    )
     is_conference = models.BooleanField(default=False)
-    remote_submit_url = models.URLField(blank=True, null=True)
-    remote_view_url = models.URLField(blank=True, null=True)
+    remote_submit_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text=ugettext('If the journal is remote you can link to its submission page.'),
+    )
+    remote_view_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text=ugettext('If the journal is remote you can link to its home page.'),
+    )
     view_pdf_button = models.BooleanField(
         default=False,
-        help_text='Enables a "View PDF" link on article pages.'
+        help_text=ugettext('Enables a "View PDF" link on article pages.'),
     )
 
     # Nav Items
@@ -127,7 +139,7 @@ class Journal(AbstractSiteModel):
     # this has to be handled this way so that we can add migrations to press
     try:
         press_name = press_models.Press.get_press(None).name
-    except BaseException:
+    except Exception:
         press_name = ''
 
     # Issue Display
@@ -157,10 +169,9 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting(group_name, setting_name, self, create=False).processed_value
 
     @property
-    @cache(300)
     def name(self):
         try:
-            return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+            return setting_handler.get_setting('general', 'journal_name', self, default=True).value
         except IndexError:
             self.name = 'Janeway Journal'
             return self.name
@@ -171,7 +182,7 @@ class Journal(AbstractSiteModel):
 
     @property
     def publisher(self):
-        return setting_handler.get_setting('general', 'publisher_name', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'publisher_name', self, default=True).value
 
     @publisher.setter
     def publisher(self, value):
@@ -180,7 +191,7 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def issn(self):
-        return setting_handler.get_setting('general', 'journal_issn', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'journal_issn', self, default=True).value
 
     @property
     @cache(120)
@@ -189,8 +200,7 @@ class Journal(AbstractSiteModel):
             return setting_handler.get_setting('Identifiers',
                                                'crossref_prefix',
                                                self,
-                                               create=False,
-                                               fallback='en').processed_value
+                                               default=True).processed_value
         except IndexError:
             return False
 
@@ -498,9 +508,9 @@ class Issue(models.Model):
     def pretty_issue_identifier(self):
         journal = self.journal
 
-        volume = "Volume {}".format(
+        volume = ugettext("Volume") + " {}".format(
             self.volume) if journal.display_issue_volume else ""
-        issue = "Issue {}".format(
+        issue = ugettext("Issue") + " {}".format(
             self.issue) if journal.display_issue_number else ""
         year = "{}".format(
             self.date.year) if journal.display_issue_year else ""
@@ -886,12 +896,13 @@ class Notifications(models.Model):
 @receiver(post_save, sender=Journal)
 def setup_default_section(sender, instance, created, **kwargs):
     if created:
-        submission_models.Section.objects.language('en').get_or_create(
-            journal=instance,
-            number_of_reviewers=2,
-            name='Article',
-            plural='Articles'
-        )
+        with translation.override(settings.LANGUAGE_CODE):
+            submission_models.Section.objects.get_or_create(
+                journal=instance,
+                number_of_reviewers=2,
+                name='Article',
+                plural='Articles'
+            )
 
 
 @receiver(post_save, sender=Journal)
@@ -932,7 +943,7 @@ def setup_default_form(sender, instance, created, **kwargs):
                 required=True,
                 order=1,
                 width='large-12 columns',
-                help_text='Please add as much detail as you can.'
+                help_text=ugettext('Please add as much detail as you can.'),
             )
 
             default_review_form.elements.add(main_element)

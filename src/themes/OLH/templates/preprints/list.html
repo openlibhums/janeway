@@ -12,7 +12,7 @@
     <section id="content">
         <div class="row">
             <div class="large-8 columns border-right">
-                <h4>{% if subject %}{{ subject.name }} Preprints{% else %}{% trans "All Preprints" %}{% endif %}</h4>
+                <h4>{% if subject %}{{ subject.name }} {% trans "Preprints" %}{% else %}{% trans "All Preprints" %}{% endif %}</h4>
                 {% for article in articles %}
                     <div class="box article">
                         <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'preprints_article' article.pk %}{% endif %}"

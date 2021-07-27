@@ -27,10 +27,13 @@ def install():
         press_wide=True,
         homepage_element=True,
     )
-
-    models.PluginSetting.objects.get_or_create(
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    setting_group, c = core_models.SettingGroup.objects.get_or_create(
+        name=plugin_group_name,
+    )
+    setting, c = core_models.Setting.objects.get_or_create(
         name='html_block_content',
-        plugin=plugin,
+        group=setting_group,
         defaults={
             'pretty_name': 'HTML Block Content',
             'types': 'rich-text',

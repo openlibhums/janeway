@@ -56,7 +56,7 @@
                                 <td><a href="{% journal_base_url journal %}">{{ journal.name }}</a></td>
                                 <td>{{ journal.code }}</td>
                                 <td><a href="{% url 'press_journal_domain' journal.pk %}"><i class="fa fa-edit">&nbsp;</i> {{ journal.domain }}</a></td>
-                                <td><a class="" href="{% url 'core_edit_settings_group' "journal" %}?journal={{ journal.pk }}">Edit Settings</a></td>
+                                <td><a class="" href="{% journal_base_url journal %}{% url 'core_manager_index' %}">Edit Settings</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -122,7 +122,12 @@
                 <h4><i class="fa fa-plus">&nbsp;</i>New Journal</h4>
             </div>
             <div class="card-section">
-                <p class="lead">First, we need you to set the journal's code and domain, you'll then be directed to the full setup form.</p>
+                <ul>
+                    <li>Add a code for the journal. Journal codes can be 15 characters in length and <em>must</em> be unique.</li>
+                {% if url_config == 'domain' %}
+                    <li>Add a domain for your journal. <em>Warning: </em> this domain should be setup on your web server already as you will be redirected to it.</li>
+                {% endif %}
+                </ul>
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}

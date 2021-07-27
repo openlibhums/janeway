@@ -5,16 +5,26 @@ import re
 
 from bs4 import BeautifulSoup
 from django.db import migrations
+from django.utils import translation
+from django.conf import settings as django_settings
 
 URL_NAME_RE = r"url '(\w+)'"
 
 
 def replace_setting_urls(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-    settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
-    for setting in settings:
-        setting.value = setting.value.replace("url }}.", "url }} ")
-        setting.save()
+    try:
+        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+        settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
+        for setting in settings:
+            setting.value = setting.value.replace("url }}.", "url }} ")
+            setting.save()
+    except LookupError:
+        with translation.activate(django_settings.LANGUAGE_CODE):
+            SettingValue = apps.get_model('core', 'SettingValue')
+            settings = SettingValue.objects.filter(setting__group__name="email")
+            for setting in settings:
+                setting.value = setting.value.replace("url }}.", "url }} ")
+                setting.save()
 
 
 class Migration(migrations.Migration):

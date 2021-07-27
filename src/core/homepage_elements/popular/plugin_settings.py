@@ -1,12 +1,13 @@
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
+from utils import models, setting_handler
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 PLUGIN_NAME = 'Popular Articles'
+SHORT_NAME = 'popular_articles'
 DESCRIPTION = 'This is a homepage element that renders popular articles.'
 AUTHOR = 'Martin Paul Eve'
 VERSION = '1.0'
@@ -37,41 +38,31 @@ def install():
     if c:
         logger.debug('Plugin {} created'.format(PLUGIN_NAME))
 
-    models.PluginSetting.objects.get_or_create(
-        name='most_popular',
-        plugin=plugin,
-        defaults={
-            'pretty_name': 'Display Most Popular Articles',
-            'types': 'boolean',
-            'description': 'Displays the most popular articles.',
-            'is_translatable': False,
-        }
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=SHORT_NAME)
+    setting_handler.create_setting(
+        setting_group_name=plugin_group_name,
+        setting_name='most_popular',
+        type='boolean',
+        pretty_name='Display Most Popular Articles',
+        description='Displays the most popular articles.',
+        is_translatable=False,
     )
-
-    models.PluginSetting.objects.get_or_create(
-        name='num_most_popular',
-        plugin=plugin,
-        defaults={
-            'pretty_name': 'Number of Most Popular Articles to Display',
-            'types': 'number',
-            'description': 'Determines how many popular articles we should display.',
-            'is_translatable': False,
-        }
+    setting_handler.create_setting(
+        setting_group_name=plugin_group_name,
+        setting_name='num_most_popular',
+        type='number',
+        pretty_name='Number of Most Popular Articles to Display',
+        description='Determines how many popular articles we should display.',
+        is_translatable=False,
     )
-
-    models.PluginSetting.objects.get_or_create(
-        name='most_popular_time',
-        plugin=plugin,
-        defaults={
-            'pretty_name': 'Most Popular Timescale',
-            'types': 'text',
-            'description': 'Select from this week, this month or this year.',
-            'is_translatable': False,
-        }
+    setting_handler.create_setting(
+        setting_group_name=plugin_group_name,
+        setting_name='most_popular_time',
+        type='text',
+        pretty_name='Most Popular Timescale',
+        description='Select from this week, this month or this year.',
+        is_translatable=False,
     )
-
-    if c:
-        logger.debug('Setting created')
 
     # check whether this homepage element has already been installed for all journals
     journals = journal_models.Journal.objects.all()

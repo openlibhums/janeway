@@ -18,9 +18,9 @@
 
         <div class="row">
             {% if search_term %}
-                <h1>Searching for: <i>{{ search_term }}</i></h1>
+                <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
             {% elif keyword %}
-                <h1>Keyword: <i>{{ keyword }}</i></h1>
+                <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
             {% endif %}
             <div class="large-8 columns border-right">
                 <h2>{% trans "Articles" %}</h2>
@@ -40,7 +40,7 @@
                                 <label for="{{ form.article_search.id_for_label }}">Search titles, subtitles, keywords, and authors</label>
                                 {{ form.article_search }}
                             {% else %}
-                                You are currently browsing by keyword. <a href="{% url 'search' %}">Search for an article.</a>
+                                {% trans 'You are currently browsing by keyword' %}. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
                             {% endif %}
                         </div>
                         <div class="section">

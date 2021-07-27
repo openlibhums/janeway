@@ -564,3 +564,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .default-li ul>li {
     list-style-type: initial;
 }
+
+.language-select {
+    color: #616161;
+}

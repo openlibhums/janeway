@@ -1,0 +1,22 @@
+{% load svg from press_url %}
+{% load truncate %}
+{% load i18n %}
+
+<section>
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="index-header">{% trans "Latest News" %}</h1>
+        </div>
+        {% for item in news_items %}
+            <div class="col-md-6 row-eq-height">
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <h3 class="card-title"><a href="{% url 'core_news_item' item.pk %}" class="card-link">{{ item.title }}</a></h3>
+                        <h4 class="card-subtitle mb-2 text-muted">{{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</h4>
+                        <p class="card-text mb-auto">{{ item.body|striptags|truncatesmart:400 }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>

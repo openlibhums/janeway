@@ -3,26 +3,48 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.utils import translation
+from django.conf import settings as django_settings
+
 OLD_VALUE = "Dear {{ review_assignment.reviewer.full_name  }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title  }}\" in {{ article.journal.name  }}.<br/><br/>We woul       d be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to under       take the review: {{ review_url  }} <br/><br/>Regards,<br/>{{ request.user.signature|safe  }}"
 NEW_VALUE = "Dear {{ review_assignment.reviewer.full_name  }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title  }}\" in {{ article.journal.name  }}.<br/><br/>We woul       d be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to under       take the review: {{ review_url  }} <br/><br/>{{ article_details  }}<br/><br/>Regards,<br/>{{ request.user.signature|safe  }}"
 
 
 def update_setting_values(apps, schema_editor):
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+    try:
+        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
 
-    setting_values = SettingValueTranslation.objects.filter(
-        master__setting__name='review_assignment',
-        master__setting__group__name='email',
-    )
+        setting_values = SettingValueTranslation.objects.filter(
+            master__setting__name='review_assignment',
+            master__setting__group__name='email',
+        )
 
-    for setting in setting_values:
-        # IF it hasn't been modified, just update it with the new value
-        if setting.value == OLD_VALUE:
-            setting.value = NEW_VALUE
-        elif "article_detail" not in setting.value:
-            # otherwise, append the metadata at the end
-            setting.value += ("<br/>{{ article_details }}")
-        setting.save()
+        for setting in setting_values:
+            # IF it hasn't been modified, just update it with the new value
+            if setting.value == OLD_VALUE:
+                setting.value = NEW_VALUE
+            elif "article_detail" not in setting.value:
+                # otherwise, append the metadata at the end
+                setting.value += ("<br/>{{ article_details }}")
+            setting.save()
+    except LookupError:
+        with translation.activate(django_settings.LANGUAGE_CODE):
+            SettingValue = apps.get_model('core', 'SettingValue')
+            setting_values = SettingValue.objects.filter(
+                setting__name='review_assignment',
+                setting__group__name='email',
+            )
+            for setting in setting_values:
+                value_attr_name = "value_{}".format(django_settings.LANGUAGE_CODE)
+                value = getattr(setting, value_attr_name)
+                # IF it hasn't been modified, just update it with the new value
+                if setting.value == OLD_VALUE:
+                    setting.value = NEW_VALUE
+                elif "article_detail" not in value:
+                    # otherwise, append the metadata at the end
+                    new_value = value + "<br/>{{ article_details }}"
+                    setattr(setting, value_attr_name, new_value)
+                setting.save()
 
 
 class Migration(migrations.Migration):

@@ -11,6 +11,26 @@
     </button>
     <ul class="vertical menu">
         <li class="title"><a href="#"><i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway</a></li>
+             {% if journal_settings.general.switch_language %}
+        <li class="subtitle"><a href="#">Switch Language</a></li>
+        <li>
+            <div class="small-12 small-centered columns">
+                 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.PATH }}" />
+                    <select name="language" onchange="this.form.submit()">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                {{ language.name_local }} ({{ language.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </li>
+        {% endif %}
         <li class="subtitle"><a href="#">Dashboards</a></li>
         <li><a href="{% url 'core_dashboard' %}"><i class="fa fa-tachometer">&nbsp;</i>
             Main</a></li>
@@ -50,26 +70,6 @@
             Workflow</a></li>
             {% hook 'journal_admin_nav_block' %}
         {% endif %}
-        {% if journal_settings.general.switch_language %}
-        <li class="subtitle"><a href="#">Language</a></li>
-        <li>
-            <div class="small-12 small-centered columns">
-                 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-                    <input name="next" type="hidden" value="{{ request.PATH }}" />
-                    <select name="language" onchange="this.form.submit()">
-                        {% get_current_language as LANGUAGE_CODE %}
-                        {% get_available_languages as LANGUAGES %}
-                        {% get_language_info_list for LANGUAGES as languages %}
-                        {% for language in languages %}
-                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                                {{ language.name_local }} ({{ language.code }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-        </li>
-        {% endif %}
     </ul>
 </div>
 
@@ -77,13 +77,13 @@
 
     <header class="main-header" role="banner">
         <div class="row expanded">
-            <div class="small-3 columns">
+            <div class="small-3 columns hide-for-large">
                 <button type="button" class="button hide-for-large" data-toggle="offCanvas"><img
                         src="{% static "admin/img/icons/menu-toggle.svg" %}" alt="Menu"> Menu
                 </button>
                 &nbsp;
             </div>
-            <div class="small-6 columns text-center show-for-large">
+            <div class="small-6 large-10 columns show-for-large">
                 <h1><a href="{% url 'website_index' %}">{{ request.journal.name }}</a></h1>
             </div>
             <div class="small-6 columns text-center show-for-medium-only">
@@ -92,11 +92,10 @@
             <div class="small-6 columns text-center show-for-small-only">
                 <h1><a href="{% url 'website_index' %}">{{ request.journal.code }}</a></h1>
             </div>
-            <div class="small-3 columns text-right">
+            <div class="small-3 large-2 columns text-right">
                 {% if request.user.is_authenticated %}
                 <div class="profile">
                     <a class="float-right" data-toggle="profile-dropdown">
-                        <p class="show-for-medium">Hello, {{ request.user.first_name }}!</p>
                         {% include "elements/avatar.html" with user=request.user tooltip="off" %}
                     </a>
                 </div>

@@ -1,0 +1,67 @@
+{% extends "core/base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load recaptcha2 %}
+
+{% block title %}{% trans "Register" %}{% endblock title %}
+
+{% block head %}
+    {% recaptcha_init %}
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="callout">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>{% trans "Register for" %} {% if request.journal %}{{ request.journal.name }}{% else %}
+                                {{ request.press.name }}{% endif %}</h5>
+                            <p>{% blocktrans %}Your password should be at minimum 12 characters long. It does not need
+                                to contain specific characters but you should make it as long as possible. For more
+                                information read on the
+                                <a href="#" data-toggle="modal" data-target="#passwordmodal"> password guide</a>
+                                .{% endblocktrans %}</p>
+
+                            {% bootstrap_form form %}
+                            <p>{% trans 'By registering an account you agree to our' %} <a href="/site/privacy/">{% trans 'Privacy Policy' %}</a>.</p>
+                            <p>
+                                <button type="submit"
+                                        class="btn btn-primary float-right">{% trans "Register" %}</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="passwordmodal" tabindex="-1" role="dialog" aria-labelledby="passwordmodal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Password Guide</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="lead">When it comes to passwords, length is better than complexity.</p>
+                    <p>Its a common myth that a short and complex password (Jfjfy&65^87) is more secure than a long and
+                        uncomplicated password (our awesome moon base rocks).</p>
+                    <p>We recommend selecting a long, but easy to remember password such as <em>our awesome moon base
+                        rocks</em> which would take an estimated septillion years to crack as opposed to a complex one
+                        like <em>Jfjfy&65^87</em> which would take just over 600 years on a standard computer.</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

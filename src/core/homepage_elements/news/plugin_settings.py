@@ -9,7 +9,7 @@ SHORT_NAME = 'news'
 DESCRIPTION = 'This is a homepage element that renders News section.'
 AUTHOR = 'Martin Paul Eve & Andy Byers'
 VERSION = '1.0'
-DEFAULT_NEWS = 5 #Defines how many news are to be displayed by default
+DEFAULT_NEWS = 5  # Defines how many news are to be displayed by default
 
 
 def install():
@@ -27,6 +27,19 @@ def install():
         press_wide=True,
         homepage_element=True,
     )
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    setting = setting_handler.create_setting(
+        setting_group_name=plugin_group_name,
+        setting_name='number_of_articles',
+        type='number',
+        pretty_name='Number of Articles',
+        description='Number of news articles to display on the homepage.',
+        is_translatable=False,
+    )
+    setting_handler.get_or_create_default_setting(
+        setting,
+        default_value=DEFAULT_NEWS,
+    )
 
     for journal in journals:
         content_type = ContentType.objects.get_for_model(journal)
@@ -40,19 +53,20 @@ def install():
             defaults={'available_to_press': True})
 
         element.save()
+
         number_of_articles = setting_handler.get_plugin_setting(
-                plugin=plugin,
-                setting_name='number_of_articles',
-                journal=journal,
-                create=True,
-                pretty='Number of Articles',
-        ).value
+            plugin=plugin,
+            setting_name='number_of_articles',
+            journal=journal,
+            create=True,
+            pretty='Number of Articles',
+        )
         if number_of_articles in {None, " ", ""}:
             setting_handler.save_plugin_setting(
-                    plugin=plugin,
-                    setting_name='number_of_articles',
-                    value=DEFAULT_NEWS,
-                    journal=journal,
+                plugin=plugin,
+                setting_name='number_of_articles',
+                value=DEFAULT_NEWS,
+                journal=journal,
             )
 
     presses = press_models.Press.objects.all()
@@ -73,7 +87,6 @@ def install():
 
 def hook_registry():
     try:
-        install()
         return {
             'yield_homepage_element_context': {
                 'module': 'core.homepage_elements.news.hooks',

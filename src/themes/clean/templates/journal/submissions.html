@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block title %}{% trans 'Submissions' %}{% endblock title %}
+
+{% block body %}
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{% trans 'Submissions' %}</h1>
+                {{ journal_settings.general.submission_intro_text|safe }}
+
+                <div class="button-group">
+                    {% if not request.user.is_authenticated %}<a href="{% url 'core_register' %}" class="btn btn-primary">{% trans 'Register' %}</a>
+                    <a href="{% url 'core_login' %}" class="btn btn-primary">{% trans 'Login' %}</a>{% else %}
+                    <a href="{% url 'submission_start' %}" class="btn btn-primary">{% trans 'Start Submission' %}</a>{% endif %}
+                </div>
+                <hr/>
+                {% for item in submission_items %}
+                    {% if item.title == 'licences' %}
+                        <h2>
+                            {{ item.title|capfirst }}
+                        </h2>
+                        <p>{{ request.journal.name }} {% trans "allows the following licences for submission" %}:</p>
+                        {% include "elements/license_block.html" %}
+                    {% elif item.title == 'sections' %}
+                        {% include "elements/sections_block.html" %}
+                    {% elif item.get_display_text %}
+                        <h2>
+                            {{ item.title|capfirst }}
+                        </h2>
+                        {{ item.get_display_text|safe }}
+                        <div class="divider spacer"></div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+		</div>
+{% endblock body %}

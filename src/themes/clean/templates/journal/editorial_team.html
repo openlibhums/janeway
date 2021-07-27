@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}{% trans 'Editorial Team' %}{% endblock title %}
+
+{% block body %}
+    <div class="row mb-2">
+        <div class="col-md-12">
+            <h1>{% trans 'Editorial Team' %}</h1>
+        </div>
+
+        {% for group in editorial_groups %}
+            <div class="col-md-12">
+                <h2>{{ group.name }}</h2>
+                {% if group.description %}
+                    <p>{{ group.description|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+            <div class="card-deck">
+                {% for member in group.members %}
+                    <div class="card row-eq-height">
+                    {% if journal_settings.general.enable_editorial_images %}
+                        <img class="card-img-top card-img" src="
+                                {% if member.user.profile_image %}{{ member.user.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
+                             alt="{{ member.user.full_name }}'s profile image.">
+                    {% endif %}
+                    <div class="card-body">
+                        <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
+                        <p class="card-text">
+                            <small>{{ member.user.affiliation }}</small>
+                        </p>
+                        {% if user.enable_public_profile %}
+                            <p class="card-text">
+                                <small class="text-muted"><a href="{% url 'core_public_profile' member.user.uuid %}">View
+                                    Profile</a>
+                                </small>
+                            </p>
+                        {% endif %}
+                        {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                    </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

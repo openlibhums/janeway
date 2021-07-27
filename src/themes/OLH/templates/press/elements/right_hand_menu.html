@@ -1,16 +1,18 @@
 {% load roles %}
+{% load i18n %}
+
 <ul class="menu">
     {% user_has_role request 'editor' as user_is_editor %}
     {% if user_is_editor  or user.is_staff %}
-        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-        <li><a href="/admin/">Admin</a></li>{% endif %}
+        <li><a href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a></li>
+        <li><a href="/admin/">{% trans 'Admin' %}</a></li>{% endif %}
     {% if request.resolver_match.url_name and request.resolver_match.url_name == 'cms_page' and page %}
-        <li><a href="{% url 'cms_page_edit' page.pk %}">Edit Page</a></li>
+        <li><a href="{% url 'cms_page_edit' page.pk %}">{% trans 'Edit Page' %}</a></li>
     {% endif %}
     {% if request.press.enable_preprints %}
-        <li><a href="{% url 'preprints_dashboard' %}">Preprints Dashboard</a>
+        <li><a href="{% url 'preprints_dashboard' %}">{% trans 'Preprints Dashboard' %}</a>
         </li>
     {% endif %}
-    <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-    <li><a href="{% url 'core_logout' %}">Logout</a></li>
+    <li><a href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
+    <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
 </ul>

@@ -1,0 +1,104 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}Sections{% endblock title %}
+{% block title-section %}Sections{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_sections' %}">Sections</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal Sections</h2>
+                <a href="{% url 'core_manager_section_add' %}" class="button">Add New Section</a>
+            </div>
+            <div class="content">
+                <p>{% blocktrans %}
+                    You can create and edit article section types below. To quickly re-order sections, drag and drop the {% endblocktrans %}<i class="fa fa-sort"> </i> {% trans "handles on the left of each row" %}.
+                    {% blocktrans %}This will change the order that the author sees these on the submission page - so you may want to move the most popular or current sections to the top.{% endblocktrans %}
+                </p>
+                <p>
+                    <strong>NB.</strong> {% blocktrans %}You cannot delete a Section that contains articles. Remove the articles from the section if you want to delete it.{% endblocktrans %}
+                </p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <table class="table scroll">
+                        <thead>
+                        <tr>
+                            <th>Sort</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Open for Submission</th>
+                            <th># Reviewers</th>
+                            <th># Articles</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for section in section_objects %}
+                            <tr id="section-{{ section.pk }}">
+                                <td><i class="fa fa-sort">&nbsp;</i></td>
+                                <td>{{ section.pk }}</td>
+                                <td>{{ section.name }}</td>
+                                <td>{{ section.public_submissions|bool_fa }}</td>
+                                <td>{{ section.number_of_reviewers }}</td>
+                                <td><a href="{% url 'core_manager_section_articles' section.pk %}">{{ section.article_count }}</a></td>
+                                <td>
+                                    <a href="{% url 'core_manager_section' section.pk %}" class="tiny warning button">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                                <td>
+                                    <button {% if section.article_count %}disabled{% endif %} type="submit" class="tiny alert button delete {% if section.article_count %}disabled{% endif %}" name="delete"
+                                            value="{{ section.pk }}">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'core_editorial_ordering' 'sections' %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                if (!confirm("Are you sure you want to delete this section?")) {
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock js %}

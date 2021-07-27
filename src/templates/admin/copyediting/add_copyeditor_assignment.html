@@ -83,8 +83,9 @@
                     {% endfor %}
                     {% for file in article.data_figure_files.all %}
                         <tr>
-                            <td><input type="checkbox" name="files" value="{{ file.id }}"
+                            <td><input type="checkbox" name="files_for_copyediting" value="{{ file.id }}"
                                        {% if file in form.cleaned_data.files_for_copyediting %}checked="checked"{% endif %}></td>
+                            <td>{{ file.pk }}</td>
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td>Data/Figure</td>

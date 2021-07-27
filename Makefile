@@ -96,5 +96,11 @@ uninstall:	## Removes all janeway related docker containers, docker images and d
 	@echo " Janeway has been uninstalled"
 check:		## Runs janeway's test suit
 	bash -c "DB_VENDOR=sqlite make command CMD=test"
+migrate:		## Runs Django's migrate command
+	bash -c "make command CMD=migrate"
+makemigrations:		## Runs Django's makemigrations command
+	bash -c "make command CMD=makemigrations"
+build_assets:		## Runs Janeway's build_assets command
+	bash -c "make command CMD=build_assets"
 basebuild:		## Builds the base docker image
 	bash -c "docker build --no-cache -t janeway:`git rev-parse --abbrev-ref HEAD` ."

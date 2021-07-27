@@ -17,25 +17,34 @@
                 <a class="button" href="{% url 'cms_page_new' %}"><i class="fa fa-plus">&nbsp;</i>Add New Page</a>
             </div>
             <div class="content">
-                <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+                <table class="table small" id="pages">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>View</th>
+                        <th>Edit</th>
+                        <td>Delete</td>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {% for page in pages %}
-                        <li class="accordion-item" data-accordion-item>
-                            <a href="#" class="accordion-title">{{ page.display_name }}</a>
-                            <div class="accordion-content" data-tab-content>
-                                <ul>
-                                    <li>URL: /{{ page.name }}/</li>
-                                    <li>Format: {% if page.is_markdown %}Markdown{% else %}HTML{% endif %}</li>
-                                </ul>
-
+                        <tr>
+                            <td>{{ page.display_name }} (/site/{{ page.name }})</td>
+                            <td><a href="{% url 'cms_page' page.name %}" target="_blank" class="tiny button">View</a>
+                            </td>
+                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
+                            <td>
                                 <form method="POST">
                                     {% csrf_token %}
-                                    <a href="{% url 'cms_page_edit' page.pk %}" class="success button">Edit</a>
-                                    <button name="delete" value="{{ page.pk }}" type="submit" class="alert button">Delete</button>
+                                    <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
+                                        Delete
+                                    </button>
                                 </form>
-                            </div>
-                        </li>
+                            </td>
+                        </tr>
                     {% endfor %}
-                </ul>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -48,7 +57,7 @@
             </div>
             <div class="content">
                 <p>Your custom navigation currently looks like this: </p>
-                {% include "elements/cms_nav.html" %}
+                {% include "admin/elements/cms_nav.html" %}
             </div>
         </div>
     </div>
@@ -105,3 +114,8 @@
     </div>
     {% endif %}
 {% endblock body %}
+
+{% block js %}
+    {% include "admin/elements/datatables.html" with target="#pages" %}
+{% endblock js %}
+

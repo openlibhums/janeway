@@ -6,39 +6,42 @@ from django.db import migrations
 
 
 def replace_author_review_setting(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
-    SettingValue = apps.get_model('core', 'SettingValue')
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
-    Journal = apps.get_model('journal', 'Journal')
+    try:
+        Setting = apps.get_model('core', 'Setting')
+        SettingValue = apps.get_model('core', 'SettingValue')
+        SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+        Journal = apps.get_model('journal', 'Journal')
 
-    setting = Setting.objects.filter(
-        name='copyeditor_notify_author',
-        group__name='email',
-    )
+        setting = Setting.objects.filter(
+            name='copyeditor_notify_author',
+            group__name='email',
+        )
 
-    journals = Journal.objects.all()
+        journals = Journal.objects.all()
 
-    values_to_replace = [
-        '{{journal.site_url}}{{ url }}',
-        '{{request.journal.site_url}}{{ url }}'
-    ]
+        values_to_replace = [
+            '{{journal.site_url}}{{ url }}',
+            '{{request.journal.site_url}}{{ url }}'
+        ]
 
-    for journal in journals:
-        values = SettingValue.objects.filter(journal=journal, setting=setting)
+        for journal in journals:
+            values = SettingValue.objects.filter(journal=journal, setting=setting)
 
-        for value in values:
-            translations = SettingValueTranslation.objects.filter(
-                master_id=value.pk
-            )
+            for value in values:
+                translations = SettingValueTranslation.objects.filter(
+                    master_id=value.pk
+                )
 
-            for translation in translations:
-                value = translation.value
-                for value_to_replace in values_to_replace:
-                    translation.value = value.replace(
-                        value_to_replace,
-                        "{% journal_url 'author_copyedit' article.pk author_review.pk %}",
-                    )
-                translation.save()
+                for translation in translations:
+                    value = translation.value
+                    for value_to_replace in values_to_replace:
+                        translation.value = value.replace(
+                            value_to_replace,
+                            "{% journal_url 'author_copyedit' article.pk author_review.pk %}",
+                        )
+                    translation.save()
+    except LookupError:
+        pass
 
 
 class Migration(migrations.Migration):

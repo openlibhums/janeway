@@ -102,8 +102,7 @@ class ArticleInfo(KeywordModelForm):
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
-            section_queryset = models.Section.objects.language().fallbacks(
-                'en').filter(
+            section_queryset = models.Section.objects.filter(
                 journal=article.journal,
             )
             license_queryset = models.Licence.objects.filter(
@@ -347,9 +346,7 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields['default_section'].queryset = models.Section.objects.language().fallbacks(
-            settings.LANGUAGE_CODE,
-        ).filter(
+        self.fields['default_section'].queryset = models.Section.objects.filter(
             journal=self.instance.journal,
         )
         self.fields[

@@ -3,6 +3,9 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
 {% block admin-header %}Edit Navigation{% endblock %}
 
 {% block breadcrumbs %}
@@ -15,8 +18,18 @@
 {% block body %}
     <div class="large-6 columns">
         <div class="box">
+            {% include "admin/elements/translations/form_tabs.html" with object=nav_item_to_edit %}
             <form method="POST">
                 {% csrf_token %}
+                <small>
+                    <p>To create a navigation link to a CMS page:</p>
+                    <ul>
+                        <li>{% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with {{ request.journal.code }}/{% endif %}site/</li>
+                        <li>Add the URL Name of the page eg. about</li>
+                        <li>An example: {% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with {{ request.journal.code }}/{% endif %}site/about/</li>
+                        <li>Link Name is the text that will appear in the nav bar. eg. About or Research Integrity</li>
+                    </ul>
+                </small>
                 {{ form|foundation }}
                 <button type="submit" name="submit" class="success button">
                     {% if nav_item_to_edit  %}Update{% else %}Create{% endif %}

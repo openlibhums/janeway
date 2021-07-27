@@ -79,14 +79,14 @@ urlpatterns = [
     # Settings Management
     url(r'^manager/settings/$', core_views.settings_index, name='core_settings_index'),
     url(r'^manager/default_settings/$', core_views.default_settings_index, name='core_default_settings_index'),
-    url(r'^manager/settings/group/(?P<setting_group>[-\w.]+)/setting/(?P<setting_name>[-\w.]+)/$',
+    url(r'^manager/settings/group/(?P<setting_group>[-\w.:]+)/setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_setting'),
-    url(r'^manager/settings/group/(?P<setting_group>[-\w.]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
+    url(r'^manager/settings/group/(?P<setting_group>[-\w.:]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_default_setting'),
     url(r'^manager/settings/(?P<group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
-    url(r'^manager/settings/(?P<plugin>[-\w.]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
+    url(r'^manager/settings/(?P<plugin>[-\w.:]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
         core_views.edit_plugin_settings_groups, name='core_edit_plugin_settings_groups'),
 
     url(r'^manager/home/settings/$', core_views.settings_home, name='home_settings_index'),
@@ -117,6 +117,7 @@ urlpatterns = [
 
     # Journal Contacts
     url(r'^manager/contacts/$', core_views.contacts, name='core_journal_contacts'),
+    url(r'^manager/contacts/add/$', core_views.edit_contacts, name='core_new_journal_contact'),
     url(r'^manager/contacts/(?P<contact_id>\d+)/$', core_views.edit_contacts, name='core_journal_contact'),
     url(r'^manager/contacts/order/$', core_views.contacts_order, name='core_journal_contacts_order'),
 
@@ -124,6 +125,8 @@ urlpatterns = [
     url(r'^manager/editorial/$', core_views.editorial_team, name='core_editorial_team'),
     url(r'^manager/editorial/(?P<group_id>\d+)/$', core_views.edit_editorial_group,
         name='core_edit_editorial_team'),
+    url(r'^manager/editorial/new/$', core_views.edit_editorial_group,
+        name='core_add_editorial_team'),
     url(r'^manager/editorial/(?P<group_id>\d+)/add/$', core_views.add_member_to_group,
         name='core_editorial_member_to_group'),
     url(r'^manager/editorial/(?P<group_id>\d+)/add/(?P<user_id>\d+)/$', core_views.add_member_to_group,
@@ -148,9 +151,13 @@ urlpatterns = [
 
     # Journal Sections
     url(r'^manager/sections/$',
-        core_views.sections, name='core_manager_sections'),
+        core_views.section_list, name='core_manager_sections'),
+    url(r'^manager/sections/add/$',
+        core_views.manage_section, name='core_manager_section_add'),
     url(r'^manager/sections/(?P<section_id>\d+)/$',
-        core_views.sections, name='core_manager_section'),
+        core_views.manage_section, name='core_manager_section'),
+    url(r'^manager/sections/(?P<section_id>\d+)/articles/$',
+        core_views.section_articles, name='core_manager_section_articles'),
 
     # Pinned Articles
     url(r'^manager/articles/pinned/$',
@@ -217,7 +224,7 @@ if plugins:
     for plugin in plugins:
         try:
             urlpatterns += [
-                url(r'^plugins/{0}/'.format(plugin.best_name()), include('plugins.{0}.urls'.format(plugin.name))),
+                url(r'^plugins/{0}/'.format(plugin.best_name(slug=True)), include('plugins.{0}.urls'.format(plugin.name))),
             ]
             if settings.DEBUG:
                 print("Loaded URLs for {0}".format(plugin.name))

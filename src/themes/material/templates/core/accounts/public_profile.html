@@ -21,12 +21,14 @@
                     {{ user.biography|safe }}
                     <br/><br/>
                 {% endif %}
-                <h3>{% trans "Publications" %}</h3>
-                <hr />
-                {% for article in user.published_articles %}
-                    {% include "elements/article_listing.html" with article=article %}
+                {% if user.published_articles %}
+                    <h3>{% trans "Publications" %}</h3>
                     <hr />
-                {% endfor %}
+                    {% for article in user.published_articles %}
+                        {% include "elements/article_listing.html" with article=article %}
+                        <hr />
+                    {% endfor %}
+                {% endif %}
             </div>
 		</div>
 	</section>
