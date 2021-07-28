@@ -210,6 +210,7 @@ class ArticleMetrics:
         self.downloads = get_article_downloads(article)
         self.alm = get_altmetrics(article)
 
+
 @retry(exc=OperationalError)
 def store_article_access(request, article, access_type, galley_type='view'):
 
@@ -228,7 +229,7 @@ def store_article_access(request, article, access_type, galley_type='view'):
 
         # check if the current IP has accessed this article recently.
         with transaction.atomic():
-            time_to_check = timezone.now() - timedelta(seconds=30)
+            time_to_check = timezone.now() - timedelta(seconds=3600)
             exists = models.ArticleAccess.objects.filter(
                 identifier=identifier,
                 accessed__gte=time_to_check,
