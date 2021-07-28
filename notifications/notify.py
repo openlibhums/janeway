@@ -105,7 +105,6 @@ def galley_proofing_cancel(request, assignment):
 
 
 def galley_proofing_reset(request, assignment):
-    import pdb; pdb.set_trace()  # XXX BREAKPOINT
     kwargs = {
         'assignment': assignment,
         'request': request,
