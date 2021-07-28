@@ -695,6 +695,7 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
             'You do not have permission to view this file.',
         )
 
+
 @decorators.has_journal
 @security.user_can_manage_file
 def typesetting_download_file(request, article_id, file_id):

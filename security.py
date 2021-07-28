@@ -134,10 +134,10 @@ def user_can_manage_file(func):
         if can_manage_file(request, file_object):
             return func(request, *args, **kwargs)
 
+        print('hello')
         return deny_access(request)
 
     return wrapper
-
 
 
 def can_manage_file(request, file_object):
