@@ -9,6 +9,7 @@ from datetime import timedelta
 from user_agents import parse as parse_ua_string
 import geoip2.database
 from geoip2.errors import AddressNotFoundError
+import hashlib
 
 from django.db import transaction, OperationalError
 from django.utils import timezone
@@ -227,10 +228,15 @@ def store_article_access(request, article, access_type, galley_type='view'):
 
     if user_agent and not user_agent.is_bot:
 
-        identifier = counter_tracking_id if counter_tracking_id else "{}-{}".format(
-            ip,
-            user_agent
-        )
+        if counter_tracking_id:
+            identifier = counter_tracking_id
+        else:
+            string = "{ip}-{agent}-{secret_key}".format(
+                ip=ip,
+                agent=user_agent,
+                secret_key=settings.SECRET_KEY,
+            ).encode('utf-8')
+            identifier = hashlib.sha512(string).hexdigest()
 
         # check if the current IP has accessed this article recently.
         with transaction.atomic():
