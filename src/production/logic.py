@@ -69,11 +69,10 @@ def save_source_file(article, request, uploaded_file):
 
 
 def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True):
-    #  When save_to_disk is false the uploaded_file is a string/path.
-    if save_to_disk:
-        mime = files.guess_mime(uploaded_file.name)
-    else:
+    if isinstance(uploaded_file, str):
         mime = files.file_path_mime(uploaded_file)
+    else:
+        mime = files.guess_mime(uploaded_file.name)
 
     if mime == "application/zip":
         raise ZippedGalleyError("Zip galleys are not supported")
