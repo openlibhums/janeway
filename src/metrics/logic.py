@@ -237,20 +237,7 @@ def store_article_access(request, article, access_type, galley_type='view'):
                 galley_type=galley_type,
             ).exists()
 
-            if exists:
-                # get the most recent access attempt and reset its accessed to now.
-                access = models.ArticleAccess.objects.filter(
-                    identifier=identifier,
-                    accessed__gte=time_to_check,
-                    type=access_type,
-                    galley_type=galley_type,
-                ).order_by('-accessed')[0]
-
-                access.accessed = timezone.now()
-                access.save()
-
-            else:
-
+            if not exists:
                 access = models.ArticleAccess.objects.create(
                     article=article,
                     type=access_type,
@@ -259,7 +246,7 @@ def store_article_access(request, article, access_type, galley_type='view'):
                     country=country,
                 )
 
-            return access
+                return access
     return None
 
 
