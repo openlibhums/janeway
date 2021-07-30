@@ -1120,7 +1120,7 @@ def add_review_assignment(request, article_id):
     }
 
     if request.journal.get_setting('general', 'enable_suggested_reviewers'):
-        context['get_suggested_reviewers'] = logic.get_suggested_reviewers(
+        context['suggested_reviewers'] = logic.get_suggested_reviewers(
             article,
             reviewers,
         )
@@ -2272,7 +2272,7 @@ def review_forms(request):
     default_form = setting_handler.get_setting(
         'general', 'default_review_form', request.journal,
     ).processed_value
-    if default_form.isdigit():
+    if default_form and default_form.isdigit():
         default_form = int(default_form)
 
     if request.POST:
@@ -2284,7 +2284,7 @@ def review_forms(request):
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    "This form is selected as the defaul form and thus"
+                    "This form is selected as the default form and thus"
                     " can't be deleted",
                 )
                 return redirect(reverse('review_review_forms'))
