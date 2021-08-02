@@ -57,6 +57,26 @@ def get_thumbnails_url(url):
     return id_href
 
 
+def import_article_images(journal, user, url, thumb_path=None, update=True):
+    url = requests.head(url, allow_redirects=True).url
+    already_exists, doi, domain, soup_object = shared.fetch_page_and_check_if_exists(url)
+    article = already_exists
+    # rip XML out if found
+    pattern = re.compile('.*?XML.*')
+    xml = soup_object.find('a', text=pattern)
+    galley_name = "XML"
+    if article and xml:
+        article.galley_set.filter(type="xml").delete()
+        logger.info("Ripping XML")
+        xml = xml.get('href', None).strip()
+        galley = xml
+        handle_images = True
+        filename, mime = shared.fetch_file(domain, galley, url, galley_name.lower(), article, user,
+                                    handle_images=handle_images)
+        shared.add_file('application/{0}'.format(galley_name.lower()), galley_name.lower(),
+                     'Galley {0}'.format(galley_name), user, filename, article)
+
+
 def import_article(journal, user, url, thumb_path=None, update=False):
     """ Import a Ubiquity Press article.
 
