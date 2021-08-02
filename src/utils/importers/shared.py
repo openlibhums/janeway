@@ -618,7 +618,10 @@ def set_article_galleys(domain, galleys, article, url, user):
     :param user: the user who should own the new file
     :return: None
     """
-    article.galley_set.all().delete()
+    for galley in article.galley_set.all():
+        galley.unlink_files()
+        galley.delete()
+
     for galley_name, galley in galleys.items():
         if galley:
             if galley_name == 'PDF' or galley_name == 'XML':
