@@ -1177,7 +1177,7 @@ def split_affiliation(affiliation):
 
 def split_name(name):
     parts = name.split(' ')
-    return parts[0], parts[1]
+    return parts[0], ' '.join(parts[1:])
 
 
 def scrape_editorial_team(journal, base_url):
@@ -1227,16 +1227,17 @@ def scrape_editorial_team(journal, base_url):
 
 
 
-                    account, c = core_models.Account.objects.update_or_create(
+                    account, c = core_models.Account.objects.get_or_create(
                         email=email,
                         defaults=profile_dict,
                     )
                     bio_div = member_div.find("div", attrs={"class": "well"})
                     if bio_div:
                         bio = bio_div.text.strip()
-                        account.biography = bio
-                        account.enable_public_profile = True
-                        account.save()
+                        if not account.biography:
+                            account.biography = bio
+                            account.enable_public_profile = True
+                            account.save()
 
                     core_models.EditorialGroupMember.objects.get_or_create(
                         group=group,
