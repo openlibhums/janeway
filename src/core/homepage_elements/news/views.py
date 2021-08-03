@@ -9,8 +9,16 @@ from security.decorators import editor_user_required
 @editor_user_required
 def news_config(request):
     plugin = models.Plugin.objects.get(name='News')
-    number_of_articles = setting_handler.get_plugin_setting(plugin, 'number_of_articles', request.journal, create=True,
-                                                            pretty='Number of Articles').value
+    number_of_articles = setting_handler.get_plugin_setting(
+        plugin,
+        'number_of_articles',
+        request.journal,
+        create=True,
+        pretty='Number of Articles',
+    ).value
+    number_of_articles = int(
+        number_of_articles
+    ) if number_of_articles else 2
     if request.POST:
         number_of_articles = request.POST.get('number_of_articles')
         setting_handler.save_plugin_setting(plugin, 'number_of_articles', number_of_articles, request.journal)

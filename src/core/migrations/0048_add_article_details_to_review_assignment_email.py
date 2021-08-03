@@ -28,7 +28,7 @@ def update_setting_values(apps, schema_editor):
                 setting.value += ("<br/>{{ article_details }}")
             setting.save()
     except LookupError:
-        with translation.activate(django_settings.LANGUAGE_CODE):
+        with translation.override(django_settings.LANGUAGE_CODE):
             SettingValue = apps.get_model('core', 'SettingValue')
             setting_values = SettingValue.objects.filter(
                 setting__name='review_assignment',

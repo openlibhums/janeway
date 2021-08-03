@@ -3,18 +3,16 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.conf import settings
+from django.utils import translation as _translation
 
 
 def migrate_plugin_settings(apps, schema_editor):
-    PluginSetting = apps.get_model('utils', 'PluginSetting')
     PluginSettingValue = apps.get_model('utils', 'PluginSettingValue')
     PluginSettingValueTranslation = apps.get_model('utils', 'PluginSettingValueTranslation')
     SettingGroup = apps.get_model('core', 'SettingGroup')
     Setting = apps.get_model('core', 'Setting')
     SettingValue = apps.get_model('core', 'SettingValue')
-
-    plugin_settings = PluginSetting.objects.all()
-
 
     translations = PluginSettingValueTranslation.objects.all()
 
@@ -40,11 +38,19 @@ def migrate_plugin_settings(apps, schema_editor):
             description=plugin_setting.description,
             is_translatable=plugin_setting.is_translatable,
         )
-        setting_value, c = SettingValue.objects.get_or_create(
-            journal=plugin_setting_value.journal,
-            setting=setting,
-        )
-        setattr(setting_value, 'value_{}'.format(translation.language_code), translation.value)
+        with _translation.override(settings.LANGUAGE_CODE):
+            setting_value, c = SettingValue.objects.get_or_create(
+                journal=plugin_setting_value.journal if plugin_setting_value.journal else None,
+                setting=setting,
+                value=translation.value,
+            )
+            if c:
+                print(
+                    "PluginSetting {} moved to Setting {}".format(
+                        plugin_setting.name,
+                        setting.name,
+                    )
+                )
 
 
 class Migration(migrations.Migration):
