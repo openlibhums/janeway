@@ -21,6 +21,7 @@
                     <a class="button" href="{{ return }}"><i class="fa fa-arrow-left"></i>Back</a>
                 </div>
                 <div class="content">
+                    {% include "elements/translations/form_tabs.html" with object=article %}
                     {% include "elements/forms/errors.html" with form=info_form %}
                     {% csrf_token %}
                     <div class="row expanded">

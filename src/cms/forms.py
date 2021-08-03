@@ -4,12 +4,11 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from django import forms
 from django_summernote.widgets import SummernoteWidget
 
 from cms import models
 from core import models as core_models
-from core.forms import JanewayTranslationModelForm
+from utils.forms import JanewayTranslationModelForm
 
 
 class PageForm(JanewayTranslationModelForm):

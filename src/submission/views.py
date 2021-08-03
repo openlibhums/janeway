@@ -11,8 +11,9 @@ from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from core import files, models as core_models
 from preprint import models as preprint_models
@@ -25,6 +26,8 @@ from submission import forms, models, logic, decorators
 from events import logic as event_logic
 from utils import setting_handler
 from utils import shared as utils_shared
+from utils.decorators import GET_language_override
+from utils.shared import create_language_override_redirect
 
 
 @login_required
@@ -152,39 +155,40 @@ def submit_info(request, article_id):
     :param article_id: Article PK
     :return: HttpResponse or HttpRedirect
     """
-    article = get_object_or_404(models.Article, pk=article_id)
-    additional_fields = models.Field.objects.filter(journal=request.journal)
-    submission_summary = setting_handler.get_setting(
-        'general',
-        'submission_summary',
-        request.journal,
-    ).processed_value
-    form = forms.ArticleInfo(
-        instance=article,
-        additional_fields=additional_fields,
-        submission_summary=submission_summary,
-        journal=request.journal,
-    )
-
-    if request.POST:
+    with translation.override(settings.LANGUAGE_CODE):
+        article = get_object_or_404(models.Article, pk=article_id)
+        additional_fields = models.Field.objects.filter(journal=request.journal)
+        submission_summary = setting_handler.get_setting(
+            'general',
+            'submission_summary',
+            request.journal,
+        ).processed_value
         form = forms.ArticleInfo(
-            request.POST,
             instance=article,
             additional_fields=additional_fields,
             submission_summary=submission_summary,
             journal=request.journal,
         )
-        if form.is_valid():
-            form.save(request=request)
-            article.current_step = 2
-            article.save()
 
-            return redirect(
-                reverse(
-                    'submit_authors',
-                    kwargs={'article_id': article_id},
-                ),
+        if request.POST:
+            form = forms.ArticleInfo(
+                request.POST,
+                instance=article,
+                additional_fields=additional_fields,
+                submission_summary=submission_summary,
+                journal=request.journal,
             )
+            if form.is_valid():
+                form.save(request=request)
+                article.current_step = 2
+                article.save()
+
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id},
+                    ),
+                )
 
     template = 'admin/submission//submit_info.html'
     context = {
@@ -548,6 +552,7 @@ def submit_review(request, article_id):
     return render(request, template, context)
 
 
+@GET_language_override
 @production_user_or_editor_required
 def edit_metadata(request, article_id):
     """
@@ -556,96 +561,96 @@ def edit_metadata(request, article_id):
     :param article_id: PK of an Article
     :return: contextualised django template
     """
-    article = get_object_or_404(models.Article, pk=article_id)
-    submission_summary = setting_handler.get_setting(
-        'general',
-        'submission_summary',
-        request.journal,
-    ).processed_value
-    info_form = forms.ArticleInfo(
-        instance=article,
-        submission_summary=submission_summary,
-        pop_disabled_fields=False,
-    )
-    frozen_author, modal = None, None
-    return_param = request.GET.get('return')
-    reverse_url = '{0}?return={1}'.format(
-        reverse(
+    with translation.override(request.override_language):
+        article = get_object_or_404(models.Article, pk=article_id)
+        submission_summary = setting_handler.get_setting(
+            'general',
+            'submission_summary',
+            request.journal,
+        ).processed_value
+        info_form = forms.ArticleInfo(
+            instance=article,
+            submission_summary=submission_summary,
+            pop_disabled_fields=False,
+        )
+        frozen_author, modal = None, None
+        return_param = request.GET.get('return')
+        reverse_url = create_language_override_redirect(
+            request,
             'edit_metadata',
-            kwargs={'article_id': article.pk}
-        ),
-        return_param,
-    )
+            {'article_id': article.pk},
+            additional_query_strings=['return={}'.format(return_param)]
+        )
 
-    if request.GET.get('author'):
-        frozen_author, modal = logic.get_author(request, article)
-        author_form = forms.EditFrozenAuthor(instance=frozen_author)
-    else:
-        author_form = forms.EditFrozenAuthor()
+        if request.GET.get('author'):
+            frozen_author, modal = logic.get_author(request, article)
+            author_form = forms.EditFrozenAuthor(instance=frozen_author)
+        else:
+            author_form = forms.EditFrozenAuthor()
 
-    if request.POST:
-        if 'add_funder' in request.POST:
-            funder = models.Funder(
-                name=request.POST.get('funder_name', default=''),
-                fundref_id=request.POST.get('funder_doi', default=''),
-                funding_id=request.POST.get('grant_number', default='')
-            )
+        if request.POST:
+            if 'add_funder' in request.POST:
+                funder = models.Funder(
+                    name=request.POST.get('funder_name', default=''),
+                    fundref_id=request.POST.get('funder_doi', default=''),
+                    funding_id=request.POST.get('grant_number', default='')
+                )
 
-            funder.save()
-            article.funders.add(funder)
-            article.save()
+                funder.save()
+                article.funders.add(funder)
+                article.save()
 
-        if 'metadata' in request.POST:
-            info_form = forms.ArticleInfo(
-                request.POST,
-                instance=article,
-                submission_summary=submission_summary,
-                pop_disabled_fields=False,
-            )
+            if 'metadata' in request.POST:
+                info_form = forms.ArticleInfo(
+                    request.POST,
+                    instance=article,
+                    submission_summary=submission_summary,
+                    pop_disabled_fields=False,
+                )
 
-            if info_form.is_valid():
-                info_form.save(request=request)
+                if info_form.is_valid():
+                    info_form.save(request=request)
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        _('Metadata updated.'),
+                    )
+                    return redirect(reverse_url)
+
+            if 'author' in request.POST:
+                author_form = forms.EditFrozenAuthor(
+                    request.POST,
+                    instance=frozen_author,
+                )
+
+                if author_form.is_valid():
+                    saved_author = author_form.save()
+                    saved_author.article = article
+                    saved_author.save()
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        _('Author {author_name} updated.').format(
+                            author_name=saved_author.full_name(),
+                        ),
+                    )
+                    return redirect(reverse_url)
+
+            if 'delete' in request.POST:
+                frozen_author_id = request.POST.get('delete')
+                frozen_author = get_object_or_404(
+                    models.FrozenAuthor,
+                    pk=frozen_author_id,
+                    article=article,
+                    article__journal=request.journal,
+                )
+                frozen_author.delete()
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    _('Metadata updated.'),
+                    _('Frozen Author deleted.'),
                 )
                 return redirect(reverse_url)
-
-        if 'author' in request.POST:
-            author_form = forms.EditFrozenAuthor(
-                request.POST,
-                instance=frozen_author,
-            )
-
-            if author_form.is_valid():
-                saved_author = author_form.save()
-                saved_author.article = article
-                saved_author.save()
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _('Author {author_name} updated.').format(
-                        author_name=saved_author.full_name(),
-                    ),
-                )
-                return redirect(reverse_url)
-
-        if 'delete' in request.POST:
-            frozen_author_id = request.POST.get('delete')
-            frozen_author = get_object_or_404(
-                models.FrozenAuthor,
-                pk=frozen_author_id,
-                article=article,
-                article__journal=request.journal,
-            )
-            frozen_author.delete()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _('Frozen Author deleted.'),
-            )
-            return redirect(reverse_url)
 
     template = 'submission/edit/metadata.html'
     context = {
