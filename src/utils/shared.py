@@ -107,18 +107,37 @@ def language_override_redirect(request, url_name, kwargs):
 
 
 def make_timezone_aware(date_string, date_string_format):
-    print(date_string, date_string_format)
     return timezone.make_aware(
         datetime.strptime(date_string, date_string_format),
         timezone.get_current_timezone(),
     )
 
 
-def language_override_redirect(request, url_name, kwargs):
+def create_language_override_redirect(
+        request,
+        url_name,
+        kwargs,
+        additional_query_strings=None,
+):
     reverse_string = "{}?language={}".format(
         reverse(url_name, kwargs=kwargs),
         request.override_language,
     )
+
+    for qs in additional_query_strings:
+        reverse_string = reverse_string + '&{}'.format(qs)
+
     if "email_template" in request.GET:
         reverse_string = reverse_string + "&email_template=true"
+
+    return reverse_string
+
+
+def language_override_redirect(request, url_name, kwargs, additional_query_strings=None):
+    reverse_string = create_language_override_redirect(
+        request,
+        url_name,
+        kwargs,
+        additional_query_strings,
+    )
     return redirect(reverse_string)
