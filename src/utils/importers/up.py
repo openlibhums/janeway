@@ -1427,6 +1427,22 @@ def scrape_about_page(journal, base_url):
     )
 
 
+def scrape_cms_page(journal, page_url, page_name):
+    logger.info("Scraping CMS page: %s", page_url)
+    content = scrape_page(page_url, block_to_find='major-floating-block')
+
+    path = urlparse(page_url).path
+    page_path = os.path.basename(os.path.normpath(path))
+
+    if content and page_path:
+        create_cms_page(
+            page_path,
+            page_name,
+            str(content),
+            journal
+        )
+
+
 def generate_dummy_email(profile_dict):
     seed = ''.join(str(val) for val in profile_dict.values())
     hashed = hashlib.md5(str(seed).encode("utf-8")).hexdigest()
