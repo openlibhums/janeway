@@ -37,7 +37,7 @@ class FakeModelForm(ModelForm):
         return super().clean(*args, **kwargs)
 
 
-class KeywordModelForm(JanewayTranslationModelForm):
+class KeywordModelForm(ModelForm):
     """ A ModelForm for models implementing a Keyword M2M relationship """
     keywords = CharField(
             required=False, help_text=_("Hit Enter to add a new keyword."))

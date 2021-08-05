@@ -4,14 +4,13 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
 from review.forms import render_choices
-from utils.forms import KeywordModelForm
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
 
@@ -64,7 +63,7 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('comments_editor')
 
 
-class ArticleInfo(KeywordModelForm):
+class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
     FILTER_PUBLIC_FIELDS = False
 
     class Meta:
