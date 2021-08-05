@@ -35,7 +35,6 @@
                             <figcaption class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
                                 <h3>{{ article.title|safe }}</h3>
-                                {% if article.is_published %}
                                 <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
                                     {% for author in article.frozen_authors.all %}
                                         <span>{% if forloop.first == False %}, {% endif %}<span itemscope
@@ -58,7 +57,6 @@
                 </ul>
             </div>
         </section>
-    {% endif %}
         {% for author in article.authors.all %}
             {% if author.biography %}
                 <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
@@ -215,7 +213,6 @@
                 <aside class="large-4 columns" data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0"
                          data-sticky data-anchor="content">
-                        {% if article.is_published %}
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% if journal.disable_article_images %}
@@ -310,7 +307,6 @@
                             </ul>
                         </div>
                     </div>
-                {% endif %}
                 </aside>
             </div>
         </section>
