@@ -12,9 +12,9 @@ def migrate_settings(apps, schema_editor):
     translations = SettingValueTranslation.objects.all()
 
     for translation in translations:
-        setting = SettingValue.objects.get(pk=translation.master_id)
-        setattr(setting, 'value_{}'.format(translation.language_code), translation.hvad_value)
-        setting.save()
+        setting_value = SettingValue.objects.get(pk=translation.master_id)
+        setattr(setting_value, 'value_{}'.format(translation.language_code), translation.hvad_value)
+        setting_value.save()
 
 
 class Migration(migrations.Migration):

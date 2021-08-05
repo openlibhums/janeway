@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse, Http404
+from django.utils import translation
 
 from core import (
     files,
@@ -102,25 +103,32 @@ def manager_index(request):
     :param request: django request
     :return: contextualised template
     """
-    form = journal_forms.JournalForm()
-    modal = None
-    version = get_janeway_version()
 
-    if request.POST:
-        form = journal_forms.JournalForm(request.POST)
-        modal = 'new_journal'
-        if form.is_valid():
-            new_journal = form.save(request=request)
-            new_journal.sequence = request.press.next_journal_order()
-            new_journal.save()
-            call_command('install_plugins')
-            install.update_issue_types(new_journal)
-            new_journal.setup_directory()
-            return redirect(
-                new_journal.site_url(
-                    path=reverse('core_manager_index')
+    with translation.override(settings.LANGUAGE_CODE):
+        form = journal_forms.JournalForm()
+        modal = None
+        version = get_janeway_version()
+
+        if request.POST:
+            form = journal_forms.JournalForm(request.POST)
+            modal = 'new_journal'
+            if form.is_valid():
+                new_journal = form.save(request=request)
+                new_journal.sequence = request.press.next_journal_order()
+                new_journal.save()
+                call_command('install_plugins')
+                install.update_issue_types(new_journal)
+                new_journal.setup_directory()
+                return redirect(
+                    new_journal.site_url(
+                        path=reverse(
+                            'core_edit_settings_group',
+                            kwargs={
+                                'group': 'journal',
+                            }
+                        )
+                    )
                 )
-            )
 
     template = 'press/press_manager_index.html'
     context = {

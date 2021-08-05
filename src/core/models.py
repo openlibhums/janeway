@@ -51,6 +51,7 @@ SALUTATION_CHOICES = (
     ('Ms', 'Ms'),
     ('Mrs', 'Mrs'),
     ('Mr', 'Mr'),
+    ('Mx', 'Mx'),
     ('Dr', 'Dr'),
     ('Prof.', 'Prof.'),
 )
@@ -1322,3 +1323,20 @@ def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()
+
+
+# This model is vestigial and will be removed in v1.5
+
+class SettingValueTranslation(models.Model):
+    hvad_value = models.TextField(
+        blank=True,
+        null=True,
+    )
+    language_code = models.CharField(
+        max_length=15,
+        db_index=True,
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'core_settingvalue_translation'

@@ -339,6 +339,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'enable_peer_review_data_block',
                 'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
             },
+            {
+                'name': 'enable_suggested_reviewers',
+                'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
+            },
         ]
         setting_group = 'general'
 

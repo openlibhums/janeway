@@ -25,7 +25,4 @@ class Migration(migrations.Migration):
             managers=[
             ],
         ),
-        migrations.DeleteModel(
-            name='SettingValueTranslation',
-        ),
     ]

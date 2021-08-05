@@ -34,4 +34,8 @@ class Migration(migrations.Migration):
                 ('journal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.Journal')),
             ],
         ),
+        migrations.AlterUniqueTogether(
+            name='submissionitem',
+            unique_together=set([('journal', 'title'), ('journal', 'existing_setting')]),
+        ),
     ]

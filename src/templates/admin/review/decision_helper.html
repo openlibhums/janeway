@@ -84,7 +84,7 @@
                 {% for review in complete_reviews %}
                     <div class="bs-callout bs-callout-{% if review.for_author_consumption %}success{% else %}warning{% endif %}">
                         <h4>
-                            {{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})
+                            #{{ review.pk }} {{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})
                             {% if review.form %}[Form: {{ review.form.name }}] {% endif %}
                             </h4>
                         {% if not review.for_author_consumption %}

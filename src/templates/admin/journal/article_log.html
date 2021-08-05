@@ -17,6 +17,7 @@
                 <thead>
                     <tr>
                         <th>Entry Type</th>
+                        <th>To (if email)</th>
                         <th>Date</th>
                         <th>Actor</th>
                         <th>Level</th>
@@ -28,6 +29,7 @@
                     {% for entry in log_entries %}
                         <tr>
                             <td>{{ entry.types }}</td>
+                            <td>{% if entry.is_email %}{% for email in entry.to %}{{ email }}{% if not forloop.last %}; {% endif %}{% endfor %}{% endif %}</td>
                             <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ entry.actor.full_name }}</td>
                             <td>{{ entry.get_level_display|capfirst }}</td>

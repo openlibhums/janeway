@@ -1,7 +1,7 @@
 <p>
     {{ author_str }},
     {{ year_str }} “{{ title }}”,
-    {{ journal_str|safe }} {{ issue_str }}.
+    {{ journal_str|safe }} {{ issue_str }}{% if pages_str %},{% else %}.{% endif %}
     {{ pages_str|safe }}
     {{ doi_str|safe }}
 </p>

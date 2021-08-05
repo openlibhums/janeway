@@ -28,13 +28,17 @@ def install():
         homepage_element=True,
     )
     plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
-    setting_handler.create_setting(
+    setting = setting_handler.create_setting(
         setting_group_name=plugin_group_name,
         setting_name='number_of_articles',
         type='number',
         pretty_name='Number of Articles',
         description='Number of news articles to display on the homepage.',
         is_translatable=False,
+    )
+    setting_handler.get_or_create_default_setting(
+        setting,
+        default_value=DEFAULT_NEWS,
     )
 
     for journal in journals:

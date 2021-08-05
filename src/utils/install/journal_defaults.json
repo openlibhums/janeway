@@ -2998,5 +2998,20 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When this setting is enabled the review assignment page will attempt to match keywords with interests. Warning: This is an expensive process.",
+            "is_translatable": false,
+            "name": "enable_suggested_reviewers",
+            "pretty_name": "Enable Suggested Reviewers",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

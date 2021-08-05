@@ -25,6 +25,7 @@ def create_setting(
         pretty_name,
         description,
         is_translatable=True,
+        default_value=None,
 ):
     # If the setting is translatable use current lang, else use the default.
     lang = translation.get_language() if not is_translatable else settings.LANGUAGE_CODE
@@ -44,7 +45,27 @@ def create_setting(
             }
         )
 
+        if created and default_value:
+            core_models.SettingValue.objects.get_or_create(
+                setting=new_setting,
+                value=default_value,
+            )
+
         return new_setting
+
+
+def get_or_create_default_setting(setting, default_value):
+    """
+    Creates a setting linked to no journals, this is the default returned by
+    get_setting.
+    """
+    setting, c = core_models.SettingValue.objects.get_or_create(
+        setting=setting,
+        value=default_value,
+        journal=None,
+    )
+
+    return setting
 
 
 def get_setting(

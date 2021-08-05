@@ -259,7 +259,7 @@ a:hover .article-title {
 }
 
 .article-body a {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .article-body ul:not(.browser-default) {
@@ -306,6 +306,16 @@ a:hover .article-title {
 
 .table-wrap {
     overflow-x: auto;
+}
+
+.table-center {
+    text-align: center;
+}
+.table-left {
+    text-align: left;
+}
+.table-right {
+    text-align: right;
 }
 
 .alm {

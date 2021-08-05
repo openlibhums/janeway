@@ -1464,7 +1464,10 @@ class Section(models.Model):
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.name
+        return "{} - {}".format(
+            self.pk,
+            self.name,
+        )
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
