@@ -380,6 +380,10 @@ def in_review(request, article_id):
 
     if request.POST:
 
+        if 'move_to_review' in request.POST and article.stage == submission_models.STAGE_UNASSIGNED:
+            article.stage = submission_models.STAGE_UNDER_REVIEW
+            article.save()
+
         if 'new_review_round' in request.POST:
 
             # Complete all existing review assignments.
@@ -411,6 +415,7 @@ def in_review(request, article_id):
         'article': article,
         'review_rounds': review_rounds,
         'revisions_requests': revisions_requests,
+        'review_stages': submission_models.REVIEW_STAGES,
     }
 
     return render(request, template, context)
