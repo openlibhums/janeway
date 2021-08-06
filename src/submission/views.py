@@ -579,7 +579,7 @@ def edit_metadata(request, article_id):
             request,
             'edit_metadata',
             {'article_id': article.pk},
-            additional_query_strings=['return={}'.format(return_param)]
+            query_strings={'return': return_param}
         )
 
         if request.GET.get('author'):

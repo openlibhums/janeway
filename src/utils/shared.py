@@ -6,9 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import random
 import mimetypes
 from datetime import datetime
+from urllib.parse import urlencode, quote_plus
 
 from django.core.cache import cache
-from django.shortcuts import reverse, redirect
 from django.utils import timezone
 from django.shortcuts import reverse, redirect
 
@@ -96,16 +96,6 @@ def day_month(date):
     return date.strftime("%d-%b")
 
 
-def language_override_redirect(request, url_name, kwargs):
-    reverse_string = "{}?language={}".format(
-        reverse(url_name, kwargs=kwargs),
-        request.override_language,
-    )
-    if "email_template" in request.GET:
-        reverse_string = reverse_string + "&email_template=true"
-    return redirect(reverse_string)
-
-
 def make_timezone_aware(date_string, date_string_format):
     return timezone.make_aware(
         datetime.strptime(date_string, date_string_format),
@@ -117,27 +107,28 @@ def create_language_override_redirect(
         request,
         url_name,
         kwargs,
-        additional_query_strings=None,
+        query_strings=None,
 ):
-    reverse_string = "{}?language={}".format(
-        reverse(url_name, kwargs=kwargs),
-        request.override_language,
-    )
+    if not query_strings:
+        query_strings = {}
 
-    for qs in additional_query_strings:
-        reverse_string = reverse_string + '&{}'.format(qs)
-
+    query_strings['language'] = request.override_language
     if "email_template" in request.GET:
-        reverse_string = reverse_string + "&email_template=true"
+        query_strings['email_template'] = 'true'
+
+    reverse_string = "{reverse}?{params}".format(
+        reverse=reverse(url_name, kwargs=kwargs),
+        params=urlencode(query_strings, quote_via=quote_plus)
+    )
 
     return reverse_string
 
 
-def language_override_redirect(request, url_name, kwargs, additional_query_strings=None):
+def language_override_redirect(request, url_name, kwargs, query_strings=None):
     reverse_string = create_language_override_redirect(
         request,
         url_name,
         kwargs,
-        additional_query_strings,
+        query_strings,
     )
     return redirect(reverse_string)
