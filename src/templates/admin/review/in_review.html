@@ -22,7 +22,7 @@
                         <form method="POST">
                             {% csrf_token %}
                             <p><i class="fa fa-exclamation-triangle">&nbsp;</i>{% trans 'This article is not yet in the review stage.' %}</p>
-                            <button name="move_to_review" class="small success button">Move to Review</button>
+                            <button name="move_to_review" class="small success button no-bottom-margin">Move to Review</button>
                         </form>
                     </div>
                 {% endif %}
