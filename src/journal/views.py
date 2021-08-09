@@ -16,7 +16,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q, Count
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -122,9 +122,7 @@ def funder_articles(request, funder_id):
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
-    sections = submission_models.Section.objects.language().fallbacks(
-        'en'
-    ).filter(
+    sections = submission_models.Section.objects.filter(
         journal=request.journal,
         is_filterable=True,
     )
@@ -180,7 +178,7 @@ def articles(request):
     if request.POST and 'clear' in request.POST:
         return logic.unset_article_session_variables(request)
 
-    sections = submission_models.Section.objects.language().fallbacks('en').filter(journal=request.journal,
+    sections = submission_models.Section.objects.filter(journal=request.journal,
                                                                                    is_filterable=True)
     page, show, filters, sort, redirect, active_filters = logic.handle_article_controls(request, sections)
 
@@ -293,6 +291,8 @@ def issue(request, issue_id, show_sidebar=True):
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
         issue_type=issue_object.issue_type,
+        date__lte=timezone.now(),
+        articles__isnull=False,
     )
 
     editors = models.IssueEditor.objects.filter(
@@ -326,7 +326,13 @@ def collections(request, issue_type_code="collection"):
         code=issue_type_code,
     )
     collections = models.Issue.objects.filter(
-        journal=request.journal, issue_type=issue_type)
+        journal=request.journal,
+        issue_type=issue_type,
+        date__lte=timezone.now(),
+    ).exclude(
+        # This has to be an .exclude because.filter won't do an INNER join
+        articles__isnull=True,
+    )
 
     template = 'journal/collections.html'
     context = {
@@ -469,7 +475,7 @@ def keyword(request, keyword_id):
     :return: a rendered template
     """
     keyword = get_object_or_404(submission_models.Keyword, pk=keyword_id)
-    articles =  request.journal.published_articles.filter(
+    articles = request.journal.published_articles.filter(
         keywords__pk=keyword.pk,
     )
 
@@ -605,6 +611,19 @@ def serve_article_file(request, identifier_type, identifier, file_id):
         return redirect(static('common/img/default_carousel/carousel1.png'))
 
 
+@has_request
+@file_user_required
+def serve_article_file_history(
+    request, identifier_type, identifier, file_id,
+):
+    filehistory = get_object_or_404(core_models.FileHistory, pk=file_id)
+    # File History objects are not storing article ids, check parent's instead
+    file = filehistory.file_set.first()
+    if file:
+        return files.serve_file(request, filehistory, file.article)
+    raise Http404
+
+
 @login_required
 @article_exists
 @file_edit_user_required
@@ -631,15 +650,15 @@ def replace_article_file(request, identifier_type, identifier, file_id):
         if 'replacement' in request.POST and request.FILES:
             uploaded_file = request.FILES.get('replacement-file')
             files.overwrite_file(
-                    uploaded_file,
-                    file_to_replace,
-                    ('articles', article_to_replace.pk),
+                uploaded_file,
+                file_to_replace,
+                ('articles', article_to_replace.pk),
             )
         elif not request.FILES and 'back' not in request.POST:
             messages.add_message(
                 request,
                 messages.WARNING,
-                'No file uploaded',
+                _('No file uploaded'),
             )
 
             url = '{url}?return={get}'.format(
@@ -896,7 +915,7 @@ def publish_article(request, article_id):
                     messages.add_message(
                         request,
                         messages.ERROR,
-                        'Your article must have a section assigned.',
+                        _('Your article must have a section assigned.'),
                     )
                 else:
                     raise integrity_error
@@ -928,7 +947,7 @@ def publish_article(request, article_id):
                     '{0}?m=issue'.format(
                         reverse(
                             'publish_article',
-                             kwargs={'article_id': article.pk},
+                            kwargs={'article_id': article.pk},
                         )
                     )
                 )
@@ -1011,14 +1030,14 @@ def publish_article(request, article_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Article set for publication.',
+                _('Article set for publication.'),
             )
 
             # clear the cache
             shared.clear_cache()
 
             if request.journal.element_in_workflow(
-                element_name='prepublication',
+                    element_name='prepublication',
             ):
                 workflow_kwargs = {'handshake_url': 'publish',
                                    'request': request,
@@ -1227,9 +1246,9 @@ def issue_galley(request, issue_id, delete=False):
             messages.info(request, "Issue Galley Uploaded")
         elif form.errors:
             messages.error(
-                    request,
-                    "\n".join(field.errors.as_text() for field in form)
-         )
+                request,
+                "\n".join(field.errors.as_text() for field in form)
+            )
 
     return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
@@ -1261,11 +1280,19 @@ def sort_issue_sections(request, issue_id):
                 section_to_move_up_ordering.save()
                 section_to_move_down_ordering.save()
             else:
-                messages.add_message(request, messages.WARNING, 'You cannot move the first section up the order list')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _('You cannot move the first section up the order list'),
+                )
 
         elif 'down' in request.POST:
             section_id = request.POST.get('down')
-            section_to_move_down = get_object_or_404(submission_models.Section, pk=section_id, journal=request.journal)
+            section_to_move_down = get_object_or_404(
+                submission_models.Section,
+                pk=section_id,
+                journal=request.journal,
+            )
 
             if section_to_move_down != issue.last_section:
                 section_to_move_down_index = sections.index(section_to_move_down)
@@ -1285,10 +1312,18 @@ def sort_issue_sections(request, issue_id):
                 section_to_move_down_ordering.save()
 
             else:
-                messages.add_message(request, messages.WARNING, 'You cannot move the last section down the order list')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _('You cannot move the last section down the order list'),
+                )
 
     else:
-        messages.add_message(request, messages.WARNING, 'This page accepts post requests only.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _('This page accepts post requests only.'),
+        )
     return redirect(reverse('manage_issues_id', kwargs={'issue_id': issue.pk}))
 
 
@@ -1303,7 +1338,7 @@ def issue_add_article(request, issue_id):
 
     issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
     articles = submission_models.Article.objects.filter(
-            journal=request.journal,
+        journal=request.journal,
     ).exclude(
         Q(pk__in=issue.article_pks) | Q(stage=submission_models.STAGE_REJECTED)
     )
@@ -1313,7 +1348,11 @@ def issue_add_article(request, issue_id):
         article = get_object_or_404(submission_models.Article, pk=article_id, journal=request.journal)
 
         if not article.section:
-            messages.add_message(request, messages.WARNING, 'Articles without a section cannot be added to an issue.')
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _('Articles without a section cannot be added to an issue.'),
+            )
             return redirect(reverse('issue_add_article', kwargs={'issue_id': issue.pk}))
         else:
             issue.articles.add(article)
@@ -1356,13 +1395,13 @@ def add_guest_editor(request, issue_id):
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'User is already a guest editor.',
+                    _('User is already a guest editor.'),
                 )
             elif user not in users:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'This user is not a member of this journal.',
+                    _('This user is not a member of this journal.'),
                 )
             else:
                 models.IssueEditor.objects.create(
@@ -1408,19 +1447,19 @@ def remove_issue_editor(request, issue_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Editor removed from Issue.',
+                    _('Editor removed from Issue.'),
                 )
             except models.IssueEditor.DoesNotExist:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    'Issue Editor not found.',
+                    _('Issue Editor not found.'),
                 )
         else:
             messages.add_message(
                 request,
                 messages.WARNING,
-                'No Issue Editor ID supplied.',
+                _('No Issue Editor ID supplied.'),
             )
 
     return redirect(
@@ -1472,7 +1511,7 @@ def issue_article_order(request, issue_id=None):
         section = None
 
         for order, article in enumerate(sorted(
-            articles, key=lambda x: ids.index(x.pk)
+                articles, key=lambda x: ids.index(x.pk)
         )):
             section = article.section
             if not issue.articles.filter(id=article.id).exists():
@@ -1487,7 +1526,7 @@ def issue_article_order(request, issue_id=None):
                     " %s" % ids
                 )
                 continue
-            order_obj, c = models.ArticleOrdering.objects.get_or_create(
+            models.ArticleOrdering.objects.update_or_create(
                 issue=issue,
                 article=article,
                 defaults={
@@ -1495,9 +1534,8 @@ def issue_article_order(request, issue_id=None):
                     'section': article.section,
                 }
             )
-            order_obj.save()
 
-    return HttpResponse('Thanks')
+    return JsonResponse({'status': 'okay'})
 
 
 @editor_user_required
@@ -1562,7 +1600,11 @@ def manage_archive_article(request, article_id):
                     messages.add_message(
                         request,
                         messages.ERROR,
-                        "Uploaded file is not UTF-8 encoded",
+                        _("Uploaded file is not UTF-8 encoded"),
+                    )
+                except production_logic.ZippedGalleyError:
+                    messages.add_message(request, messages.ERROR,
+                        "Galleys must be uploaded individually, not zipped",
                     )
 
         if 'delete_note' in request.POST:
@@ -1652,7 +1694,11 @@ def become_reviewer(request):
 
     if request.POST.get('action', None) == 'go':
         request.user.add_account_role('reviewer', request.journal)
-        messages.add_message(request, messages.SUCCESS, _('You are now a reviewer'))
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('You are now a reviewer'),
+        )
         return redirect(reverse('core_dashboard'))
 
     template = 'journal/become_reviewer.html'
@@ -1688,7 +1734,11 @@ def contact(request):
             new_contact.save()
 
             logic.send_contact_message(new_contact, request)
-            messages.add_message(request, messages.SUCCESS, 'Your message has been sent.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Your message has been sent.'),
+            )
             return redirect(reverse('contact'))
 
     template = 'journal/contact.html'
@@ -1785,20 +1835,20 @@ def search(request):
             "|".join({name for name in split_term})
         )
         articles = submission_models.Article.objects.filter(
-                    (
-                        Q(title__icontains=search_term) |
-                        Q(keywords__word__iregex=search_regex) |
-                        Q(subtitle__icontains=search_term)
-                    )
-                    |
-                    (
-                        Q(frozenauthor__first_name__iregex=search_regex) |
-                        Q(frozenauthor__last_name__iregex=search_regex)
-                    ),
-                    journal=request.journal,
-                    stage=submission_models.STAGE_PUBLISHED,
-                    date_published__lte=timezone.now()
-                ).distinct().order_by(sort)
+            (
+                    Q(title__icontains=search_term) |
+                    Q(keywords__word__iregex=search_regex) |
+                    Q(subtitle__icontains=search_term)
+            )
+            |
+            (
+                    Q(frozenauthor__first_name__iregex=search_regex) |
+                    Q(frozenauthor__last_name__iregex=search_regex)
+            ),
+            journal=request.journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now()
+        ).distinct().order_by(sort)
 
     # just single keyword atm. but keyword is included in article_search.
     elif keyword:
@@ -1811,10 +1861,10 @@ def search(request):
 
     keyword_limit = 20
     popular_keywords = submission_models.Keyword.objects.filter(
-            article__journal=request.journal,
-            article__stage=submission_models.STAGE_PUBLISHED,
-            article__date_published__lte=timezone.now(),
-        ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
+        article__journal=request.journal,
+        article__stage=submission_models.STAGE_PUBLISHED,
+        article__date_published__lte=timezone.now(),
+    ).annotate(articles_count=Count('article')).order_by("-articles_count")[:keyword_limit]
 
     template = 'journal/search.html'
     context = {
@@ -1842,16 +1892,15 @@ def submissions(request):
         template = 'admin/journal/submissions.html'
 
     context = {
-        'sections': submission_models.Section.objects.language().fallbacks(
-            'en'
-        ).filter(
+        'sections': submission_models.Section.objects.filter(
             journal=request.journal,
             public_submissions=True,
         ),
         'licenses': submission_models.Licence.objects.filter(
             journal=request.journal,
             available_for_submission=True,
-        )
+        ),
+        'submission_items': cms_models.SubmissionItem.objects.filter(journal=request.journal)
     }
 
     return render(request, template, context)
@@ -1870,7 +1919,7 @@ def manage_article_log(request, article_id):
     log_entries = utils_models.LogEntry.objects.filter(content_type=content_type, object_id=article.pk)
 
     if request.POST and settings.ENABLE_ENHANCED_MAILGUN_FEATURES:
-        call_command('check_mailgun_stat')
+        call_command('check_mailgun_stat', article_id=article_id)
         return redirect(reverse('manage_article_log', kwargs={'article_id': article.pk}))
 
     template = 'journal/article_log.html'
@@ -1937,7 +1986,7 @@ def send_user_email(request, user_id, article_id=None):
             )
             close = True
 
-    template = 'journal/send_user_email.html'
+    template = 'admin/journal/send_user_email.html'
     context = {
         'user': user,
         'close': close,
@@ -2058,22 +2107,41 @@ def document_management(request, article_id):
             new_file = core_files.save_file_to_article(file, document_article,
                                                        request.user, label='MS File', is_galley=False)
             document_article.manuscript_files.add(new_file)
-            messages.add_message(request, messages.SUCCESS, 'Production file uploaded.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Production file uploaded.'),
+            )
 
         if 'prod' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('prod-file')
             prod_logic.save_prod_file(document_article, request, file, 'Production Ready File')
-            messages.add_message(request, messages.SUCCESS, 'Production file uploaded.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Production file uploaded.'),
+            )
 
         if 'proof' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('proof-file')
             prod_logic.save_galley(document_article, request, file, True, 'File for Proofing')
-            messages.add_message(request, messages.SUCCESS, 'Proofing file uploaded.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Proofing file uploaded.'),
+            )
 
-        return redirect('{0}?return={1}'.format(reverse('document_management', kwargs={'article_id':document_article.pk}),
-                                        return_url))
+        return redirect(
+            '{0}?return={1}'.format(
+                reverse(
+                    'document_management',
+                    kwargs={'article_id': document_article.pk}
+                ),
+                return_url
+            )
+        )
 
     template = 'admin/journal/document_management.html'
     context = {
@@ -2114,9 +2182,9 @@ def download_issue(request, issue_id):
 
 def download_issue_galley(request, issue_id, galley_id):
     issue_galley = get_object_or_404(
-            models.IssueGalley,
-            pk=galley_id,
-            issue__pk=issue_id,
+        models.IssueGalley,
+        pk=galley_id,
+        issue__pk=issue_id,
     )
 
     return issue_galley.serve(request)

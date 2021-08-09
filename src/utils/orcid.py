@@ -48,7 +48,6 @@ def retrieve_tokens(authorization_code, site):
         logger.info("OK response from ORCID")
         orcid_id = json.loads(r.text).get("orcid")
 
-
     return orcid_id
 
 

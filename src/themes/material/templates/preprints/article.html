@@ -48,7 +48,7 @@
                 {% if html %}
                     <div class="card">
                         <div class="card-content">
-                            <span class="card-title">Preprint Body</span>
+                            <span class="card-title">{% trans "Preprint Body" %}</span>
                             {{ html|safe }}
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                                 <form method="POST">
                                     {% csrf_token %}
                                     {% bootstrap_form form %}
-                                    <button type="submit" class="btn btn-success">Add Comment</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Add Comment" %}</button>
                                 </form>
                             </div>
                         {% endif %}
@@ -144,12 +144,12 @@
                         </ul>
                         <h5>{% trans "Citation" %}</h5>
                         <div class="btn-group-vertical">
-                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">Harvard Citation</a>
-                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">Vancouver Citation</a>
-                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">APA Citation</a>
+                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Harvard Citation" %}</a>
+                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Vancouver Citation" %}</a>
+                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "APA Citation" %}</a>
                         </div>
 
-                        <p><br/><a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i> All Preprints</a>
+                        <p><br/><a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i>{% trans "All Preprints" %}</a>
                         </p>
                     </small>
                 </div>

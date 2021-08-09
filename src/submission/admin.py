@@ -6,8 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib import admin
 from django import forms
 
-from hvad.admin import TranslatableAdmin
-
 from submission import models
 
 
@@ -26,7 +24,14 @@ class ArticleAdmin(admin.ModelAdmin):
                     'owner', 'is_import', 'ithenticate_score')
     search_fields = ('pk', 'title', 'subtitle')
     list_filter = ('stage', 'is_import', 'journal')
-    raw_id_fields = ('section',)
+    raw_id_fields = (
+        'section',
+        'owner',
+        'license',
+        'correspondence_author',
+        'primary_issue',
+        'projected_issue',
+    )
     filter_horizontal = (
         'authors',
         'manuscript_files',
@@ -74,7 +79,7 @@ class KeywordAdmin(admin.ModelAdmin):
     search_fields = ('word',)
 
 
-class SectionAdmin(TranslatableAdmin):
+class SectionAdmin(admin.ModelAdmin):
     list_display = ('section_name', 'section_journal', 'number_of_reviewers', 'is_filterable', 'public_submissions',
                     'indexing')
     list_filter = ('journal',)

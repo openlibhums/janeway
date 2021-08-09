@@ -9,9 +9,9 @@
 {% block body %}
    
     {% if search_term %}
-        <h1>Searching for: <i>{{ search_term }}</i></h1>
+        <h1>{% trans 'Searching for' %}: <i>{{ search_term }}</i></h1>
     {% elif keyword %}
-        <h1>Keyword: <i>{{ keyword }}</i></h1>
+        <h1>{% trans 'Keyword' %}: <i>{{ keyword }}</i></h1>
     {% endif %}
    
     <div class="row">
@@ -41,7 +41,7 @@
                                 You are currently browsing by keyword. <p><a href="{% url 'search' %}">Search for an article.</a></p>
                         {% endif %}
                         </div>
-                        <label for="{{ form.sort.id_for_label }}">Sort articles by</label>
+                        <label for="{{ form.sort.id_for_label }}">{% trans "Sort articles by" %}</label>
                         <div class="input-field">                                
                                 {{ form.sort.errors }}
                                 {{ form.sort }}

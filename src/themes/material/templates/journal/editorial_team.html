@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
+{% load i18n %}
 
 {% block title %}Editorial Team{% endblock title %}
 {% block page_title %}Editorial Team{% endblock page_title %}
@@ -7,7 +8,7 @@
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h1 class="no-bottom-margin">Editorial Team</h1>
+            <h1 class="no-bottom-margin">{% trans "Editorial Team" %}</h1>
         </div>
     </div>
 
@@ -32,7 +33,7 @@
                             </p>
                             {% if member.user.enable_public_profile %}
                                 <p>
-                                    <small><a href="{% url 'core_public_profile' member.user.uuid %}">View Profile</a>
+                                    <small><a href="{% url 'core_public_profile' member.user.uuid %}">{% trans "View Profile" %}</a>
                                     </small>
                                 </p>
                             {% endif %}

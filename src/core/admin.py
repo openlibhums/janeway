@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from hvad.admin import TranslatableAdmin
 from django.utils.safestring import mark_safe
 
 from core import models, forms
@@ -61,7 +60,7 @@ class PasswordResetAdmin(admin.ModelAdmin):
     raw_id_fields = ('account',)
 
 
-class SettingValueAdmin(TranslatableAdmin):
+class SettingValueAdmin(admin.ModelAdmin):
     list_display = ('setting_journal', 'setting_pretty_name')
     list_filter = ('setting', 'journal')
 
@@ -103,6 +102,17 @@ class FileAdmin(admin.ModelAdmin):
             return mark_safe(link)
         else:
             return '-'
+
+
+class FileHistoryAdmin(admin.ModelAdmin):
+    """displays file history objects"""
+    search_fields = ('original_filename', 'article_id')
+    list_display = (
+        'id', 'original_filename', 'article_id', 'mime_type', 'label',
+        'history_seq',
+    )
+    list_filter = ('mime_type', 'article_id')
+    raw_id_fields = ('owner',)
 
 
 class XSLFileAdmin(admin.ModelAdmin):
@@ -198,6 +208,7 @@ admin_list = [
     (models.SettingGroup, SettingGroupAdmin),
     (models.SettingValue, SettingValueAdmin),
     (models.File, FileAdmin),
+    (models.FileHistory, FileHistoryAdmin),
     (models.XSLFile, XSLFileAdmin),
     (models.Interest,),
     (models.Task,),

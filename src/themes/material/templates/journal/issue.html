@@ -1,6 +1,12 @@
 {% extends "core/base.html" %}
-
-{% block title %}Issue {{ issue }}{% endblock %}
+{% load i18n %}
+{% block title %}
+    {% if issue.issue_type.code == 'collection' %}
+    {% trans "Collection" %}: {{ issue.title }}
+    {% else %}
+    {% trans "Issue" %}: {{ issue }}
+    {% endif %}
+{% endblock %}
 
 {% block body %}
 {% include "journal/issue_display.html" %}

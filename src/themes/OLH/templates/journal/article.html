@@ -3,7 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
+{% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
 {% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
@@ -216,18 +216,20 @@
                     <div class="sticky" data-sticky data-margin-top="0"
                          data-sticky data-anchor="content">
                         {% if article.is_published %}
-                            <div class="section">
-                                {% if journal.disable_article_images %}
+
+                            {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
+                            {% if journal.disable_article_images %}
+                                <div class="section">
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
                                             <li>{{ author.full_name }} ({{ author.affiliation }})</li>
                                         {% endfor %}
                                     </ul>
-                                {% endif %}
-                            </div>
+                                </div>
+                            {% endif %}
                             <div class="section">
-                            <h3>{% trans "Download" %}</h3>
+                                <h3>{% trans "Download" %}</h3>
                             <ul>
                                 {% for galley in galleys %}
                                     <li>
@@ -245,6 +247,16 @@
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
+                        {% with article.get_doi_url as doi_url %}
+                        {% if doi_url %}
+                         <div class="section">
+                             <h3>{% trans "Identifiers" %}</h3>
+                             <ul>
+                                 <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                             </ul>
+                         </div>
+                         {% endif %}
+                        {% endwith %}
 
                         {% if article.supplementary_files.all %}
                             <div class="section">
@@ -276,6 +288,7 @@
                             </ul>
                         </div>
                         {% endif %}
+
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">

@@ -49,6 +49,7 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,7 +84,6 @@ INSTALLED_APPS = [
     # 3rd Party
     'django_summernote',
     'markdown_deux',
-    'hvad',
     'raven.contrib.django.raven_compat',
     'bootstrap4',
     'rest_framework',
@@ -154,6 +154,7 @@ TEMPLATES = [
             ],
             'builtins': [
                 'core.templatetags.fqdn',
+                'django.templatetags.i18n',
             ]
         },
     },
@@ -171,6 +172,7 @@ SETTINGS_EXPORT = [
     'ENABLE_ORCID',
     'DEBUG',
     'LANGUAGE_CODE',
+    'URL_CONFIG',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -233,7 +235,12 @@ LANGUAGES = (
     ('en', ugettext('English')),
     ('fr', ugettext('French')),
     ('de', ugettext('German')),
+    ('nl', ugettext('Dutch')),
+    ('cy', ugettext('Welsh')),
 )
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_PREPOPULATE_LANGUAGE = 'en'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -271,7 +278,7 @@ SUMMERNOTE_CONFIG = {
 
     # Change editor size
     'width': '100%',
-    'height': '480',
+    'height': '350',
 
     # Need authentication while uploading attachments.
     'attachment_require_authentication': True,
@@ -470,10 +477,14 @@ HTTP_TIMEOUT_SECONDS = 5
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.3.8)'
+DEFAULT_XSL_FILE_LABEL = 'Janeway default (latest)'
 
-# Testing Overrides
-if IN_TEST_RUNNER and COMMAND[1:2] != ["--keepdb"]:
+# Skip migrations by default on sqlite for faster execution
+if (
+    IN_TEST_RUNNER
+    and "--keepdb" not in COMMAND
+    and os.environ.get("DB_VENDOR") == "sqlite"
+):
     from collections.abc import Mapping
 
 

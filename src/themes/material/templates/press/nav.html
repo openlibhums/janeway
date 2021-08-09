@@ -15,7 +15,7 @@
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="/">Home</a></li>
+            <li><a href="/">{% trans "Home" %}</a></li>
             {% if request.press.enable_preprints %}
                 <li><a class="dropdown-button" href="#!" data-activates="preprints">{% trans "Preprints" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
@@ -42,7 +42,7 @@
         </ul>
 
         <ul class="side-nav" id="nav-mobile">
-            <li><a href="/">Home</a></li>
+            <li><a href="/">{% trans "Home" %}</a></li>
             {% if request.press.enable_preprints %}
                 <li><a class="dropdown-button" href="#!" data-activates="preprints-mobile">{% trans "Preprints" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>

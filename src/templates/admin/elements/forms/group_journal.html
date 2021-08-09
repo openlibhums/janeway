@@ -1,0 +1,56 @@
+<div class="title-area">
+    <h2>General Journal Settings</h2>
+</div>
+<div class="content">
+    {% include "admin/elements/forms/field.html" with field=edit_form.journal_name %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.journal_description %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.journal_issn %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.publisher_name %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.publisher_url %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.main_contact %}
+</div>
+
+<div class="title-area">
+    <h2>Email</h2>
+</div>
+<div class="content">
+    <p>{% trans 'You can set the from address your journal will use to send emails and the base signature that will be included.' %}</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.from_address %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.auto_signature %}
+</div>
+
+<div class="title-area">
+    <h2>Remote Journals</h2>
+</div>
+<div class="content">
+    <p>{% trans 'Where you have a journal in your press that is not hosted on Janeway you can link directly to the journal and submit pages.' %}</p>
+    {% include "admin/elements/forms/field.html" with field=attr_form.is_remote %}
+    {% include "admin/elements/forms/field.html" with field=attr_form.remote_view_url %}
+    {% include "admin/elements/forms/field.html" with field=attr_form.remote_submit_url %}
+</div>
+
+<div class="title-area">
+    <h2>{% trans 'Slack/Discord Integration' %}</h2>
+</div>
+<div class="content">
+    <p>{% trans 'You can integrate Janeway into Slack (and Discord as they support the same endpoints) by setting it up below.' %}</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.slack_logging %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.slack_webhook %}
+</div>
+
+<div class="title-area">
+    <h2>Other</h2>
+</div>
+<div class="content">
+    <p>You can enable the Switch Language field from here which will enable internationalisation.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.switch_language %}
+
+    <p>If you don't want to display language flags - you can </p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_language_text %}
+
+    <p>You can include a google analytics code here if you want to track user visits.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
+</div>
+
+

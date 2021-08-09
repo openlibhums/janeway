@@ -8,8 +8,8 @@ If you are assigning an external production manager, you will still have access 
 .. figure:: ../nstatic/production-manager.png
 
     Production Manager assignment interface
-    
-    
+
+
 Assign a Production Manager
 ---------------------------
 Select either:
@@ -18,13 +18,13 @@ Select either:
     1.1 Select a production manager from the lsit
 2. Assign self
     2.1 This will make you the Production Manager
-    
+
 After assignment the article will move from Awaiting Assignment to In Progress, if you assigned yourself it will also show in Assigned to Me.
 
 .. figure:: ../nstatic/production-assigned.png
 
     Production Manager with assigned article
-    
+
 Production Screen
 -----------------
 
@@ -46,7 +46,7 @@ To assign a typesetter first select *Add Typesetter*.
 .. figure:: ../nstatic/production-typesetter.png
 
     Assigning a typesetter
-    
+
 1. Select a Typesetter
 2. Select the files you would like this typesetter to work on
 3. Add any notes like what outputs you would like
@@ -65,19 +65,19 @@ To upload a galley click *Upload Galley Files*. You can then select either XML/H
 .. figure:: ../nstatic/production-galley-upload.png
 
     Uploading a galley file
-    
+
 When uploading an HTML or XML file, with images Janeway will warn you that you need to upload them with a message like "Missing supplementary files."
 
 .. figure:: ../nstatic/production-missing-supp.png
 
     Missing Image files
-    
+
 We can upload these by selecting Edit Galley and using the upload boxes to upload the image files.
 
 .. figure:: ../nstatic/production-galley-images.png
 
     Uploading image files
-    
+
 On the edit galley page we can also replace the galley file, edit its label and upload an accompanying CSS file if the article requires specific styling.
 
 Finishing Up

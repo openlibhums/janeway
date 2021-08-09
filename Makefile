@@ -2,7 +2,12 @@ ifndef DB_VENDOR
 	DB_VENDOR=postgres
 endif
 
+# Exposed ports
+JANEWAY_PORT ?= 8000
+PGADMIN_PORT ?= 8001
+
 unexport NO_DEPS
+DB_NAME ?= janeway
 DB_NAME ?= janeway
 DB_HOST=janeway-postgres
 DB_PORT=5432
@@ -46,7 +51,9 @@ export DB_PORT
 export DB_NAME
 export DB_USER
 export DB_PASSWORD
-SUFFIX ?= $(shell python -c "from time import time; print(hex(int(time()*10000000))[2:])")
+export JANEWAY_PORT
+export PGADMIN_PORT
+SUFFIX ?= $(shell date +%s)
 SUFFIX := ${SUFFIX}
 DATE := `date +"%y-%m-%d"`
 
@@ -89,5 +96,11 @@ uninstall:	## Removes all janeway related docker containers, docker images and d
 	@echo " Janeway has been uninstalled"
 check:		## Runs janeway's test suit
 	bash -c "DB_VENDOR=sqlite make command CMD=test"
+migrate:		## Runs Django's migrate command
+	bash -c "make command CMD=migrate"
+makemigrations:		## Runs Django's makemigrations command
+	bash -c "make command CMD=makemigrations"
+build_assets:		## Runs Janeway's build_assets command
+	bash -c "make command CMD=build_assets"
 basebuild:		## Builds the base docker image
 	bash -c "docker build --no-cache -t janeway:`git rev-parse --abbrev-ref HEAD` ."

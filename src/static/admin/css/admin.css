@@ -1,9 +1,9 @@
 .small td {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
 }
 
 .small th {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
 }
 
 .list-group {
@@ -331,8 +331,9 @@ th {
 .bs-callout {
     padding: 20px;
     border: 1px solid #eee;
-    border-left-width: 5px;
+    border-left-width: 8px;
     border-radius: 3px;
+    margin-bottom: 10px;
 }
 
 .bs-callout h4 {
@@ -483,4 +484,92 @@ th {
 
 .fixed-table {
     table-layout: fixed;
+}
+
+<!-- Glossing -->
+ol {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+}
+
+ol ol {
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+
+ol.gloss-sentence {
+    display: inline !important;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.gloss-item {
+    overflow: auto;
+}
+
+.gloss-sentence li {
+    padding-left: 4px !important;
+    padding-bottom: 2px;
+
+}
+
+.gloss-sentence ol {
+    list-style: none !important;
+}
+
+ol.gloss-word {
+    padding-right: .5em !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 2px !important;
+    background: white !important;
+    display: inline-block !important;
+    margin-inline-start: 0 !important;
+}
+
+.gloss-first {
+  padding-left: 0 !important;
+}
+
+.gloss-header {
+    float: left;
+    display: flex;
+    min-width: 40px;
+}
+
+.gloss-wrapper {
+    overflow: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0;
+}
+
+.lang-tabs {
+    margin-bottom: 15px;
+}
+
+.lang-tab {
+    font-size: 0.8rem;
+}
+
+.lang-tab :hover {
+    text-decoration: rgb(64, 69, 84) underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 3px;
+    cursor: pointer;
+}
+
+.lang-tab-active {
+    text-decoration: rgb(64, 69, 84) underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 3px;
+}
+
+.group-settings .title-area h2 {
+    margin-top: 25px;
+    font-size: 1rem;
 }

@@ -47,7 +47,8 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
     # so 'img':'src' means look for elements called 'img' with an attribute 'src'
     elements = {
         'img': 'src',
-        'graphic': 'xlink:href'
+        'graphic': 'xlink:href',
+        'inline-graphic': 'xlink:href',
     }
 
     # iterate over all found elements
@@ -543,7 +544,7 @@ def set_article_section(article, soup_object, element='h4', attributes=None, def
     if section_name and section_name != '':
         print('Adding article to section {0}'.format(section_name))
 
-        section, created = submission_models.Section.objects.language('en').get_or_create(journal=article.journal, name=section_name)
+        section, created = submission_models.Section.objects.get_or_create(journal=article.journal, name=section_name)
         article.section = section
     else:
         print('No section information found. Reverting to default of "Articles"')
@@ -596,11 +597,15 @@ def set_article_keywords(article, soup_object):
         'content',
     ))
     if keyword_string:
-        for word in keyword_string.split(";"):
+        for i, word in enumerate(keyword_string.split(";")):
             if word:
                 keyword, created = submission_models.Keyword.objects \
                     .get_or_create(word=word.lstrip())
-                article.keywords.add(keyword)
+                submission_models.KeywordArticle.objects.update_or_create(
+                    article=article,
+                    keyword=keyword,
+                    defaults = {"order": i},
+                )
 
 
 def set_article_galleys(domain, galleys, article, url, user):

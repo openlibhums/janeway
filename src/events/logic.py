@@ -76,6 +76,10 @@ class Events:
     # raised when a section editor adds a new draft
     ON_DRAFT_DECISION = 'on_draft_decision'
 
+    # kwargs: article, request, decision, skip (boolean)
+    # raised when an editor declines a draft decision
+    ON_DRAFT_DECISION_DECLINED = 'on_draft_decision_declined'
+
     # kwargs: article, copyeditor_assignment, request, skip (boolean)
     # raised when a copyeditor is assigned
     ON_COPYEDIT_ASSIGNMENT = 'on_copyedit_assignment'

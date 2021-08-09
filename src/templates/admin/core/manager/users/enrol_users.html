@@ -1,0 +1,136 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_users' %}">Enrol Users</a></li>
+{% endblock %}
+
+{% block title %}Enrol Users{% endblock %}
+{% block title-section %}Enrol Users{% endblock %}
+{% block title-sub %}Search for an enrol user accounts in your journal.{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Enrol Users</h2>
+                <a href="{% if return %}{{ return }}{% else %}{% url 'core_manager_index' %}{% endif %}" class="button">&lt; Go back</a>
+            </div>
+            <div class="content">
+
+
+                <div class="row expanded">
+                    <form method="GET">
+                        <div class="large-12 columns">
+                            <p>Search by First Name, Last Name or Email Address. </p>
+                        </div>
+                        <div class="medium-2 columns">
+                            <input minlength=2 type="text" name="first_name" placeholder="First Name"
+                                   {% if first_name %}value="{{ first_name }}"{% endif %}>
+                        </div>
+                        <div class="medium-2 columns">
+                            <input minlength=2 type="text" name="last_name" placeholder="Last Name"
+                                   {% if last_name %}value="{{ last_name }}"{% endif %}>
+                        </div>
+                        <div class="medium-2 columns">
+                            <input minlength=2 type="text" name="email" placeholder="Email"
+                                   {% if email %}value="{{ email }}"{% endif %}>
+                        </div>
+                        <div class="medium-2 columns end">
+                            <button class="success button">Search Users</button>
+                        </div>
+                        {% if return %}<input type="hidden" name="return" value="{{ return }}">{% endif %}
+                    </form>
+                </div>
+
+                     {% for user in user_search %}
+                        {% include "admin/elements/core/user_search_list.html" %}
+                     {% endfor %}
+
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+{% block js %}
+    <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript">
+        function add_role(user_id, role_id, journal_id) {
+            var button_name = "#role-" + role_id + "-user-" + user_id;
+            var roles_td = "#user-" + user_id + "-current-roles";
+            var old_html = $(button_name).html()
+            var old_text = $(button_name).text()
+            $(button_name).html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+            var data = {
+                'user': user_id,
+                'role': role_id,
+                'journal': journal_id
+            }
+            $.ajax({
+                "type": "POST",
+                "dataType": "json",
+                "url": '/api/accountrole/',
+                "data": data,
+                "success": function (response) {
+                    console.log(response)
+                    $(button_name).remove();
+                    if ($(roles_td).html() === "User has no roles on this journal.") {
+                        $(roles_td).html();
+                    }
+                    var del_button = $('<button/>').attr({
+                        id: `delete-role-${role_id}-user-${user_id}`,
+                        class: "button alert",
+                        value: $(button_name).attr("value"),
+                        onClick: `delete_role(${user_id}, ${role_id}, ${journal_id}, ${response.pk})`
+                    }).html(`<span class=\"fa fa-minus-circle\"></span> ${old_text}`)
+                    $(roles_td).append(del_button);
+                    toastr.success(`User has been granted role. ${old_text}`)
+                },
+                "error": function (xhr, status, error) {
+                    $(button_name).html(old_html);
+                    toastr.error(xhr.responseText)
+                },
+            })
+
+        }
+        function delete_role(user_id, role_id, journal_id, account_role_id) {
+            var button_name = `#delete-role-${role_id}-user-${user_id}`;
+            var roles_holder = "#user-" + user_id + "-add-roles";
+            var old_html = $(button_name).html()
+            var old_text = $(button_name).text()
+            $(button_name).html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+            var data = {
+                'user': user_id,
+                'role': role_id,
+                'journal': journal_id
+            }
+            $.ajax({
+                "type": "DELETE",
+                "dataType": "json",
+                "url": `/api/accountrole/${account_role_id}`,
+                "data": data,
+                "success": function (data) {
+                    $(button_name).remove();
+                    var add_button = $('<button/>').attr({
+                        id: `role-${role_id}-user-${user_id}`,
+                        class: "button",
+                        value: $(button_name).attr("value"),
+                        onClick: `add_role(${user_id}, ${role_id}, ${journal_id})`
+                    }).html(`<span class=\"fa fa-plus-circle\"></span> ${old_text}`)
+                    $(roles_holder).append(add_button);
+                    toastr.warning(`User has been revoked role ${old_text}`)
+                },
+                "error": function (xhr, status, error) {
+                    $(button_name).html(old_html);
+                    toastr.error(xhr.responseText)
+                },
+            })
+
+        }
+
+    </script>
+{% endblock js %}

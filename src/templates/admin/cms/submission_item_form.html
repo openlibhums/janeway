@@ -1,0 +1,48 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}Submission Page Items{% endblock title %}
+{% block title-section %}Submission Page Items{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'cms_submission_items' %}">Submissions Page Items</a></li>
+    <li>{% if item %}{% trans 'Editing Submission Page Item' %}: {{ item.title }}{% else %}{% trans 'Add a Submission Page Item' %}{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if item %}{% trans 'Editing Submission Page Item' %}: {{ item.title }}{% else %}{% trans 'Add a Submission Page Item' %}{% endif %}</h2>
+                <a class="button" href="{% url 'cms_submission_items' %}">< Back</a>
+            </div>
+            <div class="content">
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        {% include "admin/elements/translations/form_tabs.html" with object=item %}
+                        <p>You can either create custom text using the Text field or link this Submission Page Item to an existing setting eg. peer_review_info. Selecting an Existing Setting will take precedence.</p>
+                        {% if item.existing_setting %}<p>This item is linked to a Setting. You can edit it via the <a target="_blank" href="{% url 'core_edit_setting' item.existing_setting.group.name item.existing_setting.name %}">Settings</a> interface</p>{% endif %}
+                        <p>There are two "Special Display" submission items. These display a special block and do not require to be linked to a setting or to have text. To create them simply create an item with either of these titles:</p>
+                        <ul>
+                            <li>licenses</li>
+                            <li>sections</li>
+                        </ul>
+                    </div>
+
+                </div>
+                <form method="POST">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">{% if item %}Edit{% else %}Add{% endif %} Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -17,7 +17,7 @@ def journal_url(context, url_name=None, *args):
     else:
         return path
 
+
 @register.simple_tag(takes_context=True)
 def journal_base_url(context, journal):
-
     return journal.site_url()

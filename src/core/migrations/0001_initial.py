@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('middle_name', models.CharField(blank=True, max_length=300, null=True, verbose_name='Middle name')),
                 ('last_name', models.CharField(blank=True, max_length=300, null=True, verbose_name='Last name')),
                 ('activation_code', models.CharField(blank=True, max_length=100, null=True)),
-                ('salutation', models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, null=True, verbose_name='Salutation')),
+                ('salutation', models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, null=True, verbose_name='Salutation')),
                 ('biography', models.TextField(blank=True, null=True, verbose_name='Biography')),
                 ('orcid', models.CharField(blank=True, max_length=40, null=True, verbose_name='ORCiD')),
                 ('institution', models.CharField(max_length=1000, verbose_name='Institution')),

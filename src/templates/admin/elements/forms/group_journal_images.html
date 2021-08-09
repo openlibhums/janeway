@@ -1,0 +1,78 @@
+{% load svg from press_url %}
+
+<div class="title-area">
+    <h2>Journal Images</h2>
+</div>
+<div class="content">
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <p>{% trans 'If you wish to disable the display of article images across Janeway you can use the "Disable article images" setting. To override an existing image simply upload a new one.' %}.</p>
+            {% include "admin/elements/forms/field.html" with field=attr_form.disable_article_images %}
+        </div>
+        <hr />
+        <div class="large-8 columns">
+            {% include "admin/elements/forms/field.html" with field=attr_form.header_image %}
+        </div>
+        <div class="large-4 columns">
+            {% if request.journal.header_image %}
+                <img src="{{ request.journal.header_image.url }}" class="thumbnail float-right">
+            {% endif %}
+        </div>
+        <hr/>
+
+        <div class="large-8 columns">
+            {% include "admin/elements/forms/field.html" with field=attr_form.default_large_image %}
+        </div>
+        <div class="large-4 columns">
+            {% if request.journal.default_large_image %}
+                <img src="{{ request.journal.default_large_image.url }}" class="thumbnail float-right">
+            {% endif %}
+        </div>
+        <hr/>
+
+        <div class="large-8 columns">
+            {% include "admin/elements/forms/field.html" with field=attr_form.default_cover_image %}
+        </div>
+        <div class="large-4 columns">
+            {% if request.journal.default_cover_image %}
+                <img src="{{ request.journal.default_cover_image.url }}" class="thumbnail float-right">
+            {% endif %}
+        </div>
+        <hr/>
+
+        <div class="large-8 columns">
+            {% include "admin/elements/forms/field.html" with field=attr_form.favicon %}
+        </div>
+        <div class="large-4 columns">
+            {% if request.journal.favicon %}
+                <img src="{{ request.journal.favicon.url }}" class="thumbnail float-right">
+            {% endif %}
+        </div>
+        <hr/>
+
+        <div class="large-10 columns">
+            {% include "admin/elements/forms/field.html" with field=attr_form.default_thumbnail %}
+        </div>
+        <div class="large-2 columns">
+            {% if request.journal.header_image %}
+                <img src="{% url 'journal_cover_download' %}" class="thumbnail float-right">
+            {% endif %}
+        </div>
+        <hr/>
+
+        <div class="large-8 columns">
+            {% include "admin/elements/forms/field.html" with field=attr_form.press_image_override %}
+        </div>
+        <div class="large-4 columns svg">
+            {% if request.journal.press_image_override %}
+                {% svg request.journal_cover %}
+            {% elif 'svg' in request.press_cover %}
+                {% svg request.press_cover %}
+            {% else %}
+                {% svg "static/common/img/sample/janeway.svg" %}
+            {% endif %}
+        </div>
+        <hr/>
+
+    </div>
+</div>

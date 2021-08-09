@@ -191,7 +191,6 @@ def cached_settings_for_context(journal, language):
                 group,
                 setting.name,
                 journal,
-                fallback=True,
             ).processed_value
 
     return _dict
@@ -312,10 +311,6 @@ def get_settings_to_edit(group, journal):
                 'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
             },
             {
-                'name': 'default_review_days',
-                'object': setting_handler.get_setting('general', 'default_review_days', journal),
-            },
-            {
                 'name': 'enable_one_click_access',
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
             },
@@ -339,6 +334,14 @@ def get_settings_to_edit(group, journal):
             {
                 'name': 'peer_review_upload_text',
                 'object': setting_handler.get_setting('general', 'peer_review_upload_text', journal),
+            },
+            {
+                'name': 'enable_peer_review_data_block',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
+            },
+            {
+                'name': 'enable_suggested_reviewers',
+                'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },
         ]
         setting_group = 'general'
@@ -364,10 +367,9 @@ def get_settings_to_edit(group, journal):
     elif group == 'journal':
         journal_settings = [
             'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
-            'enable_editorial_display', 'multi_page_editorial', 'enable_editorial_images', 'main_contact',
-            'publisher_name', 'publisher_url', 'privacy_policy_url',
-            'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
-            'twitter_handle', 'switch_language', 'google_analytics_code', 'keyword_list_page',
+            'main_contact', 'publisher_name', 'publisher_url', 'privacy_policy_url',
+            'auto_signature', 'slack_logging', 'slack_webhook', 'twitter_handle',
+            'switch_language', 'enable_language_text', 'google_analytics_code',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
@@ -389,9 +391,27 @@ def get_settings_to_edit(group, journal):
             'suppress_how_to_cite',
             'display_guest_editors',
             'suppress_citations_metric',
+            'display_altmetric_badge',
+            'altmetric_badge_type',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
+    elif group == 'styling':
+        settings = [
+            {
+                'name': 'enable_editorial_images',
+                'object': setting_handler.get_setting('general',
+                                                      'enable_editorial_images',
+                                                      journal),
+            },
+            {
+                'name': 'multi_page_editorial',
+                'object': setting_handler.get_setting('general',
+                                                      'multi_page_editorial',
+                                                      journal),
+            }
+        ]
+        setting_group = 'general'
     else:
         settings = []
         setting_group = None
@@ -408,8 +428,12 @@ def get_theme_list():
 
 def handle_default_thumbnail(request, journal, attr_form):
     if request.FILES.get('default_thumbnail'):
-        new_file = files.save_file_to_journal(request, request.FILES.get('default_thumbnail'), 'Default Thumb',
-                                              'default')
+        new_file = files.save_file_to_journal(
+            request,
+            request.FILES.get('default_thumbnail'),
+            'Default Thumb',
+            'default',
+        )
 
         if journal.thumbnail_image:
             journal.thumbnail_image.unlink_file(journal=journal)
@@ -525,7 +549,7 @@ def handle_add_users_to_role(users, role, request):
 
     for user in users:
         user.add_account_role(role.slug, request.journal)
-        messages.add_message(request, messages.INFO, '{0} added to {1}'.format(user.full_name(), role.name))
+        messages.add_message(request, messages.INFO, '{0} added to {1} role.'.format(user.full_name(), role.name))
 
 
 def clear_active_elements(elements, workflow, plugins):

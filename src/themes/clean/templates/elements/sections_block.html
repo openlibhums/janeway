@@ -1,0 +1,27 @@
+<h2>{% trans 'Sections' %}</h2>
+
+<table class="table">
+    <caption>{% trans 'Sections submission information' %}</caption>
+    <thead>
+    <tr>
+        <th>{% trans 'Section' %}</th>
+        <th>{% trans 'Public Submissions' %}</th>
+        <th>{% trans 'Peer Reviewed' %}</th>
+        <th>{% trans 'Indexed' %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for section in sections %}
+        <tr>
+            <td>{{ section.name }}</td>
+            <td>{% if section.public_submissions %}<span class="fa fa-check"> Yes</span>{% else %}
+                <span class="fa fa-times"> No</span>{% endif %}</td>
+            <td>{% if section.number_of_reviewers > 0 %}<span class="fa fa-check"> Yes</span>{% else %}
+                <span class="fa fa-times"> No</span>{% endif %}</td>
+            <td>{% if section.indexing %}<span class="fa fa-check"> Yes</span>{% else %}
+                <span class="fa fa-times"> No</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+    {% endfor %}
+    </tbody>
+</table>

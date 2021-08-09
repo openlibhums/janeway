@@ -14,6 +14,7 @@ from journal import models
 from press import models as press_models
 from utils import setting_handler
 from submission import models as submission_models
+from cms import models as cms_models
 
 
 def update_settings(journal_object=None, management_command=False,
@@ -54,7 +55,7 @@ def update_settings(journal_object=None, management_command=False,
                         setattr(setting, k, v)
                         setting.save()
 
-            setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+            setting_value, created = core_models.SettingValue.objects.get_or_create(
                 journal=journal_object,
                 setting=setting
             )
@@ -97,7 +98,7 @@ def update_emails(journal_object=None, management_command=False):
                     defaults=setting_defaults
                 )
 
-                setting_value, created = core_models.SettingValue.objects.language('en').get_or_create(
+                setting_value, created = core_models.SettingValue.objects.get_or_create(
                     journal=journal_object,
                     setting=setting
                 )
@@ -134,6 +135,33 @@ def update_license(journal_object, management_command=False):
 
             if management_command:
                 print('Parsed licence {0}'.format(item['fields'].get('short_name')))
+
+
+def setup_submission_items(journal, manage_command=False):
+    with codecs.open(
+        os.path.join(
+            settings.BASE_DIR,
+            'utils/install/submission_items.json'
+        )
+    ) as json_data:
+        submission_items = json.load(json_data)
+        for i, setting in enumerate(submission_items):
+            if not setting.get('group') == 'special':
+                setting_obj = core_models.Setting.objects.get(
+                    group__name=setting.get('group'),
+                    name=setting.get('name'),
+                )
+            else:
+                setting_obj = None
+
+            obj, c = cms_models.SubmissionItem.objects.get_or_create(
+                journal=journal,
+                order=i,
+                existing_setting=setting_obj,
+            )
+
+            setattr(obj, 'title_{}'.format(settings.LANGUAGE_CODE), setting.get('title'))
+            obj.save()
 
 
 def update_xsl_files(journal_object=None, management_command=False):

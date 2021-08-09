@@ -115,3 +115,56 @@ The review page displays a run down of the article you've submitted, metadata, f
  .. figure:: /nstatic/article_review.png
 
     The review page for the article
+
+
+Revisions
+---------
+Editors may request that authors revise their files based on recommendations from reviewers. There are two types of Revision decision:
+
+1. Minor Revisions.
+2. Major Revisions.
+
+With Major Revisions you may find that the Editor will send the paper for a second round of review once you have completed your revisions.
+
+When an Editor request revisions there are two ways to start this process:
+
+1. Click the link in the email sent to you.
+2. Via the Journal Dashboard:
+    1. Login to the Journal
+    2. Go to the journal Dashboard
+    3. Scroll down to "Submitted Articles"
+    4. Click the "Revision Request" button next to the article.
+
+Once you have accessed the revision request you will be able to view available peer reviews and download, revise or upload new files. Once you've uploaded a revised manuscript and any additional image files you can fill in the covering letter and save the revision.
+
+ .. figure:: /nstatic/review_do_revisions.gif
+
+Proofing
+--------
+After your paper has been accepted and copyediting, the editors might send you a request to proof the 'Typesetting Files'.
+These files are the final finals that will be made publicly available once the article gets published on the journal.
+
+For journals that publish content in multiple media formats (HTML, PDF, XML...) It is important that you check all these files before publication. Authors are not expected to be able to open and read XML/HTML code. Instead, Janeway provides a 'preview' button were you will be able to previsualise the article as it will be rendered once it gets published.
+
+
+ .. figure:: /nstatic/typesetting/proofreading_1.png
+
+    Typeset Files download and preview
+
+Once you've previewed the files, you can provide feedback in two ways:
+
+1. Fill in the rich-text "Notes" box. This form element supports rich-text as well as pasting in screenshots or other types of images
+
+ .. figure:: /nstatic/typesetting/proofreading_notes.png
+
+    Providing proofreading notes via Rich-text editor
+
+2. Upload an annotated file. In the case of PDF files, you can download the file and make annotations offline using specialized software. when this is done, you can upload the annotated file for the editor to review.
+
+ .. figure:: /nstatic/typesetting/proofreading_2.png
+
+    Providing proofreading notes by uploading an annotated file.
+
+It is important to proof all the files thoroughly in order to avoid unnecessary follow-up rounds that will potentially cost more time and money to the journal's editorial team and publishers.
+
+Once you have provded your feedback, it is possible that the editorial team might send you another proofing tasks once the requested corrections have been applied. In that case, the process to follow is the same as explained above.

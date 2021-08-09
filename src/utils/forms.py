@@ -1,7 +1,16 @@
 from django.forms import CharField, ModelForm, DateInput
 from django.utils.translation import gettext_lazy as _
 
+from modeltranslation import forms as mt_forms, translator
+
 from submission import models as submission_models
+
+
+class JanewayTranslationModelForm(mt_forms.TranslationModelForm):
+    def __init__(self, *args, **kwargs):
+        super(JanewayTranslationModelForm, self).__init__(*args, **kwargs)
+        opts = translator.translator.get_options_for_model(self._meta.model)
+        self.translated_field_names = opts.get_field_names()
 
 
 class FakeModelForm(ModelForm):
@@ -35,7 +44,8 @@ class KeywordModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        current_keywords = self.instance.keywords.values_list("word", flat=True)
+        current_keywords = self.instance.keywords.values_list(
+            "word", flat=True)
         field = self.fields["keywords"]
         field.initial = ",".join(current_keywords)
 
@@ -43,16 +53,11 @@ class KeywordModelForm(ModelForm):
         instance = super().save(commit=commit, *args, **kwargs)
 
         posted_keywords = self.cleaned_data.get('keywords', '').split(',')
-        for keyword in posted_keywords:
-            if keyword != '':
+        instance.keywords.clear()
+        for i, keyword in enumerate(posted_keywords):
                 obj, _ = submission_models.Keyword.objects.get_or_create(
                         word=keyword)
                 instance.keywords.add(obj)
-
-        for keyword in instance.keywords.all():
-            if keyword.word not in posted_keywords:
-                instance.keywords.remove(keyword)
-
         if commit:
             instance.save()
         return instance
@@ -60,3 +65,7 @@ class KeywordModelForm(ModelForm):
 
 class HTMLDateInput(DateInput):
     input_type = 'date'
+
+    def __init__(self, **kwargs):
+        kwargs["format"] = "%Y-%m-%d"
+        super().__init__(**kwargs)

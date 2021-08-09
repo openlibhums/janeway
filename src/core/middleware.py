@@ -35,7 +35,7 @@ def get_site_resources(request):
     :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
     """
     journal = press = redirect_obj = None
-    try: # try journal site
+    try:  # try journal site
         if settings.URL_CONFIG == 'path':
             code = request.path.split('/')[1]
             journal = journal_models.Journal.objects.get(code=code)
@@ -217,11 +217,13 @@ class TimezoneMiddleware(object):
             tzname = request.session["janeway_timezone"]
         else:
             tzname = None
+            request.timezone = None
 
         try:
-            request.timezone = tzname
             if tzname is not None:
-                timezone.activate(pytz.timezone(tzname))
+                tzinfo = pytz.timezone(tzname)
+                request.timezone = tzinfo
+                timezone.activate(tzinfo)
                 logger.debug("Activated timezone %s" % tzname)
         except Exception as e:
             logger.warning("Failed to activate timezone %s: %s" % (tzname, e))

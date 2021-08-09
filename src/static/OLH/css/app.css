@@ -1251,15 +1251,15 @@ h6 {
 
 @media screen and (min-width: 40em) {
   h1 {
-    font-size: 3.33333rem; }
+    font-size: 2.5rem; }
   h2 {
-    font-size: 2.77778rem; }
+    font-size: 2.08333rem; }
   h3 {
-    font-size: 2.15278rem; }
+    font-size: 1.66667rem; }
   h4 {
-    font-size: 1.73611rem; }
-  h5 {
     font-size: 1.38889rem; }
+  h5 {
+    font-size: 1.25rem; }
   h6 {
     font-size: 1.11111rem; } }
 
@@ -4741,7 +4741,7 @@ div.caption span.label {
     .box.journal-list .content {
       padding: 0.69444rem 0; }
   .box.issue .info-bar {
-    position: absolute;
+    position: relative;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -4807,7 +4807,9 @@ div.caption span.label {
   list-style-type: none;
   margin: 0; }
   #content aside ul li {
-    position: relative; }
+    position: relative;
+    margin-bottom: 10px;
+    line-height: 1.3em; }
     #content aside ul li:before {
       content: '';
       position: absolute;
@@ -5261,3 +5263,18 @@ button.list-group-item-danger.active:focus {
 .alignleft {
   float: left;
   padding: 5px; }
+
+.small-caps {
+  font-variant: small-caps; }
+
+.flag-button {
+  height: 25px;
+  width: 33px;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-top: 5px; }
+
+.flag-active {
+  text-decoration: #404554 underline;
+  text-underline-offset: 10px;
+  text-decoration-thickness: 3px; }

@@ -104,7 +104,9 @@ For each section you can supply:
     - Checked if you want new submissions to be able to select this section.
 - Indexing
     - Whether this section is put forward for indexing.
-    
+- Auto assign editors
+    - Articles submitted to this section will be automatically assigned to any editors and/or section editors selected on the 'Editors' and/or 'Section Editors box above.
+
 You can edit and delete sections but be warned: deleting a section will orphan articles within that section.
 
 This field can also be disabled if you only have one article type, using the Submission Configurator.

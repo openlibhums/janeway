@@ -73,7 +73,6 @@ src/core/settings.py
 /src/media/django-summernote
 /src/media/*
 /src/collected-static
-/db/*
 
 mydatabase
 node_modules/
@@ -85,6 +84,7 @@ src/media/profile_images/*
 
 # vim
 *.swp
+.vim/
 
 # gulp
 /src/static/OLH/*
@@ -121,12 +121,6 @@ src/test\.txt
 venv/**
 src/.DS_Store
 .DS_Store
-
-src/static/superhero/
-
-src/themes/clean
-
-src/themes/superhero
 
 # Lando
 dockerfiles/lando_local.env

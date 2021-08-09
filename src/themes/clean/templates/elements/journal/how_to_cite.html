@@ -1,0 +1,5 @@
+{% for author in article.frozen_authors.all %}{% if not forloop.first and not forloop.last %}, {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.citation_name }}
+{% endfor %}
+({{ article.date_published.year }}) “{{ article.title|safe }}”,
+<em>{{ journal.name }}</em>.{% if article.issue.volume %} {{ article.issue.volume }}{% endif %}{% if article.issue.issue %}({{ article.issue.issue }}).{% endif %}
+{% if article.identifier.id_type == 'doi' %}doi: <a href="https://doi.org/{{ article.identifier.identifier }}">https://doi.org/{{ article.identifier.identifier }}</a>{% endif %}</p>

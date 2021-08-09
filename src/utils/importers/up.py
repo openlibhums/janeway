@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.contrib.contenttypes.models import ContentType
 
 from utils.importers import shared
@@ -36,7 +37,7 @@ def get_thumbnails_url(url):
     """
     logger.info("Extracting thumbnails URL.")
 
-    section_filters = ["f=%d" % i for i in range(1,100)]
+    section_filters = ["f=%d" % i for i in range(1,10)]
     flt = "&".join(section_filters)
     url_to_use = url + '/articles/?' + flt + '&order=date_published&app=100000'
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url_to_use)
@@ -80,22 +81,28 @@ def import_article(journal, user, url, thumb_path=None, update=False):
 
     # try to do a license lookup
     pattern = re.compile(r'creativecommons')
-    license_tag = soup_object.find(href=pattern)
-    license_object = models.Licence.objects.filter(url=license_tag['href'].replace('http:', 'https:'), journal=journal)
+    license_object = []
+    license_tag = soup_object.find(href=pattern) or ''
+    license_object = models.Licence.objects.filter(
+        url=license_tag['href'].replace('http:', 'https:'), journal=journal)
 
     if len(license_object) > 0 and license_object[0] is not None:
         license_object = license_object[0]
         logger.info("Found a license for this article: {0}".format(
             license_object.short_name))
-    else:
-        license_object = models.Licence.objects.get(name='All rights reserved', journal=journal)
+        article.license = license_object
+
+    if not article.license:
+        license_object = models.Licence.objects.get(
+            name='All rights reserved', journal=journal,
+        )
         logger.warning(
             "Did not find a license for this article. Using: {0}".format(
-                license_object.short_name
+                license_object.short_name,
             )
         )
+        article.license = license_object
 
-    article.license = license_object
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
@@ -425,7 +432,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
             for section_order, section in enumerate(sections_to_order):
 
                 logger.info('[{0}] {1}'.format(section_order, section.getText()))
-                order_section, c = models.Section.objects.language('en').get_or_create(
+                order_section, c = models.Section.objects.get_or_create(
                     name=section.getText().strip(),
                     journal=journal)
                 journal_models.SectionOrdering.objects.create(issue=issue,
@@ -620,9 +627,14 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
     # Add keywords
     keywords = article_dict.get('keywords')
     if keywords:
-        for keyword in keywords.split(';'):
+        for i, keyword in enumerate(keywords.split(';')):
+            keyword = strip_tags(keyword)
             word, created = models.Keyword.objects.get_or_create(word=keyword)
-            article.keywords.add(word)
+            models.KeywordArticle.objects.update_or_create(
+                keyword=keyword,
+                article=article,
+                defaults={"order":i},
+            )
 
     # Add authors
     for author in article_dict.get('authors'):
@@ -657,8 +669,10 @@ def create_article_with_review_content(article_dict, journal, auth_file, base_ur
 
         # Get or create the article's section
         try:
-            section = models.Section.objects.language().fallbacks('en').get(journal=journal,
-                                                                            name=article_dict.get('section'))
+            section = models.Section.objects.get(
+                journal=journal,
+                name=article_dict.get('section'),
+            )
         except models.Section.DoesNotExist:
             section = None
 
@@ -1215,7 +1229,7 @@ def scrape_editorial_team(journal, base_url):
 
 
 
-                    account, c = core_models.Account.objects.get_or_create(
+                    account, c = core_models.Account.objects.update_or_create(
                         email=email,
                         defaults=profile_dict,
                     )

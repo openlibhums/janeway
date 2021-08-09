@@ -15,14 +15,18 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from hvad.models import TranslatableModel, TranslatedFields
+from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, m2m_changed
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
 
-from core.file_system import JanewayFileSystemStorage
 from core import workflow
+from core.file_system import JanewayFileSystemStorage
+from core import workflow, model_utils
+from core.model_utils import M2MOrderedThroughField
+from core import workflow, model_utils
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from preprint import models as preprint_models
@@ -308,6 +312,22 @@ class Keyword(models.Model):
         return self.word
 
 
+class KeywordArticle(models.Model):
+    keyword = models.ForeignKey("submission.Keyword")
+    article = models.ForeignKey("submission.Article")
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = ('keyword', 'article')
+
+    def __str__(self):
+        return self.keyword.word
+
+    def __repr__(self):
+        return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
+
+
 class AllArticleManager(models.Manager):
     use_for_related_fields = True
 
@@ -316,6 +336,7 @@ class AllArticleManager(models.Manager):
 
 
 class ArticleManager(models.Manager):
+    use_in_migrations = True
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
 
@@ -370,7 +391,10 @@ class Article(models.Model):
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
-    keywords = models.ManyToManyField(Keyword, blank=True, null=True)
+    keywords = M2MOrderedThroughField(
+        Keyword,
+        blank=True, null=True, through='submission.KeywordArticle',
+    )
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
@@ -514,10 +538,19 @@ class Article(models.Model):
             year_str = "({:%Y})".format(self.date_published)
         journal_str = "<i>%s</i>" % self.journal.name
         issue_str = ""
-        issue = self.issue
-        if self.issue:
-            issue_str = "%s(%s)" % (issue.volume, issue.issue)
+        issue = self. issue
+        if issue:
+            if issue.volume:
+                if issue.issue and issue.issue != "0":
+                    issue_str = "%s(%s)" % (issue.volume, issue.issue)
+                else:
+                    issue_str = str(issue.volume)
+            elif issue.issue and issue.issue != "0":
+                    issue_str = str(issue.issue)
         doi_str = ""
+        pages_str = ""
+        if self.page_numbers:
+            pages_str = " p.{0}.".format(self.page_numbers)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -530,6 +563,7 @@ class Article(models.Model):
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_str": doi_str,
+            "pages_str": pages_str,
         }
         return render_to_string(template, context)
 
@@ -703,6 +737,11 @@ class Article(models.Model):
         return self.stage == "Published" or self.stage == "Accepted" or self.stage == "Editor Copyediting"\
             or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
             or self.stage == "Typesetting" or self.stage == "Proofing"
+
+    def peer_reviews_for_author_consumption(self):
+        return self.reviewassignment_set.filter(
+            for_author_consumption=True,
+        )
 
     def __str__(self):
         return u'%s - %s' % (self.pk, self.title)
@@ -967,6 +1006,12 @@ class Article(models.Model):
                                                     reviewer=user).first()
         except review_models.ReviewAssignment.DoesNotExist:
             return None
+
+    def reviews_not_withdrawn(self):
+        return self.reviewassignment_set.exclude(decision='withdrawn')
+
+    def number_of_withdrawn_reviews(self):
+        return self.reviewassignment_set.filter(decision='withdrawn').count()
 
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
@@ -1262,11 +1307,29 @@ class Article(models.Model):
 
         return article_link_count + book_link_count
 
+    def hidden_completed_reviews(self):
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_complete__isnull=False,
+            for_author_consumption=False,
+        ).exclude(
+            decision='withdrawn',
+        )
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
 
+    name_prefix = models.CharField(
+        max_length=300, null=True, blank=True,
+        help_text=_("Optional name prefix (e.g: Prof or Dr)")
+
+        )
+    name_suffix = models.CharField(
+        max_length=300, null=True, blank=True,
+        help_text=_("Optional name suffix (e.g.: Jr or III)")
+    )
     first_name = models.CharField(max_length=300, null=True, blank=True)
     middle_name = models.CharField(max_length=300, null=True, blank=True)
     last_name = models.CharField(max_length=300, null=True, blank=True)
@@ -1292,10 +1355,14 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
-        elif self.middle_name:
-            return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        else:
-            return u"%s %s" % (self.first_name, self.last_name)
+        full_name = u"%s %s" % (self.first_name, self.last_name)
+        if self.middle_name:
+            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+        if self.name_prefix:
+            full_name = "%s %s" % (_(self.name_prefix), full_name)
+        if self.name_suffix:
+            full_name = "%s %s" % (full_name, self.name_suffix)
+        return full_name
 
     @property
     def corporate_name(self):
@@ -1314,7 +1381,11 @@ class FrozenAuthor(models.Model):
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
 
-        return '{last} {first}{middle}'.format(last=self.last_name, first=first_initial, middle=middle_initial)
+        citation = '{last} {first}{middle}'.format(
+            last=self.last_name, first=first_initial, middle=middle_initial)
+        if self.name_suffix:
+            citation = '{}, {}'.format(citation, self.name_suffix)
+        return citation
 
     def given_names(self):
         if self.middle_name:
@@ -1348,50 +1419,67 @@ class FrozenAuthor(models.Model):
             return True
 
 
-class Section(TranslatableModel):
+class Section(models.Model):
     journal = models.ForeignKey('journal.Journal')
     number_of_reviewers = models.IntegerField(default=2)
 
-    editors = models.ManyToManyField('core.Account',
+    editors = models.ManyToManyField(
+        'core.Account',
         help_text="Editors assigned will be notified of submissions,"
-            " overruling the notification settings for the journal.",
+                  " overruling the notification settings for the journal.",
     )
-    section_editors = models.ManyToManyField('core.Account',
+    section_editors = models.ManyToManyField(
+        'core.Account',
         help_text="Section editors assigned will be notified of submissions,"
-            " overruling the notification settings for the journal.",
+                  " overruling the notification settings for the journal.",
         related_name='section_editors',
     )
-    auto_assign_editors = models.BooleanField(default=False,
+    auto_assign_editors = models.BooleanField(
+        default=False,
         help_text="Articles submitted to this section will be automatically"
-            " assigned to the editors and/or section editors selected above.",
+                  " assigned to the editors and/or section editors selected above.",
     )
-
-    is_filterable = models.BooleanField(default=True,
-        help_text="Allows filtering article search results by this section.")
+    is_filterable = models.BooleanField(
+        default=True,
+        help_text="Allows filtering article search results by this section.",
+    )
     public_submissions = models.BooleanField(default=True)
-    indexing = models.BooleanField(default=True,
+    indexing = models.BooleanField(
+        default=True,
         help_text="Whether this section is put forward for indexing")
-    sequence = models.PositiveIntegerField(default=0,
+    sequence = models.PositiveIntegerField(
+        default=0,
         help_text="Determines the order in which the section is rendered"
-            " Sections can also be reorder by drag-and-drop",
+                  " Sections can also be reorder by drag-and-drop",
+    )
+    name = models.CharField(
+        max_length=200,
+        null=True,
+    )
+    plural = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="Pluralised name for the section"
+                  " (e.g: Article -> Articles)",
     )
 
-    translations = TranslatedFields(
-        name=models.CharField(max_length=200),
-        plural=models.CharField(max_length=200, null=True, blank=True,
-            help_text="Pluralised name for the section"
-                " (e.g: Article -> Articles)"
-        )
-    )
+    objects = model_utils.JanewayMultilingualManager()
 
     class Meta:
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.safe_translation_getter('name', str(self.pk))
+        return "{} - {}".format(
+            self.pk,
+            self.name,
+        )
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
+
+    def article_count(self):
+        return Article.objects.filter(section=self).count()
 
     def editor_emails(self):
         return [editor.email for editor in self.editors.all()]
@@ -1403,10 +1491,9 @@ class Section(TranslatableModel):
         return [editor.email for editor in self.section_editors.all() + self.editors.all()]
 
     def issue_display(self):
-        if self.lazy_translation_getter('plural', str(self.pk)):
-            return self.lazy_translation_getter('plural', str(self.pk))
-        else:
-            return self.lazy_translation_getter('name', str(self.pk))
+        if self.plural:
+            return self.plural
+        return self.name
 
 
 class Licence(models.Model):
@@ -1604,3 +1691,22 @@ def remove_author_from_article(sender, instance, **kwargs):
         pass
 
     instance.article.authors.remove(instance.author)
+
+
+def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == 'post_add':
+        try:
+            latest = KeywordArticle.objects.filter(
+                article=instance).latest("order").order
+        except KeywordArticle.DoesNotExist:
+            latest = 0
+        for pk in pk_set:
+            latest += 1
+            keyword_article = KeywordArticle.objects.get(
+                keyword__pk=pk, article=instance)
+            if keyword_article.order == 1 != latest:
+                keyword_article.order = latest
+                keyword_article.save()
+
+
+m2m_changed.connect(order_keywords, sender=Article.keywords.through)

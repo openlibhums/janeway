@@ -20,25 +20,25 @@
         </a>
         <ul class="right hide-on-med-and-down">
             {% if request.journal.nav_home %}
-            <li><a href="{% url 'website_index' %}">Home</a></li>
+            <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
-                <li><a href="{% url 'core_news_list' %}">News</a></li>
+                <li><a href="{% url 'core_news_list' %}">{% trans "News" %}</a></li>
             {% endif %}
             {% if request.journal.nav_articles %}
-                <li><a href="{% url 'journal_articles' %}">Articles</a></li>
+                <li><a href="{% url 'journal_articles' %}">{% trans "Articles" %}</a></li>
             {% endif %}
             {% if request.journal.nav_issues %}
-                <li><a href="{% url 'journal_issues' %}">Issues</a></li>
+                <li><a href="{% url 'journal_issues' %}">{% trans "Issues" %}</a></li>
             {% endif %}
             {% if journal_settings.general.enable_editorial_display %}
-                <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>
+                <li><a href="{% url 'editorial_team' %}">{% trans "Editorial Team" %}</a></li>
             {% endif %}
             {% if request.journal.nav_sub %}
-                <li><a href="{% url 'journal_submissions' %}">Submission</a></li>
+                <li><a href="{% url 'journal_submissions' %}">{% trans "Submission" %}</a></li>
             {% endif %}
             {% if request.journal.nav_contact %}
-                <li><a href="{% url 'contact' %}">Contact</a></li>
+                <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
             {% endif %}
 
             {% for item in navigation_items %}
@@ -52,15 +52,15 @@
             {% endfor %}
 
             {% if request.journal.nav_review %}
-                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>Become a Reviewer</a></li>
+                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
             {% endif %}
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
-                <li><a class="dropdown-button" href="#!" data-activates="account">Account<i
+                <li><a class="dropdown-button" href="#!" data-activates="account">{% trans "Account" %}<i
                         class="material-icons right">arrow_drop_down</i></a></li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
-                <li><a href="{% url 'core_register' %}">Register</a></li>
+                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
+                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
 
@@ -105,7 +105,7 @@
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
     </div>
 </nav>
 

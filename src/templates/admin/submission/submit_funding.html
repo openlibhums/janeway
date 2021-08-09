@@ -24,11 +24,11 @@
                                     <input type="text" name="funder_text" id="funder_text" />
                                 </div>
                                 <div class="large-2 columns">
-                                    <button class="button pull-right" onclick="javascript:search_fundref($('#funder_text').val())">Search for funder</button>
+                                    <button class="button pull-right" onclick="javascript:search_fundref($('#funder_text').val())">{% trans 'Search for funder' %}</button>
                                 </div>
                                 <div class="large-2 columns">
                                     <input id="funder_name" type="hidden" value="use_raw"/><input id="funder_doi" type="hidden" value=""/>
-                                    <a class="warning button pull-right" data-open="add_funder_blank"><i class="fa fa-plus">&nbsp;</i>Add funder manually</a>
+                                    <a class="warning button pull-right" data-open="add_funder_blank"><i class="fa fa-plus">&nbsp;</i>{% trans 'Add funder manually' %}</a>
                                 </div>
                         </div>
                     <div class="row expanded">
@@ -82,7 +82,7 @@
             <div class="small reveal" id="add_funder_blank" data-reveal>
                 <div class="card">
                     <div class="card-divider">
-                        <h5>Add funder</h5>
+                        <h5>{% trans 'Add funder' %}</h5>
                     </div>
                     <div class="card-section">
                         <form method="POST">
@@ -90,22 +90,22 @@
                             <div class="row">
                                 <div class="large-12 columns">
                                     <input type="text" id="funder_name" name="funder_name"/>
-                                    <p class="help-text">Funder</p>
+                                    <p class="help-text">{% trans 'Funder' %}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="large-12 columns">
                                     <input type="text" id="funder_doi" name="funder_doi"/>
-                                    <p class="help-text">Funder DOI (optional)</p>
+                                    <p class="help-text">{% trans 'Funder DOI' %} {% trans '(optional)' %}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="large-12 columns">
                                     <input type="text" name="grant_number" id="grant_number"/>
-                                    <p class="help-text">Funder grant number (optional)</p>
+                                    <p class="help-text">{% trans 'Funder grant number' %} {% trans '(optional)' %}</p>
                                 </div>
                             </div>
-                            <button type="submit" name="add_funder" class="success button">Add funder</button>
+                            <button type="submit" name="add_funder" class="success button">{% trans 'Add funder' %}</button>
                             <button type="button" data-close="" class="close-button">&times;</button>
                         </form>
                     </div>

@@ -15,33 +15,38 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <p>You can update or delete any of the existing files for your submission, and you can upload new files.
-                    Please note, your actions on this page will be logged
-                    for the editor to review.</p>
+                <h2>Information</h2>
+            </div>
+            <div class="content">
+                <p>
+                    You have been asked to revise your article manuscript. If the editor has made peer review comments
+                    available for you to view, these will be visible below. The manuscript and any additional files are
+                    also listed below.
+                </p>
+                <p>
+                    The editor, {{ revision_request.editor.full_name }}, supplied the following note
+                </p>
+                {{ revision_request.editor_note|safe }}
+                <br/><br/>
+            </div>
+            <div class="title-area">
+                <h2>Reviews</h2>
+            </div>
+            <div class="content">
+                <p>Please click 'View Review' below to view the peer reviewer report.</p>
+                {% include "admin/elements/review/view_reviews.html" %}
             </div>
             <form method="POST">
                 {% csrf_token %}
                 <div class="title-area">
-                    <h2>Reviews</h2>
-                </div>
-                <div class="content">
-                    {% include "elements/review/view_reviews.html" %}
-                </div>
-
-                <div class="title-area">
-                    <h2>Note from Editor</h2>
-                </div>
-                <div class="content">
-                    {{ revision_request.editor_note|safe }}
-                    <br/><br/>
-                    {% include "elements/forms/errors.html" with form=form %}
-                </div>
-                <div class="title-area">
                     <h2>Files</h2>
-                    <a href="{% url 'revisions_upload_new_file' article.pk revision_request.pk %}"
-                                 class="button"><i class="fa fa-upload">&nbsp;</i>Add New File</a>
                 </div>
                 <div class="content">
+                    <p>Your article files are listed below. You can use the 'Upload Revised File' button next to each
+                        file to upload a new version of the file, or use the 'Upload New File' button to upload a new
+                        file.</p>
+                    <a href="{% url 'revisions_upload_new_file' article.pk revision_request.pk %}"
+                       class="button"><i class="fa fa-upload">&nbsp;</i>Upload New File</a>
                     <table class="scroll small">
                         <tr>
                             <th>Label</th>
@@ -50,7 +55,7 @@
                             <th>Uploaded</th>
                             <th>Size</th>
                             <th>Download</th>
-                            <th>Replace</th>
+                            <th>Upload Revised File</th>
                             <th>Delete</th>
                         </tr>
                         {% for file in article.manuscript_files.all %}
@@ -88,17 +93,21 @@
                             </tr>
                         {% endfor %}
                     </table>
+                    {% include "elements/forms/errors.html" with form=form %}
                     {{ form.author_note|foundation }}
 
-                    <button class="button success">Complete Revisions</button>
+                    <p>If you want to save your covering letter and come back later, click the 'Save Covering Letter' button below. Once you are ready to send your letter, see the 'Finishing Up' section below.</p>
+                    <button class="button success" name="save">Save Covering Letter</button>
+                </div>
+                <div class="title-area">
+                    <h2>Finishing Up</h2>
+                </div>
+                <div class="content">
+                     <p>When you have completed your revisions and finished writing your covering letter, click the 'Submit Revisions' button below to finish. Please note that you will not be able to make any further changes to your letter or revisions once you click 'Submit Revisions'</p>
+                    <button class="button success">Submit Revisions</button>
                 </div>
             </form>
         </div>
-
-    </div><!--/col-lg-12 -->
+    </div>
 
 {% endblock body %}
-
-{% block js %}
-    {% include "elements/jqte.html" %}
-{% endblock js %}

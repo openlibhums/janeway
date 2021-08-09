@@ -542,6 +542,8 @@ def article_stage_accepted_or_later_or_staff_required(func):
             deny_access(request)
         elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
             return func(request, *args, **kwargs)
+        elif request.user in article_object.section_editors():
+            return func(request, *args, **kwargs)
         else:
             deny_access(request)
 
@@ -739,12 +741,32 @@ def article_decision_not_made(func):
             article_object = review_models.ReviewAssignment.objects.get(pk=kwargs['review_id'],
                                                                         article__journal=request.journal).article
 
-        if article_object.stage == models.STAGE_ASSIGNED or article_object.stage == models.STAGE_UNDER_REVIEW\
-                or article_object.stage == models.STAGE_UNDER_REVISION:
+        if article_object.stage in models.REVIEW_STAGES:
             return func(request, *args, **kwargs)
+        elif article_object.stage == models.STAGE_UNASSIGNED:
+            messages.add_message(
+                request,
+                messages.INFO,
+                'This article is not in a review stage.',
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article_object.pk},
+                )
+            )
         else:
-            messages.add_message(request, messages.WARNING, 'This article has already been accepted or declined.')
-            return redirect(reverse('review_in_review', kwargs={'article_id': article_object.pk}))
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This article is no longer under review.',
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article_object.pk},
+                )
+            )
 
     return wrapper
 

@@ -8,12 +8,9 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
-from urllib.parse import urlunparse
-
 import pytz
 
 from bs4 import BeautifulSoup
-from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -32,7 +29,6 @@ from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
-from utils import setting_handler
 from utils.logger import get_logger
 from utils import logic as utils_logic
 
@@ -55,6 +51,7 @@ SALUTATION_CHOICES = (
     ('Ms', 'Ms'),
     ('Mrs', 'Mrs'),
     ('Mr', 'Mr'),
+    ('Mx', 'Mx'),
     ('Dr', 'Dr'),
     ('Prof.', 'Prof.'),
 )
@@ -601,7 +598,7 @@ class Setting(models.Model):
 
     @property
     def default_setting_value(self):
-        return SettingValue.objects.language("en").get(
+        return SettingValue.objects.get(
             setting=self,
             journal=None,
     )
@@ -614,13 +611,10 @@ class Setting(models.Model):
         self.group.validate(value)
 
 
-class SettingValue(TranslatableModel):
+class SettingValue(models.Model):
     journal = models.ForeignKey('journal.Journal', null=True, blank=True)
     setting = models.ForeignKey(Setting)
-
-    translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
-    )
+    value = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (
@@ -1036,10 +1030,15 @@ class SupplementaryFile(models.Model):
         return files.file_path_mime(self.path())
 
     def url(self):
-        base_url = self.file.article.journal.full_url()
-        path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
-                                                             'supp_file_id': self.pk})
-        return '{base}{path}'.format(base=base_url, path=path)
+        path = reverse(
+            'article_download_supp_file',
+            kwargs={
+                'article_id': self.file.article.pk,
+                'supp_file_id': self.pk,
+            },
+        )
+
+        return self.file.article.journal.site_url(path=path)
 
 
 class Task(models.Model):
@@ -1324,3 +1323,20 @@ def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()
+
+
+# This model is vestigial and will be removed in v1.5
+
+class SettingValueTranslation(models.Model):
+    hvad_value = models.TextField(
+        blank=True,
+        null=True,
+    )
+    language_code = models.CharField(
+        max_length=15,
+        db_index=True,
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'core_settingvalue_translation'

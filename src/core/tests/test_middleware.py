@@ -12,11 +12,12 @@ from core.middleware import (
         SiteSettingsMiddleware,
         TimezoneMiddleware,
 )
-from core.models import Account
+from core.models import Account, Setting
 from journal.tests.utils import make_test_journal
 from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
+
 
 class TestSiteMiddleware(TestCase):
     def setUp(self):
@@ -160,7 +161,7 @@ class TestTimezoneMiddleware(TestCase):
 
         request.user = user
         response = self.middleware.process_request(request)
-        self.assertEqual(request.timezone, user.preferred_timezone)
+        self.assertEqual(request.timezone.zone, user.preferred_timezone)
 
     def test_browser_timezone_case(self):
         user = AnonymousUser()
@@ -173,7 +174,7 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone, tzname)
+        self.assertEqual(request.timezone.zone, tzname)
 
     def test_user_preference_over_browser(self):
         user_timezone = "Europe/Madrid"
@@ -190,6 +191,6 @@ class TestTimezoneMiddleware(TestCase):
 
         response = self.middleware.process_request(request)
 
-        self.assertEqual(request.timezone, user_timezone)
+        self.assertEqual(request.timezone.zone, user_timezone)
 
 

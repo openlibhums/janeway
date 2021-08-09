@@ -838,14 +838,19 @@
 
     <xsl:template match="p">
         <xsl:if test="not(supplementary-material)">
-            <p>
-                <xsl:if test="ancestor::caption and (count(preceding-sibling::p) = 0) and (ancestor::boxed-text or ancestor::media)">
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="'first-child'"/>
-                    </xsl:attribute>
-                </xsl:if>
-                <xsl:apply-templates/>
-            </p>
+            <xsl:choose>
+                <xsl:when test="not(ancestor::list[@list-type='gloss'])">
+                    <p>
+                        <xsl:if test="ancestor::caption and (count(preceding-sibling::p) = 0) and (ancestor::boxed-text or ancestor::media)">
+                            <xsl:attribute name="class">
+                                <xsl:value-of select="'first-child'"/>
+                            </xsl:attribute>
+                        </xsl:if>
+                        <xsl:apply-templates/>
+                    </p>
+                </xsl:when>
+                <xsl:otherwise><xsl:apply-templates/></xsl:otherwise>
+            </xsl:choose>
         </xsl:if>
         <xsl:if test="supplementary-material">
             <xsl:if test="ancestor::caption and (count(preceding-sibling::p) = 0) and (ancestor::boxed-text or ancestor::media)">
@@ -979,8 +984,19 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/table">
-        <table class="striped">
-            <xsl:apply-templates/>
+      <xsl:variable name="graphics" select="./@xlink:href"/>
+        <table>
+         <xsl:choose>
+          <xsl:when test="./@content-type = 'example'">
+            <xsl:attribute name="content-type">
+              <xsl:value-of select="./@content-type"/>
+            </xsl:attribute>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="class">striped</xsl:attribute>
+          </xsl:otherwise>
+         </xsl:choose>
+         <xsl:apply-templates/>
         </table>
     </xsl:template>
 
@@ -1036,7 +1052,9 @@
                     <xsl:value-of select="@style"/>
                 </xsl:attribute>
             </xsl:if>
-
+            <xsl:if test="ancestor::table[@content-type ='example']">
+              <xsl:attribute name="style">vertical-align: top;</xsl:attribute>
+            </xsl:if>
             <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
@@ -1566,7 +1584,6 @@
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
       <xsl:apply-templates select="ext-link"/>
-      <xsl:apply-templates select="uri"/>
     </p>
   </xsl:template>
 
@@ -2054,6 +2071,11 @@
   <xsl:template match="article-title" mode="nscitation">
     <xsl:apply-templates/>
   </xsl:template>
+  <xsl:template match="uri" mode="nscitation">
+    <a href="{self::uri}" target="_blank">
+      <xsl:apply-templates/>
+    </a>
+  </xsl:template>
 
   <xsl:template match="article-title" mode="book">
     <xsl:apply-templates/>
@@ -2311,12 +2333,22 @@
   <!-- misc stuff -->
 
   <xsl:template match="pub-id" mode="nscitation">
+    <xsl:variable name="pub-id-type" select="@pub-id-type"/>
     <xsl:choose>
+      <!-- Handle identifier as URL -->
       <xsl:when test="starts-with(current(), 'http')">
         <xsl:value-of select="@pub-id-type"/>
         <xsl:text>:&#160;</xsl:text>
         <a href="{current()}" target="_blank">
         <xsl:apply-templates/>
+        </a>
+      </xsl:when>
+      <!-- Handle identifier as DOI but not URL -->
+      <xsl:when test="$pub-id-type='doi'">
+        <xsl:text>&#160;</xsl:text>
+        <a href="https://doi.org/{current()}" target="_blank">
+          <xsl:text>http://doi.org/</xsl:text>
+          <xsl:apply-templates/>
         </a>
       </xsl:when>
       <xsl:otherwise>
@@ -3165,6 +3197,7 @@
     </xsl:template>
 
     <xsl:template match="inline-graphic">
+        <xsl:variable name="graphics" select="./@xlink:href"/>
         <xsl:variable name="ig-variant">
             <xsl:choose>
                 <xsl:when test="//article/@article-type = 'research-article'">
@@ -3189,7 +3222,7 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        [inline-graphic-<xsl:value-of select="@xlink:href"/>-<xsl:value-of select="$ig-variant"/>]
+        <img src="{$graphics}" class="responsive-img" />
     </xsl:template>
 
     <xsl:template name="appendices-main-text">
@@ -3230,36 +3263,96 @@
                 </ul>
             </xsl:when>
             <xsl:otherwise>
-                <ol>
-                    <xsl:attribute name="class">
-                        <xsl:choose>
-                            <xsl:when test="@list-type = 'order'">
+                <xsl:choose>
+                    <xsl:when test="@list-type = 'order'">
+                        <ol>
+                            <xsl:attribute name="class">
                                 <xsl:value-of select="'list-ord'"/>
-                            </xsl:when>
-                            <xsl:when test="@list-type = 'roman-lower'">
+                            </xsl:attribute>
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'gloss'">
+                        <div class="gloss-wrapper">
+                                <xsl:apply-templates/>
+                        </div>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'wordfirst'">
+                        <div class="gloss-header">
+                            <ol class="gloss-word gloss-first">
+                                <xsl:apply-templates/>
+                            </ol>
+                        </div>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'sentence-gloss'">
+                        <div class="gloss-item">
+                            <ol class="gloss-sentence">
+                                <div style="clear:both;"></div>
+                                <xsl:apply-templates/>
+                            </ol>
+                        </div>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'final-sentence'">
+                        <ol class="gloss-sentence">
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'word'">
+                        <ol class="gloss-word">
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'roman-lower'">
+                        <ol>
+                            <xsl:attribute name="class">
                                 <xsl:value-of select="'list-romanlower'"/>
-                            </xsl:when>
-                            <xsl:when test="@list-type = 'roman-upper'">
+                            </xsl:attribute>
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'roman-upper'">
+                        <ol>
+                            <xsl:attribute name="class">
                                 <xsl:value-of select="'list-romanupper'"/>
-                            </xsl:when>
-                            <xsl:when test="@list-type = 'alpha-lower'">
+                            </xsl:attribute>
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'alpha-lower'">
+                        <ol>
+                            <xsl:attribute name="class">
                                 <xsl:value-of select="'list-alphalower'"/>
-                            </xsl:when>
-                            <xsl:when test="@list-type = 'alpha-upper'">
+                            </xsl:attribute>
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                    <xsl:when test="@list-type = 'alpha-upper'">
+                        <ol>
+                            <xsl:attribute name="class">
                                 <xsl:value-of select="'list-alphaupper'"/>
-                            </xsl:when>
-                        </xsl:choose>
-                    </xsl:attribute>
-                    <xsl:apply-templates/>
-                </ol>
+                            </xsl:attribute>
+                            <xsl:apply-templates/>
+                        </ol>
+                    </xsl:when>
+                </xsl:choose>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 
     <xsl:template match="list-item">
-        <li>
-            <xsl:apply-templates/>
-        </li>
+        <xsl:choose>
+            <xsl:when test="not(parent::list[@list-type='gloss']) and not(parent::list[@list-type='sentence-gloss'])">
+                <li>
+                    <xsl:apply-templates/>
+                </li>
+            </xsl:when>
+            <xsl:when test="parent::list[@list-type='gloss'] and count(preceding-sibling::list-item) = 0">
+                <ol class="gloss-sentence"><xsl:apply-templates/></ol>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:apply-templates/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="bold">

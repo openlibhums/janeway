@@ -20,7 +20,7 @@
             </div>
             {% if not article.projected_issue %}
             <div class="callout alert" data-closable style="background-color: #f7e4e1; color: #0a0a0a">
-                <h5>Article missing prjected issue</h5>
+                <h5>Article missing projected issue</h5>
                 <p>
                     This Article doesn't have a projected issue, the typesetter won't know what issue this article belongs to. You can
                     <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">
