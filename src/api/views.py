@@ -158,7 +158,7 @@ def kbart(request, tsv=True):
 
             journal_line['publication_title'] = journal.name
 
-            issues = journal.serial_issues()
+            issues = journal.serial_issues().order_by("date")
 
             # We here iterate over the issues.
             # Technically, this should check if issues are consecutive
@@ -167,29 +167,27 @@ def kbart(request, tsv=True):
             # that a whole issue is not purely composed of remote galley
             # articles and exclude that issue.
             if issues.exists():
+                first_issue = issues.first()
+                last_issue = issues.last()
                 # the date that the first issue that we have was published
-                journal_line['date_first_issue_online'] = \
-                    '{:%Y-%m-%d}'.format(issues.order_by('date')[0].date)
+                journal_line['date_first_issue_online'] = '{:%Y-%m-%d}'.format(
+                    first_issue.date)
 
                 # the volume number of the first issue that we have
-                journal_line['num_first_vol_online'] = \
-                    issues.order_by('date')[0].volume
+                journal_line['num_first_vol_online'] = first_issue.volume
 
                 # the issue number of the first issue that we have
-                journal_line['num_first_issue_online'] = \
-                    issues.order_by('date')[0].issue
+                journal_line['num_first_issue_online'] = first_issue.issue
 
                 # the date that the last issue that we have was published
-                journal_line['date_last_issue_online'] = \
-                    '{:%Y-%m-%d}'.format(issues.order_by('-date')[0].date)
+                journal_line['date_last_issue_online'] = '{:%Y-%m-%d}'.format(
+                    last_issue.date)
 
                 # the volume number of the last issue that we have
-                journal_line['num_last_vol_online'] = \
-                    issues.order_by('-date')[0].volume
+                journal_line['num_last_vol_online'] = last_issue.volume
 
                 # the issue number of the last issue that we have
-                journal_line['num_last_issue_online'] = \
-                    issues.order_by('-date')[0].issue
+                journal_line['num_last_issue_online'] = last_issue.issue
             else:
                 # set these fields to None if there are no issues
                 journal_line['date_first_issue_online'] = None
@@ -218,8 +216,8 @@ def kbart(request, tsv=True):
             journal_line['notes'] = None # not needed
 
             # the name of the publisher which can be specific to the journal
-            journal_line['publisher_name'] = \
-                journal.get_setting('general', 'publisher_name')
+            journal_line['publisher_name'] = journal.get_setting(
+                'general', 'publisher_name')
 
             # the type of publication: either monograph or serial
             # because we have prefiltered, we only list serials here
