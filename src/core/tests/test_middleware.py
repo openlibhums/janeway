@@ -28,10 +28,6 @@ class TestSiteMiddleware(TestCase):
         press_kwargs = dict(
             domain="press.org",
         )
-        setting_obj = Setting.objects.get(
-            group__name='general',
-            name='journal_description',
-        )
         self.middleware = SiteSettingsMiddleware()
         self.request_factory = RequestFactory()
         self.journal = make_test_journal(**journal_kwargs)
