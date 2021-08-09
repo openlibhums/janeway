@@ -21,8 +21,16 @@
                     <div class="bs-callout bs-callout-danger">
                         <form method="POST">
                             {% csrf_token %}
-                            <p><i class="fa fa-exclamation-triangle">&nbsp;</i>{% trans 'This article is not yet in the review stage.' %}</p>
-                            <button name="move_to_review" class="small success button no-bottom-margin">Move to Review</button>
+                            <p><i class="fa fa-exclamation-triangle">&nbsp;</i>{% trans 'This article is not yet in the review stage' %}.</p>
+                            {% if not article.editor_list %}
+                                <p>{% trans 'Before you can move this paper into review you need to' %} <a
+                                        href="{% url 'review_unassigned_article' article.pk %}">{% trans 'assign an editor' %}</a>.
+                                </p>
+                            {% else %}
+                                <button name="move_to_review" class="small success button no-bottom-margin">Move to
+                                    Review
+                                </button>
+                            {% endif %}
                         </form>
                     </div>
                 {% endif %}
