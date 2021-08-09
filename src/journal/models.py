@@ -259,6 +259,9 @@ class Journal(AbstractSiteModel):
     def issues(self):
         return Issue.objects.filter(journal=self)
 
+    def serial_issues(self):
+        return Issue.objects.filter(journal=self, issue_type__code='issue')
+
     def editors(self):
         """ Returns all users enrolled as editors for the journal
         :return: A queryset of core.models.Account
@@ -488,6 +491,13 @@ class Issue(models.Model):
 
     class Meta:
         ordering = ('order', 'year', 'volume', 'issue', 'title')
+
+    @property
+    def is_serial(self):
+        if self.issue_type.code == 'issue':
+            return True
+        else:
+            return False
 
     @property
     def display_title(self):

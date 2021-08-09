@@ -18,4 +18,6 @@ router.register(r'keywords', views.KeywordsViewSet, 'keywords')
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^oai/$', oai_views.oai_view_factory, name='OAI_list_records'),
+    url(r'^kbart/$', views.kbart, name='kbart'),
+    url(r'^kbart/csv$', views.kbart_csv, name='kbart'),
 ]
