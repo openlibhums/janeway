@@ -507,13 +507,14 @@ class Issue(models.Model):
     @property
     def pretty_issue_identifier(self):
         journal = self.journal
+        volume = issue = year = ''
 
-        volume = ugettext("Volume") + " {}".format(
-            self.volume) if journal.display_issue_volume else ""
-        issue = ugettext("Issue") + " {}".format(
-            self.issue) if journal.display_issue_number else ""
-        year = "{}".format(
-            self.date.year) if journal.display_issue_year else ""
+        if journal.display_issue_volume and self.volume:
+            volume = ugettext("Volume") + " {}".format(self.volume)
+        if journal.display_issue_number and self.issue and self.issue != "0":
+            issue = ugettext("Issue") + " {}".format(self.issue)
+        if journal.display_issue_year and self.date:
+            year = "{}".format(self.date.year)
 
         parts = [volume, issue, year]
 
