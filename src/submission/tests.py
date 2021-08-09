@@ -104,6 +104,36 @@ class SubmissionTests(TestCase):
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
 
+    def test_article_how_to_cite(self):
+        issue = journal_models.Issue.objects.create(
+                journal=self.journal_one,
+                issue="0",
+                volume=1,
+        )
+        article = models.Article.objects.create(
+            journal = self.journal_one,
+            title="Test article: a test article",
+            primary_issue=issue,
+            date_published=dateparser.parse("2020-01-01"),
+            page_numbers = "2-4"
+        )
+        author = models.FrozenAuthor.objects.create(
+            article=article,
+            first_name="Mauro",
+            middle_name="Middle",
+            last_name="Sanchez",
+        )
+        id_logic.generate_crossref_doi_with_pattern(article)
+
+        expected = """
+        <p>
+         Sanchez M. M.,
+        (2020) “Test article: a test article”,
+        <i>Janeway JS</i> 1, p.2-4.
+        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
+        """.format(article.get_doi())
+        self.assertHTMLEqual(expected, article.how_to_cite)
+
     def test_custom_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(journal=self.journal_one)
         journal_models.Issue
