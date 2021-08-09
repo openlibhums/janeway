@@ -42,8 +42,7 @@
                             <td><a href="{% url 'review_in_review' article.pk %}">{{ article.title }}</a></td>
                             <td>{{ article.date_submitted }}</td>
                             <td>{{ article.correspondence_author.full_name }}</td>
-                            <td>{% for editor in article.editors %}{{ editor.editor.full_name }}
-                                {% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            <td>{% for editor in article.editors %}{{ editor.editor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                             <td>{{ article.section.name }}</td>
                             <td>{% if article.projected_issue %}{{ article.projected_issue.display_title }}{% else %}
                                 None{% endif %}</td>
