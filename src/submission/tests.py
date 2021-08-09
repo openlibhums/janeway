@@ -38,10 +38,10 @@ class SubmissionTests(TestCase):
         :return: a journal
         """
         update_xsl_files()
+        update_settings()
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.title = "Test Journal: A journal of tests"
         journal_one.save()
-        update_settings(journal_one, management_command=False)
 
         return journal_one
 

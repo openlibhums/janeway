@@ -12,11 +12,12 @@ from core.middleware import (
         SiteSettingsMiddleware,
         TimezoneMiddleware,
 )
-from core.models import Account
+from core.models import Account, Setting
 from journal.tests.utils import make_test_journal
 from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
+
 
 class TestSiteMiddleware(TestCase):
     def setUp(self):
@@ -26,6 +27,10 @@ class TestSiteMiddleware(TestCase):
         )
         press_kwargs = dict(
             domain="press.org",
+        )
+        setting_obj = Setting.objects.get(
+            group__name='general',
+            name='journal_description',
         )
         self.middleware = SiteSettingsMiddleware()
         self.request_factory = RequestFactory()
