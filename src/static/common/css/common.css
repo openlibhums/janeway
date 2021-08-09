@@ -161,7 +161,13 @@ ol.gloss-sentence {
     list-style: none !important;
 }
 
+.gloss-sentence img {
+    width: auto !important;
+    padding-top: 5px;
+}
+
 ol.gloss-word {
+    padding-left: 0px !important;
     padding-right: .5em !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;

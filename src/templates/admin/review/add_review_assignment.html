@@ -20,11 +20,16 @@
                     <h2>1. Select Reviewer</h2>
 
                         <a href="{% if journal_settings.general.enable_one_click_access %}#{% else %}{% url 'core_add_user' %}?role=reviewer&return={{ request.path }}{% endif %}" class="button" data-open="reviewer"><i class="fa fa-plus">&nbsp;</i>Add New Reviewer</a>
-                        <a href="#" class="button" data-open="enroll"><i class="fa fa-users">&nbsp;</i>Enroll Exising User</a>
+                        <a href="{% url 'core_manager_enrol_users' %}" class="button" target="_blank"><i class="fa fa-users">&nbsp;</i>Enroll Existing User</a>
                 </div>
                 <div class="content">
 
-                    <h5></h5>
+                    <p>
+                        {% blocktrans %}
+                        You can select a reviewer using the radio buttons in the first column and complete the section under "Set Options" or if you want to send a review reqeust using defaults select "Assign with Defaults". <strong>Warning: </strong> if you use "Assign with Defaults" you will not have the change to edit the outgoging email message.
+                        If you cannot find the reviewer you want in this list you can use "Enroll Existing User" to search the database and give users the Reviewer role, or "Add New Reviewer" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).
+                        {% endblocktrans %}
+                    </p>
                     <table class="small scroll" id="reviewers">
                         <thead>
                         <tr>
@@ -45,16 +50,16 @@
                                 <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
                                 <td>{{ reviewer.full_name }}</td>
                                 <td>{{ reviewer.email }}</td>
-                                <td>{{ reviewer.active_reviews_count }}</td>
+                                <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
                                 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td>{{ reviewer.rating_average }}</td>
+                                <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
                                 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
                                 <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Assign with Defaults</button></td>
                             </tr>
                         {% endfor %}
                         {% for reviewer in reviewers %}
-                            {% if not reviewer in suggested_reviewers %}
+                            {% if journal_settings.general.enable_suggested_reviewers and not reviewer in suggested_reviewers %}
                             <tr>
                                 <td><input type="radio" name="reviewer" value="{{ reviewer.id }}"></td>
                                 <td>{{ reviewer.full_name }}</td>

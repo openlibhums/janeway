@@ -1023,9 +1023,6 @@ def add_review_assignment(request, article_id):
     form = forms.ReviewAssignmentForm(journal=request.journal)
     new_reviewer_form = core_forms.QuickUserForm()
     reviewers = logic.get_reviewer_candidates(article, request.user)
-    suggested_reviewers = logic.get_suggested_reviewers(article, reviewers)
-    user_list = logic.get_enrollable_users(request)
-
     modal = None
 
     # Check if this review round has files
@@ -1081,14 +1078,6 @@ def add_review_assignment(request, article_id):
                 return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
             else:
                 modal = 'reviewer'
-
-        elif 'enrollusers' in request.POST:
-            user_ids = request.POST.getlist('user_id')
-            users = core_models.Account.objects.filter(pk__in=user_ids)
-            for user in users:
-                user.add_account_role('reviewer', request.journal)
-                messages.add_message(request, messages.SUCCESS, '{0} enrolled as a reviewer.'.format(user.full_name()))
-            return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}))
         else:
 
             form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
@@ -1128,9 +1117,13 @@ def add_review_assignment(request, article_id):
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
         'modal': modal,
-        'user_list': user_list,
-        'suggested_reviewers': suggested_reviewers,
     }
+
+    if request.journal.get_setting('general', 'enable_suggested_reviewers'):
+        context['suggested_reviewers'] = logic.get_suggested_reviewers(
+            article,
+            reviewers,
+        )
 
     return render(request, template, context)
 
@@ -2279,7 +2272,7 @@ def review_forms(request):
     default_form = setting_handler.get_setting(
         'general', 'default_review_form', request.journal,
     ).processed_value
-    if default_form.isdigit():
+    if default_form and default_form.isdigit():
         default_form = int(default_form)
 
     if request.POST:
@@ -2291,7 +2284,7 @@ def review_forms(request):
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    "This form is selected as the defaul form and thus"
+                    "This form is selected as the default form and thus"
                     " can't be deleted",
                 )
                 return redirect(reverse('review_review_forms'))

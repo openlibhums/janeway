@@ -984,8 +984,19 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/table">
-        <table class="striped">
-            <xsl:apply-templates/>
+      <xsl:variable name="graphics" select="./@xlink:href"/>
+        <table>
+         <xsl:choose>
+          <xsl:when test="./@content-type = 'example'">
+            <xsl:attribute name="content-type">
+              <xsl:value-of select="./@content-type"/>
+            </xsl:attribute>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="class">striped</xsl:attribute>
+          </xsl:otherwise>
+         </xsl:choose>
+         <xsl:apply-templates/>
         </table>
     </xsl:template>
 
@@ -1041,7 +1052,9 @@
                     <xsl:value-of select="@style"/>
                 </xsl:attribute>
             </xsl:if>
-
+            <xsl:if test="ancestor::table[@content-type ='example']">
+              <xsl:attribute name="style">vertical-align: top;</xsl:attribute>
+            </xsl:if>
             <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
@@ -3184,6 +3197,7 @@
     </xsl:template>
 
     <xsl:template match="inline-graphic">
+        <xsl:variable name="graphics" select="./@xlink:href"/>
         <xsl:variable name="ig-variant">
             <xsl:choose>
                 <xsl:when test="//article/@article-type = 'research-article'">
@@ -3208,7 +3222,7 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        [inline-graphic-<xsl:value-of select="@xlink:href"/>-<xsl:value-of select="$ig-variant"/>]
+        <img src="{$graphics}" class="responsive-img" />
     </xsl:template>
 
     <xsl:template name="appendices-main-text">

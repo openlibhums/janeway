@@ -50,10 +50,10 @@
         </div>
         <hr/>
 
-        <div class="large-8 columns">
+        <div class="large-10 columns">
             {% include "admin/elements/forms/field.html" with field=attr_form.default_thumbnail %}
         </div>
-        <div class="large-4 columns">
+        <div class="large-2 columns">
             {% if request.journal.header_image %}
                 <img src="{% url 'journal_cover_download' %}" class="thumbnail float-right">
             {% endif %}
@@ -63,13 +63,13 @@
         <div class="large-8 columns">
             {% include "admin/elements/forms/field.html" with field=attr_form.press_image_override %}
         </div>
-        <div class="large-4 columns">
+        <div class="large-4 columns svg">
             {% if request.journal.press_image_override %}
                 {% svg request.journal_cover %}
             {% elif 'svg' in request.press_cover %}
-                <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
+                {% svg request.press_cover %}
             {% else %}
-                <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
+                {% svg "static/common/img/sample/janeway.svg" %}
             {% endif %}
         </div>
         <hr/>

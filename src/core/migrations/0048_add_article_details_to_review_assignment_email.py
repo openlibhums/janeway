@@ -28,23 +28,23 @@ def update_setting_values(apps, schema_editor):
                 setting.value += ("<br/>{{ article_details }}")
             setting.save()
     except LookupError:
-        translation.activate(django_settings.LANGUAGE_CODE)
-        SettingValue = apps.get_model('core', 'SettingValue')
-        setting_values = SettingValue.objects.filter(
-            setting__name='review_assignment',
-            setting__group__name='email',
-        )
-        for setting in setting_values:
-            value_attr_name = "value_{}".format(django_settings.LANGUAGE_CODE)
-            value = getattr(setting, value_attr_name)
-            # IF it hasn't been modified, just update it with the new value
-            if setting.value == OLD_VALUE:
-                setting.value = NEW_VALUE
-            elif "article_detail" not in value:
-                # otherwise, append the metadata at the end
-                new_value = value + "<br/>{{ article_details }}"
-                setattr(setting, value_attr_name, new_value)
-            setting.save()
+        with translation.activate(django_settings.LANGUAGE_CODE):
+            SettingValue = apps.get_model('core', 'SettingValue')
+            setting_values = SettingValue.objects.filter(
+                setting__name='review_assignment',
+                setting__group__name='email',
+            )
+            for setting in setting_values:
+                value_attr_name = "value_{}".format(django_settings.LANGUAGE_CODE)
+                value = getattr(setting, value_attr_name)
+                # IF it hasn't been modified, just update it with the new value
+                if setting.value == OLD_VALUE:
+                    setting.value = NEW_VALUE
+                elif "article_detail" not in value:
+                    # otherwise, append the metadata at the end
+                    new_value = value + "<br/>{{ article_details }}"
+                    setattr(setting, value_attr_name, new_value)
+                setting.save()
 
 
 class Migration(migrations.Migration):

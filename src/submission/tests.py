@@ -99,7 +99,7 @@ class SubmissionTests(TestCase):
         <p>
          Sanchez M. M.,
         (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1(1). p.2-4.
+        <i>Janeway JS</i> 1(1), p.2-4.
         doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)

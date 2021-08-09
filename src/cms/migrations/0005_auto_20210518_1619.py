@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 from django.conf import settings
+from django.utils import translation
 
 from utils import setting_handler
 
@@ -38,14 +39,13 @@ def setup_submission_items(apps, schema_editor):
             else:
                 setting_obj = None
 
-            obj, c = SubmissionItem.objects.get_or_create(
-                journal=journal,
-                order=i,
-                existing_setting=setting_obj,
-            )
-
-            setattr(obj, 'title_{}'.format(settings.LANGUAGE_CODE), setting.get('title'))
-            obj.save()
+            with translation.override(settings.LANGUAGE_CODE):
+                obj, c = SubmissionItem.objects.get_or_create(
+                    journal=journal,
+                    order=i,
+                    existing_setting=setting_obj,
+                    title=setting.get('title'),
+                )
 
 
 class Migration(migrations.Migration):

@@ -48,7 +48,7 @@ class Loader(BaseLoader):
                 # this is a journal and we should attempt to retrieve any theme settings
                 try:
                     theme_setting = self.query_theme_dirs(_local.request.journal)
-                except BaseException:
+                except Exception:
                     theme_setting = 'clean'
             else:
                 # this is the press site
