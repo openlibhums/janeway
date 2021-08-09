@@ -103,6 +103,7 @@ def manager_index(request):
     :param request: django request
     :return: contextualised template
     """
+
     with translation.override(settings.LANGUAGE_CODE):
         form = journal_forms.JournalForm()
         modal = None
@@ -116,7 +117,6 @@ def manager_index(request):
                 new_journal.sequence = request.press.next_journal_order()
                 new_journal.save()
                 call_command('install_plugins')
-                install.update_license(new_journal)
                 install.update_issue_types(new_journal)
                 new_journal.setup_directory()
                 return redirect(

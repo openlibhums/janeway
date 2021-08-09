@@ -19,7 +19,7 @@ from review import models as review_models
 from submission import models as submission_models
 from proofing import models as proofing_models
 from press import models as press_models
-from utils.install import update_xsl_files
+from utils.install import update_xsl_files, update_settings
 
 
 # Create your tests here.
@@ -73,6 +73,7 @@ class ReviewTests(TestCase):
         Creates a set of dummy journals for testing
         :return: a 2-tuple of two journals
         """
+        update_settings()
         update_xsl_files()
         journal_one = journal_models.Journal(code="TST", domain="testserver")
         journal_one.save()

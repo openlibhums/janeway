@@ -28,7 +28,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic
+from utils import setting_handler, logic, install
 from utils.function_cache import cache
 from utils.logger import get_logger
 
@@ -916,6 +916,22 @@ def setup_submission_configuration(sender, instance, created, **kwargs):
     if created:
         submission_models.SubmissionConfiguration.objects.get_or_create(
             journal=instance,
+        )
+
+
+@receiver(post_save, sender=Journal)
+def setup_licenses(sender, instance, created, **kwargs):
+    if created:
+        install.update_license(
+            instance,
+        )
+
+
+@receiver(post_save, sender=Journal)
+def setup_submission_items(sender, instance, created, **kwargs):
+    if created:
+        install.setup_submission_items(
+            instance,
         )
 
 

@@ -10,7 +10,6 @@ from press import models as press_models
 from journal import models as journal_models
 from utils.install import (
         update_issue_types,
-        update_license,
         update_settings,
         update_xsl_files,
 )
@@ -64,9 +63,6 @@ class Command(BaseCommand):
 
             print("Installing settings fixtures... ", end="")
             update_settings(journal, management_command=False)
-            print("[okay]")
-            print("Installing license fixtures... ", end="")
-            update_license(journal, management_command=False)
             print("[okay]")
             print("Installing issue types fixtures... ", end="")
             update_issue_types(journal, management_command=False)
