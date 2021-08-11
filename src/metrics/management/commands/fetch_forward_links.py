@@ -8,6 +8,7 @@ from utils import setting_handler
 from journal import models as jm
 from submission import models as sm
 from metrics import models
+from identifiers import models as ident_models
 
 
 def process_article(link, article):
@@ -86,6 +87,8 @@ class Command(BaseCommand):
         date = options.get('date', '2000-01-01')
         journal_code = options.get('journal_code', None)
 
+        prefixes_to_process = {}
+
         if journal_code:
             journals = jm.Journal.objects.filter(code=journal_code)
         else:
@@ -117,41 +120,46 @@ class Command(BaseCommand):
                     journal,
                 ).value
 
-                payload = {
+                prefixes_to_process[doi] = {
                     'usr': usr,
                     'pwd': pwd,
                     'doi': doi,
-                    'startDate': date,
                 }
 
-                url = 'https://doi.crossref.org/servlet/getForwardLinks?{}'.format(
-                    urlencode(payload)
-                )
+        for k, prefix in prefixes_to_process.items():
+            payload = {
+                'usr': prefix['usr'],
+                'pwd': prefix['pwd'],
+                'doi': prefix['doi'],
+                'startDate': date,
+            }
 
-                print(url)
+            url = 'https://doi.crossref.org/servlet/getForwardLinks?{}'.format(
+                urlencode(payload)
+            )
 
-                print('Making request.', end='... ')
-                r = requests.get(url)
-                print('[ok]')
+            print(url)
 
-                print('Souping response', end='... ')
-                soup = BeautifulSoup(r.text, 'lxml')
-                print('[ok]')
+            print('Making request.', end='... ')
+            r = requests.get(url)
+            print('[ok]')
 
-                print('Finding forward links', end='... ')
-                forward_links = soup.find_all('forward_link')
-                print('[ok]')
+            print('Souping response', end='... ')
+            soup = BeautifulSoup(r.text, 'lxml')
+            print('[ok]')
 
-                print('Looping through links', end='... ')
-                for link in forward_links:
-                    type = link.doi.get('type')
-                    doi = link.get('doi')
+            print('Finding forward links', end='... ')
+            forward_links = soup.find_all('forward_link')
+            print('[ok]')
 
-                    article = sm.Article.get_article(
-                        journal,
-                        'doi',
-                        doi,
-                    )
+            print('Looping through links', end='... ')
+            for link in forward_links:
+                type = link.doi.get('type')
+                doi = link.get('doi')
+
+                try:
+                    identifier = ident_models.Identifier.objects.get(id_type='doi', identifier=doi)
+                    article = identifier.article
 
                     if article:
                         if type == 'journal_article':
@@ -162,5 +170,7 @@ class Command(BaseCommand):
                             print('Forward link type {} not supported'.format(type))
                     else:
                         print('Article with doi {} not found.'.format(doi))
+                except ident_models.Identifier.DoesNotExist:
+                    print('Identifier {} not found.'.format(doi))
 
-                print(len(forward_links))
+            print(len(forward_links))
