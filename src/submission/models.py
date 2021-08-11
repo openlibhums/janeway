@@ -328,22 +328,10 @@ class KeywordArticle(models.Model):
         return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
 
 
-class AllArticleManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return super(AllArticleManager, self).get_queryset().all()
-
-
 class ArticleManager(models.Manager):
     use_in_migrations = True
     def get_queryset(self):
-        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
-
-
-class PreprintManager(models.Manager):
-    def get_queryset(self):
-        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+        return super(ArticleManager, self).get_queryset().all()
 
 
 class DynamicChoiceField(models.CharField):
