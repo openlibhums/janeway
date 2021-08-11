@@ -1,7 +1,9 @@
 {% extends "admin/core/base.html" %}
+{% load settings %}
 
 {% block title %}Withdraw Review Request{% endblock title %}
 {% block title-section %}Withdraw Review Request{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -26,7 +28,8 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="card-section">
-                            <p>Subject: <strong>Review Withdrawl</strong></p>
+                            {% setting_var request.journal 'subject_review_withdrawl' as subject %}
+                            <p>Subject: <strong>{{ subject }}</strong></p>
                             <textarea rows="10" name="content_email">{{ email_content|linebreaksbr }}</textarea>
                         </div>
                         <div class="card-divider">

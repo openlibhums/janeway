@@ -15,17 +15,26 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from hvad.models import TranslatableModel, TranslatedFields
+from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, m2m_changed
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
+from django.utils.html import mark_safe
 
+from core import workflow
 from core.file_system import JanewayFileSystemStorage
+from core import workflow, model_utils
+from core.model_utils import M2MOrderedThroughField
+from core import workflow, model_utils
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
 from review import models as review_models
 from utils.function_cache import cache
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 fs = JanewayFileSystemStorage()
 
@@ -208,6 +217,12 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
+FINAL_STAGES = {
+    # An Article stage is final when it won't transition into further stages
+    STAGE_PUBLISHED,
+    STAGE_REJECTED,
+}
+
 REVIEW_STAGES = {
     STAGE_ASSIGNED,
     STAGE_UNDER_REVIEW,
@@ -297,6 +312,40 @@ class Keyword(models.Model):
         return self.word
 
 
+class KeywordArticle(models.Model):
+    keyword = models.ForeignKey("submission.Keyword")
+    article = models.ForeignKey("submission.Article")
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = ('keyword', 'article')
+
+    def __str__(self):
+        return self.keyword.word
+
+    def __repr__(self):
+        return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
+
+
+class AllArticleManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return super(AllArticleManager, self).get_queryset().all()
+
+
+class ArticleManager(models.Manager):
+    use_in_migrations = True
+    def get_queryset(self):
+        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
+
+
+class PreprintManager(models.Manager):
+    def get_queryset(self):
+        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+
+
 class DynamicChoiceField(models.CharField):
     def __init__(self, dynamic_choices=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -329,8 +378,8 @@ class Article(models.Model):
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=300, help_text=_('Your article title'))
-    subtitle = models.CharField(max_length=300, blank=True, null=True,
+    title = models.CharField(max_length=999, help_text=_('Your article title'))
+    subtitle = models.CharField(max_length=999, blank=True, null=True,
                                 help_text=_('Subtitle of the article display format; Title: Subtitle'))
     abstract = models.TextField(
         blank=True,
@@ -342,7 +391,10 @@ class Article(models.Model):
     )
     non_specialist_summary = models.TextField(blank=True, null=True, help_text='A summary of the article for'
                                                                                ' non specialists.')
-    keywords = models.ManyToManyField(Keyword, blank=True, null=True)
+    keywords = M2MOrderedThroughField(
+        Keyword,
+        blank=True, null=True, through='submission.KeywordArticle',
+    )
     language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
                                 help_text=_('The primary language of the article'))
     section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
@@ -480,10 +532,13 @@ class Article(models.Model):
             year_str = "({:%Y})".format(self.date_published)
         journal_str = "<i>%s</i>" % self.journal.name
         issue_str = ""
-        issue = self.primary_issue
-        if self.primary_issue:
-            issue_str = "%s(%s)" % (issue.issue, issue.volume)
+        issue = self.issue
+        if self.issue:
+            issue_str = "%s(%s)" % (issue.volume, issue.issue)
         doi_str = ""
+        pages_str = ""
+        if self.page_numbers:
+            pages_str = " p.{0}.".format(self.page_numbers)
         doi = self.get_doi()
         if doi:
             doi_str = ('doi: <a href="https://doi.org/{0}">'
@@ -492,10 +547,11 @@ class Article(models.Model):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "title": self.title,
+            "title": mark_safe(self.title),
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_str": doi_str,
+            "pages_str": pages_str,
         }
         return render_to_string(template, context)
 
@@ -650,6 +706,12 @@ class Article(models.Model):
     def get_doi(self):
         return self.get_identifier('doi')
 
+    def get_doi_url(self):
+        ident = self.get_identifier('doi', object=True)
+        if ident:
+            return ident.get_doi_url()
+        return None
+
     @property
     def identifiers(self):
         from identifiers import models as identifier_models
@@ -663,6 +725,11 @@ class Article(models.Model):
         return self.stage == "Published" or self.stage == "Accepted" or self.stage == "Editor Copyediting"\
             or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
             or self.stage == "Typesetting" or self.stage == "Proofing"
+
+    def peer_reviews_for_author_consumption(self):
+        return self.reviewassignment_set.filter(
+            for_author_consumption=True,
+        )
 
     def __str__(self):
         return u'%s - %s' % (self.pk, self.title)
@@ -928,6 +995,12 @@ class Article(models.Model):
         except review_models.ReviewAssignment.DoesNotExist:
             return None
 
+    def reviews_not_withdrawn(self):
+        return self.reviewassignment_set.exclude(decision='withdrawn')
+
+    def number_of_withdrawn_reviews(self):
+        return self.reviewassignment_set.filter(decision='withdrawn').count()
+
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
         self.date_declined = None
@@ -989,9 +1062,17 @@ class Article(models.Model):
         else:
             return False
 
-    def snapshot_authors(self, article):
-        for order in self.articleauthororder_set.all():
-            order.author.snapshot_self(article)
+    def snapshot_authors(self, article=None, force_update=True):
+        """ Creates/updates FrozenAuthor records for this article's authors
+        :param article: (deprecated) should not pass this argument
+        :param force_update: (bool) Whether or not to update existing records
+        """
+        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
+            article=self, author__id=models.OuterRef("id")
+        ).values_list("order"))
+        authors = self.authors.annotate(order=subq).order_by("order")
+        for author in authors:
+            author.snapshot_self(self, force_update)
 
     def frozen_authors(self):
         return FrozenAuthor.objects.filter(article=self)
@@ -1015,17 +1096,6 @@ class Article(models.Model):
                 author_copyedits.append(review)
 
         return author_copyedits
-
-    @property
-    def current_workflow_element_url(self):
-
-        kwargs = {'article_id': self.pk}
-
-        # STAGE_UNASSIGNED isn't a workflow element so is hardcoded here.
-        if self.stage == STAGE_UNASSIGNED:
-            return reverse('review_unassigned_article', kwargs=kwargs)
-        else:
-            return reverse(self.current_workflow_element.jump_url, kwargs=kwargs)
 
     @property
     def custom_fields(self):
@@ -1102,11 +1172,45 @@ class Article(models.Model):
     @property
     def current_workflow_element(self):
         from core import models as core_models
-        logs = core_models.WorkflowLog.objects.filter(
-            article=self,
-        )
-        element = logs.reverse().first().element
-        return element
+        try:
+            workflow_element_name = workflow.STAGES_ELEMENTS.get(
+                self.stage,
+            )
+            return core_models.WorkflowElement.objects.get(
+                journal=self.journal,
+                element_name=workflow_element_name,
+            )
+        except (KeyError, core_models.WorkflowElement.DoesNotExist):
+            return None
+
+    @property
+    def current_workflow_element_url(self):
+        kwargs = {'article_id': self.pk}
+        # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
+        if self.stage == STAGE_UNASSIGNED:
+            return reverse('review_unassigned_article', kwargs=kwargs)
+        elif self.stage in FINAL_STAGES:
+            return reverse('manage_archive_article', kwargs=kwargs)
+        elif not self.stage:
+            logger.error(
+                'Article #{} has no Stage.'.format(
+                    self.pk,
+                )
+            )
+            return '?workflow_element_url=no_stage'
+        else:
+            element = self.current_workflow_element
+            if element:
+                return reverse(element.jump_url, kwargs=kwargs)
+            else:
+                # In order to ensure the Dashboard renders we purposefully do
+                # not raise an error message here.
+                logger.error(
+                    'There is no workflow element for stage {}.'.format(
+                        self.stage,
+                    )
+                )
+                return '?workflow_element_url=no_element'
 
     @cache(600)
     def render_sample_doi(self):
@@ -1191,11 +1295,29 @@ class Article(models.Model):
 
         return article_link_count + book_link_count
 
+    def hidden_completed_reviews(self):
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_complete__isnull=False,
+            for_author_consumption=False,
+        ).exclude(
+            decision='withdrawn',
+        )
+
 
 class FrozenAuthor(models.Model):
     article = models.ForeignKey('submission.Article', blank=True, null=True)
     author = models.ForeignKey('core.Account', blank=True, null=True)
 
+    name_prefix = models.CharField(
+        max_length=300, null=True, blank=True,
+        help_text=_("Optional name prefix (e.g: Prof or Dr)")
+
+        )
+    name_suffix = models.CharField(
+        max_length=300, null=True, blank=True,
+        help_text=_("Optional name suffix (e.g.: Jr or III)")
+    )
     first_name = models.CharField(max_length=300, null=True, blank=True)
     middle_name = models.CharField(max_length=300, null=True, blank=True)
     last_name = models.CharField(max_length=300, null=True, blank=True)
@@ -1221,10 +1343,14 @@ class FrozenAuthor(models.Model):
     def full_name(self):
         if self.is_corporate:
             return self.corporate_name
-        elif self.middle_name:
-            return u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
-        else:
-            return u"%s %s" % (self.first_name, self.last_name)
+        full_name = u"%s %s" % (self.first_name, self.last_name)
+        if self.middle_name:
+            full_name = u"%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+        if self.name_prefix:
+            full_name = "%s %s" % (_(self.name_prefix), full_name)
+        if self.name_suffix:
+            full_name = "%s %s" % (full_name, self.name_suffix)
+        return full_name
 
     @property
     def corporate_name(self):
@@ -1243,7 +1369,11 @@ class FrozenAuthor(models.Model):
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
 
-        return '{last} {first}{middle}'.format(last=self.last_name, first=first_initial, middle=middle_initial)
+        citation = '{last} {first}{middle}'.format(
+            last=self.last_name, first=first_initial, middle=middle_initial)
+        if self.name_suffix:
+            citation = '{}, {}'.format(citation, self.name_suffix)
+        return citation
 
     def given_names(self):
         if self.middle_name:
@@ -1277,31 +1407,67 @@ class FrozenAuthor(models.Model):
             return True
 
 
-class Section(TranslatableModel):
+class Section(models.Model):
     journal = models.ForeignKey('journal.Journal')
     number_of_reviewers = models.IntegerField(default=2)
 
-    editors = models.ManyToManyField('core.Account')
-    section_editors = models.ManyToManyField('core.Account', related_name='section_editors')
-
-    is_filterable = models.BooleanField(default=True)
-    public_submissions = models.BooleanField(default=True)
-    indexing = models.BooleanField(default=True)
-    sequence = models.PositiveIntegerField(default=0)
-
-    translations = TranslatedFields(
-        name=models.CharField(max_length=200),
-        plural=models.CharField(max_length=200, null=True, blank=True)
+    editors = models.ManyToManyField(
+        'core.Account',
+        help_text="Editors assigned will be notified of submissions,"
+                  " overruling the notification settings for the journal.",
     )
+    section_editors = models.ManyToManyField(
+        'core.Account',
+        help_text="Section editors assigned will be notified of submissions,"
+                  " overruling the notification settings for the journal.",
+        related_name='section_editors',
+    )
+    auto_assign_editors = models.BooleanField(
+        default=False,
+        help_text="Articles submitted to this section will be automatically"
+                  " assigned to the editors and/or section editors selected above.",
+    )
+    is_filterable = models.BooleanField(
+        default=True,
+        help_text="Allows filtering article search results by this section.",
+    )
+    public_submissions = models.BooleanField(default=True)
+    indexing = models.BooleanField(
+        default=True,
+        help_text="Whether this section is put forward for indexing")
+    sequence = models.PositiveIntegerField(
+        default=0,
+        help_text="Determines the order in which the section is rendered"
+                  " Sections can also be reorder by drag-and-drop",
+    )
+    name = models.CharField(
+        max_length=200,
+        null=True,
+    )
+    plural = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="Pluralised name for the section"
+                  " (e.g: Article -> Articles)",
+    )
+
+    objects = model_utils.JanewayMultilingualManager()
 
     class Meta:
         ordering = ('sequence',)
 
     def __str__(self):
-        return self.safe_translation_getter('name', str(self.pk))
+        return "{} - {}".format(
+            self.pk,
+            self.name,
+        )
 
     def published_articles(self):
         return Article.objects.filter(section=self, stage=STAGE_PUBLISHED)
+
+    def article_count(self):
+        return Article.objects.filter(section=self).count()
 
     def editor_emails(self):
         return [editor.email for editor in self.editors.all()]
@@ -1313,10 +1479,9 @@ class Section(TranslatableModel):
         return [editor.email for editor in self.section_editors.all() + self.editors.all()]
 
     def issue_display(self):
-        if self.lazy_translation_getter('plural', str(self.pk)):
-            return self.lazy_translation_getter('plural', str(self.pk))
-        else:
-            return self.lazy_translation_getter('name', str(self.pk))
+        if self.plural:
+            return self.plural
+        return self.name
 
 
 class Licence(models.Model):
@@ -1460,6 +1625,13 @@ class SubmissionConfiguration(models.Model):
         help_text=_('The default section of '
                     'articles when no option is presented'),
     )
+    submission_file_text = models.CharField(
+        max_length=255,
+        default='Manuscript File',
+        help_text='During submission the author will be asked to upload a file'
+                  'that is considered the main text of the article. You can use'
+                  'this field to change the label for that file in submission.',
+    )
 
     def __str__(self):
         return 'SubmissionConfiguration for {0}'.format(self.journal.name)
@@ -1507,3 +1679,22 @@ def remove_author_from_article(sender, instance, **kwargs):
         pass
 
     instance.article.authors.remove(instance.author)
+
+
+def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == 'post_add':
+        try:
+            latest = KeywordArticle.objects.filter(
+                article=instance).latest("order").order
+        except KeywordArticle.DoesNotExist:
+            latest = 0
+        for pk in pk_set:
+            latest += 1
+            keyword_article = KeywordArticle.objects.get(
+                keyword__pk=pk, article=instance)
+            if keyword_article.order == 1 != latest:
+                keyword_article.order = latest
+                keyword_article.save()
+
+
+m2m_changed.connect(order_keywords, sender=Article.keywords.through)

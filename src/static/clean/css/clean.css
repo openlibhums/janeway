@@ -236,7 +236,7 @@ main a:hover {
 .carousel-caption {
     left: 0px;
     bottom: 0px;
-    background-color: rgba(55, 55, 55, .5);
+    background-color: rgba(55, 55, 55, .8);
 }
 
 .row-eq-height {
@@ -252,6 +252,20 @@ main a:hover {
 
 .card-block {
     padding: 20px;
+}
+#carousel-buttons {
+    margin-left: 100px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.carousel-control-next {
+	top: 40px;
+}
+
+.carousel-control-prev {
+	top: 40px;
 }
 
 footer svg {
@@ -316,4 +330,10 @@ footer svg {
 
 .article-img {
     filter: brightness(50%);
+}
+.journal-name {
+    font-size: 2.5rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
 }

@@ -6,8 +6,10 @@ from django.http import Http404
 from django.conf import settings
 from django.urls.resolvers import NoReverseMatch
 from django.contrib import messages
+from django.utils.text import capfirst
 
 from core import models
+from review.logic import assign_editor
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils.shared import clear_cache
@@ -21,6 +23,20 @@ ELEMENT_STAGES = {
     'production': [submission_models.STAGE_TYPESETTING],
     'proofing': [submission_models.STAGE_PROOFING],
     'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION]
+}
+
+STAGES_ELEMENTS = {
+    submission_models.STAGE_ASSIGNED: 'review',
+    submission_models.STAGE_UNDER_REVIEW: 'review',
+    submission_models.STAGE_UNDER_REVISION: 'review',
+
+    submission_models.STAGE_EDITOR_COPYEDITING: 'copyediting',
+    submission_models.STAGE_AUTHOR_COPYEDITING: 'copyediting',
+    submission_models.STAGE_FINAL_COPYEDITING: 'copyediting',
+
+    submission_models.STAGE_TYPESETTING: 'production',
+    submission_models.STAGE_PROOFING: 'proofing',
+    submission_models.STAGE_READY_FOR_PUBLICATION: 'prepublication',
 }
 
 
@@ -94,7 +110,7 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
         request,
         messages.SUCCESS,
         '%s stage completed for article: %d'
-        '' % (current_element.stage, article.pk),
+        '' % (capfirst(current_element.element_name), article.pk),
     )
 
     return response
@@ -162,8 +178,10 @@ def articles_in_workflow_plugins(request):
                 settings_module = import_module(settings.WORKFLOW_PLUGINS[element.element_name])
 
                 element_dict = {
-                    'articles':submission_models.Article.objects.filter(
-                        stage=element.stage),
+                    'articles': submission_models.Article.objects.filter(
+                        stage=element.stage,
+                        journal=request.journal,
+                    ),
                     'name': element.element_name,
                     'template': settings_module.KANBAN_CARD,
                 }
@@ -241,3 +259,22 @@ def workflow_plugin_settings(element):
     return {}
 
 
+def workflow_auto_assign_editors(**kwargs):
+    """
+    Handler for auto assignment of editors
+    :param kwargs: A dict containing three keys handshake_url, request, article and optionally switch_stage
+    """
+    article = kwargs.get('article')
+    request = kwargs.get('request')
+    skip = kwargs.get('skip', False)
+
+    if article and article.section and article.section.auto_assign_editors:
+        section = article.section
+
+        assignment_type = "editor"
+        for editor in section.editors.all():
+            assign_editor(article, editor, assignment_type, request, skip)
+
+        assignment_type = "section-editor"
+        for s_editor in section.section_editors.all():
+            assign_editor(article, s_editor, assignment_type, request, skip)

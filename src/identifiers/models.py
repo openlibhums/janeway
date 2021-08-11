@@ -79,8 +79,9 @@ class CrossrefDeposit(models.Model):
 
         url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
 
-        response = requests.get(url)
-        if response.status_code == 200:
+        try:
+            response = requests.get(url, timeout=settings.HTTP_TIMEOUT_SECONDS)
+            response.raise_for_status()
             self.result_text = response.text
             self.has_result = ' status="unknown_submission"' not in self.result_text
             self.queued = 'status="queued"' in self.result_text or 'in_process' in self.result_text
@@ -88,10 +89,10 @@ class CrossrefDeposit(models.Model):
             self.citation_success = not ' status="error"' in self.result_text
             self.save()
             logger.debug(self)
-        else:
+        except requests.RequestException as e:
             self.success = False
             self.has_result = True
-            self.result_text = 'Error: {0}'.format(response.status_code)
+            self.result_text = 'Error: {0}'.format(e)
             self.save()
             logger.error(self.result_text)
             logger.error(self)

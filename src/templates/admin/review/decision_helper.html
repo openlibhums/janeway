@@ -1,0 +1,138 @@
+{% extends "admin/core/base.html" %}
+{% load stages %}
+{% load roles %}
+
+{% block title %}#{{ article.pk }} Decision Helper{% endblock title %}
+{% block title-section %}#{{ article.pk }} Decision Helper{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/review_base.html" %}
+    <li>#{{ article.pk }} Decision Helper</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                {% in_stage_group article.stage 'review' as in_review_stage %}
+                {% user_has_role request 'editor' as editor %}
+                <h2 style="color: #5bc0de;"><span class="fa fa-clipboard"></span> Reviewer Recommendations</h2>
+                <div class="bs-callout bs-callout-info">
+                    {% for decision, counter in decisions.items %}
+                    <p><strong>{{ decision|capfirst }}</strong>: {{ counter }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <h2><span class="fa fa-gavel"></span> Make a Decision</h2>
+                {% if article.date_accepted or article.date_declined %}
+                    <div class="large-12 columns">
+                        <div class="bs-callout bs-callout-warning">
+                            <p><span class="fa fa-exclamation-triangle"> </span> <strong>Note: </strong> Decision options have been disabled as this article has already been {% if article.date_accepted %}accepted{% else %}rejected{% endif %}.</p>
+                        </div>
+                    </div>
+                {% else %}
+                    {% if article.active_revision_requests %}
+                        <div class="bs-callout bs-callout-danger">
+                            <p>This article has active Revision Requests.</p>
+                        </div>
+                        <br />
+                    {% endif %}
+                    <div class="button-group small stacked">
+                        {% if journal_settings.general.draft_decisions %}
+                            <a class="button" href="{% url 'review_draft_decision' article.pk %}"><i
+                                    class="fa fa-pencil-square action-icon">&nbsp;</i>Draft
+                                Decisions</a>
+                        {% endif %}
+                        {% if not journal_settings.general.draft_decisions or editor %}
+                                <a href="{% url 'review_decision' article.id 'accept' %}"
+                                   class="button success"><i
+                                        class="fa fa-check-circle action-icon">&nbsp;</i>Accept
+                                    Article</a> Accept Article</a>
+
+                                <form method="POST"
+                                      action="{% url 'review_in_review' article.pk %}">{% csrf_token %}
+                                    <button name="new_review_round" type="submit"
+                                            class="button warning"><i
+                                            class="fa fa-plus-circle action-icon">&nbsp;</i>New
+                                        Review Round
+                                    </button>
+                                </form>
+
+                                <a href="{% url 'review_decision' article.id 'decline' %}"
+                                   class="button alert"><i
+                                        class="fa fa-minus-circle action-icon">&nbsp;</i>Reject
+                                    Article</a>
+                            <a href="{% url 'review_request_revisions' article.pk %}"
+                               class="button warning"><i
+                                    class="fa fa-inbox action-icon">&nbsp;</i>Request
+                                Revisions</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <h2 class="success green"><i
+                        class="fa fa-check-square"></i> {{ complete_reviews.count }}
+                    completed reviews</h2>
+                {% for review in complete_reviews %}
+                    <div class="bs-callout bs-callout-{% if review.for_author_consumption %}success{% else %}warning{% endif %}">
+                        <h4>
+                            #{{ review.pk }} {{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})
+                            {% if review.form %}[Form: {{ review.form.name }}] {% endif %}
+                            </h4>
+                        {% if not review.for_author_consumption %}
+                        <p><i class="fa fa-warning"></i> The author won't be able to see this review </p> 
+                        {% endif %}
+                        <p>This review was completed on {{ review.date_complete }} and the reviewers recommendation was : <strong>{{ review.get_decision_display }}</strong></p>
+                        <form method="POST">
+                          {% csrf_token %}
+                          <div class="button-group small">
+                            <a href="#" data-open="review_form_{{ review.pk }}" class="button">View Details</a>
+                              <input type="hidden" name="review" value="{{ review.pk }}">
+                              {% if review.for_author_consumption %}
+                              <button name="hide_review" class="button alert pull-right"><span class="fa fa-eye-slash"></span> Hide from author</button>
+                              {% else%}
+                              <button name="reveal_review" class="button success pull-right"><span class="fa fa-eye"></span> Reveal to author</button>
+                              {% endif %}
+                          </div>
+                        </form>
+                    </div>
+                    <br />
+                {% endfor %}
+            </div>
+            <div class="large-6 columns">
+                <h2 class="danger red"><i
+                        class="fa fa-exclamation-triangle"></i> {{ uncomplete_reviews.count }}
+                    uncompleted reviews </h2>
+                {% for review in uncomplete_reviews %}
+                    <div class="bs-callout {% if review.date_accepted %}bs-callout-warning{% else %}bs-callout-danger{% endif %}">
+                        <h4>{{ review.reviewer.full_name }} (Round {{ review.review_round.round_number }})</h4>
+                        <p>This review was assigned
+                            on {{ review.date_requested }} and was due
+                            on {{ review.date_due }}</p>
+                        {% if not review.decision == 'withdrawn' %}
+                            <p>{% if review.date_accepted %}The reviewer agreed to do this review on {{ review.date_accepted }}.{% else %}The reviewer has not agreed to complete this review.{% endif %}</p>
+                        {% else %}
+                            <p>This review was withdrawn by an editor on {{ review.date_complete }}</p>
+                        {% endif %}
+                    </div>
+                    <br />
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% for review in complete_reviews %}
+    {% include "elements/review/decision_form_modal.html" with review=review %}
+    {% endfor %}
+
+
+
+{% endblock body %}

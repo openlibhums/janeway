@@ -4,14 +4,13 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
 from review.forms import render_choices
-from utils.forms import KeywordModelForm
+from utils.forms import KeywordModelForm, JanewayTranslationModelForm
 from utils import setting_handler
 
 
@@ -64,7 +63,8 @@ class ArticleStart(forms.ModelForm):
             self.fields.pop('comments_editor')
 
 
-class ArticleInfo(KeywordModelForm):
+class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
+    FILTER_PUBLIC_FIELDS = False
 
     class Meta:
         model = models.Article
@@ -101,14 +101,22 @@ class ArticleInfo(KeywordModelForm):
         super(ArticleInfo, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
             article = kwargs['instance']
-            self.fields['section'].queryset = models.Section.objects.language().fallbacks('en').filter(
+            section_queryset = models.Section.objects.filter(
                 journal=article.journal,
-                public_submissions=True,
             )
-            self.fields['license'].queryset = models.Licence.objects.filter(
+            license_queryset = models.Licence.objects.filter(
                 journal=article.journal,
-                available_for_submission=True,
             )
+            if self.FILTER_PUBLIC_FIELDS:
+                section_queryset = section_queryset.filter(
+                    public_submissions=self.FILTER_PUBLIC_FIELDS,
+                )
+                license_queryset = license_queryset.filter(
+                    available_for_submission=self.FILTER_PUBLIC_FIELDS,
+                )
+            self.fields['section'].queryset = section_queryset
+            self.fields['license'].queryset = license_queryset
+
             self.fields['section'].required = True
             self.fields['license'].required = True
             self.fields['primary_issue'].queryset = article.issues.all()
@@ -209,6 +217,11 @@ class ArticleInfo(KeywordModelForm):
         return article
 
 
+class ArticleInfoSubmit(ArticleInfo):
+    # Filter licenses and sections to publicly available only
+    FILTER_PUBLIC_FIELDS = True
+
+
 class AuthorForm(forms.ModelForm):
 
     class Meta:
@@ -276,16 +289,20 @@ class EditFrozenAuthor(forms.ModelForm):
         if instance:
             del self.fields["is_corporate"]
             if instance.is_corporate:
+                del self.fields["name_prefix"]
                 del self.fields["first_name"]
                 del self.fields["middle_name"]
                 del self.fields["last_name"]
+                del self.fields["name_suffix"]
 
     class Meta:
         model = models.FrozenAuthor
         fields = (
+            'name_prefix',
             'first_name',
             'middle_name',
             'last_name',
+            'name_suffix',
             'institution',
             'department',
             'country',
@@ -328,9 +345,7 @@ class ConfiguratorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
-        self.fields['default_section'].queryset = models.Section.objects.language().fallbacks(
-            settings.LANGUAGE_CODE,
-        ).filter(
+        self.fields['default_section'].queryset = models.Section.objects.filter(
             journal=self.instance.journal,
         )
         self.fields[

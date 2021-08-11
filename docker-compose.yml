@@ -7,18 +7,36 @@ services:
     volumes:
       - ./db/postgres-data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT}"
     environment:
       - "POSTGRES_PASSWORD=${DB_PASSWORD}"
       - "POSTGRES_USER=${DB_USER}"
       - "POSTGRES_DB=${DB_NAME}"
+    depends_on:
+      - janeway-pgadmin
+
+  janeway-pgadmin:
+    image: dpage/pgadmin4
+    user: root
+    ports:
+      - "${PGADMIN_PORT}:80"
+    volumes:
+      - ./db/pgadmin:/var/lib/pgadmin
+    environment:
+            - PGADMIN_DEFAULT_EMAIL=dev@janeway.systems
+            - "PGADMIN_DEFAULT_PASSWORD=${DB_PASSWORD}"
+            - PG_ADMIN_LISTEN_ADDRESS=0.0.0.0
+            - GUNICORN_THREADS=2
+            - PGADMIN_SERVER_JSON_FILE=/var/lib/pgadmin/servers.json
+            - PGADMIN_CONFIG_SERVER_MODE=False
+            - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
 
   janeway-mysql:
     image: mysql:5.7
     volumes:
       - ./db/mysql-data:/var/lib/mysql
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT}"
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - "MYSQL_PASSWORD=${DB_PASSWORD}"
@@ -30,7 +48,7 @@ services:
     volumes:
       - ./db/mariadb-data:/var/lib/mysql
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT}"
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - "MYSQL_PASSWORD=${DB_PASSWORD}"
@@ -53,7 +71,7 @@ services:
       - ./logs:/vol/janeway/logs
       - ./db/janeway.sqlite3:/db/janeway.sqlite3
     ports:
-      - "8000:8000"
+      - "${JANEWAY_PORT}:8000"
     environment:
       - DB_VENDOR
       - DB_HOST

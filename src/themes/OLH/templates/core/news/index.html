@@ -18,14 +18,14 @@
                                 src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
                             {% elif request.journal and request.journal.default_large_image %}
                                  src="{{ request.journal.default_large_image.url }}"
-                            {% else %}
+                            {% elif request.press.default_carousel_image %}
                                 src="{{ request.press.default_carousel_image.url }}"
                             {% endif %}
                                 alt="{{ item.title }}"/></a>
                         </div>
                         <div class="large-7 columns">
                             <h4>{{ item.title }}</h4>
-                            <h6>Posted by {{ item.posted_by.full_name }} on {{ item.posted|date:"Y-m-d" }}</h6>
+                            <h6>Posted by {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
                             <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                             <a class="success button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                         </div>

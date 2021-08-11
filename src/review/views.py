@@ -5,18 +5,20 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
 from uuid import uuid4
+from collections import Counter
+from datetime import timedelta
 
 from django.contrib import messages
 from django.urls import reverse
-from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.utils import timezone
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
+from urllib import parse
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse, JsonResponse
 
 from core import models as core_models, files, forms as core_forms
 from events import logic as event_logic
@@ -29,7 +31,10 @@ from security.decorators import (
     section_editor_draft_decisions, article_stage_review_required
 )
 from submission import models as submission_models, forms as submission_forms
-from utils import models as util_models, ithenticate
+from utils import models as util_models, ithenticate, shared, setting_handler
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @senior_editor_user_required
@@ -229,27 +234,17 @@ def assign_editor(request, article_id, editor_id, assignment_type, should_redire
         messages.add_message(request, messages.WARNING, 'User is not an Editor or Section Editor')
         return redirect(reverse('review_unassigned_article', kwargs={'article_id': article.pk}))
 
-    try:
-        assignment = models.EditorAssignment.objects.create(article=article, editor=editor, editor_type=assignment_type)
-        messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
-
-        kwargs = {'user_message_content': '',
-                  'editor_assignment': assignment,
-                  'request': request,
-                  'skip': True,
-                  'acknowledgement': False}
-
-        event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ASSIGNED, task_object=article, **kwargs)
-
-        if should_redirect:
-            return redirect('{0}?return={1}'.format(
-                reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
-                request.GET.get('return')))
-    except IntegrityError:
+    _, created = logic.assign_editor(article, editor, assignment_type, request)
+    messages.add_message(request, messages.SUCCESS, '{0} added as an Editor'.format(editor.full_name()))
+    if created and should_redirect:
+        return redirect('{0}?return={1}'.format(
+            reverse('review_assignment_notification', kwargs={'article_id': article_id, 'editor_id': editor.pk}),
+            request.GET.get('return')))
+    elif not created:
         messages.add_message(request, messages.WARNING,
-                             '{0} is already an Editor on this article.'.format(editor.full_name()))
-        if should_redirect:
-            return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
+                            '{0} is already an Editor on this article.'.format(editor.full_name()))
+    if should_redirect:
+        return redirect(reverse('review_unassigned_article', kwargs={'article_id': article_id}))
 
 
 @senior_editor_user_required
@@ -658,7 +653,6 @@ def decline_review_request(request, assignment_id):
     :param assignment_id: the assignment ID to handle
     :return: a context for a Django template
     """
-
     access_code = logic.get_access_code(request)
 
     if access_code:
@@ -809,15 +803,25 @@ def do_review(request, assignment_id):
             Q(reviewer=request.user)
         )
 
-    # If the submission has a review_file, reviewer does not need
-    # to complete the generated part of the form.
-    fields_required = False if assignment.review_file else True
+    allow_save_review = setting_handler.get_setting(
+        'general', 'enable_save_review_progress', request.journal,
+    ).processed_value
+
+    fields_required = decision_required = True
+    if allow_save_review:
+        fields_required = decision_required = False
+    elif assignment.review_file:
+        fields_required = False
+
     review_round = assignment.article.current_review_round_object()
     form = forms.GeneratedForm(
         review_assignment=assignment,
         fields_required=fields_required,
     )
-    decision_form = forms.ReviewerDecisionForm(instance=assignment)
+    decision_form = forms.ReviewerDecisionForm(
+        instance=assignment,
+        decision_required=decision_required,
+    )
 
     if 'review_file' in request.GET:
         return logic.serve_review_file(assignment)
@@ -844,6 +848,15 @@ def do_review(request, assignment_id):
                 )
             )
 
+        # If the submission has a review_file, reviewer does not need
+        # to complete the generated part of the form. Same if this is
+        # a POST for saving progress but not completing the review
+        if "complete" in request.POST:
+            if assignment.review_file:
+                fields_required = False
+            else:
+                fields_required = True
+            decision_required = True
         form = forms.GeneratedForm(
             request.POST,
             review_assignment=assignment,
@@ -852,34 +865,48 @@ def do_review(request, assignment_id):
         decision_form = forms.ReviewerDecisionForm(
             request.POST,
             instance=assignment,
+            decision_required=decision_required,
         )
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
             assignment.save_review_form(form, assignment)
-            assignment.date_complete = timezone.now()
-            assignment.is_complete = True
-
-            if not assignment.date_accepted:
-                assignment.date_accepted = timezone.now()
-
-            assignment.save()
-
-            kwargs = {'review_assignment': assignment,
-                      'request': request}
-            event_logic.Events.raise_event(
-                event_logic.Events.ON_REVIEW_COMPLETE,
-                task_object=assignment.article,
-                **kwargs
-            )
-
-            return redirect(
-                logic.generate_access_code_url(
-                    'thanks_review',
-                    assignment,
-                    access_code,
+            if 'save_progress' in request.POST:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Progress saved',
                 )
+            else:
+                assignment.date_complete = timezone.now()
+                assignment.is_complete = True
+                if not assignment.date_accepted:
+                    assignment.date_accepted = timezone.now()
+
+                assignment.save()
+
+                kwargs = {'review_assignment': assignment,
+                        'request': request}
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_REVIEW_COMPLETE,
+                    task_object=assignment.article,
+                    **kwargs
+                )
+
+                return redirect(
+                    logic.generate_access_code_url(
+                        'thanks_review',
+                        assignment,
+                        access_code,
+                    )
+                )
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Found errors on the form. Please, resolve them and try again',
             )
+
 
     template = 'review/review_form.html'
     context = {
@@ -888,6 +915,7 @@ def do_review(request, assignment_id):
         'decision_form': decision_form,
         'review_round': review_round,
         'access_code': access_code,
+        'allow_save_review': allow_save_review,
     }
 
     return render(request, template, context)
@@ -995,9 +1023,6 @@ def add_review_assignment(request, article_id):
     form = forms.ReviewAssignmentForm(journal=request.journal)
     new_reviewer_form = core_forms.QuickUserForm()
     reviewers = logic.get_reviewer_candidates(article, request.user)
-    suggested_reviewers = logic.get_suggested_reviewers(article, reviewers)
-    user_list = logic.get_enrollable_users(request)
-
     modal = None
 
     # Check if this review round has files
@@ -1010,20 +1035,49 @@ def add_review_assignment(request, article_id):
         if 'quick_assign' in request.POST:
             logic.quick_assign(request, article)
             return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
-        elif 'assign' in request.POST:
+        elif 'add_and_assign' in request.POST:
+            # first check whether the user exists
             new_reviewer_form = core_forms.QuickUserForm(request.POST)
-            if new_reviewer_form.is_valid():
-                logic.handle_reviewer_form(request, new_reviewer_form)
-                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}))
+
+            try:
+                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
+                user.add_account_role('reviewer', request.journal)
+            except core_models.Account.DoesNotExist:
+                user = None
+
+            if user:
+                logic.quick_assign(request, article, reviewer_user=user)
+                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
+
+            valid = new_reviewer_form.is_valid()
+
+            if valid:
+                acc = logic.handle_reviewer_form(request, new_reviewer_form)
+                logic.quick_assign(request, article, reviewer_user=acc)
+                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
             else:
                 modal = 'reviewer'
-        elif 'enrollusers' in request.POST:
-            user_ids = request.POST.getlist('user_id')
-            users = core_models.Account.objects.filter(pk__in=user_ids)
-            for user in users:
+
+        elif 'assign' in request.POST:
+            # first check whether the user exists
+            new_reviewer_form = core_forms.QuickUserForm(request.POST)
+
+            try:
+                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
                 user.add_account_role('reviewer', request.journal)
-                messages.add_message(request, messages.SUCCESS, '{0} enrolled as a reviewer.'.format(user.full_name()))
-            return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}))
+            except core_models.Account.DoesNotExist:
+                user = None
+
+            if user:
+                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(user.pk)}))
+
+            valid = new_reviewer_form.is_valid()
+
+            if valid:
+                acc = logic.handle_reviewer_form(request, new_reviewer_form)
+                return redirect(reverse('review_add_review_assignment', kwargs={'article_id': article.pk}) + '?' + parse.urlencode({'user': new_reviewer_form.data['email'], 'id': str(acc.pk)}))
+            else:
+                modal = 'reviewer'
         else:
 
             form = forms.ReviewAssignmentForm(request.POST, journal=request.journal)
@@ -1063,9 +1117,13 @@ def add_review_assignment(request, article_id):
         'reviewers': reviewers,
         'new_reviewer_form': new_reviewer_form,
         'modal': modal,
-        'user_list': user_list,
-        'suggested_reviewers': suggested_reviewers,
     }
+
+    if request.journal.get_setting('general', 'enable_suggested_reviewers'):
+        context['suggested_reviewers'] = logic.get_suggested_reviewers(
+            article,
+            reviewers,
+        )
 
     return render(request, template, context)
 
@@ -1191,7 +1249,9 @@ def edit_review_answer(request, article_id, review_id, answer_id):
     if request.POST:
         form = forms.GeneratedForm(request.POST, answer=answer)
         if form.is_valid():
-            answer.edited_answer = form.cleaned_data[answer.element.name]
+            # Form element keys are posted as str
+            element_key = str(answer.element.pk)
+            answer.edited_answer = form.cleaned_data[element_key]
             answer.save()
 
             return redirect(
@@ -1413,8 +1473,8 @@ def review_decision(request, article_id, decision):
             kwargs['skip'] = True
 
         if decision == 'accept':
-            article.accept_article(stage=submission_models.STAGE_EDITOR_COPYEDITING)
-            article.snapshot_authors(article)
+            article.accept_article()
+            article.snapshot_authors(article, force_update=False)
             event_logic.Events.raise_event(event_logic.Events.ON_ARTICLE_ACCEPTED, task_object=article, **kwargs)
 
             workflow_kwargs = {'handshake_url': 'review_home',
@@ -1519,7 +1579,6 @@ def author_view_reviews(request, article_id):
     return render(request, template, context)
 
 
-@section_editor_draft_decisions
 @editor_is_not_author
 @editor_user_required
 def request_revisions(request, article_id):
@@ -1531,6 +1590,16 @@ def request_revisions(request, article_id):
     """
     article = get_object_or_404(submission_models.Article, pk=article_id)
     form = forms.RevisionRequest()
+    review_round = models.ReviewRound.latest_article_round(
+        article=article,
+    )
+    pending_approval = review_round.reviewassignment_set.filter(
+        is_complete=True,
+        for_author_consumption=False,
+    )
+    incomplete = review_round.reviewassignment_set.filter(
+        is_complete=False,
+    )
 
     if request.POST:
         form = forms.RevisionRequest(request.POST)
@@ -1544,19 +1613,25 @@ def request_revisions(request, article_id):
             article.stage = submission_models.STAGE_UNDER_REVISION
             article.save()
 
-            return redirect(reverse('request_revisions_notification', kwargs={'article_id': article.pk,
-                                                                              'revision_id': revision_request.pk}))
+            return redirect(reverse(
+                'request_revisions_notification',
+                kwargs={
+                    'article_id': article.pk,
+                    'revision_id': revision_request.pk,
+                }
+            ))
 
     template = 'review/revision/request_revisions.html'
     context = {
         'article': article,
         'form': form,
+        'pending_approval': pending_approval,
+        'incomplete': incomplete,
     }
 
     return render(request, template, context)
 
 
-@section_editor_draft_decisions
 @editor_is_not_author
 @editor_user_required
 def request_revisions_notification(request, article_id, revision_id):
@@ -1663,10 +1738,12 @@ def do_revisions(request, article_id, revision_id):
     :param revision_id: PK of a RevisionRequest
     :return:
     """
-    revision_request = get_object_or_404(models.RevisionRequest,
-                                         article__pk=article_id,
-                                         pk=revision_id,
-                                         date_completed__isnull=True)
+    revision_request = get_object_or_404(
+        models.RevisionRequest,
+        article__pk=article_id,
+        pk=revision_id,
+        date_completed__isnull=True,
+    )
 
     reviews = models.ReviewAssignment.objects.filter(
         article=revision_request.article,
@@ -1701,6 +1778,24 @@ def do_revisions(request, article_id, revision_id):
                 )
             )
 
+        elif 'save' in request.POST:
+            covering_letter = request.POST.get('author_note')
+            revision_request.author_note = covering_letter
+            revision_request.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Thanks. Your covering letter has been saved.',
+            )
+            return redirect(
+                reverse(
+                    'do_revisions',
+                    kwargs={
+                        'article_id': article_id,
+                        'revision_id': revision_id
+                    }
+                )
+            )
         else:
 
             form = forms.DoRevisions(request.POST, instance=revision_request)
@@ -1725,7 +1820,7 @@ def do_revisions(request, article_id, revision_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Revisions Complete.',
+                    'Thank you for submitting your revisions. The Editor has been notified.',
                 )
 
                 revision_request.date_completed = timezone.now()
@@ -1745,7 +1840,7 @@ def do_revisions(request, article_id, revision_id):
             )
             return files.serve_file(request, file, revision_request.article)
 
-    template = 'review/revision/do_revision.html'
+    template = 'admin/review/revision/do_revision.html'
     context = {
         'revision_request': revision_request,
         'form': form,
@@ -1775,7 +1870,12 @@ def replace_file(request, article_id, revision_id, file_id):
             new_file = files.save_file_to_article(uploaded_file, revision_request.article, request.user,
                                                   replace=file, is_galley=False, label=label)
 
-            files.replace_file(revision_request.article, file, new_file)
+            files.replace_file(
+                revision_request.article,
+                file,
+                new_file,
+                retain_old_label=False,
+            )
             logic.log_revision_event(
                 'File {0} ({1}) replaced with {2} ({3})'.format(file.label, file.original_filename, new_file.label,
                                                                 new_file.original_filename),
@@ -1811,7 +1911,11 @@ def upload_new_file(request, article_id, revision_id):
         uploaded_file = request.FILES.get('file')
         label = request.POST.get('label')
         new_file = files.save_file_to_article(
-            uploaded_file, article, request.user, label=label)
+            uploaded_file,
+            article,
+            request.user,
+            label=label,
+        )
 
         if file_type == 'manuscript':
             article.manuscript_files.add(new_file)
@@ -1957,9 +2061,16 @@ def draft_decision(request, article_id):
 
     article = get_object_or_404(submission_models.Article, pk=article_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
-    email_message = logic.get_draft_email_message(request, article)
+    message_to_editor = logic.get_draft_email_message(request, article)
+    editors = request.journal.editors()
 
-    form = forms.DraftDecisionForm(email_message=email_message)
+    form = forms.DraftDecisionForm(
+        message_to_editor=message_to_editor,
+        editors=editors,
+        initial={
+            'revision_request_due_date': timezone.now() + timedelta(days=14),
+        }
+    )
 
     if request.POST:
 
@@ -1967,10 +2078,19 @@ def draft_decision(request, article_id):
             delete_id = request.POST.get('delete')
             draft = get_object_or_404(models.DecisionDraft, pk=delete_id, article=article)
             draft.delete()
-            return redirect(reverse('review_draft_decision', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse(
+                    'review_draft_decision',
+                    kwargs={'article_id': article.pk},
+                ),
+            )
 
         else:
-            form = forms.DraftDecisionForm(request.POST, email_message=email_message)
+            form = forms.DraftDecisionForm(
+                request.POST,
+                editors=editors,
+                message_to_editor=message_to_editor,
+            )
 
             if form.is_valid():
                 new_draft = form.save(commit=False)
@@ -1978,12 +2098,24 @@ def draft_decision(request, article_id):
                 new_draft.section_editor = request.user
                 new_draft.article = article
                 new_draft.save()
-                messages.add_message(request, messages.SUCCESS, 'A draft has been saved, the editor has been notified.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'A draft has been saved, the editor has been notified.',
+                )
 
                 kwargs = {'request': request, 'article': article, 'draft': new_draft}
-                event_logic.Events.raise_event(event_logic.Events.ON_DRAFT_DECISION, **kwargs)
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_DRAFT_DECISION,
+                    **kwargs,
+                )
 
-                return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+                return redirect(
+                    reverse(
+                        'review_draft_decision',
+                        kwargs={'article_id': article.pk},
+                    ),
+                )
 
     template = 'review/draft_decision.html'
     context = {
@@ -1995,27 +2127,93 @@ def draft_decision(request, article_id):
     return render(request, template, context)
 
 
+@require_POST
+@editor_user_required
+def draft_decision_text(request, article_id):
+    """
+    Takes a POST and returns decision text.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    decision = request.POST.get('decision')
+    date = request.POST.get('date', None)
+
+    if isinstance(date, str) and date != '':
+        date = shared.make_timezone_aware(date, '%Y-%m-%d')
+    else:
+        date = timezone.now() + timedelta(days=14)
+
+    author_review_url = request.journal.site_url(
+        reverse(
+            'review_author_view',
+            kwargs={'article_id': article.id},
+        )
+    )
+
+    if not decision:
+        raise Http404
+
+    if decision in ['accept', 'reject']:
+        decision_text = logic.get_decision_content(
+            request=request,
+            article=article,
+            decision=decision,
+            author_review_url=author_review_url,
+        )
+
+    elif decision in ['minor_revisions', 'major_revisions']:
+        revision = models.RevisionRequest(
+            article=article,
+            editor=request.user,
+            type=decision,
+            date_requested=timezone.now,
+            date_due=date.strftime("%Y-%m-%d"),
+            editor_note="[[Add Editor Note Here]]",
+        )
+        decision_text = logic.get_revision_request_content(
+            request=request,
+            article=article,
+            revision=revision,
+            draft=True,
+        )
+
+    return JsonResponse({'decision_text': decision_text})
+
+
 @editor_is_not_author
 @editor_user_required
 def manage_draft(request, article_id, draft_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
 
-    if request.POST:
-        draft.closed = True
-
     if 'decline_draft' in request.POST:
         draft.editor_decision = 'declined'
         draft.save()
+        logic.handle_draft_declined(article, draft, request)
 
     if 'accept_draft' in request.POST:
-        # draft.editor_decision = 'accept'
+        draft.editor_decision = 'accept'
         draft.save()
+        decision_action = logic.handle_decision_action(article, draft, request)
 
-        # Action the decision
-        logic.handle_decision_action(article, draft, request)
+        if decision_action:
+            return decision_action
 
-    return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+    messages.add_message(
+        request,
+        messages.INFO,
+        'Draft {}'.format(draft.editor_decision)
+    )
+
+    return redirect(
+        reverse(
+            'decision_helper',
+            kwargs={'article_id': article.pk},
+        ),
+    )
 
 
 @editor_is_not_author
@@ -2024,16 +2222,28 @@ def edit_draft_decision(request, article_id, draft_id):
     article = get_object_or_404(submission_models.Article, pk=article_id)
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
-    form = forms.DraftDecisionForm(instance=draft)
+    editors = request.journal.editors()
+    form = forms.DraftDecisionForm(
+        instance=draft,
+        editors=editors,
+    )
 
     if request.POST:
-        form = forms.DraftDecisionForm(request.POST, instance=draft)
+        form = forms.DraftDecisionForm(
+            request.POST,
+            instance=draft,
+            editors=editors,
+        )
 
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.SUCCESS, 'Draft has been updated')
-            return redirect(reverse('review_edit_draft_decision',
-                                    kwargs={'article_id': article.pk, 'draft_id': draft.pk}))
+            return redirect(
+                reverse(
+                    'review_edit_draft_decision',
+                    kwargs={'article_id': article.pk, 'draft_id': draft.pk},
+                ),
+            )
 
     template = 'review/draft_decision.html'
     context = {
@@ -2049,34 +2259,65 @@ def edit_draft_decision(request, article_id, draft_id):
 @senior_editor_user_required
 def review_forms(request):
     """
-    Displays a list of review formd and allows new ones to be created.
+    Displays a list of review forms and allows new ones to be created.
     :param request: HttpRequest object
     :return: HttpResponse or HttpRedirect
     """
-    form_list = models.ReviewForm.objects.filter(journal=request.journal)
+    form_list = models.ReviewForm.objects.filter(
+        journal=request.journal,
+        deleted=False,
+    )
 
     form = forms.NewForm()
+    default_form = setting_handler.get_setting(
+        'general', 'default_review_form', request.journal,
+    ).processed_value
+    if default_form and default_form.isdigit():
+        default_form = int(default_form)
 
     if request.POST:
-        form = forms.NewForm(request.POST)
+        if 'delete' in request.POST:
+            form_id = request.POST["delete"]
+            if form_id.isdigit():
+                form_id = int(form_id)
+            if default_form == form_id:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "This form is selected as the default form and thus"
+                    " can't be deleted",
+                )
+                return redirect(reverse('review_review_forms'))
 
-        if form.is_valid():
-            new_form = form.save(commit=False)
-            new_form.journal = request.journal
-            new_form.save()
-
+            form_obj = get_object_or_404(
+                models.ReviewForm, id=form_id,
+                journal=request.journal,
+            )
+            form_obj.deleted = True
+            form_obj.save()
+            messages.add_message(request, messages.SUCCESS, 'Form Deleted')
             return redirect(reverse('review_review_forms'))
+        else:
+            form = forms.NewForm(request.POST)
+
+            if form.is_valid():
+                new_form = form.save(commit=False)
+                new_form.journal = request.journal
+                new_form.save()
+
+                return redirect(reverse('review_review_forms'))
 
     template = 'review/manager/review_forms.html'
     context = {
         'form_list': form_list,
         'form': form,
+        'default_form': default_form,
     }
 
     return render(request, template, context)
 
 
-@staff_member_required
+@senior_editor_user_required
 def edit_review_form(request, form_id, element_id=None):
     """
     Allows the editing of an existing review form
@@ -2135,13 +2376,12 @@ def edit_review_form(request, form_id, element_id=None):
     return render(request, template, context)
 
 
-@staff_member_required
+@senior_editor_user_required
 def preview_form(request, form_id):
     """Displays a preview of a review form."""
     form = get_object_or_404(models.ReviewForm, pk=form_id)
     generated_form = forms.GeneratedForm(preview=form)
     decision_form = forms.FakeReviewerDecisionForm()
-
 
     template = 'review/manager/preview_form.html'
     context = {
@@ -2151,6 +2391,29 @@ def preview_form(request, form_id):
     }
 
     return render(request, template, context)
+
+
+@require_POST
+@senior_editor_user_required
+def order_review_elements(request, form_id):
+    """
+    Reorders Review Form elements.
+    :param request: HttpRequest object
+    :param form_id: ReviewForm PK
+    """
+    form = get_object_or_404(
+        models.ReviewForm,
+        pk=form_id,
+        journal=request.journal,
+    )
+
+    shared.set_order(
+        form.elements.all(),
+        'order',
+        request.POST.getlist('element[]'),
+    )
+
+    return HttpResponse('Ok')
 
 
 @reviewer_user_for_assignment_required
@@ -2189,6 +2452,89 @@ def hypothesis_review(request, assignment_id):
         'pdf': pdf,
         'grant_token': grant_token,
         'authority': settings.HYPOTHESIS_CLIENT_AUTHORITY,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def decision_helper(request, article_id):
+    """
+    Displays all of the completed reviews to help the Editor make a decision.
+    :param request: HttpRequest object
+    :param article_id: Article object pk, integer
+    :return: a django response
+    """
+    article = get_object_or_404(
+        submission_models.Article, pk=article_id,
+    )
+
+    reviews = models.ReviewAssignment.objects.filter(
+        article=article,
+    )
+
+    uncomplete_reviews = reviews.filter(
+        article=article,
+        is_complete=False,
+        date_complete__isnull=True,
+    )
+    complete_reviews = reviews.filter(
+        article=article,
+        is_complete=True,
+        date_complete__isnull=False,
+    ).exclude(
+        decision='withdrawn',
+    )
+    withdraw_reviews = reviews.filter(
+        decision='withdrawn',
+    )
+    uncomplete_reviews = uncomplete_reviews.union(withdraw_reviews)
+
+    decisions = Counter(
+        [review.get_decision_display() for review in reviews if
+        review.decision]
+    )
+
+    if 'reveal_review' in request.POST:
+        review = get_object_or_404(
+            models.ReviewAssignment,
+            article=article,
+            id=request.POST.get('review'),
+        )
+        review.for_author_consumption=True
+        review.save()
+        messages.add_message(
+            request, messages.SUCCESS,
+            "The author can now see review #%s" % review.pk,
+        )
+
+    if 'hide_review' in request.POST:
+        review = get_object_or_404(
+            models.ReviewAssignment,
+            article=article,
+            id=request.POST.get('review'),
+        )
+        review.for_author_consumption=False
+        review.save()
+        messages.add_message(
+            request, messages.WARNING,
+            "The author won't see the review #%s" % review.pk,
+        )
+    if 'review_file_visible' in request.POST:
+        review = get_object_or_404(
+            models.ReviewAssignment,
+            article=article,
+            id=request.POST.get('review'),
+        )
+        logic.handle_review_file_switch(review, request.POST.get('review_file_visible'))
+        messages.add_message(request, messages.SUCCESS, 'Review File visibility updated.')
+
+    template = 'admin/review/decision_helper.html'
+    context = {
+        'article': article,
+        'complete_reviews': complete_reviews,
+        'uncomplete_reviews': uncomplete_reviews,
+        'decisions': dict(decisions)
     }
 
     return render(request, template, context)

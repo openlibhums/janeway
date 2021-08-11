@@ -644,7 +644,7 @@ def author_update_file(request, article_id, author_review_id, file_id):
             label = request.POST.get('label')
             new_file = files.save_file_to_article(uploaded_file, copyedit.article, request.user,
                                                   replace=file, is_galley=False, label=label)
-            files.replace_file(copyedit.article, file, new_file, copyedit=copyedit)
+            files.replace_file(copyedit.article, file, new_file, copyedit=copyedit, retain_old_label=False)
             author_review.files_updated.add(new_file)
 
         return redirect(reverse('author_copyedit',

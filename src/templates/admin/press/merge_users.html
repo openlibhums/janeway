@@ -1,0 +1,78 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Merge Users{% endblock %}
+{% block title-section %}Merge user accounts{% endblock %}
+
+{% block nav %}
+{% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+    <section>
+    <div class="row expanded">
+        <form method="POST">
+        {% csrf_token %}
+        <div>
+          <div class="large-6 columns end">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Merge and delete user</h2>
+                </div>
+                        <table class="small scroll users_table">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Email</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                            </tr>
+                            </thead>
+                        {% for user in users.iterator %}
+                            <tr>
+                                <td><input type="radio" name="from" value="{{ user.pk }}" required></td>
+                                <td>{{ user.email }} <a onclick="return popitup('{% url 'send_user_email' user.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                            </tr>
+                        {% endfor %}
+                        </table>
+            </div>
+        </div>
+        <div class="large-6 columns end">
+            <div class="box">
+                <div class="title-area">
+                    <h2>into user</h2>
+                </div>
+                        <table class="small scroll users_table">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Email</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                            </tr>
+                            </thead>
+                        {% for user in users.iterator %}
+                            <tr>
+                                <td><input type="radio" name="to" value="{{ user.pk }}" required></td>
+                                <td>{{ user.email }} <a onclick="return popitup('{% url 'send_user_email' user.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                            </tr>
+                        {% endfor %}
+                        </table>
+                    </form>
+                </div>
+            </div>
+            <button type="submit" name="merge_users" class="success button">Merge users</button>
+          </div>
+        </form>
+    </div>
+    </section>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target=".users_table" %}
+    {% include "elements/jqte.html" %}
+{% endblock %}

@@ -9,6 +9,13 @@
             <h5>Publication Date/Time</h5>
             <p>You can set the publication date and time here so that even when an article is marked as published, users will not
             be able to view it until the date/time has past.</p>
+            {% if request.timezone %}
+                <p><span class="fa fa-info primary"></span> You are working under the {{ request.timezone.zone }} timezone.</p>
+                {% if not request.user.preferred_timezone %}
+                <p> This is based on the locale settings provided by your browser</p>
+                {% endif %}
+                <p>You can select or unset your preferred timezone from the <a target="_blank" href="{% url 'core_edit_profile'%}">Edit Profile</a> page.</p>
+            {% endif %}
             <form method="POST">
                 {% csrf_token %}
                 <div class="callout">

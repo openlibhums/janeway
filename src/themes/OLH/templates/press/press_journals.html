@@ -14,6 +14,7 @@
         <div class="row">
             <div class="large-8 columns">
                 {% for current_journal in journals %}
+                    {% setting_var current_journal 'disable_journal_submission' as submission_disabled %}
                     <div class="large-12 columns border-right border-bottom journal-div">
                         <div class="box journal">
                             <div class="row collapse">
@@ -52,17 +53,21 @@
                                             </div>
                                             <div class="expanded button-group">
                                                 {% if current_journal.is_remote %}
+                                                    {% if not submission_disabled %}
                                                     <a href="{{ current_journal.remote_submit_url }}"
-                                                       class="button"><span>Submit</span></a>
+                                                       class="button"><span>{% trans 'Submit' %}</span></a>
+                                                    {% endif %}
                                                     <a href="{{ current_journal.remote_view_url }}"
-                                                       class="button"><span>View</span></a>
+                                                       class="button"><span>{% trans 'View' %}</span></a>
                                                 {% else %}
+                                                    {% if not submission_disabled %}
                                                     <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"
-                                                       class="button"><span>Submit</span></a>
+                                                       class="button"><span>{% trans 'Submit' %}</span></a>
+                                                    {% endif %}
                                                     <a href="{% journal_base_url current_journal %}"
-                                                       class="button"><span>View</span></a>
+                                                       class="button"><span>{% trans 'View' %}</span></a>
                                                     <a href="{% journal_base_url current_journal %}{% url 'current_issue' %}"
-                                                       class="button"><span>Current Issue</span></a>
+                                                       class="button"><span>{% trans 'Current Issue' %}</span></a>
                                                 {% endif %}
                                             </div>
                                         </div>

@@ -21,6 +21,7 @@ from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
+from django.shortcuts import reverse
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -29,36 +30,88 @@ from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
 from comms import models as comms_models
 from utils import shared
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def send_reset_token(request, reset_token):
-    context = {'reset_token': reset_token}
+    core_reset_password_url = request.site_type.site_url(
+        reverse(
+            'core_reset_password',
+            kwargs={'token': reset_token.token},
+        )
+    )
+    context = {
+        'reset_token': reset_token,
+        'core_reset_password_url': core_reset_password_url,
+    }
     log_dict = {'level': 'Info', 'types': 'Reset Token', 'target': None}
     if not request.journal:
-        message = render_template.get_message_content(request, context, request.press.password_reset_text,
-                                                      template_is_setting=True)
+        message = render_template.get_message_content(
+            request,
+            context,
+            request.press.password_reset_text,
+            template_is_setting=True,
+        )
         subject = 'Password Reset'
     else:
-        message = render_template.get_message_content(request, context, 'password_reset')
+        message = render_template.get_message_content(
+            request,
+            context,
+            'password_reset',
+        )
         subject = 'subject_password_reset'
 
-    notify_helpers.send_email_with_body_from_user(request, subject, reset_token.account.email, message,
-                                                  log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        reset_token.account.email,
+        message,
+        log_dict=log_dict,
+    )
 
 
 def send_confirmation_link(request, new_user):
-    context = {'user': new_user}
+    core_confirm_account_url = request.site_type.site_url(
+        reverse(
+            'core_confirm_account',
+            kwargs={'token': new_user.confirmation_code},
+        )
+    )
+    context = {
+        'user': new_user,
+        'core_confirm_account_url': core_confirm_account_url,
+    }
     if not request.journal:
-        message = render_template.get_message_content(request, context, request.press.registration_text,
-                                                      template_is_setting=True)
+        message = render_template.get_message_content(
+            request,
+            context,
+            request.press.registration_text,
+            template_is_setting=True,
+        )
         subject = 'Registration Confirmation'
     else:
-        message = render_template.get_message_content(request, context, 'new_user_registration')
+        message = render_template.get_message_content(
+            request,
+            context,
+            'new_user_registration',
+        )
         subject = 'subject_new_user_registration'
 
-    notify_helpers.send_slack(request, 'New registration: {0}'.format(new_user.full_name()), ['slack_admins'])
+    notify_helpers.send_slack(
+        request,
+        'New registration: {0}'.format(new_user.full_name()),
+        ['slack_admins'],
+    )
     log_dict = {'level': 'Info', 'types': 'Account Confirmation', 'target': None}
-    notify_helpers.send_email_with_body_from_user(request, subject, new_user.email, message, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        subject,
+        new_user.email,
+        message,
+        log_dict=log_dict,
+    )
 
 
 def resize_and_crop(img_path, size, crop_type='middle'):
@@ -138,7 +191,6 @@ def cached_settings_for_context(journal, language):
                 group,
                 setting.name,
                 journal,
-                fallback=True,
             ).processed_value
 
     return _dict
@@ -157,7 +209,10 @@ def process_setting_list(settings_to_get, type, journal):
 
 def get_settings_to_edit(group, journal):
     review_form_choices = list()
-    for form in review_models.ReviewForm.objects.filter(journal=journal):
+    for form in review_models.ReviewForm.objects.filter(
+        journal=journal,
+        deleted=False,
+    ):
         review_form_choices.append([form.pk, form])
 
     if group == 'submission':
@@ -170,6 +225,13 @@ def get_settings_to_edit(group, journal):
                  'general',
                  'abstract_required',
                  journal,
+             )
+             },
+            {'name': 'display_about_on_submissions',
+             'object': setting_handler.get_setting(
+                 'general',
+                 'display_about_on_submissions',
+                 journal
              )
              },
             {'name': 'submission_intro_text',
@@ -245,8 +307,16 @@ def get_settings_to_edit(group, journal):
                 'object': setting_handler.get_setting('general', 'default_review_days', journal),
             },
             {
+                'name': 'enable_save_review_progress',
+                'object': setting_handler.get_setting('general', 'enable_save_review_progress', journal),
+            },
+            {
                 'name': 'enable_one_click_access',
                 'object': setting_handler.get_setting('general', 'enable_one_click_access', journal),
+            },
+            {
+                'name': 'enable_expanded_review_details',
+                'object': setting_handler.get_setting('general', 'enable_expanded_review_details', journal),
             },
             {
                 'name': 'draft_decisions',
@@ -260,7 +330,19 @@ def get_settings_to_edit(group, journal):
             {
                 'name': 'reviewer_form_download',
                 'object': setting_handler.get_setting('general', 'reviewer_form_download', journal),
-            }
+            },
+            {
+                'name': 'peer_review_upload_text',
+                'object': setting_handler.get_setting('general', 'peer_review_upload_text', journal),
+            },
+            {
+                'name': 'enable_peer_review_data_block',
+                'object': setting_handler.get_setting('general', 'enable_peer_review_data_block', journal),
+            },
+            {
+                'name': 'enable_suggested_reviewers',
+                'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
+            },
         ]
         setting_group = 'general'
 
@@ -285,10 +367,9 @@ def get_settings_to_edit(group, journal):
     elif group == 'journal':
         journal_settings = [
             'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
-            'enable_editorial_display', 'multi_page_editorial', 'enable_editorial_images', 'main_contact',
-            'publisher_name', 'publisher_url',
-            'maintenance_mode', 'maintenance_message', 'auto_signature', 'slack_logging', 'slack_webhook',
-            'twitter_handle', 'switch_language', 'google_analytics_code', 'keyword_list_page',
+            'main_contact', 'publisher_name', 'publisher_url', 'privacy_policy_url',
+            'auto_signature', 'slack_logging', 'slack_webhook', 'twitter_handle',
+            'switch_language', 'enable_language_text', 'google_analytics_code',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
@@ -296,7 +377,7 @@ def get_settings_to_edit(group, journal):
         setting_group = 'general'
         settings.append({
             'name': 'from_address',
-            'object': setting_handler.get_setting('email', 'from_address', journal),
+            'object': setting_handler.get_setting('general', 'from_address', journal),
         })
 
     elif group == 'proofing':
@@ -308,9 +389,29 @@ def get_settings_to_edit(group, journal):
     elif group == 'article':
         article_settings = [
             'suppress_how_to_cite',
+            'display_guest_editors',
+            'suppress_citations_metric',
+            'display_altmetric_badge',
+            'altmetric_badge_type',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
+    elif group == 'styling':
+        settings = [
+            {
+                'name': 'enable_editorial_images',
+                'object': setting_handler.get_setting('general',
+                                                      'enable_editorial_images',
+                                                      journal),
+            },
+            {
+                'name': 'multi_page_editorial',
+                'object': setting_handler.get_setting('general',
+                                                      'multi_page_editorial',
+                                                      journal),
+            }
+        ]
+        setting_group = 'general'
     else:
         settings = []
         setting_group = None
@@ -327,8 +428,12 @@ def get_theme_list():
 
 def handle_default_thumbnail(request, journal, attr_form):
     if request.FILES.get('default_thumbnail'):
-        new_file = files.save_file_to_journal(request, request.FILES.get('default_thumbnail'), 'Default Thumb',
-                                              'default')
+        new_file = files.save_file_to_journal(
+            request,
+            request.FILES.get('default_thumbnail'),
+            'Default Thumb',
+            'default',
+        )
 
         if journal.thumbnail_image:
             journal.thumbnail_image.unlink_file(journal=journal)
@@ -403,11 +508,31 @@ def handle_email_change(request, email_address):
     request.user.email = email_address
     request.user.is_active = False
     request.user.confirmation_code = uuid.uuid4()
+    request.user.clean()
     request.user.save()
 
-    context = {'user': request.user}
-    message = render_template.get_message_content(request, context, 'user_email_change')
-    notify_helpers.send_email_with_body_from_user(request, 'subject_user_email_change', request.user.email, message)
+    core_confirm_account_url = request.site_type.site_url(
+        reverse(
+            'core_confirm_account',
+            kwargs={'token': request.user.confirmation_code},
+        )
+    )
+
+    context = {
+        'user': request.user,
+        'core_confirm_account_url': core_confirm_account_url,
+    }
+    message = render_template.get_message_content(
+        request,
+        context,
+        'user_email_change',
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'subject_user_email_change',
+        request.user.email,
+        message,
+    )
 
     logout(request)
 
@@ -424,7 +549,7 @@ def handle_add_users_to_role(users, role, request):
 
     for user in users:
         user.add_account_role(role.slug, request.journal)
-        messages.add_message(request, messages.INFO, '{0} added to {1}'.format(user.full_name(), role.name))
+        messages.add_message(request, messages.INFO, '{0} added to {1} role.'.format(user.full_name(), role.name))
 
 
 def clear_active_elements(elements, workflow, plugins):
@@ -448,20 +573,24 @@ def get_available_elements(workflow):
         our_elements.append(element)
 
     for plugin in plugins:
-        module_name = "{0}.plugin_settings".format(plugin)
-        plugin_settings = import_module(module_name)
+        try:
+            module_name = "{0}.plugin_settings".format(plugin)
+            plugin_settings = import_module(module_name)
 
-        if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(
-                plugin_settings, 'HANDSHAKE_URL'):
-            if plugin_settings.IS_WORKFLOW_PLUGIN:
-                our_elements.append(
-                    {'name': plugin_settings.PLUGIN_NAME,
-                     'handshake_url': plugin_settings.HANDSHAKE_URL,
-                     'stage': plugin_settings.STAGE,
-                     'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL,
-                     'jump_url': plugin_settings.JUMP_URL if hasattr(plugin_settings, 'JUMP_URL') else '',
-                     }
-                )
+            if hasattr(plugin_settings, 'IS_WORKFLOW_PLUGIN') and hasattr(
+                    plugin_settings, 'HANDSHAKE_URL'):
+                if plugin_settings.IS_WORKFLOW_PLUGIN:
+                    our_elements.append(
+                        {'name': plugin_settings.PLUGIN_NAME,
+                         'handshake_url': plugin_settings.HANDSHAKE_URL,
+                         'stage': plugin_settings.STAGE,
+                         'article_url': plugin_settings.ARTICLE_PK_IN_HANDSHAKE_URL,
+                         'jump_url': plugin_settings.JUMP_URL if hasattr(plugin_settings, 'JUMP_URL') else '',
+                         }
+                    )
+        except ImportError as e:
+            logger.error(e)
+
     return clear_active_elements(our_elements, workflow, plugins)
 
 

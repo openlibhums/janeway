@@ -138,9 +138,9 @@ def show_doi(request, article_id, identifier_id):
         id_type='doi',
     )
 
-    template_context = logic.create_crossref_template(identifier)
+    template_context = logic.create_crossref_context(identifier)
 
-    template = 'common/identifiers/crossref.xml'
+    template = logic.get_crossref_template(article)
     return render_to_response(template, template_context, content_type="application/xml")
 
 

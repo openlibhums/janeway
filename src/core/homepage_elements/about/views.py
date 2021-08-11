@@ -26,7 +26,7 @@ def journal_description(request):
 
     form = forms.AboutForm(
         initial={
-            'title': title.value if title.value else 'About {name}'.format(
+            'title': title.value if title else 'About {name}'.format(
                 name=request.journal.name,
             ),
             'description': description,

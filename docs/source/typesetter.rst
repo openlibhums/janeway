@@ -76,3 +76,46 @@ Completing Typesetting
 Once you have uploaded the required galleys and their files you will notice a new Note to Editor box has appeared in the Notes section, you can use this to complete your task.
 
 Once you have marked it as complete the card will move into the Completed column.
+
+Typesetting Plugin (New!)
+-------------------------
+The Typesetting plugin is the new workflow used in Janeway for typesetting.
+It is currently deployed as a plugin but we intend to replace the above process with this new system in the near future.
+
+With this new plugin, we aim to simplify the process of working on corrections for the typesetter with a brand new interface that is used both when uploading the initial typesetting files as well as when working on corrections. The summary of improvements includes:
+
+- Unified interface for all typesetting tasks
+- Better and more complete display of the article metadata
+- Error detection warnings: Incomplete corrections, missing figure files, missing metadata...
+- Full display of the proofreading comments and corrections requested
+- Single input form for uploading galley files
+
+On your dashboard, there should be a card indicating the number of typesetting tasks that are currently awaiting for you to complete:
+
+.. figure:: nstatic/typesetting/typesettingcard.png
+
+When uploading a new Galley (now referred to as 'Typeset Files'), there is now a single button interface where the typesetter uploads a file and gives it an optional label. Janeway will use the best label for the file provided, but typesetters can edit the label to add a different one if necessary.
+
+.. figure:: nstatic/typesetting/upload_typeset_file.png
+
+   Screenshot of the new file upload box
+
+When uploading an XML or HTML file with image files, Janeway will detect them and prompt the typesetter to upload them.
+
+.. figure:: nstatic/typesetting/images_missing.png
+
+At this point, just hit the edit button and upload each image on the box matching the filename from the XML/HTML file:
+
+.. figure:: nstatic/typesetting/typesetter_images.png
+
+If any intermiadate files have been used for the production of the Files (such as Adobe In Design files), they can be uploaded under the 'Source Files' section
+
+.. figure:: nstatic/typesetting/source_files.png
+
+   Screenshot of the source files form
+
+Before you can complete the task, Janeway will warn you of any potential problems it detects with your files, such as potential missing images on the XML/HTML files or Typeset Files that have not yet been corrected.
+
+.. figure:: nstatic/typesetting/images_missing_warning.png
+
+Once you are done with the typesetting or correction task, you can leave a note for the editor and complete it for the editor to review.

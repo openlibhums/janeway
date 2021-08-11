@@ -10,13 +10,12 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from django.utils import timezone
-from django.core.serializers import json
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
+from django.utils.text import slugify
 
-from hvad.models import TranslatableModel, TranslatedFields
 from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
 
@@ -59,7 +58,6 @@ class LogEntry(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     is_email = models.BooleanField(default=False)
-    to = models.EmailField(blank=True, null=True)
     message_id = models.TextField(blank=True, null=True)
     message_status = models.CharField(max_length=255, choices=MESSAGE_STATUS, default='no_information')
     number_status_checks = models.IntegerField(default=0)
@@ -82,9 +80,23 @@ class LogEntry(models.Model):
         else:
             return 'amber'
 
+    @property
+    def to(self):
+        return [to.email for to in self.toaddress_set.all()]
+
     @staticmethod
-    def add_entry(types, description, level, actor=None, request=None, target=None, is_email=False, to=None,
-                  message_id=None, subject=None):
+    def add_entry(
+            types,
+            description,
+            level,
+            actor=None,
+            request=None,
+            target=None,
+            is_email=False,
+            to=None,
+            message_id=None,
+            subject=None,
+    ):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
             if actor.is_anonymous():
@@ -99,18 +111,31 @@ class LogEntry(models.Model):
             'ip_address': get_ip_address(request),
             'target': target,
             'is_email': is_email,
-            'to': to,
             'message_id': message_id,
             'subject': subject,
         }
+        new_entry = LogEntry.objects.create(**kwargs)
 
-        new_entry = LogEntry.objects.create(**kwargs).save()
+        if to:
+            for email in to:
+                ToAddress.objects.create(
+                    log_entry=new_entry,
+                    email=email,
+                )
 
         return new_entry
 
 
+class ToAddress(models.Model):
+    log_entry = models.ForeignKey(LogEntry)
+    email = models.EmailField(max_length=300)
+
+    def __str__(self):
+        return self.email
+
+
 class Version(models.Model):
-    number = models.CharField(max_length=5)
+    number = models.CharField(max_length=10)
     date = models.DateTimeField(default=timezone.now)
     rollback = models.DateTimeField(blank=True, null=True)
 
@@ -136,11 +161,16 @@ class Plugin(models.Model):
     def __repr__(self):
         return u'[{0}] {1} - {2}'.format(self.name, self.version, self.enabled)
 
-    def best_name(self):
+    def best_name(self, slug=False):
         if self.display_name:
-            return self.display_name.lower()
+            name = self.display_name.lower()
+        else:
+            name = self.name.lower()
 
-        return self.name.lower()
+        if slug:
+            return slugify(name)
+        else:
+            return name
 
 
 setting_types = (
@@ -153,63 +183,6 @@ setting_types = (
     ('select', 'Select'),
     ('json', 'JSON'),
 )
-
-
-class PluginSetting(models.Model):
-    name = models.CharField(max_length=100)
-    plugin = models.ForeignKey(Plugin)
-    types = models.CharField(max_length=20, choices=setting_types, default='text')
-    pretty_name = models.CharField(max_length=100, default='')
-    description = models.TextField(null=True, blank=True)
-    is_translatable = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ('plugin', 'name')
-
-    def __str__(self):
-        return u'%s' % self.name
-
-    def __repr__(self):
-        return u'%s' % self.name
-
-
-class PluginSettingValue(TranslatableModel):
-    journal = models.ForeignKey('journal.Journal', blank=True, null=True)
-    setting = models.ForeignKey(PluginSetting)
-
-    translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
-    )
-
-    def __repr__(self):
-        return "{0}, {1}".format(self.setting.name, self.value)
-
-    def __str__(self):
-        return "[{0}]: {1}".format(self.journal, self.setting.name)
-
-    @property
-    def processed_value(self):
-        return self.process_value()
-
-    def process_value(self):
-        """ Converts string values of settings to proper values
-
-        :return: a value
-        """
-
-        if self.setting.types == 'boolean' and self.value == 'on':
-            return True
-        elif self.setting.types == 'boolean':
-            return False
-        elif self.setting.types == 'number':
-            try:
-                return int(self.value)
-            except BaseException:
-                return 0
-        elif self.setting.types == 'json' and self.value:
-            return json.loads(self.value)
-        else:
-            return self.value
 
 
 class ImportCacheEntry(models.Model):

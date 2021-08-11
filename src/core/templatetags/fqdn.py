@@ -34,5 +34,4 @@ def site_url(context, url_name=None, *args):
 
 @register.simple_tag(takes_context=True)
 def journal_base_url(context, journal):
-
     return journal.site_url()

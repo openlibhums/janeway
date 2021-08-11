@@ -4,6 +4,7 @@
 {% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
 {% block title %}Notify Typesetter{% endblock title %}
 {% block admin-header %}Notify Typesetter{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}

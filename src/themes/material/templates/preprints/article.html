@@ -1,0 +1,164 @@
+{% extends "core/base.html" %}
+{% load static from staticfiles %}
+{% load hooks %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col m12">
+            <div class="card">
+                <div class="card-content">
+                    <h4>{{ article.title|safe }}</h4>
+                    <h6>{% for subject in article.subject_set.all %}{{ subject.name }}{% if not forloop.last %},
+                    {% endif %}{% endfor %}</h6>
+                    <p>
+                        <small>{% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight." %}
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col m8">
+            <div class="card">
+                <div class="card-content">
+                    <h5>{% trans "Authors" %}</h5>
+                    <p>
+                        <small>
+                            {% for author in article.authors.all %}
+                                {% if forloop.last %}
+                                    {% if article.authors.all|length > 1 %} &{% endif %}
+                                {% endif %}
+                                {{ author.full_name }}
+                                {% if not forloop.last %}
+                                    {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </small>
+                    </p>
+                    <h5>{% trans "Abstract" %}</h5>
+                    <small>{{ article.abstract|safe }}</small>
+                </div>
+            </div>
+            <div itemprop="articleBody" id="pdf">
+                {% if html %}
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">{% trans "Preprint Body" %}</span>
+                            {{ html|safe }}
+                        </div>
+                    </div>
+
+                {% elif pdf %}
+                    <iframe src="{% url 'preprints_pdf' article.pk %}?file={% url 'article_download_galley' article.id pdf.id %}"
+                            width="100%" height="100%" style="min-height: 900px;" allowfullscreen
+                            webkitallowfullscreen></iframe>
+                {% endif %}
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">{% trans 'Comments' %}</span>
+                        {% if request.user.is_authenticated %}
+                            <div>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {% bootstrap_form form %}
+                                    <button type="submit" class="btn btn-success">{% trans "Add Comment" %}</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                {% for comment in comments %}
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="row" id="comment-{{ comment.pk }}">
+                                <div class="col m2">
+                                    {% if comment.author.profile_image %}
+                                        <img src="{{ comment.author.profile_image.url }}" class="responsive-img circle">
+                                    {% else %}
+                                        <img src="{% static "common/img/icons/users.png" %}"
+                                             class="responsive-img circle">
+                                    {% endif %}
+                                </div>
+                                <div class="col m10">
+                                    <p>
+                                        <small>Comment #{{ comment.pk }} {{ comment.author.full_name }}
+                                            @ {{ comment.date_time }}</small>
+                                    </p>
+                                    <p>
+                                        {{ comment.body }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="callout">
+                        <p>There are no comments or no comments have been made public for this article.</p>
+                    </div>
+                {% endfor %}
+                {% hook 'article_footer_block' %}
+            </div>
+        </div>
+        <div class="col m4 left-bar">
+            <div class="card">
+                <div class="card-content">
+                    <small>
+                        <h5>{% trans "Download" %}</h5>
+                        <ul>
+                            {% for galley in galleys %}
+                                <li>
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <h5>{% trans "Metadata" %}</h5>
+                        <ul>
+                            <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
+                            <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
+                                                         title="{{ article.license.text }}">{{ article.license.name }}</a>
+                            </li>
+                            {% if article.identifier.id_type == 'doi' %}
+                                <li>{{ article.identifier }}</li>{% endif %}
+                        </ul>
+                        <h5>{% trans "Metrics" %}</h5>
+                        <ul>
+                            <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
+                            <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                        </ul>
+                        <h5>{% trans "Versions" %}</h5>
+                        <ul>
+                            {% for version in article.preprintversion_set.all %}
+                                <li>{{ version.date_time }}<br/> <a
+                                        href="{% url 'article_download_galley' article.id version.galley.id %}">{% trans "Download" %} {{ version.galley.label }}</a>
+                                </li>
+                                {% empty %}
+                                <li>This is the only version of the preprint.</li>
+                            {% endfor %}
+                        </ul>
+                        <h5>{% trans "Citation" %}</h5>
+                        <div class="btn-group-vertical">
+                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Harvard Citation" %}</a>
+                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Vancouver Citation" %}</a>
+                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "APA Citation" %}</a>
+                        </div>
+
+                        <p><br/><a href="{% url 'preprints_list' %}"><i class="fa fa-arrow-left"></i>{% trans "All Preprints" %}</a>
+                        </p>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "elements/journal/citation_modals.html" %}
+
+
+{% endblock %}
+

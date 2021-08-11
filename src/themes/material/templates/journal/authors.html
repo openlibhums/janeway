@@ -1,12 +1,13 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
+{% load i18n %}
 
-{% block title %}Authors{% endblock title %}
-{% block page_title %}Authors{% endblock page_title %}
+{% block title %}{% trans "Authors" %}{% endblock title %}
+{% block page_title %}{% trans "Authors" %}{% endblock page_title %}
 
 {% block body %}
 
-    <h3>Authors</h3>
+    <h3>{% trans "Authors" %}</h3>
     <div class="row">
        
         {% for author in author_list %}
@@ -27,7 +28,7 @@
 
                             <p>
                                 <small>
-                                    <a href="{% url 'core_public_profile' author.uuid %}">View Profile</a>
+                                    <a href="{% url 'core_public_profile' author.uuid %}">{% trans "View Profile" %}</a>
                                 </small>
                             </p>
 

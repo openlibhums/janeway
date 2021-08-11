@@ -22,7 +22,7 @@
                 <div class="large-12 columns">
                     {% if article.comments_editor %}
                     <div class="title-area"><h2>{% trans "Comments to Editor" %}</h2></div>
-                    {% if article.comments_editor|startswith:'<p' %}{{ article.comments_editor }}{% else %}<p>{{ article.comments_editor }}</p>{% endif %}
+                    {{ article.comments_editor|linebreaksbr }}
                     {% endif %}
                     <div class="title-area"><h2>{% trans "Article Info" %}</h2></div>
                     <table class="scroll small">

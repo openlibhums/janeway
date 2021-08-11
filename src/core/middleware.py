@@ -70,7 +70,7 @@ def get_site_resources(request):
                         "" % settings.URL_CONFIG
                 )
         except (repository_models.Repository.DoesNotExist, IndexError):
-            try: # try press site
+            try:  # try press site
                 press = press_models.Press.get_by_request(request)
             except press_models.Press.DoesNotExist:
                 try: # try alias
@@ -256,11 +256,13 @@ class TimezoneMiddleware(object):
             tzname = request.session["janeway_timezone"]
         else:
             tzname = None
+            request.timezone = None
 
         try:
-            request.timezone = tzname
             if tzname is not None:
-                timezone.activate(pytz.timezone(tzname))
+                tzinfo = pytz.timezone(tzname)
+                request.timezone = tzinfo
+                timezone.activate(tzinfo)
                 logger.debug("Activated timezone %s" % tzname)
         except Exception as e:
             logger.warning("Failed to activate timezone %s: %s" % (tzname, e))

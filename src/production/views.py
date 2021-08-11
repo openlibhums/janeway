@@ -308,6 +308,11 @@ def production_article(request, article_id):
         except UnicodeDecodeError:
             messages.add_message(request, messages.ERROR,
                 "Uploaded file is not UTF-8 encoded")
+        except logic.ZippedGalleyError:
+            messages.add_message(request, messages.ERROR,
+                "Galleys must be uploaded individually, not zipped",
+            )
+
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
@@ -530,7 +535,7 @@ def notify_typesetter(request, typeset_id, event=True):
             'user_message_content': user_message_content,
             'typeset_task': typeset,
             'request': request,
-            'skip': True if 'skip' in request.POST else False
+            'skip': True if 'skip' in request.POST else False,
         }
 
         if 'skip' not in request.POST:
@@ -731,6 +736,10 @@ def do_typeset_task(request, typeset_id):
                 except UnicodeDecodeError:
                     messages.add_message(request, messages.ERROR,
                         "Uploaded file is not UTF-8 encoded")
+                except logic.ZippedGalleyError:
+                    messages.add_message(request, messages.ERROR,
+                        "Galleys must be uploaded individually, not zipped",
+                    )
 
         if 'source' in request.POST:
             for uploaded_file in request.FILES.getlist('source-file'):
@@ -1072,7 +1081,7 @@ def supp_file_doi(request, article_id, supp_file_id):
                                                              article.journal).processed_value,
                    'parent_doi': article.get_doi()
                    }
-    xml_content = render_to_string('admin/identifiers/crossref_component.xml', xml_context, request)
+    xml_content = render_to_string('common/identifiers/crossref_component.xml', xml_context, request)
 
     if request.POST:
         from identifiers import logic

@@ -1,7 +1,13 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Issue" %} {{ issue }}{% endblock %}
+{% block title %}
+    {% if issue.issue_type.code == 'collection' %}
+    {% trans "Collection" %}: {{ issue.title }}
+    {% else %}
+    {% trans "Issue" %}: {{ issue }}
+    {% endif %}
+{% endblock %}
 
 {% block css %}
 {% endblock %}

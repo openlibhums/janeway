@@ -47,7 +47,8 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
     # so 'img':'src' means look for elements called 'img' with an attribute 'src'
     elements = {
         'img': 'src',
-        'graphic': 'xlink:href'
+        'graphic': 'xlink:href',
+        'inline-graphic': 'xlink:href',
     }
 
     # iterate over all found elements
@@ -65,7 +66,9 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
 
                 # this is a Ubiquity Press-specific fix to rewrite the path so that we don't hit OJS's dud backend
                 if not url.startswith('/') and not url.startswith('http'):
-                    url_to_use = root.replace('/article/view', '/articles') + '/' + url
+                    # Resolve article redirects before building image URLs
+                    real_root = requests.head(root, allow_redirects=True).url
+                    url_to_use = real_root.replace('/article/view', '/articles') + '/' + url
 
                 #guess extension from url
                 suffixes = Path(url_to_use).suffixes
@@ -158,8 +161,11 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
 
     # intercept the request if we need to parse this as HTML or XML with images to rewrite
     if handle_images:
-        resp = resp.decode()
-        resp = fetch_images_and_rewrite_xml_paths(base, root, resp, article, user)
+        try:
+            resp = resp.decode()
+            resp = fetch_images_and_rewrite_xml_paths(base, root, resp, article, user)
+        except UnicodeDecodeError:
+            logger.warning("Cant extract images from %s" % url)
 
     if isinstance(resp, str):
         resp = bytes(resp, 'utf-8')
@@ -422,6 +428,8 @@ def create_new_article(date_published, date_submitted, journal, soup_object, use
         'page_numbers': get_soup(soup_object.find('meta', attrs={'name': 'DC.Identifier.pageNumber'}), 'content', ''),
         'is_import': True,
     }
+    if not article_dict.get("title"):
+        article_dict["title"] = "# No Title found #"
 
     new_article = submission_models.Article.objects.create(**article_dict)
 
@@ -466,14 +474,14 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
             institution = ''
 
         # add an account for this new user
-        account = core_models.Account.objects.filter(email=email)
+        account = core_models.Account.objects.filter(email__iexact=email)
+        parsed_name = parse_author_names(author_name, citation)
 
         if account is not None and len(account) > 0:
             account = account[0]
             print("Found account for {0}".format(email))
         else:
             print("Didn't find account for {0}. Creating.".format(email))
-            parsed_name = parse_author_names(author_name, citation)
             logger.debug("%s\t\t-> %s" % (author_name, parsed_name))
             account = core_models.Account.objects.create(
                 email=email,
@@ -487,12 +495,26 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
 
         if account:
             article.authors.add(account)
-            submission_models.ArticleAuthorOrder.objects.get_or_create(
+            o, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
                 article=article,
                 author=account,
                 defaults={'order': article.next_author_sort()},
             )
-            account.snapshot_self(article)
+            # Copy behaviour of snapshot_self, some authors might have a
+            # shared dummy email address.
+            f, created = submission_models.FrozenAuthor.objects.get_or_create(
+                **{
+                    'article': article,
+                    'first_name': parsed_name["first_name"],
+                    'middle_name': parsed_name["middle_name"],
+                    'last_name': parsed_name["last_name"],
+                    'institution': institution,
+                    'order': o.order,
+                    'defaults': {"author": account},
+
+                },
+            )
+
 
 
 def set_article_section(article, soup_object, element='h4', attributes=None, default='Articles'):
@@ -522,7 +544,7 @@ def set_article_section(article, soup_object, element='h4', attributes=None, def
     if section_name and section_name != '':
         print('Adding article to section {0}'.format(section_name))
 
-        section, created = submission_models.Section.objects.language('en').get_or_create(journal=article.journal, name=section_name)
+        section, created = submission_models.Section.objects.get_or_create(journal=article.journal, name=section_name)
         article.section = section
     else:
         print('No section information found. Reverting to default of "Articles"')
@@ -540,49 +562,32 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         journal=article.journal,
         code="issue",
     )
-    issue_title = ""
-    issue = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_issue'}), 'content', 0))
+    issue = get_soup(soup_object.find('meta', attrs={'name': 'citation_issue'}), 'content', 0)
     volume = int(get_soup(soup_object.find('meta', attrs={'name': 'citation_volume'}), 'content', 0))
 
     # Try DC tags
-    if issue == 0:
+    if not issue:
         dc_issue = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Issue'}), 'content', "")
-        if dc_issue.isdigit():
-            issue = int(dc_issue)
-        else:
-            issue_title = "{}: {}".format(issue_type.pretty_name, dc_issue)
-    if volume == 0:
+    if not volume:
         dc_volume = get_soup(soup_object.find('meta', attrs={'name': 'DC.Source.Volume'}), 'content', "")
         if dc_volume.isdigit():
             volume = int(dc_volume)
 
-    if issue == volume == 0 and issue_title:
-        # If no issue and volume information, create issue with title
-        # identifier
-        new_issue, created = journal_models.Issue.objects.get_or_create(
-            journal=article.journal,
-            issue_title=issue_title,
-            defaults={
-                "issue": issue, "volume": volume, "issue_type": issue_type,
-                "date": date_published
-            },
-        )
-
-    else:
-        new_issue, created = journal_models.Issue.objects.get_or_create(
-            journal=article.journal, issue=issue, volume=volume,
-            defaults={"issue_type": issue_type},
-        )
-        new_issue.date = date_published
-
+    new_issue, created = journal_models.Issue.objects.get_or_create(
+        journal=article.journal,
+        issue=issue,
+        volume=volume,
+        defaults={
+            "issue_type": issue_type,
+            "date": date_published,
+        },
+    )
     article.issues.add(new_issue)
 
     if created:
         new_issue.save()
         log_string = "Created a new issue ({0}:{1}, {2})".format(
             volume, issue, date_published)
-        if issue_title:
-            log_string = "{0} - {1}".format(log_string, issue_title)
         logger.info(log_string)
 
 
@@ -592,11 +597,15 @@ def set_article_keywords(article, soup_object):
         'content',
     ))
     if keyword_string:
-        for word in keyword_string.split(";"):
+        for i, word in enumerate(keyword_string.split(";")):
             if word:
                 keyword, created = submission_models.Keyword.objects \
                     .get_or_create(word=word.lstrip())
-                article.keywords.add(keyword)
+                submission_models.KeywordArticle.objects.update_or_create(
+                    article=article,
+                    keyword=keyword,
+                    defaults = {"order": i},
+                )
 
 
 def set_article_galleys(domain, galleys, article, url, user):
@@ -609,10 +618,12 @@ def set_article_galleys(domain, galleys, article, url, user):
     :param user: the user who should own the new file
     :return: None
     """
+    article.galley_set.all().delete()
     for galley_name, galley in galleys.items():
         if galley:
             if galley_name == 'PDF' or galley_name == 'XML':
                 handle_images = True if galley_name == 'XML' else False
+
                 filename, mime = fetch_file(domain, galley, url, galley_name.lower(), article, user,
                                             handle_images=handle_images)
                 add_file('application/{0}'.format(galley_name.lower()), galley_name.lower(),

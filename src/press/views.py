@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.management import call_command
 from django.http import HttpResponse, Http404
+from django.utils import translation
 
 from cms import models as cms_models
 from core import (
@@ -19,6 +20,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
+
 from journal import (
     models as journal_models,
     views as journal_views,
@@ -30,6 +32,7 @@ from submission import models as submission_models
 from utils import install
 from utils.logic import get_janeway_version
 from repository import views as repository_views, models
+from core.model_utils import merge_models
 
 
 def index(request):
@@ -138,23 +141,32 @@ def manager_index(request):
     :param request: django request
     :return: contextualised template
     """
-    form = journal_forms.JournalForm()
-    modal = None
-    version = get_janeway_version()
+    with translation.override(settings.LANGUAGE_CODE):
+        form = journal_forms.JournalForm()
+        modal = None
+        version = get_janeway_version()
 
-    if request.POST:
-        form = journal_forms.JournalForm(request.POST)
-        modal = 'new_journal'
-        if form.is_valid():
-            new_journal = form.save(request=request)
-            new_journal.sequence = request.press.next_journal_order()
-            new_journal.save()
-            call_command('install_plugins')
-            install.update_license(new_journal)
-            install.update_issue_types(new_journal)
-            new_journal.setup_directory()
-            return redirect("{0}?journal={1}".format(reverse('core_edit_settings_group', kwargs={'group': 'journal'}),
-                                                     new_journal.pk))
+        if request.POST:
+            form = journal_forms.JournalForm(request.POST)
+            modal = 'new_journal'
+            if form.is_valid():
+                new_journal = form.save(request=request)
+                new_journal.sequence = request.press.next_journal_order()
+                new_journal.save()
+                call_command('install_plugins')
+                install.update_license(new_journal)
+                install.update_issue_types(new_journal)
+                new_journal.setup_directory()
+                return redirect(
+                    new_journal.site_url(
+                        path=reverse(
+                            'core_edit_settings_group',
+                            kwargs={
+                                'group': 'journal',
+                            }
+                        )
+                    )
+                )
 
     template = 'press/press_manager_index.html'
     context = {
@@ -165,7 +177,8 @@ def manager_index(request):
             stage=submission_models.STAGE_PUBLISHED
         ).select_related('journal')[:50],
         'version': version,
-        'repositories': models.Repository.objects.all()
+        'repositories': models.Repository.objects.all(),
+        'url_config': settings.URL_CONFIG,
     }
 
     return render(request, template, context)
@@ -293,3 +306,39 @@ def journal_domain(request, journal_id):
     }
 
     return render(request, template, context)
+
+
+@staff_member_required
+def merge_users(request):
+    users = core_models.Account.objects.all()
+    if request.POST:
+        from_id = request.POST["from"]
+        to_id = request.POST["to"]
+        if from_id == to_id:
+            messages.add_message(
+                request, messages.ERROR,
+                "Can't merge a user with itself",
+            )
+            return redirect(reverse('merge_users'))
+
+        try:
+            from_acc = core_models.Account.objects.get(id=from_id)
+            to_acc = core_models.Account.objects.get(id=to_id)
+        except core_models.Account.DoesNotExist:
+            messages.add_message(
+                request, messages.ERROR,
+                "Can't find users with ids %d, %d" % (from_id, to_id),
+            )
+        merge_models(from_acc, to_acc)
+        messages.add_message(
+            request, messages.INFO,
+            "Merged %s into %s" % (from_acc.username, to_acc.username),
+        )
+        return redirect(reverse('merge_users'))
+
+    template = "press/merge_users.html"
+    context = {
+        'users': users,
+    }
+    return render(request, template, context)
+

@@ -3,6 +3,7 @@
 
 {% block title %}Edit Assignment{% endblock %}
 {% block title-section %}Edit Assignment{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

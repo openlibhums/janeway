@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from core.models import SettingGroup
 from utils.testing import helpers
@@ -49,11 +49,10 @@ class TestSettingHandler(TestCase):
                 journal=self.journal_one,
                 value=setting_value
         )
-        with helpers.activate_translation("es"):
+        with helpers.activate_translation("cy"):
             result = setting_handler.get_setting(
                     "test_group", "test_get_setting",
                     journal=self.journal_one,
-                    fallback=True,
             )
         self.assertEqual(result.value, setting_value)
 
@@ -75,7 +74,6 @@ class TestSettingHandler(TestCase):
         result = setting_handler.get_setting(
                 "test_group", setting_name,
                 journal=self.journal_one,
-                fallback=True,
         )
         self.assertEqual(result.value, setting_value)
 
@@ -94,15 +92,14 @@ class TestSettingHandler(TestCase):
                 journal=None,
                 value=setting_value
         )
-        with helpers.activate_translation("es"):
+        with helpers.activate_translation("cy"):
             result = setting_handler.get_setting(
                     "test_group", setting_name,
                     journal=self.journal_one,
-                    fallback=True,
             )
         self.assertEqual(result.value, setting_value)
 
-    @helpers.activate_translation("es")
+    @helpers.activate_translation("cy")
     def test_get_journal_setting_with_language(self):
         setting_name = "test_get_setting_with_language"
         setting_value = "plátano"
@@ -145,11 +142,12 @@ class TestSettingHandler(TestCase):
         )
         self.assertEqual(result.value, setting_value)
 
-    @helpers.activate_translation("es")
+    @override_settings(USE_I18N=True)
+    @helpers.activate_translation("cy")
     def test_save_translated_setting_without_default_lang(self):
         setting_name = "test_save_translated_setting_without_default_lang"
         setting_value = "plátano"
-        expected_result = ""
+        expected_result = None
         setting = setting_handler.create_setting(
                 "test_group", setting_name,
                 type="text",
@@ -169,6 +167,7 @@ class TestSettingHandler(TestCase):
             )
         self.assertEqual(result.value, expected_result)
 
+    @override_settings(USE_I18N=True)
     def test_save_translated_setting_with_default_lang(self):
         setting_name = "test_save_translated_setting_with_default_lang"
         setting_value = "banana"
@@ -187,7 +186,7 @@ class TestSettingHandler(TestCase):
                 value=setting_value,
         )
         #Save the translated value
-        with helpers.activate_translation("es"):
+        with helpers.activate_translation("cy"):
             setting_handler.save_setting(
                     "test_group", setting_name,
                     journal=self.journal_one,
@@ -197,7 +196,7 @@ class TestSettingHandler(TestCase):
                 "test_group", setting_name,
                 journal=self.journal_one,
         ).value
-        with helpers.activate_translation("es"):
+        with helpers.activate_translation("cy"):
             xl_result = setting_handler.get_setting(
                     "test_group", setting_name,
                     journal=self.journal_one,
@@ -206,6 +205,7 @@ class TestSettingHandler(TestCase):
         self.assertEqual(result, setting_value)
         self.assertEqual(xl_result, xl_setting_value)
 
+    @override_settings(USE_I18N=True)
     def test_update_translated_setting_with_default_lang(self):
         setting_name = "test_update_translated_setting_with_default_lang"
         setting_value = "banana"
@@ -225,7 +225,7 @@ class TestSettingHandler(TestCase):
         )
         #Save  a wrongly translated value
         wrong_translation = xl_setting_value + "mal"
-        with helpers.activate_translation("es"):
+        with helpers.activate_translation("cy"):
             setting_handler.save_setting(
                     "test_group", setting_name,
                     journal=self.journal_one,
@@ -243,7 +243,7 @@ class TestSettingHandler(TestCase):
                 "test_group", setting_name,
                 journal=self.journal_one,
         ).value
-        with helpers.activate_translation("es"):
+        with helpers.activate_translation("cy"):
             xl_result = setting_handler.get_setting(
                     "test_group", setting_name,
                     journal=self.journal_one,

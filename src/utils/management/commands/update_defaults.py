@@ -30,9 +30,9 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', default=None)
-        parser.add_argument('group_name', nargs='?', default=None)
-        parser.add_argument('setting_name', nargs='?', default=None)
+        parser.add_argument('--journal_code', default=None)
+        parser.add_argument('--group_name', nargs='?', default=None)
+        parser.add_argument('--setting_name', nargs='?', default=None)
 
     def handle(self, *args, **options):
         """Synchronizes settings to journals.
@@ -46,23 +46,24 @@ class Command(BaseCommand):
         group_name = options.get('group_name', None)
         setting_name = options.get('setting_name', None)
 
-        print(journal_code, group_name, setting_name)
-
-        journal, setting = journal_models.Journal.objects.get(code=journal_code), None
+        if journal_code:
+            journal = journal_models.Journal.objects.get_or(code=journal_code)
+        else:
+            journal = None
 
         if not group_name and not setting_name:
-            setting_list = core_models.SettingValue.objects.language('en').filter(
+            setting_list = core_models.SettingValue.objects.filter(
                 journal=journal
             )
 
         if group_name:
-            setting_list = core_models.SettingValue.objects.language('en').filter(
+            setting_list = core_models.SettingValue.objects.filter(
                 setting__group__name=group_name,
                 journal=journal
             )
 
         if setting_name:
-            setting_list = core_models.SettingValue.objects.language('en').filter(
+            setting_list = core_models.SettingValue.objects.filter(
                 setting__group__name=group_name,
                 setting__name=setting_name,
                 journal=journal

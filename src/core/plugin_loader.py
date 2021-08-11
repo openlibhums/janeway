@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
 
-from core.workflow import ELEMENT_STAGES
+from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
 from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
 from utils.logic import get_janeway_version
@@ -55,6 +55,9 @@ def load(directory="plugins", prefix="plugins", permissive=False):
                 ELEMENT_STAGES[
                     plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
 
+                STAGES_ELEMENTS[
+                    plugin_settings.STAGE] = plugin_settings.PLUGIN_NAME
+
             # Call event registry
             register_for_events(plugin_settings)
 
@@ -79,7 +82,7 @@ def load(directory="plugins", prefix="plugins", permissive=False):
 def validate_plugin_version(plugin_settings):
     valid = None
     try:
-        wants_version  = plugin_settings.JANEWAY_VERSION.split(".")
+        wants_version = plugin_settings.JANEWAY_VERSION.split(".")
     except AttributeError:
         # No MIN version pinned by plugin
         return
@@ -95,7 +98,7 @@ def validate_plugin_version(plugin_settings):
             valid = False
             break
 
-    if valid is None: #Handle exact match
+    if valid is None:  # Handle exact match
         valid = True
 
     if not valid:
@@ -104,6 +107,7 @@ def validate_plugin_version(plugin_settings):
                 plugin_settings.PLUGIN_NAME, current_version, wants_version
             )
         )
+
 
 def get_plugin(module_name, permissive):
     # Check that the module is installed.

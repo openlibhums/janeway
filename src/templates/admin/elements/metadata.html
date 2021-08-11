@@ -3,9 +3,10 @@
 {% load static from staticfiles %}
 
 {% user_has_role request 'editor' as user_is_editor %}
+{% user_has_role request 'section-editor' as user_is_section_editor %}
 {% user_has_role request 'production' as user_is_production %}
 
-{% if user_is_editor or user_is_production %}
+{% if user_is_editor or user_is_production or user_is_section_editor %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
             class="fa fa-edit">&nbsp;</i>Edit</a>
 {% endif %}
@@ -65,7 +66,7 @@
         <th colspan="4">Comments to Editor</th>
     </tr>
     <tr>
-        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor }}{% else %}No comments{% endif %}
+        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor|linebreaksbr }}{% else %}No comments{% endif %}
         </td>
     </tr>
     {% if journal_settings.general.submission_competing_interests %}
@@ -82,7 +83,7 @@
             <th colspan="4">{{ field_answer.field.name }}</th>
         </tr>
         <tr>
-            <td colspan="4">{{ field_answer.answer }}</td>
+            <td colspan="4">{{ field_answer.answer|safe }}</td>
         </tr>
     {% endfor %}
 
@@ -195,6 +196,7 @@
 
 <div class="title-area">
     <h2>Identifiers</h2>
+    <a class="button" href="{% url 'edit_identifiers' article.pk %}" target="_blank"><i class="fa fa-edit">&nbsp;</i>Edit</a>
 </div>
 {% setting_var request.journal 'use_crossref' as use_crossref %}
 <div class="content">
@@ -231,9 +233,9 @@
                         {% endfor %}
                     </td>
                 {% else %}
-                    <td>Example DOI Based on Pattern</td>
-                    <td>{{ article.render_sample_doi }}</td>
-                    <td></td>
+                    <td>DOI</td>
+                    <td><span class="fa fa-exclamation-triangle"> Article has no DOI</span></td>
+                    <td><a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a></td>
                 {% endif %}
                 {% endwith %}
             </tr>

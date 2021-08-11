@@ -1,0 +1,55 @@
+<p>Settings for Submission are split across three interfaces.</p>
+<p>
+    <ul>
+        <li><a href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a></li>
+        <li><a href="{% url 'submission_configurator' %}">Submission Fields Configurator</a></li>
+        <li><a href="{% url 'submission_fields' %}">Additional Submission Fields</a></li>
+    </ul>
+</p>
+
+<div class="title-area">
+    <h2>Submission Control</h2>
+</div>
+<div class="content">
+    <p>At any time you can disable new submissions using the checkbox below. This will remove links to the submission system across the platform.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.disable_journal_submission %}
+</div>
+
+{% include "admin/elements/forms/table_multi_select_user.html" with field=edit_form.editors_for_notification queryset=request.journal.editors %}
+
+<div class="title-area">
+    <h2>System Settings</h2>
+</div>
+<div class="content">
+    {% include "admin/elements/forms/field.html" with field=edit_form.abstract_required %}
+    {% include "admin/elements/forms/field.html" with field=attr_form.enable_correspondence_authors %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.user_automatically_author %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_competing_interests %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_summary %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.copyright_submission_label %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_summary %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_competing_interests %}
+</div>
+
+<div class="title-area">
+    <h2>Text</h2>
+</div>
+<div class="content">
+    <p>{% trans 'The text below make up the Submission page as well as the Submission Agreement that authors accept.' %}</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_intro_text %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_about_on_submissions %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.focus_and_scope %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.submission_checklist %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.copyright_notice %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.publication_fees %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.publication_cycle %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.peer_review_info %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.acceptance_criteria %}
+</div>
+
+<div class="title-area">
+    <h2>Files</h2>
+</div>
+<div class="content">
+    {% include "admin/elements/forms/field.html" with field=edit_form.limit_manuscript_types %}
+</div>

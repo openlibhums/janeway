@@ -1,0 +1,14 @@
+{% if workflow_element_url %}
+    <div class="large-12 columns end" data-equalizer-watch>
+        <div class="box">
+            <div class="bs-callout bs-callout-danger">
+                {% if workflow_element_url == 'no_stage' %}
+                    <p>The selected article has no Stage. Please contact a journal manager to have this issue
+                        resolved.</p>
+                {% else %}
+                    <p>The selected article has no element. Please report this server error to your administrator.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}

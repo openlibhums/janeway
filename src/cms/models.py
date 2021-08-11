@@ -12,15 +12,23 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils.logic import build_url_for_request
 
+
 class Page(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
-    name = models.CharField(max_length=300, help_text="Page name displayed in the URL bar eg. about or contact")
-    display_name = models.CharField(max_length=100, help_text='Name of the page, max 100 chars, displayed '
-                                                              'in the nav and on the header of the page eg. '
-                                                              'About or Contact')
+    name = models.CharField(
+        max_length=300,
+        help_text="Page name displayed in the URL bar eg. about or contact",
+        verbose_name="URL Name"
+    )
+    display_name = models.CharField(
+        max_length=100,
+        help_text='Name of the page, max 100 chars, displayed '
+                  'in the nav and on the header of the page eg. '
+                  'About or Contact',
+    )
     content = models.TextField(null=True, blank=True)
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
@@ -67,14 +75,14 @@ class NavigationItem(models.Model):
         """
 
         defaults = {
-            "link_name": issue_type.plural_name,
             "link": "/collections/%s" % (issue_type.code),
         }
         content_type = ContentType.objects.get_for_model(issue_type.journal)
 
         nav, created = cls.objects.get_or_create(
             content_type=content_type,
-            object_id=issue_type.pk,
+            object_id=issue_type.journal.pk,
+            link_name=issue_type.plural_name,
             defaults=defaults,
         )
 
@@ -82,16 +90,47 @@ class NavigationItem(models.Model):
             nav.delete()
 
     @classmethod
-    def get_content_nav_for_journal(cls, journal):
+    def get_issue_types_for_nav(cls, journal):
         for issue_type in journal.issuetype_set.filter(
             ~Q(code="issue") # Issues have their own navigation
         ):
-            try:
-                content_type = ContentType.objects.get_for_model(
-                    issue_type.journal)
-                yield issue_type, cls.objects.get(
-                    content_type=content_type,
-                    object_id=issue_type.pk,
-                )
-            except cls.DoesNotExist:
-                yield issue_type, None
+            content_type = ContentType.objects.get_for_model(
+                issue_type.journal)
+            if not cls.objects.filter(
+                content_type=content_type,
+                object_id=issue_type.journal.pk,
+                link_name=issue_type.plural_name,
+            ).exists():
+                yield issue_type
+
+
+class SubmissionItem(models.Model):
+    """
+    Model containing information to render the Submission page.
+    SubmissionItems is registered for translation in cms.translation.
+    """
+    journal = models.ForeignKey('journal.Journal')
+    title = models.CharField(max_length=255)
+    text = models.TextField(blank=True, null=True)
+    order = models.IntegerField(default=99)
+    existing_setting = models.ForeignKey('core.Setting', blank=True, null=True)
+
+    class Meta:
+        ordering = ('order', 'title')
+        unique_together = (('journal', 'existing_setting'), ('journal', 'title'))
+
+    def get_display_text(self):
+        if self.existing_setting:
+            return self.journal.get_setting(
+                self.existing_setting.group.name,
+                self.existing_setting.name,
+            )
+        else:
+            return self.text
+
+    def __str__(self):
+        return "{journal} {title} - {setting}".format(
+            journal=self.journal,
+            title=self.title,
+            setting=self.existing_setting,
+        )

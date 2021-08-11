@@ -1,0 +1,66 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}Sections{% endblock title %}
+{% block title-section %}Sections{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_sections' %}">Sections</a></li>
+    <li>{% if section %}{% trans 'Editing Section' %}: {{ section.name }}{% else %}{% trans 'Add a Section' %}{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% if section %}{% trans 'Editing Section' %}: {{ section.name }}{% else %}{% trans 'Add a Section' %}{% endif %}</h2>
+            </div>
+            <div class="content">
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        {% include "admin/elements/translations/form_tabs.html" with object=section %}
+                    </div>
+                </div>
+                <form method="POST">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">{% if section %}Edit{% else %}Add{% endif %} Section</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'core_editorial_ordering' 'sections' %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                if (!confirm("Are you sure you want to delete this section?")) {
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock js %}

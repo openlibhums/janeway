@@ -9,8 +9,7 @@ import codecs
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management import call_command
-from django.utils.translation import get_language
+from django.utils import translation
 
 from core import models as core_models
 from utils import models
@@ -19,260 +18,238 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def create_setting(setting_group, setting_name, type, pretty_name, description, is_translatable=True):
-    group = core_models.SettingGroup.objects.get(name=setting_group)
-    new_setting, created = core_models.Setting.objects.get_or_create(
-        group=group,
-        name=setting_name,
-        defaults={'types': type, 'pretty_name': pretty_name, 'description': description,
-                  'is_translatable': is_translatable}
-    )
-
-    return new_setting
-
-
-def get_setting(
-        setting_group, setting_name,
-        journal=None,
-        create=False,
-        fallback=True,
-        default=True,
+def create_setting(
+        setting_group_name,
+        setting_name,
+        type,
+        pretty_name,
+        description,
+        is_translatable=True,
+        default_value=None,
 ):
-    """ Returns a matching SettingValue for the language in context
+    # If the setting is translatable use current lang, else use the default.
+    lang = translation.get_language() if not is_translatable else settings.LANGUAGE_CODE
 
-    It no journal is passed it returns the default setting directly. If
-    fallback or default are True, it will attempt to returnthe base language
-    and/or the default value respectively (in that order)
-    :setting_group: (str) The group__name of the Setting
-    :setting_name: (str) The name of the Setting
-    :journal: (Journal object) The journal for which this setting is relevant.
-        If None, returns the default value
-    :create: If True, a journal override will be created if one is not present
-    :fallback: If True, it will attempt to return the value for the base
-        language when no value is available for the current language
-    :default: If True, returns the default SettingValue when no journal specific
-        value is present
-    """
-    setting = core_models.Setting.objects.get(name=setting_name)
-    lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
-    try:
-        return _get_setting(
-            setting_group, setting, journal, lang, create, fallback, default)
-    except Exception as e:
-        logger.critical(
-                "Failed to load setting for context:\n"
-                "setting_name: {0},\n"
-                "journal: {1},\n"
-                "fallback: {2},\n"
-                "request language: {3},\n"
-                "settings language: {4},\n"
-                "".format(
-                    setting_name, journal, fallback,
-                    lang, settings.LANGUAGE_CODE
-                )
+    with translation.override(lang):
+        group, c = core_models.SettingGroup.objects.get_or_create(
+            name=setting_group_name,
+        )
+        new_setting, created = core_models.Setting.objects.get_or_create(
+            group=group,
+            name=setting_name,
+            defaults={
+                'types': type,
+                'pretty_name': pretty_name,
+                'description': description,
+                'is_translatable': is_translatable,
+            }
+        )
+
+        if created and default_value:
+            core_models.SettingValue.objects.get_or_create(
+                setting=new_setting,
+                value=default_value,
             )
-        raise e
+
+        return new_setting
 
 
-def get_requestless_setting(setting_group, setting, journal):
-    lang = settings.LANGUAGE_CODE
-    setting = core_models.Setting.objects.get(name=setting)
-    setting = core_models.SettingValue.objects.language(lang).get(
-        setting__group__name=setting_group,
+def get_or_create_default_setting(setting, default_value):
+    """
+    Creates a setting linked to no journals, this is the default returned by
+    get_setting.
+    """
+    setting, c = core_models.SettingValue.objects.get_or_create(
         setting=setting,
-        journal=journal
+        value=default_value,
+        journal=None,
     )
 
     return setting
 
 
-def _get_setting(
-        setting_group,
-        setting,
+def get_setting(
+        setting_group_name,
+        setting_name,
         journal,
-        lang,
         create=False,
-        fallback=True,
         default=True,
 ):
-    if fallback:
-        _fallback = settings.LANGUAGE_CODE
-    else:
-        _fallback = None # deactivates fallback
+    """
+    Returns a matching SettingValue for the current language.
 
-    try:
-        return core_models.SettingValue.objects \
-            .language(lang) \
-            .fallbacks(_fallback) \
-            .get(
-                setting__group__name=setting_group,
+    If not journal is passed it returns the default setting directly. If
+    default is True it will attempt t return the base language or the default value
+    (in that order).
+    :setting_group: (str) The group__name of the Setting
+    :setting_name: (str) The name of the Setting
+    :journal: (Journal object) The journal for which this setting is relevant.
+        If None, returns the default value
+    :create: If True, a journal override will be created if one is not present
+    :default: If True, returns the default SettingValue when no journal specific
+        value is present
+    """
+    setting = core_models.Setting.objects.get(
+        name=setting_name,
+        group__name=setting_group_name,
+    )
+    lang = translation.get_language() if not setting.is_translatable else settings.LANGUAGE_CODE
+
+    with translation.override(lang):
+        try:
+            return core_models.SettingValue.objects.get(
+                setting__group__name=setting_group_name,
                 setting=setting,
                 journal=journal,
-        )
-    except ObjectDoesNotExist:
-        if journal is not None:
-            if create:
-                logger.warning(
-                    "Passing 'create' to get_setting has been deprecated in "
-                    "in favour of returning the default value"
-                )
-            if default or create:
-                # return press wide setting
-                journal = None
-                return _get_setting(
-                        setting_group, setting, journal,
-                        lang, create, fallback,
-                )
-            else:
-                return None
-        else:
-            raise
-
-
-def save_setting(setting_group, setting_name, journal, value):
-    setting = core_models.Setting.objects.get(name=setting_name)
-    lang = get_language() if setting.is_translatable else settings.LANGUAGE_CODE
-
-    setting_value, created = core_models.SettingValue.objects \
-        .language(settings.LANGUAGE_CODE) \
-        .get_or_create(
-            setting__group=setting.group,
-            setting=setting,
-            journal=journal
-    )
-
-    if created:
-        # Ensure that a value exists for settings.LANGUAGE_CODE
-        setting_value.value = ""
-        setting_value.save()
-
-    if (
-        setting_value.setting.is_translatable
-        and lang != settings.LANGUAGE_CODE
-    ):
-        try:
-            setting_value = setting_value.translations.get_language(lang)
-        except ObjectDoesNotExist:
-            setting_value = setting_value.translate(lang)
-
-    if setting.types == 'json':
-        value = json.dumps(value)
-
-    if setting.types == 'boolean':
-        value = 'on' if value else ''
-
-    setting_value.value = value
-
-    setting_value.save()
-
-    return setting_value
-
-
-def save_plugin_setting(plugin, setting_name, value, journal):
-    setting = models.PluginSetting.objects.get(name=setting_name)
-    lang = get_language() or settings.LANGUAGE_CODE
-    lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
-
-    setting_value, created = models.PluginSettingValue.objects.language(lang).get_or_create(
-        setting__plugin=plugin,
-        setting=setting,
-        journal=journal
-    )
-
-    if setting.types == 'json':
-        value = json.dumps(value)
-
-    if setting.types == 'boolean':
-        value = 'on' if value else ''
-
-    setting_value.value = value
-
-    setting_value.save()
-
-    return setting_value
-
-
-def get_plugin_setting(plugin, setting_name, journal, create=False, pretty='', fallback='', types='Text'):
-    lang = get_language() or settings.LANGUAGE_CODE
-    try:
-        try:
-            setting = models.PluginSetting.objects.get(name=setting_name, plugin=plugin)
-            lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
-            return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
-        except models.PluginSetting.DoesNotExist:
-            # Some Plugins rely on this function to install themselves
-            logger.warning(
-                "PluginSetting %s for plugin %s was not present, "
-                "was the plugin installed correctly?"
-                "" % (setting_name, plugin)
             )
-            if create:
-                setting, created = models.PluginSetting.objects.get_or_create(
-                    name=setting_name,
-                    plugin=plugin,
-                    types=types,
-                    defaults={'pretty_name': pretty, 'types': types}
-                )
-
-                if created:
-                    save_plugin_setting(plugin, setting_name, ' ', journal)
-                lang = lang if setting.is_translatable else settings.LANGUAGE_CODE
-                return _get_plugin_setting(plugin, setting, journal, lang, create, fallback)
+        except ObjectDoesNotExist:
+            if journal is not None:
+                if create:
+                    logger.warning(
+                        "Passing 'create' to get_setting has been deprecated in "
+                        "in favour of returning the default value"
+                    )
+                if default or create:
+                    # return press wide setting
+                    journal = None
+                    return get_setting(
+                        setting_group_name,
+                        setting,
+                        journal,
+                        create,
+                    )
+                else:
+                    return None
             else:
                 raise
 
-    except Exception as e:
-        logger.critical(
-                "Failed to load plugin setting for context:\n"
-                "plugin: {0},\n"
-                "setting_name: {1},\n"
-                "journal: {2},\n"
-                "fallback: {3},\n"
-                "request language: {4},\n"
-                "settings language: {5},\n"
-                "".format(
-                    plugin, setting_name, journal,
-                    fallback, lang, settings.LANGUAGE_CODE
-                )
+
+def get_requestless_setting(setting_group, setting, journal):
+    logger.warning(
+        "Function get_requestless_setting is deprecated in v1.4 "
+        "as ModelTranslations does not require a request/response cycle."
+    )
+    return get_setting(
+        setting_group,
+        setting,
+        journal,
+    )
+
+
+def save_setting(setting_group_name, setting_name, journal, value):
+    setting = core_models.Setting.objects.get(
+        name=setting_name,
+        group__name=setting_group_name,
+    )
+    lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
+
+    with translation.override(lang):
+        setting_value, created = core_models.SettingValue.objects \
+            .get_or_create(
+                setting__group=setting.group,
+                setting=setting,
+                journal=journal
+        )
+
+        if created:
+            # Ensure that a value exists for settings.LANGUAGE_CODE
+            setattr(setting, 'value_{0}'.format(settings.LANGUAGE_CODE), '')
+            setting_value.save()
+
+        if setting.types == 'json':
+            value = json.dumps(value)
+
+        if setting.types == 'boolean':
+            value = 'on' if value else ''
+
+        setting_value.value = value
+        setting_value.save()
+
+        return setting_value
+
+
+def save_plugin_setting(plugin, setting_name, value, journal):
+    logger.warning(
+        "PluginSettings and PluginSettingValues are deprecated as of 1.4",
+    )
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    setting = save_setting(
+        setting_group_name=plugin_group_name,
+        setting_name=setting_name,
+        journal=journal,
+        value=value,
+    )
+    return setting
+
+
+def get_plugin_setting(
+        plugin,
+        setting_name,
+        journal,
+        create=False,
+        pretty='',
+        types='Text,'
+):
+    logger.warning(
+        "PluginSettings and PluginSettingValues are deprecated as of 1.4",
+    )
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    try:
+        return get_setting(
+            setting_group_name=plugin_group_name,
+            setting_name=setting_name,
+            journal=journal,
+            create=False,
+            default=True,
+        )
+    except core_models.Setting.DoesNotExist as e:
+        if create:
+            setting = create_setting(
+                setting_group_name=plugin_group_name,
+                setting_name=setting_name,
+                type=types,
+                pretty_name=pretty,
+                description='',
+                is_translatable=False,
             )
+
+            return setting
+
+    except core_models.Setting.MultipleObjectsReturned as e:
+        logger.error("Found multiple {}".format(setting_name, plugin_group_name))
+
         raise e
 
 
-def _get_plugin_setting(plugin, setting, journal, lang, create, fallback):
-    try:
-        setting = models.PluginSettingValue.objects.language(lang).get(
-            setting__plugin=plugin,
-            setting=setting,
-            journal=journal
-        )
-        return setting
-    except models.PluginSettingValue.DoesNotExist:
-        if lang == settings.LANGUAGE_CODE:
-            if create:
-                return save_plugin_setting(plugin, setting.name, '', journal)
-            else:
-                raise IndexError('Plugin setting does not exist and will not be created.')
-        else:
-            # Switch get the setting and start a translation
-            setting = models.PluginSettingValue.objects.language(settings.LANGUAGE_CODE).get(
-                setting__plugin=plugin,
-                setting=setting,
-                journal=journal
-            )
-
-            if not fallback:
-                setting.translate(lang)
-            return setting
-
-
-def get_email_subject_setting(setting_group, setting_name, journal, create=False, fallback=False):
+def get_email_subject_setting(
+        setting_group,
+        setting_name,
+        journal,
+        create=False,
+):
     try:
         setting = core_models.Setting.objects.get(name=setting_name)
-        lang = get_language() if setting.is_translatable else 'en'
+        lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
 
-        return _get_setting(setting_group, setting, journal, lang, create, fallback).value
+        return get_setting(setting_group, setting, journal, lang, create).value
     except core_models.Setting.DoesNotExist:
         return setting_name
+
+
+def toggle_boolean_setting(setting_name, setting_group_name, journal):
+    setting_value = get_setting(
+        setting_group_name,
+        setting_name,
+        journal,
+    )
+
+    if setting_value.setting.types == "boolean":
+        save_setting(
+            setting_group_name=setting_group_name,
+            setting_name=setting_name,
+            journal=journal,
+            value=False if setting_value.processed_value else True,
+        )
 
 
 def fetch_defaults_value(setting):

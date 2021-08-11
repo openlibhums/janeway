@@ -6,7 +6,7 @@
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
-{% block title-sub %}{{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block body %}
     {% user_has_role request 'editor' as is_editor %}
@@ -60,7 +60,7 @@
                         <th colspan="4">Comments to Editor</th>
                     </tr>
                     <tr>
-                        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor }}{% else %}No
+                        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor|linebreaksbr }}{% else %}No
                             comments{% endif %}</td>
                     </tr>
                     {% if journal_settings.general.submission_competing_interests %}
@@ -78,7 +78,7 @@
                             <th colspan="4">{{ field_answer.field.name }}</th>
                         </tr>
                         <tr>
-                            <td colspan="4">{{ field_answer.answer }}</td>
+                            <td colspan="4">{{ field_answer.answer|safe }}</td>
                         </tr>
                     {% endfor %}
                 </table>

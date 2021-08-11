@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import url(https://fonts.googleapis.com/css?family=Merriweather:400,300,700);
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 /**
  * Foundation for Sites by ZURB
  * Version 6.3.0
@@ -579,7 +579,7 @@ body {
   margin: 0;
   padding: 0;
   background: #f5f6f9;
-  font-family: "Merriweather", serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 300;
   line-height: 1.5;
   color: #0a0a0a;
@@ -2235,7 +2235,8 @@ select {
     margin: 0;
     margin-right: 1px;
     margin-bottom: 1px;
-    font-size: 0.9rem; }
+    font-size: 0.9rem;
+    border-radius: 0;}
     .button-group .button:last-child {
       margin-right: 0; }
   .button-group.tiny .button {
@@ -3725,7 +3726,7 @@ table.scroll {
   overflow-x: auto;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   table.scroll {
     display: block;
     width: 100%;
@@ -3855,8 +3856,7 @@ a.thumbnail {
   position: relative;
   display: inline-block;
   border-bottom: dotted 1px #5b5e61;
-  font-weight: bold;
-  cursor: help; }
+  font-weight: bold;}
 
 .tooltip {
   position: absolute;
@@ -5156,4 +5156,8 @@ ul.actions li a {
 /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
 .active {
   display: block;
+}
+.padded-group-item {
+  padding-top: 20px;
+  padding-bottom: 20px;
 }

@@ -58,9 +58,6 @@
 
     <div class="row expanded">
         <div class="large-12 columns">
-            {% if article.pk %}
-                {% include "elements/article_jump.html" %}
-            {% endif %}
             <nav aria-label="You are here:" role="navigation">
                 <ul class="breadcrumbs">
                     {% block breadcrumbs %}
@@ -69,7 +66,9 @@
                     {% endblock breadcrumbs %}
                 </ul>
             </nav>
-
+            {% if article.pk %}
+                {% include "admin/elements/article_jump.html" %}
+            {% endif %}
         </div>
     </div>
 

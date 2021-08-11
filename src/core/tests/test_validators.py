@@ -41,3 +41,19 @@ class TestValidators(TestCase):
 
         with self.assertRaises(ValidationError):
             validator(file_)
+
+    def test_invalid_email_setting(self):
+        test_value = "{% if val %} This template is missing an endif"
+        with self.assertRaises(ValidationError):
+            validators.validate_email_setting(test_value)
+
+    def test_valid_email_setting(self):
+        test_value = "{% if val %} This template is valid {% endif %}"
+        try:
+            validators.validate_email_setting(test_value)
+        except ValidationError as e:
+            error = error
+        else:
+            error = None
+        self.assertIsNone(error)
+

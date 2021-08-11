@@ -526,8 +526,17 @@ def preview_galley(request, proofing_task_id, galley_id):
     proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
 
+    article_content = ""
     if galley.type == 'xml' or galley.type == 'html':
         template = 'proofing/preview/rendered.html'
+        try:
+            article_content = galley.file_content()
+        except Exception as e:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Errors found rendering this galley',
+            )
     elif galley.type == 'epub':
         template = 'proofing/preview/epub.html'
     else:
@@ -536,7 +545,8 @@ def preview_galley(request, proofing_task_id, galley_id):
     context = {
         'proofing_task': proofing_task,
         'galley': galley,
-        'article': proofing_task.round.assignment.article
+        'article': proofing_task.round.assignment.article,
+        'article_content': article_content,
     }
 
     return render(request, template, context)
@@ -665,7 +675,11 @@ def typesetting_corrections(request, typeset_task_id):
             typeset_task.save()
 
             kwargs = {'article': article, 'typeset_task': typeset_task, 'request': request}
-            event_logic.Events.raise_event(event_logic.Events.ON_CORRECTIONS_COMPLETE, task_object=article, **kwargs)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_CORRECTIONS_COMPLETE,
+                task_object=article,
+                **kwargs,
+            )
 
             messages.add_message(request, messages.INFO, 'Corrections task complete')
             return redirect(reverse('proofing_correction_requests'))

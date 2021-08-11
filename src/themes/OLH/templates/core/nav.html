@@ -4,8 +4,8 @@
 
 <div class="top-bar" id="main-menu" style="display: block;">
     <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
-        {% if request.journal.nav_home %}<li><a href="{% url 'website_index' %}">Home</a></li>{% endif %}
-        {% if request.journal.nav_news %}<li><a href="{% url 'core_news_list' %}">News</a></li>{% endif %}
+        {% if request.journal.nav_home %}<li><a href="{% url 'website_index' %}">{% trans 'Home' %}</a></li>{% endif %}
+        {% if request.journal.nav_news %}<li><a href="{% url 'core_news_list' %}">{% trans 'News' %}</a></li>{% endif %}
         {% for item in navigation_items %}
         {% if item.has_sub_nav %}
             <li class=".is-dropdown-submenu-parent"><a href="#"
@@ -21,12 +21,12 @@
             <li><a href="{{ item.url }}">{{ item.link_name }}</a></li>
         {% endif %}
         {% endfor %}
-        {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">Articles</a></li>{% endif %}
-        {% if request.journal.nav_issues %}<li><a href="{% url 'journal_issues' %}">Issues</a></li>{% endif %}
+        {% if request.journal.nav_articles %}<li><a href="{% url 'journal_articles' %}">{% trans 'Articles' %}</a></li>{% endif %}
+        {% if request.journal.nav_issues %}<li><a href="{% url 'journal_issues' %}">{% trans 'Issues' %}</a></li>{% endif %}
         {% if journal_settings.general.enable_editorial_display %}
             {% if journal_settings.general.multi_page_editorial %}
             <li class=".is-dropdown-submenu-parent">
-                <a href="#" data-options="is_hover:true; hover_timeout:5000">Editorial Team</a>
+                <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Editorial Team' %}</a>
                 <ul class="menu vertical medium-horizontal">
                     {% for group in request.journal.editorial_groups %}
                     <li><a href="{% url 'editorial_team_group' group.pk %}">{{ group.name }}</a></li>
@@ -34,45 +34,44 @@
                 </ul>
             </li>
             {% else %}
-            <li><a href="{% url 'editorial_team' %}">Editorial Team</a></li>
+            <li><a href="{% url 'editorial_team' %}">{% trans 'Editorial Team' %}</a></li>
             {% endif %}
         {% endif %}
-        {% if request.journal.nav_sub and not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'journal_submissions' %}">Submission</a></li>{% endif %}
-        {% if request.journal.nav_contact %}<li><a href="{% url 'contact' %}">Contact</a></li>{% endif %}
+        {% if request.journal.nav_sub and not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'journal_submissions' %}">{% trans 'Submission' %}</a></li>{% endif %}
+        {% if request.journal.nav_contact %}<li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>{% endif %}
         {% hook 'nav_block' %}
-        {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission  %}<li><a href="{% url 'submission_start' %}" class="button"><i class="fa fa-cloud-upload"></i> Start Submission</a></li>{% endif %}
-        {% if request.journal.nav_review %}<li><a href="{% url 'become_reviewer' %}" class="button"><i class="fa fa-trophy"></i> Become a Reviewer</a></li>{% endif %}
+        {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission  %}<li><a href="{% url 'submission_start' %}" class="button"><i class="fa fa-cloud-upload"></i> {% trans 'Start Submission' %}</a></li>{% endif %}
+        {% if request.journal.nav_review %}<li><a href="{% url 'become_reviewer' %}" class="button"><i class="fa fa-trophy"></i> {% trans 'Become a Reviewer' %}</a></li>{% endif %}
 
         <li class=".is-dropdown-submenu-parent show-for-small-only">
-            <a href="#" data-options="is_hover:true; hover_timeout:5000">Account</a>
+            <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Account' %}</a>
             <ul class="menu vertical medium-horizontal">
                 {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'core_dashboard' %}">{% trans 'Dashboard' %}</a></li>
                     <li class="divider"></li>
-                    {% if not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'submission_start' %}">Submit</a></li>{% endif %}
+                    {% if not journal_settings.general.disable_journal_submission %}<li><a href="{% url 'submission_start' %}">{% trans 'Submit' %}</a></li>{% endif %}
                     {% user_has_role request 'editor' as user_is_editor %}
                     {% if user_is_editor or request.user.is_staff%}
                         <li class="divider"></li>
-                        <li><a href="{% url 'kanban' %}">Kanban</a></li>
-                        <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+                        <li><a href="{% url 'kanban' %}">{% trans 'Kanban' %}</a></li>
+                        <li><a href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a></li>
                         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' and article %}
-                            <li><a href="{% url 'manage_archive_article' article.pk %}">Edit Article</a></li>
+                            <li><a href="{% url 'manage_archive_article' article.pk %}">{% trans 'Edit Article' %}</a></li>
                         {% endif %}
                         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_issue' and issue %}
-                            <li><a href="{% url 'manage_issues_id' issue.pk %}">Edit Issue</a></li>
+                            <li><a href="{% url 'manage_issues_id' issue.pk %}">{% trans 'Edit Issue' %}</a></li>
                         {% endif %}
                         <li>{{ news_item }}</li>
                         {% if request.resolver_match.url_name and request.resolver_match.url_name == 'core_news_item' and news_item %}
-                            <li><a href="{% url 'core_manager_edit_news' news_item.pk %}">Edit
-                                News Item</a></li>
+                            <li><a href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans 'Edit News Item' %}</a></li>
                         {% endif %}
                     {% endif %}
                     {% if request.user.is_staff %}
-                    <li><a href="/admin/">Admin</a></li>
+                    <li><a href="/admin/">{% trans 'Admin' %}</a></li>
                     {% endif %}
                     <li class="divider"></li>
-                    <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
-                    <li><a href="{% url 'core_logout' %}">Logout</a></li>
+                    <li><a href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
+                    <li><a href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
                 {% else %}
                     <li><a href="{% url 'core_login' %}">{% trans "Login" %}</a></li>
                     <li><a href="{% url 'core_register' %}"> {% trans "Register" %}</a></li>

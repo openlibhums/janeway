@@ -19,7 +19,7 @@ def sanitize_from(from_):
 def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachment=None, replyto=None):
 
     if journal:
-        from_email = setting_handler.get_setting('email', 'from_address', journal).value
+        from_email = setting_handler.get_setting('general', 'from_address', journal).value
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, journal)
         subject = "[{0}] {1}".format(journal.code, subject_setting if subject_setting else subject)
         html = "{0}<br />{1}".format(html, journal.name)
@@ -94,8 +94,8 @@ def notify_hook(**kwargs):
 
     log_dict = kwargs.get('log_dict', None)
 
-    if type(to) in [list, tuple]:
-        to = ';'.join(to)
+    if not type(to) in [list, tuple]:
+        to = [to]
 
     if log_dict:
         notify_contents = {

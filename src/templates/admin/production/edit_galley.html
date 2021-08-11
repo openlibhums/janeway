@@ -4,6 +4,7 @@
 
 {% block title %}Edit Galley - {{ galley.pk }}{% endblock title %}
 {% block title-section %}Edit Galley - {{ galley.pk }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

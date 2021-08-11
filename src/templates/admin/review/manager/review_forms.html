@@ -21,11 +21,33 @@
             </div>
             <div class="content">
                 <ul class="list-group">
-                    {% for form in form_list %}
+                    {% for form_obj in form_list %}
                         <li class="list-group-item">
-                            {{ form.name }}
+                            {{ form_obj.name }} {% if default_form == form_obj.pk %} <a href="{% url 'core_edit_settings_group' 'review' %}#id_default_review_form"><i>(Default)</i></a>{% endif %}
                             <div class="float-right">
-                                <a href="{% url 'edit_review_form' form.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                <a href="{% url 'edit_review_form' form_obj.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                <a class="tiny alert button{% if form_obj.pk == default_form %} disabled"{% else%}"data-open="delete-{{ form_obj.pk }}{% endif %}"><i class="fa fa-trash"></i></a>
+                            </div>
+                            <div class="reveal small" id="delete-{{ form_obj.pk }}" data-reveal data-animation-in="slide-in-up"
+                                 data-animation-out="slide-out-down">
+                                <div class="card">
+                                    <h3> Deleting form #{{ form_obj.pk }}: "{{ form_obj.name }}"</h3>
+                                    <div class="card-divider"> </div>
+                                    <div class="card-section">
+                                        <p>
+                                            Deleting this Review Form won't delete any active or past reviews using it. Instead, the form will no longer be available for selection on any
+                                            future reviews.
+                                        </p>
+                                        <p> Proceed?</p>
+                                        <form method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" name="delete" value="{{ form_obj.pk }}" class="alert button">Delete <i class="fa fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <button class="close-button" data-close aria-label="Close reveal" type="button">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
                         </li>
                     {% endfor %}

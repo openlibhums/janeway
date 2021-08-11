@@ -23,7 +23,7 @@
             <form method="POST">
                 {% csrf_token %}
                 <p>{% trans "You can complete the activation process by clicking the button below." %}</p>
-                <button class="button" name="activate">Activate Account</button>
+                <button class="button" name="activate">{% trans "Activate Account" %}</button>
             </form>
             {% else %}
             <h4>{% trans "Error" %}</h4>

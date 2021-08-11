@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
+from django.utils.html import strip_tags
 from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
@@ -101,7 +102,7 @@ def register_crossref_component(article, xml, supp_file):
         util_models.LogEntry.add_entry('Submission', "Deposited DOI.", 'Info', target=article)
 
 
-def create_crossref_template(identifier):
+def create_crossref_context(identifier):
     from utils import setting_handler
     template_context = {
         'batch_id': uuid4(),
@@ -113,14 +114,17 @@ def create_crossref_template(identifier):
         'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
                                                   identifier.article.journal).processed_value,
         'journal_title': identifier.article.journal.name,
+        'abstract': strip_tags(identifier.article.abstract or ''),
         'journal_issn': identifier.article.journal.issn,
         'date_published': identifier.article.date_published,
+        'date_accepted': identifier.article.date_accepted,
+        'pages': identifier.article.page_numbers,
         'issue': identifier.article.issue,
         'article_title': '{0}{1}{2}'.format(
             identifier.article.title,
             ' ' if identifier.article.subtitle is not None else '',
             identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
+        'authors': identifier.article.frozenauthor_set.all(),
         'doi': identifier.identifier,
         'article_url': identifier.article.url,
         'now': timezone.now(),
@@ -161,6 +165,12 @@ def extract_citations_for_crossref(article):
             souped_xml = BeautifulSoup(str(xml_transformed), 'lxml')
             citation_list = souped_xml.find('citation_list')
 
+            # Crossref only accepts DOIs on identifier format (not url)
+            url_element = "doi.org/"
+            for doi in citation_list.findAll("doi"):
+                if doi.string and url_element in doi.string:
+                    *_, doi.string = doi.string.split(url_element)
+
             if citation_list:
                 citations = str(citation_list.extract())
                 citations = citations.replace(
@@ -176,6 +186,13 @@ def extract_citations_for_crossref(article):
     return citations
 
 
+def get_crossref_template(item):
+    if item.journal.is_conference:
+        return 'common/identifiers/crossref_conference.xml'
+    else:
+        return 'common/identifiers/crossref_article.xml'
+
+
 def send_crossref_deposit(test_mode, identifier):
     # todo: work out whether this is acceptance or publication
     # if it's acceptance, then we use "0" for volume and issue
@@ -186,13 +203,13 @@ def send_crossref_deposit(test_mode, identifier):
     article = identifier.article
     error = False
 
-    template = 'common/identifiers/crossref.xml'
-    template_context = create_crossref_template(identifier)
-    crossref_template = render_to_string(template, template_context)
+    template = get_crossref_template(article)
+    template_context = create_crossref_context(identifier)
+    rendered = render_to_string(template, template_context)
 
-    logger.debug(crossref_template)
+    logger.debug(rendered)
 
-    util_models.LogEntry.add_entry('Submission', "Sending request: {0}".format(crossref_template),
+    util_models.LogEntry.add_entry('Submission', "Sending request: {0}".format(rendered),
                                    'Info',
                                    target=identifier.article)
     doi_prefix = setting_handler.get_setting('Identifiers', 'crossref_prefix', article.journal)
@@ -203,7 +220,7 @@ def send_crossref_deposit(test_mode, identifier):
     filename = uuid4()
 
     depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
-    response = depositor.register_doi(submission_id=filename, request_xml=crossref_template)
+    response = depositor.register_doi(submission_id=filename, request_xml=rendered)
 
     logger.debug("[CROSSREF:DEPOSIT:{0}] Sending".format(identifier.article.id))
     logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (identifier.article.id, response.status_code))
@@ -352,13 +369,13 @@ def register_preprint_doi(request, crossref_enabled, identifier):
 
         template_context = get_preprint_tempate_context(request, identifier)
         template = 'common/identifiers/crossref.xml'
-        crossref_template = render_to_string(template, template_context)
+        rendered = render_to_string(template, template_context)
 
         pdfs = identifier.article.pdfs
         if len(pdfs) > 0:
             template_context['pdf_url'] = identifier.article.pdf_url
 
-        response = requests.post(url, data=crossref_template.encode('utf-8'),
+        response = requests.post(url, data=rendered.encode('utf-8'),
                                  auth=(request.press.get_setting_value("Crossref Login"),
                                        request.press.get_setting_value("Crossref Password")),
                                  headers={"Content-Type": "application/vnd.crossref.deposit+xml"})

@@ -28,14 +28,16 @@
                         <th></th>
                     </tr>
                     </thead>
-                    {% for template in template_list %}
+                    {% for template, subject in template_list %}
                         <tr>
                             <td>{{ template.pretty_name }}</td>
                             <td>{{ template.name }}</td>
                             <td>{{ template.description }}</td>
                             <td><a class="btn btn-primary btn-round-half" style="width:75px"
-                                   href="{% url 'core_edit_email_template' template.name %}">Edit</a></td>
-                        <td><a href="{% url 'core_edit_email_template_subject' template.name 'subject' %}">Edit Subject</a></td>
+                                   href="{% url 'core_edit_setting' 'email' template.name %}?email_template=true">Edit</a></td>
+                        <td>
+                            <a href="{% url 'core_edit_setting' 'email_subject' subject %}?email_template=true">Edit Subject</a>
+                        </td>
                         </tr>
                     {% endfor %}
                 </table>

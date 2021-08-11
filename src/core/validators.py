@@ -2,6 +2,8 @@ import mimetypes
 import os.path
 
 from django.core.exceptions import ValidationError
+from django.template import Template
+from django.template.exceptions import TemplateSyntaxError
 from django.utils.translation import gettext_lazy as _
 
 class FileTypeValidator(object):
@@ -45,3 +47,10 @@ class FileTypeValidator(object):
             )
 
             raise ValidationError(message, code="invalidi_mimetype")
+
+
+def validate_email_setting(value):
+    try:
+        template = Template(value)
+    except TemplateSyntaxError as error:
+        raise ValidationError(str(error))

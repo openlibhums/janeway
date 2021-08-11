@@ -8,12 +8,9 @@ import uuid
 import statistics
 import json
 from datetime import timedelta
-from urllib.parse import urlunparse
-
 import pytz
 
 from bs4 import BeautifulSoup
-from hvad.models import TranslatableModel, TranslatedFields
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -26,14 +23,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 
-from core import files
+from core import files, validators
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel
+from core.model_utils import AbstractSiteModel, PGCaseInsensitiveEmailField
 from review import models as review_models
 from copyediting import models as copyediting_models
 from submission import models as submission_models
-from utils import setting_handler
 from utils.logger import get_logger
+from utils import logic as utils_logic
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -54,6 +51,7 @@ SALUTATION_CHOICES = (
     ('Ms', 'Ms'),
     ('Mrs', 'Mrs'),
     ('Mr', 'Mr'),
+    ('Mx', 'Mx'),
     ('Dr', 'Dr'),
     ('Prof.', 'Prof.'),
 )
@@ -148,11 +146,11 @@ class Country(models.Model):
 
 class AccountQuerySet(models.query.QuerySet):
     def create(self, **kwargs):
-            obj = self.model(**kwargs)
-            obj.clean()
-            self._for_write = True
-            obj.save(force_insert=True, using=self.db)
-            return obj
+        obj = self.model(**kwargs)
+        obj.clean()
+        self._for_write = True
+        obj.save(force_insert=True, using=self.db)
+        return obj
 
 
 class AccountManager(BaseUserManager):
@@ -186,7 +184,7 @@ class AccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True, verbose_name=_('Email'))
+    email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=48, unique=True, verbose_name=_('Username'))
 
     first_name = models.CharField(max_length=300, null=True, blank=False, verbose_name=_('First name'))
@@ -228,13 +226,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     objects = AccountManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
 
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
         unique_together = ('email', 'username')
-
 
     def clean(self, *args, **kwargs):
         """ Normalizes the email address
@@ -404,35 +401,40 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return False
 
-    def snapshot_self(self, article):
-        try:
-            order = submission_models.ArticleAuthorOrder.objects.get(article=article, author=self).order
-        except submission_models.ArticleAuthorOrder.DoesNotExist:
-            order = 1
-
+    def snapshot_self(self, article, force_update=True):
         frozen_dict = {
-            'article': article,
-            'author': self,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
             'institution': self.institution,
             'department': self.department,
-            'order': order,
         }
 
         frozen_author = self.frozen_author(article)
 
-        if frozen_author:
+        if frozen_author and force_update:
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
-                frozen_author.save()
+            frozen_author.save()
+
         else:
-            submission_models.FrozenAuthor.objects.get_or_create(**frozen_dict)
+            try:
+                order = article.articleauthororder_set.get(author=self).order
+            except submission_models.ArticleAuthorOrder.DoesNotExist:
+                order = article.next_author_sort()
+
+            submission_models.FrozenAuthor.objects.get_or_create(
+                author=self,
+                article=article,
+                defaults=dict(order=order, **frozen_dict)
+            )
 
     def frozen_author(self, article):
         try:
-            return submission_models.FrozenAuthor.objects.get(article=article, author=self)
+            return submission_models.FrozenAuthor.objects.get(
+                article=article,
+                author=self,
+            )
         except submission_models.FrozenAuthor.DoesNotExist:
             return None
 
@@ -445,6 +447,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def articles(self):
         return submission_models.Article.objects.filter(authors__in=[self])
+
+    def published_articles(self):
+        articles = submission_models.Article.objects.filter(
+            authors=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+        )
+        request = utils_logic.get_current_request()
+        if request and request.journal:
+            articles.filter(journal=request.journal)
+
+        return articles
 
     def preprint_subjects(self):
         "Returns a list of preprint subjects this user is an editor for"
@@ -553,6 +567,9 @@ privacy_types = (
 
 
 class SettingGroup(models.Model):
+    VALIDATORS = {
+        "email": (validators.validate_email_setting,),
+    }
     name = models.CharField(max_length=100)
     enabled = models.BooleanField(default=True)
 
@@ -562,8 +579,14 @@ class SettingGroup(models.Model):
     def __repr__(self):
         return u'%s' % self.name
 
+    def validate(self, value):
+        if self.name in self.VALIDATORS:
+            for validator in self.VALIDATORS[self.name]:
+                validator(value)
+
 
 class Setting(models.Model):
+    VALIDATORS = {}
     name = models.CharField(max_length=100)
     group = models.ForeignKey(SettingGroup)
     types = models.CharField(max_length=20, choices=setting_types)
@@ -583,19 +606,23 @@ class Setting(models.Model):
 
     @property
     def default_setting_value(self):
-        return SettingValue.objects.language("en").get(
+        return SettingValue.objects.get(
             setting=self,
             journal=None,
     )
 
+    def validate(self, value):
+        if self.types in self.VALIDATORS:
+            for validator in self.VALIDATORS[self.name]:
+                validator(value)
 
-class SettingValue(TranslatableModel):
+        self.group.validate(value)
+
+
+class SettingValue(models.Model):
     journal = models.ForeignKey('journal.Journal', null=True, blank=True)
     setting = models.ForeignKey(Setting)
-
-    translations = TranslatedFields(
-        value=models.TextField(null=True, blank=True)
-    )
+    value = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (
@@ -663,6 +690,13 @@ class SettingValue(TranslatableModel):
         else:
             from press.models import Press
             return Press.objects.all()[0]
+
+    def validate(self):
+        self.setting.validate(self.value)
+
+    def save(self, *args, **kwargs):
+        self.validate()
+        super().save(*args, **kwargs)
 
 
 class File(models.Model):
@@ -1005,10 +1039,15 @@ class SupplementaryFile(models.Model):
         return files.file_path_mime(self.path())
 
     def url(self):
-        base_url = self.file.article.journal.full_url()
-        path = reverse('article_download_supp_file', kwargs={'article_id': self.file.article.pk,
-                                                             'supp_file_id': self.pk})
-        return '{base}{path}'.format(base=base_url, path=path)
+        path = reverse(
+            'article_download_supp_file',
+            kwargs={
+                'article_id': self.file.article.pk,
+                'supp_file_id': self.pk,
+            },
+        )
+
+        return self.file.article.journal.site_url(path=path)
 
 
 class Task(models.Model):
@@ -1293,3 +1332,20 @@ def setup_user_signature(sender, instance, created, **kwargs):
     if created and not instance.signature:
         instance.signature = instance.full_name()
         instance.save()
+
+
+# This model is vestigial and will be removed in v1.5
+
+class SettingValueTranslation(models.Model):
+    hvad_value = models.TextField(
+        blank=True,
+        null=True,
+    )
+    language_code = models.CharField(
+        max_length=15,
+        db_index=True,
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'core_settingvalue_translation'

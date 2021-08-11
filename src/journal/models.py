@@ -16,7 +16,8 @@ from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.translation import ugettext
 
 from core import (
         files,
@@ -90,13 +91,24 @@ class Journal(AbstractSiteModel):
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)
-    is_remote = models.BooleanField(default=False)
+    is_remote = models.BooleanField(
+        default=False,
+        help_text=ugettext('When enabled, the journal is marked as not hosted in Janeway.'),
+    )
     is_conference = models.BooleanField(default=False)
-    remote_submit_url = models.URLField(blank=True, null=True)
-    remote_view_url = models.URLField(blank=True, null=True)
+    remote_submit_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text=ugettext('If the journal is remote you can link to its submission page.'),
+    )
+    remote_view_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text=ugettext('If the journal is remote you can link to its home page.'),
+    )
     view_pdf_button = models.BooleanField(
         default=False,
-        help_text='Enables a "View PDF" link on article pages.'
+        help_text=ugettext('Enables a "View PDF" link on article pages.'),
     )
 
     # Nav Items
@@ -127,7 +139,7 @@ class Journal(AbstractSiteModel):
     # this has to be handled this way so that we can add migrations to press
     try:
         press_name = press_models.Press.get_press(None).name
-    except BaseException:
+    except Exception:
         press_name = ''
 
     # Issue Display
@@ -135,6 +147,8 @@ class Journal(AbstractSiteModel):
     display_issue_number = models.BooleanField(default=True)
     display_issue_year = models.BooleanField(default=True)
     display_issue_title = models.BooleanField(default=True)
+
+    disable_front_end = models.BooleanField(default=False)
 
     def __str__(self):
         return u'{0}: {1}'.format(self.code, self.domain)
@@ -155,10 +169,9 @@ class Journal(AbstractSiteModel):
         return setting_handler.get_setting(group_name, setting_name, self, create=False).processed_value
 
     @property
-    @cache(300)
     def name(self):
         try:
-            return setting_handler.get_setting('general', 'journal_name', self, create=False, fallback='en').value
+            return setting_handler.get_setting('general', 'journal_name', self, default=True).value
         except IndexError:
             self.name = 'Janeway Journal'
             return self.name
@@ -169,7 +182,7 @@ class Journal(AbstractSiteModel):
 
     @property
     def publisher(self):
-        return setting_handler.get_setting('general', 'publisher_name', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'publisher_name', self, default=True).value
 
     @publisher.setter
     def publisher(self, value):
@@ -178,7 +191,7 @@ class Journal(AbstractSiteModel):
     @property
     @cache(120)
     def issn(self):
-        return setting_handler.get_setting('general', 'journal_issn', self, create=False, fallback='en').value
+        return setting_handler.get_setting('general', 'journal_issn', self, default=True).value
 
     @property
     @cache(120)
@@ -187,8 +200,7 @@ class Journal(AbstractSiteModel):
             return setting_handler.get_setting('Identifiers',
                                                'crossref_prefix',
                                                self,
-                                               create=False,
-                                               fallback='en').processed_value
+                                               default=True).processed_value
         except IndexError:
             return False
 
@@ -248,8 +260,13 @@ class Journal(AbstractSiteModel):
         return Issue.objects.filter(journal=self)
 
     def editors(self):
-        pks = [role.user.pk for role in core_models.AccountRole.objects.filter(role__slug='editor', journal=self)]
-        return core_models.Account.objects.filter(pk__in=pks)
+        """ Returns all users enrolled as editors for the journal
+        :return: A queryset of core.models.Account
+        """
+        return core_models.Account.objects.filter(
+                accountrole__role__slug="editor",
+                accountrole__journal=self,
+        )
 
     def users_with_role(self, role):
         pks = [
@@ -259,6 +276,12 @@ class Journal(AbstractSiteModel):
             ).prefetch_related('user')
         ]
         return core_models.Account.objects.filter(pk__in=pks)
+
+    def users_with_role_count(self, role):
+        return core_models.AccountRole.objects.filter(
+            role__slug=role,
+            journal=self,
+        ).count()
 
     def editor_pks(self):
         return [[str(role.user.pk), str(role.user.pk)] for role in
@@ -437,7 +460,7 @@ class Issue(models.Model):
 
     # issue metadata
     volume = models.IntegerField(default=1)
-    issue = models.IntegerField(default=1)
+    issue = models.CharField(max_length=255, default="1")
     issue_title = models.CharField(blank=True, max_length=300)
     date = models.DateTimeField(default=timezone.now)
     order = models.IntegerField(default=0)
@@ -446,6 +469,7 @@ class Issue(models.Model):
     # To be deprecated in 1.3.7
     old_issue_type = models.CharField(max_length=200, default='Issue', choices=ISSUE_TYPES, null=True, blank=True)
     issue_description = models.TextField(blank=True, null=True)
+    short_description = models.CharField(max_length=600, blank=True, null=True)
 
     cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
@@ -471,19 +495,30 @@ class Issue(models.Model):
             return self.issue_title
 
         journal = self.journal
+        issue_identifier = self.pretty_issue_identifier
 
-        volume = "Volume {}".format(
-            self.volume) if journal.display_issue_volume else ""
-        issue = "Issue {}".format(
-            self.issue) if journal.display_issue_number else ""
-        year = "{}".format(
-            self.date.year) if journal.display_issue_year else ""
         title = "{}".format(
             self.issue_title) if journal.display_issue_title else ""
 
-        title_list = [volume, issue, year, title]
+        title_list = [issue_identifier, title]
 
         return mark_safe(" &bull; ".join((filter(None, title_list))))
+
+    @property
+    def pretty_issue_identifier(self):
+        journal = self.journal
+
+        volume = ugettext("Volume") + " {}".format(
+            self.volume) if journal.display_issue_volume else ""
+        issue = ugettext("Issue") + " {}".format(
+            self.issue) if journal.display_issue_number else ""
+        year = "{}".format(
+            self.date.year) if journal.display_issue_year else ""
+
+        parts = [volume, issue, year]
+
+        return mark_safe(" &bull; ".join((filter(None, parts))))
+
 
     @property
     def manage_issue_list(self):
@@ -674,22 +709,31 @@ class Issue(models.Model):
 
         # get the latest issue from the specified journal
         try:
-            latest_issue = Issue.objects.filter(journal=journal, issue_type='Issue').latest('date')
+            latest_issue = Issue.objects.filter(
+                journal=journal,
+                issue_type__code='issue',
+            ).latest('date')
 
         # if no issues in journal, start at 1:1
         except Issue.DoesNotExist:
-            return (1, 1)
+            return (1, "1")
 
         # if issues exist, iterate - if new year, add 1 to volume and reset issue to 1
         # otherwise keep volume the same and add 1 to issue
         else:
             if datetime.now().year > latest_issue.date.year:
                 volume = latest_issue.volume + 1
-                issue = 1
+                issue = "1"
                 return (volume, issue)
             else:
-                issue = latest_issue.issue + 1
-                return (latest_issue.volume, issue)
+                if latest_issue.issue.isdigit():
+                    issue = int(latest_issue.issue) + 1
+                    return (latest_issue.volume, str(issue))
+                else:
+                    raise TypeError(
+                        "Can't auto increase issue number after issue %s",
+                        latest_issue.issue,
+                    )
 
     def __str__(self):
         return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
@@ -706,7 +750,12 @@ class IssueType(models.Model):
     custom_plural = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{self.code}".format(self=self)
+        return (
+            self.custom_plural
+            or self.pretty_name
+            or "{self.code}".format(self=self)
+        )
+
 
     @property
     def plural_name(self):
@@ -847,12 +896,13 @@ class Notifications(models.Model):
 @receiver(post_save, sender=Journal)
 def setup_default_section(sender, instance, created, **kwargs):
     if created:
-        submission_models.Section.objects.language('en').get_or_create(
-            journal=instance,
-            number_of_reviewers=2,
-            name='Article',
-            plural='Articles'
-        )
+        with translation.override(settings.LANGUAGE_CODE):
+            submission_models.Section.objects.get_or_create(
+                journal=instance,
+                number_of_reviewers=2,
+                name='Article',
+                plural='Articles'
+            )
 
 
 @receiver(post_save, sender=Journal)
@@ -893,7 +943,7 @@ def setup_default_form(sender, instance, created, **kwargs):
                 required=True,
                 order=1,
                 width='large-12 columns',
-                help_text='Please add as much detail as you can.'
+                help_text=ugettext('Please add as much detail as you can.'),
             )
 
             default_review_form.elements.add(main_element)

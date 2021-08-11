@@ -1,7 +1,9 @@
 {% extends "admin/core/base.html" %}}
+{% load static from staticfiles %}
 
 {% block title %}View Review{% endblock title %}
 {% block title-section %}View Review{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -13,7 +15,7 @@
         <form method="POST">
             <div class="box">
                 <div class="title-area">
-                    <h2>Review by {{ review.reviewer.full_name }}</h2>
+                    <h2>Review #{{ review.pk }} by {{ review.reviewer.full_name }}</h2>
                 </div>
 
                 <div class="content">
@@ -33,7 +35,7 @@
                             <th></th>
                         </tr>
                         <tr>
-                            <td>{{ review.reviewer.full_name }}</td>
+                            <td>{{ review.reviewer.full_name }} <span data-tooltip title="Email peer reviewer."><a onclick="return popitup('{% url 'send_user_email_article' review.reviewer.pk article.pk %}')"><span class="fa fa-envelope">&nbsp;</span></a></span></td>
                             <td>{{ review.date_requested|date:"Y-m-d" }}</td>
                             <td>{% if review.decision == 'withdrawn' %}Withdrawn {{ review.date_complete|date:"Y-m-d" }}
                             {% elif review.date_accepted %}Accepted {{ review.date_accepted|date:"Y-m-d" }}
@@ -113,49 +115,7 @@
                         <p>{{ review.comments_for_editor|linebreaksbr }}</p>
                     </div>
                 {% endif %}
-
-                {% if review.review_file %}
-                    <div class="title-area">
-                        <h2>Review File</h2>
-                    </div>
-                    <div class="content">
-
-                        <table class="scroll small">
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Download</th>
-                                <th>Replace</th>
-                                {% if review.for_author_consumption %}
-                                    <th width="20%">Visible to Author</th>{% endif %}
-                            </tr>
-                            <tr>
-                                <td>{{ review.review_file.pk }}</td>
-                                <td>{{ review.review_file.original_filename }}</td>
-                                <td>
-                                    <a href="{% url 'editor_file_download' review.article.id review.review_file.id %}"><i
-                                            class="fa fa-download">&nbsp;</i></a></td>
-                                <td>
-                                    <a href="{% url 'article_file_replace' 'id' article.pk review.review_file.pk %}?return={{ request.path }}"><i
-                                            class="fa fa-cloud-upload">&nbsp;</i></a>
-                                </td>
-                                {% if review.for_author_consumption %}
-                                    <td>
-                                        <form method="POST">
-                                            {% csrf_token %}
-                                            <button name="review_file_visible" class="success button"
-                                                    value="{% if review.display_review_file %}false{% else %}true{% endif %}">
-                                                {% if review.display_review_file %}Hide File{% else %}Allow Author to
-                                                    View File{% endif %}</button>
-                                        </form>
-                                    </td>{% endif %}
-                            </tr>
-                        </table>
-
-                        <p></p>
-
-                    </div>
-                {% endif %}
+                {% include "elements/review/review_file_table_modal.html" with review=review %}
             {% endif %}
 
                 {% if review.date_declined %}
@@ -170,4 +130,8 @@
 
         </form>
     </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
 {% endblock %}

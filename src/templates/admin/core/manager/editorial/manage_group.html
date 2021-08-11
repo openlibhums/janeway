@@ -1,0 +1,36 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}Editorial Groups Manager{% endblock title %}
+{% block title-section %}Editorial Team{% endblock %}
+{% block title-sub %}Group Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_editorial_team' %}">Editorial Group Manager</a></li>
+    <li>{% if group %}Edit Group{% else %}Add New Group{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>
+                    {% if group %}Edit Group{% else %}Add New Group{% endif %}
+                </h2>
+            </div>
+            <div class="content">
+                {% include "admin/elements/translations/form_tabs.html" with object=group %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button class="success button" type="submit">{% if group %}Edit Group{% else %}Add New Group{% endif %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+

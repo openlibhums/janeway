@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col m6 columns">
+
+    </div>
+    <div class="col m2 columns">
+        <p>{% trans "Public Submissions" %}</p>
+    </div>
+    <div class="col m2 columns">
+        <p>{% trans "Peer Reviewed" %}</p>
+    </div>
+    <div class="col m2 columns">
+        <p>{% trans "Indexed" %}</p>
+    </div>
+</div>
+<div class="divider spacer"></div>
+{% for section in sections %}
+    <div class="row">
+        <div class="col m6 columns">
+            <p>{{ section.name }}</p>
+        </div>
+        <div class="col m2 columns">
+            <strong>{% if section.public_submissions %}<i class="fa fa-check"></i>{% else %}
+                <i class="fa fa-times"></i>{% endif %}</strong>
+        </div>
+        <div class="col m2 columns">
+            <strong>{% if section.number_of_reviewers > 0 %}<i class="fa fa-check"></i>{% else %}
+                <i class="fa fa-times"></i>{% endif %}</strong>
+        </div>
+        <div class="col m2 columns">
+            <strong>{% if section.indexing %}<i class="fa fa-check"></i>{% else %}
+                <i class="fa fa-times"></i>{% endif %}</strong>
+        </div>
+        <div class="divider spacer"></div>
+    </div>
+{% endfor %}
+<div class="divider spacer"></div>

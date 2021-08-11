@@ -6,7 +6,7 @@
 
 {% block title %}Proofing Corrections{% endblock title %}
 {% block title-section %}Proofing Corrections{% endblock %}
-{% block title-sub %}{{ article.title }}{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.title }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -98,9 +98,9 @@
                         <button type="submit" class="button success" data-open="uploadbox"><i
                                 class="fa fa-check">&nbsp;</i>Complete Corrections
                         </button>
-                        <button class="button primary" data-open="summarymodal">
+                        <a class="button primary" data-open="summarymodal">
                           <i class="fa fa-server">&nbsp;</i>View Metadata
-                        </button>
+                        </a>
                     </form>
                     </form>
                 </div>

@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load files %}
 
-{% block page_title %}{% if article.preprint %}Preprint {% endif %}Article{% endblock %}
+{% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
 {% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
     {{ journal_settings.general.journal_name | striptags }} {% endblock %}
@@ -98,7 +98,7 @@
                         <h2>{% trans "Publisher Notes" %}</h2>
                         <ul>
                             {% for note in article.publisher_notes.all %}
-                                <li>{{ note.text }}</li>
+                                <li>{{ note.text|safe }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
@@ -124,20 +124,20 @@
                                     <h5>
                                         {{ article.metrics.views }}
                                     </h5>
-                                    <p><i class="fa fa-eye"></i> Views</p>
+                                    <p><i class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
                                 <div class="alm">
                                     <h5>
                                         {{ article.metrics.downloads }}
                                     </h5>
-                                    <p><i class="fa fa-download"></i> Downloads</p>
+                                    <p><i class="fa fa-download"></i>{% trans "Downloads" %}</p>
                                 </div>
                                 {% if article.metrics.alm.twitter %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.metrics.alm.twitter }}
                                         </h5>
-                                        <p><i class="fa fa-twitter"></i> Tweets</p>
+                                        <p><i class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.wikipedia %}
@@ -145,7 +145,7 @@
                                         <h5>
                                             {{ article.metrics.alm.wikipedia }}
                                         </h5>
-                                        <p><i class="fa fa-wikipedia-w"></i> Wikipedia</p>
+                                        <p><i class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.reddit %}
@@ -153,15 +153,16 @@
                                         <h5>
                                             {{ article.metrics.alm.reddit }}
                                         </h5>
-                                        <p><i class="fa fa-reddit"></i> Reddit</p>
+                                        <p><i class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
-                                {% if article.citation_count %}
+
+                                {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.citation_count }}
                                         </h5>
-                                        <p><i class="fa fa-quote-left"></i> Citations</p>
+                                        <p><i class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
                             </div>
@@ -169,7 +170,7 @@
                     </div>
                 {% endif %}
             </div>
-            {% if article.is_published and article_content %}
+            {% if article_content %}
                 <article>
                     <div id="main_article" itemprop="articleBody" class="article-body">
                         <div class="card">
@@ -186,6 +187,25 @@
         <div class="col m4">
             <div class="card">
                 <div class="card-content">
+                    {% include "common/elements/altmetric_badges.html" with article=article %}
+                    <h4>
+                        {% trans "Share" %}
+                    </h4>
+                      {% with article.get_doi_url as doi_url%}
+                        <a class="waves-effect waves-light btn btn-small facebook-bg"
+                            href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
+                            target="_blank"><i class="fa fa-facebook"></i></a>
+                        <a class="waves-effect waves-light btn btn-small twitter-bg" 
+                            href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
+                            target="_blank"><i class="fa fa-twitter"></i></a>
+                        <a class="waves-effect waves-light btn btn-small linkedin-bg"
+                            href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
+                            target="_blank"><i class="fa fa-linkedin"></i></a></button>
+                      {% endwith %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
                     <h4>
                         {% trans "Authors" %}
                     </h4>
@@ -253,7 +273,7 @@
 
                     {% if journal_settings.general.submission_summary %}
                         <h4>{% trans "Non Specialist Summary" %}</h4>
-                        <a href="#summarymodal" class="modal-trigger">View Summary</a>
+                        <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
@@ -293,6 +313,18 @@
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
+
+                    {% with article.get_doi_url as doi_url %}
+                    {% if doi_url %}
+                    <h4>{% trans "Identifiers" %}</h4>
+                    <ul>
+                        <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                    </ul>
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
 
                     <h4>
                         {% trans "Peer Review" %}

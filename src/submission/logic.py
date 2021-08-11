@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import warnings
 
 from bs4 import BeautifulSoup
 
@@ -17,14 +18,25 @@ from submission import models
 
 
 def add_self_as_author(user, article):
-    new_author = user
-    article.authors.add(new_author)
+    warnings.warn("'add_self_as_author' is deprecated and will be removed")
+    return add_user_as_author(user, article)
+
+
+def add_user_as_author(user, article, give_role=True):
+    """ Assigns the given user as an author of the paper
+    :param user: An instance of core.models.Account
+    :param article: An instance of submission.models.Article
+    :param give_role: If true, the user is given the author role in the journal
+    """
+    if give_role:
+        user.add_account_role("author", article.journal)
+    article.authors.add(user)
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
-        author=new_author,
+        author=user,
         defaults={'order': article.next_author_sort()},
     )
-    return new_author
+    return user
 
 
 def check_author_exists(email):
@@ -107,7 +119,7 @@ def import_from_jats_xml(path, journal):
         authors = parse_authors(soup)
         section = get_text(soup, 'subj-group')
 
-        section_obj, created = models.Section.objects.language('en').get_or_create(name=section, journal=journal)
+        section_obj, created = models.Section.objects.get_or_create(name=section, journal=journal)
 
         article = models.Article.objects.create(
             title=title,

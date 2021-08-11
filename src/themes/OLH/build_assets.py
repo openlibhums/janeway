@@ -170,6 +170,21 @@ def process_default_override(override_css_dir, include_paths):
             f.write(compiled)
 
 
+def process_press_override(override_css_dir, include_paths):
+    scss_default_override = os.path.join(
+            settings.BASE_DIR, 'files', 'styling',
+            'press', 'override.scss'
+    )
+    override_css_file = os.path.join(override_css_dir, 'press_override.css')
+
+    if os.path.isfile(scss_default_override):
+        compiled = sass.compile(
+                filename=scss_default_override,
+                include_paths=include_paths,
+        )
+        with open(override_css_file, "w", encoding="utf-8") as f:
+            f.write(compiled)
+
 def create_paths():
     base_path = os.path.join(settings.BASE_DIR, 'static', 'OLH')
     folders = ['css', 'js', 'fonts', 'img']
@@ -197,4 +212,5 @@ def build():
     ]
     process_default_override(override_css_dir, include_paths)
     process_journals(override_css_dir, include_paths)
+    process_press_override(override_css_dir, include_paths)
     call_command('collectstatic', '--noinput')

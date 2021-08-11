@@ -1,0 +1,93 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}Submission Items{% endblock title %}
+{% block title-section %}Submission Items{% endblock %}
+{% block title-sub %}Displays a list of submission items relating to the current journal.{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'cms_submission_items' %}">Submisions Page Items</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Submission Page Item List</h2>
+            <a href="{% url 'cms_add_submission_item' %}" class="button">Add New Item</a>
+        </div>
+        <div class="content">
+            <p>Here you can manage the items that appear on the built in Submissions page. If you want to totally customise this page you can disable it, then create a CMS page in its place and create a customised navigation entry.</p>
+            <p>Items can be re-ordered by dragging and dropping. If you delete an item by mistake you can recreate it by linking to the correct setting. Item with empty text or a blank setting will not display.</p>
+            <table class="table scroll">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Title</th>
+                    <th>Setting or Text</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody id="sortable">
+                {% for item in item_list %}
+                    <tr id="item-{{ item.pk }}">
+                        <td><span class="fa fa-sort"></span></td>
+                        <td>{{ item.title|capfirst }}</td>
+                        <td>
+                            {% if item.existing_setting %}
+                                Linked to <a target="_blank" href="{% url 'core_edit_setting' item.existing_setting.group.name item.existing_setting.name %}">{{ item.existing_setting.pretty_name }}</a>
+                            {% elif item.text %}
+                            Item Text
+                            {% else %}
+                            Special Display
+                            {% endif %}
+                        </td>
+                        <td><a href="{% url 'cms_edit_submission_item' item.pk %}" class="tiny success button">Edit</a></td>
+                        <td><form method="POST">{% csrf_token %}<button name="delete" value="{{ item.pk }}" class="tiny alert delete button">Delete</button></form></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">
+                            {% trans 'No submission items found' %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'cms_order_submission_items' %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                if (!confirm("Are you sure you want to delete this section?")) {
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock js %}

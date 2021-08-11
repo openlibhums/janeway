@@ -21,6 +21,9 @@
                 <h2>Group Members</h2>
             </div>
             <div class="content">
+                <p>
+                    <small>Editorial team members can be sorted by dragging and dropping them into the order you require.</small>
+                </p>
                 <form method="POST">
                     {% csrf_token %}
                     <ul class="list-group" id="sortable">
@@ -29,6 +32,7 @@
                             <div class="float-right">
                                 <button type="submit" name="delete" value="{{ member.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
                             </div>
+                                <i class="fa fa-sort">&nbsp;</i>
                                 {{ member.user.full_name }}<br />
                             </small>
                         </li>
@@ -46,6 +50,11 @@
                 <a class="button" href="{% url 'core_add_user' %}?return={{ request.path }}">Add New User</a>
             </div>
             <div class="content">
+                <p>
+                    <small>
+                        Editorial Team members must have an account. You can search accounts below, add a new one using the link above or ask them to register themselves an account.
+                    </small>
+                </p>
                 <table id="featured" class="small scroll">
                     <thead>
                     <tr>

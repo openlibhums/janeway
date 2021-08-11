@@ -7,9 +7,7 @@ import mimetypes as mime
 import os
 from uuid import uuid4
 from wsgiref.util import FileWrapper
-from bs4 import BeautifulSoup
 from lxml import etree
-import re
 import shutil
 import magic
 import hashlib
@@ -21,7 +19,7 @@ from django.http import StreamingHttpResponse, HttpResponseRedirect, HttpRespons
 from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
 from django.utils.text import slugify
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import patch_cache_control
 
 from utils import models as util_models
 from utils.logger import get_logger
@@ -166,7 +164,10 @@ def save_file_to_article(file_to_handle, article, owner, label=None, description
         save_file_to_disk(file_to_handle, filename, folder_structure)
         file_mime = file_path_mime(os.path.join(folder_structure, filename))
     else:
-        os.rename(os.path.join(folder_structure, original_filename), os.path.join(folder_structure, filename))
+        shutil.move(
+            os.path.join(folder_structure, original_filename),
+            os.path.join(folder_structure, filename),
+        )
         file_mime = guess_mime(filename)
 
     from core import models
@@ -326,6 +327,7 @@ def render_xml(file_to_render, article, xsl_path=None, recover=False):
 
     return transform_with_xsl(path, xsl_path, recover=recover)
 
+
 def transform_with_xsl(xml_path, xsl_path, recover=False):
     try:
         xml_dom = etree.parse(xml_path)
@@ -339,14 +341,14 @@ def transform_with_xsl(xml_path, xsl_path, recover=False):
     xsl_transform = etree.XSLT(etree.parse(xsl_path))
     try:
         transformed_dom = xsl_transform(xml_dom)
+        return transformed_dom
     except Exception as err:
         logger.error(err)
         for xsl_error in xsl_transform.error_log:
             logger.error(xsl_error)
         if not recover:
             raise
-
-    return transformed_dom
+        return ''
 
 
 def serve_any_file(request, file_to_serve, public=False, hide_name=False,
@@ -392,7 +394,9 @@ def serve_file(request, file_to_serve, article, public=False, hide_name=False):
     )
 
 
-@cache_control(max_age=600)
+# MS: I disabled cache control here. When replacing a file, we keep the same
+# URL, which leads to browsers wrongly serving the old cached version.
+# @cache_control(max_age=600)
 def serve_file_to_browser(file_path, file_to_serve, public=False,
                           hide_name=False):
     """ Stream a file to the browser in a safe way
@@ -409,7 +413,11 @@ def serve_file_to_browser(file_path, file_to_serve, public=False,
     filename, extension = os.path.splitext(file_to_serve.original_filename)
 
     if file_to_serve.mime_type in IMAGE_MIMETYPES:
-        response = HttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
+        response = HttpResponse(
+            FileWrapper(open(file_path, 'rb'), 8192),
+            content_type=file_to_serve.mime_type,
+        )
+        patch_cache_control(response, max_age=600)
     else:
         response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), 8192), content_type=file_to_serve.mime_type)
 
@@ -467,7 +475,7 @@ def delete_file(article_object, file_object):
         article_object.data_figure_files.remove(file_object)
 
 
-def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, galley=None):
+def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, galley=None, retain_old_label=True):
     """ Replaces an existing file with a new record
 
     :param article_to_replace: the article in which we replace the file
@@ -483,8 +491,8 @@ def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, g
 
             # reload the new file to avoid conflicts with raw SQL due to materialized path tree structure
             new_file = get_object_or_404(models.File, pk=new_file.pk)
-            new_file.label = file_to_replace.label
             new_file.parent = file_to_replace
+
             new_file.save()
             article_to_replace.manuscript_files.add(new_file)
 
@@ -493,14 +501,12 @@ def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, g
 
             # reload the new file to avoid conflicts with raw SQL due to materialized path tree structure
             new_file = get_object_or_404(models.File, pk=new_file.pk)
-            new_file.label = file_to_replace.label
             new_file.parent = file_to_replace
             new_file.save()
             article_to_replace.data_figure_files.add(new_file)
 
         else:
             new_file = get_object_or_404(models.File, pk=new_file.pk)
-            new_file.label = file_to_replace.label
             new_file.parent = file_to_replace
             new_file.save()
     else:
@@ -512,6 +518,9 @@ def replace_file(article_to_replace, file_to_replace, new_file, copyedit=None, g
             new_file.parent = file_to_replace
             new_file.save()
             copyedit.copyeditor_files.add(new_file)
+
+    if retain_old_label:
+        new_file.label = file_to_replace.label
 
     return new_file
 

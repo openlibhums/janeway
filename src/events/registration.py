@@ -14,7 +14,8 @@ from events import logic as event_logic  # We always import this as event_logic
 
 # Submission
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
-                                      transactional_emails.send_submission_acknowledgement)
+                                      transactional_emails.send_submission_acknowledgement,
+                                      workflow.workflow_auto_assign_editors)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE,
                                       transactional_emails.send_editor_assigned_acknowledgements)
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_UNASSIGNED,
@@ -37,6 +38,8 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
                                       transactional_emails.send_article_decision)
 event_logic.Events.register_for_event(event_logic.Events.ON_DRAFT_DECISION,
                                       transactional_emails.send_draft_decison)
+event_logic.Events.register_for_event(event_logic.Events.ON_DRAFT_DECISION_DECLINED,
+                                      transactional_emails.send_draft_decision_declined)
 event_logic.Events.register_for_event(event_logic.Events.ON_REVIEW_SECURITY_OVERRIDE,
                                       transactional_emails.review_sec_override_notification)
 

@@ -29,7 +29,7 @@ def _export_as_csv(self, request, queryset):
 class ArticleAccessAdmin(admin.ModelAdmin):
     """Displays objects in the Django admin interface."""
     list_display = ('article', 'type', 'identifier', 'accessed')
-    list_filter = ('type', 'galley_type')
+    list_filter = ('type', 'galley_type', 'article')
     search_fields = ('identifier',)
     raw_id_fields = ('article',)
 
