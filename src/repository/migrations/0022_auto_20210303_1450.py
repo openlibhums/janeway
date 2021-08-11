@@ -9,29 +9,28 @@ from django.conf import settings
 
 def create_accounts_for_authors(apps, schema_editor):
     Account = apps.get_model('core', 'Account')
-    Preprint = apps.get_model('repository', 'Preprint')
+    PreprintAuthor = apps.get_model('repository', 'PreprintAuthor')
 
-    for preprint in Preprint.objects.all():
+    for preprint_author in PreprintAuthor.objects.all():
+        acc, c = Account.objects.get_or_create(
+            username=preprint_author.author.email_address.lower(),
+            defaults={
+                'first_name': preprint_author.author.first_name,
+                'middle_name': preprint_author.author.middle_name,
+                'last_name': preprint_author.author.middle_name,
+                'institution': preprint_author.affiliation if preprint_author.affiliation else 'n/a',
+                'orcid': preprint_author.author.orcid,
+                'is_active': True,
+                'email': preprint_author.author.email_address.lower(),
+            }
+        )
+        preprint_author.account = acc
+        preprint_author.save()
 
-        for preprint_author in preprint.preprintauthor_set.all():
-            acc, c = Account.objects.get_or_create(
-                username=preprint_author.author.email_address.lower(),
-                defaults={
-                    'first_name': preprint_author.author.first_name,
-                    'middle_name': preprint_author.author.middle_name,
-                    'last_name': preprint_author.author.middle_name,
-                    'institution': preprint_author.affiliation if preprint_author.affiliation else 'n/a',
-                    'orcid': preprint_author.author.orcid,
-                    'is_active': True,
-                    'email': preprint_author.author.email_address.lower(),
-                }
-            )
-            preprint_author.account = acc
-
-            if c:
-                print('New account created for Preprint author {}'.format(preprint_author))
-            else:
-                print('Account found and linked to preprint {}'.format(preprint.title))
+        if c:
+            print('New account created for Preprint author {}'.format(preprint_author))
+        else:
+            print('Account found and linked to Preprint author {}'.format(preprint_author))
 
 
 class Migration(migrations.Migration):
@@ -41,23 +40,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='preprintauthor',
-            name='account',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
-                                    to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='preprintauthor',
-            name='affiliation',
-            field=models.TextField(blank=True, null=True),
-        ),
         migrations.RunPython(
             create_accounts_for_authors,
             reverse_code=migrations.RunPython.noop,
-        ),
-        migrations.AlterUniqueTogether(
-            name='preprintauthor',
-            unique_together=set([('account', 'preprint')]),
         ),
     ]

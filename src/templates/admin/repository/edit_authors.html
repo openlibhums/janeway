@@ -34,7 +34,7 @@
                         {% if not author %}
                         <form method="POST">
                             {% csrf_token %}
-                            <div class="row">
+                            <div class="row expanded">
                                 <div class="large-12 columns">
                                     <label for="search">
                                         Search for Authors
@@ -48,8 +48,11 @@
                             </div>
                         </form>
 
-                        <hr />
                         {% endif %}
+
+                    <div class="title-area">
+                        <h2>Complete Form</h2>
+                    </div>
 
                         <form method="POST">
                             {% include "elements/forms/errors.html" with form=form %}
