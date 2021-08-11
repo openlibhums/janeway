@@ -84,11 +84,11 @@
                             <th>{% trans 'Email' %}</th>
                             <th>{% trans 'Affiliation' %}</th>
                         </tr>
-                        {% for author in preprint.authors %}
+                        {% for author in preprint.preprintauthor_set.all %}
                             <tr id="authors-{{ author.pk }}">
-                                <td>{{ author.full_name }}</td>
-                                <td>{{ author.email_address }}</td>
-                                <td>{{ author.affiliation }}</td>
+                                <td>{{ author.account.full_name }}</td>
+                                <td>{{ author.account.email }}</td>
+                                <td>{{ author.display_affiliation }}</td>
                             </tr>
                         {% endfor %}
                     </table>

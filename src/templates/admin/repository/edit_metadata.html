@@ -3,7 +3,7 @@
 {% load static from staticfiles %}
 {% load foundation %}
 
-{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title %}{{ preprint.title|striptags }} - Metadata{% endblock %}
 {% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
 {% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
@@ -17,7 +17,7 @@
 
 {% block body %}
     <div class="row expanded">
-        <div class="large-6 columns">
+        <div class="large-12 columns">
             <div class="box">
                 <div class="title-area">
                     <h2>Metadata</h2>
@@ -31,47 +31,6 @@
                             <button name="metadata" class="button"><span class="fa fa-save" aria-hidden="true">&nbsp;</span> Save Metadata</button>
                         </form>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="large-6 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Authors</h2>
-                </div>
-                <div class="content">
-                    <p>
-                        <small>
-                            {% blocktrans %}
-                                Below you can edit each of the authors of this {{ request.repository.object_name }}.
-                                Alternatively use the blank form at the bottom to add more authors.
-                            {% endblocktrans %}
-                        </small>
-                    </p>
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ author_formset.management_form }}
-                        <div id="form_set">
-                            {% for form in author_formset %}
-                                <fieldset class="fieldset">
-                                    {% include "elements/forms/errors.html" with form=form %}
-                                    {{ form|foundationinline }}
-                                    {% if form.instance.id %}
-                                    <button name="delete_author" value="{{ form.instance.id }}" class="alert button">Delete Author</button>
-                                    <br />
-                                    {% endif %}
-                                </fieldset>
-                            {% endfor %}
-                        </div>
-                        <button name="authors" class="button"><span class="fa fa-save" aria-hidden="true">&nbsp;</span>Save Authors</button>
-                        <div id="empty_form" style="display:none">
-                            <fieldset class="fieldset">
-                                {{ author_formset.empty_form|foundationinline }}
-                            </fieldset>
-                        </div>
-                    </form>
-                    <button id="add_more" class="button"><span class="fa fa-plus" aria-hidden="true"></span> More Author Forms</button>
                 </div>
             </div>
         </div>

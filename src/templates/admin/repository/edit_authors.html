@@ -1,0 +1,75 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }} - Authors{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>Edit Authors</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% if author %}Edit {{ author.account.full_name }}{% else %}Add Author{% endif %}</h2>
+                    <a class="button" href="{% url 'repository_manager_article' preprint.pk %}">< Back</a>
+                </div>
+                <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            You can search for an existing author or add them using the form below. If you
+                            complete the form with an email address of an existing user, that user will be added
+                            to the{% endblocktrans %} {{ request.repository.object }}.
+                    </p>
+                    <div class="row expanded">
+                        {% if not author %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <label for="search">
+                                        Search for Authors
+                                    </label>
+                                    <input id="search" name="search" type="text"
+                                           placeholder="Search by Email Address or ORCID">
+                                    <button class="button">
+                                        <i class="fa fa-search"> </i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        {% endif %}
+
+                    <div class="title-area">
+                        <h2>Complete Form</h2>
+                    </div>
+
+                        <form method="POST">
+                            {% include "elements/forms/errors.html" with form=form %}
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                            <div class="row expanded">
+
+                                <button name="authors" class="button"><span class="fa fa-save"
+                                                                            aria-hidden="true">&nbsp;</span>Save
+                                    Author
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
