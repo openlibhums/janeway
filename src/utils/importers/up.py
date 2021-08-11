@@ -57,6 +57,26 @@ def get_thumbnails_url(url):
     return id_href
 
 
+def import_article_images(journal, user, url, thumb_path=None, update=True):
+    url = requests.head(url, allow_redirects=True).url
+    already_exists, doi, domain, soup_object = shared.fetch_page_and_check_if_exists(url)
+    article = already_exists
+    # rip XML out if found
+    pattern = re.compile('.*?XML.*')
+    xml = soup_object.find('a', text=pattern)
+    galley_name = "XML"
+    if article and xml:
+        article.galley_set.filter(type="xml").delete()
+        logger.info("Ripping XML")
+        xml = xml.get('href', None).strip()
+        galley = xml
+        handle_images = True
+        filename, mime = shared.fetch_file(domain, galley, url, galley_name.lower(), article, user,
+                                    handle_images=handle_images)
+        shared.add_file('application/{0}'.format(galley_name.lower()), galley_name.lower(),
+                     'Galley {0}'.format(galley_name), user, filename, article)
+
+
 def import_article(journal, user, url, thumb_path=None, update=False):
     """ Import a Ubiquity Press article.
 
@@ -1179,7 +1199,7 @@ def split_affiliation(affiliation):
 
 def split_name(name):
     parts = name.split(' ')
-    return parts[0], parts[1]
+    return parts[0], ' '.join(parts[1:])
 
 
 def scrape_editorial_team(journal, base_url):
@@ -1229,16 +1249,17 @@ def scrape_editorial_team(journal, base_url):
 
 
 
-                    account, c = core_models.Account.objects.update_or_create(
+                    account, c = core_models.Account.objects.get_or_create(
                         email=email,
                         defaults=profile_dict,
                     )
                     bio_div = member_div.find("div", attrs={"class": "well"})
                     if bio_div:
                         bio = bio_div.text.strip()
-                        account.biography = bio
-                        account.enable_public_profile = True
-                        account.save()
+                        if not account.biography:
+                            account.biography = bio
+                            account.enable_public_profile = True
+                            account.save()
 
                     core_models.EditorialGroupMember.objects.get_or_create(
                         group=group,
@@ -1406,6 +1427,22 @@ def scrape_about_page(journal, base_url):
         str(content),
         journal
     )
+
+
+def scrape_cms_page(journal, page_url, page_name):
+    logger.info("Scraping CMS page: %s", page_url)
+    content = scrape_page(page_url, block_to_find='major-floating-block')
+
+    path = urlparse(page_url).path
+    page_path = os.path.basename(os.path.normpath(path))
+
+    if content and page_path:
+        create_cms_page(
+            page_path,
+            page_name,
+            str(content),
+            journal
+        )
 
 
 def generate_dummy_email(profile_dict):
