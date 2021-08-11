@@ -111,6 +111,24 @@ def senior_editor_user_required(func):
     return wrapper
 
 
+def editor_or_manager(func):
+    """
+    Checks that a user is either an editor or manager for the current journal or repo.
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        if request.journal and request.user in request.journal.editor_list():
+            return func(request, *args, **kwargs)
+
+        if request.repository and request.user in request.repository.managers.all():
+            return func(request, *args, **kwargs)
+
+        deny_access(request)
+
+    return wrapper
+
+
 def production_manager_roles(func):
     """
     Checks if the current user has one of the production manager roles.

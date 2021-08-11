@@ -5,8 +5,10 @@ from django.views.decorators.http import require_POST
 from discussion import models, forms
 from submission import models as submission_models
 from repository import models as repository_models
+from security.decorators import editor_or_manager
 
 
+@editor_or_manager
 def threads(request, object_type, object_id, thread_id=None):
     """
     Grabs threads for an object type.
@@ -81,6 +83,7 @@ def threads(request, object_type, object_id, thread_id=None):
 
 
 @require_POST
+@editor_or_manager
 def add_post(request, thread_id):
     thread = get_object_or_404(
         models.Thread,
