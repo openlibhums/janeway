@@ -1065,9 +1065,9 @@ def preprint_submission(**kwargs):
         )
 
 
-def preprint_publication(**kwargs):
+def preprint_notification(**kwargs):
     """
-    Called by events.Event.ON_PREPRINT_PUBLICATIONS handles logging and emails.
+    Called by events.Event.ON_PREPRINT_NOTIFICATION handles logging and emails.
     :param kwargs: Dict with preprint, content and request objects
     :return: None
     """

@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 # we need this for strict type checking on the event destroyer
 from submission import models as submission_models
+from django.conf import settings
 
 
 class Events:
@@ -211,9 +212,13 @@ class Events:
     # raised when a new preprint article is submitted
     ON_PREPRINT_SUBMISSION = 'on_preprint_submission'
 
-    # kwargs: request, article
+    # kwargs: request, preprint
     # raised when a preprint is published in the repo
     ON_PREPRINT_PUBLICATION = 'on_preprint_publication'
+
+    # kwargs: request, preprint, email_content
+    # raised when a preprint is published in the repo
+    ON_PREPRINT_NOTIFICATION = 'on_preprint_notification'
 
     # kwargs: request, article, comment
     # raised when a new comment is submitted for a preprint
@@ -237,7 +242,8 @@ class Events:
         :param kwargs: the arguments to pass to the event
         :return: None
         """
-
+        if settings.DEBUG:
+            print('Firing event {}'.format(event_name))
         # destroy/complete tasks that have registered for this event
         if event_name != "destroy_tasks" and task_object is not None and isinstance(task_object,
                                                                                     submission_models.Article):

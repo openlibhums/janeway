@@ -8,13 +8,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Q
+from django.forms import formset_factory
 
 from production.logic import save_galley
 from core import models as core_models, files
 from utils import render_template, shared
 from utils.function_cache import cache
 from events import logic as event_logic
-from repository import models
+from repository import models, forms
 from metrics.logic import get_iso_country_code, iso_to_country_object
 
 
@@ -441,11 +442,11 @@ def check_duplicates(version_queue):
 def search_for_authors(request, preprint):
     search_term = request.POST.get('search')
     try:
-        search_author = models.Author.objects.get(
-            Q(email_address=search_term) | Q(orcid=search_term)
+        search_author = core_models.Account.objects.get(
+            Q(email=search_term) | Q(orcid=search_term)
         )
         pa, created = models.PreprintAuthor.objects.get_or_create(
-            author=search_author,
+            account=search_author,
             preprint=preprint,
             defaults={'order': preprint.next_author_order()},
         )
@@ -458,7 +459,9 @@ def search_for_authors(request, preprint):
                     request.repository.object_name,
                 )
             )
-    except models.Author.DoesNotExist:
+
+        return pa
+    except core_models.Account.DoesNotExist:
         messages.add_message(
             request,
             messages.INFO,

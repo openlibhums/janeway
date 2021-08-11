@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
 
 from repository import forms, logic as repository_logic, models
 from cms import models as cms_models
@@ -516,7 +517,11 @@ def repository_authors(request, preprint_id):
         owner=request.user,
         date_submitted__isnull=True,
     )
-    form = forms.AuthorForm()
+    form = forms.AuthorForm(
+        instance=None,
+        request=request,
+        preprint=preprint,
+    )
     modal, fire_redirect, author_to_add = None, False, None
 
     if request.POST:
@@ -542,35 +547,15 @@ def repository_authors(request, preprint_id):
             fire_redirect = True
 
         if 'form' in request.POST:
-            form = forms.AuthorForm(request.POST)
+            form = forms.AuthorForm(
+                request.POST,
+                request=request,
+                preprint=preprint,
+                instance=None,
+            )
 
             if form.is_valid():
-                author_to_add = form.save()
-            else:
-                # If the form is not valid we want to grab the email address
-                # and check if there is an author record already for that
-                # author.
-                if not form.cleaned_data.get('email_address', None):
-                    email_address = form.data['email_address']
-                    try:
-                        author_to_add = models.Author.objects.get(
-                            email_address=email_address,
-                        )
-                    except models.Author.DoesNotExist:
-                        author_to_add = None
-
-            if author_to_add:
-                preprint_author, created = preprint.add_author(author_to_add)
-
-                if not created:
-                    messages.add_message(
-                        request,
-                        messages.WARNING,
-                        '{} is already associated with this {}'.format(
-                            preprint_author.author.full_name,
-                            request.repository.object_name,
-                        )
-                    )
+                form.save()
                 fire_redirect = True
             else:
                 modal = 'newauthor'
@@ -807,15 +792,21 @@ def repository_manager_article(request, preprint_id):
                     'You must assign at least one galley file.',
                 )
             else:
-                # TODO: Handle DOIs
-                kwargs = {
+                date_kwargs = {
                     'date': request.POST.get('date', timezone.now().date()),
                     'time': request.POST.get('time', timezone.now().time()),
                 }
                 if preprint.date_published:
-                    preprint.update_date_published(**kwargs)
+                    preprint.update_date_published(**date_kwargs)
                 else:
-                    preprint.accept(**kwargs)
+                    preprint.accept(**date_kwargs)
+                    event_logic.Events.raise_event(
+                        event_logic.Events.ON_PREPRINT_PUBLICATION,
+                        {
+                            'request': request,
+                            'preprint': preprint,
+                        },
+                    )
                     return redirect(
                         reverse(
                             'repository_notification',
@@ -919,36 +910,7 @@ def repository_edit_metadata(request, preprint_id):
         admin=True,
     )
 
-    author_formset = forms.AuthorFormSet(
-        queryset=preprint.author_objects(),
-    )
-
-    fire_redirect = False
-
     if request.POST:
-        if 'authors' in request.POST:
-            author_formset = forms.AuthorFormSet(request.POST)
-            if author_formset.is_valid():
-                authors = author_formset.save()
-                for author in authors:
-                    models.PreprintAuthor.objects.get_or_create(
-                        preprint=preprint,
-                        author=author,
-                        defaults={
-                            'order': preprint.next_author_order(),
-                        }
-                    )
-                fire_redirect = True
-
-        if 'delete_author' in request.POST:
-            author_id = request.POST.get('delete_author')
-            author = get_object_or_404(
-                models.PreprintAuthor,
-                author__pk=author_id,
-                preprint=preprint,
-            ).delete()
-            fire_redirect = True
-
         if 'metadata' in request.POST:
             metadata_form = forms.PreprintInfo(
                 request.POST,
@@ -959,24 +921,72 @@ def repository_edit_metadata(request, preprint_id):
 
             if metadata_form.is_valid():
                 metadata_form.save()
-                fire_redirect = True
 
-        if fire_redirect:
-            return redirect(
-                reverse(
-                    'repository_edit_metadata',
-                    kwargs={'preprint_id': preprint.pk},
+                return redirect(
+                    reverse(
+                        'repository_edit_metadata',
+                        kwargs={'preprint_id': preprint.pk},
+                    )
                 )
-            )
 
     template = 'admin/repository/edit_metadata.html'
     context = {
         'preprint': preprint,
         'metadata_form': metadata_form,
-        'author_formset': author_formset,
         'additional_fields': request.repository.additional_submission_fields(),
     }
 
+    return render(request, template, context)
+
+
+@is_article_preprint_editor
+def repository_edit_author(request, preprint_id, author_id=None):
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository
+    )
+    author = get_object_or_404(
+        models.PreprintAuthor,
+        pk=author_id,
+        preprint=preprint,
+    ) if author_id else None
+
+    form = forms.AuthorForm(
+        instance=author,
+        preprint=preprint,
+        request=request,
+    )
+
+    if request.POST:
+
+        if 'search' in request.POST:
+            author_save = repository_logic.search_for_authors(request, preprint)
+        else:
+            form = forms.AuthorForm(
+                request.POST,
+                instance=author,
+                preprint=preprint,
+                request=request,
+            )
+            if form.is_valid():
+                author_save = form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Author information saved'),
+                )
+        if author_save:
+            return redirect(
+                reverse('repository_edit_authors', args=[preprint.pk, author_save.pk])
+            )
+
+    template = 'admin/repository/edit_authors.html'
+    context = {
+        'preprint': preprint,
+        'form': form,
+        'author': author,
+    }
     return render(request, template, context)
 
 
@@ -1037,7 +1047,7 @@ def repository_notification(request, preprint_id):
             'email_content': email_content,
         }
         event_logic.Events.raise_event(
-            event_logic.Events.ON_PREPRINT_PUBLICATION,
+            event_logic.Events.ON_PREPRINT_NOTIFICATION,
             **kwargs,
         )
         return redirect(
@@ -1259,22 +1269,38 @@ def preprints_author_order(request, preprint_id):
     :param preprint_id: PK of a Preprint object
     :return: JSON OK
     """
-    preprint = get_object_or_404(
-        models.Preprint,
-        pk=preprint_id,
-        repository=request.repository,
-        owner=request.user,
-    )
+    preprint = None
+    try:
+        preprint = models.Preprint.objects.get(
+            pk=preprint_id,
+            repository=request.repository,
+            owner=request.user,
+        )
+    except models.Preprint.DoesNotExist:
+        try:
+            preprint = models.Preprint.objects.get(
+                pk=preprint_id,
+                repository=request.repository,
+                repository__managers=request.user,
+            )
+        except models.Preprint.DoesNotExist:
+            pass
+
+    if not preprint:
+        raise PermissionDenied(
+            'Permission Denied. You must be the owner or a repository manager.',
+        )
+
     posted_author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
     preprint_authors = models.PreprintAuthor.objects.filter(
         preprint=preprint,
     )
 
     for preprint_author in preprint_authors:
-        order = posted_author_pks.index(preprint_author.author.pk)
+        order = posted_author_pks.index(preprint_author.pk)
         author_order, c = models.PreprintAuthor.objects.get_or_create(
             preprint=preprint,
-            author=preprint_author.author,
+            account=preprint_author.account,
             defaults={'order': order}
         )
 
@@ -1295,16 +1321,27 @@ def repository_delete_author(request, preprint_id, redirect_string):
     :return: HttpRedirect
     """
     author_id = request.POST.get('author_id')
-    preprint = get_object_or_404(
-        models.Preprint,
-        pk=preprint_id,
-        repository=request.repository,
-        owner=request.user,
-    )
+
+    if redirect_string == 'submission':
+        # Checks the user is the owner of the Preprint.
+        preprint = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            repository=request.repository,
+            owner=request.user,
+        )
+    else:
+        # Checks if user in a Repository managers m2m.
+        preprint = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            repository=request.repository,
+            repository__managers=request.user,
+        )
 
     preprint_author = get_object_or_404(
         models.PreprintAuthor,
-        author__id=author_id,
+        pk=author_id,
         preprint=preprint,
     )
 

@@ -17,7 +17,7 @@ from django.shortcuts import reverse
 from django.http.request import split_domain_port
 
 from core.file_system import JanewayFileSystemStorage
-from core import model_utils, files
+from core import model_utils, files, models as core_models
 from utils import logic
 from repository import install
 from utils.function_cache import cache
@@ -434,9 +434,9 @@ class Preprint(models.Model):
     def authors(self):
         preprint_authors = PreprintAuthor.objects.filter(
             preprint=self,
-        ).select_related('author')
+        ).select_related('account')
 
-        return [pa.author for pa in preprint_authors]
+        return [pa.account for pa in preprint_authors]
 
     @property
     def supplementaryfiles(self):
@@ -445,8 +445,8 @@ class Preprint(models.Model):
         )
 
     def author_objects(self):
-        pks = [author.pk for author in self.authors]
-        return Author.objects.filter(pk__in=pks)
+        pks = [author.account.pk for author in self.authors]
+        return core_models.Account.objects.filter(pk__in=pks)
 
     def display_authors_compact(self):
         etal = ", ".join([author.full_name for author in self.authors[:3]])
@@ -455,30 +455,12 @@ class Preprint(models.Model):
         return etal
 
     def display_authors(self):
-        return ", ".join([author.full_name for author in self.authors])
+        return ", ".join([author.full_name() for author in self.authors if author is not None])
 
     def add_user_as_author(self, user):
-
-        author_dict = {
-            'first_name': user.first_name if user.first_name else '',
-            'middle_name': user.middle_name if user.middle_name else '',
-            'last_name': user.last_name if user.last_name else '',
-            'affiliation': user.affiliation() if user.affiliation else '',
-            'orcid': user.orcid if user.orcid else '',
-        }
-
-        author, a_created = Author.objects.get_or_create(
-            email_address=user.email,
-            defaults=author_dict,
-        )
-
-        # if the author object already exists, but does not have an orcid, the default given above will not be used... solution: go back and update the orcid
-        if not author.orcid and user.orcid:
-            author.orcid = user.orcid
-            author.save()
-
         preprint_author, created = PreprintAuthor.objects.get_or_create(
-            author=author,
+            account=user,
+            affiliation=user.institution,
             preprint=self,
             defaults={'order': self.next_author_order()},
         )
@@ -508,9 +490,8 @@ class Preprint(models.Model):
         orderings = [supp_file.order for supp_file in self.supplementaryfiles]
         return max(orderings) + 1 if orderings else 0
 
-
     def user_is_author(self, user):
-        if user.email in [author.email_address for author in self.authors]:
+        if user.email in [author.email for author in self.authors]:
             return True
 
         return False
@@ -691,21 +672,56 @@ class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().select_related('author')
 
+
 class PreprintAuthor(models.Model):
     preprint = models.ForeignKey('Preprint')
-    author = models.ForeignKey('Author')
+    account = models.ForeignKey('core.Account', null=True)
+    author = models.ForeignKey('Author', blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     objects = PreprintAuthorManager()
+    affiliation = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('order',)
-        unique_together = ('author', 'preprint')
+        unique_together = ('account', 'preprint')
 
     def __str__(self):
         return '{author} linked to {preprint}'.format(
-            author=self.author.full_name,
+            author=self.account.full_name() if self.account else '',
             preprint=self.preprint.title,
         )
+
+    @property
+    def full_name(self):
+        if not self.account.middle_name:
+            return '{} {}'.format(self.account.first_name, self.account.last_name)
+        else:
+            return '{} {} {}'.format(
+                self.account.first_name,
+                self.account.middle_name,
+                self.account.last_name,
+            )
+
+    def dc_name(self):
+        if not self.account.middle_name:
+            return '{}, {}'.format(self.account.last_name, self.account.first_name)
+        else:
+            return '{}. {} {}'.format(
+                self.account.last_name,
+                self.account.first_name,
+                self.account.middle_name,
+            )
+
+    def to_dc(self):
+        return '<meta name="DC.Contributor" content="{}">'.format(
+            self.dc_name,
+        )
+
+    def display_affiliation(self):
+        if self.affiliation:
+            return self.affiliation
+        if self.account is not None:
+            return self.account.institution
 
 
 class Author(models.Model):
@@ -720,38 +736,6 @@ class Author(models.Model):
         null=True,
         verbose_name=_('ORCID')
     )
-
-    class Meta:
-        ordering = ('last_name',)
-
-    def __str__(self):
-        return self.full_name
-
-    @property
-    def full_name(self):
-        if not self.middle_name:
-            return '{} {}'.format(self.first_name, self.last_name)
-        else:
-            return '{} {} {}'.format(
-                self.first_name,
-                self.middle_name,
-                self.last_name,
-            )
-
-    def dc_name(self):
-        if not self.middle_name:
-            return '{}, {}'.format(self.last_name, self.first_name)
-        else:
-            return '{}. {} {}'.format(
-                self.last_name,
-                self.first_name,
-                self.middle_name,
-            )
-
-    def to_dc(self):
-        return '<meta name="DC.Contributor" content="{}">'.format(
-            self.dc_name,
-        )
 
 
 class PreprintVersion(models.Model):
@@ -857,6 +841,12 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+    def published_preprints_count(self):
+        return self.preprint_set.filter(
+            repository=self.repository,
+            stage=STAGE_PREPRINT_PUBLISHED,
+        ).count()
 
 
 def version_choices():
