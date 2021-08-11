@@ -1,0 +1,65 @@
+   <div class="modal fade" id="HarvardModal" tabindex="-1" role="dialog" aria-labelledby="HarvardModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="HarvardModalLabel">{% trans 'Harvard-Style Citation' %}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %},
+                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                        ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
+                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="VancouverModal" tabindex="-1" role="dialog" aria-labelledby="VancouverModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VancouverModalLabel">{% trans 'Vancouver-Style Citation' %}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{% for author in article.authors.all %}{% if not forloop.first and not forloop.last %},
+                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                        {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
+                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="APAModal" tabindex="-1" role="dialog" aria-labelledby="APAModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="APAModalLabel">{% trans 'APA-Style Citation' %}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{% for author in article.authors.all %}{% if forloop.last %}{% if not forloop.first %}
+                        &amp; {% endif %}{% endif %}{{ author.last_name }},
+                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                        ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
+                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                </div>
+
+            </div>
+        </div>
+    </div>

@@ -125,9 +125,6 @@ src/.DS_Store
 .DS_Store
 
 src/static/superhero/
-
-src/themes/clean
-
 src/themes/superhero
 
 # Lando

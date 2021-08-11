@@ -1,0 +1,77 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as current_language %}
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% if request.journal %}
+        <meta name="description" content="{{ request.journal.description }}">{% endif %}
+    <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% else %}{{ request.press.name }}
+    {% endif %}{% endblock title %}</title>
+
+    <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
+          title="Article Feed for Journal">
+    <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+    {% if journal.favicon %}
+        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% endif %}
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="{% static "clean/css/clean.css" %}" rel="stylesheet">
+    {% if request.journal %}
+        <link href="{% static "clean/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
+    {% endif %}
+    <link href="{% static "common/css/common.css" %}" rel="stylesheet">
+    {% block head %}{% endblock head %}
+</head>
+<body>
+<div class="skipnav"><a href="#main">Skip to main content</a> <a href="#footer">Skip to footer</a></div>
+<div class="container">
+    <header class="site-header" role="banner">
+        <div id="journal-title">
+            <div class="row">
+                {% if request.journal.header_image %}
+                <div class="col-md-2">
+                    <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}"
+                                                              class="img-fluid header-image top-bar-image" alt="{{ request.journal.name }} logo"></a>
+                </div>
+                {% endif %}
+                <div class="col-md-10">
+                    <p class="journal-name">{{ request.journal.name }}</p>
+                </div>
+            </div>
+
+        </div>
+      {% include "core/nav.html" %}
+    </header>
+    <main id="main">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissable">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                {{ message|linebreaksbr }}
+            </div>
+        {% endfor %}
+        {% block body %}{% endblock body %}
+    </main>
+    <footer class="site-footer" id="footer">
+      {% include "core/footer.html" %}
+    </footer>
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+{% block js %}{% endblock %}
+</body>
+</html>
