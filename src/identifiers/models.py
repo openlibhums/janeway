@@ -109,7 +109,6 @@ class CrossrefDeposit(models.Model):
         )
 
 
-
 class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
     identifier = models.CharField(max_length=300)
