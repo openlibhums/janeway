@@ -763,6 +763,13 @@ class PreprintVersion(models.Model):
         )
 
     )
+    published_doi = models.URLField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Published Article DOI",
+        help_text="Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx",
+    )
 
     class Meta:
         ordering = ('-version', '-date_time', '-id')
@@ -866,6 +873,14 @@ class VersionQueue(models.Model):
     date_decision = models.DateTimeField(blank=True, null=True)
     approved = models.BooleanField(default=False)
 
+    published_doi = models.URLField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Published Article DOI",
+        help_text="Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx",
+    )
+
     title = models.CharField(
         max_length=300,
         help_text=_('Your article title'),
@@ -893,6 +908,7 @@ class VersionQueue(models.Model):
             current_version = self.preprint.current_version
             current_version.title = self.preprint.title
             current_version.abstract = self.preprint.abstract
+            current_version.published_doi = self.preprint.doi
             this_file = self.preprint.current_version.file
         # no version yet
         else:
@@ -906,6 +922,7 @@ class VersionQueue(models.Model):
             file=self.file if self.file else this_file,
             version=self.preprint.next_version_number(),
             moderated_version=self,
+            published_doi=self.published_doi,
         )
 
         # Overwrite the preprint's metadata now we have a historical record.
@@ -914,6 +931,8 @@ class VersionQueue(models.Model):
             self.preprint.title = self.title
         if self.abstract:
             self.preprint.abstract = self.abstract
+        if self.published_doi:
+            self.preprint.doi = self.published_doi
 
         if current_version is not None:
             current_version.save()

@@ -20,6 +20,8 @@
                     <p>{{ version.preprint.title|safe }}</p>
                     <p><strong>Abstract</strong></p>
                     <p>{{ version.preprint.abstract|safe|linebreaksbr }}</p>
+                    <p><strong>Published DOI</strong></p>
+                    <p>{{ version.preprint.doi }}</p>
                     <p><strong>File</strong></p>
                     {% if version.preprint.current_version.file %}
                     <p><a href="{% url 'repository_file_download' version.preprint.id version.preprint.current_version.file.id %}"><i class="fa fa-download"></i> Download</a></p>
@@ -35,6 +37,9 @@
                     <p>{% if version.title == version.preprint.title %}Unchanged{% else %} {{ version.title }}{% endif %}</p>
                     <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
                     <p>{% if version.abstract == version.preprint.abstract %}Unchanged{% else %}{{ version.abstract|safe|linebreaksbr }}{% endif %}</p>
+
+                    <p><strong>Published DOI{% if version.published_doi and version.published_doi != version.preprint.doi %} (changed){% endif %}</strong></p>
+                    <p>{% if version.published_doi == version.preprint.doi %}Unchanged{% else %}{{ version.published_doi }}{% endif %}</p>
                     <p><strong>File</strong></p>
                     <p>{% if version.file %}<a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a>{% else %}No File{% endif %}</p>
                 </div>

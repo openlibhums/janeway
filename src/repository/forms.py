@@ -49,7 +49,6 @@ class PreprintInfo(forms.ModelForm):
         self.admin = kwargs.pop('admin', False)
         elements = self.request.repository.additional_submission_fields()
         super(PreprintInfo, self).__init__(*args, **kwargs)
-        print(self.admin)
         if self.admin:
             self.fields.pop('submission_agreement')
             self.fields.pop('comments_editor')
@@ -374,13 +373,14 @@ class FileForm(forms.ModelForm):
 class VersionForm(forms.ModelForm):
     class Meta:
         model = models.VersionQueue
-        fields = ('title', 'abstract')
+        fields = ('title', 'abstract', 'published_doi')
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop('preprint')
         super(VersionForm, self).__init__(*args, **kwargs)
         self.fields['title'].initial = self.preprint.title
         self.fields['abstract'].initial = self.preprint.abstract
+        self.fields['published_doi'].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
