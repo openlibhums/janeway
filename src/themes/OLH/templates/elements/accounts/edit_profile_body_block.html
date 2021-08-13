@@ -9,8 +9,10 @@
                 account will be marked as inactive until you follow the instructions in the verification email. <strong>Note: </strong>
                 Changing your email address will also change your username as these are one and the same.</p>
                 {% endblocktrans %}
+                <p><strong>{% trans 'Current Email Address' %}:</strong> {{ request.user.email }}</p>
                 <form method="POST">
                     {% csrf_token %}
+                    <label for="email_address">{% trans 'New Email Address' %}</label>
                     <input type="email" name="email_address" placeholder="janeway@voyager.com">
                     <button type="submit" name="email" class="warning button">{% trans "Update Email Address" %}</button>
                 </form>
