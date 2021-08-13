@@ -13,6 +13,8 @@
                 <form method="POST">
                     {% csrf_token %}
                     <div class="form-group">
+                        <strong>{% trans 'Current email address' %}: </strong>{{ request.user.email }}
+                        <label for="email_address">{% trans 'New Email Address' %}</label>
                         <input type="email" name="email_address"
                                class="form-control"
                                placeholder="janeway@voyager.com"
