@@ -2101,12 +2101,31 @@ def document_management(request, article_id):
 
     if request.POST and request.FILES:
 
+        label = request.POST.get('label') if request.POST.get('label') else 'File'
+
         if 'manu' in request.POST:
             from core import files as core_files
             file = request.FILES.get('manu-file')
             new_file = core_files.save_file_to_article(file, document_article,
-                                                       request.user, label='MS File', is_galley=False)
+                                                       request.user, label=label, is_galley=False)
             document_article.manuscript_files.add(new_file)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Production file uploaded.'),
+            )
+
+        if 'fig' in request.POST:
+            from core import files as core_files
+            file = request.FILES.get('fig-file')
+            new_file = core_files.save_file_to_article(
+                file,
+                document_article,
+                request.user,
+                label=label,
+                is_galley=False,
+            )
+            document_article.data_figure_files.add(new_file)
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -2116,7 +2135,7 @@ def document_management(request, article_id):
         if 'prod' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('prod-file')
-            prod_logic.save_prod_file(document_article, request, file, 'Production Ready File')
+            prod_logic.save_prod_file(document_article, request, file, label)
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -2126,7 +2145,7 @@ def document_management(request, article_id):
         if 'proof' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('proof-file')
-            prod_logic.save_galley(document_article, request, file, True, 'File for Proofing')
+            prod_logic.save_galley(document_article, request, file, True, label)
             messages.add_message(
                 request,
                 messages.SUCCESS,
