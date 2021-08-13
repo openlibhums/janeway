@@ -561,8 +561,24 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 
 /* Allow the use of default <li> */
-.default-li ul>li {
-    list-style-type: initial;
+.default-li ul, ol {
+    display: block;
+    list-style: disc outside none;
+    margin: 1em 0;
+    padding: 0 0 0 40px;
+}
+.default-li ol {
+    list-style-type: decimal;
+}
+.default-li li {
+    display: list-item;
+}
+.default-li ul ul, ol ul {
+    list-style-type: circle;
+}
+
+.default-li ol ol, ul ol {
+    list-style-type: lower-latin;
 }
 
 .language-select {
