@@ -5,6 +5,7 @@ import re
 
 from django.db import migrations
 from django.conf import settings as django_settings
+from django.core.exceptions import FieldError
 
 FROM_RE = re.compile("{{ ?do_review_url ?}}")
 TO = "{{ review_url }}"
@@ -16,7 +17,7 @@ def replace_setting_urls(apps, schema_editor):
         settings = SettingValueTranslation.objects.filter(master__setting__group__name="email")
         for s in settings:
             fix_url(s)
-    except LookupError:
+    except (LookupError, FieldError):
         SettingValue = apps.get_model('core', 'SettingValue')
         settings = SettingValue.objects.filter(
             setting__group__name='email',

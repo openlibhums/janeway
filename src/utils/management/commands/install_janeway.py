@@ -13,7 +13,6 @@ from utils.install import (
         update_settings,
         update_xsl_files,
 )
-from submission import models as submission_models
 
 ROLES_RELATIVE_PATH = 'utils/install/roles.json'
 
@@ -54,16 +53,15 @@ class Command(BaseCommand):
                 press.save()
 
             print("Thanks! We will now set up out first journal.\n")
+            print("Installing settings and XSL fixtures... ", end="")
             update_xsl_files()
+            update_settings()
+            print("[okay]")
             journal = journal_models.Journal()
             journal.code = input('Journal #1 code: ')
             if settings.URL_CONFIG == 'domain':
                 journal.domain = input('Journal #1 domain: ')
             journal.save()
-
-            print("Installing settings fixtures... ", end="")
-            update_settings(journal, management_command=False)
-            print("[okay]")
             print("Installing issue types fixtures... ", end="")
             update_issue_types(journal, management_command=False)
             print("[okay]")
