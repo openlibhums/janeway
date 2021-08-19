@@ -15,17 +15,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='preprintauthor',
-            name='account',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
-                                    to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='preprintauthor',
-            name='affiliation',
-            field=models.TextField(blank=True, null=True),
-        ),
         migrations.AlterModelOptions(
             name='author',
             options={},

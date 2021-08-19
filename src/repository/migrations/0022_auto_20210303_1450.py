@@ -7,6 +7,15 @@ import django.db.models.deletion
 from django.conf import settings
 
 
+def normalise_preprint_author_orcids(apps, schema_editor):
+    Authors = apps.get_model('repository', 'Author')
+    for author in Authors.objects.filter(orcid__isnull=False):
+        split = author.orcid.split('/')
+        orcid = split[-1]
+        author.orcid = orcid
+        author.save()
+
+
 def create_accounts_for_authors(apps, schema_editor):
     Account = apps.get_model('core', 'Account')
     PreprintAuthor = apps.get_model('repository', 'PreprintAuthor')
@@ -14,6 +23,7 @@ def create_accounts_for_authors(apps, schema_editor):
     for preprint_author in PreprintAuthor.objects.all():
         acc, c = Account.objects.get_or_create(
             username=preprint_author.author.email_address.lower(),
+            email=preprint_author.author.email_address.lower(),
             defaults={
                 'first_name': preprint_author.author.first_name,
                 'middle_name': preprint_author.author.middle_name,
@@ -21,7 +31,6 @@ def create_accounts_for_authors(apps, schema_editor):
                 'institution': preprint_author.affiliation if preprint_author.affiliation else 'n/a',
                 'orcid': preprint_author.author.orcid,
                 'is_active': True,
-                'email': preprint_author.author.email_address.lower(),
             }
         )
         preprint_author.account = acc
@@ -40,6 +49,21 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            normalise_preprint_author_orcids,
+            reverse_code=migrations.RunPython.noop,
+        ),
+        migrations.AddField(
+            model_name='preprintauthor',
+            name='account',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='preprintauthor',
+            name='affiliation',
+            field=models.TextField(blank=True, null=True),
+        ),
         migrations.RunPython(
             create_accounts_for_authors,
             reverse_code=migrations.RunPython.noop,
