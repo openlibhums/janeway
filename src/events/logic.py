@@ -227,8 +227,8 @@ class Events:
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
 
-    # kwargs:
-    # raised when an article is viewed or downlaoded
+    # kwargs: request, article, article_access
+    # raised when an article is viewed or downloaded
     ON_ARTICLE_ACCESS = 'on_article_access'
 
     @staticmethod
