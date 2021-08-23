@@ -20,6 +20,7 @@ from utils import shared
 from utils.decorators import retry
 from utils.function_cache import cache
 from core import models as core_models
+from events import logic as event_logic
 
 
 @cache(300)
@@ -258,7 +259,17 @@ def store_article_access(request, article, access_type, galley_type='view'):
                     country=country,
                     accessed=current_time,
                 )
-
+                # Raise the Article Access event.
+                event_kwargs = {
+                    'article_access': access,
+                    'article': article,
+                    'request': request,
+                }
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_ARTICLE_ACCESS,
+                    task_object=article,
+                    **event_kwargs,
+                )
                 return access
     return None
 
