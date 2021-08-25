@@ -9,6 +9,7 @@
                 <li class=".is-dropdown-submenu-parent"><a href="/{{ item.link }}"
                                                            data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
                     <ul class="menu vertical medium-horizontal">
+                        {% if item.link %}<li><a href="{{ item.url }}">{{ item.link_name }}</a></li>{% endif %}
                         {% for subnav in item.sub_nav_items %}
                             <li><a href="{% if not subnav.is_external %}/{% endif %}{{ subnav.link }}">{{ subnav.link_name }}</a></li>
                         {% endfor %}

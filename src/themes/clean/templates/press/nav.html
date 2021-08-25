@@ -36,6 +36,7 @@
                             {{ item.link_name }}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
+                            {% if item.link %}<a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
                             {% for subnav in item.sub_nav_items %}
                                 <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a>
                             {% endfor %}
