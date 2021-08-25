@@ -28,6 +28,7 @@
                         <li>Add the URL Name of the page eg. about</li>
                         <li>An example: {% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with {{ request.journal.code }}/{% endif %}site/about/</li>
                         <li>Link Name is the text that will appear in the nav bar. eg. About or Research Integrity</li>
+                        <li>For top level nav items that you don't want to appear in the dropdown leave the Link field empty.</li>
                     </ul>
                 </small>
                 {{ form|foundation }}
