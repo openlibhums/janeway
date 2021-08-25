@@ -1,208 +1,69 @@
 {% extends "admin/core/base.html" %}
 {% load roles %}
 
-{% block title %}Dashboard{% endblock title %}
-{% block title-section %}Dashboard{% endblock %}
-{% block title-sub %}Summary{% endblock %}
-
+{% block title %}Janeway Dashboard{% endblock title %}
+{% block title-section %}Janeway Dashboard{% endblock %}
 
 {% block body %}
     <section>
-       {% include "admin/elements/no_stage.html" %}
-
-        <div class="row expanded" data-equalizer data-equalize-on="medium">
-            {% include "admin/elements/core/editor_dashboard.html" %}
+        <div class="row expanded">
+            <div class="large-8 columns">
+                <ul class="tabs" data-tabs id="tabs" role="tablist">
+                    <li class="tabs-title is-active"><a href="#mine" data-tabs-target="mine" aria-selected="true">My
+                        Assignments</a></li>
+                    <li class="tabs-title"><a data-tabs-target="all" href="#all">Articles</a></li>
+                </ul>
+                <div class="tabs-content" data-tabs-content="tabs">
+                    <div class="tabs-panel is-active" id="mine">
+                        <div class="title-area">
+                            <h2>My Assignments</h2>
+                        </div>
+                        <div class="content">
+                            <table class="table scroll small">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Correspondence Author</th>
+                                        <th>Stage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for article in my_articles %}
+                                    <tr>
+                                        <td>{{ article.pk }}</td>
+                                        <td>{{ article.title }}</td>
+                                        <td>{{ article.correspondence_author.full_name }}</td>
+                                        <td>{{ article.stage }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="100">
+                                                <i class="fa fa-warning">&nbsp;</i> No reviewers have been assigned to this article.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tabs-panel is-active" id="all">
+                        <div class="title-area">
+                            <h2>All Active Articles</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="large-4 columns">
+                <div class="box">
+                    <div class="title-area">
+                        <h2>To Do List</h2>
+                    </div>
+                    <div class="content">
+                        <input type="checkbox" id="test"><label for="test"> Send article 123 to typesetting.</label>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% if is_reviewer %}
-            <div class="large-4 columns end" data-equalizer-watch>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Reviewer</h2>
-                        <a href="{% url 'review_requests' %}" class="button">View Requests</a>
-                    </div>
-                    <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ assigned_articles_for_user_review_count }}</span>
-                            <span class="title">Review Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ assigned_articles_for_user_review_accepted_count }}</span>
-                            <span class="title">Accepted Reviews</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ assigned_articles_for_user_review_completed_count }}</span>
-                            <span class="title">Completed Reviews</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        {% user_has_role request 'copyeditor' as copyeditor %}
-        {% if copyeditor and 'copyediting' in workflow_elements %}
-            <div class="large-4 columns end" data-equalizer-watch>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Copyeditor</h2>
-                        <a href="{% url 'copyedit_requests' %}" class="button">View Requests</a>
-                    </div>
-                    <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ copyeditor_requests }}</span>
-                            <span class="title">Copyedit Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ copyeditor_accepted_requests }}</span>
-                            <span class="title">Accepted Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ copyeditor_completed_requests }}</span>
-                            <span class="title">Completed Requests</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        {% user_has_role request 'typesetter' as typesetter %}
-        {% if typesetter and 'production' in workflow_elements %}
-            <div class="large-4 columns end" data-equalizer-watch>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Production</h2>
-                        <a href="{% url 'typesetter_requests' %}" class="button">View Requests</a>
-                    </div>
-                    <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ typeset_tasks }}</span>
-                            <span class="title">Production Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ typeset_in_progress_tasks }}</span>
-                            <span class="title">Accepted Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ typeset_completed_tasks }}</span>
-                            <span class="title">Completed Requests</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        {% user_has_role request 'production' as production %}
-        {% if production and 'production' in workflow_elements %}
-            <div class="large-4 columns end" data-equalizer-watch>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Production Manager</h2>
-                        <a href="{% url 'production_list' %}" class="button">View Requests</a>
-                    </div>
-                    <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ production_articles_count }}</span>
-                            <span class="title">Articles in Production</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        {% user_has_role request 'proofreader' as proofreader %}
-        {% if 'proofing' in workflow_elements %}
-        {% if proofreader or is_author  %}
-            <div class="large-4 columns end" data-equalizer-watch>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Proofreader</h2>
-                        <a href="{% url 'proofing_requests' %}" class="button">View Requests</a>
-                    </div>
-                    <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ new_proofing }}</span>
-                            <span class="title">Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ active_proofing }}</span>
-                            <span class="title">Accepted</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ completed_proofing }}</span>
-                            <span class="title">Completed</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        {% endif %}
-
-        {% if typesetter and 'proofing' in workflow_elements %}
-            <div class="large-4 columns end" data-equalizer-watch>
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Proofing Corrections</h2>
-                        <a href="{% url 'proofing_correction_requests' %}" class="button">View Requests</a>
-                    </div>
-                    <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ new_proofing_typesetting }}</span>
-                            <span class="title">Production Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ active_proofing_typesetting }}</span>
-                            <span class="title">Accepted Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ completed_proofing_typesetting }}</span>
-                            <span class="title">Completed Requests</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% for element in request.journal.workflow_plugin_elements %}
-            {% include element.settings.dashboard_template %}
-        {% endfor %}
-
-
-        {% user_has_role request 'section-editor' as sectioneditor %}
-        {% if sectioneditor %}
-            <div class="large-12 columns end">
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Section Editor</h2>
-                    </div>
-                    <div class="content">
-                        <table class="scroll">
-                            <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Authors</th>
-                                <th>Submitted</th>
-                                <th>Current Stage</th>
-                            </tr>
-                            </thead>
-                            {% for assignment in section_editor_articles %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.title }}</a>
-                                    </td>
-                                    <td>{{ assignment.article.author_list }}</td>
-                                    <td>{{ assignment.article.date_submitted }}</td>
-                                    <td>{{ assignment.article.stage }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4">No Articles Assigned</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-
-        {% if is_author %}
-            {% include "admin/elements/core/author_dashboard.html" %}
-        {% endif %}
 
     </section>
-{% endblock body %}
+{% endblock %}

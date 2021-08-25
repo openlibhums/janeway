@@ -468,8 +468,13 @@ def dashboard(request):
                                                                             editor_type='section-editor',
                                                                             article__journal=request.journal)
 
-    # TODO: Move most of this to model logic.
-    context = {
+    assignments = review_models.EditorAssignment.objects.filter(article__journal=request.journal,
+                                                                editor=request.user)
+    assignment_article_pks = [assignment.article.pk for assignment in assignments]
+    my_articles = submission_models.Article.objects.filter(pk__in=assignment_article_pks)
+    print(my_articles, assignments)
+
+    """    context = {
         'new_proofing': new_proofing.count(),
         'active_proofing': active_proofing.count(),
         'completed_proofing': completed_proofing.count(),
@@ -558,6 +563,10 @@ def dashboard(request):
             stage=submission_models.STAGE_UNSUBMITTED).order_by('-date_started'),
         'workflow_elements': workflow.element_names(request.journal.workflow().elements.all()),
         'workflow_element_url': request.GET.get('workflow_element_url', False)
+    }"""
+
+    context = {
+        'my_articles': my_articles,
     }
 
     return render(request, template, context)

@@ -573,3 +573,24 @@ ol.gloss-word {
     margin-top: 25px;
     font-size: 1rem;
 }
+
+.dashboard-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #404554;
+    margin: 0;
+}
+
+.dashboard-box {
+    border-bottom: 1px solid #eee;
+}
+
+.article-list {
+    list-style: none;
+    margin-left: 0;
+    margin-bottom: 0;
+}
+
+.no-pad-left {
+    padding-left: 0;
+}

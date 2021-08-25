@@ -993,6 +993,7 @@ def upload_to_journal(instance, filename):
     else:
         return filename
 
+
 class XSLFile(models.Model):
     file = models.FileField(
         upload_to=upload_to_journal,
