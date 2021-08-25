@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <aside class="large-4 columns" data-sticky-container>
-    <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
+    <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
         <div class="section">
             <h3>{% trans 'Downloads' %}</h3>
             {% if issue.galley %}<p><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp</i>{% trans "Download Issue" %} (PDF)</a></p>{% endif %}
