@@ -133,7 +133,8 @@ def handle_proofreader_file(request, assignment, article):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Annotated file uploaded.',
+                'Annotated file uploaded. '
+                'When you are done use the "Mark Task as Complete" button to finish proofreading.',
             )
 
 

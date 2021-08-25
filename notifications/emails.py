@@ -74,7 +74,12 @@ def send_proofreader_assign_transaction_email(**kwargs):
     request = kwargs['request']
     event_type = kwargs.get('event_type')
 
-    description = '{user} has {action} the proofreading assignment for {article} assigned to {proofreader}'
+    description = '{user} has {action} the proofreading assignment for {article} assigned to {proofreader}'.format(
+        user=request.user,
+        action=event_type,
+        article=assignment.round.article.title,
+        proofreader=assignment.proofreader.full_name(),
+    )
 
     log_dict = {
         'level': 'Info',

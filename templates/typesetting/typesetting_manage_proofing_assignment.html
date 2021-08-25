@@ -89,6 +89,19 @@
                         <button name="action" value="cancel" class="alert button"><span class="fa fa-times-circle"></span> Cancel</button>
                     </form>
                 </div>
+                <div class="title-area">
+                    <h2>Complete Assignment</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <p>
+                            You can mark this task as completed on behalf of the proofreader.
+                            <strong>Note: the proofreader will no longer have access to the proofreading interface.</strong>
+                        </p>
+                        <button name="action" value="complete" class="success button"><span class="fa fa-check"></span> Complete</button>
+                    </form>
+                </div>
                 {% endif %}
                 {% if assignment.status == 'cancelled' or assignment.completed and not assignment.accepted %}
                     <div class="title-area">
@@ -149,13 +162,11 @@
                     </div>
                 {% elif assignment.status == 'cancelled' %}
                 <p>
-                    <small>This assignment was cancelled.</small>
+                    This assignment was cancelled.
                 </p>
                 {% else %}
                 <p>
-                    <small>
                         This assignment has not been completed.
-                    </small>
                 </p>
                 {% endif %}
                 </div>

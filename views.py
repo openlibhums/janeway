@@ -1096,6 +1096,17 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                     messages.SUCCESS,
                     'Proofing task reset.',
                 )
+            elif action == 'complete':
+                assignment.complete()
+                notify.galley_proofing_complete(
+                    request,
+                    assignment,
+                )
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Proofing task completed.',
+                )
 
             return redirect(
                 reverse(
