@@ -1097,7 +1097,9 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                     'Proofing task reset.',
                 )
             elif action == 'complete':
-                assignment.complete()
+                assignment.complete(
+                    user=request.user,
+                )
                 notify.galley_proofing_complete(
                     request,
                     assignment,
