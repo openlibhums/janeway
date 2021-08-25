@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.core.exceptions import FieldError
 
 NEW_TASK_COMPLETE = "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Visit the article URL for more details: {{ typesetting_article_url }}</p><p>Regards,</p>"
 OLD_TASK_COMPLETE = "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Regards,</p>"
@@ -17,8 +18,8 @@ def update_setting_values(apps, schema_editor):
         replace_value(queryset, old=OLD_TASK_COMPLETE, new=NEW_TASK_COMPLETE)
         queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
         replace_value(queryset, old=OLD_COMPLETE, new=NEW_COMPLETE)
-    except LookupError:
-        pass  # If no SettingValueTranslation model is found we don't need to run this.
+    except (LookupError, FieldError):
+        pass  # this migration is not required as the tree does not build the master field.
 
 
 def replace_value(qs, old, new):
@@ -35,15 +36,16 @@ def reverse_code(apps, schema_editor):
         replace_value(queryset, old=NEW_TASK_COMPLETE, new=OLD_TASK_COMPLETE)
         queryset = SettingValueTranslation.objects.filter(master__setting__name=('typesetting_complete'))
         replace_value(queryset, old=NEW_COMPLETE, new=OLD_COMPLETE)
-    except LookupError:
+    except (LookupError, FieldError):
         pass  # If no SettingValueTranslation model is found we don't need to run this.
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ('typesetting', '0011_auto_20200713_1317'),
         ('core', '0045_fix_url_emails'),
     ]
+
 
     operations = [
         migrations.RunPython(update_setting_values, reverse_code=reverse_code),
