@@ -228,7 +228,7 @@ class Events:
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
 
     # kwargs: request, article, article_access
-    # raised when an article is viewed or downloaded
+    # raised when a view or download passes COUNTER-style compliance checks
     ON_ARTICLE_ACCESS = 'on_article_access'
 
     @staticmethod
