@@ -124,21 +124,29 @@ class Reminder(models.Model):
         return objects
 
     def send_reminder(self):
+        from review import models as review_models
         objects = self.items_for_reminder()
         request = Request()
         request.journal = self.journal
         request.site_type = self.journal
+        to = None
 
         for item in objects:
             sent_check = SentReminder.objects.filter(type=self.type, object_id=item.pk, sent=timezone.now().date())
 
-            if not sent_check:
+            # Check if the item is a ReviewAssignment or RevisionRequest
+            if isinstance(item, review_models.ReviewAssignment):
+                to = item.reviewer.email
+            elif isinstance(item, review_models.RevisionRequest):
+                to = item.article.correspondence_author.email
+
+            if not sent_check and to:
                 context = {'object': item, 'journal': self.journal}
                 message = render_template.get_requestless_content(context, self.journal, self.template_name)
 
                 notify_helpers.send_email_with_body_from_user(request,
                                                               self.subject,
-                                                              item.article.correspondence_author.email,
+                                                              to,
                                                               message)
 
                 # Create a SentReminder object to ensure we don't do this more than once by accident.
