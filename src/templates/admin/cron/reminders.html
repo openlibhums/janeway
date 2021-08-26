@@ -3,7 +3,7 @@
 
 {% block title %}Reminders{% endblock title %}
 {% block title-section %}Reminders{% endblock %}
-{% block title-sub %}Revision and Review{% endblock %}
+{% block title-sub %}Create and manage reminders for Review and Revision requests{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -13,52 +13,57 @@
 {% endblock %}
 
 {% block body %}
-    <div class="large-6 columns">
+    <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
                 <h2>Active Reminders</h2>
-                <a class=" button" href="{% url 'cron_reminders' %}"><iclass="fa fa-plus">&nbsp;</i>Add Reminders</a>
+                <a class=" button" href="{% url 'cron_create_reminder' %}"><i class="fa fa-plus">&nbsp;</i>Add Reminders</a>
             </div>
             <div class="content">
+                <p>Currently active Review and Revision reminders are listed below. You can edit, delete or create new reminders from this interface. There are three types of reminder email supported by Janeway:</p>
+                <ul>
+                    <li>Review (Invited) - sent when a reviewer has been invited but not responded.</li>
+                    <li>Review (Accepted) - sent when a reviewer has accepted a review request.</li>
+                    <li>Revision - Sent for revision requests.</li>
+                </ul>
+                <p>In addition you can also set reminders to be before or after the due date. It is recommended that you not create too many reminders for peer reviewers.</p>
+
+
                 <form method="POST" action="{% url 'cron_reminders' %}">
                     {% csrf_token %}
-                    <ul class="list-group">
+                    <table class="table">
+                        <tr>
+                            <th>ID</th>
+                            <th>Info</th>
+                            <th>Template Name</th>
+                            <th>Subject Line</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
                         {% for reminder in reminders %}
-                            <li class="list-group-item">
-                                <div class="float-right">
+                            <tr>
+                                <td>{{ reminder.pk }}</td>
+                                <td>Sent {{ reminder.days }} days {{ reminder.run_type }} {{ reminder.get_type_display }} is
+                                    due.</td>
+                                <td>{{ reminder.template_name }} <a href="{% url 'cron_create_template' reminder.pk reminder.template_name %}"><i class="fa fa-edit">&nbsp;</i></a></td>
+                                <td>{{ reminder.subject }}</td>
+                                <td>
                                     <a href="{% url 'cron_reminder' reminder.pk %}" class="tiny warming button"><i
                                             class="fa fa-edit">&nbsp;</i>Edit</a>
-
-                                    <button type="submit" name="delete" value="{{ reminder.pk }}" class="tiny alert button"><i
-                                            class="fa fa-trash"></i></button>
-                                </div>
-
-                                {{ reminder.subject }}<br/>
-                                <small>
-                                    Sent {{ reminder.days }} days {{ reminder.run_type }} {{ reminder.get_type_display }} is
-                                    due.<br/>
-                                </small>
-                            </li>
+                                </td>
+                                <td>
+                                    <button type="submit" name="delete" value="{{ reminder.pk }}" class="tiny alert button delete"><i
+                                            class="fa fa-trash"></i> Delete</button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="100">
+                                    There are no reminders for this journal. <a href="{% url 'cron_create_reminder' %}">Add one</a>.
+                                </td>
+                            </tr>
                         {% endfor %}
-                    </ul>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>{% if not reminder %}Add New Reminder{% else %}Edit Reminder{% endif %}</h2>
-            </div>
-            <div class="content">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form|foundation }}
-
-                    <button class="success button" type="submit">{% if not reminder %}Add Item{% else %}Update
-                        Item{% endif %}</button>
+                    </table>
                 </form>
             </div>
         </div>
@@ -66,6 +71,5 @@
 {% endblock body %}
 
 {% block js %}
-    {% include "elements/datepicker.html" with target="#id_start_display" %}
-    {% include "elements/datepicker.html" with target="#id_end_display" %}
+{% include "admin/elements/post_check.html" %}
 {% endblock js %}

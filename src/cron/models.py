@@ -58,8 +58,9 @@ class CronTask(models.Model):
 
 
 REMINDER_CHOICES = (
-    ('review', 'Review'),
+    ('review', 'Review (Invited)'),
     ('revisions', 'Revision'),
+    ('accepted-review', 'Review (Accepted)')
 )
 
 RUN_TYPE_CHOICES = (
@@ -81,7 +82,7 @@ class Reminder(models.Model):
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
     days = models.PositiveIntegerField(help_text="The number of days before or after this reminder should fire")
-    template_name = models.CharField(max_length=100, help_text="The name of the email template, if it doesn't exist"
+    template_name = models.CharField(max_length=100, help_text="The name of the email template, if it doesn't exist "
                                                                "you will be asked to create it. Should have no spaces.")
     subject = models.CharField(max_length=200)
 

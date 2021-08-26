@@ -18,7 +18,7 @@
             <div class="large-8 columns">
                 <form method="POST">
                     {% csrf_token %}
-                    <textarea rows="10" name="template"></textarea>
+                    <textarea rows="10" name="template">{{ text }}</textarea>
                     <button class="success button">Save Template</button>
                 </form>
             </div>
@@ -34,3 +34,5 @@
         </div>
     </div>
 {% endblock %}
+
+{% include "admin/elements/jqte.html" %}

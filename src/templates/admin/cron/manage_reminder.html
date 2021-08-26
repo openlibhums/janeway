@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Reminders{% endblock title %}
+{% block title-section %}Reminders{% endblock %}
+{% block title-sub %}Revision and Review{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'cron_home' %}">Cron</a></li>
+    <li><a href="{% url 'cron_reminders' %}">Reminders</a></li>
+    <li><a href="{% url 'cron_reminders' %}" class="active">{% if not reminder %}Add New Reminder{% else %}Edit
+        Reminder{% endif %}</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Manage Reminders</h2>
+            </div>
+            <div class="content">
+                <p>There are three types of reminder email supported by Janeway:</p>
+                <ul>
+                    <li>Review (Invited) - sent when a reviewer has been invited but not responded.</li>
+                    <li>Review (Accepted) - sent when a reviewer has accepted a review request.</li>
+                    <li>Revision - Sent for revision requests.</li>
+                </ul>
+                <p>In addition you can also set reminders to be before or after the due date. It is recommended that you
+                    not create too many reminders for peer reviewers.</p>
+
+                <p>Janeway has built in review reminder templates you can use.</p>
+                <ul>
+                    <li>For Review (Invited) you can use default_review_reminder</li>
+                    <li>For Review (Accepted) you can use accepted_review_reminder</li>
+                </ul>
+
+
+                <div class="title-area">
+                    <h2>{% if not reminder %}Add New Reminder{% else %}Edit Reminder{% endif %}</h2>
+                </div>
+                <div class="content">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+
+                        <button class="success button" type="submit">{% if not reminder %}Add Item{% else %}
+                            Update
+                            Item{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
