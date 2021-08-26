@@ -211,7 +211,6 @@
                     </h4>
 
                     {% for author in article.frozen_authors.all %}
-                        <small>
                             {% if not forloop.first %}<br/> {% endif %}
                             {{ author.full_name }}
                             {% if author.institution %}
@@ -221,7 +220,6 @@
                             {% if author.is_correspondence_author %}
                                 <a itemprop="email" href="mailto:{{ author.author.email }}"
                                    class="fa fa-envelope email-link"></a>{% endif %}
-                        </small>
                     {% endfor %}
 
                     <div class="spacer">
