@@ -47,7 +47,7 @@
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.author.email }}"
+                                            {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.email }}"
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
                                 {% endif %}
