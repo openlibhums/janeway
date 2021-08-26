@@ -1387,7 +1387,7 @@ class FrozenAuthor(models.Model):
 
     @property
     def orcid(self):
-        if self.frozen_email:
+        if self.frozen_orcid:
             return self.frozen_orcid
         elif self.author:
             return self.author.orcid
