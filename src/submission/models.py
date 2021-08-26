@@ -1345,6 +1345,19 @@ class FrozenAuthor(models.Model):
             help_text="If enabled, the institution and department fields will "
                 "be used as the author full name",
     )
+    frozen_email = models.EmailField(
+            blank=True,
+            null=True,
+            verbose_name=_("Author Email"),
+    )
+    frozen_orcid = models.CharField(
+        max_length=40, null=True, blank=True,
+        verbose_name=_('ORCiD'),
+        help_text=_("ORCiD to be displayed when no account is"
+            " associated with this author. It should be introduced in code "
+            "format (e.g: 0000-0000-0000-000X)"
+        )
+    )
 
     class Meta:
         ordering = ('order', 'pk')
@@ -1363,6 +1376,22 @@ class FrozenAuthor(models.Model):
         if self.name_suffix:
             full_name = "%s %s" % (full_name, self.name_suffix)
         return full_name
+
+    @property
+    def email(self):
+        if self.frozen_email:
+            return self.frozen_email
+        elif self.author:
+            return self.author.email
+        return None
+
+    @property
+    def orcid(self):
+        if self.frozen_email:
+            return self.frozen_orcid
+        elif self.author:
+            return self.author.orcid
+        return None
 
     @property
     def corporate_name(self):
