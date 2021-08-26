@@ -287,6 +287,16 @@ class EditFrozenAuthor(forms.ModelForm):
         super().__init__(*args, **kwargs)
         instance = kwargs.pop("instance", None)
         if instance:
+            if instance.author:
+                self.fields["frozen_email"].help_text += _(
+                    "Currently linked to %s, leave blank to use this address"
+                    "" % instance.author.email,
+                )
+                if self.author.orcid:
+                    self.fields["frozen_orcid"].help_text += _(
+                        "If left blank, the account ORCiD will be used (%s)"
+                        "" % instance.author.orcid,
+                    )
             del self.fields["is_corporate"]
             if instance.is_corporate:
                 del self.fields["name_prefix"]
@@ -307,7 +317,23 @@ class EditFrozenAuthor(forms.ModelForm):
             'department',
             'country',
             'is_corporate',
+            'frozen_email',
+            'frozen_orcid',
         )
+
+    def save(self, commit=True, *args, **kwargs):
+        obj = super().save(*args, **kwargs)
+        if commit is True and obj.frozen_email:
+            try:
+                # Associate with account if one exists
+                account = core_models.Account.objects.get(
+                    username=obj.frozen_email.lower())
+                obj.author = account
+                obj.frozen_email = None
+            except core_models.Account.DoesNotExist:
+                pass
+            obj.save()
+        return obj
 
 
 class IdentifierForm(forms.ModelForm):

@@ -8,7 +8,7 @@
 
 {% if user_is_editor or user_is_production or user_is_section_editor %}
     <a class="float-right" href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}"><i
-            class="fa fa-edit">&nbsp;</i>Edit</a>
+            class="fa fa-edit">&nbsp;</i>Edit Metadata</a>
 {% endif %}
 <h4>{{ article.title|safe }}</h4>
 {% if article.subtitle %}<h4>{{ article.subtitle|safe }}</h4>{% endif %}
@@ -132,7 +132,11 @@
         {% for f_author in article.frozenauthor_set.all %}
             <tr>
                 <td>{{ f_author.full_name }}</td>
-                <td>{% if f_author.author.email %}{{ f_author.author.email }} <a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a>{% else %}No email address recorded.{% endif %}</td>
+                <td>
+                    {% if f_author.author.email %}{{ f_author.author.email }}
+                    <span data-tooltip tabindex="1" title="Send an email to {{ f_author.author.email }}"><a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></span>
+                    <span data-tooltip tabindex="1" title="Account linked to author"><a href="{% url 'core_user_edit' f_author.author.pk %}')"><i class="fa fa-user">&nbsp;</i></a></span>
+                    {% elif f_author.email %}{{ f_author.email}}{% else %}No email address recorded.{% endif %}</td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
