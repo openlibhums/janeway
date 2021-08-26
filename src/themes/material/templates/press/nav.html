@@ -117,7 +117,7 @@
         <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
             {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
-                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }} Test</a></li>
+                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
