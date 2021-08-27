@@ -664,6 +664,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "The ISSN of the printed version of the journal.",
+            "is_translatable": false,
+            "name": "print_issn",
+            "pretty_name": "Print ISSN",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "The HTML theme set to use for the journal.",
             "is_translatable": false,
             "name": "journal_theme",

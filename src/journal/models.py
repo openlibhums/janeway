@@ -195,6 +195,11 @@ class Journal(AbstractSiteModel):
 
     @property
     @cache(120)
+    def print_issn(self):
+        return setting_handler.get_setting('general', 'print_issn', self, default=True).value
+
+    @property
+    @cache(120)
     def use_crossref(self):
         try:
             return setting_handler.get_setting('Identifiers',
@@ -207,6 +212,10 @@ class Journal(AbstractSiteModel):
     @issn.setter
     def issn(self, value):
         setting_handler.save_setting('general', 'journal_issn', self, value)
+
+    @print_issn.setter
+    def print_issn(self, value):
+        setting_handler.save_setting('general', 'print_issn', self, value)
 
     @property
     def slack_logging_enabled(self):
