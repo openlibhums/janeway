@@ -116,6 +116,7 @@ def create_crossref_context(identifier):
         'journal_title': identifier.article.journal.name,
         'abstract': strip_tags(identifier.article.abstract or ''),
         'journal_issn': identifier.article.journal.issn,
+        'print_issn': identifier.article.journal.print_issn or None,
         'date_published': identifier.article.date_published,
         'date_accepted': identifier.article.date_accepted,
         'pages': identifier.article.page_numbers,
