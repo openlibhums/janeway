@@ -1,7 +1,9 @@
 <div class="row expanded">
     <div class="col m10">
-        <p>| {% if request.journal.issn %}{{ request.journal.issn }}
-            | {% endif %}{% if journal_settings.general.publisher_name %} Published by
+        <p>
+            | {% if request.journal.issn %}ISSN: {{ request.journal.issn }} | {% endif %}
+            {% if request.journal.print_issn %} Print ISSN: {{ request.journal.print_issn }} | {% endif %}
+            {% if journal_settings.general.publisher_name %} Published by
             {% if journal_settings.general.publisher_url %}
                 <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
         {% if journal_settings.general.publisher_url %}</a>{% endif %}
