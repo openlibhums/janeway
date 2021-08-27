@@ -366,14 +366,15 @@ def get_settings_to_edit(group, journal):
 
     elif group == 'journal':
         journal_settings = [
-            'journal_name', 'journal_issn', 'journal_theme', 'journal_description',
-            'main_contact', 'publisher_name', 'publisher_url', 'privacy_policy_url',
-            'auto_signature', 'slack_logging', 'slack_webhook', 'twitter_handle',
+            'journal_name', 'journal_issn', 'print_issn', 'journal_theme',
+            'journal_description', 'main_contact', 'publisher_name',
+            'publisher_url', 'privacy_policy_url', 'auto_signature',
+            'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
-        settings[2]['choices'] = get_theme_list()
+        settings[3]['choices'] = get_theme_list()
         setting_group = 'general'
         settings.append({
             'name': 'from_address',
