@@ -377,8 +377,10 @@ def article(request, identifier_type, identifier):
     if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
     else:
-        article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
-                                  "that is not yet published.</strong></p>" + article_object.abstract
+        article_object.abstract = (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + article_object.abstract or ""
 
     if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
         article_object.large_image_file = core_models.File()
