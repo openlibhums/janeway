@@ -59,8 +59,8 @@ class CronTask(models.Model):
 
 REMINDER_CHOICES = (
     ('review', 'Review (Invited)'),
+    ('accepted-review', 'Review (Accepted)'),
     ('revisions', 'Revision'),
-    ('accepted-review', 'Review (Accepted)')
 )
 
 RUN_TYPE_CHOICES = (
@@ -93,9 +93,9 @@ class Reminder(models.Model):
         date_time = None
 
         if self.run_type == 'before':
-            date_time = timezone.now() - timedelta(days=self.days)
-        elif self.run_type == 'after':
             date_time = timezone.now() + timedelta(days=self.days)
+        elif self.run_type == 'after':
+            date_time = timezone.now() - timedelta(days=self.days)
 
         if date_time:
             return date_time
@@ -109,8 +109,13 @@ class Reminder(models.Model):
         if self.type == 'review':
             model = review_models.ReviewAssignment
             query = (Q(date_declined__isnull=True) &
-                     Q(date_complete__isnull=True)) | (Q(date_accepted__isnull=False) &
-                                                       Q(date_complete__isnull=True))
+                     Q(date_complete__isnull=True) &
+                     Q(date_accepted__isnull=True))
+        elif self.type == 'accepted-review':
+            model = review_models.ReviewAssignment
+            query = (Q(date_declined__isnull=True) &
+                     Q(date_complete__isnull=True) &
+                     Q(date_accepted__isnull=False))
         elif self.type == 'revisions':
             model = review_models.RevisionRequest
             query = Q(date_completed__isnull=True)
@@ -124,7 +129,7 @@ class Reminder(models.Model):
 
         return objects
 
-    def send_reminder(self):
+    def send_reminder(self, test=False):
         from review import models as review_models
         objects = self.items_for_reminder()
         request = Request()
@@ -133,26 +138,40 @@ class Reminder(models.Model):
         to = None
 
         for item in objects:
-            sent_check = SentReminder.objects.filter(type=self.type, object_id=item.pk, sent=timezone.now().date())
+            sent_check = SentReminder.objects.filter(
+                type=self.type,
+                object_id=item.pk,
+                sent=timezone.now().date(),
+            )
 
+            # Create context early so qw can add the correct variable
+            context = {'journal': self.journal, 'article': item.article}
             # Check if the item is a ReviewAssignment or RevisionRequest
             if isinstance(item, review_models.ReviewAssignment):
                 to = item.reviewer.email
+                context['review_assignment'] = item
             elif isinstance(item, review_models.RevisionRequest):
                 to = item.article.correspondence_author.email
+                context['revision'] = item
 
-            if not sent_check and to:
-                context = {'object': item, 'journal': self.journal}
-                message = render_template.get_requestless_content(context, self.journal, self.template_name)
+            if not sent_check and to and not test:
+                message = render_template.get_requestless_content(
+                    context,
+                    self.journal,
+                    self.template_name,
+                )
 
-                notify_helpers.send_email_with_body_from_user(request,
-                                                              self.subject,
-                                                              to,
-                                                              message)
-
+                notify_helpers.send_email_with_body_from_user(
+                    request,
+                    self.subject,
+                    to,
+                    message,
+                )
                 # Create a SentReminder object to ensure we don't do this more than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
                 print('Reminder sent for {0}'.format(object))
+            elif test:
+                print("[TEST] reminder for {} due on {}".format(item, item.date_due))
             else:
                 print('Reminder {0} for object {1} has already been sent'.format(self, item))
 
