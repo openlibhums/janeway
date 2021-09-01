@@ -31,6 +31,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
+from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
@@ -292,7 +293,9 @@ def issue(request, issue_id, show_sidebar=True):
         journal=request.journal,
         issue_type=issue_object.issue_type,
         date__lte=timezone.now(),
-        articles__isnull=False,
+    ).exclude(
+        # This has to be an .exclude because.filter won't do an INNER join
+        articles__isnull=True,
     )
 
     editors = models.IssueEditor.objects.filter(
@@ -402,6 +405,17 @@ def article(request, identifier_type, identifier):
     }
 
     return render(request, template, context)
+
+
+def article_from_identifier(request, identifier_type, identifier):
+    identifier = get_object_or_404(
+        id_models.Identifier,
+        id_type=identifier_type,
+        identifier=identifier,
+        article__journal = request.journal
+    )
+    return redirect(identifier.article.url)
+
 
 
 @decorators.frontend_enabled
