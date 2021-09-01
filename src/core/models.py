@@ -697,7 +697,7 @@ class File(models.Model):
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
-    label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
+    label = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Label'))
     description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
