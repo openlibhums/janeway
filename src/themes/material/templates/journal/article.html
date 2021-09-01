@@ -68,14 +68,13 @@
 
                             </span>
                     {% endif %}
-                    {% if article.abstract != '' %}
+                    {% if article.abstract and article.abstract != '' %}
                         <h2>{% trans "Abstract" %}</h2>
                         <p>{{ article.abstract | safe }}</p>
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
                     {% endif %}
-
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
 
                     {% if article.keywords.count > 0 %}
                         <h2>{% trans "Keywords" %}</h2>
