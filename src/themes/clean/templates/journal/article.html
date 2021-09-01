@@ -67,7 +67,7 @@
                     <small>{{ article.section.name }}</small>
                     <h3>{{ article.title|safe }}</h3>
                 {% endif %}
-                {% if article.abstract != '' %}
+                {% if article.abstract and article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
