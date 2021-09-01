@@ -3028,5 +3028,20 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "news"
+        },
+        "setting": {
+            "description": "Title for the News Page and Homepage block",
+            "is_translatable": true,
+            "name": "news_title",
+            "pretty_name": "News Title",
+            "type": "char"
+        },
+        "value": {
+            "default": "News"
+        }
     }
 ]
