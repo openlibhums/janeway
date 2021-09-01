@@ -3,6 +3,7 @@
 {% load svg from press_url %}
 {% load i18n %}
 {% load roles %}
+{% load hooks %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -30,6 +31,7 @@
     }</script>
 
     {% block css %}{% endblock %}
+    {% hook 'base_head_css' %}
 
     {% if request.journal %}
         <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">

@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load hooks %}
+
 {% get_current_language as current_language %}
 <!DOCTYPE html>
 <html lang="{{ current_language }}">
@@ -10,6 +12,7 @@
         <meta name="description" content="{{ request.journal.description }}">{% endif %}
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% else %}{{ request.press.name }}
     {% endif %}{% endblock title %}</title>
+    {% block head %}{% endblock head %}
 
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
@@ -28,7 +31,8 @@
         <link href="{% static "clean/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
     {% endif %}
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
-    {% block head %}{% endblock head %}
+    {% block css %}{% endblock %}
+    {% hook 'base_head_css' %}
 </head>
 <body>
 <div class="skipnav"><a href="#main">Skip to main content</a> <a href="#footer">Skip to footer</a></div>
