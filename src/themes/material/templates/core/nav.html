@@ -23,7 +23,7 @@
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
-                <li><a href="{% url 'core_news_list' %}">{% trans "News" %}</a></li>
+                <li><a href="{% url 'core_news_list' %}">{{ journal_settings.news.news_title }}</a></li>
             {% endif %}
             {% if request.journal.nav_articles %}
                 <li><a href="{% url 'journal_articles' %}">{% trans "Articles" %}</a></li>

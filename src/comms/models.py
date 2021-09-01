@@ -30,6 +30,13 @@ class NewsItem(models.Model):
     large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='large_news_file',
                                          on_delete=models.SET_NULL)
     tags = models.ManyToManyField('Tag', related_name='tags')
+    custom_byline = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
+                  "the news item with whatever text is added here.",
+    )
 
     class Meta:
         ordering = ('-posted', 'title')
@@ -73,6 +80,11 @@ class NewsItem(models.Model):
             if tag not in posted_tags:
                 tag = Tag.objects.get(text=tag)
                 self.tags.remove(tag)
+
+    def byline(self):
+        if self.custom_byline:
+            return 'Posted by {}'.format(self.custom_byline)
+        return 'Posted by  {}'.format(self.posted_by.full_name())
 
     def __str__(self):
         if self.posted_by:

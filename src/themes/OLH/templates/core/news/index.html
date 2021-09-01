@@ -2,12 +2,12 @@
 {% load truncate %}
 {% load i18n %}
 
-{% block title %}{% trans "News" %}{% endblock title %}
+{% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
 {% block body %}
     <section id="content" class="">
         <div class="row column ">
-            <h3 class="news-item-block">{% trans "News" %}</h3>
+            <h3 class="news-item-block">{{ journal_settings.news.news_title }}</h3>
             {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
             {% for item in news_items %}
                 <div class="news-item-block">
@@ -25,7 +25,7 @@
                         </div>
                         <div class="large-7 columns">
                             <h4>{{ item.title }}</h4>
-                            <h6>Posted by {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
+                            <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
                             <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                             <a class="success button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                         </div>

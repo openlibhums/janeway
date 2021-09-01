@@ -8,7 +8,7 @@
 
             <div class="card">
                 <div class="card-content no-bottom-padding">
-                    <span class="card-title">{% trans "Latest News" %}</span>
+                    <span class="card-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</span>
                 </div>
                 {% for item in news_items %}
                     <div class="card-content">
