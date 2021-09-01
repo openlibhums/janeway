@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block title %}
+    {{ block.super }} |
     {% if issue.issue_type.code == 'collection' %}
     {% trans "Collection" %}: {{ issue.title }}
     {% else %}
