@@ -3,6 +3,7 @@
 {% load svg from press_url %}
 {% load i18n %}
 {% load roles %}
+{% load hooks %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +14,7 @@
     {% block head %}{% endblock head %}
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-    {% block css %}{% endblock %}
+
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
     <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate"
@@ -30,8 +31,8 @@
         <link href="{% static "material/css/press_override.css" %}" rel="stylesheet">
     {% endif %}
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
-
-
+    {% block css %}{% endblock %}
+    {% hook 'base_head_css' %}
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{% url 'rss_articles' %}"/>
 </head>
 <body>
