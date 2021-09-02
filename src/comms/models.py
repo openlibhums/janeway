@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
+from django.utils.translation import ugettext as _
 
 from core import files
 
@@ -83,8 +84,8 @@ class NewsItem(models.Model):
 
     def byline(self):
         if self.custom_byline:
-            return 'Posted by {}'.format(self.custom_byline)
-        return 'Posted by  {}'.format(self.posted_by.full_name())
+            return _('Posted by {byline}').format(byline=self.custom_byline)
+        return _('Posted by  {byline}').format(byline=self.posted_by.full_name())
 
     def __str__(self):
         if self.posted_by:
