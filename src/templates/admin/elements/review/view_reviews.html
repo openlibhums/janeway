@@ -1,9 +1,12 @@
+<p>Please click 'View Review' below to view the peer review report.</p>
+
 <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
     {% for review in reviews %}
     <li class="accordion-item" data-accordion-item>
         <a href="#" class="accordion-title">View Review #{{ review.pk }}</a>
         <div class="accordion-content" data-tab-content>
-            <h6>Details</h6>
+            {% if not journal_settings.general.hide_review_metadata_from_authors %}
+            <h5>Details</h5>
             <table class="small scroll">
                 <tr>
                     <th>Requested</th>
@@ -23,8 +26,9 @@
                     <td>{% if review.date_complete %}{{ review.date_complete }}{% else %}--{% endif %}</td>
                 </tr>
             </table>
+            {% endif %}
 
-            <h6>Review</h6>
+            <h5>Review</h5>
             <div class="row expanded">
                 {% for answer in review.review_form_answers %}
                     {% if answer.author_can_see %}

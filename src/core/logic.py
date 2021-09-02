@@ -343,6 +343,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'enable_suggested_reviewers',
                 'object': setting_handler.get_setting('general', 'enable_suggested_reviewers', journal),
             },
+            {
+                'name': 'hide_review_metadata_from_authors',
+                'object': setting_handler.get_setting('general', 'hide_review_metadata_from_authors', journal),
+            },
         ]
         setting_group = 'general'
 
