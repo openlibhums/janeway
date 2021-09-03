@@ -1081,7 +1081,7 @@ button.list-group-item-danger.active:focus {
 }
 
 .header-image {
-  max-height: 100%;
+  max-height: 120px;
 }
 
 .journal-description-box {
@@ -1175,8 +1175,8 @@ button.list-group-item-danger.active:focus {
 }
 
 .flag-button {
-  height: 25px;
-  width: 33px;
+  height: 32px;
+  width: 32px;
   margin-left: 3px;
   margin-right: 3px;
   margin-top: 5px;
@@ -1186,4 +1186,8 @@ button.list-group-item-danger.active:focus {
     text-decoration: rgb(64, 69, 84) underline;
     text-underline-offset: 10px;
     text-decoration-thickness: 3px;
+}
+
+.language-menu {
+  padding-left: 15px;
 }
