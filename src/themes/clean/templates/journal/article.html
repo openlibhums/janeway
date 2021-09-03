@@ -44,8 +44,8 @@
                                                                                             <a class="profilelink"
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
-                                    {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
-                                        <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
+                                    {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
+                                        <span style="background: url(https://orcid.org/sites/default/files/images/orcid_16x16.png) no-repeat;" class="orcid-img"></span>
                                     </a>{% endif %}
                                     {% if author.institution %}
                                         <span itemprop="worksFor" itemscope
