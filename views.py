@@ -1053,10 +1053,9 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
         models.GalleyProofing,
         pk=assignment_id,
     )
-    rounds = models.TypesettingRound.objects.filter(article=article)
     proofreaders = logic.get_proofreaders(
         article,
-        rounds[0],
+        assignment.round,
         assignment=assignment,
     )
 
