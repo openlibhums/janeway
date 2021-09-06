@@ -17,7 +17,7 @@
     <article>
     {% if  not journal.disable_article_images %}
         <section class="no-padding meta">
-            <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
+            <div class="orbit article-orbit row" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
@@ -32,7 +32,7 @@
                                 {% endif %}
                                  alt="{{ article.title | striptags }}">
                         <div class="row column">
-                            <figcaption class="orbit-caption">
+                            <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
                                 <h3>{{ article.title|safe }}</h3>
                                 <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
@@ -54,7 +54,7 @@
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
                                 {% endif %}
-                            </figcaption>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -69,7 +69,7 @@
             {% endif %}
         {% endfor %}
 
-        <div data-sticky-container>
+        <div data-sticky-container class="row">
             <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
                 <div class="row">
                     <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
@@ -78,7 +78,7 @@
                     </div>
                     <div id="options-menu">
                         <div class="large-6 columns">
-                            <ul class="menu vertical medium-horizontal"
+                            <ul class="menu vertical medium-horizontal pad-left-15"
                                 data-responsive-menu="drilldown medium-dropdown">
                               {% with article.get_doi_url as doi_url %}
                                 <li>{% trans "Share" %}:</li>
