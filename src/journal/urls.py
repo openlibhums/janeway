@@ -80,6 +80,10 @@ urlpatterns = [
         views.article,
         name='article_view'
         ),
+    url(r'^article/(?P<identifier_type>[\w.-_]+)/(?P<identifier>[\w.-]+)/$',
+        views.article_from_identifier,
+        name='article_view_custom_identifier',
+        ),
 
 
     # File management
