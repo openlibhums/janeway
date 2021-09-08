@@ -79,7 +79,7 @@
                     {% endif %}{% endfor %}</p>{% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    {% include "elements/journal/how_to_cite.html" with article=article %}
+                    {{ article.how_to_cite }}
                 {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
