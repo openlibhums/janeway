@@ -71,7 +71,7 @@
                             <td>{{ article.section.name }}</td>
                             <td>{{ article.get_doi }}</td>
                             <td>{{ article.get_pubid }}</td>
-                            <td>{{ article.page_numbers }}</td>
+                            <td>{{ article.page_range }}</td>
                             <td><button type="submit" name="article" value="{{ article.pk }}"><i class="fa fa-plus">&nbsp;</i>Add</button></td>
                         </tr>
                         {% endfor %}
