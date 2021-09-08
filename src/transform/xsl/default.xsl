@@ -439,7 +439,9 @@
         <xsl:variable name="fn-number">
             <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
         </xsl:variable>
-        <xsl:apply-templates/> [<span class="footnotemarker" id="fn{$fn-number}"></span><span class="footnotemarker" id="n{$fn-number}"><a href="#nm{$fn-number}"><sup>^</sup></a></span>]
+        <span class="footnotemarker" id="fn{$fn-number}"></span>
+        <xsl:apply-templates/>
+        [<span class="footnotemarker" id="n{$fn-number}"><a href="#nm{$fn-number}"><sup>^</sup></a></span>]
     </xsl:template>
 
     <xsl:template match="author-notes/fn[@fn-type='con']/p">
