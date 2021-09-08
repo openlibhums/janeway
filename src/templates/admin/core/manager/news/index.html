@@ -62,6 +62,7 @@
                     {{ form.end_display|foundation }}
                     {{ form.sequence|foundation }}
                     {{ form.image_file|foundation }}
+                    {{ form.custom_byline|foundation }}
 
                     {% if not action == 'new' and news_item.large_image_file %}
                         <p>Existing image: {{ news_item.large_image_file }} -

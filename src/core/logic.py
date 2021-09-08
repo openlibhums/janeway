@@ -180,7 +180,7 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ['general', 'crosscheck', 'article']
+    setting_groups = ['general', 'crosscheck', 'article', 'news']
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
@@ -417,6 +417,14 @@ def get_settings_to_edit(group, journal):
             }
         ]
         setting_group = 'general'
+    elif group == 'news':
+        settings = [
+            {
+                'name': 'news_title',
+                'object': setting_handler.get_setting('news', 'news_title', journal),
+            },
+        ]
+        setting_group = 'news'
     else:
         settings = []
         setting_group = None

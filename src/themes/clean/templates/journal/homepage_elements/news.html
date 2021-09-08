@@ -5,7 +5,7 @@
 <section>
     <div class="row">
         <div class="col-md-12">
-            <h1 class="index-header">{% trans "Latest News" %}</h1>
+            <h1 class="index-header">{% trans "Latest" %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h1>
         </div>
         {% for item in news_items %}
             <div class="col-md-6 row-eq-height">

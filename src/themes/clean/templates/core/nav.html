@@ -15,7 +15,7 @@
             {% if request.journal.nav_home %}
             <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
             {% if request.journal.nav_news %}
-                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">{% trans 'News' %}</a></li>{% endif %}
+                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">{{ journal_settings.news.news_title }}</a></li>{% endif %}
 
             {% if request.journal.nav_articles %}
                 <li class="nav-item"><a href="{% url 'journal_articles' %}" class="nav-link">{% trans 'Articles' %}</a>
