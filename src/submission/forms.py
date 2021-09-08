@@ -70,7 +70,8 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         model = models.Article
         fields = ('title', 'subtitle', 'abstract', 'non_specialist_summary',
                   'language', 'section', 'license', 'primary_issue',
-                  'page_numbers', 'is_remote', 'remote_url', 'peer_reviewed',
+                  'article_number', 'is_remote', 'remote_url', 'peer_reviewed',
+                  'first_page', 'last_page', 'page_numbers', 'total_pages',
                   'custom_how_to_cite',)
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Title')}),
