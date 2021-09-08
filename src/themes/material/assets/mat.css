@@ -561,7 +561,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 
 /* Allow the use of default <li> */
-.default-li ul, ol {
+.default-li ul {
     display: block;
     list-style: disc outside none;
     margin: 1em 0;
@@ -569,6 +569,9 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 }
 .default-li ol {
     list-style-type: decimal;
+    display: block;
+    margin: 1em 0;
+    padding: 0 0 0 40px;
 }
 .default-li li {
     display: list-item;
