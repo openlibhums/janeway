@@ -417,6 +417,16 @@ class Article(models.Model):
     competing_interests = models.TextField(blank=True, null=True, help_text="If you have any conflict "
                                                                             "of interests in the publication of this "
                                                                             "article please state them here.")
+    rights = models.TextField(
+        blank=True, null=True,
+        help_text="A custom statement on the usage rights for this article"
+            " and associated materials, to be rendered in the article page"
+    )
+
+    article_number = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Optional article number to be rendered in 'how to cite'"
+    )
 
     # Files
     manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')

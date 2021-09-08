@@ -92,6 +92,14 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
+                    {% if article.rights %}
+                        <h2>{% trans "Rights" %}</h2>
+                        {{ article.rights | safe }}
+
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                    {% endif %}
 
                     {% if article.publisher_notes.all %}
                         <h2>{% trans "Publisher Notes" %}</h2>
