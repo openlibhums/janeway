@@ -1,5 +1,89 @@
 Changelog
 =========
+
+v1.4
+----
+Version 1.4 makes a move from HVAD to ModelTranslations as well as some bugfixes and improvements.
+
+ModelTranslations
+^^^^^^^^^^^^^^^^^
+Janeway now uses ModelTranslations to store translated settings and metadata. The setting `USE_I18N` must be set to `True` in settings.py otherwise settings may not be returned properly.
+
+1.4 has support for:
+
+* News
+* Pages
+* Navigation
+* Sections
+* Editorial Groups
+* Contacts
+* Journals
+* Article (limited to Editors only, title and abstract)
+
+Support for Welsh (Cymraeg) is included. Support for German, French, Spanish and Italian is coming soon.
+
+General
+^^^^^^^
+* The backend has been updated to use the Open Sans font.
+* The default theme has been removed from core and now has its own repo (https://github.com/BirkbeckCTP/janeway/issues/1895)
+* The clean theme is now part of core (https://github.com/BirkbeckCTP/janeway/issues/1896)
+* All themes have a language switcher when this setting is enabled (https://github.com/BirkbeckCTP/janeway/issues/2159)
+* When an Issue number is 0 it will no longer be displayed (https://github.com/BirkbeckCTP/janeway/pull/2338)
+* The register page has been updated to make it clear you're registering for a press wide account (https://github.com/BirkbeckCTP/janeway/issues/2390)
+* Author text on the OLH theme is now the same size as other surrounding text (https://github.com/BirkbeckCTP/janeway/issues/2368)
+
+News
+^^^^
+* The news system can now be re titled eg. Blog (https://github.com/BirkbeckCTP/janeway/issues/2381)
+* News items can have a custom byline (https://github.com/BirkbeckCTP/janeway/issues/2382)
+
+Bugfixes
+^^^^^^^^
+* When sending data to crossref the authors are now in the correct order (https://github.com/BirkbeckCTP/janeway/issues/2157)
+* doi_pattern and switch_language are no longer flagged as translatable (https://github.com/BirkbeckCTP/janeway/issues/2088 & https://github.com/BirkbeckCTP/janeway/issues/2160)
+* `edit_settings_group` has been refactored (https://github.com/BirkbeckCTP/janeway/issues/1708)
+* When assigning a copyeditor Editors can now pick any file and it will be presented to the copyeditor (https://github.com/BirkbeckCTP/janeway/issues/2078)
+* JATS output for `<underline>`: `<span class="underline">` is now supported via `common.css` (https://github.com/BirkbeckCTP/janeway/pull/2322)
+
+Workflow
+^^^^^^^^
+* We now send additional metadata to crossref inc. abstract and accepted date (https://github.com/BirkbeckCTP/janeway/issues/2133)
+* The review assignment page has been sped up, suggested reviewers is now a setting and is off by default (https://github.com/BirkbeckCTP/janeway/pull/2325)
+* Articles that are assigned to an editor but not sent to Review now have a warning that lets the Editor know this and has a button to move the article into review (https://github.com/BirkbeckCTP/janeway/pull/2322)
+* A new setting has been added to allow editors to hide Review metadata from authors including the Reviewer decision (https://github.com/BirkbeckCTP/janeway/issues/2391)
+
+Manager
+^^^^^^^
+Many areas of the Manager have been reworked. We now have a better grouping of settings and additional groupings. Reworked:
+* Journal Settings
+* Image Settings (new)
+* Article Display Settings
+* Styling Settings
+
+Other areas have been redesigned:
+* Content Manager
+* Journal Contacts
+* Editorial Team
+* Section Manager
+
+* Submission Page Items is a new area that lets you build a custom Submission Page with a combination of free text, links to existing settings and special displays (like licenses and sections).
+* The Review and Revision reminders interface has been reworked to make it easier to use. A new reminder type (accepted) so you can have different templates for reminder unaccepted and accepted reviews. (https://github.com/BirkbeckCTP/janeway/issues/2370)
+
+Plugins
+^^^^^^^
+* A new hook has been added to the CSS block of all themes (https://github.com/BirkbeckCTP/janeway/issues/2385)
+
+API
+^^^
+* A KBART API endpoint has been added `[url]/api/kbart` (https://github.com/BirkbeckCTP/janeway/issues/2035)
+
+Deprecations
+^^^^^^^^^^^^
+* `utils.setting_handler.get_requestless_setting` has been marked as deprecated and will be removed in 1.5.
+* PluginSettings and PluginSettingValues are deprecated as of 1.4 - all settings are now stored in `core.Setting` and `core.SettingValue` a migration moved PluginSettings over to core.Setting in 1.4 and uses a group name `plugin:PluginName`.
+
+----------
+
 v1.3.10
 -------
 Version 1.3.10 includes updates mainly for Peer Review. Updates to documentation will be released with a later Release Candidate.
@@ -56,7 +140,8 @@ Front End
 * Added support for linguistic glosses (https://github.com/BirkbeckCTP/janeway/issues/2031)
 * Privacy Policy links are now more visible on Registration pages (https://github.com/BirkbeckCTP/janeway/pull/2174)
 
-## Crossref & Identifiers
+Crossref & Identifiers
+^^^^^^^^^^^^^^^^^^^^^^
 https://github.com/BirkbeckCTP/janeway/issues/2157
 * Crossref deposit has been update:
     * Authors are now in the correct order
@@ -65,9 +150,11 @@ https://github.com/BirkbeckCTP/janeway/issues/2157
     * Page numbers are included
 * Publisher IDs can now have . (dots) in them (https://github.com/BirkbeckCTP/janeway/pull/2173)
 
-## Docker
+Docker
+^^^^^^
 * When running docker using Postgres a pgadmin container is automatically connected (https://github.com/BirkbeckCTP/janeway/pull/2172)
 
+----------
 
 v1.3.9
 ------
