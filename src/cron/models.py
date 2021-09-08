@@ -90,6 +90,12 @@ class Reminder(models.Model):
         return "{0}: {1}, {2}, {3}".format(self.journal.code, self.run_type, self.type, self.subject)
 
     def target_date(self):
+        """
+        Works out the target date of a reminder by adding or subtracting a timedelta from today's date.
+        Examples: Reminder set to send 5 days before the due date we take today's date and add 5 days to search
+        for ReviewAssignments that are due 5 days from now. The reverse is true for after, we remove 5 days from
+        today's date to work out which ReviewAssignments were due 5 days ago.
+        """
         date_time = None
 
         if self.run_type == 'before':
@@ -120,12 +126,9 @@ class Reminder(models.Model):
             model = review_models.RevisionRequest
             query = Q(date_completed__isnull=True)
 
-        if self.run_type == 'before':
-            date_time = timezone.now() + timedelta(days=self.days)
-        elif self.run_type == 'after':
-            date_time = timezone.now() - timedelta(days=self.days)
-
-        objects = model.objects.filter(date_due=date_time).filter(query)
+        target_date = self.target_date()
+        if target_date:
+            objects = model.objects.filter(date_due=target_date).filter(query)
 
         return objects
 
@@ -154,7 +157,7 @@ class Reminder(models.Model):
                 to = item.article.correspondence_author.email
                 context['revision'] = item
 
-            if not sent_check and to and not test:
+            if not test and not sent_check and to:
                 message = render_template.get_requestless_content(
                     context,
                     self.journal,

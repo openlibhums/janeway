@@ -27,14 +27,18 @@ class Command(BaseCommand):
         :param options: Dictionary containing 'journal_code'
         :return: None
         """
-        journal = journal_models.Journal.objects.get(code=options.get('journal_code'))
-        articles = submission_models.Article.objects.filter(journal=journal, date_published__isnull=False,
-                                                            )
+        journal = journal_models.Journal.objects.get(
+            code=options.get('journal_code'),
+        )
+        articles = submission_models.Article.objects.filter(
+            journal=journal,
+            date_published__isnull=False,
+        )
 
         for article in articles:
-
+            print('Handling article {0}'.format(article.pk))
             if article.is_published:
-                print('Handling article {0}'.format(article.pk))
+                print('Article is published')
                 try:
                     identifier = article.get_identifier('doi', object=True)
 
@@ -45,5 +49,8 @@ class Command(BaseCommand):
                         identifier.register()
                 except AttributeError as e:
                     print('Error {0}'.format(e))
+
+            else:
+                print('Article {} is not published.'.format(article.pk))
 
             time.sleep(1)
