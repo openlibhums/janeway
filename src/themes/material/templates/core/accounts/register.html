@@ -16,13 +16,17 @@
         <div class="col m8 offset-m2">
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">{% trans "Register for" %} {% if request.journal %}
-                        {{ request.journal.name }}{% else %}
-                        {{ request.press.name }}{% endif %}</span>
-                    <p>{% blocktrans %}Your password should be at minimum 12 characters long. It does not need
-                        to contain specific characters but you should make it as long as possible. For more
-                        information read on
-                        <a href="#passwordmodal" class="modal-trigger">{% trans "password guide" %}</a>
+                    <span class="card-title">
+                        {% trans "Register for an" %}  {{ request.press.name }} {% trans "account" %}.
+                    </span>
+                    <p>Password Rules:</p>
+                    <ul class="no-top-margin">
+                        <li>- {% trans "Your password should be" %} {{ request.press.password_length }} {% trans "characters long" %}.</li>
+                        {% if request.press.password_upper %}<li>- {% trans "Your password should contain at least one upper case letter." %}</li>{% endif %}
+                        {% if request.press.password_number %}<li>- {% trans "Your password should contain at least one number." %}</li>{% endif %}
+                    </ul>
+                    <p>{% blocktrans %}For more information read our
+                        <a href="#passwordmodal" class="modal-trigger">password guide</a>
                         .{% endblocktrans %}</p>
                     <form method="POST">
                         {% csrf_token %}

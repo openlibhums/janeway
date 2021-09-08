@@ -197,3 +197,7 @@ ol.gloss-word {
 .underline {
     text-decoration: underline;
 }
+
+.no-top-margin {
+    margin-top: 0;
+}

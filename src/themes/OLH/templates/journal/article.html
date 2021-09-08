@@ -16,7 +16,26 @@
 
     <article>
     {% if  not journal.disable_article_images %}
-        <section class="no-padding meta">
+        <section class="no-padding meta show-for-small-only">
+            <div class="row">
+                <div class="large-8 columns">
+                    <small class="uppercase">{{ article.section.name }}</small>
+                    <h3>{{ article.title|safe }}</h3>
+                    <p>
+                        <strong>{% if article.frozen_authors.all|length > 1 %}
+                            {% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
+                        {% for author in article.frozen_authors.all %}
+                        {{ author.full_name }}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
+                            {% if author.institution %} ({{ author.institution }}){% endif %}
+                        {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section class="no-padding meta hide-for-small-only">
             <div class="orbit article-orbit row" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">

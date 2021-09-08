@@ -5203,7 +5203,7 @@ button.list-group-item-danger.active:focus {
   margin-top: 10px; }
 
 .header-image {
-  max-height: 100%; }
+  max-height: 120px; }
 
 .journal-description-box {
   min-height: 258px;
@@ -5268,8 +5268,8 @@ button.list-group-item-danger.active:focus {
   font-variant: small-caps; }
 
 .flag-button {
-  height: 25px;
-  width: 33px;
+  height: 32px;
+  width: 32px;
   margin-left: 3px;
   margin-right: 3px;
   margin-top: 5px; }
@@ -5280,4 +5280,8 @@ button.list-group-item-danger.active:focus {
   text-decoration-thickness: 3px; }
 
 .pad-left-15 {
+  padding-left: 15px;
+}
+
+.language-menu {
   padding-left: 15px; }

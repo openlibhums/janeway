@@ -27,11 +27,14 @@
                 {% csrf_token %}
                 <div class="callout">
                     <div class="row column log-in-form">
-                        <h5>{% trans "Register for" %} {% if request.journal %}{{ request.journal.name }}{% else %}
-                            {{ request.press.name }}{% endif %}</h5>
-                        <p>{% blocktrans %}Your password should be at minimum 12 characters long. It does not need to
-                            contain specific characters but you should make it as long as possible. For more information
-                            read on <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
+                        <h5>{% trans "Register for an" %}  {{ request.press.name }} {% trans "account" %}.</h5>
+                        <p>Password Rules:</p>
+                            <ul class="no-top-margin">
+                                <li>{% trans "Your password should be" %} {{ request.press.password_length }} {% trans "characters long" %}.</li>
+                        {% if request.press.password_upper %}<li>{% trans "Your password should contain at least one upper case letter." %}</li>{% endif %}
+                        {% if request.press.password_number %}<li>{% trans "Your password should contain at least one number." %}</li>{% endif %}
+                            </ul>
+                            <p>{% blocktrans %}For more information read our <a href="#" data-open="password-modal">password guide</a>.{% endblocktrans %}</p>
 
                         {% include "elements/forms/errors.html" with form=form %}
 
