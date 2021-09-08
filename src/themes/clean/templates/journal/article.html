@@ -79,7 +79,11 @@
                     {% endif %}{% endfor %}</p>{% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    {{ article.how_to_cite }}
+                    {{ article.how_to_cite }} </p>
+                {% endif %}
+                {% if article.rights %}
+                    <p><strong>{% trans "Rights" %}:</strong>
+                    {{ article.rights | safe }} </p>
                 {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
