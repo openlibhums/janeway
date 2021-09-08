@@ -18,6 +18,6 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 rebuild:
-	@docker build . -t sphinx
+	@docker build . -t sphinxdoc/sphinxx
 docker:
-	@docker run --rm -ti -v ${PWD}:/docs sphinx
+	@docker run --rm -ti -v ${PWD}:/docs sphinxdoc/sphinx
