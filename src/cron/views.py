@@ -47,9 +47,9 @@ def reminders_index(request):
 
 
 @editor_user_required
-def edit_reminder(request, reminder_id=None):
+def manage_reminder(request, reminder_id=None):
     """
-    Allows for editing an existing Reminder object.
+    Allows for creating and editing of Reminder object.
     :param request: HttpRequest object
     :param reminder_id: Reminder object PK
     :return: HttpResponse
