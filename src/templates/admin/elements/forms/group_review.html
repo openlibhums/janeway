@@ -8,7 +8,6 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.default_review_days %}
     {% include "admin/elements/forms/field.html" with field=edit_form.default_review_visibility %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_one_click_access %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.enable_expanded_review_details %}
     {% include "admin/elements/forms/field.html" with field=edit_form.draft_decisions %}
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_suggested_reviewers %}
 </div>
@@ -23,5 +22,15 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.reviewer_form_download %}
     {% include "admin/elements/forms/field.html" with field=edit_form.peer_review_upload_text %}
 </div>
+
+<div class="title-area">
+    <h2>Author Review Display</h2>
+</div>
+<div class="content">
+    <p>{% trans "Settings here determine the review experience for authors." %}.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.enable_expanded_review_details %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.hide_review_metadata_from_authors %}
+</div>
+
 
 
