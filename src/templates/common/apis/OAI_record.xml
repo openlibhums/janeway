@@ -24,7 +24,7 @@
       <dc:fullTextUrl>{% journal_url 'article_view' 'id' article.id %}</dc:fullTextUrl>
       {% if article.journal.issn %}<dc:source>{{ article.journal.issn}}</dc:source>{% endif %}
       {% if article.license.url %}<dc:rights>{{ article.license.url }}</dc:rights>{% endif %}
-      {% if article.page_numbers %}<dc:format.extent>{{ article.page_numbers }}</dc:format.extent>{% else %}<dc:format.extent>1</dc:format.extent>{% endif %}
+      {% if article.page_range %}<dc:format.extent>{{ article.page_range }}</dc:format.extent>{% else %}<dc:format.extent>1</dc:format.extent>{% endif %}
   </oai_dc:dc>
     </metadata>
 </record>

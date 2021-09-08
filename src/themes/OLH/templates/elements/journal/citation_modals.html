@@ -14,7 +14,7 @@
             {% elif article.issue and article.issue.volume %}
                 {{ article.issue.volume }}
             {% endif %}
-            {% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
+            {% if article.page_range %}:{{ article.page_range }}.{% endif %}
             {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
         <p>{% trans 'Show' %}: <a data-open="VancouverModal">{% trans 'Vancouver Citation Style' %}</a> | <a data-open="APAModal">{% trans 'APA Citation Style' %}</a></p>
         <button class="close-button" data-close aria-label="Close modal" type="button">
@@ -35,7 +35,7 @@
             {% elif article.issue and article.issue.volume %}
                 {{ article.issue.volume }}
             {% endif %}
-            {% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
+            {% if article.page_range %}:{{ article.page_range }}.{% endif %}
             {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
         <p>Show: <a data-open="HarvardModal">{% trans 'Harvard Citation Style' %}</a> | <a data-open="APAModal">{% trans 'APA Citation Style' %}</a>
         </p>
@@ -58,7 +58,7 @@
                 {{ article.issue.issue }}
             {% elif article.issue and article.issue.volume %}
                 {{ article.issue.volume }}{% endif %}
-            {% if article.page_numbers %}:{{ article.page_numbers }}.{% endif %}
+            {% if article.page_range %}:{{ article.page_range }}.{% endif %}
             {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
         <p>Show: <a data-open="HarvardModal">{% trans 'Harvard Citation Style' %}</a> | <a data-open="VancouverModal">{% trans 'Vancouver
             Citation Style' %}</a></p>
