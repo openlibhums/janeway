@@ -22,7 +22,9 @@ logger = get_logger(__name__)
 @decorators.has_journal
 @decorators.editor_user_required
 def typesetting_manager(request):
-    pass
+    template = 'typesetting/index.html'
+    context = {}
+    return render(request, template, context)
 
 
 @decorators.has_journal
