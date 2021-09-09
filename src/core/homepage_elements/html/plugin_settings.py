@@ -41,6 +41,10 @@ def install():
             'is_translatable': True,
         }
     )
+    setting_handler.get_or_create_default_setting(
+        setting,
+        default_value='<p>This element has no content.</p>',
+    )
 
     # check whether this homepage element has
     # already been installed for all journals
