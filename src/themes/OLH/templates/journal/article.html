@@ -15,7 +15,7 @@
 {% block body %}
 
     <article>
-    {% if  not journal.disable_article_images %}
+    {% if not journal.disable_article_images %}
         <section class="no-padding meta show-for-small-only">
             <div class="row">
                 <div class="large-8 columns">
@@ -72,7 +72,7 @@
                                             {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.email }}"
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
-                                {% endif %}
+
                             </div>
                         </div>
                     </li>
@@ -87,6 +87,7 @@
                 </div>
             {% endif %}
         {% endfor %}
+    {% endif %}
 
         <div data-sticky-container class="row">
             <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
