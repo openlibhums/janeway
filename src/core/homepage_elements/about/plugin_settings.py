@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-from utils import models
+from utils import models, setting_handler
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -58,6 +58,11 @@ def install():
 
     if c:
         logger.debug('Setting created')
+
+    setting_handler.get_or_create_default_setting(
+        setting,
+        default_value='About this Journal',
+    )
 
     # check whether this homepage element has already
     # been installed for all journals
