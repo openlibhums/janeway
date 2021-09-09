@@ -3,6 +3,13 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+
+
+def check_use_i18n_on():
+    if not settings.USE_I18N:
+        raise ImproperlyConfigured("USE_I18N must be enabled from v1.4 of Janeway.")
 
 
 class Migration(migrations.Migration):
@@ -12,6 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(check_use_i18n_on, reverse_code=migrations.RunPython.noop),
         migrations.RenameField(
             model_name='settingvaluetranslation',
             old_name='value',
