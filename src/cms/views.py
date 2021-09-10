@@ -192,7 +192,8 @@ def nav(request, nav_id=None):
         collection_nav_items = None
         if request.journal:
             collection_nav_items = models.NavigationItem.get_issue_types_for_nav(
-                request.journal)
+                request.journal,
+            )
 
         if request.POST.get('nav'):
             attr = request.POST.get('nav')

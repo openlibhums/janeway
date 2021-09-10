@@ -19,6 +19,8 @@
     <ul>
         <li><a href="{% url 'manage_article_log' article.pk %}">Logs</a></li>
         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Document Management</a></li>
+        <li><a href="{% url 'article_identifiers' article.pk %}">Identifiers</a></li>
+        <li><a href="{% url 'manage_archive_article' article.pk %}">Archive Page</a></li>
         {% if article.is_published %}
             <li><a href="{{ article.url }}">Live Article</a></li>
         {% endif %}
