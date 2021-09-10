@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 
+from django_summernote.widgets import SummernoteWidget
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
@@ -87,6 +88,9 @@ class EditorialGroupForm(JanewayTranslationModelForm):
         model = models.EditorialGroup
         fields = ('name', 'description', 'sequence',)
         exclude = ('journal',)
+        widgets = {
+            'description': SummernoteWidget(),
+        }
 
 
 class PasswordResetForm(forms.Form):

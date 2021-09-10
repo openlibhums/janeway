@@ -14,9 +14,9 @@
 
     {% for group in editorial_groups %}
         <div class="row">
-            <div class="col m12">
+            <div class="col m12 default-li">
                 <h2>{{ group.name }}</h2>
-                {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
+                {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
             </div>
             {% for member in group.members %}
                 <div class="col s12 m3">
