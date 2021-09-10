@@ -247,7 +247,15 @@
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
-                                            <li>{{ author.full_name }} ({{ author.affiliation }})</li>
+                                            <li>
+                                                {{ author.full_name }}
+                                                {% if author.orcid %}
+                                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                                    <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
+                                                </a>
+                                                {% endif %}
+                                                {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 </div>
