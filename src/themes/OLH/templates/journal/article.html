@@ -27,7 +27,7 @@
                         {% for author in article.frozen_authors.all %}
                         {{ author.full_name }}
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
-                            {% if author.institution %} ({{ author.institution }}){% endif %}
+                            {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
                         {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
                         {% if not forloop.last %}, {% endif %}
                         {% endfor %}
@@ -65,7 +65,7 @@
                                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
                                                 <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
                                             </a>{% endif %}
-                                            {% if author.institution %}
+                                            {% if author.institution and author.institution != " " %}
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}

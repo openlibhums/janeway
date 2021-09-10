@@ -222,7 +222,7 @@
                             {{ author.full_name }}
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}"
                                 class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
-                            {% if author.institution %}
+                            {% if author.institution  and author.institution != " " %}
                                 <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
                                     <span itemprop="name">({{ author.institution }})
                             {% endif %}

@@ -47,7 +47,7 @@
                                     {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
                                         <span style="background: url(https://orcid.org/sites/default/files/images/orcid_16x16.png) no-repeat;" class="orcid-img"></span>
                                     </a>{% endif %}
-                                    {% if author.institution %}
+                                    {% if author.institution and author.institution != " " %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
                                                 itemprop="name">({{ author.institution }})</span></span>{% endif %}
@@ -116,6 +116,11 @@
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
                                 <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
                             </a>{% endif %}
+                            {% if author.institution and author.institution != " " %}
+                                <span itemprop="worksFor" itemscope
+                                        itemtype="http://schema.org/CollegeOrUniversity"><span
+                                        itemprop="name">({{ author.institution }})</span></span>
+                            {% endif %}
                         </li>
                     {% endfor %}
                      </ul>
