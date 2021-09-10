@@ -31,6 +31,7 @@
                         <li>For top level nav items that you don't want to appear in the dropdown leave the Link field empty.</li>
                     </ul>
                 </small>
+                {% include "admin/elements/forms/errors.html" %}
                 {{ form|foundation }}
                 <button type="submit" name="submit" class="success button">
                     {% if nav_item_to_edit  %}Update{% else %}Create{% endif %}
