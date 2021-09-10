@@ -61,8 +61,10 @@ def get_or_create_default_setting(setting, default_value):
     """
     setting, c = core_models.SettingValue.objects.get_or_create(
         setting=setting,
-        value=default_value,
         journal=None,
+        defaults={
+            'value': default_value,
+        }
     )
 
     return setting
