@@ -217,10 +217,10 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
-NEW_ARTICLE_STAGES = [
+NEW_ARTICLE_STAGES = {
     STAGE_UNSUBMITTED,
     STAGE_UNASSIGNED,
-]
+}
 
 FINAL_STAGES = {
     # An Article stage is final when it won't transition into further stages
@@ -779,11 +779,11 @@ class Article(models.Model):
 
         if ArticleStageLog.objects.filter(
             article=self,
-            stage_to='Accepted',
+            stage_to=STAGE_ACCEPTED,
         ).exists():
             return True
 
-        if not self.journal.element_in_workflow('review') and self.stage not in NEW_ARTICLE_STAGES:
+        if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES:
             return True
 
         return False
