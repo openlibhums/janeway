@@ -217,6 +217,11 @@ STAGE_PUBLISHED = 'Published'
 STAGE_PREPRINT_REVIEW = 'preprint_review'
 STAGE_PREPRINT_PUBLISHED = 'preprint_published'
 
+NEW_ARTICLE_STAGES = [
+    STAGE_UNSUBMITTED,
+    STAGE_UNASSIGNED,
+]
+
 FINAL_STAGES = {
     # An Article stage is final when it won't transition into further stages
     STAGE_PUBLISHED,
@@ -768,10 +773,20 @@ class Article(models.Model):
         return self.get_identifier('pubid')
 
     def is_accepted(self):
-        # return true for all stages after accepted
-        return self.stage == "Published" or self.stage == "Accepted" or self.stage == "Editor Copyediting"\
-            or self.stage == "Author Copyediting" or self.stage == "Final Copyediting"\
-            or self.stage == "Typesetting" or self.stage == "Proofing"
+        from core import models as core_models
+        if self.date_published:
+            return True
+
+        if ArticleStageLog.objects.filter(
+            article=self,
+            stage_to='Accepted',
+        ).exists():
+            return True
+
+        if not self.journal.element_in_workflow('review') and self.stage not in NEW_ARTICLE_STAGES:
+            return True
+
+        return False
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
