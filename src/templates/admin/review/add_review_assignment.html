@@ -26,7 +26,7 @@
 
                     <p>
                         {% blocktrans %}
-                        You can select a reviewer using the radio buttons in the first column and complete the section under "Set Options" or if you want to send a review request using defaults select "Assign with Defaults". <strong>Warning: use of "Instant Assign with Defaults"</strong> you will not have the change to edit the outgoing email message.
+                        You can select a reviewer using the radio buttons in the first column and complete the section under "Set Options".
                         If you cannot find the reviewer you want in this list you can use "Enroll Existing User" to search the database and give users the Reviewer role, or "Add New Reviewer" to create a new account for a reviewer (this process is silent, they will not receive an account creation email).
                         {% endblocktrans %}
                     </p>
@@ -40,7 +40,6 @@
                             <th width="30%">Interests</th>
                             <th>Average Score</th>
                             <th>Last Review Completed</th>
-                            <th width="15%">Quick Assign</th>
                         </tr>
                         </thead>
 
@@ -55,7 +54,6 @@
                                     {% if not forloop.last %}, {% endif %}{% endfor %}</td>
                                 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
                                 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
-                                <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Instant Assign with Defaults</button></td>
                             </tr>
                         {% endfor %}
                         {% for reviewer in reviewers %}
@@ -68,7 +66,6 @@
                                 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                                 <td>{{ reviewer.rating_average|default_if_none:"" }}</td>
                                 <td>{{ reviewer.reviewer.all.0.date_complete }}</td>
-                                <td><button type="submit" name="quick_assign" value="{{ reviewer.id }}" class="small success button">Instant Assign with Defaults</button></td>
                             </tr>
                             {% endif %}
                         {% empty %}
@@ -122,7 +119,6 @@
                         {% csrf_token %}
                         {{ new_reviewer_form|foundation }}
                         <button type="submit" class="button success" name="assign" id="assign">Add Reviewer</button>
-                        <button type="submit" class="button success" name="add_and_assign" id="assign">Add Reviewer and Assign with Defaults</button>
                     </form>
                 </div>
             </div>
