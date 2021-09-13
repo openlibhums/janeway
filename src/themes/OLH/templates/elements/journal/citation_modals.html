@@ -47,7 +47,7 @@
     <div id="APAModal" class="reveal" data-reveal aria-labelledby="APAModalTitle" aria-hidden="true"
          role="dialog">
         <h2 id="APAModalTitle">{% trans 'APA-Style Citation' %}</h2>
-        <p>{% for author in article.authors.all %}{% if forloop.last %}{% if not forloop.first %}
+        <p>{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
             &amp; {% endif %}{% endif %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
             ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.

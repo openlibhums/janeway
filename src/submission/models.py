@@ -1460,7 +1460,7 @@ class FrozenAuthor(models.Model):
         if self.first_name:
             first_initial = '{0}.'.format(self.first_name[:1])
 
-        citation = '{last} {first}{middle}'.format(
+        citation = '{last}, {first}{middle}'.format(
             last=self.last_name, first=first_initial, middle=middle_initial)
         if self.name_suffix:
             citation = '{}, {}'.format(citation, self.name_suffix)
