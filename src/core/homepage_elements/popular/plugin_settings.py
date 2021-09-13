@@ -38,7 +38,7 @@ def install():
     if c:
         logger.debug('Plugin {} created'.format(PLUGIN_NAME))
 
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=SHORT_NAME)
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=PLUGIN_NAME)
     setting_handler.create_setting(
         setting_group_name=plugin_group_name,
         setting_name='most_popular',
