@@ -34,6 +34,12 @@
                         </form>
                     </div>
                 {% endif %}
+                {% if journal_settings.crosscheck.enable and not article.ithenticate_id %}
+                    <div class="bs-callout bs-callout-danger">
+                        <p class="no-bottom-margin"><small>
+                            {% trans 'This paper has not had an automatic plagiarism check. If you wish to do so you can run a' %} <a href="{% url 'review_unassigned_article' article.pk %}#files-block">{% trans 'Similarity Check via iThenticate' %}</a> .</small></p>
+                    </div>
+                {% endif %}
 
                 <ul class="tabs" data-tabs id="round-tabs">
                     {% for round in review_rounds %}
