@@ -302,6 +302,14 @@
                                 </ul>
                             </div>
                         {% endif %}
+                        {% if article.competing_interests %}
+                         <div class="section">
+                             <h3>{% trans "Competing Interests" %}</h3>
+                             <ul>
+                                 <li>{{ article.competing_interests }}</li>
+                             </ul>
+                         </div>
+                         {% endif %}
 
                         {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                             <div class="section hide-for-small-only">
