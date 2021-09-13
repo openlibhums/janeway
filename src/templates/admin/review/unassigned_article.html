@@ -127,9 +127,16 @@
 
         <div class="box">
             <div class="title-area">
-                <h2>Files</h2>
+                <h2 id="files-block">Files</h2>
             </div>
             <div class="content">
+                {% if journal_settings.crosscheck.enable %}
+                <p>
+                    <small>
+                        {% trans 'To check an article for possible plagiarism, you can send an article for an automated Similarity Check via iThenticate by clicking Send below. The report then takes a few minutes to be generated, so refresh this page; results will be displayed under Similarity Check when ready.' %}
+                    </small>
+                </p>
+                {% endif %}
                 <table class="scroll small">
                     <tr>
                         <th>Label</th>
@@ -161,7 +168,7 @@
                                 {% if journal_settings.crosscheck.enable %}
                                     <td>{% if not article.ithenticate_id %}
                                         <button type="submit" name="crosscheck" value="{{ file.id }}"><i
-                                                class="fa fa-cloud-upload"></i></button>
+                                                class="fa fa-cloud-upload"></i> Send</button>
                                     {% else %}
                                         <a href="{% url 'review_crosscheck' article.pk %}" target="_blank"><i
                                                 class="fa fa-book">&nbsp;</i>View Report
@@ -275,6 +282,11 @@
             </div>
             <div class="content">
                 {% if article.stage == 'Unassigned' and not article.stage == 'Assigned' %}
+                    {% if journal_settings.crosscheck.enable and not article.ithenticate_id %}
+                        <div class="bs-callout bs-callout-danger">
+                            {% trans 'This paper has not had an automatic plagiarism check. If you wish to do so you can run a' %} <a href="{% url 'review_unassigned_article' article.pk %}#files-block">{% trans 'Similarity Check via iThenticate' %}</a> .</small></p>
+                        </div>
+                    {% endif %}
                     {% if article.editors %}
                         <ul class="menu vertical actions">
                             <li>
