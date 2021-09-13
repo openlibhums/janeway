@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
-def check_use_i18n_on():
+def check_use_i18n_on(*args, **kwargs):
     if not settings.USE_I18N:
         raise ImproperlyConfigured("USE_I18N must be enabled from v1.4 of Janeway.")
 
