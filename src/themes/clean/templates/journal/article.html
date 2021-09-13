@@ -171,6 +171,12 @@
                         </li>
                     {% endif %}
                 </ul>
+                {% if article.competing_interests %}
+                <h2>{% trans "Competing Interests" %}</h2>
+                <ul>
+                    <li>{{ article.competing_interests }}</li>
+                </ul>
+                {% endif %}
                 {% for field in article.custom_fields %}
                 <h2>{% trans field.field.name %}</h2>
                 <p>{{ field.answer }}</p>

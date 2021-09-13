@@ -291,10 +291,6 @@
                     </h4>
 
                     <table class="sidebar-table">
-                        <tr>
-                            <th>{% trans "Submitted" %}</th>
-                            <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
-                        </tr>
                         {% if article.date_accepted %}
                             <tr>
                                 <th>{% trans "Accepted" %}</th>
@@ -317,6 +313,16 @@
                     <p>{{ article.license.name }} {% if article.license.url %}
                         <a rel="license" href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
 
+                    {% if article.competing_interests %}
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+
+                    <h4>
+                        {% trans "Competing Interests" %}
+                    </h4>
+                    <p>{{ article.competing_interests }}</p>
+                    {% endif %}
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
