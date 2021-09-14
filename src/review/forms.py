@@ -67,12 +67,14 @@ class ReviewAssignmentForm(forms.ModelForm):
             due_date = timezone.now() + timedelta(days=int(default_due))
             self.fields['date_due'].initial = due_date
 
-        if default_form:
+        if default_form and not self.instance.form:
             form = models.ReviewForm.objects.get(pk=default_form)
             self.fields['form'].initial = form
 
         if self.instance.date_accepted:
-            self.fields['form'].required = False
+            # Form should not be changed after request has been accepted
+            self.fields['form'].initial = self.instance.form
+            self.fields['form'].disabled = True
 
 
 class ReviewerDecisionForm(forms.ModelForm):
