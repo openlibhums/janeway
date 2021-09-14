@@ -263,6 +263,7 @@
                             <div class="section">
                                 <h3>{% trans "Download" %}</h3>
                             <ul>
+                                {% if article.published %}
                                 {% for galley in galleys %}
                                     <li>
                                         <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
@@ -274,6 +275,9 @@
                                         {% endif %}
                                     </li>
                                 {% endfor %}
+                                {% else %}
+                                <li> Downloads are not available until this article is published </li>
+                                {% endif %}
                             </ul>
                         </div>
                             <div class="section">
