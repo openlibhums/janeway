@@ -4,7 +4,11 @@
     <div class="card">
         <div class="card-image waves-effect waves-block waves-light">
             <img class="activator" src="{{ issue.large_image.url }}">
-            <span class="card-title">{{ issue.display_title }}</span>
+            <span class="card-title">
+              <div class="carousel-text-wrapper hide-on-small-only">
+                {{ issue.display_title }}
+              </div>
+            </span>
         </div>
         {% if issue.issue_description %}
             <div class="card-content">
