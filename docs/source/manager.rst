@@ -1,6 +1,9 @@
 Manager
 ===========
 
+.. note::
+   In version 1.4 the some of the buttons in the Manager interface have been rearranged.
+
 .. toctree::
    :maxdepth: 3
    :caption: Guides:
@@ -13,5 +16,4 @@ Manager
    manager/crossref/index
    manager/users/index
    manager/other/index
-
 
