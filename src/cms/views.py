@@ -243,6 +243,12 @@ def nav(request, nav_id=None):
                 new_nav_item.object_id = request.site_type.pk
                 new_nav_item.save()
 
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Nav Item Saved.',
+                )
+
                 return language_override_redirect(
                     request,
                     'cms_nav_edit',
