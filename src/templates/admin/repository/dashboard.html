@@ -53,16 +53,14 @@
             <a class="button" href="{% url 'repository_submit' %}">Start New Submission</a>
         </div>
         <div class="content">
+            <p>Listed below are {{ request.repository.object_name_plural }} that have not yet been submitted.</p>
             <table class="scroll">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Title</th>
-                        <th>Date Submitted</th>
-                        <th>Date Published</th>
-                        <th>Views</th>
-                        <th>Downloads</th>
-                        <th></th>
+                        <th>Compete</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,11 +68,13 @@
                     <tr>
                         <td>{{ preprint.pk }}</td>
                         <td>{{ preprint.title|safe }}</td>
-                        <td>{{ preprint.date_submitted }}</td>
-                        <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
-                        <td>{{ preprint.metrics.views }}</td>
-                        <td>{{ preprint.metrics.downloads }}</td>
                         <td><a class="small button" href="{% url 'repository_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button class="small alert button delete" name="delete" value="{{ preprint.pk }}">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 {% empty %}
                 {% endfor %}
@@ -83,3 +83,16 @@
         </div>
     </div>
 {% endblock %}
+
+{% block js %}
+    <script>
+    $(document).ready(function () {
+        $(".delete").click(function () {
+            var preprint_id = $(this).val()
+            if (!confirm("Warning: Deleted data cannot be recovered. If you are sure you want to delete {{request.repository.object_name}} with ID " + preprint_id +" press OK.")) {
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock js %}
