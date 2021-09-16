@@ -59,12 +59,30 @@
 @import 'tabs';
 @import 'tagit';
 
+:root {
+  --primary-dark-color: $primary-dark-color;
+  --very-dark-primary-color: $very-dark-primary-color;
+  --primary-light-color: $primary-light-color;
+
+  --topbar-background-color: $topbar-background-color;
+  --menu-background-color: $menu-background-color;
+  --menu-alternative-background-color: $menu-alternative-background-color;
+  --menu-foreground-color: $menu-foreground-color;
+
+  --link-color: $link-color;
+  --toc-link-color: $toc-link-color;
+
+  --figure-caption-background-color: $figure-caption-background-color;
+  --figure-caption-color: $figure-caption-color;
+
+}
+
 a {
-  color: $link-color;
+  color: var(--link-color);
 }
 
 #toc a, aside a {
-  color: $toc-link-color;
+  color: var(--toc-link-color);
 }
 
 html, body {
@@ -175,10 +193,10 @@ header {
   #main-menu {
     text-align: center;
     clear: both;
-    background-color: $menu-background-color;
+    background-color: var(--menu-background-color);
 
     ul {
-      background-color: $menu-background-color;
+      background-color: var(--menu-background-color);
     }
 
     li {
@@ -187,13 +205,13 @@ header {
 
       a {
         font-weight: 300;
-        color: $menu-foreground-color;
+        color: var(--menu-foreground-color);
         font-size: rem-calc(14px);
       }
 
       a.button {
-        background-color: $menu-alternative-background-color;
-        color: $menu-foreground-color;
+        background-color: var(--menu-alternative-background-color);
+        color: var(--menu-foreground-color);
       }
     }
   }
@@ -201,7 +219,7 @@ header {
   @include breakpoint(medium) {
     .main.top-bar {
       height: $topbar-height;
-      background-color: $topbar-background-color;
+      background-color: var(--topbar-background-color);
     }
 
     .top-bar-image {
@@ -276,7 +294,7 @@ header {
 
 .orbit {
   @include breakpoint(small only) {
-    background-color: $primary-dark-color;
+    background-color: var(--primary-dark-color);
   }
   .orbit-title {
     position: absolute;
@@ -315,7 +333,7 @@ header {
     @include breakpoint(small only) {
       position: relative;
       bottom: auto;
-      background-color: $primary-dark-color;
+      background-color: var(--primary-dark-color);
 
       h3 {
         font-size: rem-calc(16px);
@@ -399,7 +417,7 @@ main section {
 }
 
 .dark-primary-bg {
-  background: $primary-dark-color;
+  background: var(--primary-dark-color);
 
   @extend .white-text;
 }
@@ -411,11 +429,11 @@ main section {
 }
 
 .very-dark-primary-color {
-  background: $very-dark-primary-color;
+  background: var(--very-dark-primary-color);
 }
 
 .button.success {
-  background-color: $primary-dark-color;
+  background-color: var(--primary-dark-color);
 }
 
 h3 small {
@@ -441,8 +459,8 @@ h3 small {
 }
 
 div.caption span.label {
-  background-color: $figure-caption-background-color;
-  color: $figure-caption-color;
+  background-color: var(--figure-caption-background-color);
+  color: var(--figure-caption-color);
 }
 
 .box {
@@ -450,12 +468,12 @@ div.caption span.label {
   position: relative;
 
   .button {
-    background-color: $primary-dark-color;
+    background-color: var(--primary-dark-color);
     color: #FFF;
   }
 
   .button:hover {
-    background-color: $very-dark-primary-color;
+    background-color: var(--very-dark-primary-color);
     color: #FFF;
   }
 
@@ -619,7 +637,7 @@ div.caption span.label {
     h3 {
       text-transform: uppercase;
       font-size: rem-calc(18px);
-      color: $primary-dark-color;
+      color: var(--primary-dark-color);
     }
     ul {
       list-style-type: none;
@@ -669,11 +687,11 @@ div.caption span.label {
   }
 
   .top {
-    background: $primary-dark-color;
+    background: var(--primary-dark-color);
   }
 
   .bottom {
-    background: $primary-light-color;
+    background: var(--primary-light-color);
   }
 }
 
@@ -724,8 +742,8 @@ table tr th {
 }
 
 table tr.active td {
-  background-color: $primary-dark-color;
-  color: $primary-light-color;
+  background-color: var(--primary-dark-color);
+  color: var(--primary-light-color);
 }
 
 .orbit {
@@ -1091,7 +1109,7 @@ button.list-group-item-danger.active:focus {
 .top-bar-left svg {
   max-width: 100px;
   max-height: 49px;
-  fill: $primary-dark-color;
+  fill: var(--primary-dark-color);
 }
 
 .third {
