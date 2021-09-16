@@ -95,6 +95,36 @@ def repository_dashboard(request):
         owner=request.user,
         date_submitted__isnull=True,
     )
+
+    if request.POST and 'delete' in request.POST:
+        preprint_id = request.POST.get('delete')
+        if preprint_id:
+            try:
+                preprint = models.Preprint.objects.get(
+                    pk=preprint_id,
+                    owner=request.user,
+                    stage=models.STAGE_PREPRINT_UNSUBMITTED,
+                )
+                preprint.delete()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    '{} deleted.'.format(request.repository.object_name)
+                )
+            except models.Preprint.DoesNotExist:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'No incomplete {} found matching the ID supplied and owned by the current user.'.format(
+                        request.repository.object_name,
+                    )
+                )
+        return redirect(
+            reverse(
+                'repository_dashboard',
+            )
+        )
+
     template = 'admin/repository/dashboard.html'
     context = {
         'preprints': preprints,
