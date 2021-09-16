@@ -114,7 +114,6 @@ def get_html(article):
     return html
 
 
-# TODO: Re-implenment to get settings from Repository
 def get_publication_text(request, preprint, action):
     context = {
         'preprint': preprint,
