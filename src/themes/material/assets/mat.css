@@ -584,6 +584,10 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
     list-style-type: lower-latin;
 }
 
+.default-li ul > li {
+    list-style-type: disc;
+}
+
 .language-select {
     color: #616161;
 }
