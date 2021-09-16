@@ -3447,9 +3447,6 @@ table.hover tr:nth-of-type(even):hover {
     display: table; }
   .top-bar::after {
     clear: both; }
-  .top-bar,
-  .top-bar ul {
-    background-color: #fefefe; }
   .top-bar ul ul {
     background-color: #e6e6e6; }
   .top-bar input {
