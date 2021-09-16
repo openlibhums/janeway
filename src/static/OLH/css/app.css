@@ -4413,11 +4413,24 @@ ul.tagit input[type="text"] {
   background-color: inherit;
   outline: none; }
 
+:root {
+  --primary-dark-color: #062657;
+  --very-dark-primary-color: #06152D;
+  --primary-light-color: #2199e8;
+  --topbar-background-color: #FFFFFF;
+  --menu-background-color: #FFFFFF;
+  --menu-alternative-background-color: #FFFFFF;
+  --menu-foreground-color: #000000;
+  --link-color: #2199e8;
+  --toc-link-color: #2199e8;
+  --figure-caption-background-color: #2199e8;
+  --figure-caption-color: #FFFFFF; }
+
 a {
-  color: #2199e8; }
+  color: var(--link-color); }
 
 #toc a, aside a {
-  color: #2199e8; }
+  color: var(--toc-link-color); }
 
 html, body {
   height: 100%; }
@@ -4497,24 +4510,24 @@ header .page-title {
 header #main-menu {
   text-align: center;
   clear: both;
-  background-color: #FFFFFF; }
+  background-color: var(--menu-background-color); }
   header #main-menu ul {
-    background-color: #FFFFFF; }
+    background-color: var(--menu-background-color); }
   header #main-menu li {
     display: inline-block;
     text-align: justify; }
     header #main-menu li a {
       font-weight: 300;
-      color: #000000;
+      color: var(--menu-foreground-color);
       font-size: 0.97222rem; }
     header #main-menu li a.button {
-      background-color: #FFFFFF;
-      color: #000000; }
+      background-color: var(--menu-alternative-background-color);
+      color: var(--menu-foreground-color); }
 
 @media screen and (min-width: 40em) {
   header .main.top-bar {
     height: 90px;
-    background-color: #FFFFFF; }
+    background-color: var(--topbar-background-color); }
   header .top-bar-image {
     max-height: 90px;
     max-width: 330px;
@@ -4563,7 +4576,7 @@ header #main-menu {
 
 @media screen and (max-width: 39.9375em) {
   .orbit {
-    background-color: #062657; } }
+    background-color: var(--primary-dark-color); } }
 
 .orbit .orbit-title {
   position: absolute;
@@ -4594,7 +4607,7 @@ header #main-menu {
   .orbit .orbit-caption {
     position: relative;
     bottom: auto;
-    background-color: #062657; }
+    background-color: var(--primary-dark-color); }
     .orbit .orbit-caption h3 {
       font-size: 1.11111rem; } }
 
@@ -4654,7 +4667,7 @@ main section {
   word-wrap: break-word; }
 
 .dark-primary-bg {
-  background: #062657; }
+  background: var(--primary-dark-color); }
 
 .gradient-primary-bg {
   background-image: -webkit-linear-gradient(left, #062657 0%, #2199e8 100%);
@@ -4664,10 +4677,10 @@ main section {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF062657', endColorstr='#FF2199E8', GradientType=1); }
 
 .very-dark-primary-color {
-  background: #06152D; }
+  background: var(--very-dark-primary-color); }
 
 .button.success {
-  background-color: #062657; }
+  background-color: var(--primary-dark-color); }
 
 h3 small {
   font-size: 0.83333rem; }
@@ -4688,17 +4701,17 @@ h3 small {
       fill: rgba(255, 255, 255, 0.02); }
 
 div.caption span.label {
-  background-color: #2199e8;
-  color: #FFFFFF; }
+  background-color: var(--figure-caption-background-color);
+  color: var(--figure-caption-color); }
 
 .box {
   margin-bottom: 30px;
   position: relative; }
   .box .button {
-    background-color: #062657;
+    background-color: var(--primary-dark-color);
     color: #FFF; }
   .box .button:hover {
-    background-color: #06152D;
+    background-color: var(--very-dark-primary-color);
     color: #FFF; }
   .box img {
     width: 100%; }
@@ -4801,7 +4814,7 @@ div.caption span.label {
 #content aside h3 {
   text-transform: uppercase;
   font-size: 1.25rem;
-  color: #062657; }
+  color: var(--primary-dark-color); }
 
 #content aside ul {
   list-style-type: none;
@@ -4832,9 +4845,9 @@ div.caption span.label {
   .summary h5 {
     font-size: 0.97222rem; }
   .summary .top {
-    background: #062657; }
+    background: var(--primary-dark-color); }
   .summary .bottom {
-    background: #2199e8; }
+    background: var(--primary-light-color); }
 
 footer .columns {
   padding-top: 1.38889rem;
@@ -4872,8 +4885,8 @@ table tr th {
   text-align: left; }
 
 table tr.active td {
-  background-color: #062657;
-  color: #2199e8; }
+  background-color: var(--primary-dark-color);
+  color: var(--primary-light-color); }
 
 .orbit {
   position: relative;
@@ -5212,7 +5225,7 @@ button.list-group-item-danger.active:focus {
 .top-bar-left svg {
   max-width: 100px;
   max-height: 49px;
-  fill: #062657; }
+  fill: var(--primary-dark-color); }
 
 .title-area {
   margin-top: 15px; }
@@ -5280,8 +5293,7 @@ button.list-group-item-danger.active:focus {
   text-decoration-thickness: 3px; }
 
 .pad-left-15 {
-  padding-left: 15px;
-}
+  padding-left: 15px; }
 
 .language-menu {
   padding-left: 15px; }
