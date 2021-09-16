@@ -564,13 +564,11 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .default-li ul {
     display: block;
     list-style: disc outside none;
-    margin: 1em 0;
     padding: 0 0 0 40px;
 }
 .default-li ol {
     list-style-type: decimal;
     display: block;
-    margin: 1em 0;
     padding: 0 0 0 40px;
 }
 .default-li li {
