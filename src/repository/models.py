@@ -363,6 +363,10 @@ class Preprint(models.Model):
         verbose_name='Preprint DOI',
         help_text='System supplied DOI. '
     )
+    preprint_decline_note = models.TextField(
+        blank=True,
+        null=True,
+    )
     preprint_decision_notification = models.BooleanField(
         default=False,
     )
@@ -554,10 +558,11 @@ class Preprint(models.Model):
         )
         self.save()
 
-    def decline(self):
+    def decline(self, note):
         self.date_declined = timezone.now()
         self.date_accepted = None
         self.stage = STAGE_PREPRINT_REJECTED
+        self.preprint_decline_note = note
         self.save()
 
     def reset(self):
@@ -566,6 +571,7 @@ class Preprint(models.Model):
         self.date_published = None
         self.preprint_decision_notification = False
         self.stage = STAGE_PREPRINT_REVIEW
+        self.preprint_decline_note = None
         self.save()
 
     def is_published(self):

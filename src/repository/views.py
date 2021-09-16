@@ -23,7 +23,7 @@ from repository import forms, logic as repository_logic, models
 from cms import models as cms_models
 from core import models as core_models, files
 from metrics.logic import store_article_access
-from utils import shared as utils_shared, logic as utils_logic
+from utils import shared as utils_shared, logic as utils_logic, models as utils_models
 from events import logic as event_logic
 from security.decorators import (
     preprint_editor_or_author_required,
@@ -817,7 +817,8 @@ def repository_manager_article(request, preprint_id):
             redirect_request = True
 
         if 'decline' in request.POST:
-            preprint.decline()
+            note = request.POST.get('decline_note')
+            preprint.decline(note=note)
             return redirect(
                 reverse(
                     'repository_notification',
@@ -851,6 +852,14 @@ def repository_manager_article(request, preprint_id):
         if 'reset' in request.POST:
             if preprint.date_published or preprint.date_declined:
                 preprint.reset()
+                utils_models.LogEntry.add_entry(
+                    'Reset',
+                    'Decision Reset for {}'.format(preprint.title),
+                    'Info',
+                    request.user,
+                    request,
+                    preprint,
+                )
                 messages.add_message(
                     request,
                     messages.INFO,
@@ -1045,6 +1054,7 @@ def repository_notification(request, preprint_id):
             'request': request,
             'preprint': preprint,
             'email_content': email_content,
+            'skip': True if 'skip' in request.POST else False,
         }
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_NOTIFICATION,

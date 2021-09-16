@@ -107,18 +107,26 @@
                             <td>{{ preprint.date_submitted }}</td>
                         </tr>
                         <tr>
-                            <th>Decision ({% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}
-                                Declined{% else %}Under Consideration{% endif %})
+                            <th>Decision ({% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Rejected{% else %}Under Consideration{% endif %})
                             </th>
                             <td>{% if preprint.date_accepted %}
                                 {{ preprint.date_accepted }}{% elif preprint.date_declined %}
                                 {{ preprint.date_declined }}{% else %}N/a{% endif %}</td>
                         </tr>
+                        {% if not preprint.date_declined %}
                         <tr>
                             <th>Date Published</th>
                             <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}No date
                                 set{% endif %}</td>
                         </tr>
+                        {% else %}
+                            <tr>
+                                <th colspan="2">Rejection Reason</th>
+                            </tr>
+                            <tr>
+                                <td colspan="2">{{ preprint.preprint_decline_note }}</td>
+                            </tr>
+                        {% endif %}
                         {% for version in preprint.preprintversion_set.all %}
                             <tr>
                                 <th>Version #{{ version.version }} (<a

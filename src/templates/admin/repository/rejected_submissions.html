@@ -34,7 +34,7 @@
                             </td>
                             <td>{{ preprint.date_submitted }}</td>
                             <td>{{ preprint.date_declined }}</td>
-                            <td>{{ preprint.subject }}</td>
+                            <td>{% for subject in preprint.subject.all %}{{ subject }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                             <td>{{ preprint.authors.0.full_name }}</td>
                         </tr>
                     {% endfor %}

@@ -1279,21 +1279,31 @@ def preprint_notification(**kwargs):
     request = kwargs.get('request')
     preprint = kwargs.get('preprint')
     content = kwargs.get('email_content')
+    skip = kwargs.get('skip')
 
-    description = '{editor} has published a preprint titled {title}.'.format(
-        editor=request.user.full_name(),
-        title=preprint.title,
-    )
+    if preprint.date_declined:
+        types = 'Rejected'
+        description = '<p>{editor} has rejected \'{title}\'. Moderator reason:</p><p>{reason}</p>'.format(
+            editor=request.user.full_name(),
+            title=preprint.title,
+            reason=preprint.preprint_decline_note,
+        )
+    else:
+        types = 'Accepted'
+        description = '{editor} has published \'{title}\'.'.format(
+            editor=request.user.full_name(),
+            title=preprint.title,
+        )
 
     log_dict = {
         'level': 'Info',
         'action_text': description,
-        'types': 'Preprint Publication',
+        'types': types,
         'target': preprint,
     }
 
     util_models.LogEntry.add_entry(
-        'Publication',
+        types,
         description,
         'Info',
         request.user,
@@ -1301,17 +1311,18 @@ def preprint_notification(**kwargs):
         preprint,
     )
 
-    notify_helpers.send_email_with_body_from_user(
-        request,
-        '{} Submission Decision'.format(preprint.title),
-        preprint.owner.email,
-        content,
-        log_dict=log_dict,
-    )
+    if not skip:
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Submission Decision'.format(preprint.title),
+            preprint.owner.email,
+            content,
+            log_dict=log_dict,
+        )
 
-    # Stops this notification being sent multiple times.c
-    preprint.preprint_decision_notification = True
-    preprint.save()
+        # Stops this notification being sent multiple times.c
+        preprint.preprint_decision_notification = True
+        preprint.save()
 
 
 def preprint_comment(**kwargs):

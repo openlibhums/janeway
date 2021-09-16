@@ -4,6 +4,7 @@ import json
 
 from django.conf import settings
 
+
 def load_settings(instance, force=True):
     """
     Instance: Repository object instance
