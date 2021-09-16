@@ -26,6 +26,7 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
     elif request.repository:
         # fetches the default setting for this email.
         subject = setting_handler.get_email_subject_setting('email_subject', subject, journal=None)
+        from_email = request.press.main_contact
     else:
         from_email = request.press.main_contact
 
