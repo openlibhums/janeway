@@ -315,15 +315,13 @@ def render_xml(file_to_render, article, xsl_path=None, recover=False):
 
     if xsl_path is not None:
         logger.debug('Rendering engine using {}'.format(xsl_path))
-    else:
-        xsl_path = os.path.join(settings.BASE_DIR, 'transform', 'xsl', "default.xsl")
-        logger.debug('Rendering engine using {}'.format(xsl_path))
 
     if not os.path.isfile(xsl_path):
         logger.error(
             'The required XSLT file {} was not found'.format(xsl_path)
         )
-        return ""
+        xsl_path = os.path.join(settings.BASE_DIR, 'transform/xsl/default.xsl')
+        logger.debug('Rendering engine using {}'.format(xsl_path))
 
     return transform_with_xsl(path, xsl_path, recover=recover)
 
