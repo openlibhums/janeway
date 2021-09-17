@@ -177,12 +177,10 @@ def nav(request, nav_id=None):
     :return: HttpResponse object
     """
     with translation.override(request.override_language):
+        nav_to_edit = None
         if nav_id:
             nav_to_edit = get_object_or_404(models.NavigationItem, pk=nav_id)
-            form = forms.NavForm(instance=nav_to_edit, request=request)
-        else:
-            nav_to_edit = None
-            form = forms.NavForm(request=request)
+        form = forms.NavForm(instance=nav_to_edit, request=request)
 
         top_nav_items = models.NavigationItem.objects.filter(
             content_type=request.model_content_type,
@@ -231,11 +229,10 @@ def nav(request, nav_id=None):
             )
             models.NavigationItem.toggle_collection_nav(issue_type)
 
-        if request.POST:
-            if nav_to_edit:
-                form = forms.NavForm(request.POST, request=request, instance=nav_to_edit)
-            else:
-                form = forms.NavForm(request.POST, request=request)
+        if request.POST and 'edit_nav' in request.POST:
+            form = forms.NavForm(
+                request.POST, request=request, instance=nav_to_edit,
+            )
 
             if form.is_valid():
                 new_nav_item = form.save(commit=False)
@@ -257,7 +254,6 @@ def nav(request, nav_id=None):
 
     template = 'cms/nav.html'
     context = {
-        'nav_item_to_edit': nav_to_edit,
         'form': form,
         'top_nav_items': top_nav_items,
         'collection_nav_items': collection_nav_items,
