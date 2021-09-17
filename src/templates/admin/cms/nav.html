@@ -22,24 +22,24 @@
             <form method="POST">
                 {% csrf_token %}
                 <div class="title-area">
-                    <h2>{% if form.instance %}Currently Editing {{ nav_item_to_edit.link_name }}{% else %}Create New Nav Item{% endif %}</h2>
+                    <h2>{% if form.instance.pk %}Currently Editing {{ form.instance.link_name }}{% else %}Create New Nav Item{% endif %}</h2>
                     {% if form.instance %}<a href="{% url 'cms_nav' %}" class="button"><span class="fa fa-plus"></span> Add a New Nav Item</a>{% endif %}
                 </div>
                 <div class="content">
                     <small>
                         <p>Help for internal navigation items:</p>
                         <ul>
-                            <li>{% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with {{ request.journal.code }}/{% endif %}site/</li>
+                            <li>{% if settings.URL_CONFIG == 'path' and request.journal %}If you are linking to a custom CMS page, prefix the link with /{{ request.journal.code }}{% endif %}/site/</li>
                             <li>Add the URL Name of the page eg. about</li>
-                            <li>An example: {% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with {{ request.journal.code }}/{% endif %}site/about/</li>
-                            <li>Link Name is the text that will appear in the nav bar. eg. About or Research Integrity</li>
-                            <li>For top level nav items that you don't want to appear in the dropdown leave the Link field empty.</li>
+                            <li>An example: {% if settings.URL_CONFIG == 'path' and request.journal %}Prefix the link with /{{ request.journal.code }}{% endif %}/site/about/</li>
+                            <li>Link Name is the text that will appear in the nav bar. eg. 'About' or 'Research Integrity'</li>
+                            <li>For top level nav items that should behave as a button (you don't want them to appear in the dropdown menu) leave the Link field empty.</li>
                         </ul>
                     </small>
                     {% include "admin/elements/forms/errors.html" %}
                     {{ form|foundation }}
-                    <button type="submit" name="submit" class="success button">
-                        {% if form.instance  %}Update{% else %}Create{% endif %}
+                    <button type="submit" name="edit_nav" class="success button">
+                        {% if form.instance.pk  %}Update{% else %}Create{% endif %}
                     </button>
                 </div>
             </form>
