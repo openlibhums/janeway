@@ -263,7 +263,7 @@
                             <div class="section">
                                 <h3>{% trans "Download" %}</h3>
                             <ul>
-                                {% if article.published %}
+                                {% if article.is_published %}
                                 {% for galley in galleys %}
                                     <li>
                                         <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
