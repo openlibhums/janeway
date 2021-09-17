@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 from submission import models
 from core import models as core_models
@@ -289,12 +289,12 @@ class EditFrozenAuthor(forms.ModelForm):
         instance = kwargs.pop("instance", None)
         if instance:
             if instance.author:
-                self.fields["frozen_email"].help_text += _(
+                self.fields["frozen_email"].help_text += ugettext(
                     "Currently linked to %s, leave blank to use this address"
                     "" % instance.author.email,
                 )
                 if self.author.orcid:
-                    self.fields["frozen_orcid"].help_text += _(
+                    self.fields["frozen_orcid"].help_text += ugettext(
                         "If left blank, the account ORCiD will be used (%s)"
                         "" % instance.author.orcid,
                     )
