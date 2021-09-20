@@ -562,6 +562,8 @@ class Article(models.Model):
         template = "common/elements/how_to_cite.html"
         authors = self.frozenauthor_set.all()
         author_str = " & ".join(a.citation_name() for a in authors)
+        if author_str:
+            author_str += ","
         year_str = ""
         if self.date_published:
             year_str = "({:%Y})".format(self.date_published)

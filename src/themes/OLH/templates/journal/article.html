@@ -57,7 +57,12 @@
                             <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
                                 <h3>{{ article.title|safe }}</h3>
-                                <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
+                                <p>
+                                <strong>{% if article.frozen_authors.count > 1 %}
+                                    {% trans "Authors" %}:
+                                    {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
+                                    {% endif %}
+                                </strong>
                                     {% for author in article.frozen_authors.all %}
                                         <span>{% if forloop.first == False %}, {% endif %}<span itemscope
                                                                                                 itemtype="http://schema.org/Person"
