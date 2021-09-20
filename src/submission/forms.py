@@ -293,7 +293,7 @@ class EditFrozenAuthor(forms.ModelForm):
                     "Currently linked to %s, leave blank to use this address"
                     "" % instance.author.email,
                 )
-                if self.author.orcid:
+                if instance.author.orcid:
                     self.fields["frozen_orcid"].help_text += ugettext(
                         "If left blank, the account ORCiD will be used (%s)"
                         "" % instance.author.orcid,
