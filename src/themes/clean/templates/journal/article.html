@@ -34,7 +34,7 @@
                         {% if article.is_published %}
                             <p></p><strong>{% if article.frozen_authors.count > 1 %}
                                 {% trans "Authors" %}:
-                                {% elif article.frozen_authors.count == 0 %}{% trans "Author" %}:
+                                {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
                                 {% endif %}
                             </strong>
                             {% for author in article.frozen_authors.all %}
