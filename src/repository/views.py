@@ -591,12 +591,19 @@ def repository_authors(request, preprint_id):
                 modal = 'newauthor'
 
         if 'complete' in request.POST:
-            return redirect(
-                reverse(
-                    'repository_files',
-                    kwargs={'preprint_id': preprint.pk}
+            if preprint.authors:
+                return redirect(
+                    reverse(
+                        'repository_files',
+                        kwargs={'preprint_id': preprint.pk}
+                    )
                 )
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'You must add at least one author.',
             )
+            fire_redirect = True
 
         if fire_redirect:
             return redirect(
@@ -681,7 +688,6 @@ def repository_files(request, preprint_id):
             if supplementary.is_valid():
                 preprint_supplementary, created = preprint.add_supplementary_file(supplementary)
                 messages.add_message(request, messages.INFO, 'Supplementary file link saved.')
-
 
         if 'complete' in request.POST:
             if preprint.submission_file:
