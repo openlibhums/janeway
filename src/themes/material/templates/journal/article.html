@@ -210,6 +210,7 @@
                             target="_blank"><i class="fa fa-linkedin"></i></a></button>
                       {% endwith %}
 
+                    {% if article.frozen_authors.count > 0 %}
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
@@ -230,6 +231,7 @@
                                 <a itemprop="email" href="mailto:{{ author.email }}"
                                    class="fa fa-envelope email-link"></a>{% endif %}
                     {% endfor %}
+                    {% endif %}
 
                     <div class="spacer">
                         <div class="divider"></div>

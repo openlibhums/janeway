@@ -32,8 +32,11 @@
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published %}
-                            <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
-                            {% trans "Author" %}{% endif %}:</strong>
+                            <p></p><strong>{% if article.frozen_authors.count > 1 %}
+                                {% trans "Authors" %}:
+                                {% elif article.frozen_authors.count == 0 %}{% trans "Author" %}:
+                                {% endif %}
+                            </strong>
                             {% for author in article.frozen_authors.all %}
                                 <span>{% if forloop.first == False %}, {% endif %}<span itemscope
                                                                                         itemtype="http://schema.org/Person"

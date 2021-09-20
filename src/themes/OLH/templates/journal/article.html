@@ -22,8 +22,11 @@
                     <small class="uppercase">{{ article.section.name }}</small>
                     <h3>{{ article.title|safe }}</h3>
                     <p>
-                        <strong>{% if article.frozen_authors.all|length > 1 %}
-                            {% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
+                        <strong>{% if article.frozen_authors.count > 1 %}
+                            {% trans "Authors" %}:
+                            {% elif article.frozen_authors.count == 0 %}{% trans "Author" %}:
+                            {% endif %}
+                        </strong>
                         {% for author in article.frozen_authors.all %}
                         {{ author.full_name }}
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
