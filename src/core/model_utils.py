@@ -38,6 +38,7 @@ class AbstractSiteModel(models.Model):
         default=False,
         help_text="If the site should redirect to HTTPS, mark this.",
     )
+    use_domain_mode = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -47,11 +48,17 @@ class AbstractSiteModel(models.Model):
         domain = request.get_host()
         # Lookup by domain with/without port
         try:
-            obj = cls.objects.get(domain=domain)
+            obj = cls.objects.get(
+                domain=domain,
+                use_domain_mode=True,
+            )
         except cls.DoesNotExist:
             # Lookup without port
             domain, _port = split_domain_port(domain)
-            obj = cls.objects.get(domain=domain)
+            obj = cls.objects.get(
+                domain=domain,
+                use_domain_mode=True,
+            )
         return obj
 
     def site_url(self, path=None):

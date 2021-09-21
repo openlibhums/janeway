@@ -1180,6 +1180,7 @@ class DomainAlias(AbstractSiteModel):
     )
     journal = models.ForeignKey('journal.Journal', blank=True, null=True)
     press = models.ForeignKey('press.Press', blank=True, null=True)
+    repository = models.ForeignKey('repository.Repository', blank=True, null=True)
 
     @property
     def site_object(self):
