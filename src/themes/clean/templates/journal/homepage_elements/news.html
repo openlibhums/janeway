@@ -12,7 +12,7 @@
                 <div class="card" style="width: 100%;">
                     <div class="card-body">
                         <h3 class="card-title"><a href="{% url 'core_news_item' item.pk %}" class="card-link">{{ item.title }}</a></h3>
-                        <h4 class="card-subtitle mb-2 text-muted">{{ news_item.byline }} on {{ item.posted|date:"Y-m-d" }}</h4>
+                        <h4 class="card-subtitle mb-2 text-muted">{{ item.byline }} on {{ item.posted|date:"Y-m-d" }}</h4>
                         <p class="card-text mb-auto">{{ item.body|striptags|truncatesmart:400 }}</p>
                     </div>
                 </div>
