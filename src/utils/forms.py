@@ -51,12 +51,13 @@ class KeywordModelForm(ModelForm):
 
     def save(self, commit=True, *args, **kwargs):
         instance = super().save(commit=commit, *args, **kwargs)
-
-        posted_keywords = self.cleaned_data.get('keywords', '').split(',')
         instance.keywords.clear()
-        for i, keyword in enumerate(posted_keywords):
+        posted_keywords = self.cleaned_data.get(
+            'keywords', '').split(',')
+        if posted_keywords:
+            for i, keyword in enumerate(posted_keywords):
                 obj, _ = submission_models.Keyword.objects.get_or_create(
-                        word=keyword)
+                    word=keyword)
                 instance.keywords.add(obj)
         if commit:
             instance.save()
