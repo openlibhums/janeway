@@ -383,7 +383,7 @@ def article(request, identifier_type, identifier):
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
             " that is not yet published.</strong></p>"
-        ) + article_object.abstract or ""
+        ) + (article_object.abstract or "")
 
     if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
         article_object.large_image_file = core_models.File()
