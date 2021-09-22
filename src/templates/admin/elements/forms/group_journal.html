@@ -10,6 +10,14 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_name %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_url %}
     {% include "admin/elements/forms/field.html" with field=edit_form.main_contact %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.privacy_policy_url %}
+</div>
+
+<div class="title-area">
+    <h2>Disciplines</h2>
+</div>
+<div class="content">
+    {% include "admin/elements/forms/field.html" with field=attr_form.keywords %}
 </div>
 
 <div class="title-area">
