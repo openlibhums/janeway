@@ -45,6 +45,8 @@ class AccountAdmin(UserAdmin):
         }),
     )
 
+    raw_id_fields = ('interest',)
+
 
 class RoleAdmin(admin.ModelAdmin):
     """Displays Role objects in the Django admin interface."""
