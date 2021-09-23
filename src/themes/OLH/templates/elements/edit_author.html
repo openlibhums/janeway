@@ -1,7 +1,7 @@
 {% load foundation %}
 {% load i18n %}
 <div class="small reveal" id="author" data-reveal>
-    <h5}{% trans "Edit" %} {{ frozen_author.full_name }}</h5>
+    <h5>{% trans "Edit" %} {{ frozen_author.full_name }}</h5>
     <p><strong>{% trans "NB." %}</strong> {% trans "You are editing the frozen metadata record for this author, not their live user profile." %}</p>
     {% include "elements/forms/errors.html" with form=author_form %}
     <form method="POST">
