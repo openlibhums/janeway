@@ -1406,9 +1406,13 @@ class FrozenAuthor(models.Model):
         max_length=40, null=True, blank=True,
         verbose_name=_('ORCiD'),
         help_text=_("ORCiD to be displayed when no account is"
-            " associated with this author. It should be introduced in code "
-            "format (e.g: 0000-0000-0000-000X)"
-        )
+                    " associated with this author. It should be introduced in code "
+                    "format (e.g: 0000-0000-0000-000X)"
+                    )
+    )
+    display_email = models.BooleanField(
+        default=False,
+        help_text=_("If checked, this authors email address link will be displayed on the article page.")
     )
 
     class Meta:
