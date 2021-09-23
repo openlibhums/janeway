@@ -398,6 +398,7 @@ def get_settings_to_edit(group, journal):
             'suppress_citations_metric',
             'display_altmetric_badge',
             'altmetric_badge_type',
+            'hide_author_email_links',
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
