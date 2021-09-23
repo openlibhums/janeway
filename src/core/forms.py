@@ -332,6 +332,7 @@ class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
            'is_remote',
            'remote_view_url',
            'remote_submit_url',
+           'hide_from_press',
         )
 
 
