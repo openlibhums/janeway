@@ -826,8 +826,6 @@ def edit_settings_group(request, group):
                     {'group': group},
                 )
 
-        print(attr_form.fields)
-
         template = 'admin/core/manager/settings/group.html'
         context = {
             'group': group,
