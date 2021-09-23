@@ -1,6 +1,7 @@
 {% load settings %}
 {% load roles %}
 {% load static from staticfiles %}
+{% load bool_fa %}
 
 {% user_has_role request 'editor' as user_is_editor %}
 {% user_has_role request 'section-editor' as user_is_section_editor %}
@@ -127,6 +128,7 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Display Email Link?</th>
             <th>Primary?</th>
         </tr>
         {% for f_author in article.frozenauthor_set.all %}
@@ -135,8 +137,9 @@
                 <td>
                     {% if f_author.author.email %}{{ f_author.author.email }}
                     <span data-tooltip tabindex="1" title="Send an email to {{ f_author.author.email }}"><a onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></span>
-                    <span data-tooltip tabindex="1" title="Account linked to author"><a href="{% url 'core_user_edit' f_author.author.pk %}')"><i class="fa fa-user">&nbsp;</i></a></span>
+                    <span data-tooltip tabindex="1" title="Account linked to author"><a href="{% url 'core_user_edit' f_author.author.pk %}"><i class="fa fa-user">&nbsp;</i></a></span>
                     {% elif f_author.email %}{{ f_author.email}}{% else %}No email address recorded.{% endif %}</td>
+                <td>{{ f_author.display_email|bool_fa }}</td>
                 <td>{% if f_author.author == article.correspondence_author %}
                     <i class="fa fa-check-circle" style="color: green;"></i>
                 {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
