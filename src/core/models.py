@@ -402,6 +402,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'institution': self.institution,
             'department': self.department,
+            'display_email': True if self == article.correspondence_author else False,
         }
 
         frozen_author = self.frozen_author(article)
