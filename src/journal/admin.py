@@ -30,6 +30,12 @@ class JournalAdmin(admin.ModelAdmin):
         'hide_from_press',
     )
     list_filter = ('is_remote', 'is_conference', 'hide_from_press')
+    raw_id_fields = (
+        'current_issue',
+        'thumbnail_image',
+        'press_image_override',
+    )
+    filter_horizontal = ('keywords',)
 
 
 class BannedIPAdmin(admin.ModelAdmin):

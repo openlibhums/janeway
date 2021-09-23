@@ -23,7 +23,7 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ('pk', 'title', 'journal', 'date_submitted', 'stage',
                     'owner', 'is_import', 'ithenticate_score')
     search_fields = ('pk', 'title', 'subtitle')
-    list_filter = ('stage', 'is_import', 'journal')
+    list_filter = ('stage', 'is_import', 'journal',)
     raw_id_fields = (
         'section',
         'owner',
@@ -31,24 +31,23 @@ class ArticleAdmin(admin.ModelAdmin):
         'correspondence_author',
         'primary_issue',
         'projected_issue',
-    )
-    filter_horizontal = (
-        'authors',
+        'render_galley',
+        'large_image_file',
+        'thumbnail_image_file',
+        'preprint_journal_article',
+        'source_files',
         'manuscript_files',
         'data_figure_files',
         'supplementary_files',
         'publisher_notes',
+    )
+    filter_horizontal = (
+        'authors',
         'keywords',
-        'source_files',
     )
 
     def get_queryset(self, request):
         return self.model.allarticles.get_queryset()
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'license':
-            return LicenseChoiceField(queryset=models.Licence.objects.all().order_by('journal__code'))
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class ArticleLogAdmin(admin.ModelAdmin):
