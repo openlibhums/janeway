@@ -198,6 +198,10 @@ ol.gloss-word {
     text-decoration: underline;
 }
 
+.monospace {
+    font-family: monospace;
+}
+
 .no-top-margin {
     margin-top: 0;
 }
