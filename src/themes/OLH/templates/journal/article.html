@@ -31,7 +31,7 @@
                         {{ author.full_name }}
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
-                        {% if author.is_correspondence_author and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
                         {% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
@@ -77,7 +77,7 @@
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {% if author.is_correspondence_author and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
+                                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
 
@@ -123,7 +123,7 @@
                                 <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
                                 <li><a href="javascript:resizeText(-1)">A-</a></li>
                                 <li><a href="javascript:resizeText(1)">A+</a></li>
-                                {% if author.is_correspondence_author and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
                                 <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
                                     <a><i class="fa fa-comments"></i></a>
