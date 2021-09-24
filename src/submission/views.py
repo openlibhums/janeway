@@ -617,6 +617,18 @@ def edit_metadata(request, article_id):
                     )
                     return redirect(reverse_url)
 
+            if 'mark_primary' in request.POST and frozen_author.author:
+                article.correspondence_author = frozen_author.author
+                article.save()
+                frozen_author.display_email = True
+                frozen_author.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _('Primary author set.')
+                )
+                return redirect(reverse_url)
+
             if 'author' in request.POST:
                 author_form = forms.EditFrozenAuthor(
                     request.POST,
