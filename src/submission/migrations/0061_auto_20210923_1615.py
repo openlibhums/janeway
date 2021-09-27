@@ -15,6 +15,11 @@ def setup_display_emails(apps, schema_editor):
             ).update(
                 display_email=True,
             )
+        else:
+            first_author = article.frozenauthor_set.all().first()
+            if first_author:
+                first_author.display_email = True
+                first_author.save()
 
 
 class Migration(migrations.Migration):
