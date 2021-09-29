@@ -37,11 +37,13 @@
                         <td colspan="2">{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
                     </tr>
-                     <tr>
-                        <th colspan="3">Published DOI</th>
+                    <tr>
+                        <th colspan="2">Preprint DOI</th>
+                        <th>Published DOI</th>
                     </tr>
                     <tr>
-                        <td colspan="3">{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
+                        <td colspan="2">{% if preprint.preprint_doi %}<a target="_blank" href="{{ preprint.preprint_doi }}">{{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
+                        <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
                     </tr>
                     <tr>
                         <th colspan="3">
