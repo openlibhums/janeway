@@ -1444,6 +1444,25 @@
         </div>
     </xsl:template>
 
+    <xsl:template match="media" mode="vimeo">
+      <xsl:variable name="vimeo_url" select="./@xlink:href"/>
+        <div class="media video-content">
+          <div class="media-inline video-inline">
+            <div class="acta-inline-video">
+              <div style="padding:56.25% 0 0 0;position:relative;">
+                <iframe
+                  src="{$vimeo_url}"
+                  style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                  frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
+                ></iframe>
+                <script src="https://player.vimeo.com/api/player.js"></script>
+              </div>
+            </div>
+          </div>
+        </div>
+          <xsl:apply-templates/>
+    </xsl:template>
+
     <xsl:template match="media" mode="testing">
         <xsl:choose>
             <xsl:when test="@mimetype != 'video'">
@@ -3038,9 +3057,16 @@
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
         <xsl:choose>
             <xsl:when test="@mimetype = 'video'">
-                <div class="media" data-doi="{$data-doi}">
-                    <xsl:apply-templates select="." mode="testing"/>
-                </div>
+              <xsl:choose>
+                <xsl:when test="contains(./@xlink:href, 'player.vimeo.com')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="vimeo"/>
+                  </div>
+                </xsl:when>
+                <xsl:otherwise>
+                  <a href="{@xlink:href}">Video</a>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:apply-templates select="." mode="testing"/>
