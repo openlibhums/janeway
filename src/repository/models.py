@@ -331,10 +331,9 @@ class Preprint(models.Model):
         blank=False,
         null=True,
     )
-    keywords = models.ManyToManyField(
-        'submission.Keyword',
-        blank=True,
-        null=True,
+    keywords = model_utils.M2MOrderedThroughField(
+        "submission.Keyword",
+        blank=True, null=True, through='repository.KeywordPreprint',
     )
     license = models.ForeignKey(
         'submission.Licence',
@@ -593,6 +592,22 @@ class Preprint(models.Model):
         )
 
         return url
+
+
+class KeywordPreprint(models.Model):
+    keyword = models.ForeignKey("submission.Keyword")
+    preprint = models.ForeignKey(Preprint)
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = ('keyword', 'preprint')
+
+    def __str__(self):
+        return self.keyword.word
+
+    def __repr__(self):
+        return "KeywordPreprint(%s, %d)" % (self.keyword.word, self.preprint.id)
 
 
 class PreprintFile(models.Model):
