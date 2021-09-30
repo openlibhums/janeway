@@ -1199,9 +1199,17 @@
 
     <xsl:template match="fig">
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
-        <div class="fig" data-doi="{$data-doi}">
+        <xsl:choose>
+          <xsl:when test="./media">
+           videofigure
+            <xsl:apply-templates/>
+           </xsl:when>
+           <xsl:otherwise>
+          <div class="fig" data-doi="{$data-doi}">
             <xsl:apply-templates select="." mode="testing"/>
-        </div>
+          </div>
+           </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <!-- fig caption -->
