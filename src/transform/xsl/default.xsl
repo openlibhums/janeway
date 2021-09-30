@@ -1201,7 +1201,6 @@
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
         <xsl:choose>
           <xsl:when test="./media">
-           videofigure
             <xsl:apply-templates/>
            </xsl:when>
            <xsl:otherwise>
@@ -1478,9 +1477,23 @@
           <div class="acta-inline-video">
             <iframe
               width="560" height="315"
-              src="{@xlink:href}" frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen="yes"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+          <xsl:apply-templates/>
+    </xsl:template>
+
+    <xsl:template match="media" mode="soundcloud">
+      <div class="media audio-content">
+        <div class="media-inline audio-inline">
+          <div class="acta-inline-audio">
+            <iframe
+              width="100%" height="150"
+              scrolling="no" frameborder="no" allow="autoplay"
+              src="{@xlink:href}"
             ></iframe>
           </div>
         </div>
@@ -3081,25 +3094,45 @@
     <xsl:template match="media">
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
         <xsl:choose>
+            <!-- Handle Video Media-->
             <xsl:when test="@mimetype = 'video'">
               <xsl:choose>
+                <!-- Embed Vimeo -->
                 <xsl:when test="contains(./@xlink:href, 'player.vimeo.com')">
                   <div class="media" data-doi="{$data-doi}">
                     <xsl:apply-templates select="." mode="vimeo"/>
                   </div>
                 </xsl:when>
+
+                <!-- Embed Youtube -->
                 <xsl:when test="contains(./@xlink:href, 'youtube.com')">
                   <div class="media" data-doi="{$data-doi}">
                     <xsl:apply-templates select="." mode="youtube"/>
                   </div>
                 </xsl:when>
                 <xsl:otherwise>
-                  <a href="{@xlink:href}">Video</a>
+                  <a href="{@xlink:href}">Video URL</a>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
+
+            <!-- Handle Audio Media-->
+            <xsl:when test="@mimetype = 'audio'">
+              <xsl:choose>
+                <xsl:when test="contains(./@xlink:href, 'soundcloud.com/player')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="soundcloud"/>
+                  </div>
+                </xsl:when>
+                <xsl:otherwise>
+                  <a href="{@xlink:href}">Video URL</a>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:when>
+
             <xsl:otherwise>
-                <xsl:apply-templates select="." mode="testing"/>
+            <!-- MSL: I think this is test code that doesn't do much -->
+              <xsl:apply-templates select="." mode="testing"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
