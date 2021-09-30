@@ -3465,6 +3465,12 @@
         </span>
     </xsl:template>
 
+    <xsl:template match="strike">
+        <span class="strikethrough">
+            <xsl:apply-templates/>
+        </span>
+    </xsl:template>
+
     <xsl:template match="monospace">
         <span class="monospace">
             <xsl:apply-templates/>

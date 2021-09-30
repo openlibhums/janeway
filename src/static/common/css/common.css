@@ -198,6 +198,19 @@ ol.gloss-word {
     text-decoration: underline;
 }
 
+.monospace {
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+}
+
+.list-simple li {
+    list-style-type: none !important;
+}
+
 .no-top-margin {
     margin-top: 0;
 }
