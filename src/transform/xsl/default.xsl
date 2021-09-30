@@ -1454,12 +1454,29 @@
                   src="{$vimeo_url}"
                   style="position:absolute;top:0;left:0;width:100%;height:100%;"
                   frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
+                allowfullscreen="yes"
                 ></iframe>
                 <script src="https://player.vimeo.com/api/player.js"></script>
               </div>
             </div>
           </div>
         </div>
+          <xsl:apply-templates/>
+    </xsl:template>
+
+    <xsl:template match="media" mode="youtube">
+      <div class="media video-content">
+        <div class="media-inline video-inline">
+          <div class="acta-inline-video">
+            <iframe
+              width="560" height="315"
+              src="{@xlink:href}" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen="yes"
+            ></iframe>
+          </div>
+        </div>
+      </div>
           <xsl:apply-templates/>
     </xsl:template>
 
@@ -3061,6 +3078,11 @@
                 <xsl:when test="contains(./@xlink:href, 'player.vimeo.com')">
                   <div class="media" data-doi="{$data-doi}">
                     <xsl:apply-templates select="." mode="vimeo"/>
+                  </div>
+                </xsl:when>
+                <xsl:when test="contains(./@xlink:href, 'youtube.com')">
+                  <div class="media" data-doi="{$data-doi}">
+                    <xsl:apply-templates select="." mode="youtube"/>
                   </div>
                 </xsl:when>
                 <xsl:otherwise>
