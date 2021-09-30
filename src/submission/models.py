@@ -330,6 +330,7 @@ class KeywordArticle(models.Model):
 
 class ArticleManager(models.Manager):
     use_in_migrations = True
+
     def get_queryset(self):
         return super(ArticleManager, self).get_queryset().all()
 

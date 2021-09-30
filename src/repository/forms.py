@@ -11,14 +11,14 @@ from repository import models
 from press import models as press_models
 from review.forms import render_choices
 from core import models as core_models
+from utils import forms as utils_forms
 
 
-class PreprintInfo(forms.ModelForm):
+class PreprintInfo(utils_forms.KeywordModelForm):
     submission_agreement = forms.BooleanField(
         widget=forms.CheckboxInput(),
         required=True,
     )
-    keywords = forms.CharField(required=False)
     subject = forms.ModelMultipleChoiceField(
         required=True,
         queryset=models.Subject.objects.none(),
@@ -133,15 +133,6 @@ class PreprintInfo(forms.ModelForm):
             preprint.owner = self.request.user
 
         preprint.repository = self.request.repository
-
-        posted_keywords = self.cleaned_data['keywords'].split(',')
-        for keyword in posted_keywords:
-            new_keyword, c = submission_models.Keyword.objects.get_or_create(word=keyword)
-            preprint.keywords.add(new_keyword)
-
-        for keyword in preprint.keywords.all():
-            if keyword.word not in posted_keywords:
-                preprint.keywords.remove(keyword)
 
         if self.request:
             additional_fields = models.RepositoryField.objects.filter(
