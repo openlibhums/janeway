@@ -1478,6 +1478,7 @@
             <iframe
               width="560" height="315"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              src="{@xlink:href}" frameborder="0"
               allowfullscreen="yes"
             ></iframe>
           </div>
