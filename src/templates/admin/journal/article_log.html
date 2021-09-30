@@ -29,9 +29,9 @@
                     {% for entry in log_entries %}
                         <tr>
                             <td>{{ entry.types }}</td>
-                            <td>{% if entry.is_email %}{% for email in entry.to %}{{ email }}{% if not forloop.last %}; {% endif %}{% endfor %}{% endif %}</td>
+                            <td>{% if entry.is_email %}{% for email in entry.to %}{{ email }}{% if not forloop.last %}; {% endif %}{% endfor %}{% else %}---{% endif %}</td>
                             <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
-                            <td>{{ entry.actor.full_name }}</td>
+                            <td>{% if entry.actor %}{{ entry.actor.full_name }}{% else %}Janeway System{% endif %}</td>
                             <td>{{ entry.get_level_display|capfirst }}</td>
                             {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
                                 {% if entry.is_email %}
@@ -80,5 +80,5 @@
 {% block js %}
     <script type="text/javascript" src="{% static 'admin/js/resolution.js' %}"></script>
     <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
-    {% include "elements/datatables.html" with target="#log" order='desc' sort=1 %}
+    {% include "elements/datatables.html" with target="#log" order='desc' sort=2 %}
 {% endblock %}
