@@ -374,7 +374,7 @@ def article(request, identifier_type, identifier):
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     content = None
-    galleys = article_object.galley_set.all()
+    galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
@@ -417,7 +417,6 @@ def article_from_identifier(request, identifier_type, identifier):
     return redirect(identifier.article.url)
 
 
-
 @decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
@@ -432,7 +431,7 @@ def print_article(request, identifier_type, identifier):
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     content = None
-    galleys = article_object.galley_set.all()
+    galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
@@ -534,7 +533,11 @@ def download_galley(request, article_id, galley_id):
                                 journal=request.journal,
                                 date_published__lte=timezone.now(),
                                 stage__in=submission_models.PUBLISHED_STAGES)
-    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        public=True,
+    )
 
     embed = request.GET.get('embed', False)
 

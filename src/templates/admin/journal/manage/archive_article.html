@@ -4,6 +4,7 @@
 {% load static from staticfiles %}
 {% load foundation %}
 {% load hooks %}
+{% load bool_fa %}
 
 {% block title %}Article Archive {{ article.pk }}{% endblock title %}
 {% block title-section %}{% if article.stage == 'Rejected' %}Rejected Article {% else %}Article Archive{% endif %} {{ article.pk }}{% endblock %}
@@ -52,12 +53,16 @@
                         <th>Label</th>
                         <th width="25%">Filename</th>
                         <th>Type</th>
+                        <th>Public</th>
                         <th>Edit</th>
                         <th>Download</th>
                         <th>Replace</th>
                         <th>History</th>
                         <th>Create PDF</th>
                         <th>Create EPUB</th>
+                        {% if request.user.is_admin %}
+                        <th>Edit in Admin</th>
+                        {% endif %}
                     </tr>
                     {% for galley in galleys %}
                         {% can_view_file galley.file as can_view_file_flag %}
@@ -67,6 +72,7 @@
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
                             <td>Galley</td>
+                            <td>{{ galley.public|bool_fa }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}?return={% url 'manage_archive_article' article.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}
                                 <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
@@ -109,6 +115,11 @@
                                              title="{% has_missing_supplements galley %}">Missing Supplements</span></p>
                                 {% endif %}
                             </td>
+                            {% if request.user.is_admin %}
+                                <td><a target="_blank"
+                                       href="{% url 'admin:core_galley_change' galley.pk %}"><span
+                                        class="fa fa-cogs">&nbsp;</span>Edit in Admin</a>
+                                </td>{% endif %}
                         </tr>
                     {% empty %}
                         <tr>
