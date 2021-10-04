@@ -288,10 +288,10 @@
                         </div>
                     {% endif %}
 
+                    {% if article.date_accepted or article.date_published %}
                     <h4>
                         {% trans "Dates" %}
                     </h4>
-
                     <table class="sidebar-table">
                         {% if article.date_accepted %}
                             <tr>
@@ -299,15 +299,17 @@
                                 <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                             </tr>
                         {% endif %}
+                        {% if article.date_published %}
                         <tr>
                             <th>{% trans "Published" %}</th>
                             <td>{{ article.date_published|date:"Y-m-d" }}</td>
                         </tr>
+                        {% endif %}
                     </table>
-
                     <div class="spacer">
                         <div class="divider"></div>
                     </div>
+                    {% endif %}
 
                     <h4>
                         {% trans "Licence" %}
