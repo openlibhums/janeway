@@ -276,6 +276,7 @@ def production_article(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
+    galley_form = forms.GalleyForm()
 
     try:
         production_assignment = models.ProductionAssignment.objects.get(
@@ -293,8 +294,10 @@ def production_article(request, article_id):
 
     if request.POST:
         try:
-            if 'file' in request.FILES:
-                label = request.POST.get('label', None)
+            galley_form = forms.GalleyForm(request.POST, request.FILES)
+            if 'file' in request.FILES and galley_form.is_valid():
+                label = galley_form.cleaned_data.get('label')
+                public = galley_form.cleaned_data.get('public')
                 for uploaded_file in request.FILES.getlist('file'):
                     logic.save_galley(
                         article,
@@ -302,17 +305,26 @@ def production_article(request, article_id):
                         uploaded_file,
                         True,
                         label=label,
+                        public=public,
                     )
         except TypeError as exc:
-            messages.add_message(request, messages.ERROR, str(exc))
+            messages.add_message(
+                request,
+                messages.ERROR,
+                str(exc),
+            )
         except UnicodeDecodeError:
-            messages.add_message(request, messages.ERROR,
-                "Uploaded file is not UTF-8 encoded")
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Uploaded file is not UTF-8 encoded",
+            )
         except logic.ZippedGalleyError:
-            messages.add_message(request, messages.ERROR,
+            messages.add_message(
+                request,
+                messages.ERROR,
                 "Galleys must be uploaded individually, not zipped",
             )
-
 
         if 'prod' in request.POST:
             for uploaded_file in request.FILES.getlist('prod-file'):
@@ -342,6 +354,13 @@ def production_article(request, article_id):
                 'No files uploaded.'
             )
 
+        if not galley_form.is_valid():
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'Galley form not valid.',
+            )
+
         return redirect(
             reverse(
                 'production_article',
@@ -362,7 +381,8 @@ def production_article(request, article_id):
         'copyedit_files': copyedit_files,
         'typeset_tasks': production_assignment.typesettask_set.all().order_by('-id'),
         'galleys': galleys,
-        'complete_message': logic.get_complete_template(request, article, production_assignment)
+        'complete_message': logic.get_complete_template(request, article, production_assignment),
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -814,6 +834,10 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         pk=galley_id,
         article=article,
     )
+    galley_form = forms.GalleyForm(
+        instance=galley,
+        include_file=False,
+    )
     if galley.label == 'XML':
         xsl_files = core_models.XSLFile.objects.filter(
             Q(journal=request.journal)|Q(journal__isnull=True)
@@ -892,9 +916,14 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
                     label,
                 )
 
-        if 'galley-label' in request.POST:
-            galley.label = request.POST.get('galley_label')
-            galley.save()
+        if 'galley-update' in request.POST:
+            galley_form = forms.GalleyForm(
+                request.POST,
+                instance=galley,
+                include_file=False,
+            )
+            if galley_form.is_valid():
+                galley_form.save()
 
         if 'replace-galley' in request.POST:
             logic.replace_galley_file(
@@ -940,6 +969,7 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         'data_files': article.data_figure_files.all(),
         'galley_images': galley.images.all(),
         'xsl_files': xsl_files,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)

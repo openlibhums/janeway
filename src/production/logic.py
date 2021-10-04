@@ -68,7 +68,7 @@ def save_source_file(article, request, uploaded_file):
     article.source_files.add(new_file)
 
 
-def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True):
+def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_disk=True, public=True):
     if isinstance(uploaded_file, str):
         mime = files.file_path_mime(uploaded_file)
     else:
@@ -123,6 +123,7 @@ def save_galley(article, request, uploaded_file, is_galley, label=None, save_to_
         label=label,
         type=type_,
         sequence=article.get_next_galley_sequence(),
+        public=public,
     )
 
     return new_galley
