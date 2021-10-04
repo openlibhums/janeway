@@ -215,6 +215,7 @@
                                 {% endif %}
                                 <div class="bottom">
                                     <div class="row" data-equalizer>
+                                        {% if article.date_published or article.date_accepted %}
                                         <div class="large-4 columns" data-equalizer-watch>
                                             {% if article.is_published %}
                                                 <h5>{% trans "Published on" %} <br>
@@ -224,10 +225,11 @@
                                                     {{ article.date_accepted|date:"d M Y" }}</h5>
                                             {% endif %}
                                         </div>
-                                        <div class="large-4 columns" data-equalizer-watch>
+                                        {% endif %}
+                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
                                         </div>
-                                        <div class="large-4 columns" data-equalizer-watch>
+                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             <h5>{% trans "License" %}</h5>
                                             <a class="has-tip scroll-link" rel="license" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
                                         </div>
