@@ -23,7 +23,7 @@ class ReviewRoundAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('pk', 'article', 'reviewer', 'editor', 'review_round', 'decision', 'date_due', 'is_complete')
     list_filter = ('article', 'reviewer', 'editor')
-    raw_id_fields = ('article', 'reviewer', 'editor', 'review_round', 'form')
+    raw_id_fields = ('article', 'reviewer', 'editor', 'review_round', 'form', 'review_file')
 
 
 class ReviewFormAdmin(admin.ModelAdmin):

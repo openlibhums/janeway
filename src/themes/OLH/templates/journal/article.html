@@ -31,7 +31,7 @@
                         {{ author.full_name }}
                             {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
                             {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
-                        {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
                         {% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
@@ -77,7 +77,7 @@
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.email }}"
+                                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
 
@@ -123,7 +123,7 @@
                                 <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
                                 <li><a href="javascript:resizeText(-1)">A-</a></li>
                                 <li><a href="javascript:resizeText(1)">A+</a></li>
-                                {% if article.correspondence_author.email %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
                                 <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
                                     <a><i class="fa fa-comments"></i></a>
@@ -215,6 +215,7 @@
                                 {% endif %}
                                 <div class="bottom">
                                     <div class="row" data-equalizer>
+                                        {% if article.date_published or article.date_accepted %}
                                         <div class="large-4 columns" data-equalizer-watch>
                                             {% if article.is_published %}
                                                 <h5>{% trans "Published on" %} <br>
@@ -224,10 +225,11 @@
                                                     {{ article.date_accepted|date:"d M Y" }}</h5>
                                             {% endif %}
                                         </div>
-                                        <div class="large-4 columns" data-equalizer-watch>
+                                        {% endif %}
+                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
                                         </div>
-                                        <div class="large-4 columns" data-equalizer-watch>
+                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             <h5>{% trans "License" %}</h5>
                                             <a class="has-tip scroll-link" rel="license" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
                                         </div>

@@ -320,6 +320,7 @@ class EditFrozenAuthor(forms.ModelForm):
             'is_corporate',
             'frozen_email',
             'frozen_orcid',
+            'display_email',
         )
 
     def save(self, commit=True, *args, **kwargs):

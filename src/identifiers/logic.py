@@ -221,7 +221,22 @@ def send_crossref_deposit(test_mode, identifier):
     filename = uuid4()
 
     depositor = Depositor(prefix=doi_prefix, api_user=username, api_key=password, use_test_server=test_mode)
-    response = depositor.register_doi(submission_id=filename, request_xml=rendered)
+
+    try:
+        response = depositor.register_doi(submission_id=filename, request_xml=rendered)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        status = 'Error depositing. Could not connect to Crossref ({0}). Error: {1}'.format(
+            depositor.get_endpoint(verb='deposit'),
+            e,
+        )
+        util_models.LogEntry.add_entry(
+            'Error',
+            status,
+            'Debug',
+            target=identifier.article,
+        )
+        logger.error(status)
+        return status, error
 
     logger.debug("[CROSSREF:DEPOSIT:{0}] Sending".format(identifier.article.id))
     logger.debug("[CROSSREF:DEPOSIT:%s] Response code %s" % (identifier.article.id, response.status_code))

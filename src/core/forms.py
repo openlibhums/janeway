@@ -324,7 +324,7 @@ class GeneratedSettingForm(forms.Form):
             setting_handler.save_setting(group, setting_name, journal, setting_value)
 
 
-class JournalAttributeForm(JanewayTranslationModelForm):
+class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
@@ -332,6 +332,7 @@ class JournalAttributeForm(JanewayTranslationModelForm):
            'is_remote',
            'remote_view_url',
            'remote_submit_url',
+           'hide_from_press',
         )
 
 

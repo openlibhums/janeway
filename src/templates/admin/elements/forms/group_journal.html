@@ -10,6 +10,15 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_name %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_url %}
     {% include "admin/elements/forms/field.html" with field=edit_form.main_contact %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.privacy_policy_url %}
+</div>
+
+<div class="title-area">
+    <h2>Disciplines</h2>
+</div>
+<div class="content">
+    <p>You can add keywords to your journal which are displayed as Disciplines.</p>
+    {% include "admin/elements/forms/field.html" with field=attr_form.keywords %}
 </div>
 
 <div class="title-area">
@@ -52,6 +61,9 @@
 
     <p>You can include a google analytics code here if you want to track user visits.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
+
+    <p>You can use this setting to stop this journal being list on the Press' journals page.</p>
+    {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}
 </div>
 
 

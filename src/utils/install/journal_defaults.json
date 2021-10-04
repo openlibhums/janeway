@@ -3058,5 +3058,20 @@
         "value": {
             "default": "News"
         }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled the article page will not display links to email correspondence authors.",
+            "is_translatable": false,
+            "name": "hide_author_email_links",
+            "pretty_name": "Hide Author Email Links",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

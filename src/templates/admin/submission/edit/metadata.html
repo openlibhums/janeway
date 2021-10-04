@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}}
 {% load foundation %}
 {% load static from staticfiles %}
+{% load bool_fa %}
 
 {% block title %}Edit Metadata - {{ article.pk }}{% endblock title %}
 
@@ -117,6 +118,7 @@
                             <th></th>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Display Email Link?</th>
                             <th>Institution</th>
                             <th>Correspondence Author</th>
                             <th></th>
@@ -129,6 +131,7 @@
                                 <td><i class="fa fa-sort"></i></td>
                                 <td>{{ f_author.full_name }}</td>
                                 <td>{{ f_author.email }}</td>
+                                <td>{{ f_author.display_email|bool_fa }}</td>
                                 <td>{{ f_author.institution }}</td>
                                 <td>{% if article.correspondence_author and f_author.author == article.correspondence_author %}
                                     <i class="fa fa-check"></i>{% else %}<i class="fa fa-times"></i>{% endif %}</td>
