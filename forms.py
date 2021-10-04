@@ -178,3 +178,22 @@ class ProofingForm(forms.ModelForm):
                 attrs={'summernote': summernote_attrs},
             ),
         }
+
+
+class GalleyForm(forms.ModelForm):
+    file = forms.FileField()
+
+    class Meta:
+        model = core_models.Galley
+        fields = (
+            'label',
+            'public',
+        )
+
+    def __init__(self, *args, **kwargs):
+        include_file = kwargs.pop('include_file', True)
+        super().__init__(*args, **kwargs)
+        self.fields['label'].required = False
+
+        if not include_file:
+            self.fields.pop('file')

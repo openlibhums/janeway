@@ -70,6 +70,7 @@ def typesetting_article(request, article_id):
     )
     manuscript_files = logic.production_ready_files(article)
     supp_choice_form = forms.SupplementaryFileChoiceForm(article=article)
+    galley_form = forms.GalleyForm()
 
     if not rounds:
         logic.new_typesetting_round(article, rounds, request.user)
@@ -151,6 +152,7 @@ def typesetting_article(request, article_id):
         'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
         'next_element': logic.get_next_element('typesetting_articles', request),
         'supp_choice_form': supp_choice_form,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -219,6 +221,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         pk=article_id,
         journal=request.journal,
     )
+    form = forms.GalleyForm(request.POST, request.FILES)
     assignment = None
     galley = None
 
@@ -230,15 +233,17 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         )
 
     try:
-        if 'file' in request.FILES:
-            label = request.POST.get('label', None)
+        if 'file' in request.FILES and form.is_valid():
+            label = form.cleaned_data.get('label')
+            public = form.cleaned_data.get('public')
             for uploaded_file in request.FILES.getlist('file'):
                 galley = production_logic.save_galley(
                     article,
                     request,
                     uploaded_file,
                     True,
-                    label=label
+                    label=label,
+                    public=public,
                 )
     except TypeError as exc:
         messages.add_message(request, messages.ERROR, str(exc))
@@ -252,7 +257,6 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
             "Please upload each Typeset File separately",
         )
 
-
     if 'prod' in request.POST:
         for uploaded_file in request.FILES.getlist('prod-file'):
             production_logic.save_prod_file(
@@ -265,12 +269,18 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
     if assignment and galley:
         assignment.galleys_created.add(galley)
 
-
     if not galley:
         messages.add_message(
             request,
             messages.WARNING,
             'No typeset file uploaded',
+        )
+
+    if not form.is_valid():
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Galley form not valid.',
         )
 
     if assignment:
@@ -310,6 +320,10 @@ def typesetting_edit_galley(request, galley_id, article_id):
         core_models.Galley,
         pk=galley_id,
         article=article,
+    )
+    galley_form = forms.GalleyForm(
+        instance=galley,
+        include_file=False,
     )
     if galley.label == 'XML':
         xsl_files = core_models.XSLFile.objects.all()
@@ -374,9 +388,14 @@ def typesetting_edit_galley(request, galley_id, article_id):
                     label,
                 )
 
-        if 'galley-label' in request.POST:
-            galley.label = request.POST.get('galley_label')
-            galley.save()
+        if 'galley-update' in request.POST:
+            galley_form = forms.GalleyForm(
+                request.POST,
+                instance=galley,
+                include_file=False,
+            )
+            if galley_form.is_valid():
+                galley_form.save()
 
         if 'replace-galley' in request.POST:
             production_logic.replace_galley_file(
@@ -413,6 +432,7 @@ def typesetting_edit_galley(request, galley_id, article_id):
         'data_files': article.data_figure_files.all(),
         'galley_images': galley.images.all(),
         'xsl_files': xsl_files,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -797,6 +817,7 @@ def typesetting_assignment(request, assignment_id):
     )
 
     form = forms.TypesetterDecision()
+    galley_form = forms.GalleyForm()
 
     if request.POST:
         if 'source' in request.POST:
@@ -881,9 +902,11 @@ def typesetting_assignment(request, assignment_id):
         ],
         'missing_images': [g for g in galleys if g.has_missing_image_files()],
         'proofing_assignments': assignment.proofing_assignments_for_corrections,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
+
 
 @decorators.production_user_or_editor_required
 def typesetting_delete_correction(request, correction_id):

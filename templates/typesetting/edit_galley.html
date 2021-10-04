@@ -2,6 +2,7 @@
 {% load securitytags %}
 {% load typesetting_file_permissions %}
 {% load files %}
+{% load foundation %}
 
 {% block title %}Edit Typeset File - {{ galley.pk }}{% endblock title %}
 {% block title-section %}Edit Typeset File - {{ galley.pk }}{% endblock %}
@@ -79,16 +80,20 @@
     </div>
     <div class="box">
         <div class="title-area">
-            <h2>Typeset File Label</h2>
+            <h2>Typeset File Details</h2>
         </div>
         <div class="content">
-            <p>You can update the label your typeset file will have. This is displayed in the download block.</p>
             <div class="row expanded">
                 <div class="large-6 columns end">
                     <form method="POST">
                         {% csrf_token %}
-                        <input value="{{ galley.label }}" name="galley_label" type="text">
-                        <button name="galley-label" type="submit" class="button small success">Update Label</button>
+                        {% include "admin/elements/forms/errors.html" with form=galley_form %}
+                        {{ galley_form|foundation }}
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <button name="galley-update" type="submit" class="button small success">Save</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>

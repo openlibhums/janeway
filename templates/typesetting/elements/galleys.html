@@ -2,18 +2,20 @@
 {% load securitytags %}
 {% load static from staticfiles %}
 {% load render_string %}
+{% load bool_fa %}
 
 <table class="scroll small">
     <tr style="text-align: left">
         <th>ID</th>
         <th>Label</th>
         <th width="25%">Filename</th>
+        <th>Public</th>
         <th>Modified</th>
         <th>Edit</th>
-        <th>Download</th>
+        <th><span class="fa fa-download"></span></th>
         <th>History</th>
         <th>Preview</th>
-        <th>File Figures</th>
+        <th>Figures</th>
         <th>Delete</th>
         {% if request.user.is_admin %}
             <th></th>{% endif %}
@@ -24,6 +26,7 @@
             <td>{{ galley.pk }}</td>
             <td>{{ galley.label }}</td>
             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+            <td>{{ galley.public|bool_fa }}</td>
             <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
             <td>
                 <a href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_article' article.pk %}"
