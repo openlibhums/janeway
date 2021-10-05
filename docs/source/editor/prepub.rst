@@ -18,7 +18,7 @@ If you copy and paste an abstract into the metadata, ensure you paste this in wi
 It is very important, for Open Access compliance purposes, that the licence selected in the metadata matches any licensing information given in the footer of the PDF file. 
 
 .. warning::
-   ** Ff an author requests a non-standard licence, this should be flagged in advance to the typesetters.** 
+   ** If an author requests a non-standard licence, this should be flagged in advance to the typesetters.** 
  
 Once you have thoroughly checked the metadata, check the ‘Mark as Complete’ box to move onto the next step. 
 
