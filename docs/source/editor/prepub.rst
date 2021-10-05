@@ -1,13 +1,13 @@
 Pre Publication
 ===============
-The Pre Publication stage of the workflow takes you thorugh the last checks before publication, going through each of these final elements to check step by step.
+The Pre Publication stage of the workflow takes you through the last checks before publication, going through each of these final elements step by step.
 There are some key things to look out for in Pre Publication, outlined in bold below.
 
 1. View Metadata 
 ----------------
 View Metadata, the first step in Pre Publication, is where editors can make final checks and alterations to author abstracts, titles, licences, article citation and names/contact details.
 It is important to ensure that the abstract and title in the metadata exactly match the abstract and title of the PDF file (often, authors change their abstract during revision and copyediting, so the original abstract needs updating before publication). 
-**The metadata abstract is displayed when you preview the XML file** (if you are using XML files) **in the Typesetting Plugin.**
+**The metadata abstract is displayed when you preview the XML file** (if you are using XML files) **in the Typesetting Plugin or Production stage.**
  
 
 .. figure:: ../nstatic/gifprepub.gif
@@ -54,7 +54,7 @@ Select either an XML or HTML file (for OLH journals there will only be an XML or
 
 
 .. warning::
-   **If you have not done so already, double check (in the Typesetting Plugin or Production) that any typesetting queries at the very end of the PDF have been addressed and removed.** 
+   **If you have not done so already, double check (in the Typesetting Plugin or Production stage) that any typesetting queries at the very end of the PDF have been addressed and removed.** 
 
 
 Check the ‘Mark as Complete’ box to move onto the next step. 
@@ -92,7 +92,7 @@ Check the ‘Mark as Complete’ box to move onto the next step.
 
  
 
-Now click ‘Publish this Article’ at the top of the right hand column. Your article has now been published, or will be ready to publish at the time and date previously set. When the article goes live, always check that the article is displaying correctly on the homepage, on the Articles page and in its XML and PDF formats.  
+Now click ‘Publish this Article’ at the top of the right hand column. Your article has now been published, or will be ready to publish at the time and date previously set. When the article goes live, always check that the article is displaying correctly on the homepage, on the Articles page and in its XML/HTML and PDF formats.  
 
 **The publishing workflow is now complete – congratulations on your finished article!**
 
