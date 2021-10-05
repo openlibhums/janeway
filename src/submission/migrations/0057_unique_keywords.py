@@ -24,6 +24,7 @@ def deduplicate_keywords(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
     dependencies = [
         ('submission', '0056_auto_20210803_0906'),
     ]
