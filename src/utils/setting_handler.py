@@ -171,9 +171,6 @@ def save_setting(setting_group_name, setting_name, journal, value):
 
 
 def save_plugin_setting(plugin, setting_name, value, journal):
-    logger.warning(
-        "PluginSettings and PluginSettingValues are deprecated as of 1.4",
-    )
     plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
     setting = save_setting(
         setting_group_name=plugin_group_name,
@@ -192,9 +189,6 @@ def get_plugin_setting(
         pretty='',
         types='Text,'
 ):
-    logger.warning(
-        "PluginSettings and PluginSettingValues are deprecated as of 1.4",
-    )
     plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
     try:
         return get_setting(
