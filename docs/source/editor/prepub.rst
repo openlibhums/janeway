@@ -18,7 +18,7 @@ If you copy and paste an abstract into the metadata, ensure you paste this in wi
 It is very important, for Open Access compliance purposes, that the licence selected in the metadata (which, by default, is CC BY-4.0) matches any licensing information given in the footer of the PDF file. 
 
 .. warning::
-   **If an author requests a licence other than CC BY-4.0, this must be flagged in advance to the typesetters.** 
+   ** For OLH journals: if an author requests a licence other than CC BY-4.0, this must be flagged in advance to the typesetters.** 
 
 
 Once you have thoroughly checked the metadata, check the ‘Mark as Complete’ box to move onto the next step. 
@@ -46,15 +46,15 @@ Check the ‘Mark as Complete’ box to move onto the next step.
 4. Select a Galley for Rendering
 --------------------------------
 
-For OLH journals publishing on Janeway, always select the XML galley for rendering. 
-**Check to make sure no additional files (beside the XML and PDF) are visible here.** If they are, they will also be published alongside the proofed galleys. If any other files appear here, other than one XML and one PDF file, return to the article page to delete any other files that have accidentally been added as Galleys before proceeding.
+Select either an XML or HTML file (for OLH journals there will only be an XML or PDF file: always select the XML file for rendering).
+**Check to make sure no additional files other than publishable galleys are visible here.** If they are, they will also be published alongside the publishable galleys. If any other files appear here return to Typesetting Plugin or Production to delete any other files that have accidentally been added as galleys before proceeding.
 
 
 .. figure:: ../nstatic/prepubgif3.gif
 
 
 .. warning::
-   **If you have not done so already, double check (in the Typesetting Plugin) that any typesetting queries at the very end of the PDF have been addressed and removed.** 
+   **If you have not done so already, double check (in the Typesetting Plugin or Production) that any typesetting queries at the very end of the PDF have been addressed and removed.** 
 
 
 Check the ‘Mark as Complete’ box to move onto the next step. 
@@ -86,7 +86,7 @@ Check the ‘Mark as Complete’ box to move onto the next step.
 7. Notify the Author of Publication 
 -----------------------------------
 
-The pop up window generates an email template which enables you to notify the author, section editors and copyeditors that the article has been or will shortly be published. You may amend and send the template email to notify the author accordingly. 
+The pop up window generates an email template which enables you to notify the author, section editors and copyeditors that the article has been or will shortly be published. You may amend and send the template email to notify the author accordingly. The dates/times that you see here correspond to the timezone set in your user profile. 
 
 Check the ‘Mark as Complete’ box to move onto the next step. 
 
