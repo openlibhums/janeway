@@ -15,12 +15,11 @@ It is important to ensure that the abstract and title in the metadata exactly ma
 If you copy and paste an abstract into the metadata, ensure you paste this in without formatting and, if necessary, use an HTML cleaning tool so that the abstract text matches the formatting of the rest of the XML text.
 **Use the preview XML file function in the Typesetting Plugin to check abstracts have updated correctly.**
 
-It is very important, for Open Access compliance purposes, that the licence selected in the metadata (which, by default, is CC BY-4.0) matches any licensing information given in the footer of the PDF file. 
+It is very important, for Open Access compliance purposes, that the licence selected in the metadata matches any licensing information given in the footer of the PDF file. 
 
 .. warning::
-   ** For OLH journals: if an author requests a licence other than CC BY-4.0, this must be flagged in advance to the typesetters.** 
-
-
+   ** Ff an author requests a non-standard licence, this should be flagged in advance to the typesetters.** 
+ 
 Once you have thoroughly checked the metadata, check the ‘Mark as Complete’ box to move onto the next step. 
 
 2. Set Issue
@@ -86,7 +85,7 @@ Check the ‘Mark as Complete’ box to move onto the next step.
 7. Notify the Author of Publication 
 -----------------------------------
 
-The pop up window generates an email template which enables you to notify the author, section editors and copyeditors that the article has been or will shortly be published. You may amend and send the template email to notify the author accordingly. The dates/times that you see here correspond to the timezone set in your user profile. 
+The pop up window generates an email template which enables you to notify the author, section editors and copyeditors that the article has been or will shortly be published. You may amend and send the template email to notify the author accordingly. The dates/times that you see here correspond either to the timezone set in your user profile, or the default timezone (UTC). 
 
 Check the ‘Mark as Complete’ box to move onto the next step. 
 
