@@ -883,13 +883,22 @@ class Galley(models.Model):
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
+    public = models.BooleanField(
+        default=True,
+        help_text='Uncheck if the typeset file should not be publicly available after the article is published.'
+    )
 
     # Remote Galley
     is_remote = models.BooleanField(default=False)
     remote_file = models.URLField(blank=True, null=True)
 
     # All Galleys
-    label = models.CharField(max_length=400)
+    label = models.CharField(
+        max_length=400,
+        help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
+                  'you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for '
+                  'you, leave it blank.',
+    )
     type = models.CharField(max_length=100, choices=galley_type_choices())
     sequence = models.IntegerField(default=0)
 

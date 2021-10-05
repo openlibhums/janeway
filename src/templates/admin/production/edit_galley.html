@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load securitytags %}
 {% load files %}
+{% load foundation %}
 
 {% block title %}Edit Galley - {{ galley.pk }}{% endblock title %}
 {% block title-section %}Edit Galley - {{ galley.pk }}{% endblock %}
@@ -94,16 +95,15 @@
         </div>
     </div>
     <div class="title-area">
-        <h2>Galley Label</h2>
+        <h2>Galley Details</h2>
     </div>
     <div class="content">
-        <p>You can update the label your Galley will have. This is displayed in the download block.</p>
         <div class="row expanded">
             <div class="large-6 columns end">
                 <form method="POST">
                     {% csrf_token %}
-                    <input value="{{ galley.label }}" name="galley_label" type="text">
-                    <button name="galley-label" type="submit" class="button small success">Update Label</button>
+                    {{ galley_form|foundation }}
+                    <button name="galley-update" type="submit" class="button small success">Save</button>
                 </form>
             </div>
         </div>

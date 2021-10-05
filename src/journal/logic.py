@@ -111,6 +111,7 @@ def create_galley_from_file(file_object, article_object, owner=None):
         label=new_file.label,
     )
 
+
 def get_best_galley(article, galleys):
     """
     Attempts to get the best galley possible for an article
@@ -118,18 +119,24 @@ def get_best_galley(article, galleys):
     :param galleys: list of Galley objects
     :return: Galley object
     """
-    if article.render_galley:
+    if article.render_galley and article.render_galley.public:
         return article.render_galley
 
     try:
         try:
-            html_galley = galleys.get(file__mime_type__in=files.HTML_MIMETYPES)
+            html_galley = galleys.get(
+                file__mime_type__in=files.HTML_MIMETYPES,
+                public=True,
+            )
             return html_galley
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type__in=files.XML_MIMETYPES)
+            xml_galley = galleys.get(
+                file__mime_type__in=files.XML_MIMETYPES,
+                public=True,
+            )
             return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
