@@ -124,13 +124,19 @@ def get_best_galley(article, galleys):
 
     try:
         try:
-            html_galley = galleys.get(file__mime_type__in=files.HTML_MIMETYPES)
+            html_galley = galleys.get(
+                file__mime_type__in=files.HTML_MIMETYPES,
+                public=True,
+            )
             return html_galley
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
-            xml_galley = galleys.get(file__mime_type__in=files.XML_MIMETYPES)
+            xml_galley = galleys.get(
+                file__mime_type__in=files.XML_MIMETYPES,
+                public=True,
+            )
             return xml_galley
         except core_models.Galley.DoesNotExist:
             pass
