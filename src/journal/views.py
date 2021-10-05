@@ -1594,37 +1594,46 @@ def manage_archive_article(request, article_id):
     :param article_id: Article object PK
     :return: HttpResponse or HttpRedirect if Posted
     """
-    from production import logic as production_logic
+    from production import logic as production_logic, forms as production_forms
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
 
     article = get_object_or_404(submission_models.Article, pk=article_id)
     galleys = production_logic.get_all_galleys(article)
     identifiers = identifier_models.Identifier.objects.filter(article=article)
+    galley_form = production_forms.GalleyForm()
 
     if request.POST:
 
         if 'file' in request.FILES:
-            label = request.POST.get('label')
-            for uploaded_file in request.FILES.getlist('file'):
-                try:
-                    production_logic.save_galley(
-                        article,
-                        request,
-                        uploaded_file,
-                        True,
-                        label=label,
-                    )
-                except UnicodeDecodeError:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        _("Uploaded file is not UTF-8 encoded"),
-                    )
-                except production_logic.ZippedGalleyError:
-                    messages.add_message(request, messages.ERROR,
-                        "Galleys must be uploaded individually, not zipped",
-                    )
+            galley_form = production_forms.GalleyForm(request.POST, request.FILES)
+            if galley_form.is_valid():
+                for uploaded_file in request.FILES.getlist('file'):
+                    try:
+                        production_logic.save_galley(
+                            article,
+                            request,
+                            uploaded_file,
+                            True,
+                            label=galley_form.cleaned_data.get('label'),
+                            public=galley_form.cleaned_data.get('public'),
+                        )
+                    except UnicodeDecodeError:
+                        messages.add_message(
+                            request,
+                            messages.ERROR,
+                            _("Uploaded file is not UTF-8 encoded"),
+                        )
+                    except production_logic.ZippedGalleyError:
+                        messages.add_message(request, messages.ERROR,
+                            "Galleys must be uploaded individually, not zipped",
+                        )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Galley form not valid.',
+                )
 
         if 'delete_note' in request.POST:
             note_id = int(request.POST['delete_note'])
@@ -1663,7 +1672,8 @@ def manage_archive_article(request, article_id):
         'galleys': galleys,
         'identifiers': identifiers,
         'newnote_form': newnote_form,
-        'note_forms': note_forms
+        'note_forms': note_forms,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
