@@ -136,7 +136,7 @@ Sending a proofreading request
 Files provided by the typesetter are usually sent to the authors, and potentially other editors, for proofreading.
 Janeway allows you to create a proofing task, where authors and/or editors can be invited to proof the typeset files.
 
-.. figure:: ../nstatic/typesetting/asigning_proofreaders.gif
+.. figure:: ../nstatic/typesetting/assigning_proofreaders.gif
    :class: with-border
 
 
