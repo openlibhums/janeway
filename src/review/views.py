@@ -812,11 +812,8 @@ def do_review(request, assignment_id):
         'general', 'enable_save_review_progress', request.journal,
     ).processed_value
 
-    fields_required = decision_required = True
-    if allow_save_review:
-        fields_required = decision_required = False
-    elif assignment.review_file:
-        fields_required = False
+    fields_required = False
+    decision_required = False if allow_save_review else True
 
     review_round = assignment.article.current_review_round_object()
     form = forms.GeneratedForm(
@@ -911,7 +908,6 @@ def do_review(request, assignment_id):
                 messages.ERROR,
                 'Found errors on the form. Please, resolve them and try again',
             )
-
 
     template = 'review/review_form.html'
     context = {
