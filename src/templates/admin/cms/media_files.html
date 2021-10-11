@@ -18,6 +18,7 @@
         </div>
         <div class="content">
             <p>Here you can upload files for download. <strong>Note</strong>: this area should only be used to upload publicly accessible files. If you want to include a file in a CMS page or a submission item copy and paste the link cell.</p>
+            <p>Files with names that clash with an existing file will be renamed. If you want to upload a new version of a file delete the existing one and upload the new version.</p>
             <form method="POST">
                 {% csrf_token %}
                 <table class="table" id="media_files">
