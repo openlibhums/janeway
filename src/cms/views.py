@@ -385,6 +385,11 @@ def file_list(request):
         )
         media_file.unlink()
         media_file.delete()
+        return redirect(
+            reverse(
+                'cms_file_list',
+            )
+        )
 
     template = 'admin/cms/media_files.html'
     context = {
