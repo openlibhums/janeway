@@ -150,7 +150,7 @@ class SubmissionItem(models.Model):
 
 def upload_to_media_files(instance, filename):
     if instance.journal:
-        return "journals/{}/{}".format(instance.journal.code, filename)
+        return "journals/{}/{}".format(instance.journal.pk, filename)
     else:
         return "press/{}".format(filename)
 
@@ -170,10 +170,14 @@ class MediaFile(models.Model):
     )
 
     def unlink(self):
-        os.unlink(
-            self.file.path,
-        )
+        try:
+            os.unlink(
+                self.file.path,
+            )
+        except FileNotFoundError:
+            pass
 
+    @property
     def filename(self):
         return os.path.basename(self.file.name)
 
