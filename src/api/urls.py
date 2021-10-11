@@ -6,7 +6,7 @@ from api import views
 from api.oai import views as oai_views
 
 router = routers.DefaultRouter()
-router.register(r'accountrole', views.AccountRoleViewSet)
+router.register(r'accountrole', views.AccountRoleViewSet, 'accountrole')
 router.register(r'journals', views.JournalViewSet, 'journal')
 router.register(r'issues', views.IssueViewSet, 'issue')
 router.register(r'articles', views.ArticleViewSet, 'article')
@@ -18,4 +18,6 @@ router.register(r'keywords', views.KeywordsViewSet, 'keywords')
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^oai/$', oai_views.oai_view_factory, name='OAI_list_records'),
+    url(r'^kbart/$', views.kbart, name='kbart'),
+    url(r'^kbart/csv$', views.kbart_csv, name='kbart'),
 ]

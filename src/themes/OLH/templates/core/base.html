@@ -3,6 +3,7 @@
 {% load svg from press_url %}
 {% load i18n %}
 {% load roles %}
+{% load hooks %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -30,6 +31,7 @@
     }</script>
 
     {% block css %}{% endblock %}
+    {% hook 'base_head_css' %}
 
     {% if request.journal %}
         <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
@@ -97,8 +99,8 @@
             </div>
             {% endif %}
             {% if journal_settings.general.switch_language %}
-                <div class="top-bar-left hide-for-medium-only" id="search-menu">
-                <ul class="menu global-search">
+                <div class="top-bar-left">
+                <ul class="menu language-menu">
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% get_language_info_list for LANGUAGES as languages %}
@@ -111,7 +113,7 @@
                                     <button name="language" value="{{ language.code }}" class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name_local }}</button>&nbsp;
                                 {% else %}
                                 <button class="flag-button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}" name="language" value="{{ language.code }}"
-                                        style="background: url(/static/common/img/flags/{{ language.code }}.png) no-repeat;">
+                                        style="background: url(/static/common/img/flags/{{ language.code }}.png) no-repeat; background-size: contain;">
                                     &nbsp;
                                 </button>
                                 {% endif %}

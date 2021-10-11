@@ -34,12 +34,26 @@ class NavForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
         super(NavForm, self).__init__(*args, **kwargs)
-
-        self.fields['top_level_nav'].queryset = models.NavigationItem.objects.filter(
+        top_level_nav_items = models.NavigationItem.objects.filter(
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
             has_sub_nav=True,
         )
+
+        if self.instance:
+            top_level_nav_items = top_level_nav_items.exclude(pk=self.instance.pk)
+
+        self.fields['top_level_nav'].queryset = top_level_nav_items
+
+    def clean_top_level_nav(self):
+        top_level_nav = self.cleaned_data.get('top_level_nav')
+        if (top_level_nav and self.instance) and (top_level_nav.pk == self.instance.pk):
+            self.add_error(
+                'top_level_nav',
+                'You cannot assign a Nav Item to itself as Top Level Nav item.',
+            )
+
+        return top_level_nav
 
 
 class SubmissionItemForm(JanewayTranslationModelForm):

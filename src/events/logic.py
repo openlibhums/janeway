@@ -236,6 +236,10 @@ class Events:
     # raised when a workflow element completes to hand over to the next one
     ON_WORKFLOW_ELEMENT_COMPLETE = 'on_workflow_element_complete'
 
+    # kwargs: request, article, article_access
+    # raised when a view or download passes COUNTER-style compliance checks
+    ON_ARTICLE_ACCESS = 'on_article_access'
+
     @staticmethod
     def raise_event(event_name, task_object=None, **kwargs):
         """

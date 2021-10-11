@@ -58,7 +58,8 @@ class CronTask(models.Model):
 
 
 REMINDER_CHOICES = (
-    ('review', 'Review'),
+    ('review', 'Review (Invited)'),
+    ('accepted-review', 'Review (Accepted)'),
     ('revisions', 'Revision'),
 )
 
@@ -81,7 +82,7 @@ class Reminder(models.Model):
     type = models.CharField(max_length=100, choices=REMINDER_CHOICES)
     run_type = models.CharField(max_length=100, choices=RUN_TYPE_CHOICES)
     days = models.PositiveIntegerField(help_text="The number of days before or after this reminder should fire")
-    template_name = models.CharField(max_length=100, help_text="The name of the email template, if it doesn't exist"
+    template_name = models.CharField(max_length=100, help_text="The name of the email template, if it doesn't exist "
                                                                "you will be asked to create it. Should have no spaces.")
     subject = models.CharField(max_length=200)
 
@@ -89,12 +90,18 @@ class Reminder(models.Model):
         return "{0}: {1}, {2}, {3}".format(self.journal.code, self.run_type, self.type, self.subject)
 
     def target_date(self):
+        """
+        Works out the target date of a reminder by adding or subtracting a timedelta from today's date.
+        Examples: Reminder set to send 5 days before the due date we take today's date and add 5 days to search
+        for ReviewAssignments that are due 5 days from now. The reverse is true for after, we remove 5 days from
+        today's date to work out which ReviewAssignments were due 5 days ago.
+        """
         date_time = None
 
         if self.run_type == 'before':
-            date_time = timezone.now() - timedelta(days=self.days)
-        elif self.run_type == 'after':
             date_time = timezone.now() + timedelta(days=self.days)
+        elif self.run_type == 'after':
+            date_time = timezone.now() - timedelta(days=self.days)
 
         if date_time:
             return date_time
@@ -108,42 +115,66 @@ class Reminder(models.Model):
         if self.type == 'review':
             model = review_models.ReviewAssignment
             query = (Q(date_declined__isnull=True) &
-                     Q(date_complete__isnull=True)) | (Q(date_accepted__isnull=False) &
-                                                       Q(date_complete__isnull=True))
+                     Q(date_complete__isnull=True) &
+                     Q(date_accepted__isnull=True))
+        elif self.type == 'accepted-review':
+            model = review_models.ReviewAssignment
+            query = (Q(date_declined__isnull=True) &
+                     Q(date_complete__isnull=True) &
+                     Q(date_accepted__isnull=False))
         elif self.type == 'revisions':
             model = review_models.RevisionRequest
             query = Q(date_completed__isnull=True)
 
-        if self.run_type == 'before':
-            date_time = timezone.now() + timedelta(days=self.days)
-        elif self.run_type == 'after':
-            date_time = timezone.now() - timedelta(days=self.days)
-
-        objects = model.objects.filter(date_due=date_time).filter(query)
+        target_date = self.target_date()
+        if target_date:
+            objects = model.objects.filter(date_due=target_date).filter(query)
 
         return objects
 
-    def send_reminder(self):
+    def send_reminder(self, test=False):
+        from review import models as review_models
         objects = self.items_for_reminder()
         request = Request()
         request.journal = self.journal
         request.site_type = self.journal
+        to = None
 
         for item in objects:
-            sent_check = SentReminder.objects.filter(type=self.type, object_id=item.pk, sent=timezone.now().date())
+            sent_check = SentReminder.objects.filter(
+                type=self.type,
+                object_id=item.pk,
+                sent=timezone.now().date(),
+            )
 
-            if not sent_check:
-                context = {'object': item, 'journal': self.journal}
-                message = render_template.get_requestless_content(context, self.journal, self.template_name)
+            # Create context early so qw can add the correct variable
+            context = {'journal': self.journal, 'article': item.article}
+            # Check if the item is a ReviewAssignment or RevisionRequest
+            if isinstance(item, review_models.ReviewAssignment):
+                to = item.reviewer.email
+                context['review_assignment'] = item
+            elif isinstance(item, review_models.RevisionRequest):
+                to = item.article.correspondence_author.email
+                context['revision'] = item
 
-                notify_helpers.send_email_with_body_from_user(request,
-                                                              self.subject,
-                                                              item.article.correspondence_author.email,
-                                                              message)
+            if not test and not sent_check and to:
+                message = render_template.get_requestless_content(
+                    context,
+                    self.journal,
+                    self.template_name,
+                )
 
+                notify_helpers.send_email_with_body_from_user(
+                    request,
+                    self.subject,
+                    to,
+                    message,
+                )
                 # Create a SentReminder object to ensure we don't do this more than once by accident.
                 SentReminder.objects.create(type=self.type, object_id=item.pk)
                 print('Reminder sent for {0}'.format(object))
+            elif test:
+                print("[TEST] reminder for {} due on {}".format(item, item.date_due))
             else:
                 print('Reminder {0} for object {1} has already been sent'.format(self, item))
 

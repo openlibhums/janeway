@@ -7,12 +7,11 @@
     <div class="small expanded button-group">
         <a class="button" href="{% url 'review_unassigned_article' article.pk %}">Editor Assignment</a>
         {% for stage in article.workflow_stages %}
-            <a class="button"
+
+            <a class="button{% if stage.element.element_name == 'review' and article.stage == 'Unassigned' %} disabled{% endif %}"
                href="{% url stage.element.jump_url article.pk %}">{{ stage.element.element_name|capfirst }}</a>
         {% endfor %}
         <button class="button" type="button" data-toggle="more-dropdown">Logs, Documents and More</button>
-
-
 
     </div>
 {% endif %}
@@ -20,6 +19,8 @@
     <ul>
         <li><a href="{% url 'manage_article_log' article.pk %}">Logs</a></li>
         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Document Management</a></li>
+        <li><a href="{% url 'article_identifiers' article.pk %}">Identifiers</a></li>
+        <li><a href="{% url 'manage_archive_article' article.pk %}">Archive Page</a></li>
         {% if article.is_published %}
             <li><a href="{{ article.url }}">Live Article</a></li>
         {% endif %}

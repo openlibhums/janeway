@@ -3,7 +3,8 @@
     <div class="col-md-6">
         <small><div class="text-left">
             <ul class="list-inline"><p></p>
-            {% if request.journal.issn %}<li class="list-inline-item">{{ request.journal.issn }}</li>{% endif %}
+            {% if request.journal.issn %}<li class="list-inline-item">ISSN: {{ request.journal.issn }}</li>{% endif %}
+            {% if request.journal.print_issn %}<li class="list-inline-item"> Print ISSN: {{ request.journal.print_issn }}</li>{% endif %}
             {% if journal_settings.general.publisher_name %} <li class="list-inline-item">Published by
                 {% if journal_settings.general.publisher_url %}
                     <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}

@@ -23,7 +23,7 @@
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
             {% endif %}
             {% if request.journal.nav_news %}
-                <li><a href="{% url 'core_news_list' %}">{% trans "News" %}</a></li>
+                <li><a href="{% url 'core_news_list' %}">{{ journal_settings.news.news_title }}</a></li>
             {% endif %}
             {% if request.journal.nav_articles %}
                 <li><a href="{% url 'journal_articles' %}">{% trans "Articles" %}</a></li>
@@ -105,7 +105,7 @@
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
+        <a href="#!" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
     </div>
 </nav>
 
@@ -172,7 +172,7 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
-            <li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
@@ -183,7 +183,7 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}-mobile" class="dropdown-content">
-            <li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>
+            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}

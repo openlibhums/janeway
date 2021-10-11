@@ -72,12 +72,26 @@
                     <div class="button-group stacked">
                         <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
                         <a class="button" href="{% url 'cms_submission_items' %}">Submission Page Items</a>
-                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
                         <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
                         <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
                     </div>
                 </div>
 
+                <div class="title-area">
+                    <h2>News</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_edit_settings_group' "news" %}">News Settings</a>
+                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="large-3 columns end">
+            <div class="box" data-equalizer-watch>
                 <div class="title-area">
                     <h2>Articles & Issues</h2>
                 </div>
@@ -89,13 +103,6 @@
                         <a class="button" href="{% url 'submission_licenses' %}">Licence Manager</a>
                     </div>
                 </div>
-
-            </div>
-        </div>
-
-
-        <div class="large-3 columns end">
-            <div class="box" data-equalizer-watch>
                 <div class="title-area">
                     <h2>Crossref</h2>
                 </div>

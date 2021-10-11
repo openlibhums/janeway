@@ -223,7 +223,7 @@ class ImportCacheEntry(models.Model):
             with open(cached.on_disk, 'rb') as on_disk_file:
                 return on_disk_file.read(), cached.mime_type
 
-        except ImportCacheEntry.DoesNotExist:
+        except (ImportCacheEntry.DoesNotExist, FileNotFoundError):
             if not settings.SILENT_IMPORT_CACHE:
                 print("[CACHE] Fetching remote version of {0}".format(url))
 
@@ -285,8 +285,13 @@ class ImportCacheEntry(models.Model):
             with open(os.path.join(path, filename), 'wb') as f:
                 f.write(resp)
 
-            ImportCacheEntry.objects.create(url=url, mime_type=fetched.headers.get('content-type'),
-                                            on_disk=os.path.join(path, filename)).save()
+            ImportCacheEntry.objects.update_or_create(
+                url=url,
+                defaults=dict(
+                    mime_type=fetched.headers.get('content-type'),
+                    on_disk=os.path.join(path, filename)
+                ),
+            )
 
             return resp, fetched.headers.get('content-type')
 

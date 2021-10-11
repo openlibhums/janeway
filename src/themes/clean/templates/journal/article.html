@@ -32,8 +32,11 @@
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published %}
-                            <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}
-                            {% trans "Author" %}{% endif %}:</strong>
+                            <p></p><strong>{% if article.frozen_authors.count > 1 %}
+                                {% trans "Authors" %}:
+                                {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
+                                {% endif %}
+                            </strong>
                             {% for author in article.frozen_authors.all %}
                                 <span>{% if forloop.first == False %}, {% endif %}<span itemscope
                                                                                         itemtype="http://schema.org/Person"
@@ -44,12 +47,15 @@
                                                                                             <a class="profilelink"
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
-                                    {% if author.institution %}
+                                    {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
+                                        <span style="background: url(https://orcid.org/sites/default/files/images/orcid_16x16.png) no-repeat;" class="orcid-img"></span>
+                                    </a>{% endif %}
+                                    {% if author.institution and author.institution != " " %}
                                         <span itemprop="worksFor" itemscope
                                               itemtype="http://schema.org/CollegeOrUniversity"><span
                                                 itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                    {% if author.is_correspondence_author %}
-                                        <a itemprop="email" href="mailto:{{ author.author.email }}"
+                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                        <a itemprop="email" href="mailto:{{ author.email }}"
                                            class="fa fa-envelope email-link"> Contact</a>{% endif %}</span></span>
                             {% endfor %}
                         {% endif %}
@@ -67,7 +73,7 @@
                     <small>{{ article.section.name }}</small>
                     <h3>{{ article.title|safe }}</h3>
                 {% endif %}
-                {% if article.abstract != '' %}
+                {% if article.abstract and article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
@@ -76,7 +82,11 @@
                     {% endif %}{% endfor %}</p>{% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    {% include "elements/journal/how_to_cite.html" with article=article %}
+                    {{ article.how_to_cite }} </p>
+                {% endif %}
+                {% if article.rights %}
+                    <p><strong>{% trans "Rights" %}:</strong>
+                    {{ article.rights | safe }} </p>
                 {% endif %}
                 {% if article.publisher_notes.all %}
                     <div class="callout primary">
@@ -106,6 +116,14 @@
                     {% for author in article.frozen_authors.all %}
                         <li>
                             {{ author.full_name }}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
+                                <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
+                            </a>{% endif %}
+                            {% if author.institution and author.institution != " " %}
+                                <span itemprop="worksFor" itemscope
+                                        itemtype="http://schema.org/CollegeOrUniversity"><span
+                                        itemprop="name">({{ author.institution }})</span></span>
+                            {% endif %}
                         </li>
                     {% endfor %}
                      </ul>
@@ -156,6 +174,12 @@
                         </li>
                     {% endif %}
                 </ul>
+                {% if article.competing_interests %}
+                <h2>{% trans "Competing Interests" %}</h2>
+                <ul>
+                    <li>{{ article.competing_interests }}</li>
+                </ul>
+                {% endif %}
                 {% for field in article.custom_fields %}
                 <h2>{% trans field.field.name %}</h2>
                 <p>{{ field.answer }}</p>

@@ -12,11 +12,12 @@ from core.middleware import (
         SiteSettingsMiddleware,
         TimezoneMiddleware,
 )
-from core.models import Account
+from core.models import Account, Setting
 from journal.tests.utils import make_test_journal
 from journal.models import Journal
 from press.models import Press
 from utils.testing import helpers
+
 
 class TestSiteMiddleware(TestCase):
     def setUp(self):

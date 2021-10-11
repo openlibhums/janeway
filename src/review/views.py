@@ -380,6 +380,10 @@ def in_review(request, article_id):
 
     if request.POST:
 
+        if 'move_to_review' in request.POST and article.stage == submission_models.STAGE_UNASSIGNED:
+            article.stage = submission_models.STAGE_UNDER_REVIEW
+            article.save()
+
         if 'new_review_round' in request.POST:
 
             # Complete all existing review assignments.
@@ -411,6 +415,7 @@ def in_review(request, article_id):
         'article': article,
         'review_rounds': review_rounds,
         'revisions_requests': revisions_requests,
+        'review_stages': submission_models.REVIEW_STAGES,
     }
 
     return render(request, template, context)
@@ -807,11 +812,8 @@ def do_review(request, assignment_id):
         'general', 'enable_save_review_progress', request.journal,
     ).processed_value
 
-    fields_required = decision_required = True
-    if allow_save_review:
-        fields_required = decision_required = False
-    elif assignment.review_file:
-        fields_required = False
+    fields_required = False
+    decision_required = False if allow_save_review else True
 
     review_round = assignment.article.current_review_round_object()
     form = forms.GeneratedForm(
@@ -906,7 +908,6 @@ def do_review(request, assignment_id):
                 messages.ERROR,
                 'Found errors on the form. Please, resolve them and try again',
             )
-
 
     template = 'review/review_form.html'
     context = {
@@ -1032,33 +1033,7 @@ def add_review_assignment(request, article_id):
 
     if request.POST:
 
-        if 'quick_assign' in request.POST:
-            logic.quick_assign(request, article)
-            return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
-        elif 'add_and_assign' in request.POST:
-            # first check whether the user exists
-            new_reviewer_form = core_forms.QuickUserForm(request.POST)
-
-            try:
-                user = core_models.Account.objects.get(email=new_reviewer_form.data['email'])
-                user.add_account_role('reviewer', request.journal)
-            except core_models.Account.DoesNotExist:
-                user = None
-
-            if user:
-                logic.quick_assign(request, article, reviewer_user=user)
-                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
-
-            valid = new_reviewer_form.is_valid()
-
-            if valid:
-                acc = logic.handle_reviewer_form(request, new_reviewer_form)
-                logic.quick_assign(request, article, reviewer_user=acc)
-                return redirect(reverse('review_in_review', kwargs={'article_id': article_id}))
-            else:
-                modal = 'reviewer'
-
-        elif 'assign' in request.POST:
+        if 'assign' in request.POST:
             # first check whether the user exists
             new_reviewer_form = core_forms.QuickUserForm(request.POST)
 

@@ -15,9 +15,31 @@
 {% block body %}
 
     <article>
-    {% if  not journal.disable_article_images %}
-        <section class="no-padding meta">
-            <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
+    {% if not journal.disable_article_images %}
+        <section class="no-padding meta show-for-small-only">
+            <div class="row">
+                <div class="large-8 columns">
+                    <small class="uppercase">{{ article.section.name }}</small>
+                    <h3>{{ article.title|safe }}</h3>
+                    <p>
+                        <strong>{% if article.frozen_authors.count > 1 %}
+                            {% trans "Authors" %}:
+                            {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
+                            {% endif %}
+                        </strong>
+                        {% for author in article.frozen_authors.all %}
+                        {{ author.full_name }}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
+                            {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
+                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section class="no-padding meta hide-for-small-only">
+            <div class="orbit article-orbit row" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
@@ -32,11 +54,15 @@
                                 {% endif %}
                                  alt="{{ article.title | striptags }}">
                         <div class="row column">
-                            <figcaption class="orbit-caption">
+                            <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
                                 <h3>{{ article.title|safe }}</h3>
-                                {% if article.is_published %}
-                                <p><strong>{% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
+                                <p>
+                                <strong>{% if article.frozen_authors.count > 1 %}
+                                    {% trans "Authors" %}:
+                                    {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
+                                    {% endif %}
+                                </strong>
                                     {% for author in article.frozen_authors.all %}
                                         <span>{% if forloop.first == False %}, {% endif %}<span itemscope
                                                                                                 itemtype="http://schema.org/Person"
@@ -44,21 +70,23 @@
                                                                                                 href="#"
                                                                                                 {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
                                             {% if author.author.enable_public_profile %}<a class="profilelink" href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}{{ author.full_name }}{% endif %}
-                                            {% if author.institution %}
+                                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
+                                                <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
+                                            </a>{% endif %}
+                                            {% if author.institution and author.institution != " " %}
                                             <span itemprop="worksFor" itemscope
                                                   itemtype="http://schema.org/CollegeOrUniversity"><span
                                                     itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                            {% if author.is_correspondence_author %}<a itemprop="email" href="mailto:{{ author.author.email }}"
+                                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}"
                                                class="fa fa-envelope email-link"></a>{% endif %}</span></span>
                                     {% endfor %}
-                                {% endif %}
-                            </figcaption>
+
+                            </div>
                         </div>
                     </li>
                 </ul>
             </div>
         </section>
-    {% endif %}
         {% for author in article.authors.all %}
             {% if author.biography %}
                 <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
@@ -67,8 +95,9 @@
                 </div>
             {% endif %}
         {% endfor %}
+    {% endif %}
 
-        <div data-sticky-container>
+        <div data-sticky-container class="row">
             <div class="mini-bar sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
                 <div class="row">
                     <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
@@ -77,7 +106,7 @@
                     </div>
                     <div id="options-menu">
                         <div class="large-6 columns">
-                            <ul class="menu vertical medium-horizontal"
+                            <ul class="menu vertical medium-horizontal pad-left-15"
                                 data-responsive-menu="drilldown medium-dropdown">
                               {% with article.get_doi_url as doi_url %}
                                 <li>{% trans "Share" %}:</li>
@@ -94,7 +123,7 @@
                                 <li><a href="{{ article.local_url }}print/"><i class="fa fa-print">&nbsp;</i></a></li>
                                 <li><a href="javascript:resizeText(-1)">A-</a></li>
                                 <li><a href="javascript:resizeText(1)">A+</a></li>
-                                {% if article.correspondence_author.email %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
+                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}<li><a href="mailto:{{ article.correspondence_author.email }}"><i class="fa fa-envelope"></i></a></li>{% endif %}
                                 <li><a href="#" id="dyslexia-mode">{% trans "Dyslexia" %}</a></li>
                                 <li>
                                     <a><i class="fa fa-comments"></i></a>
@@ -121,14 +150,18 @@
                     <h3>{{ article.title|safe }}</h3>
                 <hr/>
                 {% endif %}
-                            {% if article.abstract != '' %}
+                            {% if article.abstract and article.abstract != ''%}
                                 <h2>{% trans "Abstract" %}</h2>
-                                <p>{{ article.abstract | safe }}</p>
+                                <p>{{ article.abstract|safe }}</p>
                             {% endif %}
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                             <p><strong>{% trans "How to Cite" %}:</strong>
-                            {% include "elements/journal/how_to_cite.html" with article=article %}
+                            {{ article.how_to_cite }} </p>
+                            {% endif %}
+                            {% if article.rights %}
+                            <p><strong>{% trans "Rights" %}:</strong>
+                            {{ article.rights | safe }} </p>
                             {% endif %}
                             {% if article.publisher_notes.all %}
                                 <div class="callout primary">
@@ -182,6 +215,7 @@
                                 {% endif %}
                                 <div class="bottom">
                                     <div class="row" data-equalizer>
+                                        {% if article.date_published or article.date_accepted %}
                                         <div class="large-4 columns" data-equalizer-watch>
                                             {% if article.is_published %}
                                                 <h5>{% trans "Published on" %} <br>
@@ -191,10 +225,11 @@
                                                     {{ article.date_accepted|date:"d M Y" }}</h5>
                                             {% endif %}
                                         </div>
-                                        <div class="large-4 columns" data-equalizer-watch>
+                                        {% endif %}
+                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             {% if article.peer_reviewed %}<h5>{% trans "Peer Reviewed" %}</h5>{% endif %}
                                         </div>
-                                        <div class="large-4 columns" data-equalizer-watch>
+                                        <div class="large-{% if article.date_published or article.date_accepted %}4{% else %}6{% endif %} columns" data-equalizer-watch>
                                             <h5>{% trans "License" %}</h5>
                                             <a class="has-tip scroll-link" rel="license" id="license" title="{{ article.license.text }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" title="" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><h5>{{ article.license.name }}</h5></a>
                                         </div>
@@ -215,7 +250,6 @@
                 <aside class="large-4 columns" data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0"
                          data-sticky data-anchor="content">
-                        {% if article.is_published %}
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% if journal.disable_article_images %}
@@ -223,7 +257,15 @@
                                     <h4>{% trans "Authors" %}</h4>
                                     <ul>
                                         {% for author in article.frozen_authors.all %}
-                                            <li>{{ author.full_name }} ({{ author.affiliation }})</li>
+                                            <li>
+                                                {{ author.full_name }}
+                                                {% if author.orcid %}
+                                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                                    <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
+                                                </a>
+                                                {% endif %}
+                                                {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 </div>
@@ -231,6 +273,7 @@
                             <div class="section">
                                 <h3>{% trans "Download" %}</h3>
                             <ul>
+                                {% if article.is_published %}
                                 {% for galley in galleys %}
                                     <li>
                                         <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
@@ -242,6 +285,9 @@
                                         {% endif %}
                                     </li>
                                 {% endfor %}
+                                {% else %}
+                                <li> Downloads are not available until this article is published </li>
+                                {% endif %}
                             </ul>
                         </div>
                             <div class="section">
@@ -270,6 +316,14 @@
                                 </ul>
                             </div>
                         {% endif %}
+                        {% if article.competing_interests %}
+                         <div class="section">
+                             <h3>{% trans "Competing Interests" %}</h3>
+                             <ul>
+                                 <li>{{ article.competing_interests }}</li>
+                             </ul>
+                         </div>
+                         {% endif %}
 
                         {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                             <div class="section hide-for-small-only">
@@ -310,7 +364,6 @@
                             </ul>
                         </div>
                     </div>
-                {% endif %}
                 </aside>
             </div>
         </section>

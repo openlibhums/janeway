@@ -109,7 +109,7 @@ def import_issue_images(**options):
     user = core_models.Account.objects.get(pk=options['user_id'])
     url = options['url']
 
-    up.import_issue_images(journal, user, url)
+    up.import_issue_images(journal, user, url, update=options.get("update"))
 
 
 def import_journal_metadata(**options):

@@ -1,6 +1,13 @@
 {% extends "core/base.html" %}
 
-{% block title %}{{ issue.display_title }}{% endblock %}
+{% block title %}
+    {{ block.super }} |
+    {% if issue.issue_type.code == 'collection' %}
+    {% trans "Collection" %}: {{ issue.title }}
+    {% else %}
+    {% trans "Issue" %}: {{ issue }}
+    {% endif %}
+  {% endblock %}
 {% block page_title %}{{ issue.display_title }}{% endblock %}
 
 {% block body %}

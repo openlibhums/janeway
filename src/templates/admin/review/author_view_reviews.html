@@ -4,7 +4,10 @@
 {% block admin-header %}View Reviews{% endblock %}
 
 {% block body %}
-<div class="large-12 columns box">
-    {% include "elements/review/view_reviews.html" %}
-</div>
+    <div class="large-12 columns box">
+        <div class="title-area">
+            <h2>Peer Review Reports</h2>
+        </div>
+        {% include "elements/review/view_reviews.html" %}
+    </div>
 {% endblock body %}

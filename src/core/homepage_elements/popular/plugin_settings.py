@@ -38,8 +38,9 @@ def install():
     if c:
         logger.debug('Plugin {} created'.format(PLUGIN_NAME))
 
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=SHORT_NAME)
-    setting_handler.create_setting(
+    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=PLUGIN_NAME)
+
+    setting = setting_handler.create_setting(
         setting_group_name=plugin_group_name,
         setting_name='most_popular',
         type='boolean',
@@ -47,7 +48,11 @@ def install():
         description='Displays the most popular articles.',
         is_translatable=False,
     )
-    setting_handler.create_setting(
+    setting_handler.get_or_create_default_setting(
+        setting=setting,
+        default_value='',
+    )
+    setting = setting_handler.create_setting(
         setting_group_name=plugin_group_name,
         setting_name='num_most_popular',
         type='number',
@@ -55,13 +60,21 @@ def install():
         description='Determines how many popular articles we should display.',
         is_translatable=False,
     )
-    setting_handler.create_setting(
+    setting_handler.get_or_create_default_setting(
+        setting=setting,
+        default_value=3,
+    )
+    setting = setting_handler.create_setting(
         setting_group_name=plugin_group_name,
         setting_name='most_popular_time',
         type='text',
         pretty_name='Most Popular Timescale',
         description='Select from this week, this month or this year.',
         is_translatable=False,
+    )
+    setting_handler.get_or_create_default_setting(
+        setting=setting,
+        default_value='weekly',
     )
 
     # check whether this homepage element has already been installed for all journals

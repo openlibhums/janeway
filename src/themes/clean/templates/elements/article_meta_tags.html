@@ -29,7 +29,9 @@
     <meta name="DC.Source.URI" content="{% journal_url 'website_index' %}"/>
     <meta name="DC.Title" content="{{ article.title | striptags }}"/>
 
-    {% if journal_settings.general.publisher_name %}<meta name="citation_publisher" content="{{ journal_settings.general.publisher_name }}"/>{% endif %}
+    {% if article.publisher_name%}<meta name="citation_publisher" content="{{ article.publisher_name }}"/>
+    {% elif journal_settings.general.publisher_name %}<meta name="citation_publisher" content="{{ journal_settings.general.publisher_name }}"/>
+    {% endif %}
     <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
     <meta name="citation_issn" content="{{ journal_settings.general.issn }}"/>
     {% for author in article.frozen_authors.all %}

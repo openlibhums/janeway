@@ -15,7 +15,7 @@
             {% if request.journal.nav_home %}
             <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
             {% if request.journal.nav_news %}
-                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">{% trans 'News' %}</a></li>{% endif %}
+                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">{{ journal_settings.news.news_title }}</a></li>{% endif %}
 
             {% if request.journal.nav_articles %}
                 <li class="nav-item"><a href="{% url 'journal_articles' %}" class="nav-link">{% trans 'Articles' %}</a>
@@ -46,7 +46,7 @@
             {% if request.journal.nav_sub %}
                 <li class="nav-item"><a href="{% url 'journal_submissions' %}" class="nav-link">{% trans 'Submission' %}</a>
                 </li>{% endif %}
-                        {% for item in navigation_items %}
+            {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
@@ -54,6 +54,7 @@
                             {{ item.link_name }}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
+                            {% if item.link %}<a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
                             {% for subnav in item.sub_nav_items %}
                                 <a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a>
                             {% endfor %}

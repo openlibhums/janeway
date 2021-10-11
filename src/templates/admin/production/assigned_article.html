@@ -4,6 +4,7 @@
 {% load hooks %}
 {% load static from staticfiles %}
 {% load render_string %}
+{% load bool_fa %}
 
 {% block title %}Article Production{% endblock title %}
 {% block admin-header %}}Article Production{% endblock %}
@@ -198,6 +199,7 @@
                         <th>ID</th>
                         <th>Label</th>
                         <th width="25%">Filename</th>
+                        <th>Public</th>
                         <th>Modified</th>
                         <th>Edit</th>
                         <th></th>
@@ -215,6 +217,7 @@
                             <td>{{ galley.pk }}</td>
                             <td>{{ galley.label }}</td>
                             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
+                            <td>{{ galley.public|bool_fa }}</td>
                             <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'pm_edit_galley' article.pk galley.pk %}" class="fa fa-edit"></a></td>
                             <td>{% if can_view_file_flag %}

@@ -64,7 +64,7 @@
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
         </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
+        <a href="#!" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">{% trans "menu" %}</i></a>
     </div>
 </nav>
 
@@ -109,6 +109,7 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
+            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
@@ -119,6 +120,7 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}-mobile" class="dropdown-content">
+            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}

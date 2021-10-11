@@ -12,6 +12,13 @@ from press import models
 
 class PressAdmin(SummernoteModelAdmin):
     list_display = ('name', 'domain', 'theme', 'is_secure')
+    raw_id_fields = (
+        'thumbnail_image',
+        'carousel',
+        'featured_journals',
+        'carousel_news_items',
+        'homepage_preprints',
+    )
 
 
 class PressSettingAdmin(admin.ModelAdmin):

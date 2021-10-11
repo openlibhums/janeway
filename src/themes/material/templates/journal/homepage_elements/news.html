@@ -8,13 +8,13 @@
 
             <div class="card">
                 <div class="card-content no-bottom-padding">
-                    <span class="card-title">{% trans "Latest News" %}</span>
+                    <span class="card-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</span>
                 </div>
                 {% for item in news_items %}
                     <div class="card-content">
 
                         <span class="card-title">{{ item.title }}</span>
-                        <h6>{% trans "Posted by" %} {{ item.posted_by.full_name }} on
+                        <h6>{{ item.byline }} on
                             {{ item.posted|date:"Y-m-d" }}</h6>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
 

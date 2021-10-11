@@ -13,7 +13,7 @@
             <div class="col-md-12">
                 <h2>{{ group.name }}</h2>
                 {% if group.description %}
-                    <p>{{ group.description|linebreaksbr }}</p>
+                    <p>{{ group.description|safe }}</p>
                 {% endif %}
             </div>
             <div class="card-deck">

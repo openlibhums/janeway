@@ -339,3 +339,13 @@ footer svg {
     font-weight: 500;
     line-height: 1.2;
 }
+
+.header-image {
+    max-height: 120px;
+}
+
+.orcid-img {
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+}

@@ -23,7 +23,7 @@
                 {% if not group_id %}
                     <h4>{{ group.name }}</h4>
                 {% endif %}
-                {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
+                {% if group.description %}<p>{{ group.description|safe }}</p>{% endif %}
                 <div class="row" data-equalizer data-equalize-on="medium">
                     {% for member in group.members %}
                         <div class="medium-3 columns {% if forloop.last %}end{% endif %}">

@@ -73,7 +73,7 @@
             $.ajax({
                 "type": "POST",
                 "dataType": "json",
-                "url": '/api/accountrole/',
+                "url": '{% url 'accountrole-list' %}',
                 "data": data,
                 "success": function (response) {
                     console.log(response)
@@ -88,7 +88,7 @@
                         onClick: `delete_role(${user_id}, ${role_id}, ${journal_id}, ${response.pk})`
                     }).html(`<span class=\"fa fa-minus-circle\"></span> ${old_text}`)
                     $(roles_td).append(del_button);
-                    toastr.success(`User has been granted role. ${old_text}`)
+                    toastr.success(`User has been granted a role: ${old_text}`)
                 },
                 "error": function (xhr, status, error) {
                     $(button_name).html(old_html);
@@ -111,7 +111,7 @@
             $.ajax({
                 "type": "DELETE",
                 "dataType": "json",
-                "url": `/api/accountrole/${account_role_id}`,
+                "url": `{% url 'accountrole-list' %}${account_role_id}`,
                 "data": data,
                 "success": function (data) {
                     $(button_name).remove();
@@ -122,7 +122,7 @@
                         onClick: `add_role(${user_id}, ${role_id}, ${journal_id})`
                     }).html(`<span class=\"fa fa-plus-circle\"></span> ${old_text}`)
                     $(roles_holder).append(add_button);
-                    toastr.warning(`User has been revoked role ${old_text}`)
+                    toastr.warning(`User has had a role revoked: ${old_text}`)
                 },
                 "error": function (xhr, status, error) {
                     $(button_name).html(old_html);

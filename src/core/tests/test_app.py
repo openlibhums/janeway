@@ -63,7 +63,7 @@ class CoreTests(TestCase):
 
         self.client.force_login(self.admin_user)
         response_1 = self.client.post(reverse('core_add_user'), data)
-        response_2= self.client.post(
+        response_2 = self.client.post(
             reverse('core_add_user'),
             dict(data, email=new_email),
         )

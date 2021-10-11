@@ -7,6 +7,7 @@ from django import forms
 
 from production import models, logic
 from utils.forms import HTMLDateInput
+from core import models as core_models
 
 
 class TypesetterNote(forms.ModelForm):
@@ -71,3 +72,21 @@ class AssignTypesetter(forms.ModelForm):
                 task.files_for_typesetting.add(file)
 
         return task
+
+
+class GalleyForm(forms.ModelForm):
+    file = forms.FileField()
+
+    class Meta:
+        model = core_models.Galley
+        fields = (
+            'label',
+            'public',
+        )
+
+    def __init__(self, *args, **kwargs):
+        include_file = kwargs.pop('include_file', True)
+        super().__init__(*args, **kwargs)
+        self.fields['label'].required = False
+        if not include_file:
+            self.fields.pop('file')

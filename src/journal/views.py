@@ -31,6 +31,7 @@ from core import (
     plugin_loader,
     logic as core_logic,
 )
+from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
 from journal.logic import get_galley_content
 from metrics.logic import store_article_access
@@ -292,7 +293,9 @@ def issue(request, issue_id, show_sidebar=True):
         journal=request.journal,
         issue_type=issue_object.issue_type,
         date__lte=timezone.now(),
-        articles__isnull=False,
+    ).exclude(
+        # This has to be an .exclude because.filter won't do an INNER join
+        articles__isnull=True,
     )
 
     editors = models.IssueEditor.objects.filter(
@@ -371,14 +374,16 @@ def article(request, identifier_type, identifier):
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     content = None
-    galleys = article_object.galley_set.all()
+    galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
     else:
-        article_object.abstract = "<p><strong>This is an accepted article with a DOI pre-assigned " \
-                                  "that is not yet published.</strong></p>" + article_object.abstract
+        article_object.abstract = (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (article_object.abstract or "")
 
     if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
         article_object.large_image_file = core_models.File()
@@ -402,6 +407,16 @@ def article(request, identifier_type, identifier):
     return render(request, template, context)
 
 
+def article_from_identifier(request, identifier_type, identifier):
+    identifier = get_object_or_404(
+        id_models.Identifier,
+        id_type=identifier_type,
+        identifier=identifier,
+        article__journal = request.journal
+    )
+    return redirect(identifier.article.url)
+
+
 @decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
@@ -416,7 +431,7 @@ def print_article(request, identifier_type, identifier):
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
     content = None
-    galleys = article_object.galley_set.all()
+    galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
@@ -518,7 +533,11 @@ def download_galley(request, article_id, galley_id):
                                 journal=request.journal,
                                 date_published__lte=timezone.now(),
                                 stage__in=submission_models.PUBLISHED_STAGES)
-    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    galley = get_object_or_404(
+        core_models.Galley,
+        pk=galley_id,
+        public=True,
+    )
 
     embed = request.GET.get('embed', False)
 
@@ -1575,37 +1594,46 @@ def manage_archive_article(request, article_id):
     :param article_id: Article object PK
     :return: HttpResponse or HttpRedirect if Posted
     """
-    from production import logic as production_logic
+    from production import logic as production_logic, forms as production_forms
     from identifiers import models as identifier_models
     from submission import forms as submission_forms
 
     article = get_object_or_404(submission_models.Article, pk=article_id)
     galleys = production_logic.get_all_galleys(article)
     identifiers = identifier_models.Identifier.objects.filter(article=article)
+    galley_form = production_forms.GalleyForm()
 
     if request.POST:
 
         if 'file' in request.FILES:
-            label = request.POST.get('label')
-            for uploaded_file in request.FILES.getlist('file'):
-                try:
-                    production_logic.save_galley(
-                        article,
-                        request,
-                        uploaded_file,
-                        True,
-                        label=label,
-                    )
-                except UnicodeDecodeError:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        _("Uploaded file is not UTF-8 encoded"),
-                    )
-                except production_logic.ZippedGalleyError:
-                    messages.add_message(request, messages.ERROR,
-                        "Galleys must be uploaded individually, not zipped",
-                    )
+            galley_form = production_forms.GalleyForm(request.POST, request.FILES)
+            if galley_form.is_valid():
+                for uploaded_file in request.FILES.getlist('file'):
+                    try:
+                        production_logic.save_galley(
+                            article,
+                            request,
+                            uploaded_file,
+                            True,
+                            label=galley_form.cleaned_data.get('label'),
+                            public=galley_form.cleaned_data.get('public'),
+                        )
+                    except UnicodeDecodeError:
+                        messages.add_message(
+                            request,
+                            messages.ERROR,
+                            _("Uploaded file is not UTF-8 encoded"),
+                        )
+                    except production_logic.ZippedGalleyError:
+                        messages.add_message(request, messages.ERROR,
+                            "Galleys must be uploaded individually, not zipped",
+                        )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'Galley form not valid.',
+                )
 
         if 'delete_note' in request.POST:
             note_id = int(request.POST['delete_note'])
@@ -1644,7 +1672,8 @@ def manage_archive_article(request, article_id):
         'galleys': galleys,
         'identifiers': identifiers,
         'newnote_form': newnote_form,
-        'note_forms': note_forms
+        'note_forms': note_forms,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
@@ -2101,12 +2130,31 @@ def document_management(request, article_id):
 
     if request.POST and request.FILES:
 
+        label = request.POST.get('label') if request.POST.get('label') else 'File'
+
         if 'manu' in request.POST:
             from core import files as core_files
             file = request.FILES.get('manu-file')
             new_file = core_files.save_file_to_article(file, document_article,
-                                                       request.user, label='MS File', is_galley=False)
+                                                       request.user, label=label, is_galley=False)
             document_article.manuscript_files.add(new_file)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('Production file uploaded.'),
+            )
+
+        if 'fig' in request.POST:
+            from core import files as core_files
+            file = request.FILES.get('fig-file')
+            new_file = core_files.save_file_to_article(
+                file,
+                document_article,
+                request.user,
+                label=label,
+                is_galley=False,
+            )
+            document_article.data_figure_files.add(new_file)
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -2116,7 +2164,7 @@ def document_management(request, article_id):
         if 'prod' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('prod-file')
-            prod_logic.save_prod_file(document_article, request, file, 'Production Ready File')
+            prod_logic.save_prod_file(document_article, request, file, label)
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -2126,7 +2174,7 @@ def document_management(request, article_id):
         if 'proof' in request.POST:
             from production import logic as prod_logic
             file = request.FILES.get('proof-file')
-            prod_logic.save_galley(document_article, request, file, True, 'File for Proofing')
+            prod_logic.save_galley(document_article, request, file, True, label)
             messages.add_message(
                 request,
                 messages.SUCCESS,

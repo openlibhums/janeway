@@ -45,7 +45,7 @@
                                 <td>{{ article.section.name }}</td>
                                 <td>{{ article.get_doi }}</td>
                                 <td>{{ article.get_pubid }}</td>
-                                <td>{{ article.page_numbers }}</td>
+                                <td>{{ article.page_range }}</td>
                                 <td>
                                     <a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ article.pk }}"><i
                                             class="fa fa-chain-broken">&nbsp;</i>Remove</a></td>

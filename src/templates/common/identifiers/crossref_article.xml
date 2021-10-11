@@ -20,6 +20,9 @@
         <journal>
             <journal_metadata>
                 <full_title>{{ journal_title }}</full_title>
+                {% if print_issn and print_issn != '0000-0000' %}
+                <issn media_type="print">{{ print_issn }}</issn>
+                {% endif %}
                 {% if journal_issn and journal_issn != '0000-0000' %}
                 <issn media_type="electronic">{{ journal_issn }}</issn>
                 {% endif %}
@@ -61,8 +64,8 @@
                         {% if author.institution %}
                         <affiliation>{{ author.affiliation }}</affiliation>
                         {% endif %}
-                        {% if author.author.orcid %}
-                        <ORCID>https://orcid.org/{{ author.author.orcid }}</ORCID>
+                        {% if author.orcid %}
+                        <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
                         {% endif %}
                     </person_name>
                     {% endif %}

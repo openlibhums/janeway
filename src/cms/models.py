@@ -43,12 +43,19 @@ class NavigationItem(models.Model):
     object = GenericForeignKey('content_type', 'object_id')
 
     link_name = models.CharField(max_length=100)
-    link = models.CharField(max_length=100)
+    link = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
     is_external = models.BooleanField(default=False)
     sequence = models.IntegerField(default=99)
     page = models.ForeignKey(Page, blank=True, null=True)
     has_sub_nav = models.BooleanField(default=False, verbose_name="Has Sub Navigation")
     top_level_nav = models.ForeignKey("self", blank=True, null=True, verbose_name="Top Level Nav Item")
+
+    class Meta:
+        ordering = ('sequence',)
 
     def __str__(self):
         return self.link_name
@@ -66,7 +73,9 @@ class NavigationItem(models.Model):
     @property
     def url(self):
         #alias for backwards compatibility with templates
-        return self.build_url_for_request
+        if self.link:
+            return self.build_url_for_request
+        return ''
 
     @classmethod
     def toggle_collection_nav(cls, issue_type):

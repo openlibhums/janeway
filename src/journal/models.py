@@ -28,7 +28,7 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import AbstractSiteModel
 from press import models as press_models
 from submission import models as submission_models
-from utils import setting_handler, logic
+from utils import setting_handler, logic, install
 from utils.function_cache import cache
 from utils.logger import get_logger
 
@@ -71,7 +71,10 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(AbstractSiteModel):
-    code = models.CharField(max_length=15, unique=True)
+    code = models.CharField(max_length=24, unique=True, help_text=ugettext(
+        'Short acronym for the journal. Used as part of the journal URL'
+        'in path mode and to uniquely identify the journal'
+    ))
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
@@ -195,6 +198,11 @@ class Journal(AbstractSiteModel):
 
     @property
     @cache(120)
+    def print_issn(self):
+        return setting_handler.get_setting('general', 'print_issn', self, default=True).value
+
+    @property
+    @cache(120)
     def use_crossref(self):
         try:
             return setting_handler.get_setting('Identifiers',
@@ -207,6 +215,10 @@ class Journal(AbstractSiteModel):
     @issn.setter
     def issn(self, value):
         setting_handler.save_setting('general', 'journal_issn', self, value)
+
+    @print_issn.setter
+    def print_issn(self, value):
+        setting_handler.save_setting('general', 'print_issn', self, value)
 
     @property
     def slack_logging_enabled(self):
@@ -258,6 +270,9 @@ class Journal(AbstractSiteModel):
 
     def issues(self):
         return Issue.objects.filter(journal=self)
+
+    def serial_issues(self):
+        return Issue.objects.filter(journal=self, issue_type__code='issue')
 
     def editors(self):
         """ Returns all users enrolled as editors for the journal
@@ -490,6 +505,13 @@ class Issue(models.Model):
         ordering = ('order', 'year', 'volume', 'issue', 'title')
 
     @property
+    def is_serial(self):
+        if self.issue_type.code == 'issue':
+            return True
+        else:
+            return False
+
+    @property
     def display_title(self):
         if self.issue_type.code != 'issue':
             return self.issue_title
@@ -507,13 +529,14 @@ class Issue(models.Model):
     @property
     def pretty_issue_identifier(self):
         journal = self.journal
+        volume = issue = year = ''
 
-        volume = ugettext("Volume") + " {}".format(
-            self.volume) if journal.display_issue_volume else ""
-        issue = ugettext("Issue") + " {}".format(
-            self.issue) if journal.display_issue_number else ""
-        year = "{}".format(
-            self.date.year) if journal.display_issue_year else ""
+        if journal.display_issue_volume and self.volume:
+            volume = ugettext("Volume") + " {}".format(self.volume)
+        if journal.display_issue_number and self.issue and self.issue != "0":
+            issue = ugettext("Issue") + " {}".format(self.issue)
+        if journal.display_issue_year and self.date:
+            year = "{}".format(self.date.year)
 
         parts = [volume, issue, year]
 
@@ -916,6 +939,22 @@ def setup_submission_configuration(sender, instance, created, **kwargs):
     if created:
         submission_models.SubmissionConfiguration.objects.get_or_create(
             journal=instance,
+        )
+
+
+@receiver(post_save, sender=Journal)
+def setup_licenses(sender, instance, created, **kwargs):
+    if created:
+        install.update_license(
+            instance,
+        )
+
+
+@receiver(post_save, sender=Journal)
+def setup_submission_items(sender, instance, created, **kwargs):
+    if created:
+        install.setup_submission_items(
+            instance,
         )
 
 

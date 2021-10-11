@@ -664,6 +664,21 @@
             "name": "general"
         },
         "setting": {
+            "description": "The ISSN of the printed version of the journal.",
+            "is_translatable": false,
+            "name": "print_issn",
+            "pretty_name": "Print ISSN",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "The HTML theme set to use for the journal.",
             "is_translatable": false,
             "name": "journal_theme",
@@ -1357,7 +1372,7 @@
             "description": "If enabled, the review dashboard will show all active reviews, otherwise just a count of completed reviews",
             "is_translatable": false,
             "name": "enable_expanded_review_details",
-            "pretty_name": "Enable expanded review cdetauls",
+            "pretty_name": "Enable expanded review details",
             "type": "boolean"
         },
         "value": {
@@ -3008,6 +3023,51 @@
             "is_translatable": false,
             "name": "enable_suggested_reviewers",
             "pretty_name": "Enable Suggested Reviewers",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Enable if you want to hide review metadata from authors (date assigned, decision, date completed).",
+            "is_translatable": false,
+            "name": "hide_review_metadata_from_authors",
+            "pretty_name": "Hide Review Metadata from Authors",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+          }
+    },
+    {
+        "group": {
+            "name": "news"
+        },
+        "setting": {
+            "description": "Title for the News Page and Homepage block",
+            "is_translatable": true,
+            "name": "news_title",
+            "pretty_name": "News Title",
+            "type": "char"
+        },
+        "value": {
+            "default": "News"
+        }
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled the article page will not display links to email correspondence authors.",
+            "is_translatable": false,
+            "name": "hide_author_email_links",
+            "pretty_name": "Hide Author Email Links",
             "type": "boolean"
         },
         "value": {

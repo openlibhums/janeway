@@ -408,6 +408,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'institution': self.institution,
             'department': self.department,
+            'display_email': True if self == article.correspondence_author else False,
         }
 
         frozen_author = self.frozen_author(article)
@@ -705,7 +706,7 @@ class File(models.Model):
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
-    label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
+    label = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Label'))
     description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
@@ -890,15 +891,31 @@ class Galley(models.Model):
     css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
     images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
     xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
+    public = models.BooleanField(
+        default=True,
+        help_text='Uncheck if the typeset file should not be publicly available after the article is published.'
+    )
 
     # Remote Galley
     is_remote = models.BooleanField(default=False)
     remote_file = models.URLField(blank=True, null=True)
 
     # All Galleys
-    label = models.CharField(max_length=400)
+    label = models.CharField(
+        max_length=400,
+        help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
+                  'you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for '
+                  'you, leave it blank.',
+    )
     type = models.CharField(max_length=100, choices=galley_type_choices())
     sequence = models.IntegerField(default=0)
+
+    def unlink_files(self):
+        if self.file and self.file.article_id:
+            self.file.unlink_file()
+        for image_file in self.images.all():
+            if  not image_file.images.exclude(galley=self).exists():
+                image_file.unlink_file()
 
     def __str__(self):
         return "{0} ({1})".format(self.id, self.label)
@@ -928,7 +945,8 @@ class Galley(models.Model):
 
         elements = {
             'img': 'src',
-            'graphic': 'xlink:href'
+            'graphic': 'xlink:href',
+            'inline-graphic': 'xlink:href',
         }
 
         missing_elements = []

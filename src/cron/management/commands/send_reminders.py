@@ -11,9 +11,12 @@ class Command(BaseCommand):
 
     help = "Sends review and revision reminder emails.."
 
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        parser.add_argument('--action', default="")
 
-        journals = journal_models.Journal.objects.all()
+    def handle(self, *args, **options):
+        action = options.get('action')
+        journals = journal_models.Journal.objects.filter(code="olh")
 
         for journal in journals:
             print("Processing reminders for journal {0}: {1}".format(journal.pk, journal.name))
@@ -22,4 +25,7 @@ class Command(BaseCommand):
 
             for reminder in reminders:
                 print("Reminder {0}, target date: {1}".format(reminder, reminder.target_date()))
-                reminder.send_reminder()
+                if action == 'test':
+                    reminder.send_reminder(test=True)
+                else:
+                    reminder.send_reminder()

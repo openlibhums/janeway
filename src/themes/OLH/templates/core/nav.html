@@ -5,13 +5,13 @@
 <div class="top-bar" id="main-menu" style="display: block;">
     <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
         {% if request.journal.nav_home %}<li><a href="{% url 'website_index' %}">{% trans 'Home' %}</a></li>{% endif %}
-        {% if request.journal.nav_news %}<li><a href="{% url 'core_news_list' %}">{% trans 'News' %}</a></li>{% endif %}
+        {% if request.journal.nav_news %}<li><a href="{% url 'core_news_list' %}">{{ journal_settings.news.news_title }}</a></li>{% endif %}
         {% for item in navigation_items %}
         {% if item.has_sub_nav %}
             <li class=".is-dropdown-submenu-parent"><a href="#"
                                                        data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
             <ul class="menu vertical medium-horizontal">
-            <li><a href="{{ item.url }}">{{ item.link_name }}</a></li>
+            {% if item.link %}<li><a href="{{ item.url }}">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
                 <li><a href="{{ subnav.url }}">{{ subnav.link_name }}</a></li>
             {% endfor %}
