@@ -183,7 +183,7 @@
                 <a class="button" href="{% url 'repository_add_author' preprint.pk %}"><i class="fa fa-plus"></i> Add Author</a>
             </div>
             <div class="content">
-                <form method="POST" action="{% url 'repository_delete_author' preprint.pk 'manager' %}">
+                <form method="POST" action="{% url 'repository_manager_delete_author' preprint.pk %}">
                     {% csrf_token %}
                     <table class="small">
                         <thead>
@@ -385,7 +385,7 @@
                 $.ajax({
                     data: data,
                     type: 'POST',
-                    url: '{% url 'preprints_author_order' preprint.pk %}'
+                    url: '{% url 'repository_manager_order_authors' preprint.pk %}'
                 });
             }
         });

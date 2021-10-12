@@ -106,6 +106,13 @@ urlpatterns = [
     url(r'^manager/(?P<preprint_id>\d+)/add/author/$',
         views.repository_edit_author,
         name='repository_add_author'),
+    url(r'^manager/(?P<preprint_id>\d+)/author/order/$',
+        views.reorder_preprint_authors,
+        name='repository_manager_order_authors'),
+    url(r'^manager/(?P<preprint_id>\d+)/author/delete/$',
+        views.delete_preprint_author,
+        name='repository_manager_delete_author'),
+
 
     url(r'^manager/(?P<preprint_id>\d+)/download/(?P<file_id>\d+)/$',
         views.repository_download_file,

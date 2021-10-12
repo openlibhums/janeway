@@ -1699,3 +1699,58 @@ def delete_supplementary_file(request, preprint_id):
             kwargs={'preprint_id': preprint.pk},
         )
     )
+
+
+@is_repository_manager
+@require_POST
+def reorder_preprint_authors(request, preprint_id):
+    preprint = models.Preprint.objects.get(
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    posted_author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+    preprint_authors = models.PreprintAuthor.objects.filter(
+        preprint=preprint,
+    )
+    utils_shared.set_order(
+        objects=preprint_authors,
+        order_attr_name='order',
+        pk_list=posted_author_pks,
+    )
+    return HttpResponse('Author Order Updated')
+
+
+@is_repository_manager
+@require_POST
+def delete_preprint_author(request, preprint_id):
+    preprint = models.Preprint.objects.get(
+        pk=preprint_id,
+        repository=request.repository,
+    )
+
+    if 'author_id' in request.POST:
+        try:
+            author = models.PreprintAuthor.objects.get(
+                preprint=preprint,
+                pk=request.POST.get('author_id'),
+            )
+            author.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Author record deleted.',
+            )
+        except models.PreprintAuthor.DoesNotExist:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'No author found.',
+            )
+
+    return redirect(
+        reverse(
+            'repository_manager_article',
+            kwargs={'preprint_id': preprint.pk},
+        )
+    )
+
