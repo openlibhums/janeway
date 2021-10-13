@@ -632,8 +632,8 @@ class Article(models.Model):
         return(
             self.page_range
             or self.article_number
-            or article.publisher_name
-            or article.publication_title
+            or self.publisher_name
+            or self.publication_title
         )
 
     @property
