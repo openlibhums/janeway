@@ -36,7 +36,9 @@ def install():
         version=VERSION,
         enabled=True,
         display_name='About',
-        homepage_element=True,
+        defaults={
+            'homepage_element': True,
+        }
     )
 
     if c:
