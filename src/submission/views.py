@@ -518,6 +518,14 @@ def submit_review(request, article_id):
         article.snapshot_authors(article)
         article.save()
 
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            **{'handshake_url': 'submit_review',
+               'request': request,
+               'article': article,
+               'switch_stage': False}
+        )
+
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -532,14 +540,6 @@ def submit_review(request, article_id):
             event_logic.Events.ON_ARTICLE_SUBMITTED,
             task_object=article,
             **kwargs
-        )
-
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-            **{'handshake_url': 'submit_review',
-               'request': request,
-               'article': article,
-               'switch_stage': False}
         )
 
         return redirect(reverse('core_dashboard'))
