@@ -33,11 +33,11 @@ def install():
 
     plugin, c = models.Plugin.objects.get_or_create(
         name=PLUGIN_NAME,
-        version=VERSION,
-        enabled=True,
-        display_name='About',
         defaults={
             'homepage_element': True,
+            'enabled': True,
+            'version': VERSION,
+            'display_name': 'About',
         }
     )
 
