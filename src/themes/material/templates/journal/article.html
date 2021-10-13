@@ -265,6 +265,40 @@
                      <div class="spacer">
                         <div class="divider"></div>
                     </div>
+                    {% if article.has_publication_details %}
+                    <div class="section">
+                        <h4>{% trans "Publication details" %}</h4>
+                        <table class="sidebar-table">
+                            {% if article.page_range %}
+                            <tr>
+                                <th>{% trans "Pages" %}</th>
+                                <td>{{ article.page_range }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if article.article_number %}
+                            <tr>
+                                <th>{% trans "Article No." %}</th>
+                                <td>{{ article.article_number }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if article.publisher_name %}
+                            <tr>
+                                <th>{% trans "Publisher" %}</th>
+                                <td>{{ article.publisher_name }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if article.publication_title %}
+                            <tr>
+                                <th>{% trans "Publication" %}</th>
+                                <td>{{ article.publication_title }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                    <div class="spacer">
+                     <div class="divider"></div>
+                    </div>
+                    {% endif %}
 
                     {% if article.supplementary_files.all %}
                         <h4>{% trans "Supplementary Files" %}</h4>

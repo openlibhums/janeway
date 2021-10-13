@@ -515,6 +515,12 @@ class Article(models.Model):
         )
     )
 
+    publication_title = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Name of the publisher who published this article"
+            " Only relevant to migrated articles from a different publisher"
+        )
+    )
 
     # iThenticate ID
     ithenticate_id = models.TextField(blank=True, null=True)
@@ -619,6 +625,28 @@ class Article(models.Model):
     @property
     def has_galley(self):
         return self.galley_set.all().exists()
+
+    @property
+    def has_publication_details(self):
+        """Determines if an article has publication details override"""
+        return(
+            self.page_range
+            or self.article_number
+            or article.publisher_name
+            or article.publication_title
+        )
+
+    @property
+    def journal_title(self):
+        return self.publication_title or self.journal.title
+
+    @property
+    def publisher(self):
+        return (
+            self.publisher_name
+            or self.journal.publisher
+            or self.journal.press.name
+        )
 
     def journal_sections(self):
         return ((section.id, section.name) for section in self.journal.section_set.all())
