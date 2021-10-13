@@ -6,10 +6,10 @@
     <!-- <meta name="DC.Coverage.temporal" xml:lang="en" content="long-eighteenth century"/> -->
 
 
-    {% if article.date_published %}<meta name="DC.Date.created" scheme="ISO8601" content="{{ article.date_published }}"/>{% endif %}
-    {% if article.date_submitted %}<meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ article.date_submitted }}"/>{% endif %}
-    {% if article.date_published %}<meta name="DC.Date.issued" scheme="ISO8601" content="{{ article.date_published }}"/>{% endif %}
-    {% if article.date_published %}<meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published }}"/>{% endif %}
+    {% if article.date_published %}<meta name="DC.Date.created" scheme="ISO8601" content="{{ article.date_published|date:"Y-m-d" }}"/>{% endif %}
+    {% if article.date_submitted %}<meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ article.date_submitted|date:"Y-m-d" }}"/>{% endif %}
+    {% if article.date_published %}<meta name="DC.Date.issued" scheme="ISO8601" content="{{ article.date_published|date:"Y-m-d" }}"/>{% endif %}
+    {% if article.date_published %}<meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published|date:"Y-m-d"  }}"/>{% endif %}
 
 
     <meta name="DC.Description" xml:lang="en" content="{{ article.abstract | striptags }}"/>
@@ -23,7 +23,7 @@
     <meta name="DC.Language" scheme="ISO639-1" content="{{ article.language }}"/>
     <meta name="DC.Rights" content="{{ article.licence.text | striptags }}"/>
     <meta name="DC.Source" content="{{ journal_settings.general.journal_name }}"/>
-    <meta name="DC.Source.ISSN" content="{{ journal_settings.general.issn }}"/>
+    <meta name="DC.Source.ISSN" content="{{ article.journal.issn }}"/>
     {% if article.issue.issue %}<meta name="DC.Source.Issue" content="{{ article.issue.issue }}"/>{% endif %}
     {% if article.issue.volume %}<meta name="DC.Source.Volume" content="{{ article.issue.volume }}"/>{% endif %}
     <meta name="DC.Source.URI" content="{% journal_url 'website_index' %}"/>
@@ -32,15 +32,15 @@
     {% if article.publisher_name%}<meta name="citation_publisher" content="{{ article.publisher_name }}"/>
     {% elif journal_settings.general.publisher_name %}<meta name="citation_publisher" content="{{ journal_settings.general.publisher_name }}"/>
     {% endif %}
-    <meta name="citation_journal_title" content="{{ journal_settings.general.journal_name }}"/>
-    <meta name="citation_issn" content="{{ journal_settings.general.issn }}"/>
+    <meta name="citation_journal_title" content="{{ article.journal_title }}"/>
+    <meta name="citation_issn" content="{{ article.journal.issn }}"/>
     {% for author in article.frozen_authors.all %}
         <meta name="citation_author" content="{{ author.full_name }}"/>
         {% if not '@journal.org' in author.author.email %}
             <meta name="citation_author_email" content="{{ author.author.email }}"/>{% endif %}
         <meta name="citation_author_institution" content="{{ author.institution }}"/>{% endfor %}
     <meta name="citation_title" content="{{ article.title | striptags }}"/>
-    {% if article.date_published %}<meta name="citation_publication_date" content="{{ article.date_published }}"/>{% endif %}
+    {% if article.date_published %}<meta name="citation_publication_date" content="{{ article.date_published|date:"Y-m-d" }}"/>{% endif %}
     {% if article.issue.volume %}<meta name="citation_volume" content="{{ article.issue.volume }}"/>{% endif %}
     {% if article.issue.issue %}<meta name="citation_issue" content="{{ article.issue.issue }}"/>{% endif %}
     {% if article.page_number %}<meta name="citation_firstpage" content="{{ article.page_number }}"/>{% endif %}
@@ -52,7 +52,9 @@
         <meta name="citation_keywords" xml:lang="en" content="{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}"/>
     {% endif %}
 
-    {% for pdf in article.pdfs %}
-        <meta name="citation_pdf_url" content="{% journal_url 'article_file_download' identifier_type identifier pdf.id %}"/>
+    {% for galley in galleys %}
+        {% if galley.type == 'pdf' or galley.type == 'PDF' %}
+        <meta name="citation_pdf_url" content="{% journal_url 'article_download_galley' article.id galley.id %}"/>
+        {% endif %}
     {% endfor %}
     {% include "elements/journal/social_meta.html" %}
