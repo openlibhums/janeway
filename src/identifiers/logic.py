@@ -113,7 +113,10 @@ def create_crossref_context(identifier):
                                                        identifier.article.journal).processed_value,
         'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
                                                   identifier.article.journal).processed_value,
-        'journal_title': identifier.article.journal.name,
+        'journal_title': (
+            identifier.article.publication_title
+            or identifier.article.journal.name
+        ),
         'abstract': strip_tags(identifier.article.abstract or ''),
         'journal_issn': identifier.article.journal.issn,
         'print_issn': identifier.article.journal.print_issn or None,
