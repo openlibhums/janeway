@@ -82,7 +82,7 @@
                     {% endif %}{% endfor %}</p>{% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    {{ article.how_to_cite }} </p>
+                    {{ article.how_to_cite|safe }} </p>
                 {% endif %}
                 {% if article.rights %}
                     <p><strong>{% trans "Rights" %}:</strong>
