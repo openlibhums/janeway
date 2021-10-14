@@ -173,6 +173,7 @@
                         <table class="scroll">
                             <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Title</th>
                                 <th>Authors</th>
                                 <th>Submitted</th>
@@ -181,6 +182,7 @@
                             </thead>
                             {% for assignment in section_editor_articles %}
                                 <tr>
+                                    <td>{{ assignment.article.pk }}</td>
                                     <td>
                                         <a href="{{ assignment.article.current_workflow_element_url }}">{{ assignment.article.title }}</a>
                                     </td>
