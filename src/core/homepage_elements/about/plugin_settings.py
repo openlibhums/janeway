@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 PLUGIN_NAME = 'About'
 DESCRIPTION = 'This is a homepage element that renders About this Journal section.'
 AUTHOR = 'Martin Paul Eve & Andy Byers'
-VERSION = '1.0'
+VERSION = '1.1'
 
 
 def get_self():
@@ -40,6 +40,10 @@ def install():
             'display_name': 'About',
         }
     )
+
+    if not c:
+        plugin.version = VERSION
+        plugin.save()
 
     if c:
         logger.debug('Plugin installed.')
