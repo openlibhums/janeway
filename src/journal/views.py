@@ -2246,7 +2246,6 @@ def doi_redirect(request, identifier_type, identifier):
     :param identifier: DOI string
     :return: HttpRedirect or Http404
     """
-    import pdb;pdb.set_trace()
     article_object = submission_models.Article.get_article(
         request.journal,
         identifier_type,
