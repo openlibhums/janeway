@@ -13,16 +13,35 @@
 {% endblock %}
 
 {% block body %}
-    <div class="large-12 columns box">
 		<form action="" method="POST" enctype="multipart/form-data">
+    <div class="large-12 columns box">
 			{% csrf_token %}
 			
-			{{ home_form.carousel_mode|foundation }}
+            {{ home_form.exclude|foundation }}
+    </div>
+    <div class="large-12 columns box">
+			{% csrf_token %}
+
+            <h3>Articles</h3>
+            <hr>
+            {{ home_form.latest_articles|foundation }}
             {{ home_form.carousel_article_limit|foundation }}
-            {{ home_form.carousel_news_limit|foundation }}
-            {{ home_form.carousel_exclude|foundation }}
             {{ home_form.carousel_articles|foundation }}
+    </div>
+    <div class="large-12 columns box">
+
+            <h3>News</h3>
+            <hr>
+            {{ home_form.latest_news|foundation }}
             {{ home_form.carousel_news|foundation }}
+            {{ home_form.carousel_news_limit|foundation }}
+    </div>
+    <div class="large-12 columns box">
+
+            <h3>Issues and Collections</h3>
+            <hr>
+            {{ home_form.current_issue|foundation }}
+            {{ home_form.carousel_issues|foundation }}
 
             <button type="submit" class="button alert float-right" name="cancel" value="cancel">
                      Cancel
@@ -30,8 +49,8 @@
             <button type="submit" class="button success float-right"style="margin-right:5px">
                 Submit
             </button>
-        </form>
     </div>
+        </form>
 {% endblock body %}
 
 {% block js %}

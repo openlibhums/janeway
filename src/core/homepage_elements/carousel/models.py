@@ -1,31 +1,20 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-# off = no carousel
-# latest = latest 3 articles + custom set of CarouselObjects defined by user
-# news = custom set of CarouselObjects defined by user
-# selected articles = user picks which articles to display + custom set of CarouselObjects defined by user
-CAROUSEL_MODES = [
-    ('off', _('Off')),
-    ('latest', _('Latest Articles')),
-    ('news', _('Latest News')),
-    ('selected-articles', _('Selected Articles')),
-    ('mixed', _('Latest Articles and News')),
-    ('mixed-selected', _('Selected Articles and News')),
-]
-
 
 class Carousel(models.Model):
-    mode = models.CharField(
-        max_length=200,
-        blank=False,
-        null=False,
-        default='Latest',
-        choices=CAROUSEL_MODES,
+
+    exclude = models.BooleanField(
+        help_text=_(
+            "If enabled, the selectors below will behave as an exclusion list",
+        ),
+        default=False,
     )
 
-    # if exclude is true and mode is Latest then articles marked as "excluded" will not be included
-    exclude = models.BooleanField(default=False)
+    latest_articles = models.BooleanField(
+        default=False,
+        help_text="The carousel will display the latest published articles",
+    )
 
     # these fields contains a custom list of articles and article-like carousel objects for Mixed and News modes
     articles = models.ManyToManyField(
@@ -33,6 +22,11 @@ class Carousel(models.Model):
         blank=True,
         null=True,
         related_name='articles',
+    )
+
+    latest_news = models.BooleanField(
+        default=False,
+        help_text="The carousel will display the latest published news items",
     )
 
     # a selected news field
@@ -50,10 +44,16 @@ class Carousel(models.Model):
         verbose_name='Maximum Number of News Items to Show',
         default=0,
     )
+    issues = models.ManyToManyField(
+        'journal.issue',
+        verbose_name=_("Issues and Collections"),
+        blank=True,
+    )
 
-    @staticmethod
-    def get_carousel_modes():
-        return CAROUSEL_MODES
+    current_issue = models.BooleanField(
+        default=False,
+        help_text="Always include the current issue",
+    )
 
 
 class CarouselObject(models.Model):
