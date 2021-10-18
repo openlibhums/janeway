@@ -638,7 +638,7 @@ class Article(models.Model):
 
     @property
     def journal_title(self):
-        return self.publication_title or self.journal.title
+        return self.publication_title or self.journal.name
 
     @property
     def publisher(self):
