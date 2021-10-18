@@ -139,6 +139,20 @@ class Press(AbstractSiteModel):
     def users():
         return core_models.Account.objects.all()
 
+    @property
+    def issues(self, **filters):
+        if not filters:
+            filters = {}
+        filters["journal__press"] = self
+        from journal import models as journal_models
+        if filters:
+            return journal_models.Issue.objects.filter(**filters)
+        return journal_models.Journal.objects.all()
+
+    @staticmethod
+    def users():
+        return core_models.Account.objects.all()
+
     @staticmethod
     def press_url(request):
         logger.warning("Using press.press_url is deprecated")

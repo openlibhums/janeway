@@ -268,6 +268,7 @@ class Journal(AbstractSiteModel):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
         return max(issue_orders) + 1 if issue_orders else 0
 
+    @property
     def issues(self):
         return Issue.objects.filter(journal=self)
 

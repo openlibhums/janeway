@@ -386,7 +386,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
     import os
     from django.core.files import File
 
-    for issue in journal.issues():
+    for issue in journal.issues:
         issue_num = issue.issue
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(issue.volume, issue_num))
 
