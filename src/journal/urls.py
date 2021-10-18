@@ -80,6 +80,10 @@ urlpatterns = [
         views.article,
         name='article_view'
         ),
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.doi_redirect,
+        name='doi_redirect'),
     url(r'^article/(?P<identifier_type>[\w.-_]+)/(?P<identifier>[\w.-]+)/$',
         views.article_from_identifier,
         name='article_view_custom_identifier',
@@ -193,10 +197,6 @@ urlpatterns = [
         views.doi_redirect,
         name='print_doi_redirect'),
 
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.doi_redirect,
-        name='doi_redirect'),
 
     url(r'^email/user/(?P<user_id>\d+)/$',
         views.send_user_email, name='send_user_email'),
