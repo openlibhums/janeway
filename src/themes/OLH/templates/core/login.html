@@ -32,6 +32,9 @@
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
                         <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri %}" class="success button expanded">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
+                        {% if journal_settings.general.display_login_page_notice %}
+                        {{ journal_settings.general.login_page_notice|safe }}
+                        {% endif %}
                         <label>{% trans form.fields.user_name.label %}</label>
                             {{ form.user_name }}
                         <label>{% trans form.user_pass.label %}</label>
