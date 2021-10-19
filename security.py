@@ -44,6 +44,7 @@ def proofreader_for_article_required(func):
 
     return wrapper
 
+
 def can_preview_typesetting_article(func):
     """ Checks if the user should be allowed to preview articles files
 
@@ -87,6 +88,7 @@ def can_preview_typesetting_article(func):
             deny_access(request)
 
     return wrapper
+
 
 def require_not_notified(object_model):
     """
@@ -151,6 +153,12 @@ def can_manage_file(request, file_object):
             )
         )
 
+    if (
+        request.user.is_staff or
+        request.user.is_editor(request)
+    ):
+        return True
+
     if file_object.article_id:
         # Check if there is a workflow log entry for the typesetting plugin.
         if not core_models.WorkflowLog.objects.filter(
@@ -164,8 +172,6 @@ def can_manage_file(request, file_object):
         return False
 
     if (
-        request.user.is_staff or
-        request.user.is_editor(request) or
         request.user.is_production(request) or
         file_object.owner == request.user
     ):

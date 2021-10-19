@@ -273,6 +273,7 @@ def mint_supp_file_doi(supp_file, doi=None):
 
     return doi
 
+
 def validate_supp_file_doi(supp_file, doi):
     journal = supp_file.file.article.journal
     try:
