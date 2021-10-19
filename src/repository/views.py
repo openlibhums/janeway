@@ -838,7 +838,7 @@ def repository_manager_article(request, preprint_id):
                     preprint.accept(**date_kwargs)
                     event_logic.Events.raise_event(
                         event_logic.Events.ON_PREPRINT_PUBLICATION,
-                        {
+                        **{
                             'request': request,
                             'preprint': preprint,
                         },
@@ -1753,4 +1753,3 @@ def delete_preprint_author(request, preprint_id):
             kwargs={'preprint_id': preprint.pk},
         )
     )
-
