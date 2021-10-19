@@ -58,7 +58,6 @@ urlpatterns = [
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
     url(r'^issue/(?P<issue_id>\d+)/info/$', views.issue, name='journal_issue'),
-    url(r'^issue/(?P<issue_id>\d+)/download/$', views.download_issue, name='journal_issue_download'),
     url(r'^issue/(?P<issue_id>\d+)/download/(?P<galley_id>\d+)$',
         views.download_issue_galley,
         name='journal_issue_download_galley'),
