@@ -758,6 +758,16 @@ class Author(models.Model):
         verbose_name=_('ORCID')
     )
 
+    @property
+    def full_name(self):
+        if not self.middle_name:
+            return '{} {}'.format(self.first_name, self.last_name)
+        else:
+            return '{} {} {}'.format(
+                self.first_name,
+                self.middle_name,
+                self.last_name,
+            )
 
 class PreprintVersion(models.Model):
     preprint = models.ForeignKey(Preprint)
