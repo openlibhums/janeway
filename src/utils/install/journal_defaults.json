@@ -3073,5 +3073,50 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If set to true the Login Page Notice will display.",
+            "is_translatable": true,
+            "name": "display_login_page_notice",
+            "pretty_name": "Display Login Page Notice",
+            "type": "boolean"
+        },
+        "value": {
+            "default": false
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Message to display if you enable Display Login Notice.",
+            "is_translatable": true,
+            "name": "login_page_notice",
+            "pretty_name": "Login Page Notice",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "crossref"
+        },
+        "setting": {
+            "description": "For migrated content where we need to tweak the crossref date.",
+            "is_translatable": true,
+            "name": "crossref_date_suffix",
+            "pretty_name": "Crossref Date Suffix",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]

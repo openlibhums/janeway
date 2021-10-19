@@ -65,6 +65,9 @@ class PasswordResetAdmin(admin.ModelAdmin):
 class SettingValueAdmin(admin.ModelAdmin):
     list_display = ('setting_journal', 'setting_pretty_name')
     list_filter = ('setting', 'journal')
+    raw_id_fields = (
+        'setting', 'journal',
+    )
 
     @staticmethod
     def apply_select_related(self, qs):
