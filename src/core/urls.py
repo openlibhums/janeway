@@ -30,7 +30,12 @@ try:
             url(r'^404/$', TemplateView.as_view(template_name='404.html')),
             url(r'^500/$', TemplateView.as_view(template_name='500.html')),
             url(r'^__debug__/', include(debug_toolbar.urls)),
-            url(r'^hijack/', include('hijack.urls', namespace='hijack')),
         ]
 except AttributeError:
     pass
+
+
+if settings.HIJACK_USERS_ENABLED:
+    urlpatterns += [
+        url(r'^control_user/', include('hijack.urls', namespace='hijack')),
+    ]
