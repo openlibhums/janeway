@@ -5,6 +5,8 @@
 
     {% if news_item.large_image_file %}
         <meta name="twitter:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}">
+    {% elif request.journal and request.journal.default_large_image %}
+        {{ request.journal.site_url }}{{ request.journal.default_large_image.url }}
     {% elif request.press.default_carousel_image and request.press.default_carousel_image.url %}
         <meta name="twitter:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{{ request.press.default_carousel_image.url }}">
     {% endif %}
@@ -15,6 +17,8 @@
 
     {% if news_item.large_image_file %}
         <meta property="og:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}" />
+    {% elif request.journal and request.journal.default_large_image %}
+        {{ request.journal.site_url }}{{ request.journal.default_large_image.url }}
     {% elif request.press.default_carousel_image and request.press.default_carousel_image.url %}
         <meta property="og:image" content="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}{{ request.press.default_carousel_image.url }}" />
     {% endif %}
