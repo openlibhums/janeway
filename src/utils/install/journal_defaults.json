@@ -3113,7 +3113,7 @@
             "is_translatable": true,
             "name": "crossref_date_suffix",
             "pretty_name": "Crossref Date Suffix",
-            "type": "rich-text"
+            "type": "text"
         },
         "value": {
             "default": ""
