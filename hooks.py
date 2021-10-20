@@ -2,6 +2,7 @@ from django.template.loader import render_to_string
 
 from plugins.typesetting import models
 
+
 def author_tasks(context):
     request = context['request']
     article = context['article']

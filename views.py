@@ -741,6 +741,9 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
         or file.pk in assignment.round.article.supplementary_files.values_list(
             'file__pk', flat=True,
             )
+        or file.pk in assignment.round.article.galley_set.values_list(
+                'file__pk', flat=True,
+            )
     ):
         return files.serve_any_file(
             request,
@@ -800,6 +803,7 @@ def typesetting_delete_galley(request, galley_id):
             kwargs = {'article_id': article.pk},
         )
     )
+
 
 @decorators.has_journal
 @decorators.typesetter_user_required
@@ -1360,24 +1364,36 @@ def typesetting_proofing_download(request, article_id, assignment_id, file_id):
         return redirect(request.META.get('HTTP_REFERER'))
 
 
-@security.proofreader_for_article_required
+@security.can_preview_typesetting_article
 def preview_figure(
         request,
         galley_id,
         file_name,
         assignment_id=None,
-        article_id=None
+        article_id=None,
 ):
+
     if assignment_id:
-        assignment = get_object_or_404(
-            models.GalleyProofing,
-            pk=assignment_id,
-        )
-        galley = get_object_or_404(
-            core_models.Galley,
-            pk=galley_id,
-            article_id=assignment.round.article.pk,
-        )
+        try:
+            assignment = models.TypesettingAssignment.objects.get(
+                pk=assignment_id,
+                typesetter=request.user,
+            )
+            galley = core_models.Galley.objects.get(
+                pk=galley_id,
+                article_id=assignment.round.article.pk,
+            )
+        except (models.TypesettingAssignment.DoesNotExist, core_models.Galley.DoesNotExist):
+            assignment = get_object_or_404(
+                models.GalleyProofing,
+                pk=assignment_id,
+                proofreader=request.user
+            )
+            galley = get_object_or_404(
+                core_models.Galley,
+                pk=galley_id,
+                article_id=assignment.round.article.pk,
+            )
     elif article_id and request.user.has_an_editor_role(request):
         article = get_object_or_404(
             submission_models.Article,
@@ -1457,7 +1473,6 @@ def mint_supp_doi(request, supp_file_id):
                 messages.INFO,
                 'Minted DOI for supplementary file #%d' % supp_file.pk,
             )
-
 
     return redirect(request.META.get('HTTP_REFERER'))
 

@@ -27,9 +27,9 @@
             <td>{{ galley.file.date_modified|date:"Y-m-d G:i" }}</td>
             <td>
                 <a class="button small" href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_assignment' assignment.pk %}">Edit</a></td>
-            <td>{% if can_view_file_flag %}
-                <a href="{% url 'article_file_download' 'id' article.pk galley.file.pk %}"><i
-                        class="fa fa-download">&nbsp;</i></a>{% endif %}
+            <td>
+                <a href="{% url 'typesetting_typesetter_download_file' assignment.pk galley.file.pk %}"><i
+                        class="fa fa-download">&nbsp;</i></a>
             </td>
             <td>
                 <a href="{% url 'typesetting_preview_galley' article_id=article.pk galley_id=galley.pk assignment_id=assignment.pk %}"
