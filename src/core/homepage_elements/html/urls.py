@@ -9,4 +9,5 @@ from core.homepage_elements.html import views
 urlpatterns = [
     # Featured Articles
     url(r'^$', views.html_settings, name='html_settings'),
+    url(r'^(?P<element_code>.*)/$', views.html_settings, name='html_settings'),
 ]

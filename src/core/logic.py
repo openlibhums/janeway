@@ -836,7 +836,8 @@ def get_homepage_elements(request):
     homepage_elements = models.HomepageElement.objects.filter(
         content_type=request.model_content_type,
         object_id=request.site_type.pk,
-        active=True).order_by('sequence')
+        active=True,
+    ).order_by('sequence')
     homepage_element_names = [el.name for el in homepage_elements]
 
     return homepage_elements, homepage_element_names
