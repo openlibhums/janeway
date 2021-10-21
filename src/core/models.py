@@ -9,6 +9,7 @@ import statistics
 import json
 from datetime import timedelta
 import pytz
+from hijack.signals import hijack_started, hijack_ended
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -1359,3 +1360,48 @@ class SettingValueTranslation(models.Model):
     class Meta:
         managed = False
         db_table = 'core_settingvalue_translation'
+
+
+def log_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
+    from utils import models as utils_models
+    hijacker = Account.objects.get(pk=hijacker_id)
+    hijacked = Account.objects.get(pk=hijacked_id)
+    action = '{} ({}) has hijacked {} ({})'.format(
+        hijacker.full_name,
+        hijacker.pk,
+        hijacked_id,
+        hijacked.pk,
+    )
+
+    utils_models.LogEntry.add_entry(
+        types='Hijack Start',
+        description=action,
+        level='Info',
+        actor=hijacker,
+        request=request,
+        target=hijacked
+    )
+
+
+def log_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
+    from utils import models as utils_models
+    hijacker = Account.objects.get(pk=hijacker_id)
+    hijacked = Account.objects.get(pk=hijacked_id)
+    action = '{} ({}) has hijacked {} ({})'.format(
+        hijacker.full_name,
+        hijacker.pk,
+        hijacked_id,
+        hijacked.pk,
+    )
+
+    utils_models.LogEntry.add_entry(
+        types='Hijack Release',
+        description=action,
+        level='Info',
+        actor=hijacker,
+        request=request,
+        target=hijacked
+    )
+
+hijack_started.connect(log_hijack_started)
+hijack_ended.connect(log_hijack_ended)

@@ -18,7 +18,7 @@ class PluginAdmin(admin.ModelAdmin):
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('types', 'date', 'level', 'actor', 'ip_address', 'is_email', 'target')
+    list_display = ('pk', 'types', 'date', 'level', 'actor', 'ip_address', 'is_email', 'target')
 
 
 class VersionAdmin(admin.ModelAdmin):
