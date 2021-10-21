@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
+import uuid
 from importlib import import_module
 import json
 import pytz
@@ -43,6 +43,8 @@ from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
+
+from core.homepage_elements.html import plugin_settings as html_settings
 
 
 logger = get_logger(__name__)
@@ -1184,25 +1186,48 @@ def settings_home(request):
     # 1. An excluded list of homepage items
     # 2. A list of active homepage items
 
-    active_elements = models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                            object_id=request.site_type.pk, active=True)
-    active_pks = [f.pk for f in active_elements.all()]
+    active_elements = models.HomepageElement.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+        active=True,
+    )
+    non_duplicatable_elements = active_elements.exclude(name='HTML')
+    active_pks = [f.pk for f in non_duplicatable_elements.all()]
 
     if request.press and not request.journal:
-        elements = models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                         object_id=request.site_type.pk,
-                                                         available_to_press=True).exclude(pk__in=active_pks)
+        elements = models.HomepageElement.objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+            available_to_press=True,
+        ).exclude(pk__in=active_pks)
     else:
-        elements = models.HomepageElement.objects.filter(content_type=request.model_content_type,
-                                                         object_id=request.site_type.pk).exclude(pk__in=active_pks)
+        elements = models.HomepageElement.objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        ).exclude(pk__in=active_pks)
 
     if 'add' in request.POST:
         element_id = request.POST.get('add')
-        homepage_element = get_object_or_404(models.HomepageElement, pk=element_id,
-                                             content_type=request.model_content_type, object_id=request.site_type.pk)
+        homepage_element = get_object_or_404(
+            models.HomepageElement,
+            pk=element_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
         if homepage_element.name == 'Carousel' and request.journal and not request.journal.default_large_image:
-            messages.add_message(request, messages.WARNING, 'You cannot enable the carousel until you add a default'
-                                                            'large image file.')
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'You cannot enable the carousel until you add a default large image file.')
+        elif homepage_element.name == 'HTML' and homepage_element.active:
+            homepage_element.pk = None
+            homepage_element.name = "html_{}".format(uuid.uuid4())
+            homepage_element.template_path = 'get_from_context'
+            homepage_element.configure_url = reverse(
+                'html_settings',
+                kwargs={'element_code': homepage_element.name},
+            )
+            new_hpe = homepage_element.save()
         else:
             homepage_element.active = True
             homepage_element.save()
@@ -1211,8 +1236,12 @@ def settings_home(request):
 
     if 'delete' in request.POST:
         element_id = request.POST.get('delete')
-        homepage_element = get_object_or_404(models.HomepageElement, pk=element_id,
-                                             content_type=request.model_content_type, object_id=request.site_type.pk)
+        homepage_element = get_object_or_404(
+            models.HomepageElement,
+            pk=element_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
 
         homepage_element.active = False
         homepage_element.save()

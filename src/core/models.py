@@ -1339,6 +1339,14 @@ class HomepageElement(models.Model):
     def __str__(self):
         return self.name
 
+    def manager_url(self):
+        if self.name.startswith('html_'):
+            return self.configure_url
+        else:
+            return reverse(
+                self.configure_url,
+            )
+
 
 class LoginAttempt(models.Model):
     ip_address = models.GenericIPAddressField()
