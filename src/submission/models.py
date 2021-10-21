@@ -1192,18 +1192,22 @@ class Article(models.Model):
         )
 
     def get_meta_image_path(self):
+        path = None
         if self.meta_image and self.meta_image.url:
-            return self.meta_image.url
+            path = self.meta_image.url
         elif self.large_image_file and self.large_image_file.id:
-            return reverse('article_file_download', kwargs={'identifier_type': 'id',
+            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
                                                             'identifier': self.pk,
                                                             'file_id': self.large_image_file.pk})
         elif self.thumbnail_image_file and self.thumbnail_image_file.id:
-            return reverse('article_file_download', kwargs={'identifier_type': 'id',
+            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
                                                             'identifier': self.pk,
                                                             'file_id': self.thumbnail_image_file.pk})
         elif self.journal.default_large_image:
-            return self.journal.default_large_image.url
+            path = self.journal.default_large_image.url
+
+        if path:
+            return self.journal.site_url(path=path)
         else:
             return ''
 

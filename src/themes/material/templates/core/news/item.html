@@ -4,17 +4,17 @@
 
 {% block title %}{{ journal_settings.news.news_title}} - {{ news_item.title }}{% endblock title %}
 
+{% block head %}
+{% include "elements/social_meta.html" %}
+{% endblock head %}
+
 {% block body %}
     <div class="row">
         <div class="col m12">
             <div class="card">
                 {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                 <div class="card-image">
-                    <img{% if news_item.large_image_file %}
-                        src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
-                    {% else %}
-                        src="{{ request.press.default_carousel_image.url }}"
-                    {% endif %}
+                    <img src="{{ news_item.best_image_url }}"
                         alt="{{ news_item.title }}"/>
                     <span class="card-title">
                       <div class="carousel-text-wrapper">
