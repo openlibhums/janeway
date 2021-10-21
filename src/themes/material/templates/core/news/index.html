@@ -15,14 +15,7 @@
                 <div class="card">
                     {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                     <div class="card-image">
-                        <img{% if item.large_image_file %}
-                                    src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                                {% elif request.journal and request.journal.default_large_image %}
-                                    src="{{ request.journal.default_large_image.url }}"
-                                {% elif request.press.default_carousel_image %}
-                                    src="{{ request.press.default_carousel_image.url }}"
-                                {% endif %}
-                                    alt="{{ item.title }}"/>
+                        <img src="{{ item.best_image_url }}" alt="{{ item.title }}"/>
                         <span class="card-title">
                           <div class="carousel-text-wrapper">
                             {{ item.title }}

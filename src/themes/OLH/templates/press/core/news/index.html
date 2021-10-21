@@ -13,14 +13,8 @@
                 <div class="news-item-block">
                     <div class="row">
                         <div class="large-5 columns">
-                            <a href="{% url 'core_news_item' item.pk %}"><img class="news-image"
-                            {% if item.large_image_file %}
-                                src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                            {% elif request.journal and request.journal.default_large_image %}
-                                 src="{{ request.journal.default_large_image.url }}"
-                            {% else %}
-                                src="{{ request.press.default_carousel_image.url }}"
-                            {% endif %}
+                            <a href="{% url 'core_news_item' item.pk %}">
+                                <img class="news-image" src="{{ item.best_image_url }}"
                                 alt="{{ item.title }}"/></a>
                         </div>
                         <div class="large-7 columns">
