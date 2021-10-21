@@ -11,6 +11,9 @@ from django.conf import settings
 from django.views.static import serve
 
 from press import views as press_views
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 include('events.registration')
 
@@ -36,6 +39,9 @@ except AttributeError:
 
 
 if settings.HIJACK_USERS_ENABLED:
-    urlpatterns += [
-        url(r'^control_user/', include('hijack.urls', namespace='hijack')),
-    ]
+    try:
+        urlpatterns += [
+            url(r'^control_user/', include('hijack.urls', namespace='hijack')),
+        ]
+    except AttributeError:
+        logger.warning('Could not import Hijack URLs.')
