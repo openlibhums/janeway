@@ -119,6 +119,11 @@ def import_from_jats_xml(path, journal, first_author_is_primary=False):
         authors = parse_authors(soup)
         section = get_text(soup, 'subj-group')
 
+        try:
+            pub_date = soup.find('pub-date').get('iso-8601-date')
+        except AttributeError:
+            pub_date = None
+
         section_obj, created = models.Section.objects.get_or_create(name=section, journal=journal)
 
         article = models.Article.objects.create(
@@ -126,6 +131,7 @@ def import_from_jats_xml(path, journal, first_author_is_primary=False):
             abstract=abstract,
             section=section_obj,
             journal=journal,
+            date_published=pub_date,
         )
 
         for author in authors:
