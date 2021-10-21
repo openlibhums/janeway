@@ -1367,9 +1367,9 @@ def log_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
     hijacker = Account.objects.get(pk=hijacker_id)
     hijacked = Account.objects.get(pk=hijacked_id)
     action = '{} ({}) has hijacked {} ({})'.format(
-        hijacker.full_name,
+        hijacker.full_name(),
         hijacker.pk,
-        hijacked_id,
+        hijacked.full_name(),
         hijacked.pk,
     )
 
@@ -1387,10 +1387,10 @@ def log_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
     from utils import models as utils_models
     hijacker = Account.objects.get(pk=hijacker_id)
     hijacked = Account.objects.get(pk=hijacked_id)
-    action = '{} ({}) has hijacked {} ({})'.format(
-        hijacker.full_name,
+    action = '{} ({}) has released {} ({})'.format(
+        hijacker.full_name(),
         hijacker.pk,
-        hijacked_id,
+        hijacked.full_name(),
         hijacked.pk,
     )
 
