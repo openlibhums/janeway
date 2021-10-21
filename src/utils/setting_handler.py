@@ -44,7 +44,6 @@ def create_setting(
                 'is_translatable': is_translatable,
             }
         )
-
         if created and default_value:
             core_models.SettingValue.objects.get_or_create(
                 setting=new_setting,
@@ -187,7 +186,8 @@ def get_plugin_setting(
         journal,
         create=False,
         pretty='',
-        types='Text,'
+        types='Text,',
+        default_value=None,
 ):
     plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
     try:
@@ -207,6 +207,7 @@ def get_plugin_setting(
                 pretty_name=pretty,
                 description='',
                 is_translatable=False,
+                default_value=default_value,
             )
 
             return setting

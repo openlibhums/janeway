@@ -1,10 +1,15 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load dict %}
 
 {% block body %}
 
     {% for element in homepage_elements %}
-        {% include element.template_path %}
+        {% if element.template_path == 'get_from_context' %}
+            {% context_get element.name %}
+        {% elif element.template_path %}
+            {% include element.template_path %}
+        {% endif %}
     {% endfor %}
 
 {% endblock body %}

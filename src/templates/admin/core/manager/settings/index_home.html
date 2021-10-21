@@ -31,7 +31,7 @@
                                             class="fa fa-trash"></i></button>
                                 </div>
                                 <small><i class="fa fa-sort">&nbsp;</i>{{ item.name }} {% if item.has_config %}[
-                                    <a href="{% url item.configure_url %}">configure</a>]{% endif %}</small>
+                                    <a href="{{ item.manager_url }}">configure</a>]{% endif %}</small>
                             </li>
                         {% endfor %}
                     </ul>
