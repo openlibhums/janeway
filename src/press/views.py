@@ -57,8 +57,6 @@ def index(request):
             for k, v in element_context.items():
                 context[k] = v
 
-    print(context)
-
     return render(request, template, context)
 
 
