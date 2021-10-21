@@ -111,7 +111,7 @@ def parse_authors(soup):
     return author_list
 
 
-def import_from_jats_xml(path, journal):
+def import_from_jats_xml(path, journal, first_author_is_primary=False):
     with open(path) as file:
         soup = BeautifulSoup(file, 'lxml-xml')
         title = get_text(soup, 'article-title')
@@ -143,6 +143,15 @@ def import_from_jats_xml(path, journal):
                     institution=author['institution']
                 )
             article.authors.add(author)
+            models.ArticleAuthorOrder.objects.create(
+                article=article,
+                author=author,
+                order=article.next_author_sort()
+            )
+
+        if first_author_is_primary and article.authors.all():
+            article.correspondence_author = article.authors.all().first()
+            article.save()
 
         return article
 
