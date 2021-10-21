@@ -417,12 +417,17 @@ class Account(AbstractBaseUser, PermissionsMixin):
             try:
                 order = article.articleauthororder_set.get(author=self).order
             except submission_models.ArticleAuthorOrder.DoesNotExist:
-                order = article.next_author_sort()
+                order_integer = article.next_author_sort()
+                order_object, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
+                    article=article,
+                    author=self,
+                    defaults={'order': order_integer}
+                )
 
             submission_models.FrozenAuthor.objects.get_or_create(
                 author=self,
                 article=article,
-                defaults=dict(order=order, **frozen_dict)
+                defaults=dict(order=order_object.order, **frozen_dict)
             )
 
     def frozen_author(self, article):
