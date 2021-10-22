@@ -1,8 +1,12 @@
+from itertools import chain
+from operator import attrgetter
+
+from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-
 class Carousel(models.Model):
+    enabled = True
 
     exclude = models.BooleanField(
         help_text=_(
@@ -54,6 +58,51 @@ class Carousel(models.Model):
         default=False,
         help_text="Always include the current issue",
     )
+
+    def get_items(self):
+        import core.logic as core_logic
+        Article = apps.get_model("submission", "Article")
+        Issue = apps.get_model("journal", "Issue")
+        NewsItem = apps.get_model("comms", "NewsItem")
+
+        articles = Article.objects.none()
+        news = NewsItem.objects.none()
+        issues = Issue.objects.none()
+
+        if self.latest_articles:
+            articles |= core_logic.latest_articles(self, 'journal')
+            if self.article_limit > 0:
+                articles = articles[:self.article_limit]
+
+        if self.articles.exists():
+            if self.exclude:
+                articles = articles.difference(self.articles.all())
+            else:
+                articles = chain(self.articles.all(), articles)
+
+        if self.latest_news:
+            news |= core_logic.news_items(self, 'journal')
+            if self.news_limit > 0:
+                news = news[:self.news_limit]
+
+        if self.news_articles.exists():
+            if self.exclude:
+                news = news.difference(self.news_articles.all())
+            else:
+                news = chain(self.news_articles.all(), news)
+
+        if self.issues.exists():
+            if self.exclude:
+                issues = issues.difference(self.issues.all())
+            else:
+                issues = chain(self.issues.all(), issues)
+
+        return sorted(
+            chain(articles, news, issues),
+            key=attrgetter("date_published"),
+            reverse=True,
+        )
+
 
 
 class CarouselObject(models.Model):
