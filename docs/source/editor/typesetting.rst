@@ -173,9 +173,9 @@ After the task is sent out, we just have to wait for the typesetter to complete 
 
 Supplementary Files
 -------------------
-Authors can upload supplementary files to Janeway as part of their submission. If the intention is to host the file on Janeway you can create a Supplementary File object and assign it a DOI. This section is located at the bottom of the Typesetting Article page. If the file isn't already uploaded to Janeway you can opt to upload a new file.
+Authors are able to upload supplementary files to Janeway as part of their submission. If the intention is to host the file on Janeway Editors can create a Supplementary File object and assign it a DOI within Janeway. This section is located at the bottom of the Typesetting Article page. If the file isn't already uploaded to Janeway you can opt to upload a new file.
 
-.. tip:: You should create the supplementary file object in advance of sending the article for typesetting where possible and notify the typesetter (if you use external typesetters).
+.. tip:: You should create the supplementary file object in advance of sending the article for typesetting where possible and notify the typesetter (if you use external typesetters). They will be able to see the file record and the DOI that has been assigned to it.
 
 .. figure:: ../nstatic/typesetting/supp_files.gif
    :class: with-border
