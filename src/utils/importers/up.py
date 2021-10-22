@@ -123,6 +123,10 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         )
         article.license = license_object
 
+    # Import How To Cite
+    how_to_cite = import_how_to_cite(soup_object)
+    if how_to_cite:
+        article.custom_how_to_cite = how_to_cite
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
@@ -220,6 +224,29 @@ def import_article(journal, user, url, thumb_path=None, update=False):
         logger.info("No article metrics found")
 
     return article
+
+
+def import_how_to_cite(soup):
+    """ Extracts the 'How to cite' section of an article
+
+    The text can be found under a span with the class 'span-citation', however
+    this class is used in other contexts. In order to detect the right one,
+    we search for the text "How to Cite:" in sibling elements
+    Example:
+    <div class="authors">
+        <span class="span-how-to"><strong>How to Cite: </strong></span>
+        <span class="span-citation"> [TEXT] </span>
+    </div>
+    """
+    author_divs = soup.find_all("div", class_="authors")
+    if not author_divs:
+        return None
+    for div in author_divs:
+        if div and "How to Cite:" in div.text:
+            span = div.find("span", attrs={"class": "span-citation"})
+            if span and span.text:
+                return str(span)
+    return None
 
 
 def import_oai(journal, user, soup, domain, update=False):
