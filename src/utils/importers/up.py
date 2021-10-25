@@ -131,6 +131,12 @@ def import_article(journal, user, url, thumb_path=None, update=False):
 
     # determine if the article is peer reviewed
     peer_reviewed = soup_object.find(name='a', text='Peer Reviewed') is not None
+    if not peer_reviewed:
+        # Check credit-block if peer reviewed is not a link
+        peer_reviewed = any(
+            "Peer Reviewed" in div.text
+            for div in soup_object.find_all('div', class_="credit-block")
+        )
     logger.debug("Peer reviewed: {0}".format(peer_reviewed))
 
     article.peer_reviewed = peer_reviewed
