@@ -87,7 +87,7 @@
                 </ul>
             </div>
         </section>
-        {% for author in article.authors.all %}
+        {% for author in article.frozen_authors.all %}
             {% if author.biography %}
                 <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
                      data-hover-pane="true">
