@@ -581,8 +581,8 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         journal=article.journal,
         issue=issue,
         volume=volume,
+        issue_type=issue_type,
         defaults={
-            "issue_type": issue_type,
             "date": date_published,
         },
     )
