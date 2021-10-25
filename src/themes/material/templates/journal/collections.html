@@ -16,7 +16,12 @@
                         {% if collection.cover_image or journal.default_cover_image %}
                         <img 
                             class="issue_image"
-                            src="{% if collection.cover_image %}{{ collection.cover_image.url }}{% else %}{{ journal.default_cover_image.url }}{% endif %}"
+                            src="
+                            {% if collection.large_image %}{{ collection.large_image.url }}
+                            {% elif collection.cover_image %}{{ collection.cover_image.url }}
+                            {% else %}
+                            {{ journal.default_cover_image.url }}
+                            {% endif %}"
                             alt="{{ collection.issue_title }}" class="img-fluid"
                             onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
                         >
