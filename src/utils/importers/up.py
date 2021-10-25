@@ -1245,11 +1245,16 @@ def scrape_editorial_team(journal, base_url):
     main_block = soup.find('div', {'class': 'major-floating-block'})
     divs = main_block.find_all('div', {'class': 'col-md-12'})
 
+    cached_group = group = None
+    member_sequence = 0
     for div in divs:
         # Try to grab the headers
         header = div.find('h2')
         header_sequence = 0
         if header:
+            if group != cached_group:
+                member_sequence = 0
+                cached_group = group
             group, c = core_models.EditorialGroup.objects.get_or_create(
                 name=header.text.strip(),
                 journal=journal,
@@ -1258,13 +1263,14 @@ def scrape_editorial_team(journal, base_url):
             header_sequence = header_sequence + 1
         else:
             # look for team group
-            member_sequence = 0
             member_divs = div.find_all('div', {'class': 'col-md-6'})
             for member_div in member_divs:
                 name = member_div.find('h6')
+                print(name, member_sequence)
                 if name and name.text.strip():
                     affiliation = member_div.find('h5')
                     email_link = member_div.find('a', {'class': 'fa-envelope'})
+                    website = member_div.find('a', {'class': 'fa-globe'})
                     department, institution, country = split_affiliation(affiliation.text)
                     first_name, last_name = split_name(name.text.strip())
                     profile_dict = {
@@ -1295,10 +1301,12 @@ def scrape_editorial_team(journal, base_url):
                             account.enable_public_profile = True
                             account.save()
 
-                    core_models.EditorialGroupMember.objects.get_or_create(
+                    core_models.EditorialGroupMember.objects.update_or_create(
                         group=group,
                         user=account,
-                        sequence=member_sequence
+                        defaults=dict(
+                            sequence=member_sequence,
+                        )
                     )
                     member_sequence = member_sequence + 1
 
