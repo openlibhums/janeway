@@ -280,6 +280,9 @@
                                                     <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
                                                 </a>
                                                 {% endif %}
+                                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                                <a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>
+                                                {% endif %}
                                                 {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
                                             </li>
                                         {% endfor %}
