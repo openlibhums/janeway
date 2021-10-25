@@ -103,8 +103,9 @@ def import_article(journal, user, url, thumb_path=None, update=False):
     pattern = re.compile(r'creativecommons')
     license_object = []
     license_tag = soup_object.find(href=pattern) or ''
-    license_object = models.Licence.objects.filter(
-        url=license_tag['href'].replace('http:', 'https:'), journal=journal)
+    if license_tag:
+        license_object = models.Licence.objects.filter(
+            url=license_tag['href'].replace('http:', 'https:'), journal=journal)
 
     if len(license_object) > 0 and license_object[0] is not None:
         license_object = license_object[0]
