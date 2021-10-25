@@ -39,7 +39,7 @@ def get_thumbnails_url(url):
 
     section_filters = ["f=%d" % i for i in range(1,10)]
     flt = "&".join(section_filters)
-    url_to_use = url + '/articles/?' + flt + '&order=date_published&app=100000'
+    url_to_use = url + '/articles/?' + flt + '&order=date_published&app=1000'
     resp, mime = utils_models.ImportCacheEntry.fetch(url=url_to_use)
 
     soup = BeautifulSoup(resp)
@@ -1290,20 +1290,11 @@ def scrape_editorial_team(journal, base_url):
                     profile_dict["username"] = email
                     profile_dict["country"] = country
 
-
-
                     account, c = core_models.Account.objects.get_or_create(
                         email=email,
                         defaults=profile_dict,
                     )
-                    bio_div = member_div.find("div", attrs={"class": "well"})
-                    if bio_div:
-                        bio = bio_div.text.strip()
-                        if not account.biography and bio:
-                            account.biography = bio
-                            account.save()
-                        if bio:
-                            account.enable_public_profile = True
+                    scrape_editorial_bio(member_div, account)
                     if not account.institution or account.institution == " ":
                         if institution:
                             account.institution = institution
@@ -1318,6 +1309,21 @@ def scrape_editorial_team(journal, base_url):
                     )
                     member_sequence = member_sequence + 1
 
+def scrape_editorial_bio(member_div, account):
+    learn_more = [a for a in member_div.find_all("a") if "Learn More" in a.text]
+    if learn_more:
+        learn_more = learn_more[0]
+        bio_div_id = learn_more["id"]
+        bio_ul = member_div.parent.find("ul", attrs={"aria-labelledby": bio_div_id})
+        if bio_ul:
+            bio_div = bio_ul.find("div", attrs={"class": "well"})
+            bio_div.find("h5").decompose()
+            bio = bio_div.text.strip()
+            if not account.biography and bio:
+                account.biography = bio
+            if bio:
+                account.enable_public_profile = True
+                account.save()
 
 # Checking links and rewrite the ones we know about
 # Remove the authorship link
