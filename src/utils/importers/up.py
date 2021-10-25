@@ -1331,7 +1331,8 @@ def scrape_editorial_bio(member_div, account):
 def scrape_policies_page(journal, base_url):
     logger.info("Scraping editorial policies page")
     policy_page_path = '/about/editorialpolicies/'
-    page = requests.get('{}{}'.format(base_url, policy_page_path))
+    url = '{}{}'.format(base_url, policy_page_path)
+    page = requests.get(url)
 
     soup = BeautifulSoup(page.content, 'lxml')
     h2 = soup.find('h2', text=' Peer Review Process')
@@ -1346,6 +1347,13 @@ def scrape_policies_page(journal, base_url):
         'peer_review_info',
         journal,
         peer_review_text,
+    )
+    content = scrape_page(url)
+    create_cms_page(
+        'editorial-policies',
+        'Editorial Policies',
+        str(content),
+        journal,
     )
 
 
