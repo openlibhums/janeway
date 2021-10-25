@@ -1299,10 +1299,11 @@ def scrape_editorial_team(journal, base_url):
                     bio_div = member_div.find("div", attrs={"class": "well"})
                     if bio_div:
                         bio = bio_div.text.strip()
-                        if not account.biography:
+                        if not account.biography and bio:
                             account.biography = bio
-                            account.enable_public_profile = True
                             account.save()
+                        if bio:
+                            account.enable_public_profile = True
                     if not account.institution or account.institution == " ":
                         if institution:
                             account.institution = institution
