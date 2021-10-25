@@ -148,6 +148,22 @@
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
                     <h3>{{ article.title|safe }}</h3>
+                    <div class="section show-for-small-only">
+                        <strong>{% if article.frozen_authors.count > 1 %}
+                            {% trans "Authors" %}
+                            {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}
+                            {% endif %}
+                        </strong>
+                        <ul>
+                        {% for author in article.frozen_authors.all %}
+                        <li>{{ author.full_name }}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
+                            {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
+                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
                 <hr/>
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
