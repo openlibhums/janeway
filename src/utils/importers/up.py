@@ -1284,6 +1284,9 @@ def scrape_editorial_team(journal, base_url):
                         email = email_search.group(0)
                     else:
                         email = generate_dummy_email(profile_dict)
+                    if website:
+                        website_url = website.get('href')
+                        profile_dict["website"] = website_url
                     profile_dict["username"] = email
                     profile_dict["country"] = country
 
@@ -1299,6 +1302,10 @@ def scrape_editorial_team(journal, base_url):
                         if not account.biography:
                             account.biography = bio
                             account.enable_public_profile = True
+                            account.save()
+                    if not account.institution or account.institution == " ":
+                        if institution:
+                            account.institution = institution
                             account.save()
 
                     core_models.EditorialGroupMember.objects.update_or_create(
