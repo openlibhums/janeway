@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
+import datetime
 from itertools import chain
 from operator import itemgetter
 import collections
@@ -451,6 +451,39 @@ class Issue(models.Model):
 
     class Meta:
         ordering = ('order', 'year', 'volume', 'issue', 'title')
+
+    @property
+    def date_published(self):
+        return datetime.datetime(
+            self.date.year, self.date.month, self.date.day,
+            tzinfo=self.date.tzinfo,
+        )
+
+    @property
+    def url(self):
+        if not self.is_serial:
+            path = reverse("journal_issue", kwargs={"issue_id": self.pk})
+        else:
+            path = reverse(
+                "journal_collection", kwargs={"collection_id": self.pk})
+        return self.journal.site_url(path=path)
+
+    @property
+    def carousel_subtitle(self):
+        if not self.is_serial:
+            return self.issue_type.pretty_name
+        if self == self.journal.current_issue:
+            return ugettext("Current Issue")
+        else:
+            return ""
+
+    @property
+    def carousel_title(self):
+        return self.display_title
+
+    @property
+    def carousel_image_resolver(self):
+        return 'news_file_download'
 
     @property
     def is_serial(self):
