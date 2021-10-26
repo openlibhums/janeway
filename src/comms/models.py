@@ -48,6 +48,10 @@ class NewsItem(models.Model):
         return self.object.site_url(path)
 
     @property
+    def date_published(self):
+        return self.posted
+
+    @property
     def carousel_subtitle(self):
         return ""
 
