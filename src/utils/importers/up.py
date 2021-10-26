@@ -1163,7 +1163,8 @@ def import_issue_articles(soup, issue, user, base_url, import_missing=False, upd
             article = import_article(journal,user, base_url + article_url)
 
         if article and article not in processed:
-            import_article(journal,user, base_url + article_url, update=update)
+            article = import_article(
+                journal,user, base_url + article_url, update=update)
             thumb_img = article_link.find("img")
             if thumb_img:
                 thumb_path = thumb_img["src"]
