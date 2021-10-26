@@ -259,6 +259,22 @@ def current_issue(request, show_sidebar=True):
         return redirect(reverse('journal_issues'))
     return issue(request, request.journal.current_issue_id, show_sidebar=show_sidebar)
 
+@has_journal
+@decorators.frontend_enabled
+def volume(request, volume_number, issue_number):
+    """ Redirects to an issue from its issue/volume number combination"""
+    issue = models.Issue.objects.filter(
+        issue=issue_number,
+        volume=volume_number,
+        issue_type__code="issue",
+        journal=request.journal,
+    ).first()
+
+    if issue:
+        return redirect(reverse(
+            'journal_issue', kwargs={'issue_id': issue.pk}
+        ))
+    raise Http404
 
 @has_journal
 @decorators.frontend_enabled
