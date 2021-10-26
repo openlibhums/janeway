@@ -5,7 +5,24 @@ from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+CAROUSEL_MODES = [
+    ('off', _('Off')),
+    ('latest', _('Latest Articles')),
+    ('news', _('Latest News')),
+    ('selected-articles', _('Selected Articles')),
+    ('mixed', _('Latest Articles and News')),
+    ('mixed-selected', _('Selected Articles and News')),
+]
+
+
 class Carousel(models.Model):
+    mode = models.CharField(
+        max_length=200,
+        blank=False,
+        null=False,
+        default='Latest',
+        choices=CAROUSEL_MODES,
+    )
     enabled = True
 
     exclude = models.BooleanField(
@@ -70,7 +87,10 @@ class Carousel(models.Model):
         issues = Issue.objects.none()
 
         if self.latest_articles:
-            articles |= core_logic.latest_articles(self, 'journal')
+            if self.press:
+                articles |= core_logic.latest_articles(self, 'press')
+            elif self.journal:
+                articles |= core_logic.latest_articles(self, 'journal')
             if self.article_limit > 0:
                 articles = articles[:self.article_limit]
 
@@ -81,7 +101,10 @@ class Carousel(models.Model):
                 articles = chain(self.articles.all(), articles)
 
         if self.latest_news:
-            news |= core_logic.news_items(self, 'journal')
+            if self.press:
+                news |= core_logic.news_items(self, 'press')
+            elif self.journal:
+                news |= core_logic.news_items(self, 'journal')
             if self.news_limit > 0:
                 news = news[:self.news_limit]
 
