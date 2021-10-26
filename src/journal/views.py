@@ -232,14 +232,19 @@ def issues(request):
     :param request: the request associated with this call
     :return: a rendered template of all issues
     """
+    issue_type = models.IssueType.objects.get(
+        code="issue",
+        journal=request.journal,
+    )
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
-        issue_type__code='issue',
+        issue_type=issue_type,
         date__lte=timezone.now(),
     )
     template = 'journal/issues.html'
     context = {
         'issues': issue_objects,
+        'issue_type': issue_type,
     }
     return render(request, template, context)
 
