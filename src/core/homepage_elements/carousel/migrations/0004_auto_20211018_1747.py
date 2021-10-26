@@ -5,6 +5,21 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
+def migrate_carousel_mode(apps, schema_editor):
+    Carousel = apps.get_model("carousel", "Carousel")
+    for carousel in Carousel.objects.all():
+        if carousel.mode == "off":
+            carousel.enabled = False
+        elif carousel.mode == "latest":
+            carousel.latest_articles = True
+        elif carousel.mode == "news":
+            carousel.latest_news = True
+        elif carousel.mode == "mixed":
+            carousel.latest_articles = True
+            carousel.latest_news = True
+        carousel.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -13,10 +28,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='carousel',
-            name='mode',
-        ),
         migrations.AddField(
             model_name='carousel',
             name='current_issue',
@@ -42,4 +53,5 @@ class Migration(migrations.Migration):
             name='exclude',
             field=models.BooleanField(default=False, help_text='If enabled, the selectors below will behave as an exclusion list'),
         ),
+        migrations.RunPython(migrate_carousel_mode, migrations.RunPython.noop),
     ]
