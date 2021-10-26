@@ -87,9 +87,9 @@ class Carousel(models.Model):
         issues = Issue.objects.none()
 
         if self.latest_articles:
-            if self.press:
+            if hasattr(self, 'press'):
                 articles |= core_logic.latest_articles(self, 'press')
-            elif self.journal:
+            elif hasattr(self, 'journal'):
                 articles |= core_logic.latest_articles(self, 'journal')
             if self.article_limit > 0:
                 articles = articles[:self.article_limit]
@@ -101,9 +101,9 @@ class Carousel(models.Model):
                 articles = chain(self.articles.all(), articles)
 
         if self.latest_news:
-            if self.press:
+            if hasattr(self, 'press'):
                 news |= core_logic.news_items(self, 'press')
-            elif self.journal:
+            elif hasattr(self, 'journal'):
                 news |= core_logic.news_items(self, 'journal')
             if self.news_limit > 0:
                 news = news[:self.news_limit]
@@ -125,7 +125,6 @@ class Carousel(models.Model):
             key=attrgetter("date_published"),
             reverse=True,
         )
-
 
 
 class CarouselObject(models.Model):
