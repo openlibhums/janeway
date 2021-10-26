@@ -5,10 +5,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from dateutil.relativedelta import relativedelta
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from core.homepage_elements.carousel import models
-from comss import models as comms_models
+from comms import models as comms_models
 from journal import models as journal_models
 from submission import models as sm_models
 from utils.testing.helpers import create_journals
@@ -22,11 +23,13 @@ class TestCarousel(TestCase):
         cls.journal_one, cls.journal_2 = create_journals()
         cls.issue = journal_models.Issue.objects.create(journal=cls.journal_one)
         cls.news_item = comms_models.NewsItem.objects.create(
-            journal=cls.journal_one,
             posted=datetime.datetime.strptime(
                 '2018-06-28 08:15:27.243860', '%Y-%m-%d %H:%M:%S.%f',
             ),
         )
+        cls.news_item.content_type = ContentType.objects.get_for_model(
+            cls.journal_one)
+        cls.news_item.object_id = cls.journal_one.id
         cls.article = sm_models.Article.objects.create(
             journal=cls.journal_one,
             stage=sm_models.STAGE_PUBLISHED,
