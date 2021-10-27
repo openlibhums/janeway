@@ -19,12 +19,7 @@
                         <div class="box collection " data-equalizer-watch>
                             <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
                             <img
-                            src="
-                            {% if collection.large_image %}{{ collection.large_image.url }}
-                            {% elif collection.cover_image %}{{ collection.cover_image.url }}
-                            {% else %}
-                            {{ journal.default_cover_image.url }}
-                            {% endif %}"
+                            src="{{ collection.hero_image_url }}"
                             alt="{{ collection.issue_title }}" class="img-fluid"
                             onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
                             >

@@ -12,7 +12,11 @@
         {% for collection in collections %}
             <div class="col-md-4 row-eq-height">
                 <div class="card" style="width: 20rem;">
-                    <img class="card-img-top img-fluid" src="{% if collection.large_image %}{{ collection.large_image.url }}{% else %}{% static 'common/img/sample/article-small.jpg' %}{% endif %}" alt="Card image cap">
+                    <img
+                        class="card-img-top img-fluid"
+                        src="{{ collection.hero_image_url }}"
+                        alt="{{ collection.issue_title }}"
+                    >
                     <div class="card-block">
                         <a href="{% url 'journal_collection' collection.pk %}">
                             <h4 class="card-title">{{ collection.issue_title }}</h4>

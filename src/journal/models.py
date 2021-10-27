@@ -434,8 +434,18 @@ class Issue(models.Model):
     issue_description = models.TextField(blank=True, null=True)
     short_description = models.CharField(max_length=600, blank=True, null=True)
 
-    cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
+    cover_image = models.ImageField(
+        upload_to=cover_images_upload_path, null=True, blank=True, storage=fs,
+        help_text=ugettext(
+            "Image representing the the cover of a printed issue or volume",
+        )
+    )
+    large_image = models.ImageField(
+        upload_to=issue_large_image_path, null=True, blank=True, storage=fs,
+        help_text=ugettext(
+            "landscape hero image used in the carousel and issue page"
+        )
+    )
 
     # issue articles
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
@@ -451,6 +461,15 @@ class Issue(models.Model):
 
     class Meta:
         ordering = ('order', 'year', 'volume', 'issue', 'title')
+
+    @property
+    def hero_image_url(self):
+        if self.large_image:
+            return self.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        else:
+            return ''
 
     @property
     def date_published(self):
