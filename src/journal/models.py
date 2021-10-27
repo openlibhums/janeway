@@ -459,9 +459,6 @@ class Issue(models.Model):
         through='IssueEditor',
     )
 
-    class Meta:
-        ordering = ('order', 'year', 'volume', 'issue', 'title')
-
     @property
     def hero_image_url(self):
         if self.large_image:
@@ -759,7 +756,11 @@ class Issue(models.Model):
                     )
 
     def __str__(self):
-        return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
+        return (
+            '{self.issue_type.pretty_name}: '
+            '{self.issue}({self.volume}) '
+            '{self.issue_title} ({self.date.year})'.format(self=self)
+        )
 
     class Meta:
         ordering = ("order", "-date")
