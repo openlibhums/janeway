@@ -415,7 +415,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         else:
             try:
-                order = article.articleauthororder_set.get(author=self).order
+                order_object = article.articleauthororder_set.get(author=self)
             except submission_models.ArticleAuthorOrder.DoesNotExist:
                 order_integer = article.next_author_sort()
                 order_object, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
