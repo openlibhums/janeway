@@ -28,7 +28,7 @@ libsass==0.11.1
 lxml==4.6.3
 markdown2
 mock
-mysqlclient==1.3.12
+#mysqlclient==1.3.12
 pdfkit
 Pillow==7.1.0
 psycopg2-binary~=2.8.0

@@ -11,6 +11,7 @@ from django.conf import settings
 from django.views.static import serve
 
 from press import views as press_views
+from core import error_views
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -30,8 +31,8 @@ try:
 
         urlpatterns += [
             url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-            url(r'^404/$', TemplateView.as_view(template_name='404.html')),
-            url(r'^500/$', TemplateView.as_view(template_name='500.html')),
+            url(r'^404/$', error_views.handler404),
+            url(r'^500/$', error_views.handler500),
             url(r'^__debug__/', include(debug_toolbar.urls)),
         ]
 except AttributeError:
@@ -45,3 +46,6 @@ if settings.HIJACK_USERS_ENABLED:
         ]
     except AttributeError:
         logger.warning('Could not import Hijack URLs.')
+
+handler404 = 'core.error_views.handler404'
+handler500 = 'core.error_views.handler500'
