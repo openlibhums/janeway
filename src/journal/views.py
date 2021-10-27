@@ -941,7 +941,7 @@ def publish_article(request, article_id):
     models.FixedPubCheckItems.objects.get_or_create(article=article)
 
     doi_data, doi = logic.get_doi_data(article)
-    issues = request.journal.issues()
+    issues = request.journal.issues
     new_issue_form = issue_forms.NewIssue(journal=article.journal)
     modal = request.GET.get('m', None)
     pubdate_errors = []

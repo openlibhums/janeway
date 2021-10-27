@@ -8,7 +8,10 @@ from security.decorators import editor_user_required
 
 @editor_user_required
 def settings_carousel(request):
-    home_form = forms.CarouselForm(request=request)
+    home_form = forms.CarouselForm(
+        request=request,
+        instance=request.site_type.carousel,
+    )
 
     if request.POST and 'cancel' in request.POST:
         return redirect(reverse('core_manager_index'))
@@ -18,6 +21,7 @@ def settings_carousel(request):
             request.POST,
             request.FILES,
             request=request,
+            instance=request.site_type.carousel,
         )
 
         if home_form.is_valid():
