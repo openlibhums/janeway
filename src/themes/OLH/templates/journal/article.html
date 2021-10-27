@@ -147,7 +147,7 @@
                         <div id="article" class="large-10 columns">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h3>
+                    <h1>{{ article.title|safe }}</h1>
                     <div class="section show-for-small-only">
                         <strong>{% if article.frozen_authors.count > 1 %}
                             {% trans "Authors" %}
