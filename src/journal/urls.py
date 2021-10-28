@@ -68,6 +68,7 @@ urlpatterns = [
     url(r'^collections/(?P<issue_type_code>[a-zA-Z]+)/$', views.collections, name='journal_collections'),
     url(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
+    url(r'^volume/(?P<volume_number>\d+)/issue/(?P<issue_number>\d+)/$', views.volume, name='journal_volume'),
 
     # Article patterns
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/edit/$'

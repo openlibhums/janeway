@@ -3,7 +3,7 @@
 
 {% if issue.large_image %}
     <div class="card">
-        <img class="card-img img-fluid article-img" src="{{ issue.large_image.url }}" alt="{{ issue.display_title }} Cover Image">
+        <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title }} Cover Image">
         <div class="card-img-overlay white-text">
             <div class="card-text">
                 <h4 class="card-title">{{ issue.display_title }}</h4>

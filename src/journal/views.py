@@ -232,14 +232,19 @@ def issues(request):
     :param request: the request associated with this call
     :return: a rendered template of all issues
     """
+    issue_type = models.IssueType.objects.get(
+        code="issue",
+        journal=request.journal,
+    )
     issue_objects = models.Issue.objects.filter(
         journal=request.journal,
-        issue_type__code='issue',
+        issue_type=issue_type,
         date__lte=timezone.now(),
     )
     template = 'journal/issues.html'
     context = {
         'issues': issue_objects,
+        'issue_type': issue_type,
     }
     return render(request, template, context)
 
@@ -259,6 +264,22 @@ def current_issue(request, show_sidebar=True):
         return redirect(reverse('journal_issues'))
     return issue(request, request.journal.current_issue_id, show_sidebar=show_sidebar)
 
+@has_journal
+@decorators.frontend_enabled
+def volume(request, volume_number, issue_number):
+    """ Redirects to an issue from its issue/volume number combination"""
+    issue = models.Issue.objects.filter(
+        issue=issue_number,
+        volume=volume_number,
+        issue_type__code="issue",
+        journal=request.journal,
+    ).first()
+
+    if issue:
+        return redirect(reverse(
+            'journal_issue', kwargs={'issue_id': issue.pk}
+        ))
+    raise Http404
 
 @has_journal
 @decorators.frontend_enabled

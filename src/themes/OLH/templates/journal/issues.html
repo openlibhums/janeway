@@ -12,7 +12,7 @@
     <section id="content">
         <div class="row">
             <div class="large-12 columns">
-                <h1>{% trans 'Issues' %}</h1>
+                <h1>{% trans issue_type.plural_name %}</h1>
             </div>
             {% for issue in issues %}
                 <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
