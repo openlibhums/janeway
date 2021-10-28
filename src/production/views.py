@@ -715,6 +715,7 @@ def do_typeset_task(request, typeset_id):
     article = typeset_task.assignment.article
     galleys = core_models.Galley.objects.filter(article=article)
     form = forms.TypesetterNote(instance=typeset_task)
+    galley_form = forms.GalleyForm()
 
     if request.POST:
 
@@ -743,23 +744,38 @@ def do_typeset_task(request, typeset_id):
 
         new_galley = None
         if 'file' in request.FILES:
-            label = request.POST.get('label')
-            for uploaded_file in request.FILES.getlist('file'):
-                try:
-                    new_galley = logic.save_galley(
-                        article,
-                        request,
-                        uploaded_file,
-                        True,
-                        label=label,
-                    )
-                except UnicodeDecodeError:
-                    messages.add_message(request, messages.ERROR,
-                        "Uploaded file is not UTF-8 encoded")
-                except logic.ZippedGalleyError:
-                    messages.add_message(request, messages.ERROR,
-                        "Galleys must be uploaded individually, not zipped",
-                    )
+            try:
+                galley_form = forms.GalleyForm(request.POST, request.FILES)
+                if 'file' in request.FILES and galley_form.is_valid():
+                    label = galley_form.cleaned_data.get('label')
+                    public = galley_form.cleaned_data.get('public')
+                    for uploaded_file in request.FILES.getlist('file'):
+                        logic.save_galley(
+                            article,
+                            request,
+                            uploaded_file,
+                            True,
+                            label=label,
+                            public=public,
+                        )
+            except TypeError as exc:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    str(exc),
+                )
+            except UnicodeDecodeError:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Uploaded file is not UTF-8 encoded",
+                )
+            except logic.ZippedGalleyError:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Galleys must be uploaded individually, not zipped",
+                )
 
         if 'source' in request.POST:
             for uploaded_file in request.FILES.getlist('source-file'):
@@ -795,6 +811,7 @@ def do_typeset_task(request, typeset_id):
         'copyedit_files': copyedit_files,
         'galleys': galleys,
         'form': form,
+        'galley_form': galley_form,
     }
 
     return render(request, template, context)
