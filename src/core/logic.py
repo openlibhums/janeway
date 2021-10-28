@@ -227,13 +227,6 @@ def get_settings_to_edit(group, journal):
                  journal,
              )
              },
-            {'name': 'display_about_on_submissions',
-             'object': setting_handler.get_setting(
-                 'general',
-                 'display_about_on_submissions',
-                 journal
-             )
-             },
             {'name': 'submission_intro_text',
              'object': setting_handler.get_setting(
                  'general',
