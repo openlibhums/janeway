@@ -229,9 +229,6 @@ LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'core', 'locales')
 ] + plugin_installed_apps.load_plugin_locales(BASE_DIR)
 
-print(LOCALE_PATHS)
-
-
 def ugettext(s):
     return s
 
