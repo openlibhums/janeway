@@ -1200,6 +1200,9 @@ class DomainAlias(AbstractSiteModel):
     def redirect_url(self):
            return self.site_object.site_url()
 
+    def build_redirect_url(self, path=None):
+           return self.site_object.site_url(path=path)
+
     def save(self, *args, **kwargs):
         if not bool(self.journal) ^ bool(self.press):
             raise ValidationError(
