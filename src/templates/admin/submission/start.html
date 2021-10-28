@@ -21,8 +21,7 @@
                 {% include "admin/submission/timeline.html" with data=article %}
 
                 {% if request.journal.submissionconfiguration.publication_fees or request.journal.submissionconfiguration.submission_check or request.journal.submissionconfiguration.copyright_notice %}
-                    <p>{% blocktrans %}In order to submit an article to {{ request.journal.name }} all authors have to agree to the below statements.
-                        Unfortunately, if you do not agree with them you will be unable to proceed with your submission.{% endblocktrans %}</p>
+                    <p>{% trans 'All authors must agree to the below statements in order to submit an article to' %} {{ request.journal.name }}. {% trans 'If you do not agree with these terms you will be unable to proceed with your submission.' %}</p>
                 {% endif %}
 
                 {% if request.journal.submissionconfiguration.publication_fees %}
