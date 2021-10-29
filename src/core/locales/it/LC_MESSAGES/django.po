@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Janeway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-28 10:26+0100\n"
-"Language: cy\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,88 +13,89 @@ msgstr ""
 #, fuzzy, python-brace-format
 #| msgid "Posted by"
 msgid "Posted by {byline}"
-msgstr "Postiwyd gan"
+msgstr "Pubblicato da"
 
 #: src/comms/models.py:88
 #, fuzzy, python-brace-format
 #| msgid "Posted by"
 msgid "Posted by  {byline}"
-msgstr "Postiwyd gan"
+msgstr "Pubblicato da"
 
 #: src/core/forms.py:98
 msgid "Password 1"
-msgstr "Cyfrinair 1"
+msgstr "Password 1"
 
 #: src/core/forms.py:99
 msgid "Password 2"
-msgstr "Cyfrinair 2"
+msgstr "Password 2"
 
 #: src/core/forms.py:117
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:32
 #: src/themes/OLH/templates/press/core/login.html:30
 msgid "Password"
-msgstr "Cyfrinair"
+msgstr "Password"
 
 #: src/core/forms.py:118
 msgid "Repeat Password"
-msgstr "Ailadrodd Cyfrinair"
+msgstr "Ripeti la password"
 
 #: src/core/forms.py:123 src/core/forms.py:451 src/journal/forms.py:54
-#, python-format
+#, fuzzy, python-format
+#| msgid "What is %(num1)i %(operator)s %(num2)i? "
 msgid "What is %(num1)i %(operator)s %(num2)i? "
-msgstr "Beth yw %(num1)i %(operator)s %(num2)i? "
+msgstr "Cos'è % (num1)i% (operatore)s %(num2)i? "
 
 #: src/core/forms.py:124 src/journal/forms.py:55
 msgid "Answer this question: "
-msgstr "Atebwch y cwestiwn hwn: "
+msgstr "Rispondi a questa domanda: "
 
 #: src/core/forms.py:452
 msgid "Anti-spam captcha"
-msgstr "Captcha gwrth-spam "
+msgstr "Captcha anti-spam"
 
 #: src/core/forms.py:485
 msgid "E-mail"
-msgstr "Ebost"
+msgstr "Email"
 
 #: src/core/homepage_elements/about/hooks.py:23
 msgid "About this Journal"
-msgstr "Am y Cyfnodolyn hwn"
+msgstr "Informazioni su questa rivista"
 
 #: src/core/homepage_elements/carousel/models.py:9
 msgid "Off"
-msgstr "Diffodd"
+msgstr "Off"
 
 #: src/core/homepage_elements/carousel/models.py:10
 msgid "Latest Articles"
-msgstr "Erthyglau Diweddaraf"
+msgstr "Articoli recenti"
 
 #: src/core/homepage_elements/carousel/models.py:11
 msgid "Latest News"
-msgstr "Newyddion Diweddaraf"
+msgstr "Ultime notizie"
 
 #: src/core/homepage_elements/carousel/models.py:12
 msgid "Selected Articles"
-msgstr "Erthyglau Dethol"
+msgstr "Articoli selezionati"
 
 #: src/core/homepage_elements/carousel/models.py:13
 msgid "Latest Articles and News"
-msgstr "Erthyglau Diweddaraf a Newyddion"
+msgstr "Ultimi articoli e notizie"
 
 #: src/core/homepage_elements/carousel/models.py:14
 msgid "Selected Articles and News"
-msgstr "Erthyglau Dethol a Newyddion "
+msgstr "Articoli e notizie selezionati"
 
 #: src/core/janeway_global_settings.py:238
 msgid "English"
-msgstr "Saesneg"
+msgstr "inglese"
 
 #: src/core/janeway_global_settings.py:239
 msgid "French"
-msgstr "Ffrangeg"
+msgstr "francese"
 
 #: src/core/janeway_global_settings.py:240
 msgid "German"
-msgstr "Almaeneg "
+msgstr "tedesco"
 
 #: src/core/janeway_global_settings.py:241
 msgid "Dutch"
@@ -102,7 +103,7 @@ msgstr ""
 
 #: src/core/janeway_global_settings.py:242
 msgid "Welsh"
-msgstr "Cymraeg "
+msgstr "Gallese"
 
 #: src/core/models.py:188 src/templates/admin/submission/submit_authors.html:65
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:26
@@ -112,53 +113,53 @@ msgstr "Cymraeg "
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:16
 #: src/themes/material/templates/core/accounts/get_reset_token.html:18
 msgid "Email"
-msgstr "Ebost"
+msgstr "Email"
 
 #: src/core/models.py:189
 msgid "Username"
-msgstr "Enw Defnyddiwr"
+msgstr "Nome utente"
 
 #: src/core/models.py:191
 msgid "First name"
-msgstr "Enw Cyntaf"
+msgstr "Nome"
 
 #: src/core/models.py:192
 msgid "Middle name"
-msgstr "Enw Canol"
+msgstr "Secondo nome"
 
 #: src/core/models.py:193
 msgid "Last name"
-msgstr "Cyfenw"
+msgstr "Cognome"
 
 #: src/core/models.py:197
 msgid "Salutation"
-msgstr "Cyfarchiad "
+msgstr "Titolo"
 
 #: src/core/models.py:198
 #: src/themes/OLH/templates/core/accounts/public_profile.html:19
 #: src/themes/clean/templates/core/accounts/public_profile.html:19
 #: src/themes/material/templates/core/accounts/public_profile.html:19
 msgid "Biography"
-msgstr "Bywgraffiad "
+msgstr "Biografia"
 
 #: src/core/models.py:199 src/submission/models.py:1433
 msgid "ORCiD"
-msgstr "ORCiD"
+msgstr "ORCID"
 
 #: src/core/models.py:200
 msgid "Institution"
-msgstr "Sefydliad"
+msgstr "Istituzione"
 
 #: src/core/models.py:201
 msgid "Department"
-msgstr "Adran"
+msgstr "Dipartimento"
 
 #: src/core/models.py:213
 #: src/themes/OLH/templates/core/accounts/public_profile.html:15
 #: src/themes/clean/templates/core/accounts/public_profile.html:15
 #: src/themes/material/templates/core/accounts/public_profile.html:15
 msgid "Country"
-msgstr "Gwlad"
+msgstr "Nazione"
 
 #: src/core/models.py:702 src/core/models.py:853
 #: src/templates/admin/submission/submit_files.html:42
@@ -170,23 +171,23 @@ msgstr "Gwlad"
 #: src/themes/OLH/templates/preprints/submit_files.html:38
 #: src/themes/OLH/templates/preprints/submit_files.html:74
 msgid "Label"
-msgstr "Label"
+msgstr "Etichetta"
 
 #: src/core/models.py:703 src/core/models.py:854
 msgid "Description"
-msgstr "Disgrifiad"
+msgstr "Descrizione"
 
 #: src/core/models.py:1173
 msgid "Your contact email address"
-msgstr "Eich cyfeiriad ebost cyswllt "
+msgstr "Il tuo indirizzo email"
 
 #: src/core/models.py:1174
 msgid "Subject"
-msgstr "Pwnc"
+msgstr "Argomento"
 
 #: src/core/models.py:1175
 msgid "Your message"
-msgstr "Eich neges"
+msgstr "Il tuo messaggio"
 
 #: src/core/validators.py:15
 #, python-brace-format
@@ -194,7 +195,7 @@ msgid ""
 "Extension {extension} is not allowed. Allowed extensions are: {validator."
 "extensions}"
 msgstr ""
-"Ni chaniateir yr estyniad {extension}. Yr estyniadau a ganiateir yw: "
+"L'estensione {extension} non è consentita. Le estensioni consentite sono: "
 "{validator.extensions}"
 
 #: src/core/validators.py:17
@@ -202,7 +203,7 @@ msgstr ""
 msgid ""
 "MIME type {mimetype} is not valid. Valid types are: {validator.mimetypes}"
 msgstr ""
-"Nid yw math MIME {mimetype} yn ddilys. Y mathau dilys yw: {validator."
+"Il tipo MIME {mimetype} non è valido. I tipi validi sono: {validator."
 "mimetypes}"
 
 #: src/core/views.py:1794
@@ -245,7 +246,7 @@ msgstr ""
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:8
 #: src/themes/material/templates/journal/issue.html:8
 msgid "Issue"
-msgstr "Rhifyn"
+msgstr "Pubblicazione"
 
 #: src/journal/models.py:985
 msgid "Please add as much detail as you can."
@@ -253,92 +254,94 @@ msgstr ""
 
 #: src/journal/views.py:680
 msgid "No file uploaded"
-msgstr "Dim ffeil wedi’i huwchlwytho"
+msgstr "Nessun file caricato"
 
 #: src/journal/views.py:937
 msgid "Your article must have a section assigned."
-msgstr "Rhaid i’ch erthygl fod ag adran wedi’i neilltuo."
+msgstr "L'articolo deve essere assegnato ad una sezione."
 
 #: src/journal/views.py:1052
 msgid "Article set for publication."
-msgstr "Erthygl wedi’i gosod ar gyfer cyhoeddi."
+msgstr "Articolo pronto per la pubblicazione."
 
 #: src/journal/views.py:1305
 msgid "You cannot move the first section up the order list"
-msgstr "Ni allwch symud yr adran gyntaf i fyny’r rhestr "
+msgstr "Non puoi spostare la prima sezione più in su nell'ordine"
 
 #: src/journal/views.py:1337
 msgid "You cannot move the last section down the order list"
-msgstr "Ni allwch symud yr adran olaf i lawr y rhestr "
+msgstr "Non puoi spostare l'ultima sezione più in giù nell'ordine"
 
 #: src/journal/views.py:1344
 msgid "This page accepts post requests only."
-msgstr "Mae’r dudalen hon yn derbyn ceisiadau post yn unig."
+msgstr "Questa pagina accetta solo richieste di post."
 
 #: src/journal/views.py:1373
 msgid "Articles without a section cannot be added to an issue."
-msgstr "Ni ellir ychwanegu erthyglau heb adran i rifyn."
+msgstr ""
+"Gli articoli senza una sezione non possono essere aggiunti ad una "
+"pubblicazione."
 
 #: src/journal/views.py:1417
 msgid "User is already a guest editor."
-msgstr "Mae’r defnyddiwr eisoes yn olygydd gwadd."
+msgstr "L'utente è già un guest editor."
 
 #: src/journal/views.py:1423
 msgid "This user is not a member of this journal."
-msgstr "Nid yw’r defnyddiwr hwn yn aelod o’r cyfnodolyn hwn."
+msgstr "L'utente non è un membro di questa rivista."
 
 #: src/journal/views.py:1469
 msgid "Editor removed from Issue."
-msgstr "Tynnwyd y Golygydd o’r Rhifyn."
+msgstr "L'editore è stato rimosso da questa pubblicazione."
 
 #: src/journal/views.py:1475
 msgid "Issue Editor not found."
-msgstr "Ni chanfuwyd Golygydd y Rhifyn."
+msgstr "Editore della pubblicazione non trovato."
 
 #: src/journal/views.py:1481
 msgid "No Issue Editor ID supplied."
-msgstr "Ni chyflenwyd ID Golygydd y Rhifyn."
+msgstr "ID dell'editore della pubblicazione non fornito."
 
 #: src/journal/views.py:1625
 msgid "Uploaded file is not UTF-8 encoded"
-msgstr "Nid yw’r ffeil a uwchlwythwyd wedi amgodio UTF-8 "
+msgstr "Il file caricato non è codificato in UTF-8"
 
 #: src/journal/views.py:1712
 msgid ""
 "You must login before you can become a reviewer. Click the button below to "
 "login."
 msgstr ""
-"Rhaid mewngofnodi cyn gallu dod yn adolygydd. Cliciwch y botwm isod i "
-"fewngofnodi."
+"È necessario accedere prima di poter diventare un revisore. Fai clic sul "
+"pulsante qui sotto per accedere."
 
 #: src/journal/views.py:1717
 msgid ""
 "You are not yet a reviewer for this journal. Click the button below to "
 "become a reviewer."
 msgstr ""
-"Nid ydych yn un o adolygwyr y cyfnodolyn hwn eto. Cliciwch y botwm isod i "
-"ddod yn adolygydd."
+"Non sei ancora un revisore per questa rivista. Fai clic sul pulsante qui "
+"sotto per diventare un revisore."
 
 #: src/journal/views.py:1722
 msgid "You are already a reviewer."
-msgstr "Rydych eisoes yn adolygydd."
+msgstr "Sei già un revisore."
 
 #: src/journal/views.py:1729
 msgid "You are now a reviewer"
-msgstr "Rydych bellach yn adolygydd"
+msgstr "Ora sei un revisore"
 
 #: src/journal/views.py:1769
 msgid "Your message has been sent."
-msgstr "Anfonwyd eich neges."
+msgstr "Il tuo messaggio è stato inviato."
 
 #: src/journal/views.py:2144 src/journal/views.py:2161
 #: src/journal/views.py:2171
 msgid "Production file uploaded."
-msgstr "Uwchlwythwyd y ffeil cynhyrchu."
+msgstr "File per la produzione caricato."
 
 #: src/journal/views.py:2181
 msgid "Proofing file uploaded."
-msgstr "Uwchlwythwyd y ffeil prawf ddarllen"
+msgstr "File caricato per la correzione."
 
 #: src/preprint/forms.py:19 src/submission/forms.py:77
 #: src/templates/admin/core/manager/sections/section_articles.html:30
@@ -351,25 +354,25 @@ msgstr "Uwchlwythwyd y ffeil prawf ddarllen"
 #: src/themes/material/templates/journal/articles.html:90
 #: src/themes/material/templates/preprints/list.html:78
 msgid "Title"
-msgstr "Teitl"
+msgstr "Titolo"
 
 #: src/preprint/forms.py:20 src/submission/forms.py:78
 #: src/templates/admin/submission/submit_review.html:31
 #: src/themes/OLH/templates/preprints/review.html:26
 msgid "Subtitle"
-msgstr "Isdeitl"
+msgstr "Sottotitolo"
 
 #: src/preprint/forms.py:22 src/submission/forms.py:81
 msgid "Enter your article's abstract here"
-msgstr "Rhowch grynodeb eich erthygl yma "
+msgstr "Inserisci l'abstract del tuo articolo qui"
 
 #: src/submission/decorators.py:20
 msgid "This page can only be accessed on Journals."
-msgstr "Dim ond ar ‘Cyfnodolion’ y gellir cyrchu’r dudalen hon."
+msgstr "Questa pagina è accessibile solo tramite Riviste."
 
 #: src/submission/decorators.py:28
 msgid "Submission is disabled for this journal."
-msgstr "Analluogwyd cyflwyno i’r cyfnodolyn hwn."
+msgstr "L'invio di contributi non è consentito per questa rivista."
 
 #: src/submission/forms.py:293
 #, python-format
@@ -383,11 +386,12 @@ msgstr ""
 
 #: src/submission/models.py:386
 msgid "Your article title"
-msgstr "Teitl eich erthygl"
+msgstr "Il titolo dell'articolo"
 
 #: src/submission/models.py:388
 msgid "Subtitle of the article display format; Title: Subtitle"
-msgstr "Fformat arddangos isdeitl yr erthygl; Teitl: Isdeitl "
+msgstr ""
+"Sottotitoli del formato di visualizzazione dell'articolo; Titolo: sottotitolo"
 
 #: src/submission/models.py:392
 msgid ""
@@ -395,13 +399,14 @@ msgid ""
 "styling to the abstract. You can retype the abstract here or copy and paste "
 "it into notepad/a plain text editor before pasting here."
 msgstr ""
-"Osgowch ludo cynnwys o broseswyr geiriau gan eu bod yn gallu ychwanegu gwedd "
-"ddieisiau i’r crynodeb. Gallwch aildeipio’r crynodeb yma neu ei ludo i "
-"notepad/golygydd testun plaen cyn gludo yma."
+"Evita di incollare contenuti da elaboratori di testi in quanto possono "
+"aggiungere una formattazione indesiderato all'abstract. Puoi ridigitare "
+"l'abstract qui o copiarlo e incollarlo in un blocco note/un editor di testo "
+"prima di incollarlo qui."
 
 #: src/submission/models.py:404
 msgid "The primary language of the article"
-msgstr "Prif iaith yr erthygl"
+msgstr "La lingua principale dell'articolo"
 
 #: src/submission/models.py:465
 msgid "Custom page range. e.g.: 'I-VII' or 1-3,4-8"
@@ -425,7 +430,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Author Name"
 msgid "Author Email"
-msgstr "Enw Awdur "
+msgstr "Nome dell'autore"
 
 #: src/submission/models.py:1434
 msgid ""
@@ -442,54 +447,57 @@ msgstr ""
 #: src/submission/models.py:1728
 #: src/templates/admin/submission/submit_files.html:70
 msgid "Figures and Data Files"
-msgstr "Ffeiliau Ffigurau a Data "
+msgstr "Figure e file di dati"
 
 #: src/submission/models.py:1735
 msgid "The default license applied when no option is presented"
-msgstr "Defnyddir y drwydded ddiofyn pan na chyflwynir opsiwn "
+msgstr ""
+"La licenza predefinita applicata quando non viene presentata alcuna opzione"
 
 #: src/submission/models.py:1742
 msgid "The default language of articles when lang is hidden"
-msgstr "Iaith ddiofyn yr erthyglau pan fydd yr iaith ynghudd "
+msgstr "La lingua predefinita degli articoli quando la lingua è nascosta"
 
 #: src/submission/models.py:1748
 msgid "The default section of articles when no option is presented"
-msgstr "Adran ddiofyn yr erthyglau pan na chyflwynir opsiwn "
+msgstr ""
+"La sezione predefinita degli articoli quando non viene selezionata alcuna "
+"opzione"
 
 #: src/submission/views.py:241 src/submission/views.py:276
 #: src/submission/views.py:301
 #, python-brace-format
 msgid "{author_name} added to the article."
-msgstr "Ychwanegwyd {author_name} at yr erthygl."
+msgstr "{author_name} aggiunto all'articolo."
 
 #: src/submission/views.py:269
 msgid "Errors found in the new author form"
-msgstr "Canfuwyd gwallau yn y ffurflen awdur newydd "
+msgstr "Errori trovati nel modulo per il nuovo autore"
 
 #: src/submission/views.py:290
 msgid "An empty search is not allowed."
-msgstr "Ni chaniateir chwiliad gwag."
+msgstr "Ricerca vuota non consentita."
 
 #: src/submission/views.py:308
 msgid "No author found with those details."
-msgstr "Ni chanfuwyd awdur gyda’r manylion hyn."
+msgstr "Nessun autore trovato con quei dettagli."
 
 #: src/submission/views.py:318
 msgid "You must select a main author."
-msgstr "Rhaid dewis prif awdur."
+msgstr "Devi selezionare un autore principale."
 
 #: src/submission/views.py:427
 msgid "File deleted"
-msgstr "Dilëwyd y ffeil"
+msgstr "File eliminato"
 
 #: src/submission/views.py:524
 #, python-brace-format
 msgid "Article {title} submitted"
-msgstr "Cyflwynwyd erthygl {title} "
+msgstr "L'articolo {title} è stato inviato"
 
 #: src/submission/views.py:616
 msgid "Metadata updated."
-msgstr "Diweddarwyd metadata."
+msgstr "Metadati aggiornati."
 
 #: src/submission/views.py:628
 msgid "Primary author set."
@@ -498,58 +506,58 @@ msgstr ""
 #: src/submission/views.py:645
 #, python-brace-format
 msgid "Author {author_name} updated."
-msgstr "Diweddarwyd awdur {author_name}."
+msgstr "Autore {author_name} aggiornato."
 
 #: src/submission/views.py:663
 msgid "Frozen Author deleted."
-msgstr "Dilëwyd Awdur rhewedig."
+msgstr "Autore Bloccato eliminato."
 
 #: src/submission/views.py:776
 msgid "License saved."
-msgstr "Trwydded wedi’i chadw."
+msgstr "Licenza salvata."
 
 #: src/submission/views.py:821
 #, python-brace-format
 msgid "License {license_name} deleted."
-msgstr "Dilëwyd trwydded {license_name}."
+msgstr "Licenza {license_name} eliminata."
 
 #: src/submission/views.py:857
 msgid "Configuration updated."
-msgstr "Diweddarwyd ffurfweddiad."
+msgstr "Configurazione aggiornata."
 
 #: src/templates/admin/cms/submission_item_form.html:15
 #: src/templates/admin/cms/submission_item_form.html:22
 #, fuzzy
 #| msgid "Edit Submissions Page"
 msgid "Editing Submission Page Item"
-msgstr "Golygu Tudalen y Cyflwyniad"
+msgstr "Modifica la pagina per le proposte"
 
 #: src/templates/admin/cms/submission_item_form.html:15
 #: src/templates/admin/cms/submission_item_form.html:22
 #, fuzzy
 #| msgid "Edit Submissions Page"
 msgid "Add a Submission Page Item"
-msgstr "Golygu Tudalen y Cyflwyniad"
+msgstr "Modifica la pagina per le proposte"
 
 #: src/templates/admin/cms/submission_item_list.html:58
 #, fuzzy
 #| msgid "Sections submission information"
 msgid "No submission items found"
-msgstr "Gwybodaeth cyflwyno adrannau "
+msgstr "Informazione per l'invio delle sezioni"
 
 #: src/templates/admin/core/manager/sections/manage_section.html:15
 #: src/templates/admin/core/manager/sections/manage_section.html:22
 #, fuzzy
 #| msgid "Section"
 msgid "Editing Section"
-msgstr "Adran"
+msgstr "Sezione"
 
 #: src/templates/admin/core/manager/sections/manage_section.html:15
 #: src/templates/admin/core/manager/sections/manage_section.html:22
 #, fuzzy
 #| msgid "Section"
 msgid "Add a Section"
-msgstr "Adran"
+msgstr "Sezione"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:6
 #: src/templates/admin/core/manager/sections/section_articles.html:7
@@ -558,7 +566,7 @@ msgstr "Adran"
 #: src/themes/OLH/templates/elements/section_block.html:1
 #: src/themes/clean/templates/elements/sections_block.html:1
 msgid "Sections"
-msgstr "Adrannau "
+msgstr "Sezioni"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:11
 #: src/themes/OLH/templates/core/nav.html:57
@@ -571,7 +579,7 @@ msgstr "Adrannau "
 #: src/themes/material/templates/press/nav.html:74
 #: src/themes/material/templates/press/nav.html:85
 msgid "Manager"
-msgstr "Rheolwr"
+msgstr "Manager"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:13
 #: src/templates/admin/core/manager/sections/section_articles.html:20
@@ -589,7 +597,7 @@ msgstr "Rheolwr"
 #: src/themes/material/templates/journal/articles.html:13
 #: src/themes/material/templates/journal/search.html:19
 msgid "Articles"
-msgstr "Erthyglau"
+msgstr "Articoli"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:21
 msgid "Back"
@@ -603,13 +611,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Articles that use this keyword are listed below."
 msgid "section are listed below."
-msgstr "Rhestrir yr erthyglau sy’n defnyddio’r gair allweddol hwn isod."
+msgstr "Gli articoli che utilizzano questa parola chiave sono elencati sotto."
 
 #: src/templates/admin/core/manager/sections/section_articles.html:31
 #, fuzzy
 #| msgid "Submitted"
 msgid "D/T Submitted"
-msgstr "Cyflwynwyd"
+msgstr "Inviato"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:32
 msgid "Stage"
@@ -619,26 +627,26 @@ msgstr ""
 #, fuzzy
 #| msgid "Author"
 msgid "Main Author"
-msgstr "Awdur"
+msgstr "Autore"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:34
 #: src/themes/OLH/templates/preprints/list.html:76
 #: src/themes/material/templates/press/nav.html:101
 #: src/themes/material/templates/press/nav.html:110
 msgid "Editors"
-msgstr "Golygyddion"
+msgstr "Editori"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:35
 #, fuzzy
 #| msgid "Article Files"
 msgid "Article Archive"
-msgstr "Ffeiliau Erthygl"
+msgstr "File degli articoli"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:50
 #, fuzzy
 #| msgid "This journal has no issues"
 msgid "This section has no articles."
-msgstr "Nid oes gan y cyfnodolyn hwn unrhyw rifynnau"
+msgstr "Questa rivista non ha pubblicazioni"
 
 #: src/templates/admin/core/manager/sections/section_list.html:26
 msgid ""
@@ -742,7 +750,7 @@ msgstr ""
 #: src/templates/admin/elements/fundref/fundref.html:111
 #: src/templates/admin/submission/submit_funding.html:93
 msgid "Funder"
-msgstr "Cyllidwr "
+msgstr "Finanziatore"
 
 #: src/templates/admin/elements/fundref/fundref.html:59
 #: src/templates/admin/elements/fundref/fundref.html:79
@@ -750,31 +758,31 @@ msgstr "Cyllidwr "
 #: src/templates/admin/submission/submit_funding.html:85
 #: src/templates/admin/submission/submit_funding.html:108
 msgid "Add funder"
-msgstr "Ychwanegu cyllidwr"
+msgstr "Aggiungi finanziatore"
 
 #: src/templates/admin/elements/fundref/fundref.html:134
 msgid "Funder DOI (optional)"
-msgstr "DOI Cyllidwr (dewisol)"
+msgstr "Finanziatore DOI (facoltativo)"
 
 #: src/templates/admin/elements/fundref/fundref.html:155
 msgid "Funder grant number (optional)"
-msgstr "Rhif grant cyllidwr (dewisol)"
+msgstr "Numero del finanziamento (facoltativo)"
 
 #: src/templates/admin/elements/publisher_notes.html:34
 msgid "Add A Publisher Note"
-msgstr "Ychwanegu Nodyn Cyhoeddwr"
+msgstr "Aggiungi un commento editoriale"
 
 #: src/templates/admin/elements/publisher_notes.html:43
 msgid "Add Publisher Note"
-msgstr "Ychwanegu Nodyn Cyhoeddwr"
+msgstr "Aggiungi un commento editoriale"
 
 #: src/templates/admin/elements/publisher_notes.html:54
 msgid "Edit A Publisher Note"
-msgstr "Golygu Nodyn Cyhoeddwr"
+msgstr "Modifica un commento editoriale"
 
 #: src/templates/admin/elements/publisher_notes.html:63
 msgid "Save Publisher Note"
-msgstr "Cadw Nodyn Cyhoeddwr"
+msgstr "Salva il commento editoriale"
 
 #: src/templates/admin/elements/submit/author.html:8
 #: src/templates/admin/submission/submit_authors.html:49
@@ -782,18 +790,18 @@ msgstr "Cadw Nodyn Cyhoeddwr"
 #: src/themes/OLH/templates/preprints/authors.html:42
 #: src/themes/OLH/templates/preprints/authors.html:44
 msgid "Add New Author"
-msgstr "Ychwanegu Awdur Newydd"
+msgstr "Aggiungi un nuovo autore"
 
 #: src/templates/admin/elements/submit/author.html:64
 #: src/themes/OLH/templates/elements/submit/author.html:64
 msgid "Add Author"
-msgstr "Ychwanegu Awdur"
+msgstr "Aggiungi un autore"
 
 #: src/templates/admin/elements/submit/file.html:7
 #: src/themes/OLH/templates/elements/submit/file.html:6
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:6
 msgid "Add New File"
-msgstr "Ychwanegu Ffeil Newydd"
+msgstr "Aggiungi un nuovo file"
 
 #: src/templates/admin/elements/submit/file.html:12
 #: src/themes/OLH/templates/elements/submit/file.html:8
@@ -802,9 +810,11 @@ msgid ""
 "journal urges you to submit this document to a repository such as Figshare "
 "so that a DOI can be assigned to it, but this is not required."
 msgstr ""
-"Darparwch unrhyw ffeiliau ffigur gwreiddiol neu wybodaeth ategol. Mae’r "
-"cyfnodolyn yn eich annog i gyflwyno’r ddogfen hon i ystorfa fel Figshare er "
-"mwyn neilltuo DOI iddi, ond nid yw hyn yn orfodol."
+"Si prega di fornire i figure files originali o informazione di supporto. La "
+"rivista ti esorta a salvare questo documento su un repository come Figshare "
+"in modo che gli possa essere assegnato un DOI, ma questo non è "
+"obbligatorio.\n"
+"."
 
 #: src/templates/admin/elements/submit/file.html:15
 #: src/themes/OLH/templates/elements/submit/file.html:11
@@ -813,9 +823,9 @@ msgid ""
 "format. LaTeX may be accepted later in the process but a simple, readable "
 "file is required at this stage."
 msgstr ""
-"Uwchlwythwch ffeil eich llawysgrif, a ddylai fod ar fformat PDF, RTF, ODT "
-"neu DOC/X. Gellir derbyn LaTeX yn hwyrach yn y broses, ond mae angen ffeil "
-"syml, ddarllenadwy ar y cam hwn."
+"Si prega di caricare il file manoscritto, dovrebbe essere in formato PDF, "
+"RTF, ODT o DOC/X. LaTeX può essere accettato più avanti nel processo, ma in "
+"questa fase è richiesto un file semplice e leggibile."
 
 #: src/templates/admin/elements/submit/file.html:17
 #: src/themes/OLH/templates/elements/submit/file.html:13
@@ -824,21 +834,21 @@ msgid ""
 "format. LaTeX may be accepted later in the process but a simple, readable "
 "file is required at this stage."
 msgstr ""
-"Uwchlwythwch ffeil eich llawysgrif, a ddylai fod ar fformat PDF, RTF, ODT "
-"neu DOC/X. Gellir derbyn LaTeX yn hwyrach yn y broses, ond mae angen ffeil "
-"syml, ddarllenadwy ar y cam hwn."
+"Si prega di caricare il file manoscritto, dovrebbe essere in formato RTF, "
+"ODT o DOC / X. LaTeX può essere accettata più avanti nel processo, ma in "
+"questa fase è richiesto un file semplice e leggibile."
 
 #: src/templates/admin/elements/submit/file.html:61
 #: src/themes/OLH/templates/elements/submit/file.html:25
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:25
 msgid "Add File"
-msgstr "Ychwanegu Ffeil"
+msgstr "Aggiungi file"
 
 #: src/templates/admin/journal/submissions.html:28
 #: src/themes/OLH/templates/journal/submissions.html:24
 #: src/themes/material/templates/journal/submissions.html:27
 msgid "Submission is currently disabled for this journal."
-msgstr "Cyflwyno wedi’i analluogi ar gyfer y cyfnodolyn hwn ar hyn o bryd."
+msgstr "L'invio di proposte non è al momento consentito per questa rivista."
 
 #: src/templates/admin/journal/submissions.html:34
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:48
@@ -863,7 +873,7 @@ msgstr "Cyflwyno wedi’i analluogi ar gyfer y cyfnodolyn hwn ar hyn o bryd."
 #: src/themes/material/templates/press/nav.html:40
 #: src/themes/material/templates/press/nav.html:64
 msgid "Register"
-msgstr "Cofrestru "
+msgstr "Iscrizione"
 
 #: src/templates/admin/journal/submissions.html:35
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:28
@@ -890,7 +900,7 @@ msgstr "Cofrestru "
 #: src/themes/material/templates/press/nav.html:39
 #: src/themes/material/templates/press/nav.html:63
 msgid "Login"
-msgstr "Mewngofnodi"
+msgstr "Accesso"
 
 #: src/templates/admin/journal/submissions.html:36
 #: src/templates/admin/submission/start.html:84
@@ -901,7 +911,7 @@ msgstr "Mewngofnodi"
 #: src/themes/clean/templates/journal/submissions.html:16
 #: src/themes/material/templates/journal/submissions.html:35
 msgid "Start Submission"
-msgstr "Dechrau Cyflwyniad"
+msgstr "Inizia la proposta"
 
 #: src/templates/admin/journal/submissions.html:41
 #: src/themes/OLH/templates/preprints/about.html:15
@@ -910,58 +920,58 @@ msgstr "Dechrau Cyflwyniad"
 #: src/themes/material/templates/press/nav.html:99
 #: src/themes/material/templates/press/nav.html:108
 msgid "About"
-msgstr "Gwybodaeth am"
+msgstr "Info"
 
 #: src/templates/admin/journal/submissions.html:46
 msgid "Focus and Scope for"
-msgstr "Ffocws a Chwmpas"
+msgstr "Focus e ambito per"
 
 #: src/templates/admin/journal/submissions.html:51
 #: src/templates/admin/submission/start.html:43
 msgid "Submission Checklist"
-msgstr "Rhestr Wirio Cyflwyniad"
+msgstr "Checklist per la proposta"
 
 #: src/templates/admin/journal/submissions.html:56
 msgid "Acceptance Criteria"
-msgstr "Meini Prawf Derbyn"
+msgstr "Criteri per l'accettazione"
 
 #: src/templates/admin/journal/submissions.html:61
 #: src/templates/admin/submission/start.html:55
 msgid "Copyright Notice"
-msgstr "Hysbysiad Hawlfraint"
+msgstr "Avviso sul copyright"
 
 #: src/templates/admin/journal/submissions.html:65
 #: src/themes/OLH/templates/journal/submissions.html:39
 msgid "Licences"
-msgstr "Trwyddedau"
+msgstr "Licenze"
 
 #: src/templates/admin/journal/submissions.html:66
 #: src/themes/OLH/templates/journal/submissions.html:40
 #: src/themes/clean/templates/journal/submissions.html:24
 #: src/themes/material/templates/journal/submissions.html:45
 msgid "allows the following licences for submission"
-msgstr "yn caniatáu’r trwyddedau canlynol i’r cyflwyniad"
+msgstr "consente le seguenti licenze per l'invio"
 
 #: src/templates/admin/journal/submissions.html:70
 #: src/templates/admin/submission/start.html:30
 msgid "Publication Fees"
-msgstr "Ffioedd Cyhoeddi"
+msgstr "Tariffe di pubblicazione"
 
 #: src/templates/admin/journal/submissions.html:75
 #: src/themes/material/templates/journal/article.html:381
 msgid "Peer Review"
-msgstr "Adolygiadau Cymheiriaid"
+msgstr "Peer review"
 
 #: src/templates/admin/journal/submissions.html:79
 msgid "Publication Cycle"
-msgstr "Cylch Cyhoeddi"
+msgstr "Ciclo di pubblicazione"
 
 #: src/templates/admin/journal/submissions.html:88
 #: src/themes/OLH/templates/elements/section_block.html:7
 #: src/themes/clean/templates/elements/sections_block.html:8
 #: src/themes/material/templates/elements/sections_display.html:6
 msgid "Public Submissions"
-msgstr "Cyflwyniadau Cyhoeddus"
+msgstr "Proposte pubbliche"
 
 #: src/templates/admin/journal/submissions.html:91
 #: src/themes/OLH/templates/elements/section_block.html:10
@@ -970,22 +980,22 @@ msgstr "Cyflwyniadau Cyhoeddus"
 #: src/themes/clean/templates/journal/article.html:177
 #: src/themes/material/templates/elements/sections_display.html:9
 msgid "Peer Reviewed"
-msgstr "Cymheiriwyd"
+msgstr "Peer reviewed"
 
 #: src/templates/admin/journal/submissions.html:94
 #: src/themes/OLH/templates/elements/section_block.html:13
 #: src/themes/clean/templates/elements/sections_block.html:10
 #: src/themes/material/templates/elements/sections_display.html:12
 msgid "Indexed"
-msgstr "Mynegeiwyd "
+msgstr "Indicizzato"
 
 #: src/templates/admin/proofing/proofing_article.html:272
 msgid "Each proofing round is limited to"
-msgstr "Cyfyngir pob cylch prawfddarllen i"
+msgstr "Ogni round di correzione ha un limite di"
 
 #: src/templates/admin/proofing/proofing_article.html:272
 msgid "proofreaders"
-msgstr "prawfddarllenwyr"
+msgstr "Revisori"
 
 #: src/templates/admin/review/add_review_assignment.html:28
 msgid ""
@@ -1010,7 +1020,7 @@ msgstr ""
 #, fuzzy
 #| msgid "This article has not been peer reviewed."
 msgid "This article is not yet in the review stage"
-msgstr "Nid yw’r erthygl hon wedi’i chymheirio."
+msgstr "Questo articolo non è stato sottoposto a peer review."
 
 #: src/templates/admin/review/in_review.html:26
 msgid "Before you can move this paper into review you need to"
@@ -1034,61 +1044,61 @@ msgstr ""
 
 #: src/templates/admin/review/projected_issue.html:20
 msgid "Save Projected Issue"
-msgstr "Cadw Rhifyn a Ragamcanir"
+msgstr "Salva la pubblicazione selezionata"
 
 #: src/templates/admin/review/projected_issue.html:30
 msgid "What is this for?"
-msgstr "Beth yw diben hwn?"
+msgstr "A cosa serve?"
 
 #: src/templates/admin/review/projected_issue.html:31
 msgid ""
 "The projected issue setting helps you track which issue an article is "
 "intended to be published with."
 msgstr ""
-"Mae gosod rhifyn a ragamcanir yn eich helpu i dracio pa rifyn y bwriedir "
-"cyhoeddi erthygl ynddo."
+"Questa opzione ti permette di scegliere la pubblicazione in cui l'articolo "
+"verrà pubblicato."
 
 #: src/templates/admin/review/projected_issue.html:32
 msgid "How does it work?"
-msgstr "Sut mae’n gweithio?"
+msgstr "Come funziona?"
 
 #: src/templates/admin/review/projected_issue.html:33
 msgid ""
 "Select an issue from the drop down on the left and press save, this articles "
 "projected issue will now be set."
 msgstr ""
-"Dewiswch rifyn o’r gwymplen ar y chwith a phwyso cadw, bydd y rhifyn a "
-"ragamcanir ar gyfer yr erthygl nawr wedi’i osod."
+"Seleziona una pubblicazione dal menù a sinistra e clicca \"Salva\". "
+"L'articolo verrà pubblicato nella pubblicazione selezionata."
 
 #: src/templates/admin/review/projected_issue.html:34
 msgid "Can I unset a projected issue?"
-msgstr "A allaf ddadosod rhifyn a ragamcanir?"
+msgstr "Posso rimuovere la pubblicazione selezionata?"
 
 #: src/templates/admin/review/projected_issue.html:35
 msgid "Yes, simply select the blank option (-------) from the drop down."
-msgstr "Gallwch, dewiswch yr opsiwn gwag (-------) o’r gwymplen."
+msgstr ""
+"Sì, seleziona semplicemente l'opzione vuota (-------) nel menù a discesa"
 
 #: src/templates/admin/review/unassigned_article.html:116
 #: src/themes/OLH/templates/elements/edit_author.html:4
 msgid "Edit"
-msgstr "Golygu"
+msgstr "Modifica"
 
 #: src/templates/admin/review/unassigned_article.html:116
 msgid "Assign"
-msgstr "Neilltuo"
+msgstr "Assegna"
 
 #: src/templates/admin/review/unassigned_article.html:116
 msgid "Projected Issue"
-msgstr "Rhifyn a Ragamcanir"
+msgstr "Seleziona una pubblicazione"
 
 #: src/templates/admin/review/unassigned_article.html:121
 msgid "This article is projected to be published as part of"
-msgstr "Rhagamcanir y caiff yr erthygl hon ei chyhoeddi fel rhan o "
+msgstr "Questo articolo verrà pubblicato in"
 
 #: src/templates/admin/review/unassigned_article.html:123
 msgid "This article is not projected to be published as part of any issue."
-msgstr ""
-"Ni ragamcanir y caiff yr erthygl hon ei chyhoeddi fel rhan o unrhyw rifyn."
+msgstr "La pubblicazione di cui l'articolo farà parte non è stata selezionata."
 
 #: src/templates/admin/review/unassigned_article.html:136
 msgid ""
@@ -1103,30 +1113,30 @@ msgid ""
 "This license is currently used by the following articles. If you delete it "
 "these articles will no longer have a license listed."
 msgstr ""
-"Mae’r drwydded hon yn cael ei defnyddio gan yr erthyglau canlynol ar hyn o "
-"bryd. Os byddwch yn ei dileu ni fydd gan yr erthyglau hyn drwydded wedi’i "
-"rhestru bellach."
+"Questa licenza è attualmente utilizzata dai seguenti articoli. Se la "
+"elimini, questi articoli non avranno più una licenza."
 
 #: src/templates/admin/submission/manager/delete_license.html:27
 msgid ""
 "You should only delete this license if you are absolutley sure you want to "
 "remove it."
 msgstr ""
-"Dim ond os ydych chi’n gwbl siŵr eich bod am ei thynnu y dylech ddileu’r "
-"drwydded hon."
+"Elimina la licenza solo se sei completamente sicuro di volerla rimuovere."
 
 #: src/templates/admin/submission/start.html:7
 msgid "Submit an Article"
-msgstr "Cyflwyno Erthygl"
+msgstr "Invia un articolo"
 
 #: src/templates/admin/submission/start.html:9
 msgid "Author Agreement"
-msgstr "Cytundeb Awdur "
+msgstr "Contratto di edizione"
 
 #: src/templates/admin/submission/start.html:11
 msgid ""
 "Please carefully read through the statements below before checking items"
-msgstr "Darllenwch y datganiadau isod yn ofalus cyn gwirio’r eitemau"
+msgstr ""
+"Si prega di leggere attentamente le dichiarazioni sottostanti prima di "
+"selezionare ciascuna voce"
 
 #: src/templates/admin/submission/start.html:24
 #, python-format
@@ -1136,40 +1146,41 @@ msgid ""
 "                        Unfortunately, if you do not agree with them you "
 "will be unable to proceed with your submission."
 msgstr ""
-"Er mwyn cyflwyno erthygl i %(request.journal.name) rhaid i bob awdur gytuno "
-"â’r datganiadau isod. Yn anffodus os nad ydych chi’n cytuno â nhw ni fydd "
-"modd i chi barhau gyda’ch cyflwyniad."
+"Per inviare un articolo a %(request.journal.name)s tutti gli autori devono "
+"accettare i seguenti termini. \n"
+"Purtroppo, se i termini non sono accettati non sarà possibile procedere con "
+"l'invio dell'articolo."
 
 #: src/templates/admin/submission/start.html:37
 msgid "Author(s) agrees to the above statement"
-msgstr "Mae’r awdur(on) yn cytuno â’r datganiad uchod"
+msgstr "L'autore/i è d'accordo con la dichiarazione di cui sopra"
 
 #: src/templates/admin/submission/start.html:49
 msgid "Author(s) confirms that this article adheres to the above requirements"
 msgstr ""
-"Mae’r awdur(on) yn cadarnhau bod yr erthygl hon yn cadw at y gofynion uchod "
+"L'autore/i conferma che questo articolo rispetta i requisiti di cui sopra"
 
 #: src/templates/admin/submission/start.html:67
 #: src/themes/OLH/templates/journal/article.html:341
 #: src/themes/clean/templates/journal/article.html:190
 #: src/themes/material/templates/journal/article.html:360
 msgid "Competing Interests"
-msgstr "Buddiannau sy’n Gwrthdaro"
+msgstr "Conflitto di interessi"
 
 #: src/templates/admin/submission/start.html:76
 msgid "Comments to the Editor"
-msgstr "Sylwadau i’r Golygydd"
+msgstr "Commenti per l'editore"
 
 #: src/templates/admin/submission/submit_authors.html:5
 #: src/templates/admin/submission/timeline.html:20
 #: src/templates/admin/submission/timeline.html:21
 msgid "Author Information"
-msgstr "Gwybodaeth Awdur "
+msgstr "Informazioni sull'autore"
 
 #: src/templates/admin/submission/submit_authors.html:18
 #: src/themes/OLH/templates/preprints/authors.html:22
 msgid "Search for Existing Authors"
-msgstr "Chwilio am Awduron"
+msgstr "Cerca gli autori esistenti"
 
 #: src/templates/admin/submission/submit_authors.html:25
 #: src/themes/OLH/templates/preprints/authors.html:27
@@ -1178,14 +1189,14 @@ msgid ""
 "will be automatically added as an author. This search only returns exact "
 "matches."
 msgstr ""
-"Chwiliwch am ddefnyddiwr yn defnyddio cyfeiriad ebost neu ORCiD. Os caiff "
-"defnyddiwr ei ganfod, caiff ei ychwanegu’n awtomatig fel awdur. Dim ond "
-"achosion o gydweddu’n union y bydd y chwiliad hwn yn eu canfod."
+"Cerca un utente utilizzando l'indirizzo email o ORDi. Se trovato, l'utente "
+"corrispondente sarà automaticamente aggiunto come autore. Questa ricerca "
+"restituisce solo corrispondenze esatte."
 
 #: src/templates/admin/submission/submit_authors.html:31
 #: src/themes/OLH/templates/preprints/authors.html:33
 msgid "Search by email address or ORCiD"
-msgstr "Chwilio yn ôl ebost neu ORCiD"
+msgstr "Cerca per indirizzo email o ORDi"
 
 #: src/templates/admin/submission/submit_authors.html:35
 #: src/themes/OLH/templates/journal/search.html:8
@@ -1196,23 +1207,24 @@ msgstr "Chwilio yn ôl ebost neu ORCiD"
 #: src/themes/material/templates/journal/search.html:7
 #: src/themes/material/templates/journal/search.html:59
 msgid "Search"
-msgstr "Chwilio"
+msgstr "Ricerca"
 
 #: src/templates/admin/submission/submit_authors.html:40
 msgid "Add Authors"
-msgstr "Ychwanegu Awduron"
+msgstr "Aggiungi autori"
 
 #: src/templates/admin/submission/submit_authors.html:44
 msgid ""
 "By default, your account is the owner of this submission, but is not an "
 "Author on record. You can add yourself using the button below."
 msgstr ""
-"Eich cyfrif chi yw perchennog y cyflwyniad hwn yn ddiofyn, ond nid yw’n "
-"Awdur ar gofnod. Gallwch ychwanegu eich hun yn defnyddio’r botwm isod."
+"Per impostazione predefinita, il tuo account è il proprietario di questa "
+"proposta, ma non è un autore registrato. Puoi aggiungerti usando il pulsante "
+"qui sotto."
 
 #: src/templates/admin/submission/submit_authors.html:46
 msgid "Add Self as Author"
-msgstr "Ychwanegu Eich Hun fel Awdur"
+msgstr "Aggiungi te stesso come autore"
 
 #: src/templates/admin/submission/submit_authors.html:48
 #: src/themes/OLH/templates/preprints/authors.html:43
@@ -1221,29 +1233,29 @@ msgid ""
 "author, you can add one by clicking the button below. This will open a popup "
 "modal for you to complete their details."
 msgstr ""
-"Os na allwch ddod o hyd i’r cofnod awdur drwy chwilio, ac nid chi yw’r unig "
-"awdur, gallwch ychwanegu un drwy glicio’r botwm isod. Bydd hyn yn agor modal "
-"popup i chi allu cwblhau eu manylion."
+"Se non riesci a trovare il record dell'autore effettuando una ricerca e non "
+"sei l'unico autore, puoi aggiungerne uno facendo clic sul pulsante in basso. "
+"Questo aprirà una finestra popup per completare i loro dettagli."
 
 #: src/templates/admin/submission/submit_authors.html:55
 #: src/themes/OLH/templates/preprints/authors.html:49
 msgid "Current Authors"
-msgstr "Awduron Cyfredol"
+msgstr "Autori correnti"
 
 #: src/templates/admin/submission/submit_authors.html:57
 msgid "Drag and drop an author to re-order them."
-msgstr "Llusgwch a gollwng awdur i’w ail-archebu."
+msgstr "Seleziona e trascina un autore per cambiarne l'ordine."
 
 #: src/templates/admin/submission/submit_authors.html:64
 #: src/templates/admin/submission/submit_funding.html:49
 #: src/themes/OLH/templates/preprints/authors.html:56
 msgid "Name"
-msgstr "Enw"
+msgstr "Nome"
 
 #: src/templates/admin/submission/submit_authors.html:81
 #: src/themes/OLH/templates/preprints/authors.html:73
 msgid "No authors yet, add one!"
-msgstr "Dim awduron eto, ychwanegwch un!"
+msgstr "Non ci sono ancora autori, aggiungine uno!"
 
 #: src/templates/admin/submission/submit_authors.html:88
 msgid ""
@@ -1251,13 +1263,13 @@ msgid ""
 "communications regarding your articles process through our systems. This "
 "does not have to be you."
 msgstr ""
-"Mae gofyn i chi ddewis prif awdur. Bydd yr awdur hwn yn derbyn yr ohebiaeth "
-"yn ymwneud â chynnydd eich erthygl drwy’n systemau. Dyw hi ddim yn ofynnol "
-"mai chi yw hwn."
+"È necessario selezionare un autore principale, il quale riceverà le "
+"comunicazioni relative al processo degli articoli sul nostro sistema. Non "
+"devi essere necessariamente tu."
 
 #: src/templates/admin/submission/submit_authors.html:89
 msgid "Select main author"
-msgstr "Dewis prif awdur"
+msgstr "Seleziona l'autore principale"
 
 #: src/templates/admin/submission/submit_authors.html:99
 #: src/templates/admin/submission/submit_files.html:113
@@ -1266,16 +1278,16 @@ msgstr "Dewis prif awdur"
 #: src/themes/OLH/templates/preprints/authors.html:83
 #: src/themes/OLH/templates/preprints/submit_files.html:105
 msgid "Save and Continue"
-msgstr "Cadw a Pharhau"
+msgstr "Salva e continua"
 
 #: src/templates/admin/submission/submit_files.html:5
 msgid "Upload files"
-msgstr "Uwchlwytho ffeiliau"
+msgstr "Carica files"
 
 #: src/templates/admin/submission/submit_files.html:23
 #: src/themes/OLH/templates/preprints/submit_files.html:21
 msgid "Submission guidelines"
-msgstr "Canllawiau cyflwyno"
+msgstr "Linee guida per la proposta"
 
 #: src/templates/admin/submission/submit_files.html:23
 #: src/themes/OLH/templates/preprints/submit_files.html:21
@@ -1286,16 +1298,18 @@ msgid ""
 "                    will then be asked for some additional information "
 "(label, description etc.)"
 msgstr ""
-"I uwchlwytho ffeil, dewiswch y ffeil yn defnyddio un o’r botymau ‘Dewis "
-"ffeil', ac yna ei huwchlwytho gyda’r botwm ‘Uwchlwytho ffeil' nesaf ato. Yna "
-"bydd gofyn i chi am wybodaeth ychwanegol (label, disgrifiad ac ati)"
+"Per caricare un file, selezionalo\n"
+"                    utilizzando uno dei pulsanti \"Scegli file\", poii "
+"caricalo con il pulsante \"Carica file\" accanto. Ti\n"
+"                    verranno quindi richieste alcune informazioni aggiuntive "
+"(etichetta, descrizione ecc.)"
 
 #: src/templates/admin/submission/submit_files.html:35
 #: src/templates/admin/submission/submit_files.html:75
 #: src/themes/OLH/templates/preprints/submit_files.html:31
 #: src/themes/OLH/templates/preprints/submit_files.html:68
 msgid "Upload"
-msgstr "Uwchlwytho "
+msgstr "Carica"
 
 #: src/templates/admin/submission/submit_files.html:43
 #: src/templates/admin/submission/submit_files.html:82
@@ -1306,7 +1320,7 @@ msgstr "Uwchlwytho "
 #: src/themes/OLH/templates/preprints/submit_files.html:39
 #: src/themes/OLH/templates/preprints/submit_files.html:75
 msgid "File Name"
-msgstr "Enw’r Ffeil"
+msgstr "Nome del file"
 
 #: src/templates/admin/submission/submit_files.html:60
 #: src/templates/admin/submission/submit_files.html:98
@@ -1317,14 +1331,14 @@ msgstr "Enw’r Ffeil"
 #: src/themes/OLH/templates/preprints/submit_files.html:56
 #: src/themes/OLH/templates/preprints/submit_files.html:91
 msgid "No files uploaded"
-msgstr "Dim ffeiliau wedi’u huwchlwytho"
+msgstr "Nessun file caricato"
 
 #: src/templates/admin/submission/submit_funding.html:7
 #: src/templates/admin/submission/submit_info.html:7
 #: src/templates/admin/submission/submit_review.html:27
 #: src/themes/OLH/templates/preprints/review.html:22
 msgid "Article Info"
-msgstr "Gwybodaeth am yr Erthygl"
+msgstr "Informazioni sull'articolo"
 
 #: src/templates/admin/submission/submit_funding.html:16
 #: src/templates/admin/submission/timeline.html:36
@@ -1332,52 +1346,52 @@ msgstr "Gwybodaeth am yr Erthygl"
 #: src/themes/OLH/templates/journal/article.html:179
 #: src/themes/material/templates/journal/article.html:115
 msgid "Funding"
-msgstr "Cyllido"
+msgstr "Finanziamento"
 
 #: src/templates/admin/submission/submit_funding.html:20
 msgid "Add Funding Source"
-msgstr "Ychwanegu Ffynhonnell Cyllido"
+msgstr "Aggiungi una fonte di finanziamento"
 
 #: src/templates/admin/submission/submit_funding.html:27
 msgid "Search for funder"
-msgstr "Chwilio am gyllidwr"
+msgstr "Cerca un finanzatore"
 
 #: src/templates/admin/submission/submit_funding.html:31
 msgid "Add funder manually"
-msgstr "Ychwanegu cyllidwr â llaw"
+msgstr "Aggiungi il finanziatore manualmente"
 
 #: src/templates/admin/submission/submit_funding.html:41
 msgid "Current Funders"
-msgstr "Cyllidwyr Cyfredol"
+msgstr "Finanziatori attuali"
 
 #: src/templates/admin/submission/submit_funding.html:50
 msgid "Grant Number"
-msgstr "Rhif Grant"
+msgstr "Numero del fondo di finanziamento"
 
 #: src/templates/admin/submission/submit_funding.html:65
 msgid "No funders added."
-msgstr "Dim cyllidwyr wedi’u hychwanegu"
+msgstr "Nessun finanziatore aggiunto."
 
 #: src/templates/admin/submission/submit_funding.html:99
 msgid "Funder DOI"
-msgstr "DOI Cyllidwr"
+msgstr "DOI del finanziatore"
 
 #: src/templates/admin/submission/submit_funding.html:99
 #: src/templates/admin/submission/submit_funding.html:105
 msgid "(optional)"
-msgstr "(dewisol)"
+msgstr "(facoltativo)"
 
 #: src/templates/admin/submission/submit_funding.html:105
 msgid "Funder grant number"
-msgstr "Rhif grant y cyllidwr"
+msgstr "Numero del fondo del finanziatore"
 
 #: src/templates/admin/submission/submit_info.html:17
 msgid "This article is a preprint"
-msgstr "Rhagargraffiad yw’r erthygl hon"
+msgstr "Questo articolo è un preprint"
 
 #: src/templates/admin/submission/submit_info.html:59
 msgid "View license information"
-msgstr "Gweld gwybodaeth y drwydded"
+msgstr "Visualizza le informazioni sulla licenza"
 
 #: src/templates/admin/submission/submit_info.html:68
 #: src/themes/OLH/templates/journal/article.html:157
@@ -1399,32 +1413,32 @@ msgstr "Gweld gwybodaeth y drwydded"
 #: src/themes/material/templates/journal/search.html:50
 #: src/themes/material/templates/preprints/list.html:79
 msgid "Keywords"
-msgstr "Geiriau Allweddol"
+msgstr "Parole chiave"
 
 #: src/templates/admin/submission/submit_info.html:83
 #: src/themes/OLH/templates/preprints/submit_start.html:83
 msgid "Additional Fields"
-msgstr "Meysydd Ychwanegol "
+msgstr "Campi aggiuntivi"
 
 #: src/templates/admin/submission/submit_info.html:108
 msgid "License Information"
-msgstr "Gwybodaeth y Drwydded"
+msgstr "Informazioni sulla licenza"
 
 #: src/templates/admin/submission/submit_info.html:111
 msgid "allows the following licenses for submission"
-msgstr "caniatáu'r trwyddedau canlynol ar gyfer cyflwyno  "
+msgstr "consente le seguenti licenze per l'invio"
 
 #: src/templates/admin/submission/submit_review.html:10
 #: src/templates/admin/submission/timeline.html:44
 #: src/templates/admin/submission/timeline.html:45
 #: src/themes/OLH/templates/preprints/review.html:11
 msgid "Review"
-msgstr "Adolygu"
+msgstr "Revisione"
 
 #: src/templates/admin/submission/submit_review.html:24
 #: src/themes/OLH/templates/preprints/review.html:18
 msgid "Comments to Editor"
-msgstr "Sylwadau i’r Golygydd"
+msgstr "Commenti per l'editor"
 
 #: src/templates/admin/submission/submit_review.html:41
 #: src/themes/OLH/templates/journal/article.html:154
@@ -1436,56 +1450,56 @@ msgstr "Sylwadau i’r Golygydd"
 #: src/themes/material/templates/journal/article.html:72
 #: src/themes/material/templates/preprints/article.html:43
 msgid "Abstract"
-msgstr "Crynodeb"
+msgstr "Abstract"
 
 #: src/templates/admin/submission/submit_review.html:49
 #: src/themes/OLH/templates/preprints/review.html:39
 msgid "Language"
-msgstr "Iaith"
+msgstr "Lingua"
 
 #: src/templates/admin/submission/submit_review.html:50
 #: src/themes/OLH/templates/preprints/review.html:40
 #: src/themes/clean/templates/elements/sections_block.html:7
 msgid "Section"
-msgstr "Adran"
+msgstr "Sezione"
 
 #: src/templates/admin/submission/submit_review.html:51
 #: src/themes/OLH/templates/preprints/review.html:41
 #: src/themes/material/templates/journal/article.html:349
 msgid "Licence"
-msgstr "Trwydded"
+msgstr "Licenza"
 
 #: src/templates/admin/submission/submit_review.html:60
 #: src/themes/OLH/templates/preprints/review.html:51
 msgid "Author Info"
-msgstr "Gwybodaeth Awdur"
+msgstr "Informazioni sull'autore"
 
 #: src/templates/admin/submission/submit_review.html:70
 #: src/themes/OLH/templates/preprints/review.html:61
 msgid "No authors yet! Add one."
-msgstr "Dim awduron eto! Ychwanegwch un."
+msgstr "Nessun autore! Aggiungine uno."
 
 #: src/templates/admin/submission/submit_review.html:78
 #: src/templates/admin/submission/timeline.html:28
 #: src/templates/admin/submission/timeline.html:29
 #: src/themes/OLH/templates/preprints/review.html:70
 msgid "Article Files"
-msgstr "Ffeiliau Erthygl"
+msgstr "File degli articoli"
 
 #: src/templates/admin/submission/submit_review.html:81
 #: src/themes/OLH/templates/preprints/review.html:73
 msgid "Manuscript Files"
-msgstr "Ffeiliau Llawysgrif"
+msgstr "File manoscritti"
 
 #: src/templates/admin/submission/submit_review.html:101
 #: src/themes/OLH/templates/preprints/review.html:92
 msgid "Figure/Data"
-msgstr "Ffigur/Data"
+msgstr "Figura/data"
 
 #: src/templates/admin/submission/submit_review.html:125
 #: src/themes/OLH/templates/preprints/review.html:113
 msgid "Complete"
-msgstr "Cwblhawyd "
+msgstr "Completa"
 
 #: src/templates/admin/submission/submit_review.html:125
 #: src/themes/OLH/templates/core/nav.html:40
@@ -1494,46 +1508,48 @@ msgstr "Cwblhawyd "
 #: src/themes/material/templates/core/nav.html:38
 #: src/themes/material/templates/core/nav.html:84
 msgid "Submission"
-msgstr "Cyflwyniad"
+msgstr "Proposta"
 
 #: src/templates/admin/submission/timeline.html:6
 msgid "Submission Started"
-msgstr "Cyflwyniad wedi Dechrau"
+msgstr "Proposta iniziata"
 
 #: src/templates/admin/submission/timeline.html:12
 #: src/templates/admin/submission/timeline.html:13
 msgid "Article Information"
-msgstr "Gwybodaeth am yr Erthygl"
+msgstr "Informazioni sull'articolo"
 
 #: src/templates/common/elements/hijack-notification.html:6
 #, python-format
 msgid "You are currently working on behalf of %(user)s."
-msgstr "Rydych ar hyn o bryd yn gweithio ar ran %(user)s."
+msgstr "Attualmente stai lavorando per conto di %(user)s."
 
 #: src/templates/common/elements/hijack-notification.html:10
 #, python-format
 msgid "release %(user)s"
-msgstr "rhyddhau %(user)s"
+msgstr "rilascia %(user)s"
 
 #: src/themes/OLH/templates/403.html:17
 msgid "Permission Denied"
-msgstr "Gwrthodwyd Caniatâd"
+msgstr "Permesso negato"
 
 #: src/themes/OLH/templates/404.html:13
 msgid "Page Not Found"
-msgstr "Ni Chanfuwyd y Dudalen"
+msgstr "Pagina non trovata"
 
 #: src/themes/OLH/templates/404.html:14
 msgid "Sorry, the page you were looking for was not found."
-msgstr "Sori, ni chanfuwyd y dudalen roeddech chi’n chwilio amdani"
+msgstr "Siamo spiacenti, la pagina che stavi cercando non è stata trovata."
 
 #: src/themes/OLH/templates/500.html:13
 msgid "Server Error"
-msgstr "Gwall Gweinydd "
+msgstr "Errore del server"
 
 #: src/themes/OLH/templates/500.html:14
 msgid "Sorry, there was a server error. Our team has been notified."
-msgstr "Sori, cafwyd gwall gweinydd. Mae ein tîm wedi’i hysbysu."
+msgstr ""
+"Spiacenti, si è verificato un errore del server. Il nostro team è stato "
+"avvisato."
 
 #: src/themes/OLH/templates/core/accounts/activate_account.html:5
 #: src/themes/OLH/templates/core/accounts/activate_account.html:22
@@ -1545,69 +1561,71 @@ msgstr "Sori, cafwyd gwall gweinydd. Mae ein tîm wedi’i hysbysu."
 #: src/themes/material/templates/core/accounts/activate_account.html:14
 #: src/themes/material/templates/core/accounts/activate_account.html:19
 msgid "Activate Account"
-msgstr "Actifadu’r Cyfrif"
+msgstr "Attiva l'account"
 
 #: src/themes/OLH/templates/core/accounts/activate_account.html:25
 #: src/themes/clean/templates/core/accounts/activate_account.html:16
 #: src/themes/material/templates/core/accounts/activate_account.html:17
 msgid "You can complete the activation process by clicking the button below."
-msgstr "Gallwch gwblhau’r broses actifadu drwy glicio’r botwm isod."
+msgstr ""
+"Puoi completare il processo di attivazione cliccando il tasto di sotto."
 
 #: src/themes/OLH/templates/core/accounts/activate_account.html:29
 #: src/themes/clean/templates/core/accounts/activate_account.html:20
 #: src/themes/material/templates/core/accounts/activate_account.html:23
 msgid "Error"
-msgstr "Gwall"
+msgstr "Errore"
 
 #: src/themes/OLH/templates/core/accounts/activate_account.html:31
 msgid ""
 "There was no inactive account with this activation code found. It is "
 "possible that your account is already active, you can check by attempting to"
 msgstr ""
-"Ni chanfuwyd cyfrif segur gyda’r cod actifadu hwn. Mae’n bosibl fod eich "
-"cyfrif eisoes yn weithredol, gallwch wirio drwy geisio "
+"Nessun account inattivo trovato con questo codice di attivazione. E' "
+"possibile che il tuo account sia già attivo, puoi verificarlo provando a"
 
 #: src/themes/OLH/templates/core/accounts/activate_account.html:32
 #: src/themes/clean/templates/core/accounts/activate_account.html:22
 #: src/themes/material/templates/core/accounts/activate_account.html:26
 msgid "login"
-msgstr "mewngofnodi"
+msgstr "accesso"
 
 #: src/themes/OLH/templates/core/accounts/edit_profile.html:4
 #: src/themes/clean/templates/core/accounts/edit_profile.html:5
 #: src/themes/material/templates/core/accounts/edit_profile.html:4
 msgid "Edit Profile"
-msgstr "Golygu Proffeil"
+msgstr "Modifica il profilo"
 
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:5
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:60
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:73
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:76
 msgid "Update"
-msgstr "Diweddaru"
+msgstr "Aggiorna"
 
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:25
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:15
 #: src/themes/material/templates/core/accounts/get_reset_token.html:14
 msgid "Enter your email address to begin the reset process"
-msgstr "Nodwch eich cyfeiriad ebost i ddechrau’r broses ailosod "
+msgstr ""
+"Inserisci il tuo indirizzo email per iniziare il processo di ripristino"
 
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:27
 msgid "somebody"
-msgstr "rhywun"
+msgstr "qualcuno"
 
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:29
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:21
 #: src/themes/material/templates/core/accounts/get_reset_token.html:21
 msgid "Request Token"
-msgstr "Tocyn Cais"
+msgstr "Richiedi un token"
 
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:5
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:19
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:4
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:9
 msgid "Unregistered ORCiD"
-msgstr "Dadgofrestru ORCiD"
+msgstr "ORCiD non registrato"
 
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:20
 msgid ""
@@ -1615,21 +1633,20 @@ msgid ""
 "system. You can either register a new account, or login with an existing "
 "account to link your ORCiD for future use."
 msgstr ""
-"Nid yw’r ORCiD y defnyddioch i fewngofnodi ar hyn o bryd yn gysylltiedig â "
-"chyfrif yn ein system. Gallwch naill ai gofrestru cyfrif newydd, neu "
-"fewngofnodi gyda chyfrif sy’n bodoli eisoes i gysylltu eich ORCiD i’w "
-"ddefnyddio yn y dyfodol."
+"L'ORCiD con cui hai fatto il log in non è al momento connesso con un account "
+"sul nostro sistema. Puoi creare un nuovo account, o fare il log in con un "
+"account già esistente a cui connettere il tuo ORCiD per uso futuro."
 
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:36
 #: src/themes/OLH/templates/press/core/login.html:33
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:29
 msgid "Log In"
-msgstr "Mewngofnodi"
+msgstr "Accesso"
 
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:37
 #: src/themes/OLH/templates/press/core/login.html:34
 msgid "Forgot your password?"
-msgstr "Wedi anghofio eich cyfrinair?"
+msgstr "Hai dimenticato la password?"
 
 #: src/themes/OLH/templates/core/accounts/public_profile.html:5
 #: src/themes/OLH/templates/core/nav.html:73
@@ -1644,25 +1661,25 @@ msgstr "Wedi anghofio eich cyfrinair?"
 #: src/themes/material/templates/press/nav.html:79
 #: src/themes/material/templates/press/nav.html:90
 msgid "Profile"
-msgstr "Proffil"
+msgstr "Profilo"
 
 #: src/themes/OLH/templates/core/accounts/public_profile.html:13
 #: src/themes/clean/templates/core/accounts/public_profile.html:13
 #: src/themes/material/templates/core/accounts/public_profile.html:13
 msgid "Roles"
-msgstr "Rolau "
+msgstr "Ruoli"
 
 #: src/themes/OLH/templates/core/accounts/public_profile.html:14
 #: src/themes/clean/templates/core/accounts/public_profile.html:14
 #: src/themes/material/templates/core/accounts/public_profile.html:14
 msgid "Affiliation"
-msgstr "Cyswllt"
+msgstr "Affiliazione"
 
 #: src/themes/OLH/templates/core/accounts/public_profile.html:25
 #: src/themes/clean/templates/core/accounts/public_profile.html:25
 #: src/themes/material/templates/core/accounts/public_profile.html:25
 msgid "Publications"
-msgstr "Cyhoeddiadau"
+msgstr "Pubblicazioni"
 
 #: src/themes/OLH/templates/core/accounts/register.html:30
 #: src/themes/clean/templates/core/accounts/register.html:22
@@ -1670,7 +1687,7 @@ msgstr "Cyhoeddiadau"
 #, fuzzy
 #| msgid "Register for"
 msgid "Register for an"
-msgstr "Cofrestru ar gyfer"
+msgstr "Registrati per"
 
 #: src/themes/OLH/templates/core/accounts/register.html:30
 #: src/themes/clean/templates/core/accounts/register.html:22
@@ -1678,7 +1695,7 @@ msgstr "Cofrestru ar gyfer"
 #, fuzzy
 #| msgid "Account"
 msgid "account"
-msgstr "Cyfrif"
+msgstr "Account"
 
 #: src/themes/OLH/templates/core/accounts/register.html:33
 #: src/themes/clean/templates/core/accounts/register.html:25
@@ -1714,7 +1731,7 @@ msgstr ""
 #: src/themes/clean/templates/core/accounts/register.html:32
 #: src/themes/material/templates/core/accounts/register.html:34
 msgid "By registering an account you agree to our"
-msgstr "Drwy gofrestru cyfrif rydych yn cytuno i’r"
+msgstr "Registrando un account accetti il ​​nostro"
 
 #: src/themes/OLH/templates/core/accounts/register.html:83
 #: src/themes/OLH/templates/core/accounts/register.html:85
@@ -1731,14 +1748,14 @@ msgstr "Drwy gofrestru cyfrif rydych yn cytuno i’r"
 #: src/themes/material/templates/core/accounts/register.html:38
 #: src/themes/material/templates/elements/journal_footer.html:12
 msgid "Privacy Policy"
-msgstr "Polisi Preifatrwydd"
+msgstr "Privacy Policy"
 
 #: src/themes/OLH/templates/core/accounts/register.html:101
 #: src/themes/OLH/templates/core/accounts/reset_password.html:43
 #: src/themes/material/templates/core/accounts/register.html:51
 #: src/themes/material/templates/core/accounts/reset_password.html:36
 msgid "Password Guide"
-msgstr "Canllaw Cyfrinair "
+msgstr "Guida password"
 
 #: src/themes/OLH/templates/core/accounts/register.html:102
 #: src/themes/OLH/templates/core/accounts/reset_password.html:44
@@ -1746,7 +1763,8 @@ msgstr "Canllaw Cyfrinair "
 #: src/themes/material/templates/core/accounts/register.html:52
 #: src/themes/material/templates/core/accounts/reset_password.html:37
 msgid "When it comes to passwords, length is better than complexity."
-msgstr "Pan ddaw’n fater o gyfrineiriau, mae hyd yn well na chymhlethdod."
+msgstr ""
+"Quando si tratta di password, la lunghezza è preferibile alla complessità."
 
 #: src/themes/OLH/templates/core/accounts/register.html:103
 #: src/themes/OLH/templates/core/accounts/reset_password.html:45
@@ -1756,8 +1774,9 @@ msgid ""
 "Its a common myth that a short and complex password (Jfjfy&65^87) is more "
 "secure than a long and uncomplicated password (our awesome moon base rocks)."
 msgstr ""
-"Mae’n goel gyffredin fod cyfrinair byr a chymhleth (Jfjfy&65^87) yn fwy "
-"diogel na chyfrinair hir llai cymhleth (gwinllan a roddwyd i’n gofal)."
+"È un mito comune che una password breve e complessa (Jfjfy e 65 ^ 87) sia "
+"più sicura di una password lunga e semplice (le nostre fantastiche rocce "
+"dalla base lunare)."
 
 #: src/themes/OLH/templates/core/accounts/register.html:104
 #: src/themes/OLH/templates/core/accounts/reset_password.html:46
@@ -1767,10 +1786,11 @@ msgid ""
 "crack as opposed to a complex one like Jfjfy&65^87 which would take just "
 "over 600 years on a standard computer."
 msgstr ""
-"Rydym yn argymell dewis cyfrinair hir ond hawdd ei gofio fel ‘our awesome "
-"moon base rocks’, yr amcangyfrifir y byddai’n cymryd setptiliwn o "
-"flynyddoedd i’w ddatrys yn hytrach na chyfrinair cymhleth fel Jfjfy&65^87 a "
-"fyddai’n cymryd ychydig dros 600 o flynyddoedd ar gyfrifiadur safonol."
+"Ti consigliamo di selezionare una password lunga ma facile da ricordare come "
+"\"le nostre fantastiche rocce dalla base lunare\", che richiederebbe circa "
+"un settilione di anni per essere decifrata, nvece di una complessa come "
+"\"Jfjfy&65^87\" che richiederebbe poco più di 600 anni su un computer "
+"standard."
 
 #: src/themes/OLH/templates/core/accounts/reset_password.html:6
 #: src/themes/OLH/templates/core/accounts/reset_password.html:33
@@ -1781,13 +1801,15 @@ msgstr ""
 #: src/themes/material/templates/core/accounts/reset_password.html:5
 #: src/themes/material/templates/core/accounts/reset_password.html:24
 msgid "Reset Password"
-msgstr "Ailosod Cyfrinair"
+msgstr "Resetta la password"
 
 #: src/themes/OLH/templates/core/accounts/reset_password.html:26
 #: src/themes/clean/templates/core/accounts/reset_password.html:16
 #: src/themes/material/templates/core/accounts/reset_password.html:16
 msgid "Enter your new password twice to complete the reset process"
-msgstr "Nodwch eich cyfrinair newydd ddwywaith i gwblhau’r broses ailosod "
+msgstr ""
+"Inserisci la nuova password due volte per completare la procedura di "
+"ripristino"
 
 #: src/themes/OLH/templates/core/accounts/reset_password.html:27
 msgid ""
@@ -1798,37 +1820,38 @@ msgid ""
 "                            <a href=\"#\" data-open=\"password-modal"
 "\">password guide</a>"
 msgstr ""
-"Dylai eich cyfrinair fod yn 12 nod o leiaf. Nid oes angen iddo gynnwys nodau "
-"penodol ond dylech ei wneud mor hir â phosibl. I gael rhagor o wybodaeth "
-"darllenwch ein <a href=\"\"#\"\" data-toggle=\"\"modal\"\" data-target="
-"\"\"#passwordmodal\"\">canllaw cyfrinair</a>."
+"La tua password deve avere una lunghezza minima di 12 caratteri. Non è "
+"necessario che contenga caratteri specifici ma dovresti renderla più lunga "
+"possibile. Per maggiori informazioni\n"
+"                            leggi la <a href=\"#\" data-open=\"password-modal"
+"\">guida password</a>."
 
 #: src/themes/OLH/templates/core/login.html:32
 #: src/themes/OLH/templates/press/core/login.html:25
 #: src/themes/clean/templates/core/login.html:19
 msgid "Log in with your account"
-msgstr "Mewngofnodi gyda’ch cyfrif"
+msgstr "Accedi con il tuo account"
 
 #: src/themes/OLH/templates/core/login.html:33
 #: src/themes/clean/templates/core/login.html:21
 #: src/themes/material/templates/core/login.html:40
 msgid "Log in with ORCiD"
-msgstr "Mewngofnodi gydag ORCiD"
+msgstr "Accedi con ORCiD"
 
 #: src/themes/OLH/templates/core/login.html:45
 #: src/themes/clean/templates/core/login.html:41
 msgid "Log in"
-msgstr "Mewngofnodi"
+msgstr "Accedi"
 
 #: src/themes/OLH/templates/core/login.html:46
 #: src/themes/clean/templates/core/login.html:45
 msgid "Forgotten your password?"
-msgstr "Wedi anghofio eich cyfrinair?"
+msgstr "Hai dimenticato la password?"
 
 #: src/themes/OLH/templates/core/login.html:47
 #: src/themes/clean/templates/core/login.html:49
 msgid "Register a new account"
-msgstr "Cofrestru cyfrif newydd"
+msgstr "Crea un nuovo account"
 
 #: src/themes/OLH/templates/core/nav.html:7
 #: src/themes/OLH/templates/press/nav.html:6
@@ -1840,7 +1863,7 @@ msgstr "Cofrestru cyfrif newydd"
 #: src/themes/material/templates/press/nav.html:45
 #: src/themes/material/templates/press/nav.html:97
 msgid "Home"
-msgstr "Hafan"
+msgstr "Home"
 
 #: src/themes/OLH/templates/core/nav.html:25
 #: src/themes/OLH/templates/elements/journal/article_issue_list.html:4
@@ -1855,7 +1878,7 @@ msgstr "Hafan"
 #: src/themes/material/templates/journal/issues.html:6
 #: src/themes/material/templates/journal/issues.html:14
 msgid "Issues"
-msgstr "Rhifynnau "
+msgstr "Pubblicazioni"
 
 #: src/themes/OLH/templates/core/nav.html:29
 #: src/themes/OLH/templates/core/nav.html:37
@@ -1872,7 +1895,7 @@ msgstr "Rhifynnau "
 #: src/themes/material/templates/preprints/editors.html:5
 #: src/themes/material/templates/preprints/editors.html:6
 msgid "Editorial Team"
-msgstr "Tîm Golygyddol"
+msgstr "Team editoriale"
 
 #: src/themes/OLH/templates/core/nav.html:41
 #: src/themes/OLH/templates/elements/journal_footer.html:17
@@ -1892,7 +1915,7 @@ msgstr "Tîm Golygyddol"
 #: src/themes/material/templates/journal/contact.html:6
 #: src/themes/material/templates/journal/contact.html:43
 msgid "Contact"
-msgstr "Cysylltu"
+msgstr "Contatto"
 
 #: src/themes/OLH/templates/core/nav.html:44
 #: src/themes/OLH/templates/journal/become_reviewer.html:5
@@ -1908,7 +1931,7 @@ msgstr "Cysylltu"
 #: src/themes/material/templates/journal/become_reviewer.html:10
 #: src/themes/material/templates/journal/become_reviewer.html:21
 msgid "Become a Reviewer"
-msgstr "Dod yn Adolygydd"
+msgstr "Diventa un revisore"
 
 #: src/themes/OLH/templates/core/nav.html:47
 #: src/themes/OLH/templates/press/nav.html:45
@@ -1917,7 +1940,7 @@ msgstr "Dod yn Adolygydd"
 #: src/themes/material/templates/press/nav.html:36
 #: src/themes/material/templates/press/nav.html:60
 msgid "Account"
-msgstr "Cyfrif"
+msgstr "Account"
 
 #: src/themes/OLH/templates/core/nav.html:50
 #: src/themes/OLH/templates/elements/right_hand_menu.html:4
@@ -1925,7 +1948,7 @@ msgstr "Cyfrif"
 #: src/themes/material/templates/core/nav.html:115
 #: src/themes/material/templates/core/nav.html:136
 msgid "Dashboard"
-msgstr "Dangosfwrdd"
+msgstr "Dashboard"
 
 #: src/themes/OLH/templates/core/nav.html:52
 #: src/themes/OLH/templates/elements/right_hand_menu.html:8
@@ -1937,7 +1960,7 @@ msgstr "Dangosfwrdd"
 #: src/themes/material/templates/press/nav.html:102
 #: src/themes/material/templates/press/nav.html:111
 msgid "Submit"
-msgstr "Cyflwyno"
+msgstr "Invia"
 
 #: src/themes/OLH/templates/core/nav.html:56
 #: src/themes/OLH/templates/elements/right_hand_menu.html:5
@@ -1953,20 +1976,20 @@ msgstr "Kanban"
 #: src/themes/material/templates/core/nav.html:122
 #: src/themes/material/templates/core/nav.html:154
 msgid "Edit Article"
-msgstr "Golygu Erthygl"
+msgstr "Modifica articolo"
 
 #: src/themes/OLH/templates/core/nav.html:62
 #: src/themes/OLH/templates/elements/right_hand_menu.html:28
 #: src/themes/material/templates/core/nav.html:125
 #: src/themes/material/templates/core/nav.html:157
 msgid "Edit Issue"
-msgstr "Golygu Rhifyn"
+msgstr "Modifica pubblicazione"
 
 #: src/themes/OLH/templates/core/nav.html:66
 #: src/themes/OLH/templates/elements/right_hand_menu.html:31
 #: src/themes/material/templates/core/nav.html:160
 msgid "Edit News Item"
-msgstr "Golygu Eitem Newyddion"
+msgstr "Modifica la notizia"
 
 #: src/themes/OLH/templates/core/nav.html:70
 #: src/themes/OLH/templates/elements/right_hand_menu.html:35
@@ -1978,7 +2001,7 @@ msgstr "Golygu Eitem Newyddion"
 #: src/themes/material/templates/press/nav.html:77
 #: src/themes/material/templates/press/nav.html:88
 msgid "Admin"
-msgstr "Gweinyddwr"
+msgstr "Admin"
 
 #: src/themes/OLH/templates/core/nav.html:74
 #: src/themes/OLH/templates/elements/right_hand_menu.html:39
@@ -1990,13 +2013,13 @@ msgstr "Gweinyddwr"
 #: src/themes/material/templates/press/nav.html:80
 #: src/themes/material/templates/press/nav.html:91
 msgid "Logout"
-msgstr "Allgofnodi"
+msgstr "Esci"
 
 #: src/themes/OLH/templates/core/news/index.html:11
 #: src/themes/material/templates/core/news/index.html:11
 #: src/themes/material/templates/press/core/news/index.html:11
 msgid "Filtering tag"
-msgstr "Tag hidlo"
+msgstr "Tag filtrante"
 
 #: src/themes/OLH/templates/core/news/index.html:24
 #: src/themes/OLH/templates/core/news/item.html:24
@@ -2009,7 +2032,7 @@ msgstr "Tag hidlo"
 #: src/themes/material/templates/press/core/news/index.html:21
 #: src/themes/material/templates/press/core/news/item.html:17
 msgid "on"
-msgstr "ar"
+msgstr "su"
 
 #: src/themes/OLH/templates/core/news/index.html:26
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:15
@@ -2018,13 +2041,12 @@ msgstr "ar"
 #: src/themes/material/templates/journal/homepage_elements/news.html:23
 #: src/themes/material/templates/press/core/news/index.html:25
 msgid "Read More"
-msgstr "Darllen Rhagor"
+msgstr "Leggi di più"
 
 #: src/themes/OLH/templates/core/news/index.html:33
 #: src/themes/material/templates/press/core/news/index.html:30
 msgid "This journal currently has no news items to display."
-msgstr ""
-"Ar hyn o bryd nid oes gan y cyfnodolyn hwn eitemau newyddion i’w dangos."
+msgstr "Al momento questa rivista non ha notizie da mostrare."
 
 #: src/themes/OLH/templates/core/news/item.html:47
 #: src/themes/clean/templates/core/news/item.html:22
@@ -2042,14 +2064,19 @@ msgstr ""
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:5
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:6
 msgid "Change Your Email Address"
-msgstr "Newid eich cyfeiriad ebost"
+msgstr "Cambia il tuo indirizzo email"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:7
 #, fuzzy
 #| msgid ""
-#| "If you want to change your email address you may do so below, however, "
-#| "you will be logged out and your account will be marked as inactive until "
-#| "you follow the instructions in the verification email."
+#| "\n"
+#| "                <p>If you want to change your email address you may do so "
+#| "below, however, you will be logged out and your\n"
+#| "                account will be marked as inactive until you follow the "
+#| "instructions in the verfication email. <strong>Note: </strong>\n"
+#| "                Changing your email address will also change your "
+#| "username as these are one and the same.</p>\n"
+#| "                "
 msgid ""
 "\n"
 "                <p>If you want to change your email address you may do so "
@@ -2060,18 +2087,21 @@ msgid ""
 "as these are one and the same.</p>\n"
 "                "
 msgstr ""
-"Os ydych chi’n dymuno newid eich cyfeiriad ebost gallwch wneud hynny isod, "
-"ond cewch eich allgofnodi a bydd eich cyfrif yn cael ei farcio’n segur tan i "
-"chi ddilyn y cyfarwyddiadau yn yr ebost dilysu. Nodwch: Bydd newid eich "
-"cyfeiriad ebost hefyd yn newid eich enw defnyddiwr gan fod y rhain yr un "
-"fath â’i gilydd."
+"\n"
+"                <p> Se vuoi cambiare il tuo indirizzo e-mail puoi farlo "
+"sotto, tuttavia, sarai disconnesso e il tuo\n"
+"                l'account verrà contrassegnato come inattivo finché non "
+"seguirai le istruzioni nell'e-mail di verifica. <strong> Nota: </ strong>\n"
+"                Cambiando il tuo indirizzo email cambierai anche il tuo nome "
+"utente in quanto questi corrispondono. </ P>\n"
+"                "
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:12
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:12
 #, fuzzy
 #| msgid "Email Address"
 msgid "Current Email Address"
-msgstr "Cyfeiriad ebost"
+msgstr "Indirizzo email"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:15
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:17
@@ -2079,13 +2109,13 @@ msgstr "Cyfeiriad ebost"
 #, fuzzy
 #| msgid "Email Address"
 msgid "New Email Address"
-msgstr "Cyfeiriad ebost"
+msgstr "Indirizzo email"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:17
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:24
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:18
 msgid "Update Email Address"
-msgstr "Diweddaru Cyfeiriad Ebost"
+msgstr "Aggiorna l'indirizzo email"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:26
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:44
@@ -2094,7 +2124,7 @@ msgstr "Diweddaru Cyfeiriad Ebost"
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:41
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:60
 msgid "Update Password"
-msgstr "Diweddaru Cyfrinair"
+msgstr "Aggiorna la password"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:27
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:42
@@ -2102,66 +2132,66 @@ msgid ""
 "You can update your password by entering your existing password plus your "
 "new password."
 msgstr ""
-"Gallwch ddiweddaru eich cyfrinair drwy nodi eich cyfrinair presennol a’ch "
-"cyfrinair newydd."
+"Puoi aggiornare la password inserendo la password esistente e la nuova "
+"password."
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:32
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:42
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:48
 msgid "Current Password"
-msgstr "Cyfrinair Presennol"
+msgstr "Password attuale"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:36
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:52
 msgid "New Password"
-msgstr "Cyfrinair Newydd"
+msgstr "Nuova password"
 
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:40
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:56
 msgid "Enter Password Again"
-msgstr "Nodwch y Cyfrinair Eto"
+msgstr "Inserisci di nuovo la password"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:5
 #: src/themes/clean/templates/elements/accounts/user_form.html:5
 #: src/themes/material/templates/elements/accounts/user_form.html:6
 msgid "Core Data"
-msgstr "Data Craidd"
+msgstr "Dati principali"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:38
 #: src/themes/clean/templates/elements/accounts/user_form.html:35
 #: src/themes/material/templates/elements/accounts/user_form.html:36
 msgid "Social Media and Accounts"
-msgstr "Cyfryngau Cymdeithasol a Chyfrifon "
+msgstr "Social media e account"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:62
 #: src/themes/clean/templates/elements/accounts/user_form.html:59
 #: src/themes/material/templates/elements/accounts/user_form.html:60
 msgid "Biography and Signature"
-msgstr "Bywgraffiad a Llofnod"
+msgstr "Biografia e firma"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:71
 #: src/themes/clean/templates/elements/accounts/user_form.html:68
 #: src/themes/material/templates/elements/accounts/user_form.html:69
 msgid "Review Interests"
-msgstr "Adolygu Diddordebau"
+msgstr "Revisiona i tuoi interessi"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:72
 #: src/themes/clean/templates/elements/accounts/user_form.html:69
 #: src/themes/material/templates/elements/accounts/user_form.html:70
 msgid "Hit Enter to add a new interest"
-msgstr "Pwyswch Enter i ychwanegu diddordeb newydd"
+msgstr "Premi Invio per aggiungere un nuovo interesse"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:76
 #: src/themes/clean/templates/elements/accounts/user_form.html:73
 #: src/themes/material/templates/elements/accounts/user_form.html:74
 msgid "Profile Image"
-msgstr "Delwedd Proffil"
+msgstr "Foto profilo"
 
 #: src/themes/OLH/templates/elements/accounts/user_form.html:92
 #: src/themes/clean/templates/elements/accounts/user_form.html:89
 #: src/themes/material/templates/elements/accounts/user_form.html:90
 msgid "Options"
-msgstr "Opsiynau "
+msgstr "Opzioni"
 
 #: src/themes/OLH/templates/elements/edit_author.html:5
 msgid "NB."
@@ -2176,16 +2206,16 @@ msgid ""
 "You are editing the frozen metadata record for this author, not their live "
 "user profile."
 msgstr ""
-"Rydych yn golygu cofnod metadata rhewedig yr awdur hwn, ac nid eu proffeil "
-"defnyddiwr byw "
+"Stai modificando la voce di metadati bloccata per questo autore, non il suo "
+"profilo utente live"
 
 #: src/themes/OLH/templates/elements/edit_author.html:10
 msgid "Save Metadata"
-msgstr "Cadw Metadata"
+msgstr "Salva i metadati"
 
 #: src/themes/OLH/templates/elements/journal/article_issue_list.html:19
 msgid "This article is not a part of any issues"
-msgstr "Nid yw’r erthygl hon yn rhan o unrhyw rifynnau"
+msgstr "Questo articolo non è parte di alcuna pubblicazione."
 
 #: src/themes/OLH/templates/elements/journal/authors_block.html:4
 msgid "and"
@@ -2195,7 +2225,7 @@ msgstr ""
 #: src/themes/clean/templates/elements/article_listing.html:43
 #: src/themes/material/templates/elements/article_listing.html:44
 msgid "Also a part of:"
-msgstr "Hefyd yn rhan o:"
+msgstr "Anche parte di:"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:9
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:30
@@ -2220,33 +2250,33 @@ msgstr "Hefyd yn rhan o:"
 #: src/themes/material/templates/press/nav.html:107
 #: src/themes/material/templates/press/nav.html:108
 msgid "Preprints"
-msgstr "Rhagargraffiadau"
+msgstr "Preprint"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/OLH/templates/journal/articles.html:51
 #: src/themes/clean/templates/journal/articles.html:48
 #: src/themes/material/templates/journal/articles.html:82
 msgid "Show"
-msgstr "Dangos"
+msgstr "Mostra"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 msgid "Vancouver Citation Style"
-msgstr "Cyfeirnodi yn Arddull Vancouver "
+msgstr "Citazione Vancouver Style"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
 msgid "APA Citation Style"
-msgstr "Cyfeirnodi yn Arddull APA "
+msgstr "Citazione APA Style"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:63
 msgid "Harvard Citation Style"
-msgstr "Cyfeirnodi yn Arddull Harvard "
+msgstr "Citazione Harvard Style"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/elements/journal/citation_modals.html:49
 msgid "APA-Style Citation"
-msgstr "Cyfeirnodi yn Arddull APA"
+msgstr "Citazione APA-Style"
 
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:6
 #: src/themes/OLH/templates/journal/article.html:202
@@ -2257,17 +2287,17 @@ msgstr "Cyfeirnodi yn Arddull APA"
 #: src/themes/material/templates/journal/article.html:140
 #: src/themes/material/templates/preprints/article.html:133
 msgid "Downloads"
-msgstr "Lawrlwythiadau"
+msgstr "Download"
 
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:7
 msgid "Download Issue"
-msgstr "Lawrlwytho Rhifyn"
+msgstr "Scarica la pubblicazione"
 
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:9
 #: src/themes/clean/templates/elements/journal/issue_sidebar.html:8
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:14
 msgid "Issue Archive"
-msgstr "Archif Rhifynnau"
+msgstr "Archivio pubblicazioni"
 
 #: src/themes/OLH/templates/elements/journal/summary_modal.html:3
 #: src/themes/OLH/templates/journal/article.html:350
@@ -2275,56 +2305,55 @@ msgstr "Archif Rhifynnau"
 #: src/themes/material/templates/elements/summary_modal.html:5
 #: src/themes/material/templates/journal/article.html:318
 msgid "Non Specialist Summary"
-msgstr "Crynodeb nad yw’n Arbenigol "
+msgstr "Riepilogo non specializzato"
 
 #: src/themes/OLH/templates/elements/journal/summary_modal.html:7
 #: src/themes/material/templates/elements/summary_modal.html:9
 msgid "This article has no summary"
-msgstr "Nid oes crynodeb gan yr erthygl hon"
+msgstr "Questo articolo non ha un riassunto"
 
 #: src/themes/OLH/templates/elements/journal_footer.html:16
 #: src/themes/OLH/templates/press/elements/press_footer.html:13
 #: src/themes/clean/templates/elements/journal_footer.html:26
 #: src/themes/clean/templates/elements/press_footer.html:13
 msgid "Sitemap"
-msgstr "Map o’r Safle"
+msgstr "Mappa del sito"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:15
 #: src/themes/material/templates/core/nav.html:144
 msgid "Edit Submissions Page"
-msgstr "Golygu Tudalen y Cyflwyniad"
+msgstr "Modifica la pagina per le proposte"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:16
 #: src/themes/material/templates/core/nav.html:145
 msgid "Edit Journal Info"
-msgstr "Golygu Gwybodaeth Cyfnodolyn"
+msgstr "Modifica le informazioni sulla rivista"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:19
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:10
 #: src/themes/material/templates/core/nav.html:148
 msgid "Edit Page"
-msgstr "Golygu Tudalen"
+msgstr "Modifica la pagina"
 
 #: src/themes/OLH/templates/elements/right_hand_menu.html:22
 #: src/themes/material/templates/core/nav.html:151
 msgid "Manage Editorial Team"
-msgstr "Rheoli Tîm Golygyddol"
+msgstr "Gestisci il team editoriale"
 
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:8
 msgid "Please supply any supporting information or data files."
-msgstr "Darparwch unrhyw wybodaeth neu ffeiliau data ategol."
+msgstr "Si prega di fornire qualsiasi informazione di supporto o file di dati."
 
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:11
 msgid "Please upload your manuscript file, it should be in PDF format."
-msgstr "Uwchlwythwch eich ffeil llawysgrif, dylai fod ar fformat PDF."
+msgstr "Si prega di caricare il file manoscritto in formato PDF."
 
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:13
 msgid ""
 "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X "
 "format."
 msgstr ""
-"Uwchlwythwch eich ffeil llawysgrif, dylai fod ar fformat PDF, RTF, ODT neu "
-"DOC/X."
+"Si prega di caricare il file manoscritto in formato PDF, RTF, ODT o DOC/X."
 
 #: src/themes/OLH/templates/journal/article.html:6
 #: src/themes/material/templates/journal/article.html:7
@@ -2333,12 +2362,12 @@ msgstr ""
 #: src/themes/material/templates/press/nav.html:110
 #: src/themes/material/templates/press/nav.html:111
 msgid "Preprint"
-msgstr "Rhagargraffiad"
+msgstr "Preprint"
 
 #: src/themes/OLH/templates/journal/article.html:6
 #: src/themes/material/templates/journal/article.html:7
 msgid "Article"
-msgstr "Erthygl"
+msgstr "Articolo"
 
 #: src/themes/OLH/templates/journal/article.html:26
 #: src/themes/OLH/templates/journal/article.html:62
@@ -2357,7 +2386,7 @@ msgstr "Erthygl"
 #: src/themes/material/templates/journal/authors.html:10
 #: src/themes/material/templates/preprints/article.html:28
 msgid "Authors"
-msgstr "Awduron"
+msgstr "Autori"
 
 #: src/themes/OLH/templates/journal/article.html:27
 #: src/themes/OLH/templates/journal/article.html:63
@@ -2365,16 +2394,16 @@ msgstr "Awduron"
 #: src/themes/clean/templates/journal/article.html:37
 #: src/themes/clean/templates/journal/print.html:15
 msgid "Author"
-msgstr "Awdur"
+msgstr "Autore"
 
 #: src/themes/OLH/templates/journal/article.html:112
 #: src/themes/material/templates/journal/article.html:199
 msgid "Share"
-msgstr "Rhannu"
+msgstr "Condividi"
 
 #: src/themes/OLH/templates/journal/article.html:127
 msgid "Dyslexia"
-msgstr "Dyslecsia"
+msgstr "Dislessia"
 
 #: src/themes/OLH/templates/journal/article.html:131
 #: src/themes/OLH/templates/journal/article.html:132
@@ -2384,7 +2413,7 @@ msgstr "Dyslecsia"
 #: src/themes/clean/templates/journal/article.html:142
 #: src/themes/material/templates/journal/article.html:252
 msgid "View"
-msgstr "Golwg "
+msgstr "Vista"
 
 #: src/themes/OLH/templates/journal/article.html:159
 #: src/themes/OLH/templates/journal/print.html:35
@@ -2392,7 +2421,7 @@ msgstr "Golwg "
 #: src/themes/clean/templates/journal/print.html:35
 #: src/themes/material/templates/journal/article.html:88
 msgid "How to Cite"
-msgstr "Sut i Gyfeirnodi"
+msgstr "Come citare"
 
 #: src/themes/OLH/templates/journal/article.html:163
 #: src/themes/clean/templates/journal/article.html:88
@@ -2404,7 +2433,7 @@ msgstr ""
 #: src/themes/clean/templates/journal/article.html:93
 #: src/themes/material/templates/journal/article.html:105
 msgid "Publisher Notes"
-msgstr "Nodiadau’r Cyhoeddwr"
+msgstr "Note dell'editore"
 
 #: src/themes/OLH/templates/journal/article.html:196
 #: src/themes/OLH/templates/preprints/article.html:114
@@ -2412,32 +2441,32 @@ msgstr "Nodiadau’r Cyhoeddwr"
 #: src/themes/material/templates/journal/article.html:134
 #: src/themes/material/templates/preprints/article.html:132
 msgid "Views"
-msgstr "Golygon"
+msgstr "Visualizzazioni"
 
 #: src/themes/OLH/templates/journal/article.html:208
 #: src/themes/clean/templates/journal/article.html:212
 #: src/themes/material/templates/journal/article.html:172
 msgid "Citations"
-msgstr "Cyfeirnodau "
+msgstr "Citazioni"
 
 #: src/themes/OLH/templates/journal/article.html:221
 #: src/themes/OLH/templates/preprints/article.html:105
 #: src/themes/clean/templates/journal/article.html:161
 #: src/themes/material/templates/preprints/article.html:123
 msgid "Published on"
-msgstr "Cyhoeddwyd ar"
+msgstr "Pubblicato su"
 
 #: src/themes/OLH/templates/journal/article.html:224
 #: src/themes/clean/templates/journal/article.html:163
 msgid "Accepted on"
-msgstr "Derbyniwyd ar"
+msgstr "Accettato "
 
 #: src/themes/OLH/templates/journal/article.html:233
 #: src/themes/OLH/templates/preprints/article.html:106
 #: src/themes/clean/templates/journal/article.html:180
 #: src/themes/material/templates/preprints/article.html:124
 msgid "License"
-msgstr "Trwydded"
+msgstr "Licenza"
 
 #: src/themes/OLH/templates/journal/article.html:274
 #: src/themes/OLH/templates/journal/article.html:279
@@ -2453,7 +2482,7 @@ msgstr "Trwydded"
 #: src/themes/material/templates/preprints/article.html:117
 #: src/themes/material/templates/preprints/article.html:139
 msgid "Download"
-msgstr "Lawrlwytho"
+msgstr "Download"
 
 #: src/themes/OLH/templates/journal/article.html:299
 #: src/themes/material/templates/journal/article.html:370
@@ -2465,7 +2494,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Publication Fees"
 msgid "Publication details"
-msgstr "Ffioedd Cyhoeddi"
+msgstr "Tariffe di pubblicazione"
 
 #: src/themes/OLH/templates/journal/article.html:312
 #: src/themes/clean/templates/journal/article.html:166
@@ -2478,7 +2507,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Grant Number"
 msgid "Article Number"
-msgstr "Rhif Grant"
+msgstr "Numero del fondo di finanziamento"
 
 #: src/themes/OLH/templates/journal/article.html:318
 #: src/themes/clean/templates/journal/article.html:172
@@ -2486,53 +2515,53 @@ msgstr "Rhif Grant"
 #, fuzzy
 #| msgid "Published"
 msgid "Publisher"
-msgstr "Cyhoeddwyd"
+msgstr "Pubblicato"
 
 #: src/themes/OLH/templates/journal/article.html:321
 #: src/themes/clean/templates/journal/article.html:175
 #, fuzzy
 #| msgid "Publications"
 msgid "Original Publication"
-msgstr "Cyhoeddiadau"
+msgstr "Pubblicazioni"
 
 #: src/themes/OLH/templates/journal/article.html:329
 #: src/themes/clean/templates/journal/article.html:150
 #: src/themes/material/templates/journal/article.html:304
 msgid "Supplementary Files"
-msgstr "Ffeiliau Atodol"
+msgstr "File supplementari"
 
 #: src/themes/OLH/templates/journal/article.html:352
 #: src/themes/material/templates/journal/article.html:319
 msgid "View Summary"
-msgstr "Gweld y Crynodeb"
+msgstr "Visualizza riepilogo"
 
 #: src/themes/OLH/templates/journal/article.html:359
 msgid "Jump to"
-msgstr "Neidio i"
+msgstr "Vai a"
 
 #: src/themes/OLH/templates/journal/article.html:377
 msgid "File Checksums (MD5)"
-msgstr "Checksums Ffeil (MD5)"
+msgstr "File Checksums (MD5)"
 
 #: src/themes/OLH/templates/journal/articles.html:18
 msgid "Pinned Articles"
-msgstr "Erthyglau wedi’u Pinio"
+msgstr "Articoli appuntati"
 
 #: src/themes/OLH/templates/journal/articles.html:27
 msgid "There are no articles published in this journal yet"
-msgstr "Nid oes unrhyw erthyglau wedi’u cyhoeddi yn y cyfnodolyn hwn eto  "
+msgstr "Non ci sono ancora articoli pubblicati su questa rivista"
 
 #: src/themes/OLH/templates/journal/articles.html:61
 #: src/themes/clean/templates/journal/articles.html:58
 #: src/themes/material/templates/journal/articles.html:85
 msgid "Sort"
-msgstr "Trefnu "
+msgstr "Ordina"
 
 #: src/themes/OLH/templates/journal/articles.html:64
 #: src/themes/clean/templates/journal/articles.html:61
 #: src/themes/material/templates/journal/articles.html:88
 msgid "Date"
-msgstr "Dyddiad"
+msgstr "Data"
 
 #: src/themes/OLH/templates/journal/articles.html:71
 #: src/themes/OLH/templates/journal/articles.html:79
@@ -2544,55 +2573,55 @@ msgstr "Dyddiad"
 #: src/themes/material/templates/journal/articles.html:95
 #: src/themes/material/templates/journal/articles.html:106
 msgid "Filter"
-msgstr "Hidlo"
+msgstr "Filtro"
 
 #: src/themes/OLH/templates/journal/articles.html:80
 #: src/themes/clean/templates/journal/articles.html:82
 #: src/themes/material/templates/journal/articles.html:109
 msgid "Clear Filters"
-msgstr "Clirio Hidlyddion"
+msgstr "Rimuovi filtri"
 
 #: src/themes/OLH/templates/journal/collections.html:24
 #: src/themes/material/templates/journal/article.html:338
 msgid "Published"
-msgstr "Cyhoeddwyd"
+msgstr "Pubblicato"
 
 #: src/themes/OLH/templates/journal/contact.html:17
 #: src/themes/material/templates/journal/contact.html:19
 msgid "Journal Representatives"
-msgstr "Cynrychiolwyr Cyfnodolion"
+msgstr "Rappresentanti delle riviste"
 
 #: src/themes/OLH/templates/journal/contact.html:19
 #: src/themes/OLH/templates/press/journal/contact.html:11
 #: src/themes/material/templates/journal/contact.html:21
 msgid "Press Representatives"
-msgstr "Cynrychiolwyr y Wasg"
+msgstr "Rappresentanti stampa"
 
 #: src/themes/OLH/templates/journal/contact.html:26
 #: src/themes/clean/templates/journal/contact.html:21
 #: src/themes/material/templates/journal/contact.html:30
 msgid "Contact Information"
-msgstr "Manylion Cyswllt"
+msgstr "Contatti"
 
 #: src/themes/OLH/templates/journal/contact.html:35
 #: src/themes/OLH/templates/press/journal/contact.html:22
 #: src/themes/clean/templates/journal/contact.html:32
 msgid "Who would you like to contact?"
-msgstr "Pwy hoffech gysylltu â nhw?"
+msgstr "Chi vorresti contattare?"
 
 #: src/themes/OLH/templates/journal/contact.html:44
 #: src/themes/OLH/templates/press/journal/contact.html:30
 #: src/themes/clean/templates/journal/contact.html:42
 #: src/themes/material/templates/journal/contact.html:51
 msgid "Send Message"
-msgstr "Anfon Neges"
+msgstr "Invia messaggio"
 
 #: src/themes/OLH/templates/journal/homepage_elements/featured.html:6
 #: src/themes/clean/templates/journal/homepage_elements/featured.html:6
 #: src/themes/clean/templates/journal/homepage_elements/popular.html:9
 #: src/themes/material/templates/journal/homepage_elements/featured.html:6
 msgid "Featured Articles"
-msgstr "Erthyglau Nodwedd"
+msgstr "Articoli in primo piano"
 
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:5
 #: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:7
@@ -2600,13 +2629,13 @@ msgstr "Erthyglau Nodwedd"
 #: src/themes/material/templates/journal/homepage_elements/journals.html:6
 #: src/themes/material/templates/press/homepage_elements/journals_and_html.html:5
 msgid "Featured Journals"
-msgstr "Cyfnodolion Nodwedd "
+msgstr "Riviste in primo piano"
 
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:23
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:28
 #: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:30
 msgid "Unnamed Journal"
-msgstr "Cyfnodolyn Dienw"
+msgstr "Rivista senza nome"
 
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:9
 #: src/themes/clean/templates/journal/homepage_elements/news.html:8
@@ -2614,7 +2643,7 @@ msgstr "Cyfnodolyn Dienw"
 #, fuzzy
 #| msgid "Dates"
 msgid "Latest"
-msgstr "Dyddiadau"
+msgstr "Date"
 
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:9
 #: src/themes/clean/templates/journal/homepage_elements/news.html:8
@@ -2624,26 +2653,25 @@ msgstr ""
 
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:18
 msgid "This journal currently has no news items to display"
-msgstr ""
-"Nid oes gan y cyfnodolyn hwn eitemau newyddion i’w dangos ar hyn o bryd"
+msgstr "Al momento questa rivista non ha notizie da mostrare"
 
 #: src/themes/OLH/templates/journal/homepage_elements/popular.html:6
 #: src/themes/clean/templates/journal/homepage_elements/popular.html:7
 #: src/themes/material/templates/journal/homepage_elements/popular.html:6
 msgid "Most Popular Articles"
-msgstr "Erthyglau Mwyaf Poblogaidd"
+msgstr "Articoli più popolari"
 
 #: src/themes/OLH/templates/journal/homepage_elements/preprints.html:6
 #: src/themes/clean/templates/journal/homepage_elements/preprints.html:6
 msgid "Featured Preprints"
-msgstr "Rhagargraffiadau Nodwedd"
+msgstr "Preprints in evidenza"
 
 #: src/themes/OLH/templates/journal/issue.html:7
 #: src/themes/clean/templates/journal/issue.html:6
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:8
 #: src/themes/material/templates/journal/issue.html:6
 msgid "Collection"
-msgstr "Casgliad"
+msgstr "Raccolta"
 
 #: src/themes/OLH/templates/journal/issues.html:25
 #: src/themes/clean/templates/journal/issues.html:19
@@ -2651,11 +2679,11 @@ msgstr "Casgliad"
 #: src/themes/material/templates/journal/issues.html:29
 #: src/themes/material/templates/journal/issues.html:32
 msgid "items"
-msgstr "Eitemau"
+msgstr "elementi"
 
 #: src/themes/OLH/templates/journal/issues.html:33
 msgid "There are no issues published in this journal yet."
-msgstr "Does dim rhifynnau o’r cyfnodolyn hwn wedi’u cyhoeddi eto."
+msgstr "Non ci sono ancora pubblicazioni di questa rivista."
 
 #: src/themes/OLH/templates/journal/keyword.html:6
 #: src/themes/OLH/templates/journal/keyword.html:12
@@ -2666,32 +2694,32 @@ msgstr "Does dim rhifynnau o’r cyfnodolyn hwn wedi’u cyhoeddi eto."
 #: src/themes/material/templates/journal/keyword.html:5
 #: src/themes/material/templates/journal/search.html:14
 msgid "Keyword"
-msgstr "Gair Allweddol"
+msgstr "Parola chiave"
 
 #: src/themes/OLH/templates/journal/keyword.html:14
 #: src/themes/clean/templates/journal/keyword.html:10
 #: src/themes/material/templates/journal/keyword.html:9
 msgid "Back to Keywords List"
-msgstr "Yn ôl i’r Rhestr o Eiriau Allweddol "
+msgstr "Torna alla lista delle parole chiave"
 
 #: src/themes/OLH/templates/journal/keyword.html:16
 #: src/themes/clean/templates/journal/keyword.html:12
 #: src/themes/material/templates/journal/keyword.html:10
 msgid "Articles that use this keyword are listed below."
-msgstr "Rhestrir yr erthyglau sy’n defnyddio’r gair allweddol hwn isod."
+msgstr "Gli articoli che utilizzano questa parola chiave sono elencati sotto."
 
 #: src/themes/OLH/templates/journal/search.html:21
 #: src/themes/material/templates/journal/search.html:12
 msgid "Searching for"
-msgstr "Chwilio am"
+msgstr "Stai cercando"
 
 #: src/themes/OLH/templates/journal/search.html:43
 msgid "You are currently browsing by keyword"
-msgstr "Rydych ar hyn o bryd yn pori’n ôl gair allweddol"
+msgstr "Stai attualmente visualizzando gli articoli per parola chiave"
 
 #: src/themes/OLH/templates/journal/search.html:43
 msgid "Search for an article"
-msgstr "Chwilio am erthygl"
+msgstr "Cerca un articolo"
 
 #: src/themes/OLH/templates/journal/submissions.html:5
 #: src/themes/OLH/templates/journal/submissions.html:22
@@ -2700,7 +2728,7 @@ msgstr "Chwilio am erthygl"
 #: src/themes/material/templates/journal/submissions.html:6
 #: src/themes/material/templates/journal/submissions.html:23
 msgid "Submissions"
-msgstr "Cyflwyniadau"
+msgstr "Proposte"
 
 #: src/themes/OLH/templates/preprints/article.html:18
 #: src/themes/material/templates/preprints/article.html:19
@@ -2708,38 +2736,38 @@ msgid ""
 "This article is a preprint, it has not been peer reviewed or had any "
 "extensive editorial over-sight."
 msgstr ""
-"Mae’r erthygl hon yn ragargraffiad, nid yw wedi’i chymheirio nac wedi derbyn "
-"trosolwg golygyddol helaeth."
+"Questo articolo è in preprint, non è stato sottoposto ad una peer review o "
+"ad una supervisione editoriale estensiva."
 
 #: src/themes/OLH/templates/preprints/article.html:51
 #: src/themes/OLH/templates/preprints/submit_start.html:72
 #: src/themes/material/templates/preprints/article.html:63
 msgid "Comments"
-msgstr "Sylwadau"
+msgstr "Commenti"
 
 #: src/themes/OLH/templates/preprints/article.html:85
 msgid ""
 "There are no comments or no comments have been made public for this article."
 msgstr ""
-"Does dim sylwadau wedi’u gwneud neu does dim sylwadau ar gael yn gyhoeddus "
-"ar gyfer yr erthygl hon."
+"Non ci sono commenti o i commenti sono stati resi pubblici per questo "
+"articolo."
 
 #: src/themes/OLH/templates/preprints/article.html:103
 #: src/themes/material/templates/preprints/article.html:121
 msgid "Metadata"
-msgstr "Metadata"
+msgstr "Metadati"
 
 #: src/themes/OLH/templates/preprints/article.html:112
 #: src/themes/clean/templates/journal/article.html:201
 #: src/themes/material/templates/preprints/article.html:130
 msgid "Metrics"
-msgstr "Metrigau "
+msgstr "Metrica"
 
 #: src/themes/OLH/templates/preprints/article.html:117
 #: src/themes/clean/templates/journal/article.html:215
 #: src/themes/material/templates/preprints/article.html:145
 msgid "Citation"
-msgstr "Cyfeirnod "
+msgstr "Citazione"
 
 #: src/themes/OLH/templates/preprints/article.html:130
 #: src/themes/OLH/templates/preprints/list.html:6
@@ -2749,122 +2777,123 @@ msgstr "Cyfeirnod "
 #: src/themes/material/templates/preprints/list.html:6
 #: src/themes/material/templates/preprints/list.html:14
 msgid "All Preprints"
-msgstr "Pob Rhagargraffiad"
+msgstr "Tutti i preprint"
 
 #: src/themes/OLH/templates/preprints/article.html:134
 #: src/themes/material/templates/preprints/article.html:135
 msgid "Versions"
-msgstr "Fersiynau"
+msgstr "Versioni"
 
 #: src/themes/OLH/templates/preprints/article.html:141
 msgid "This is the only version of the preprint."
-msgstr "Dyma’r unig fersiwn o’r rhagargraffiad."
+msgstr "Questa è l'unica versione del preprint."
 
 #: src/themes/OLH/templates/preprints/authors.html:7
 #: src/themes/OLH/templates/preprints/authors.html:15
 msgid "Preprint Authors"
-msgstr "Awduron y Rhagargraffiad "
+msgstr "Autori del preprint"
 
 #: src/themes/OLH/templates/preprints/authors.html:16
 msgid "Add authors to"
-msgstr "Ychwanegu awduron at"
+msgstr "Aggiungi autori a"
 
 #: src/themes/OLH/templates/preprints/authors.html:80
 msgid ""
 "When you've added all the authors, select Save and Continue to move to the "
 "next step of your submission."
 msgstr ""
-"Pan fyddwch chi wedi ychwanegu’r holl awduron, dewiswch ‘Cadw’ a ‘Parhau’ i "
-"symud i gam nesaf eich cyflwyniad."
+"Dopo aver aggiunto tutti gli autori, selezionare Salva e continua per andare "
+"al passaggio successivo della proposta."
 
 #: src/themes/OLH/templates/preprints/editors.html:5
 #: src/themes/OLH/templates/preprints/editors.html:16
 #: src/themes/OLH/templates/press/nav.html:35
 msgid "Preprint Editors"
-msgstr "Golygyddion y Rhagargraffiad "
+msgstr "Editori del preprint"
 
 #: src/themes/OLH/templates/preprints/editors.html:46
 msgid "This repository has no subjects or editors to display."
-msgstr "Nid oes gan y storfa hon unrhyw bynciau na golygyddion i’w dangos."
+msgstr "Questo repository non ha argomenti o editor da mostrare."
 
 #: src/themes/OLH/templates/preprints/home.html:29
 msgid "Read about"
-msgstr "Darllen am"
+msgstr "Leggi su"
 
 #: src/themes/OLH/templates/preprints/home.html:29
 #: src/themes/material/templates/preprints/home.html:25
 msgid "preprints"
-msgstr "rhagargraffiadau"
+msgstr "preprint"
 
 #: src/themes/OLH/templates/preprints/home.html:30
 #: src/themes/material/templates/preprints/home.html:25
 msgid "or view list of"
-msgstr "neu weld rhestr o "
+msgstr "o visualizzare l'elenco di"
 
 #: src/themes/OLH/templates/preprints/home.html:30
 #: src/themes/material/templates/preprints/home.html:26
 msgid "all preprints"
-msgstr "pob rhagargraffiad"
+msgstr "tutti i preprints"
 
 #: src/themes/OLH/templates/preprints/home.html:36
 #: src/themes/material/templates/preprints/home.html:32
 msgid "Latest Preprints"
-msgstr "Rhagargraffiadau Diweddaraf"
+msgstr "Ultime preprints"
 
 #: src/themes/OLH/templates/preprints/list.html:61
 #: src/themes/OLH/templates/preprints/search.html:46
 msgid "Search preprints"
-msgstr "Chwilio rhagargraffiadau"
+msgstr "Cerca preprints"
 
 #: src/themes/OLH/templates/preprints/list.html:65
 #: src/themes/OLH/templates/preprints/search.html:50
 msgid "Searching by"
-msgstr "Chwilio yn ôl"
+msgstr "Ricerca per"
 
 #: src/themes/OLH/templates/preprints/list.html:69
 #: src/themes/OLH/templates/preprints/search.html:54
 #: src/themes/material/templates/preprints/list.html:80
 msgid "Author Name"
-msgstr "Enw Awdur "
+msgstr "Nome dell'autore"
 
 #: src/themes/OLH/templates/preprints/list.html:70
 #: src/themes/OLH/templates/preprints/search.html:55
 msgid "Author Affiliation"
-msgstr "Cyswllt Awdur "
+msgstr "Affiliazione dell'autore"
 
 #: src/themes/OLH/templates/preprints/list.html:87
 msgid "Filter by Subject"
-msgstr "Hidlo yn ôl Pwnc"
+msgstr "Filtra per argomento"
 
 #: src/themes/OLH/templates/preprints/review.html:5
 msgid "Review Preprint Submission"
-msgstr "Adolygu Cyflwyniad Rhagargraffiad "
+msgstr "Revisiona il Preprint"
 
 #: src/themes/OLH/templates/preprints/search.html:6
 #: src/themes/OLH/templates/preprints/search.html:14
 #: src/themes/material/templates/preprints/home.html:18
 #: src/themes/material/templates/preprints/list.html:71
 msgid "Search Preprints"
-msgstr "Chwilio Rhagargraffiadau"
+msgstr "Cerca Preprint"
 
 #: src/themes/OLH/templates/preprints/submit_files.html:5
 #: src/themes/OLH/templates/preprints/submit_files.html:13
 msgid "Preprint Files"
-msgstr "Ffeiliau Rhagargraffiad "
+msgstr "File Preprint"
 
 #: src/themes/OLH/templates/preprints/submit_files.html:24
 msgid "Manuscript File"
-msgstr "Ffeil Llawysgrif"
+msgstr "File manoscritto"
 
 #: src/themes/OLH/templates/preprints/submit_start.html:7
 #: src/themes/OLH/templates/preprints/submit_start.html:14
 #: src/themes/OLH/templates/press/nav.html:36
 msgid "Submit a Preprint"
-msgstr "Cyflwyno Rhagargraffiad"
+msgstr "Invia un Preprint"
 
 #: src/themes/OLH/templates/preprints/submit_start.html:15
 msgid "Please read the following carefully before you submit your preprints."
-msgstr "Darllenwch y canlynol yn ofalus cyn cyflwyno eich rhagargraffiadau."
+msgstr ""
+"Si prega di leggere attentamente quanto segue prima di inviare i preprints."
 
 #: src/themes/OLH/templates/preprints/submit_start.html:33
 #: src/themes/OLH/templates/preprints/submit_start.html:74
@@ -2872,17 +2901,17 @@ msgid ""
 "If you have any additional information you'd like to supply to the preprints "
 "editor, do so here"
 msgstr ""
-"Os oes gennych unrhyw wybodaeth ychwanegol yr hoffech ei chyflwyno i’r "
-"golygydd rhagargraffiadau, gwnewch hynny yma"
+"Se hai ulteriori informazioni che desideri fornire all'editor dei preprints, "
+"fallo qui"
 
 #: src/themes/OLH/templates/preprints/submit_start.html:55
 #: src/utils/forms.py:43
 msgid "Hit Enter to add a new keyword."
-msgstr "Pwyswch Enter i ychwanegu gair allweddol newydd."
+msgstr "Premi Invio per aggiungere una nuova parola chiave."
 
 #: src/themes/OLH/templates/press/core/login.html:26
 msgid "Login with ORCiD"
-msgstr "Mewngofnodi gydag ORCiD"
+msgstr "Accedi con ORCiD"
 
 #: src/themes/OLH/templates/press/core/news/index.html:5
 #: src/themes/OLH/templates/press/core/news/index.html:10
@@ -2892,57 +2921,57 @@ msgstr "Mewngofnodi gydag ORCiD"
 #: src/themes/material/templates/press/core/news/index.html:10
 #: src/themes/material/templates/press/core/news/item.html:5
 msgid "News"
-msgstr "Newyddion"
+msgstr "Notizie"
 
 #: src/themes/OLH/templates/press/core/news/index.html:31
 msgid "This press currently has no news items to display."
-msgstr "Does dim eitemau newyddion gan y wasg hon i’w dangos ar hyn o bryd."
+msgstr "Questa casa editrice al momento non ha notizie da mostrare."
 
 #: src/themes/OLH/templates/press/core/news/item.html:33
 #: src/themes/material/templates/press/core/news/index.html:21
 #: src/themes/material/templates/press/core/news/item.html:17
 msgid "Posted by"
-msgstr "Postiwyd gan"
+msgstr "Pubblicato da"
 
 #: src/themes/OLH/templates/press/core/news/item.html:40
 #: src/themes/material/templates/core/news/item.html:35
 #: src/themes/material/templates/press/core/news/item.html:22
 msgid "Tags"
-msgstr "Tagiau"
+msgstr "Tag"
 
 #: src/themes/OLH/templates/press/core/news/item.html:45
 #: src/themes/material/templates/press/core/news/item.html:30
 msgid "Back to News List"
-msgstr "Yn ôl i’r Rhestr Newyddion"
+msgstr "Torna all'elenco delle notizie"
 
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:13
 msgid "Preprints Dashboard"
-msgstr "Dangosfwrdd Rhagargraffiadau "
+msgstr "Pannello di controllo delle preprints"
 
 #: src/themes/OLH/templates/press/nav.html:23
 #: src/themes/OLH/templates/press/press_journals.html:5
 msgid "Journals"
-msgstr "Cyfnodolion "
+msgstr "Riviste"
 
 #: src/themes/OLH/templates/press/nav.html:26
 msgid "Conferences"
-msgstr "Cynadleddau "
+msgstr "Conferenze"
 
 #: src/themes/OLH/templates/press/nav.html:32
 msgid "Preprints Home"
-msgstr "Hafan Rhagargraffiadau "
+msgstr "Homepage delle preprints"
 
 #: src/themes/OLH/templates/press/nav.html:34
 msgid "About Preprints"
-msgstr "Gwybodaeth am Ragargraffiadau"
+msgstr "Informazioni sulle preprints"
 
 #: src/themes/OLH/templates/press/press_journals.html:48
 msgid "Disciplines"
-msgstr "Disgyblaethau"
+msgstr "Discipline"
 
 #: src/themes/OLH/templates/press/press_journals.html:70
 msgid "Current Issue"
-msgstr "Rhifyn Cyfredol"
+msgstr "Pubblicazione corrente"
 
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:10
 msgid ""
@@ -2951,18 +2980,17 @@ msgid ""
 "            register a new account, or login with an existing account to "
 "link your ORCiD for future use."
 msgstr ""
-"Nid yw’r ORCiD y defnyddioch chi i fewngofnodi ar hyn o bryd yn gysylltiedig "
-"â chyfrif yn ein system. Gallwch naill ai gofrestru cyfrif newydd, neu "
-"fewngofnodi gyda chyfrif sy’n bodoli eisoes i gysylltu eich ORCiD i’w "
-"ddefnyddio yn y dyfodol."
+"L'ORCiD con cui hai fatto il log in non è al momento connesso con un account "
+"sul nostro sistema. Puoi creare un nuovo account, o fare il log in con un "
+"account già esistente a cui connettere il tuo ORCiD per uso futuro."
 
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:30
 msgid "Forgot your password"
-msgstr "Wedi anghofio eich cyfrinair"
+msgstr "Password dimenticata"
 
 #: src/themes/clean/templates/core/accounts/public_profile.html:10
 msgid "profile photo"
-msgstr "ffoto proffil"
+msgstr "foto del profilo"
 
 #: src/themes/clean/templates/core/accounts/register.html:29
 msgid ""
@@ -2980,10 +3008,12 @@ msgid ""
 "target=\"#passwordmodal\">password\n"
 "                                        guide</a>."
 msgstr ""
-"Dylai eich cyfrinair fod yn 12 nod o leiaf. Nid oes angen iddo gynnwys nodau "
-"penodol ond dylech ei wneud mor hir â phosibl. I gael rhagor o wybodaeth "
-"darllenwch ein <a href=\"\"#\"\" data-toggle=\"\"modal\"\" data-target="
-"\"\"#passwordmodal\"\">canllaw cyfrinair</a>."
+"La tua password deve avere una lunghezza minima di 12 caratteri. Non deve "
+"contenere caratteri specifici ma dovresti renderla più lunga possibile. Per "
+"maggiori informazioni leggi la nostra\n"
+"                                    <a href=\"#\" data-toggle=\"modal\" data-"
+"target=\"#passwordmodal\"> guida password\n"
+"                                        </a>."
 
 #: src/themes/clean/templates/core/accounts/reset_password.html:46
 msgid ""
@@ -2991,8 +3021,9 @@ msgid ""
 "secure than a long and\n"
 "                        uncomplicated password (our awesome moon base rocks)."
 msgstr ""
-"Mae’n fyth cyffredin fod cyfrinair byr a chymhleth (Jfjfy&65^87) yn fwy "
-"diogel na chyfrinair hir llai cymhleth (our awesome moon base rocks)."
+"E' un mito comune che una password breve e complessa (Jfjfy&65^87) sia più "
+"sicura di una lunga e semplice (le nostre fantastiche rocce dalla base "
+"lunare)."
 
 #: src/themes/clean/templates/core/accounts/reset_password.html:48
 msgid ""
@@ -3003,10 +3034,11 @@ msgid ""
 "                        like <em>Jfjfy&65^87</em> which would take just over "
 "600 years on a standard computer."
 msgstr ""
-"Rydym yn argymell dewis cyfrinair hir ond hawdd ei gofio fel ‘our awesome "
-"moon base rocks’, yr amcangyfrifir y byddai’n cymryd setptiliwn o "
-"flynyddoedd i’w ddatrys yn hytrach na chyfrinair cymhleth fel Jfjfy&65^87 a "
-"fyddai’n cymryd ychydig dros 600 o flynyddoedd ar gyfrifiadur safonol."
+"Ti consigliamo di selezionare una password lunga ma facile da ricordare come "
+"<em>le nostre fantastiche rocce dalla base lunare</em>, che richiederebbe "
+"circa un settilione di anni per essere decifrata, invece di una complessa "
+"come <em>Jfjfy&65^87</em> che richiederebbe poco più di 600 anni su un "
+"computer standard."
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:6
 msgid ""
@@ -3016,55 +3048,55 @@ msgid ""
 "the\n"
 "                    instructions in the verfication email."
 msgstr ""
-"Os ydych chi’n dymuno newid eich cyfeiriad ebost gallwch wneud hynny isod, "
-"ond cewch eich allgofnodi a bydd eich cyfrif yn cael ei farcio’n segur tan i "
-"chi ddilyn y cyfarwyddiadau yn yr ebost dilysu"
+"Se vuoi cambiare il tuo indirizzo email puoi farlo di seguito, tuttavia, "
+"verrai disconnesso e il tuo account sarà contrassegnato come inattivo fino a "
+"quando non seguirai le istruzioni nell'e-mail di verifica."
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:10
 msgid "Note"
-msgstr "Nodwch"
+msgstr "Commento"
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:11
 msgid ""
 "Changing your email address will also change your username\n"
 "                    as these are one and the same."
 msgstr ""
-"Bydd newid eich cyfeiriad ebost hefyd yn newid eich enw defnyddiwr gan fod y "
-"rhain yr un fath â’i gilydd."
+"Cambiando il tuo indirizzo email cambierai anche il tuo nome utente poiché i "
+"due corrispondono."
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:16
 #, fuzzy
 #| msgid "Your contact email address"
 msgid "Current email address"
-msgstr "Eich cyfeiriad ebost cyswllt "
+msgstr "Il tuo indirizzo email"
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:37
 msgid ""
 "You can update your password by entering your existing password plus your "
 "new password"
 msgstr ""
-"Gallwch ddiweddaru eich cyfrinair drwy osod eich cyfrinair presennol a’ch "
-"cyfrinair newydd."
+"Puoi aggiornare la tua password inserendo la tua password esistente e la tua "
+"nuova password"
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:45
 msgid "Enter New Password"
-msgstr "Nodwch y Cyfrinair Newydd"
+msgstr "Inserisci la nuova password"
 
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:49
 msgid "Enter New Password Again"
-msgstr "Nodwch y Cyfrinair Newydd Eto"
+msgstr "Inserisci di nuovo la nuova password"
 
 #: src/themes/clean/templates/elements/journal/citation_modals.html:6
 msgid "Harvard-Style Citation"
-msgstr "Cyfeirnod yn Arddull Harvard"
+msgstr "Citazione Harvard Style"
 
 #: src/themes/clean/templates/elements/journal/citation_modals.html:28
 msgid "Vancouver-Style Citation"
-msgstr "Cyfeirnod yn Arddull Vancouver"
+msgstr "Citazione Vancouver-Style"
 
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:2
 msgid "Website"
-msgstr "Gwefan "
+msgstr "Sito web"
 
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:3
 #: src/themes/clean/templates/journal/article.html:206
@@ -3088,21 +3120,21 @@ msgid ""
 "Keywords used by articles in this journal are listed below. Select a keyword "
 "to view which articles use it."
 msgstr ""
-"Ceir rhestr o’r geiriau allweddol a ddefnyddir mewn erthyglau yn y "
-"cyfnodolyn hwn isod. Dewiswch air allweddol i weld pa erthyglau sy’n ei "
-"ddefnyddio."
+"Le parole chiave usate negli articoli di questa rivista solo elencate di "
+"sotto. Seleziona una parola chiave per visualizzare gli articoli che la "
+"utilizzano."
 
 #: src/themes/clean/templates/elements/journal/keywords_block.html:10
 msgid "This journal has no keywords to display."
-msgstr "Nid oes gan y cyfnodolyn hwn unrhyw eiriau allweddol i’w dangos"
+msgstr "Questa rivista non ha parole chiave da mostrare."
 
 #: src/themes/clean/templates/elements/sections_block.html:4
 msgid "Sections submission information"
-msgstr "Gwybodaeth cyflwyno adrannau "
+msgstr "Informazione per l'invio delle sezioni"
 
 #: src/themes/clean/templates/journal/article.html:158
 msgid "Information"
-msgstr "Gwybodaeth"
+msgstr "Informazioni"
 
 #: src/themes/clean/templates/journal/article.html:208
 #: src/themes/material/templates/journal/article.html:155
@@ -3116,44 +3148,44 @@ msgstr "Reddit"
 
 #: src/themes/clean/templates/journal/articles.html:46
 msgid "Sort and Filter"
-msgstr "Trefnu a Hidlo"
+msgstr "Ordina e filtra"
 
 #: src/themes/clean/templates/journal/contact.html:15
 msgid "Journal Contacts"
-msgstr "Cysylltiadau Cyfnodolyn"
+msgstr "Contatti della rivista"
 
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:5
 msgid "Latest Articles & News"
-msgstr "Erthyglau a Newyddion Diweddaraf"
+msgstr "Ultimi articoli e news"
 
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:28
 msgid "Previous"
-msgstr "Blaenorol"
+msgstr "Precedente"
 
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:32
 msgid "Next"
-msgstr "Nesaf"
+msgstr "Seguente"
 
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:37
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:42
 msgid "Play"
-msgstr "Chwarae"
+msgstr "Play"
 
 #: src/themes/clean/templates/journal/issues.html:16
 msgid "The current issue is"
-msgstr "Y rhifyn cyfredol yw"
+msgstr "La pubblicazione corrente è"
 
 #: src/themes/clean/templates/journal/issues.html:30
 msgid "This journal has no issues"
-msgstr "Nid oes gan y cyfnodolyn hwn unrhyw rifynnau"
+msgstr "Questa rivista non ha pubblicazioni"
 
 #: src/themes/material/templates/core/accounts/activate_account.html:25
 msgid ""
 "There was no inactive account with this activation code found. It is "
 "possible that your account is already active, you can check by attempting to "
 msgstr ""
-"Ni chanfuwyd cyfrif segur gyda’r cod actifadu hwn. Mae’n bosibl fod eich "
-"cyfrif eisoes yn weithredol, gallwch wirio drwy geisio "
+"Nessun account inattivo trovato con questo codice di attivazione. E' "
+"possibile che il tuo account sia già attivo, puoi verificarlo provando a "
 
 #: src/themes/material/templates/core/accounts/register.html:28
 msgid ""
@@ -3173,16 +3205,17 @@ msgid ""
 "                like <i>Jfjfy&65^87</i> which would take just over 600 years "
 "on a standard computer."
 msgstr ""
-"Rydym yn argymell dewis cyfrinair hir ond hawdd ei gofio fel ‘our awesome "
-"moon base rocks’, yr amcangyfrifir y byddai’n cymryd setptiliwn o "
-"flynyddoedd i’w ddatrys yn hytrach na chyfrinair cymhleth fel Jfjfy&65^87 a "
-"fyddai’n cymryd ychydig dros 600 o flynyddoedd ar gyfrifiadur safonol."
+"Ti consigliamo di selezionare una password lunga ma facile da ricordare come "
+"<i>le nostre fantastiche rocce dalla base lunare</i>, che richiederebbe "
+"circa un settilione di anni per essere decifrata, invece di una complessa "
+"come <i>Jfjfy&65^87</i> che richiederebbe poco più di 600 anni su un "
+"computer standard."
 
 #: src/themes/material/templates/core/accounts/register.html:59
 #: src/themes/material/templates/core/accounts/reset_password.html:44
 #: src/themes/material/templates/elements/summary_modal.html:13
 msgid "Close"
-msgstr "Cau"
+msgstr "Chiudi"
 
 #: src/themes/material/templates/core/accounts/reset_password.html:17
 #, fuzzy
@@ -3199,36 +3232,37 @@ msgid ""
 "                                    characters but you should make it as "
 "long as possible. For more information read our"
 msgstr ""
-"Dylai eich cyfrinair fod yn 12 nod o leiaf. Nid oes angen iddo gynnwys nodau "
-"penodol ond dylech ei wneud mor hir â phosibl. I gael rhagor o wybodaeth "
-"darllenwch ein <a href=\"\"#\"\" data-toggle=\"\"modal\"\" data-target="
-"\"\"#passwordmodal\"\">canllaw cyfrinair</a>."
+"La tua password deve avere una lunghezza minima di 12 caratteri. Non deve "
+"contenere caratteri specifici ma dovresti renderla più lunga possibile. Per "
+"maggiori\n"
+"                        informazioni leggi la\n"
+"                        <a href=\"#passwordmodal\" class=\"modal-trigger\"> "
+"guida alle password </a>."
 
 #: src/themes/material/templates/core/accounts/reset_password.html:20
 #, fuzzy
 #| msgid "Password Guide"
 msgid "password guide"
-msgstr "Canllaw Cyfrinair "
+msgstr "Guida password"
 
 #: src/themes/material/templates/core/login.html:36
 msgid "Register an Account"
-msgstr "Cofrestru Cyfrif"
+msgstr "Registra un account"
 
 #: src/themes/material/templates/core/login.html:37
 msgid "Reset Your Password"
-msgstr "Ailosod eich Cyfrinair"
+msgstr "Reimposta la tua password"
 
 #: src/themes/material/templates/core/nav.html:108
 #: src/themes/material/templates/press/nav.html:67
 msgid "menu"
-msgstr "dewislen"
+msgstr "menu"
 
 #: src/themes/material/templates/core/news/index.html:39
 #, fuzzy
 #| msgid "This journal currently has no news items to display."
 msgid "This journal currently has no items to display."
-msgstr ""
-"Ar hyn o bryd nid oes gan y cyfnodolyn hwn eitemau newyddion i’w dangos."
+msgstr "Al momento questa rivista non ha notizie da mostrare."
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:7
 msgid ""
@@ -3236,187 +3270,185 @@ msgid ""
 "will be logged out and your account will be marked as inactive until you "
 "follow the instructions in the verification email."
 msgstr ""
-"Os ydych chi’n dymuno newid eich cyfeiriad ebost gallwch wneud hynny isod, "
-"ond cewch eich allgofnodi a bydd eich cyfrif yn cael ei farcio’n segur tan i "
-"chi ddilyn y cyfarwyddiadau yn yr ebost dilysu. Nodwch: Bydd newid eich "
-"cyfeiriad ebost hefyd yn newid eich enw defnyddiwr gan fod y rhain yr un "
-"fath â’i gilydd."
+"Se desideri modificare il tuo indirizzo e-mail puoi farlo qui sotto, ma nota "
+"che verrai disconnesso e il tuo account verrà contrassegnato come inattivo "
+"fino a quando non avrai seguito le istruzioni nell'e-mail di verifica."
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:8
 msgid "Note:"
-msgstr "Noder:"
+msgstr "Commento:"
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:9
 msgid ""
 "Changing your email address will also change your username as these are one "
 "and the same."
 msgstr ""
-"Bydd newid eich cyfeiriad ebost hefyd yn newid eich enw defnyddiwr gan fod y "
-"rhain yr un fath â’i gilydd."
+"Cambiando il tuo indirizzo e-mail cambierà anche il tuo nome utente in "
+"quanto questi corrispondono."
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:26
 msgid "Data Export"
-msgstr "Allforio Data "
+msgstr "Esportazione dati"
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:27
 msgid "You may export your data into a JSON file for reuse."
-msgstr "Gallwch allforio eich data i ffeil JSON i’w ailddefnyddio."
+msgstr "Puoi esportare i tuoi dati in un file JSON per riutilizzarli."
 
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:30
 msgid "Export"
-msgstr "Allforio "
+msgstr "Esportare"
 
 #: src/themes/material/templates/elements/license_block.html:4
 #, fuzzy
 #| msgid "Author Information"
 msgid "More Information "
-msgstr "Gwybodaeth Awdur "
+msgstr "Informazioni sull'autore"
 
 #: src/themes/material/templates/journal/article.html:147
 msgid "Tweets"
-msgstr "Trydar"
+msgstr "Tweets"
 
 #: src/themes/material/templates/journal/article.html:280
 #, fuzzy
 #| msgid "Article Info"
 msgid "Article No."
-msgstr "Gwybodaeth am yr Erthygl"
+msgstr "Informazioni sull'articolo"
 
 #: src/themes/material/templates/journal/article.html:292
 #, fuzzy
 #| msgid "Publications"
 msgid "Publication"
-msgstr "Cyhoeddiadau"
+msgstr "Pubblicazioni"
 
 #: src/themes/material/templates/journal/article.html:327
 msgid "Dates"
-msgstr "Dyddiadau"
+msgstr "Date"
 
 #: src/themes/material/templates/journal/article.html:332
 msgid "Accepted"
-msgstr "Derbyniwyd"
+msgstr "Accettato"
 
 #: src/themes/material/templates/journal/article.html:386
 msgid "This article has been peer reviewed."
-msgstr "Mae’r erthygl hon wedi’i chymheirio"
+msgstr "Questo articolo è stato soggetto a peer review."
 
 #: src/themes/material/templates/journal/article.html:390
 msgid "This article has not been peer reviewed."
-msgstr "Nid yw’r erthygl hon wedi’i chymheirio."
+msgstr "Questo articolo non è stato sottoposto a peer review."
 
 #: src/themes/material/templates/journal/article.html:406
 msgid "File Checksums"
-msgstr "Checksums Ffeil"
+msgstr "Checksum dei file"
 
 #: src/themes/material/templates/journal/article.html:422
 #: src/themes/material/templates/journal/submissions.html:71
 msgid "Table of Contents"
-msgstr "Tabl Cynnwys"
+msgstr "Sommario"
 
 #: src/themes/material/templates/journal/authors.html:31
 #: src/themes/material/templates/journal/editorial_team.html:36
 #, fuzzy
 #| msgid "Edit Profile"
 msgid "View Profile"
-msgstr "Golygu Proffeil"
+msgstr "Modifica il profilo"
 
 #: src/themes/material/templates/journal/collections.html:35
 msgid "View Collection"
-msgstr "Gweld y Casgliad"
+msgstr "Visualizza raccolta"
 
 #: src/themes/material/templates/journal/collections.html:40
 msgid "There are no collections to display"
-msgstr "Nid oes casgliadau i’w dangos "
+msgstr "Non ci sono raccolte da mostrare"
 
 #: src/themes/material/templates/journal/issues.html:36
 #, fuzzy
 #| msgid "Close"
 msgid "close"
-msgstr "Cau"
+msgstr "Chiudi"
 
 #: src/themes/material/templates/journal/issues.html:40
 msgid "View Issue"
-msgstr "Gweld Rhifyn"
+msgstr "Visualizza la pubblicazione"
 
 #: src/themes/material/templates/journal/search.html:23
 msgid "No articles to display."
-msgstr "Dim erthyglau i’w dangos."
+msgstr "Nessun articolo da mostrare."
 
 #: src/themes/material/templates/journal/search.html:28
 msgid "Searching"
-msgstr "Chwilio"
+msgstr "Ricerca"
 
 #: src/themes/material/templates/journal/search.html:44
 #, fuzzy
 #| msgid "Your article title"
 msgid "Sort articles by"
-msgstr "Teitl eich erthygl"
+msgstr "Il titolo dell'articolo"
 
 #: src/themes/material/templates/preprints/article.html:51
 #, fuzzy
 #| msgid "Preprint"
 msgid "Preprint Body"
-msgstr "Rhagargraffiad"
+msgstr "Preprint"
 
 #: src/themes/material/templates/preprints/article.html:69
 #, fuzzy
 #| msgid "Comments"
 msgid "Add Comment"
-msgstr "Sylwadau"
+msgstr "Commenti"
 
 #: src/themes/material/templates/preprints/article.html:147
 #, fuzzy
 #| msgid "Harvard Citation Style"
 msgid "Harvard Citation"
-msgstr "Cyfeirnodi yn Arddull Harvard "
+msgstr "Citazione Harvard Style"
 
 #: src/themes/material/templates/preprints/article.html:148
 #, fuzzy
 #| msgid "Vancouver Citation Style"
 msgid "Vancouver Citation"
-msgstr "Cyfeirnodi yn Arddull Vancouver "
+msgstr "Citazione Vancouver Style"
 
 #: src/themes/material/templates/preprints/article.html:149
 #, fuzzy
 #| msgid "APA Citation Style"
 msgid "APA Citation"
-msgstr "Cyfeirnodi yn Arddull APA "
+msgstr "Citazione APA Style"
 
 #: src/themes/material/templates/preprints/editors.html:10
 msgid "Subject Area Editors"
-msgstr "Golygyddion Meysydd Pwnc"
+msgstr "Editori dell'area tematica"
 
 #: src/themes/material/templates/preprints/home.html:16
 #: src/themes/material/templates/preprints/list.html:69
 msgid "search"
-msgstr "chwilio"
+msgstr "ricerca"
 
 #: src/themes/material/templates/preprints/home.html:24
 msgid "Read about "
-msgstr "Darllen am "
+msgstr "Leggi su "
 
 #: src/themes/material/templates/preprints/list.html:37
 msgid "There are no preprints to display"
-msgstr "Nid oes rhagargraffiadau i’w dangos"
+msgstr "Non ci sono preprints da visualizzare"
 
 #: src/themes/material/templates/preprints/list.html:74
 msgid "You can search by:"
-msgstr "Gallwch chwilio yn ôl:"
+msgstr "Puoi cercare per:"
 
 #: src/themes/material/templates/preprints/list.html:81
 msgid "Author Institution"
-msgstr "Sefydliad Awdur "
+msgstr "Istituzione dell'autore"
 
 #: src/themes/material/templates/press/nav.html:98
 #: src/themes/material/templates/press/nav.html:107
 msgid "All"
-msgstr "Pob "
+msgstr "Tutti"
 
 #: src/utils/transactional_emails.py:288
 #, fuzzy
 #| msgid "Accepted"
 msgid "accepted"
-msgstr "Derbyniwyd"
+msgstr "Accettato"
 
 #: src/utils/transactional_emails.py:298
 msgid "declined"
@@ -3430,10 +3462,11 @@ msgstr ""
 #~ "                            read on <a href=\"#\" data-open=\"password-"
 #~ "modal\">password guide</a>."
 #~ msgstr ""
-#~ "Dylai eich cyfrinair fod yn 12 nod o leiaf. Nid oes angen iddo gynnwys "
-#~ "nodau penodol ond dylech ei wneud mor hir â phosibl. I gael rhagor o "
-#~ "wybodaeth darllenwch ein <a href=\"\"#\"\" data-toggle=\"\"modal\"\" data-"
-#~ "target=\"\"#passwordmodal\"\">canllaw cyfrinair</a>."
+#~ "La tua password deve avere una lunghezza minima di 12 caratteri. Non è "
+#~ "necessario che contenga caratteri specifici ma dovresti renderla più "
+#~ "lunga possibile. Per maggiori informazioni\n"
+#~ "                            leggi la <a href=\"#\" data-open=\"password-"
+#~ "modal\"> guida password </a>."
 
 #~ msgid ""
 #~ "Your password should be at minimum 12 characters long. It does not need\n"
@@ -3444,13 +3477,15 @@ msgstr ""
 #~ "\"> password guide</a>\n"
 #~ "                        ."
 #~ msgstr ""
-#~ "Dylai eich cyfrinair fod yn 12 nod o leiaf. Nid oes angen iddo gynnwys "
-#~ "nodau penodol ond dylech ei wneud mor hir â phosibl. I gael rhagor o "
-#~ "wybodaeth darllenwch ein <a href=\"\"#\"\" data-toggle=\"\"modal\"\" data-"
-#~ "target=\"\"#passwordmodal\"\">canllaw cyfrinair</a>."
+#~ "La tua password deve avere una lunghezza minima di 12 caratteri. Non deve "
+#~ "contenere caratteri specifici ma dovresti renderla più lunga possibile. "
+#~ "Per maggiori\n"
+#~ "                        informazioni leggi la\n"
+#~ "                        <a href=\"#passwordmodal\" class=\"modal-trigger"
+#~ "\"> guida alle password </a>."
 
 #~ msgid "hide"
-#~ msgstr "cuddio"
+#~ msgstr "nascondi"
 
 #~ msgid ""
 #~ "Your password should be at minimum 12 characters long. It does not need\n"
@@ -3461,7 +3496,7 @@ msgstr ""
 #~ "target=\"#passwordmodal\"> password guide</a>\n"
 #~ "                                ."
 #~ msgstr ""
-#~ "Dylai eich cyfrinair fod yn 12 nod o leiaf. Nid oes angen iddo gynnwys "
-#~ "nodau penodol ond dylech ei wneud mor hir â phosibl. I gael rhagor o "
-#~ "wybodaeth darllenwch ein <a href=\"\"#\"\" data-toggle=\"\"modal\"\" data-"
-#~ "target=\"\"#passwordmodal\"\">canllaw cyfrinair</a>."
+#~ "La password deve essere lunga almeno 12 caratteri. Non deve contenere "
+#~ "caratteri specifici, ma dovresti renderla il più lunga possibile. Per più "
+#~ "informazioni vedi la <a href=\"#\" data-toggle=\"modal\" data-target="
+#~ "\"#passwordmodal\"> guida password</a>"

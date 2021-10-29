@@ -67,11 +67,6 @@ def create_journals():
     journal_two = journal_models.Journal(code="TSA", domain="journal2.localhost")
     journal_two.save()
 
-    out = StringIO()
-    sys.stdout = out
-
-    call_command('load_default_settings', stdout=out)
-
     journal_one.name = 'Journal One'
     journal_two.name = 'Journal Two'
 

@@ -78,7 +78,11 @@ def fetch_images_and_rewrite_xml_paths(base, root, contents, article, user, gall
                     extension = ""
 
                 # download the image file
-                filename, mime = fetch_file(base, url_to_use, root, extension, article, user, handle_images=False)
+                try:
+                    filename, mime = fetch_file(base, url_to_use, root, extension, article, user, handle_images=False)
+                except Exception as e:
+                    logger.error("[FIGURE IMPORT ERROR] %s" % val)
+                    continue
 
                 # determine the MIME type and slice the first open bracket and everything after the comma off
                 mime = mime.split(',')[0][1:].replace("'", "")
@@ -147,7 +151,7 @@ def fetch_file(base, url, root, extension, article, user, handle_images=False, a
     # If the function is not passed an extension, try to guess what it should be.
 
     if not extension:
-        extension = utils_shared.guess_extension(mime)
+        extension = utils_shared.guess_extension(mime) or '.graphic'
 
     # set the filename to a unique UUID4 identifier with the passed file extension
     filename = '{0}.{1}'.format(uuid4(), extension.lstrip("."))
@@ -577,8 +581,8 @@ def set_article_issue_and_volume(article, soup_object, date_published):
         journal=article.journal,
         issue=issue,
         volume=volume,
+        issue_type=issue_type,
         defaults={
-            "issue_type": issue_type,
             "date": date_published,
         },
     )

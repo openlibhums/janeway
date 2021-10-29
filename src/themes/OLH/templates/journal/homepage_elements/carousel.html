@@ -1,16 +1,17 @@
 {% load i18n %}
-{% if carousel.mode != "off" %}
+{% if carousel.enabled %}
         <section class="no-padding" id="orbitsection">
             <div class="row column" id="orbiter">
                 <div class="orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
-                    <h2 class="orbit-title">{{ carousel.get_mode_display }}</h2>
-                    <ul class="orbit-container">
+                    <ul class="orbit-container orbit-carousel">
                         {% for carousel_item in carousel_items %}
                             <li class="orbit-slide overlay">
                             <a href="{{ carousel_item.url }}" class="box-link"></a>
                                 <img class="orbit-image"
                                      {% if carousel_item.large_image_file.id %}
                                      src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
+                                     {% elif carousel_item.hero_image_url %}
+                                        src="{{ carousel_item.hero_image_url }}"
                                      {% elif journal.default_large_image %}
                                         src="{{ journal.default_large_image.url }}"
                                      {% elif request.press.default_carousel_image %}
