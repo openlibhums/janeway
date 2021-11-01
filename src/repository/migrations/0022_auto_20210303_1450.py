@@ -27,7 +27,7 @@ def create_accounts_for_authors(apps, schema_editor):
             defaults={
                 'first_name': preprint_author.author.first_name,
                 'middle_name': preprint_author.author.middle_name,
-                'last_name': preprint_author.author.middle_name,
+                'last_name': preprint_author.author.last_name,
                 'institution': preprint_author.affiliation if preprint_author.affiliation else 'n/a',
                 'orcid': preprint_author.author.orcid,
                 'is_active': True,
