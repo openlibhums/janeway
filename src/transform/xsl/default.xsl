@@ -3321,15 +3321,9 @@
         <xsl:apply-templates select="//back/app-group/app" mode="testing"/>
     </xsl:template>
 
-    <xsl:template match="app" mode="testing">
-        <div class="section app">
-            <xsl:if test="@id">
-                <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
-            </xsl:if>
-            <xsl:if test="label">
-                <h2><xsl:value-of select="label"/></h2>
-            </xsl:if>
-            <xsl:apply-templates mode="testing"/>
+    <xsl:template match="app">
+        <div id="{@id}">
+            <xsl:apply-templates />
         </div>
     </xsl:template>
 
