@@ -32,7 +32,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
-                                <td>{{ preprint.preprintauthor_set.all.0.author.full_name }}</td>
+                                <td>{{ preprint.preprintauthor_set.first.full_name }}</td>
                                 <td>{{ preprint.date_submitted }}</td>
                             </tr>
                         {% endfor %}
@@ -105,7 +105,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
-                                <td>{{ preprint.preprintauthor_set.all.0.author.full_name }}</td>
+                                <td>{{ preprint.preprintauthor_set.first.full_name }}</td>
                                 <td>{{ preprint.date_published }}</td>
                             </tr>
                         {% endfor %}
