@@ -274,7 +274,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to reviewers when they agree to undertake a review.",
+            "description": "Email sent to reviewers when they decline to undertake a review.",
             "is_translatable": true,
             "name": "review_decline_acknowledgement",
             "pretty_name": "Review Decline Acknowledgement",
@@ -2422,7 +2422,7 @@
             "type": "text",
             "pretty_name": "Review Declination Acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers when they agree to undertake a review.",
+            "description": "Subject for Email sent to reviewers when they decline to undertake a review.",
             "name": "subject_review_decline_acknowledgement"
         },
         "group": {
