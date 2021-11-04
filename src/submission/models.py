@@ -1460,6 +1460,21 @@ class FrozenAuthor(models.Model):
         return full_name
 
     @property
+    def dc_name_string(self):
+        name_string = ""
+        if self.last_name:
+            name_string += "{}{}, ".format(
+                self.last_name,
+                " {}".format(self.name_suffix) if self.name_suffix else '',
+            )
+        if self.first_name:
+            name_string += "{}".format(self.first_name)
+        if self.middle_name:
+            name_string += " {}".format(self.middle_name)
+
+        return name_string
+
+    @property
     def email(self):
         if self.frozen_email:
             return self.frozen_email

@@ -10,7 +10,7 @@
       <dc:articleTitle>{{article.title|striptags}}</dc:articleTitle>
       <dc:title>{{article.title|striptags}}</dc:title>
       {% for author in article.frozenauthor_set.all %}
-      <dc:creator>{% if author.last_name %}{{ author.last_name }}{% if author.name_suffix %} {{ author.name_suffix }}{% endif %}, {% endif %}{% if author.first_name %}{{ author.first_name }}{% endif %}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</dc:creator>
+      <dc:creator>{{ author.dc_name_string }}</dc:creator>
       {% endfor %}
       <dc:description>{{article.abstract|striptags}}</dc:description>
       <dc:date>{{article.date_published|date:"c"}}</dc:date>
