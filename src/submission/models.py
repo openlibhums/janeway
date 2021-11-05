@@ -1462,10 +1462,15 @@ class FrozenAuthor(models.Model):
     @property
     def dc_name_string(self):
         name_string = ""
+
+        if self.is_corporate:
+            return self.corporate_name
+
         if self.last_name:
-            name_string += "{}{}, ".format(
+            name_string += "{}{}{} ".format(
                 self.last_name,
                 " {}".format(self.name_suffix) if self.name_suffix else '',
+                "," if self.first_name else '',
             )
         if self.first_name:
             name_string += "{}".format(self.first_name)
