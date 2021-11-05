@@ -55,7 +55,11 @@
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
                     {% if request.journal.header_image %}
-                        <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image"></a>
+                        {% if 'svg' in request.journal.header_image.path %}
+                          <a href="{{ request.journal.site_url }}">{% svg request.journal.header_image.path %}</a>
+                        {% else %}
+                          <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image"></a>
+                        {% endif %}
                     {% else %}
                         <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
                     {% endif %}
