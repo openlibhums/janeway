@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='typesettingassignment',
             name='display_proof_comments',
-            field=models.BooleanField(default=True, help_text='Allow the typesetter to see the poofreading comments'),
+            field=models.BooleanField(default=True, help_text='Allow the typesetter to see the proofreading comments'),
         ),
         migrations.AddField(
             model_name='typesettingcorrection',
