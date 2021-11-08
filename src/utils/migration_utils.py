@@ -28,11 +28,12 @@ def update_translated_settings(setting_name, group_name, values_to_replace, repl
             with translation.override(language):
                 value = setting_value.value
 
-                for value_to_replace in values_to_replace:
-                    value = value.replace(
-                        value_to_replace,
-                        replacement_value,
-                    )
-                setting_value.value = value
-                setting_value.save()
+                if value:
+                    for value_to_replace in values_to_replace:
+                        value = value.replace(
+                            value_to_replace,
+                            replacement_value,
+                        )
+                    setting_value.value = value
+                    setting_value.save()
 
