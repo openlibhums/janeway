@@ -406,13 +406,6 @@ def article(request, identifier_type, identifier):
             " that is not yet published.</strong></p>"
         ) + (article_object.abstract or "")
 
-    if not article_object.large_image_file or article_object.large_image_file.uuid_filename == '':
-        article_object.large_image_file = core_models.File()
-        # assign the default image with a hacky patch
-        # TODO: this should be set to a journal-wide setting
-        article_object.large_image_file.uuid_filename = "carousel1.png"
-        article_object.large_image_file.is_remote = True
-
     if article_object.is_published:
         store_article_access(request, article_object, 'view')
 
