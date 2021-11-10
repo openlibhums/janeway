@@ -67,7 +67,7 @@ def repository_sitemap(request):
     preprints = models.Preprint.objects.filter(
         repository=request.repository,
         date_published__lte=timezone.now(),
-        stage=models.STAGE_PREPRINT_PUBLISHED
+        stage=models.STAGE_PREPRINT_PUBLISHED,
     ).order_by('-date_published')
 
     template = 'journal/sitemap.xml'
@@ -106,7 +106,7 @@ def repository_dashboard(request):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    '{} deleted.'.format(request.repository.object_name)
+                    '{} deleted.'.format(request.repository.object_name),
                 )
             except models.Preprint.DoesNotExist:
                 messages.add_message(
@@ -234,11 +234,7 @@ def repository_about(request):
     :return: HttpResponse
     """
     template = 'repository/about.html'
-    context = {
-
-    }
-
-    return render(request, template, context)
+    return render(request, template, {})
 
 
 def repository_subject_list(request):
@@ -294,7 +290,7 @@ def repository_list(request, subject_slug=None):
     context = {
         'preprints': preprints,
         'subject': subject,
-        'subjects': models.Subject.objects.filter(enabled=True)
+        'subjects': models.Subject.objects.filter(enabled=True),
     }
 
     return render(request, template, context)
@@ -1210,7 +1206,7 @@ def repository_subjects(request, subject_id=None):
         'top_level_subjects': top_level_subjects,
         'form': form,
         'subject': subject,
-        'active_users': core_models.Account.objects.all()
+        'active_users': core_models.Account.objects.all(),
     }
 
     return render(request, template, context)
@@ -1230,7 +1226,7 @@ def repository_delete_subject(request):
     messages.add_message(
         request,
         messages.SUCCESS,
-        'Subject deleted. Any associated articles will have been orphaned.'
+        'Subject deleted. Any associated articles will have been orphaned.',
     )
 
     return redirect(
@@ -1270,7 +1266,7 @@ def orphaned_preprints(request):
 
     template = 'admin/repository/orphaned_preprints.html'
     context = {
-        'orphaned_preprints': orphaned_preprints
+        'orphaned_preprints': orphaned_preprints,
     }
 
     return render(request, template, context)
@@ -1344,7 +1340,7 @@ def preprints_author_order(request, preprint_id):
         author_order, c = models.PreprintAuthor.objects.get_or_create(
             preprint=preprint,
             account=preprint_author.account,
-            defaults={'order': order}
+            defaults={'order': order},
         )
 
         if not c:
