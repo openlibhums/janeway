@@ -42,7 +42,7 @@ def repository_home(request):
     preprints = models.Preprint.objects.filter(
         repository=request.repository,
         date_published__lte=timezone.now(),
-        stage=models.STAGE_PREPRINT_PUBLISHED
+        stage=models.STAGE_PREPRINT_PUBLISHED,
     ).order_by('-date_published')[:6]
     subjects = models.Subject.objects.filter(
         repository=request.repository,
@@ -70,10 +70,7 @@ def repository_sitemap(request):
         stage=models.STAGE_PREPRINT_PUBLISHED
     ).order_by('-date_published')
 
-    cms_pages = cms_models.Page.objects.filter(object_id=request.site_type.id, content_type=request.model_content_type)
-
     template = 'journal/sitemap.xml'
-
     context = {
         'preprints': preprints,
     }
