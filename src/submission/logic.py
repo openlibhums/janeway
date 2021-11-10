@@ -111,13 +111,18 @@ def parse_authors(soup):
     return author_list
 
 
-def import_from_jats_xml(path, journal):
+def import_from_jats_xml(path, journal, first_author_is_primary=False):
     with open(path) as file:
         soup = BeautifulSoup(file, 'lxml-xml')
         title = get_text(soup, 'article-title')
         abstract = get_text(soup, 'abstract')
         authors = parse_authors(soup)
         section = get_text(soup, 'subj-group')
+
+        try:
+            pub_date = soup.find('pub-date').get('iso-8601-date')
+        except AttributeError:
+            pub_date = None
 
         section_obj, created = models.Section.objects.get_or_create(name=section, journal=journal)
 
@@ -126,6 +131,7 @@ def import_from_jats_xml(path, journal):
             abstract=abstract,
             section=section_obj,
             journal=journal,
+            date_published=pub_date,
         )
 
         for author in authors:
@@ -143,6 +149,15 @@ def import_from_jats_xml(path, journal):
                     institution=author['institution']
                 )
             article.authors.add(author)
+            models.ArticleAuthorOrder.objects.create(
+                article=article,
+                author=author,
+                order=article.next_author_sort()
+            )
+
+        if first_author_is_primary and article.authors.all():
+            article.correspondence_author = article.authors.all().first()
+            article.save()
 
         return article
 

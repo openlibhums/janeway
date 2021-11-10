@@ -9,7 +9,7 @@
 >
     <head>
         <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{% now "YmdHis" %}</timestamp>
+        <timestamp>{% now "YmdHis" %}{% if timestamp_suffix %}{{ timestamp_suffix }}{% endif %}</timestamp>
         <depositor>
             <depositor_name>{{ depositor_name }}</depositor_name>
             <email_address>{{ depositor_email }}</email_address>

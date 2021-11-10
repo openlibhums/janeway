@@ -87,7 +87,7 @@
                 </ul>
             </div>
         </section>
-        {% for author in article.authors.all %}
+        {% for author in article.frozen_authors.all %}
             {% if author.biography %}
                 <div class="dropdown-pane author-info" data-dropdown id="author{{ forloop.counter }}" data-hover="true"
                      data-hover-pane="true">
@@ -147,7 +147,23 @@
                         <div id="article" class="large-10 columns">
                 {% if journal.disable_article_images %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h3>
+                    <h1>{{ article.title|safe }}</h1>
+                    <div class="section show-for-small-only">
+                        <strong>{% if article.frozen_authors.count > 1 %}
+                            {% trans "Authors" %}
+                            {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}
+                            {% endif %}
+                        </strong>
+                        <ul>
+                        {% for author in article.frozen_authors.all %}
+                        <li>{{ author.full_name }}
+                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
+                            {% if author.institution and author.institution != " " %} ({{ author.institution }}){% endif %}
+                        {% if author.display_email and not journal_settings.article.hide_author_email_links %}<a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>{% endif %}
+                        </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
                 <hr/>
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
@@ -157,7 +173,7 @@
                             {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published and not journal_settings.article.suppress_how_to_cite %}
                             <p><strong>{% trans "How to Cite" %}:</strong>
-                            {{ article.how_to_cite }} </p>
+                            {{ article.how_to_cite|safe }} </p>
                             {% endif %}
                             {% if article.rights %}
                             <p><strong>{% trans "Rights" %}:</strong>
@@ -264,6 +280,9 @@
                                                     <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
                                                 </a>
                                                 {% endif %}
+                                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                                <a itemprop="email" href="mailto:{{ author.email }}" class="fa fa-envelope email-link"></a>
+                                                {% endif %}
                                                 {% if author.institution and author.institution != " " %}({{ author.affiliation }}) {% endif %}
                                             </li>
                                         {% endfor %}
@@ -303,6 +322,26 @@
                          </div>
                          {% endif %}
                         {% endwith %}
+
+                        {% if article.has_publication_details %}
+                         <div class="section">
+                             <h3>{% trans "Publication details" %}</h3>
+                             <ul>
+                                 {% if article.page_range %}
+                                 <li>{% trans "Pages" %}: {{ article.page_range }}</li>
+                                 {% endif %}
+                                 {% if article.article_number %}
+                                 <li>{% trans "Article Number" %}: {{ article.article_number }}</li>
+                                 {% endif %}
+                                 {% if article.publisher_name %}
+                                 <li>{% trans "Publisher" %}: {{ article.publisher_name }}</li>
+                                 {% endif %}
+                                 {% if article.publication_title %}
+                                 <li>{% trans "Original Publication" %}: {{ article.publication_title }}</li>
+                                 {% endif %}
+                             </ul>
+                         </div>
+                         {% endif %}
 
                         {% if article.supplementary_files.all %}
                             <div class="section">

@@ -21,6 +21,7 @@ admin_list = [
     (models.NavigationItem,),
     (models.Page, PageAdmin),
     (models.SubmissionItem, SubmissionItemAdmin),
+    (models.MediaFile,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

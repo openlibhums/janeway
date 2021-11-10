@@ -9,15 +9,22 @@
       http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
       <dc:articleTitle>{{article.title|striptags}}</dc:articleTitle>
       <dc:title>{{article.title|striptags}}</dc:title>
-      {% for author in article.authors.all %}
-      <dc:creator>{{author.last_name}}, {{author.first_name}}</dc:creator>
+      {% for author in article.frozenauthor_set.all %}
+      <dc:creator>{{ author.dc_name_string }}</dc:creator>
       {% endfor %}
       <dc:description>{{article.abstract|striptags}}</dc:description>
       <dc:date>{{article.date_published|date:"c"}}</dc:date>
+      {% if journal.is_conference %}
+      <dc:type>info:eu-repo/semantics/conferenceObject</dc:type>
+      {% else %}
       <dc:type>info:eu-repo/semantics/article</dc:type>
+      {% endif %}
       {% if article.issue %}<dc:volume>{{ article.issue.volume }}</dc:volume>
       <dc:issue>{{ article.issue.issue }}</dc:issue>{% endif %}
-      {% if article.journal.publisher %}<dc:publisher>{{ article.journal.publisher }}</dc:publisher>{% endif %}
+      {% if article.publisher_name %}<dc:publisher>{{ article.publisher_name }}</dc:publisher>
+      {% elif article.journal.publisher %}<dc:publisher>{{ article.journal.publisher }}</dc:publisher>
+      {% else %}<dc:publisher>{{ article.journal.press.name }}</dc:publisher>
+      {% endif %}
       <dc:journalTitle>{{ article.journal.name}}</dc:journalTitle>
       {% if article.identifier.id_type == 'doi' %}<dc:doi>{{article.identifier.identifier}}</dc:doi>{% endif %}
       <dc:identifier>{% if article.identifier.id_type == 'doi' %}https://doi.org/{{article.identifier.identifier}}{% else %}{% journal_url 'article_view' 'id' article.id %}{% endif %}</dc:identifier>

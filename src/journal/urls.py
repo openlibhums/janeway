@@ -58,7 +58,6 @@ urlpatterns = [
     url(r'^issues/$', views.issues, name='journal_issues'),
     url(r'^issue/current/$', views.current_issue, name='current_issue'),
     url(r'^issue/(?P<issue_id>\d+)/info/$', views.issue, name='journal_issue'),
-    url(r'^issue/(?P<issue_id>\d+)/download/$', views.download_issue, name='journal_issue_download'),
     url(r'^issue/(?P<issue_id>\d+)/download/(?P<galley_id>\d+)$',
         views.download_issue_galley,
         name='journal_issue_download_galley'),
@@ -69,6 +68,7 @@ urlpatterns = [
     url(r'^collections/(?P<issue_type_code>[a-zA-Z]+)/$', views.collections, name='journal_collections'),
     url(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
+    url(r'^volume/(?P<volume_number>\d+)/issue/(?P<issue_number>\d+)/$', views.volume, name='journal_volume'),
 
     # Article patterns
     url(r'^article/(?P<identifier_type>{0})/(?P<identifier>[\w.-]+)/edit/$'
@@ -80,6 +80,10 @@ urlpatterns = [
         views.article,
         name='article_view'
         ),
+    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
+        ''.format(DOI_REGEX_PATTERN),
+        views.doi_redirect,
+        name='doi_redirect'),
     url(r'^article/(?P<identifier_type>[\w.-_]+)/(?P<identifier>[\w.-]+)/$',
         views.article_from_identifier,
         name='article_view_custom_identifier',
@@ -193,10 +197,6 @@ urlpatterns = [
         views.doi_redirect,
         name='print_doi_redirect'),
 
-    url(r'^article/(?P<identifier_type>doi)/(?P<identifier>{0})/$'
-        ''.format(DOI_REGEX_PATTERN),
-        views.doi_redirect,
-        name='doi_redirect'),
 
     url(r'^email/user/(?P<user_id>\d+)/$',
         views.send_user_email, name='send_user_email'),

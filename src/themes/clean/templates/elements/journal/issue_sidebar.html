@@ -2,9 +2,10 @@
 <aside class="col-md-4" data-sticky-container>
     <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="issue_top">
         <div class="section">
+            {% if issue.galley %}
             <h3>{% trans 'Downloads' %}</h3>
-            {% if issue.galley %}<p><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><span class="fa fa-download">&nbsp</span>Download Issue (PDF)</a></p>{% endif %}
-            <p><a href="{% url 'journal_issue_download' issue.pk %}"><span class="fa fa-download">&nbsp</span>Download Issue (ZIP)</a></p>
+            <p><a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><span class="fa fa-download">&nbsp</span>Download Issue (PDF)</a></p>
+            {% endif %}
             <h3>
                 {% if issue.issue_type.code == 'issue' %}{% trans "Issue Archive" %}
                 {% else %} {% trans issue.issue_type.plural_name %}

@@ -3,13 +3,16 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
 
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
+from core.file_system import JanewayFileSystemStorage
 from utils.logic import build_url_for_request
 
 
@@ -142,4 +145,43 @@ class SubmissionItem(models.Model):
             journal=self.journal,
             title=self.title,
             setting=self.existing_setting,
+        )
+
+
+def upload_to_media_files(instance, filename):
+    if instance.journal:
+        return "journals/{}/{}".format(instance.journal.pk, filename)
+    else:
+        return "press/{}".format(filename)
+
+
+class MediaFile(models.Model):
+    label = models.CharField(max_length=255)
+    file = models.FileField(
+        upload_to=upload_to_media_files,
+        storage=JanewayFileSystemStorage())
+    journal = models.ForeignKey(
+        'journal.Journal',
+        null=True,
+        blank=True,
+    )
+    uploaded = models.DateTimeField(
+        default=timezone.now,
+    )
+
+    def unlink(self):
+        try:
+            os.unlink(
+                self.file.path,
+            )
+        except FileNotFoundError:
+            pass
+
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+    def link(self):
+        return build_url_for_request(
+            path=self.file.url,
         )

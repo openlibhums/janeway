@@ -4,8 +4,8 @@ from core.homepage_elements.carousel.models import Carousel, CarouselObject
 
 
 class CarouselAdmin(admin.ModelAdmin):
-    list_display = ('mode', 'exclude',)
-    list_filter = ('mode', 'exclude',)
+    list_display = ('exclude', 'latest_articles', 'latest_news', 'current_issue')
+    list_filter = ('exclude','journal')
     filter_horizontal = ('articles', 'news_articles',)
 
 

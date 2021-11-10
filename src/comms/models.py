@@ -48,6 +48,10 @@ class NewsItem(models.Model):
         return self.object.site_url(path)
 
     @property
+    def date_published(self):
+        return self.posted
+
+    @property
     def carousel_subtitle(self):
         return ""
 
@@ -86,6 +90,37 @@ class NewsItem(models.Model):
         if self.custom_byline:
             return _('Posted by {byline}').format(byline=self.custom_byline)
         return _('Posted by  {byline}').format(byline=self.posted_by.full_name())
+
+    def best_image_url(self):
+        """
+        Finds the best image url for a news item by checking:
+        - If the item has a large image
+        - If the item is for a press: if the press has a large image
+        - If the item is for a journal: if the journal has a large image and if not,
+        whether the journal's press has one.
+        """
+        path = None
+        if self.large_image_file:
+            path = reverse(
+                'news_file_download',
+                kwargs={
+                    'identifier_type': 'id',
+                    'identifier': self.pk,
+                    'file_id': self.large_image_file.pk,
+                }
+            )
+        elif self.content_type.name == 'press' and self.object.default_carousel_image:
+            path = self.object.default_carousel_image.url
+        elif self.content_type.name == 'journal':
+            if self.object.default_large_image:
+                path = self.object.default_large_image.url
+            elif self.object.press.default_carousel_image:
+                path = self.object.press.default_carousel_image.url
+
+        if path:
+            return self.object.site_url(path=path)
+        else:
+            return ''
 
     def __str__(self):
         if self.posted_by:

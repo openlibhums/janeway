@@ -13,22 +13,20 @@
         {% for item in news_items %}
             <div class="col m12">
                 <div class="card">
+                    {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                     <div class="card-image">
-                        <img{% if item.large_image_file %}
-                                    src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                                {% elif request.journal and request.journal.default_large_image %}
-                                    src="{{ request.journal.default_large_image.url }}"
-                                {% elif request.press.default_carousel_image %}
-                                    src="{{ request.press.default_carousel_image.url }}"
-                                {% endif %}
-                                    alt="{{ item.title }}"/>
+                        <img src="{{ item.best_image_url }}" alt="{{ item.title }}"/>
                         <span class="card-title">
                           <div class="carousel-text-wrapper">
                             {{ item.title }}
                           </div>
                         </span>
                     </div>
+                    {% endif %}
                     <div class="card-content">
+                        {% if not item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
+                            <h2 class="no-top-margin">{{ item.title }}</h2>
+                        {% endif %}
                         <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                     </div>

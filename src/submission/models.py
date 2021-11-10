@@ -504,6 +504,12 @@ class Article(models.Model):
         )
     )
 
+    publication_title = models.CharField(
+        max_length=999, null=True, blank=True,
+        help_text=_("Name of the publisher who published this article"
+            " Only relevant to migrated articles from a different publisher"
+        )
+    )
 
     # iThenticate ID
     ithenticate_id = models.TextField(blank=True, null=True)
@@ -602,6 +608,28 @@ class Article(models.Model):
     @property
     def has_galley(self):
         return self.galley_set.all().exists()
+
+    @property
+    def has_publication_details(self):
+        """Determines if an article has publication details override"""
+        return(
+            self.page_range
+            or self.article_number
+            or self.publisher_name
+            or self.publication_title
+        )
+
+    @property
+    def journal_title(self):
+        return self.publication_title or self.journal.name
+
+    @property
+    def publisher(self):
+        return (
+            self.publisher_name
+            or self.journal.publisher
+            or self.journal.press.name
+        )
 
     def journal_sections(self):
         return ((section.id, section.name) for section in self.journal.section_set.all())
@@ -796,13 +824,7 @@ class Article(models.Model):
                 article = identifier_models.Identifier.objects.filter(
                     id_type=identifier_type, identifier=identifier)[0].article
 
-                if article.is_published:
-                    # check that the retrieved article is listed in an issue TOC for the current journal
-                    article_journals = [issue.journal for issue in article.issues.all()]
-
-                    if journal not in article_journals:
-                        return None
-                elif not article.journal == journal:
+                if not article.journal == journal:
                     return None
 
             return article
@@ -1153,18 +1175,22 @@ class Article(models.Model):
         )
 
     def get_meta_image_path(self):
+        path = None
         if self.meta_image and self.meta_image.url:
-            return self.meta_image.url
+            path = self.meta_image.url
         elif self.large_image_file and self.large_image_file.id:
-            return reverse('article_file_download', kwargs={'identifier_type': 'id',
+            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
                                                             'identifier': self.pk,
                                                             'file_id': self.large_image_file.pk})
         elif self.thumbnail_image_file and self.thumbnail_image_file.id:
-            return reverse('article_file_download', kwargs={'identifier_type': 'id',
+            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
                                                             'identifier': self.pk,
                                                             'file_id': self.thumbnail_image_file.pk})
         elif self.journal.default_large_image:
-            return self.journal.default_large_image.url
+            path = self.journal.default_large_image.url
+
+        if path:
+            return self.journal.site_url(path=path)
         else:
             return ''
 
@@ -1408,6 +1434,26 @@ class FrozenAuthor(models.Model):
         if self.name_suffix:
             full_name = "%s %s" % (full_name, self.name_suffix)
         return full_name
+
+    @property
+    def dc_name_string(self):
+        name_string = ""
+
+        if self.is_corporate:
+            return self.corporate_name
+
+        if self.last_name:
+            name_string += "{}{}{} ".format(
+                self.last_name,
+                " {}".format(self.name_suffix) if self.name_suffix else '',
+                "," if self.first_name else '',
+            )
+        if self.first_name:
+            name_string += "{}".format(self.first_name)
+        if self.middle_name:
+            name_string += " {}".format(self.middle_name)
+
+        return name_string
 
     @property
     def email(self):

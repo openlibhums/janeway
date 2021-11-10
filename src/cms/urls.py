@@ -31,4 +31,12 @@ urlpatterns = [
         views.edit_or_create_submission_item,
         name='cms_edit_submission_item',
         ),
+    url(r'^media_files/$',
+        views.file_list,
+        name='cms_file_list',
+        ),
+    url(r'^media_files/upload/$',
+        views.file_upload,
+        name='cms_file_upload',
+        ),
 ]

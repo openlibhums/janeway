@@ -24,6 +24,9 @@
                         <form method="POST">
                             {% include "common/elements/static-error-messages.html" with form=form %}
                             {% csrf_token %}
+                            {% if journal_settings.general.display_login_page_notice %}
+                            {{ journal_settings.general.login_page_notice|safe }}
+                            {% endif %}
                             <div class="form-group">
                                 <label for="user_name">{% trans form.fields.user_name.label %}</label>
                                 <input name="user_name" type="text" placeholder="janeway@voyager.com"

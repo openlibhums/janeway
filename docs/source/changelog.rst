@@ -44,6 +44,11 @@ Bugfixes
 * `edit_settings_group` has been refactored (https://github.com/BirkbeckCTP/janeway/issues/1708)
 * When assigning a copyeditor Editors can now pick any file and it will be presented to the copyeditor (https://github.com/BirkbeckCTP/janeway/issues/2078)
 * JATS output for `<underline>`: `<span class="underline">` is now supported via `common.css` (https://github.com/BirkbeckCTP/janeway/pull/2322)
+* When a news item, journal and press all have no default image news items will still work (https://github.com/BirkbeckCTP/janeway/issues/2531)
+* Update to our XSLT will display more back matter sections (https://github.com/BirkbeckCTP/janeway/issues/2502)
+* Users should now be able to copy content from the alternate citation styles popup (https://github.com/BirkbeckCTP/janeway/issues/2506)
+* A new setting has been added to allow editors to add a custom message to the login page (https://github.com/BirkbeckCTP/janeway/issues/2504)
+* A new setting has been added to add custom text to the end of a crossref datestamp (https://github.com/BirkbeckCTP/janeway/issues/2504)
 
 Workflow
 ^^^^^^^^
@@ -55,27 +60,37 @@ Workflow
 Manager
 ^^^^^^^
 Many areas of the Manager have been reworked. We now have a better grouping of settings and additional groupings. Reworked:
+
 * Journal Settings
 * Image Settings (new)
 * Article Display Settings
 * Styling Settings
 
 Other areas have been redesigned:
+
 * Content Manager
 * Journal Contacts
 * Editorial Team
 * Section Manager
+* The Review and Revision reminders interface has been reworked to make it easier to use. A new reminder type (accepted) so you can have different templates for reminder unaccepted and accepted reviews. (https://github.com/BirkbeckCTP/janeway/issues/2370)
+
+
+New areas have been added:
 
 * Submission Page Items is a new area that lets you build a custom Submission Page with a combination of free text, links to existing settings and special displays (like licenses and sections).
-* The Review and Revision reminders interface has been reworked to make it easier to use. A new reminder type (accepted) so you can have different templates for reminder unaccepted and accepted reviews. (https://github.com/BirkbeckCTP/janeway/issues/2370)
+* Media Files lets editors upload and host files like author guidelines or templates
 
 Plugins
 ^^^^^^^
-* A new hook has been added to the CSS block of all themes (https://github.com/BirkbeckCTP/janeway/issues/2385)
+* A new hook has been added to the CSS block of all themes - this can be used in conjunction with the new Custom Styling plugin to customise a journal's style. (https://github.com/BirkbeckCTP/janeway/issues/2385)
 
 API
 ^^^
 * A KBART API endpoint has been added `[url]/api/kbart` (https://github.com/BirkbeckCTP/janeway/issues/2035)
+
+Feature Removal
+^^^^^^^^^^^^^^^
+* The ZIP Issue Download feature has been removed, this is due to the fact that in its current form it does not work and is regularly hit by spiders and bots that cause disk space to fill up. The hope is that we can work out a way to bring this back in the future. The Issue Galley feature remains active. (https://github.com/BirkbeckCTP/janeway/issues/2504)
 
 Deprecations
 ^^^^^^^^^^^^
@@ -128,10 +143,12 @@ Author Dashboard
 Manager
 ^^^^^^^
 https://github.com/BirkbeckCTP/janeway/issues/2149
-* The Users and Roles pages have been updated to:
+The Users and Roles pages have been updated to:
+
     * Enrolled Users (those users who already have a role on your journal)
     * Enrol Users (allows you to search, but not browse, users to enrol them on your journal)
     * Roles (now only displays users with the given role)
+
 * One click access is now enabled by default for all new journals (https://github.com/BirkbeckCTP/janeway/pull/2105)
 
 
@@ -143,11 +160,13 @@ Front End
 Crossref & Identifiers
 ^^^^^^^^^^^^^^^^^^^^^^
 https://github.com/BirkbeckCTP/janeway/issues/2157
-* Crossref deposit has been update:
+Crossref deposit has been update:
+
     * Authors are now in the correct order
     * Abstracts are included
     * Date accepted is included
     * Page numbers are included
+
 * Publisher IDs can now have . (dots) in them (https://github.com/BirkbeckCTP/janeway/pull/2173)
 
 Docker

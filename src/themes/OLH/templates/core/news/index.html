@@ -12,17 +12,13 @@
             {% for item in news_items %}
                 <div class="news-item-block">
                     <div class="row">
+                        {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                         <div class="large-5 columns">
                             <a href="{% url 'core_news_item' item.pk %}"><img class="news-image"
-                            {% if item.large_image_file %}
-                                src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                            {% elif request.journal and request.journal.default_large_image %}
-                                 src="{{ request.journal.default_large_image.url }}"
-                            {% elif request.press.default_carousel_image %}
-                                src="{{ request.press.default_carousel_image.url }}"
-                            {% endif %}
+                                src="{{ item.best_image_url }}"
                                 alt="{{ item.title }}"/></a>
                         </div>
+                        {% endif %}
                         <div class="large-7 columns">
                             <h4>{{ item.title }}</h4>
                             <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>

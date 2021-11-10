@@ -25,10 +25,7 @@
                 </a>
                 <p class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}
                     {% if article.frozen_authors.all|length > 1 %} and
-                    {% endif %}{% endif %}{{ author.full_name }}
-                    {% if not forloop.last %}
-                        {% if not forloop.counter == article.frozen_authors.all|length|add:-1 %},
-                        {% endif %}{% endif %}{% endfor %}
+                    {% endif %}{% endif %}{{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %}, {% endif %}{% endif %}{% endfor %}
                 </p>
                 <p class="card-text">
                     <span class="date"><span class="fa fa-calendar"></span> {{ article.date_published|date:"Y-m-d" }}</span>

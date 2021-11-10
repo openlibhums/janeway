@@ -136,12 +136,12 @@ Sending a proofreading request
 Files provided by the typesetter are usually sent to the authors, and potentially other editors, for proofreading.
 Janeway allows you to create a proofing task, where authors and/or editors can be invited to proof the typeset files.
 
-.. figure:: ../nstatic/typesetting/assign_proofreader_button.png
+.. figure:: ../nstatic/typesetting/assigning_proofreaders.gif
    :class: with-border
 
 
 Reviewing a proofreading request
--------------------------------_
+--------------------------------
 As the author/editors finish the proofing process you can review their comments.
 
 
@@ -170,3 +170,12 @@ We can also select which files the typesetter needs to apply the corrections to:
    :class: with-border
 
 After the task is sent out, we just have to wait for the typesetter to complete it, at which point we can review their work and dispatch new proofing tasks to the author if necessary, or accept their changes and complete the process.
+
+Supplementary Files
+-------------------
+Authors are able to upload supplementary files to Janeway as part of their submission. If the intention is to host the file on Janeway Editors can create a Supplementary File object and assign it a DOI within Janeway. This section is located at the bottom of the Typesetting Article page. If the file isn't already uploaded to Janeway you can opt to upload a new file.
+
+.. tip:: You should create the supplementary file object in advance of sending the article for typesetting where possible and notify the typesetter (if you use external typesetters). They will be able to see the file record and the DOI that has been assigned to it.
+
+.. figure:: ../nstatic/typesetting/supp_files.gif
+   :class: with-border

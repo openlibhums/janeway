@@ -16,8 +16,6 @@ MIDDLEWARE_CLASSES = (
 INSTALLED_APPS = [
     'debug_toolbar',
     'django_nose',
-    'hijack',
-    'compat',
 ]
 
 
@@ -31,6 +29,7 @@ DEBUG_TOOLBAR_CONFIG = {
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+HIJACK_USERS_ENABLED = True
 
 LOGGING = {
     'version': 1,
