@@ -769,6 +769,7 @@ class Author(models.Model):
                 self.last_name,
             )
 
+
 class PreprintVersion(models.Model):
     preprint = models.ForeignKey(Preprint)
     file = models.ForeignKey(PreprintFile)

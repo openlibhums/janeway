@@ -1014,7 +1014,7 @@ def press_only(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal:
+        if request.journal or request.repository:
             messages.add_message(request, messages.INFO, 'This is a press only page.')
             return redirect(reverse('core_manager_index'))
 

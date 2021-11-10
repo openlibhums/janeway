@@ -27,6 +27,8 @@ from repository import models as repository_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
+from utils.testing.helpers import create_repository, create_preprint
+
 
 class TestSecurity(TestCase):
     # Tests for editor role checks
@@ -3289,6 +3291,136 @@ class TestSecurity(TestCase):
             "keyword_page_enabled wrongly blocks this page from rendering.",
         )
 
+    def test_preprint_editor_or_author_required_authorised(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.editor,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "preprint_editor_or_author_required wrongly blocks editor from accessing preprints"
+        )
+
+    def test_preprint_editor_or_author_required_author(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.author,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "preprint_editor_or_author_required wrongly blocks author from accessing preprints"
+        )
+
+    def test_preprint_editor_or_author_required_unauthorised(self):
+        func = Mock()
+        decorated_func = decorators.preprint_editor_or_author_required(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.proofreader,
+            repository=self.repository,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_is_article_preprint_editor_with_subject_editor(self):
+        func = Mock()
+        decorated_func = decorators.is_article_preprint_editor(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.proofing_manager,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "is_article_preprint_editor wrongly blocks subject editor from accessing preprints"
+        )
+
+    def test_is_article_preprint_editor_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.is_article_preprint_editor(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            repository=self.repository,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_is_repository_manager(self):
+        func = Mock()
+        decorated_func = decorators.is_repository_manager(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.editor,
+            repository=self.repository,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "is_repository_manager wrongly blocks subject editor from accessing preprints"
+        )
+
+    def test_is_repository_manager_with_bad_user(self):
+        func = Mock()
+        decorated_func = decorators.is_repository_manager(func)
+        kwargs = {'preprint_id': self.preprint.pk}
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            repository=self.repository,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_press_only(self):
+        func = Mock()
+        decorated_func = decorators.press_only(func)
+        kwargs = {}
+
+        request = self.prepare_request_with_user(
+            self.editor,
+        )
+        decorated_func(request, **kwargs)
+
+        self.assertTrue(
+            func.called,
+            "press_only incorrectly redirects when there is no journal or repo present in request"
+        )
+
+    def test_press_only_with_journal(self):
+        func = Mock()
+        decorated_func = decorators.press_only(func)
+
+        request = self.prepare_request_with_user(None, self.journal_one)
+
+        self.assertIsInstance(decorated_func(request), HttpResponseRedirect)
+
+        # test that the callback was not called
+        self.assertFalse(func.called,
+                         "press_only decorator doesn't redirect when request.journal is found")
+
     # General helper functions
 
     @staticmethod
@@ -3682,6 +3814,17 @@ class TestSecurity(TestCase):
 
         self.press = press_models.Press.objects.create(name='CTP Press', domain='testserver')
 
+        self.repository, self.repository_subject = create_repository(
+            self.press,
+            [self.admin_user, self.editor],
+            [self.proofing_manager],
+        )
+        self.preprint = create_preprint(
+            repository=self.repository,
+            author=self.author,
+            subject=self.repository_subject,
+        )
+
         call_command('load_default_settings')
 
     @staticmethod
@@ -3693,7 +3836,7 @@ class TestSecurity(TestCase):
         return None
 
     @staticmethod
-    def prepare_request_with_user(user, journal, press=None):
+    def prepare_request_with_user(user, journal=None, press=None, repository=None):
         """
         Build a basic request dummy object with the journal set to journal
         and the user having editor permissions.
@@ -3711,5 +3854,6 @@ class TestSecurity(TestCase):
         request.path = '/a/fake/path/'
         request.path_info = '/a/fake/path/'
         request.press = press
+        request.repository = repository
 
         return request
