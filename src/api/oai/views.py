@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.views.generic.base import TemplateView
 
 from api.oai import exceptions
-from api.oai.base import OAIPagedModelView
+from api.oai.base import OAIPagedModelView, metadata_formats
 from identifiers.models import Identifier
 from submission import models as submission_models
 
@@ -86,10 +86,18 @@ class OAIGetRecord(TemplateView):
         return article
 
 
-
-
 class OAIListIdentifiers(OAIListRecords):
     template_name = "apis/OAI_ListIdentifiers.xml"
+
+
+class OAIListMetadataFormats(TemplateView):
+    template_name = 'apis/OAI_ListMetadataFormats.xml'
+    content_type = 'application/xml'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["metadata_formats"] = metadata_formats
+        return context
 
 
 class OAIErrorResponse(TemplateView):
@@ -113,4 +121,5 @@ ROUTES = {
     "GetRecord": OAIGetRecord.as_view(),
     "ListRecords": OAIListRecords.as_view(),
     "ListIdentifiers": OAIListIdentifiers.as_view(),
+    "ListMetadataFormats": OAIListMetadataFormats.as_view(),
 }

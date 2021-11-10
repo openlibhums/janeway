@@ -1,4 +1,5 @@
 <record>
+    {{ prefix }}
     {% include "apis/OAI_record_header.xml" with article=article %}
     <metadata>
   <oai_dc:dc
