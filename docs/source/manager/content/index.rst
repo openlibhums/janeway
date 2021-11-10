@@ -225,3 +225,19 @@ or
 
 You must also leave 'Text' and 'Existing setting' blank. This will render a special template that displays all publicly available sections or licenses.
 
+Media Files
+^^^^^^^^^^^
+The Media Files manager lets editors upload and host small files. Examples include:
+
+* Author Guidelines
+* Proofing Guidelines
+* Article Submission Templates
+
+Once a file is uploaded a link is provided that you can then insert into CMS pages or templates.
+
+.. note::
+    The Media Files section should not be used to upload videos unless you have sufficient storage space/bandwidth. If you use Janeway Hosting you should contact the support team.
+
+.. figure:: ../../nstatic/media_files.gif
+
+    Upload and deletion of a media file.

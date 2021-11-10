@@ -12,7 +12,7 @@
         </li>
     {% endif %}
     {% for issue in article.issues_list %}
-        {% if not issue == article.primary_issue %}<li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.display_title }}</a></li>{% endif %}
+        {% if not issue == article.primary_issue %}<li><a href="{% url 'journal_issue' issue.pk %}">{{ issue.issue_type.pretty_name }}: {{ issue.display_title }}</a></li>{% endif %}
         {% empty %}
         <li>This article is not a part of any issues.</li>
     {% endfor %}

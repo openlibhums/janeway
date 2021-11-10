@@ -9,11 +9,7 @@
         <div class="col m12">
             <div class="card">
                 <div class="card-image">
-                    <img{% if news_item.large_image_file %}
-                        src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
-                    {% else %}
-                        src="{{ request.press.default_carousel_image.url }}"
-                    {% endif %}
+                    <img src="{{ news_item.best_image_url }}"
                         alt="{{ news_item.title }}"/>
                     <span class="card-title news-card-title">{{ news_item.title }}</span>
                 </div>

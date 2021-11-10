@@ -13,14 +13,12 @@
              <div class="col s12 m6 l4">
                 <div class="card large" style="height:550px">
                     <div class="card-image">
-                        {% if collection.cover_image or journal.default_cover_image %}
-                        <img 
+                        <img
                             class="issue_image"
-                            src="{% if collection.cover_image %}{{ collection.cover_image.url }}{% else %}{{ journal.default_cover_image.url }}{% endif %}"
+                            src="{{ collection.hero_image_url }}"
                             alt="{{ collection.issue_title }}" class="img-fluid"
                             onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
                         >
-                        {% endif %}
                             <a href="{% url 'journal_collection' collection.id %}" class="carousel-text-wrapper card-title" style="width:100%">{{ collection.issue_title }}</a>
                     </div>
                         <div class="card-content scroll-y">

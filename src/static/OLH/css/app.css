@@ -2769,6 +2769,9 @@ body {
   overflow: hidden;
   list-style: none; }
 
+.orbit-container {
+  max-height: 500px; }
+
 .orbit-slide {
   width: 100%;
   max-height: 100%; }
@@ -5294,3 +5297,6 @@ button.list-group-item-danger.active:focus {
 
 .language-menu {
   padding-left: 15px; }
+
+.reveal {
+  user-select: text; }

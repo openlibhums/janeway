@@ -3,7 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
+import datetime
+from itertools import chain
 from operator import itemgetter
 import collections
 import uuid
@@ -268,6 +269,7 @@ class Journal(AbstractSiteModel):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
         return max(issue_orders) + 1 if issue_orders else 0
 
+    @property
     def issues(self):
         return Issue.objects.filter(journal=self)
 
@@ -347,67 +349,13 @@ class Journal(AbstractSiteModel):
         """ Renders a carousel for the journal homepage.
         :return: a tuple containing the active carousel and list of associated articles
         """
-        import core.logic as core_logic
-        carousel_objects = []
-        article_objects = []
-        news_objects = []
-
-        if self.carousel is None:
+        if self.carousel is None or not self.carousel.enabled:
             return None, []
+        items = self.carousel.get_items()
+        if self.carousel.current_issue and self.current_issue:
+            items = chain([self.current_issue], items)
 
-        if self.carousel.mode == 'off':
-            return self.carousel, []
-
-        # determine the carousel mode and build the list of objects as appropriate
-        if self.carousel.mode == "latest":
-            article_objects = core_logic.latest_articles(self.carousel, 'journal')
-
-        elif self.carousel.mode == "selected":
-            article_objects = core_logic.selected_articles(self.carousel, 'journal')
-
-        elif self.carousel.mode == "news":
-            news_objects = core_logic.news_items(self.carousel, 'journal')
-
-        elif self.carousel.mode == "mixed":
-            # news items and latest articles
-            news_objects = core_logic.news_items(self.carousel, 'journal')
-            article_objects = core_logic.latest_articles(self.carousel, 'journal')
-
-        elif self.carousel.mode == "mixed-selected":
-            # news items and latest articles
-            news_objects = self.carousel.news_articles.all()
-            article_objects = core_logic.selected_articles(self.carousel)
-
-        # run the exclusion routine
-        if self.carousel.mode != "news" and self.carousel.exclude:
-            # remove articles from the list here when the user has specified that certain articles
-            # should be excluded
-            exclude_list = self.carousel.articles.all()
-            excluded = exclude_list.values_list('id', flat=True)
-            try:
-                article_objects = article_objects.exclude(id__in=excluded)
-            except AttributeError:
-                for exclude_item in exclude_list:
-                    if exclude_item in article_objects:
-                        article_objects.remove(exclude_item)
-
-        # now limit the items by the respective amounts
-        if self.carousel.article_limit > 0:
-            article_objects = article_objects[:self.carousel.article_limit]
-
-        if self.carousel.news_limit > 0:
-            news_objects = news_objects[:self.carousel.news_limit]
-
-        # if running in a mixed mode, sort the objects by a mixture of date_published for articles and posted for
-        # news items. Note, this has to be done AFTER the exclude procedure above.
-        if self.carousel.mode == "mixed-selected" or self.carousel.mode == 'mixed':
-            carousel_objects = core_logic.sort_mixed(article_objects, news_objects)
-        elif self.carousel.mode == 'news':
-            carousel_objects = news_objects
-        else:
-            carousel_objects = article_objects
-
-        return self.carousel, carousel_objects
+        return self.carousel, items
 
     def next_pa_seq(self):
         "Works out what the next pinned article sequence should be."
@@ -486,8 +434,18 @@ class Issue(models.Model):
     issue_description = models.TextField(blank=True, null=True)
     short_description = models.CharField(max_length=600, blank=True, null=True)
 
-    cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    large_image = models.ImageField(upload_to=issue_large_image_path, null=True, blank=True, storage=fs)
+    cover_image = models.ImageField(
+        upload_to=cover_images_upload_path, null=True, blank=True, storage=fs,
+        help_text=ugettext(
+            "Image representing the the cover of a printed issue or volume",
+        )
+    )
+    large_image = models.ImageField(
+        upload_to=issue_large_image_path, null=True, blank=True, storage=fs,
+        help_text=ugettext(
+            "landscape hero image used in the carousel and issue page"
+        )
+    )
 
     # issue articles
     articles = models.ManyToManyField('submission.Article', blank=True, null=True, related_name='issues')
@@ -501,8 +459,47 @@ class Issue(models.Model):
         through='IssueEditor',
     )
 
-    class Meta:
-        ordering = ('order', 'year', 'volume', 'issue', 'title')
+    @property
+    def hero_image_url(self):
+        if self.large_image:
+            return self.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        else:
+            return ''
+
+    @property
+    def date_published(self):
+        return datetime.datetime(
+            self.date.year, self.date.month, self.date.day,
+            tzinfo=self.date.tzinfo,
+        )
+
+    @property
+    def url(self):
+        if not self.is_serial:
+            path = reverse("journal_issue", kwargs={"issue_id": self.pk})
+        else:
+            path = reverse(
+                "journal_collection", kwargs={"collection_id": self.pk})
+        return self.journal.site_url(path=path)
+
+    @property
+    def carousel_subtitle(self):
+        if not self.is_serial:
+            return self.issue_type.pretty_name
+        if self == self.journal.current_issue:
+            return ugettext("Current Issue")
+        else:
+            return ""
+
+    @property
+    def carousel_title(self):
+        return self.display_title
+
+    @property
+    def carousel_image_resolver(self):
+        return 'news_file_download'
 
     @property
     def is_serial(self):
@@ -759,7 +756,11 @@ class Issue(models.Model):
                     )
 
     def __str__(self):
-        return u'{0}: {1} {2} ({3})'.format(self.volume, self.issue, self.issue_title, self.date.year)
+        return (
+            '{self.issue_type.pretty_name}: '
+            '{self.issue}({self.volume}) '
+            '{self.issue_title} ({self.date.year})'.format(self=self)
+        )
 
     class Meta:
         ordering = ("order", "-date")

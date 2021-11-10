@@ -1,17 +1,14 @@
 {% load i18n %}
 
 <div class="col m3 offset-m1">
+    {% if issue.galley %}
     <h3>{% trans 'Downloads' %}</h3>
     <ul>
-        {% if issue.galley %}
         <li>
             <a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}"><i class="fa fa-download">&nbsp</i> {% trans "Download" %} {% if not collection %}{% trans "Issue" %}{% else %}{% with col=journal_settings.general.collection_name %}{% if col %}{{ col }}{% else %}{% with col=journal_settings.general.collection_name %}{% if col %}{{ col }}{% else %}{% trans "Collection" %}{% endif %}{% endwith %}{% endif %}{% endwith %}{% endif %} (PDF)</a>
         <li>
-        {% endif %}
-        </li>
-            <a href="{% url 'journal_issue_download' issue.pk %}"><i class="fa fa-download">&nbsp</i> {% trans "Download" %} {% if not collection %}{% trans "Issue" %}{% else %}{% with col=journal_settings.general.collection_name %}{% if col %}{{ col }}{% else %}{% with col=journal_settings.general.collection_name %}{% if col %}{{ col }}{% else %}{% trans "Collection" %}{% endif %}{% endwith %}{% endif %}{% endwith %}{% endif %} (ZIP)</a>
-        </li>
     </ul>
+    {% endif %}
 
     <h3>
         {% if issue.issue_type.code == 'issue' %}{% trans "Issue Archive" %}

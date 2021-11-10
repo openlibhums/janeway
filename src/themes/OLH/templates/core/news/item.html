@@ -11,19 +11,13 @@
 {% block body %}
 	<section id="content" class="">
 		<div class="row column">
-            {% if news_item.large_image_file or request.press.default_carousel_image.url %}
+            {% if news_item.best_image_url %}
                 <div class="orbit article-orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
-                                {% if news_item.large_image_file %}
-                                    src="{% url 'news_file_download' 'id' news_item.id news_item.large_image_file.id %}"
-                                {% elif request.journal and request.journal.default_large_image %}
-                                     src="{{ request.journal.default_large_image.url }}"
-                                {% else %}
-                                    src="{{ request.press.default_carousel_image.url }}"
-                                {% endif %}
-                                 alt="{{ article.title | striptags }}">
+                                src="{{ news_item.best_image_url }}"
+                                 alt="{{ news_item.title | striptags }}">
                         <div class="row column">
                             <figcaption class="orbit-caption">
                                 <h3>{{ news_item.title }}</h3>

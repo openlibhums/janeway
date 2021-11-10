@@ -93,6 +93,8 @@ INSTALLED_APPS = [
     'materialize',
     'snowpenguin.django.recaptcha2',
     'simplemathcaptcha',
+    'hijack',
+    'compat',
 
     # Forms
     'django.forms',
@@ -178,6 +180,7 @@ SETTINGS_EXPORT = [
     'DEBUG',
     'LANGUAGE_CODE',
     'URL_CONFIG',
+    'HIJACK_USERS_ENABLED',
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -510,3 +513,6 @@ if (
     logging.disable(logging.CRITICAL)
     MIGRATION_MODULES = SkipMigrations()
 
+# A potentially dangerous feature, this allows superusers to hijack and control a user's account.
+HIJACK_USERS_ENABLED = False
+HIJACK_LOGIN_REDIRECT_URL = '/manager/'

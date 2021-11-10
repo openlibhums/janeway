@@ -103,6 +103,11 @@ def register_crossref_component(article, xml, supp_file):
 
 
 def create_crossref_context(identifier):
+    timestamp_suffix = identifier.article.journal.get_setting(
+        'crossref',
+        'crossref_date_suffix',
+    )
+
     from utils import setting_handler
     template_context = {
         'batch_id': uuid4(),
@@ -113,7 +118,10 @@ def create_crossref_context(identifier):
                                                        identifier.article.journal).processed_value,
         'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
                                                   identifier.article.journal).processed_value,
-        'journal_title': identifier.article.journal.name,
+        'journal_title': (
+                identifier.article.publication_title
+                or identifier.article.journal.name
+        ),
         'abstract': strip_tags(identifier.article.abstract or ''),
         'journal_issn': identifier.article.journal.issn,
         'print_issn': identifier.article.journal.print_issn or None,
@@ -129,6 +137,7 @@ def create_crossref_context(identifier):
         'doi': identifier.identifier,
         'article_url': identifier.article.url,
         'now': timezone.now(),
+        'timestamp_suffix': timestamp_suffix,
     }
 
     # append citations for i4oc compatibility

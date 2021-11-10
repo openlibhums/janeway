@@ -365,3 +365,65 @@ def order_submission_items(request):
         [int(item_pk) for item_pk in request.POST.getlist('item[]')]
     )
     return HttpResponse('Ok')
+
+
+@editor_user_required
+def file_list(request):
+    media_files = models.MediaFile.objects.filter(
+        journal=request.journal,
+    )
+    form = forms.MediaFileForm(
+        journal=request.journal,
+    )
+
+    if request.POST and 'delete' in request.POST:
+        id_to_delete = request.POST.get('delete')
+        media_file = get_object_or_404(
+            models.MediaFile,
+            pk=id_to_delete,
+            journal=request.journal,
+        )
+        media_file.unlink()
+        media_file.delete()
+        return redirect(
+            reverse(
+                'cms_file_list',
+            )
+        )
+
+    template = 'admin/cms/media_files.html'
+    context = {
+        'media_files': media_files,
+        'form': form,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+
+
+@editor_user_required
+@require_POST
+def file_upload(request):
+    form = forms.MediaFileForm(
+        request.POST,
+        request.FILES,
+        journal=request.journal,
+    )
+    if form.is_valid():
+        form.save()
+    else:
+        errors = []
+        for k, v in form.errors.items():
+            errors.append("{}: {}".format(k, v))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            ", ".join(errors),
+        )
+    return redirect(
+        reverse(
+            'cms_file_list',
+        )
+    )

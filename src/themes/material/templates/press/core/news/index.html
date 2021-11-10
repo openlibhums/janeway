@@ -14,12 +14,7 @@
             <div class="col m12">
                 <div class="card">
                     <div class="card-image">
-                        <img{% if item.large_image_file %}
-                                    src="{% url 'news_file_download' 'id' item.id item.large_image_file.id %}"
-                                {% else %}
-                                    src="{{ request.press.default_carousel_image.url }}"
-                                {% endif %}
-                                    alt="{{ item.title }}"/>
+                        <img src="{{ item.best_image_url }}" alt="{{ item.title }}"/>
                         <span class="card-title news-card-title">{{ item.title }}</span>
                     </div>
                     <div class="card-content">

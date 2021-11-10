@@ -3,6 +3,10 @@
 
 {% block title %}{{ news_item.title }}{% endblock title %}
 
+{% block head %}
+{% include "elements/social_meta.html" %}
+{% endblock head %}
+
 {% block body %}
     <div class="row">
         <div class="col-md-12">

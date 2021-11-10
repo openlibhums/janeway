@@ -50,8 +50,7 @@ def get_site_resources(request):
                     "" % settings.URL_CONFIG
             )
     except (journal_models.Journal.DoesNotExist, IndexError):
-
-        try:
+        try: # try repository site
             if settings.URL_CONFIG == 'path':
                 short_name = request.path.split('/')[1]
                 repository = repository_models.Repository.objects.get(
@@ -70,14 +69,15 @@ def get_site_resources(request):
                         "" % settings.URL_CONFIG
                 )
         except (repository_models.Repository.DoesNotExist, IndexError):
-            try:  # try press site
+            try: # try press site
                 press = press_models.Press.get_by_request(request)
             except press_models.Press.DoesNotExist:
                 try: # try alias
                     alias = core_models.DomainAlias.get_by_request(request)
                     if alias.redirect:
                         logger.debug("Matched a redirect: %s" % alias.redirect_url)
-                        redirect_obj = redirect(alias.redirect_url)
+                        redirect_obj = redirect(
+                            alias.build_redirect_url(path=request.path))
                     else:
                         journal = alias.journal
                         press = journal.press if journal else alias.press
@@ -86,7 +86,7 @@ def get_site_resources(request):
                     logger.warning(
                         "Couldn't match a resource for %s, redirecting to %s"
                         "" % (request.path, settings.DEFAULT_HOST)
-                    )
+                        )
                     redirect_obj = redirect(settings.DEFAULT_HOST)
 
     return journal, repository, press, redirect_obj

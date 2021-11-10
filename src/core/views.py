@@ -628,7 +628,10 @@ def manager_index(request):
     template = 'core/manager/index.html'
     context = {
         'published_articles': submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED, journal=request.journal).select_related('section')[:25]
+            date_published__isnull=False,
+            stage=submission_models.STAGE_PUBLISHED,
+            journal=request.journal
+        ).select_related('section')[:25]
     }
 
     return render(request, template, context)

@@ -274,7 +274,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to reviewers when they agree to undertake a review.",
+            "description": "Email sent to reviewers when they decline to undertake a review.",
             "is_translatable": true,
             "name": "review_decline_acknowledgement",
             "pretty_name": "Review Decline Acknowledgement",
@@ -1106,7 +1106,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "Recommended steps for completing the Production stage:<ol><li>Assign a Typesetter (optional){% if production_assignment.typeset_tasks %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% for task in production_assignment.typeset_tasks %}<li>Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% endfor %}<li>Have at lease one Galley file uploaded (required) {% if article.has_galley %} <i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i>{% endif %}</li></ol>"
+            "default": "Recommended steps for completing the Production stage:<ol><li>Assign a Typesetter (optional){% if production_assignment.typeset_tasks %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% for task in production_assignment.typeset_tasks %}<li>Review typesetting task by {{ task.typesetter.full_name }} {% if task.editor_reviewed %}<i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i> {% endif %}</li>{% endfor %}<li>Have at least one Galley file uploaded (required) {% if article.has_galley %} <i style=\"color: green;\" class=\"fa fa-check-circle info\">&nbsp;</i>{% endif %}</li></ol>"
         }
     },
     {
@@ -2422,7 +2422,7 @@
             "type": "text",
             "pretty_name": "Review Declination Acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers when they agree to undertake a review.",
+            "description": "Subject for Email sent to reviewers when they decline to undertake a review.",
             "name": "subject_review_decline_acknowledgement"
         },
         "group": {
@@ -2821,21 +2821,6 @@
     },
     {
         "group": {
-            "name": "general"
-        },
-        "setting": {
-            "description": "If enabled, the journal about block will be rendered in the submissions page",
-            "is_translatable": false,
-            "name": "display_about_on_submissions",
-            "pretty_name": "Display 'About' on submissions",
-            "type": "boolean"
-        },
-        "value": {
-            "default": "on"
-        }
-    },
-    {
-        "group": {
             "name": "article"
         },
         "setting": {
@@ -3069,6 +3054,51 @@
             "name": "hide_author_email_links",
             "pretty_name": "Hide Author Email Links",
             "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If set to true the Login Page Notice will display.",
+            "is_translatable": true,
+            "name": "display_login_page_notice",
+            "pretty_name": "Display Login Page Notice",
+            "type": "boolean"
+        },
+        "value": {
+            "default": false
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Message to display if you enable Display Login Notice.",
+            "is_translatable": true,
+            "name": "login_page_notice",
+            "pretty_name": "Login Page Notice",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
+            "name": "crossref"
+        },
+        "setting": {
+            "description": "For migrated content where we need to tweak the crossref date.",
+            "is_translatable": true,
+            "name": "crossref_date_suffix",
+            "pretty_name": "Crossref Date Suffix",
+            "type": "text"
         },
         "value": {
             "default": ""

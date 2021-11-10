@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django import forms
 
 from django_summernote.widgets import SummernoteWidget
 
@@ -82,3 +83,25 @@ class SubmissionItemForm(JanewayTranslationModelForm):
             item.save()
 
         return item
+
+
+class MediaFileForm(forms.ModelForm):
+    class Meta:
+        model = models.MediaFile
+        fields = (
+            'label',
+            'file',
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop('journal', None)
+        super(MediaFileForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        media_file = super(MediaFileForm, self).save(commit=False)
+        media_file.journal = self.journal
+
+        if commit:
+            media_file.save()
+
+        return media_file

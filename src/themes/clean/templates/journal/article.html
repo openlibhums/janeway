@@ -82,7 +82,7 @@
                     {% endif %}{% endfor %}</p>{% endif %}
                 {% if article.is_published %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
-                    {{ article.how_to_cite }} </p>
+                    {{ article.how_to_cite|safe }} </p>
                 {% endif %}
                 {% if article.rights %}
                     <p><strong>{% trans "Rights" %}:</strong>
@@ -161,6 +161,18 @@
                     <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
                     {% else %}
                     <li>{% trans "Accepted on" %} {{ article.date_accepted|date:"d M Y" }}</li>
+                    {% endif %}
+                    {% if article.page_range %}
+                    <li>{% trans "Pages" %}: {{ article.page_range }}</li>
+                    {% endif %}
+                    {% if article.article_number %}
+                    <li>{% trans "Article Number" %}: {{ article.article_number }}</li>
+                    {% endif %}
+                    {% if article.publisher_name %}
+                    <li>{% trans "Publisher" %}: {{ article.publisher_name }}</li>
+                    {% endif %}
+                    {% if article.publication_title %}
+                    <li>{% trans "Original Publication" %}: {{ article.publication_title }}</li>
                     {% endif %}
                     <li>{% trans "Peer Reviewed" %} {% if article.peer_reviewed %}
                         <span class="fa fa-check-circle"></span>{% else %}<span class="fa fa-times-circle"></span>{% endif %}</li>
