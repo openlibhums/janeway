@@ -1180,13 +1180,6 @@ class Article(models.Model):
         else:
             return max(current_orders) + 1
 
-    def next_preprint_version(self):
-        versions = [version.version for version in repository_models.PreprintVersion.objects.filter(preprint=self)]
-        if not versions:
-            return 1
-        else:
-            return max(versions) + 1
-
     def subject_editors(self):
         editors = list()
         subjects = self.subject_set.all().prefetch_related('editors')
