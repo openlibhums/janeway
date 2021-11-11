@@ -112,7 +112,7 @@ def submit_funding(request, article_id):
         'submission_summary',
         request.journal,
     ).processed_value
-    form = forms.ArticleInfo(
+    form = forms.ArticleInfoSubmit(
         instance=article,
         additional_fields=additional_fields,
         submission_summary=submission_summary,
@@ -163,7 +163,7 @@ def submit_info(request, article_id):
             'submission_summary',
             request.journal,
         ).processed_value
-        form = forms.ArticleInfo(
+        form = forms.ArticleInfoSubmit(
             instance=article,
             additional_fields=additional_fields,
             submission_summary=submission_summary,
@@ -171,7 +171,7 @@ def submit_info(request, article_id):
         )
 
         if request.POST:
-            form = forms.ArticleInfo(
+            form = forms.ArticleInfoSubmit(
                 request.POST,
                 instance=article,
                 additional_fields=additional_fields,
