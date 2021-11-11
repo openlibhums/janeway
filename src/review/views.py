@@ -879,6 +879,13 @@ def do_review(request, assignment_id):
                     messages.SUCCESS,
                     'Progress saved',
                 )
+                return redirect(
+                    logic.generate_access_code_url(
+                        'do_review',
+                        assignment,
+                        access_code,
+                    )
+                )
             else:
                 assignment.date_complete = timezone.now()
                 assignment.is_complete = True

@@ -20,6 +20,7 @@ from submission import models as submission_models
 from proofing import models as proofing_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
+from utils import setting_handler
 
 
 # Create your tests here.
@@ -32,6 +33,24 @@ class ReviewTests(TestCase):
         """
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_review_form_can_save(self):
+        review_field_text = 'Here is a review of this paper.'
+        self.client.force_login(self.second_user)
+        data = {
+            str(self.review_form_element.pk): review_field_text,
+            'save_progress': '',
+        }
+        response = self.client.post(
+            reverse('do_review', kwargs={'assignment_id': self.review_assignment.pk}),
+            data,
+            follow=True,
+        )
+        self.assertEqual(
+            response.context['form'].fields[str(self.review_form_element.pk)].initial,
+            review_field_text,
+        )
 
     @staticmethod
     def create_user(username, roles=None, journal=None):
@@ -235,6 +254,21 @@ class ReviewTests(TestCase):
                                                     journal=self.journal_one)
         self.review_form.save()
 
+        self.review_form_element, c = review_models.ReviewFormElement.objects.get_or_create(
+            name='Review',
+            kind='text',
+            order=1,
+            width='full',
+            required=True,
+        )
+        self.review_form.elements.add(self.review_form_element)
+        setting_handler.save_setting(
+            'general',
+            'enable_save_review_progress',
+            self.journal_one,
+            'On',
+        )
+
         self.review_assignment_complete = review_models.ReviewAssignment(article=self.article_review_completed,
                                                                          reviewer=self.regular_user,
                                                                          editor=self.editor,
@@ -366,9 +400,12 @@ class ReviewTests(TestCase):
                                                                       task='fsddsff')
         self.correction_task.save()
 
-        call_command('load_default_settings')
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
         self.press.save()
         call_command('install_plugins')
+        update_settings(
+            self.journal_one,
+            management_command=False,
+        )
