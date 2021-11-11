@@ -15,7 +15,7 @@ from django.core.management import call_command
 from core import models as core_models
 from journal import models as journal_models
 from production import models as production_models
-from review import models as review_models
+from review import models as review_models, forms
 from submission import models as submission_models
 from proofing import models as proofing_models
 from press import models as press_models
@@ -34,21 +34,23 @@ class ReviewTests(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(URL_CONFIG="domain")
     def test_review_form_can_save(self):
         review_field_text = 'Here is a review of this paper.'
-        self.client.force_login(self.second_user)
-        data = {
-            str(self.review_form_element.pk): review_field_text,
-            'save_progress': '',
-        }
-        response = self.client.post(
-            reverse('do_review', kwargs={'assignment_id': self.review_assignment.pk}),
-            data,
-            follow=True,
+        first_form = forms.GeneratedForm(
+            review_assignment=self.review_assignment,
+            fields_required=False,
+            data={
+                str(self.review_form_element.pk): review_field_text,
+            }
+        )
+        first_form.is_valid()
+        self.review_assignment.save_review_form(first_form, self.review_assignment)
+        second_form = forms.GeneratedForm(
+            review_assignment=self.review_assignment,
+            fields_required=False,
         )
         self.assertEqual(
-            response.context['form'].fields[str(self.review_form_element.pk)].initial,
+            second_form.fields[str(self.review_form_element.pk)].initial,
             review_field_text,
         )
 
@@ -404,7 +406,6 @@ class ReviewTests(TestCase):
         self.journal_two.name = 'Journal Two'
         self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
         self.press.save()
-        call_command('install_plugins')
         update_settings(
             self.journal_one,
             management_command=False,
