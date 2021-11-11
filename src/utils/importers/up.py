@@ -420,7 +420,7 @@ def import_issue_images(journal, user, url, import_missing=False, update=False):
     import os
     from django.core.files import File
 
-    for issue in journal.issues().filter(issue_type__code="issue"):
+    for issue in journal.issues.filter(issue_type__code="issue"):
         issue_num = issue.issue
         pattern = re.compile(r'\/\d+\/volume\/{0}\/issue\/{1}'.format(
             issue.volume, issue_num))
@@ -1297,6 +1297,10 @@ def scrape_editorial_team(journal, base_url):
                         defaults=profile_dict,
                     )
                     scrape_editorial_bio(member_div, account)
+                    if not account.institution or account.institution == " ":
+                        if institution:
+                            account.institution = institution
+                            account.save()
                     if not account.institution or account.institution == " ":
                         if institution:
                             account.institution = institution
