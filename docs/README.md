@@ -3,7 +3,7 @@ Python Sphinx project for building the Janeway documentation
 
 ## How to build the documentation
 
-### Installing the depenencies
+### Installing the dependencies
 After installing the dependencies for Janeway, install the requirements described under `requirements.txt`
 `pip install -r requirements.txt`
 
