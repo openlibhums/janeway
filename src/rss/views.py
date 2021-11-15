@@ -25,7 +25,10 @@ class LatestNewsFeed(Feed):
 
     def items(self, obj):
         content_type = ContentType.objects.get_for_model(obj)
-        return comms_models.NewsItem.objects.filter(content_type=content_type, object_id=obj.pk).order_by('sequence')[:10]
+        return comms_models.NewsItem.objects.filter(
+            content_type=content_type,
+            object_id=obj.pk,
+        ).order_by('sequence')[:10]
 
     def item_title(self, item):
         return striptags(item.title)
@@ -59,7 +62,7 @@ class LatestArticlesFeed(Feed):
         return submission_models.Article.objects.filter(
             date_published__lte=timezone.now(),
             journal=obj
-        ).order_by('date_published')[:10]
+        ).order_by('-date_published')[:10]
 
     def item_title(self, item):
         return striptags(item.title)
