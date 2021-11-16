@@ -34,8 +34,10 @@ class LanguageMiddleware(object):
                 ))
 
             if not available_languages:
+                # If we have no languages use the defaults from settings.
                 available_languages = [lang[0] for lang in settings.LANGUAGES]
             else:
+                # The default language must always be in available_languages.
                 available_languages.append(settings.LANGUAGE_CODE)
 
             request.available_languages = set(available_languages)
