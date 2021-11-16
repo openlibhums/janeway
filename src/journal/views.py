@@ -41,7 +41,7 @@ from security.decorators import article_stage_accepted_or_later_required, \
     file_history_user_required, file_edit_user_required, production_user_or_editor_required, \
     editor_user_required, keyword_page_enabled
 from submission import models as submission_models
-from utils import models as utils_models, shared
+from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
 from events import logic as event_logic
 
@@ -2301,3 +2301,70 @@ def serve_article_xml(request, identifier_type, identifier):
         xml_galley.file.get_file(article_object),
         content_type=xml_galley.file.mime_type,
     )
+
+
+@editor_user_required
+def manage_languages(request):
+    active_languages = request.journal.get_setting(
+        'general', 'journal_languages',
+    )
+    if request.POST:
+        if 'default' in request.POST:
+            new_default = request.POST.get('default')
+            if new_default in active_languages:
+                setting_handler.save_setting(
+                    setting_group_name='general',
+                    setting_name='default_journal_language',
+                    journal=request.journal,
+                    value=new_default,
+                )
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Default language now set to {}'.format(new_default),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    '{} is not an active language for this journal.'.format(new_default),
+                )
+        if 'enable' in request.POST:
+            lang_to_enable = request.POST.get('enable')
+            active_languages.append(lang_to_enable)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                '{} enabled.'.format(lang_to_enable),
+            )
+        if 'disable' in request.POST:
+            lang_to_delete = request.POST.get('disable')
+            active_languages.remove(lang_to_delete)
+            messages.add_message(
+                request,
+                messages.ERROR,
+                '{} disabled.'.format(lang_to_delete),
+            )
+        active_languages.append(settings.LANGUAGE_CODE)
+        setting_handler.save_setting(
+            setting_group_name='general',
+            setting_name='journal_languages',
+            journal=request.journal,
+            value=active_languages,
+        )
+        return redirect(
+            reverse(
+                'manage_languages',
+            )
+        )
+
+    template = 'admin/journal/manage/languages.html'
+    context = {
+        'active_languages': active_languages,
+    }
+    return render(
+        request,
+        template,
+        context,
+    )
+

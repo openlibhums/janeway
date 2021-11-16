@@ -110,6 +110,7 @@
                     {% get_language_info_list for LANGUAGES as languages %}
 
                     {% for language in languages %}
+                        {% if language.code in request.available_languages %}
                         <li>
                             <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
                                 <input name="next" type="hidden" value="{{ request.PATH }}"/>
@@ -123,6 +124,7 @@
                                 {% endif %}
                             </form>
                         </li>
+                        {% endif %}
                     {% endfor %}
 
                 </ul>

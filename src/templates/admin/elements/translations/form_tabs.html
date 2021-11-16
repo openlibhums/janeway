@@ -8,9 +8,11 @@
         <ul class="menu simple lang-tabs">
             {% if object and languages|length > 1 %}
                 {% for lang in languages %}
+                    {% if lang.code in request.available_languages %}
                     <li class="lang-tab{% if lang.code == request.override_language %} lang-tab-active{% endif %}">
                         <a href="?language={{ lang.code }}{% for k,v in request.GET.items %}{% if not k == 'language' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">{{ lang.name_local }} ({{ lang.code }})</a>
                     </li>
+                    {% endif %}
                 {% endfor %}
                 {{ lang }}
                 {% if not request.override_language == settings.LANGUAGE_CODE %}
