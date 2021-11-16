@@ -17,7 +17,7 @@ class LanguageMiddleware(object):
         """
         Checks that the currently set language is okay for the current journal.
         """
-        if request.journal:
+        if request.journal and settings.USE_I18N:
             current_language = translation.get_language()
             available_languages = request.journal.get_setting(
                 group_name='general',
