@@ -153,6 +153,10 @@ urlpatterns = [
     url(r'^manage/articles/schedule/$',
         views.publication_schedule, name='publication_schedule'),
 
+    # Languages
+    url(r'^manage/languages/$',
+        views.manage_languages, name='manage_languages'),
+
     # Reviewer
     url(r'^reviewer/$',
         views.become_reviewer, name='become_reviewer'),

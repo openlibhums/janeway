@@ -3103,5 +3103,35 @@
         "value": {
             "default": ""
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Languages available for this journal.",
+            "is_translatable": false,
+            "name": "journal_languages",
+            "pretty_name": "Journal Languages",
+            "type": "json"
+        },
+        "value": {
+            "default": "[]"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "The default language for the journal.",
+            "is_translatable": false,
+            "name": "default_journal_language",
+            "pretty_name": "Default Journal Language",
+            "type": "text"
+        },
+        "value": {
+            "default": "en"
+        }
     }
 ]

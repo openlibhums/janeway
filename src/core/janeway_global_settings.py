@@ -120,6 +120,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.PressMiddleware',
     'core.middleware.GlobalRequestMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'journal.middleware.LanguageMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
