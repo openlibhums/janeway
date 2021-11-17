@@ -844,7 +844,7 @@ class Comment(models.Model):
             article=self.preprint.title,
         )
     
-    def mark_public(self):
+    def toggle_public(self):
         if self.is_public:
             self.is_public = False
         else:

@@ -164,7 +164,7 @@ def comment_manager_post(request, preprint):
     )
 
     if 'comment_public' in request.POST:
-        comment.mark_public()
+        comment.toggle_public()
 
     else:
         comment.mark_reviewed()
