@@ -999,7 +999,10 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
     if instance.file:
         if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+            try:
+                os.remove(instance.file.path)
+            except FileNotFoundError:
+                pass
 
 
 @receiver(models.signals.pre_save, sender=PreprintFile)
