@@ -63,8 +63,7 @@ class Thread(models.Model):
     def create_post(self, owner, body):
         self.last_updated = timezone.now()
         self.save()
-        return Post.objects.create(
-            thread=self,
+        return self.post_set.create(
             owner=owner,
             body=body,
         )

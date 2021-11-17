@@ -98,9 +98,6 @@ INSTALLED_APPS = [
 
     # Forms
     'django.forms',
-
-    # Deprecated - preprints app will be removed in 1.3.9
-    # 'preprint',
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
