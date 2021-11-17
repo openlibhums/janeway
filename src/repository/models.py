@@ -697,7 +697,7 @@ class PreprintAuthorManager(models.Manager):
 class PreprintAuthor(models.Model):
     preprint = models.ForeignKey('Preprint')
     account = models.ForeignKey('core.Account', null=True)
-    author = models.ForeignKey('Author', blank=True, null=True)
+    author = models.ForeignKey('Author', blank=True, null=True)  # Author is no longer in use, it will be removed.
     order = models.PositiveIntegerField(default=0)
     objects = PreprintAuthorManager()
     affiliation = models.TextField(blank=True, null=True)
