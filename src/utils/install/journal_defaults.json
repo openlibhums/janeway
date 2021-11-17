@@ -3105,6 +3105,7 @@
         }
     },
     {
+<<<<<<< Updated upstream
         "group": {
             "name": "general"
         },
@@ -3133,5 +3134,21 @@
         "value": {
             "default": "en"
         }
+=======
+	"group": {
+	    "name": "general"
+	},
+	"setting": {
+	    "description": "Message to display to staff on journal manager page about contacting support.",
+	    "is_translatable": false,
+	    "name": "support_contact_message_for_staff",
+	    "pretty_name": "Janeway Support Contact for Staff",
+	    "type": "rich-text"
+	},
+	"value": {
+	    "default": "<p>For help with Janeway, contact <a href=\"mailto:support@openlibhums.org\">support@openlibhums.org</a>.</p>"
+	}
+>>>>>>> Stashed changes
     }
 ]
+
