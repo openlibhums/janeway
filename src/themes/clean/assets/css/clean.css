@@ -349,3 +349,7 @@ footer svg {
     width: 16px;
     display: inline-block;
 }
+
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+}
