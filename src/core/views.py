@@ -631,7 +631,12 @@ def manager_index(request):
             date_published__isnull=False,
             stage=submission_models.STAGE_PUBLISHED,
             journal=request.journal
-        ).select_related('section')[:25]
+        ).select_related('section')[:25],
+        'support_message': setting_handler.get_setting(
+            'general',
+            'support_contact_message_for_staff',
+            request.journal,
+        ).processed_value
     }
 
     return render(request, template, context)
