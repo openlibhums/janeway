@@ -3139,14 +3139,29 @@
 	    "name": "general"
 	},
 	"setting": {
-	    "description": "Message to display to staff on journal manager page about contacting support.",
+	    "description": "Email address for Janeway support.",
 	    "is_translatable": false,
+	    "name": "support_email",
+	    "pretty_name": "Support Email",
+	    "type": "char"
+	},
+	"value": {
+	    "default": "support@openlibhums.org"
+	}
+    },
+    {
+	"group": {
+	    "name": "general"
+	},
+	"setting": {
+	    "description": "Message to display to staff on journal manager page about contacting support.",
+	    "is_translatable": true,
 	    "name": "support_contact_message_for_staff",
 	    "pretty_name": "Janeway Support Contact for Staff",
 	    "type": "rich-text"
 	},
 	"value": {
-	    "default": "<p>For help with Janeway, contact <a href=\"mailto:support@openlibhums.org\">support@openlibhums.org</a>.</p>"
+	    "default": "<p>For help with Janeway, contact <a href=\"{{ support_email }}\">support@openlibhums.org</a>.</p>"
 	}
     }
 ]
