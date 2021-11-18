@@ -1588,12 +1588,10 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{@id}">
             <xsl:if test="parent::ref/label">
               <xsl:apply-templates select="parent::ref/label"/>
             </xsl:if>
             <xsl:apply-templates select="."/>
-            </p>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
