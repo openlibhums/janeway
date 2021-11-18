@@ -3105,7 +3105,6 @@
         }
     },
     {
-<<<<<<< Updated upstream
         "group": {
             "name": "general"
         },
@@ -3134,7 +3133,8 @@
         "value": {
             "default": "en"
         }
-=======
+    },
+    {
 	"group": {
 	    "name": "general"
 	},
@@ -3148,7 +3148,6 @@
 	"value": {
 	    "default": "<p>For help with Janeway, contact <a href=\"mailto:support@openlibhums.org\">support@openlibhums.org</a>.</p>"
 	}
->>>>>>> Stashed changes
     }
 ]
 
