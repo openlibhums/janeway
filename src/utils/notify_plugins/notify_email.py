@@ -20,8 +20,6 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
 
     if journal:
         from_email = setting_handler.get_setting('general', 'from_address', journal).value
-        subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, journal)
-        subject = "[{0}] {1}".format(journal.code, subject_setting if subject_setting else subject)
         html = "{0}<br />{1}".format(html, journal.name)
     else:
         from_email = request.press.main_contact
@@ -82,8 +80,11 @@ def notify_hook(**kwargs):
     cc = kwargs.pop('cc', [])
     attachment = kwargs.pop('attachment', None)
     request = kwargs.pop('request', None)
-
     task = kwargs.pop('task', None)
+
+    if request.journal:
+        subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, request.journal)
+        subject = "[{0}] {1}".format(request.journal.code, subject_setting if subject_setting else subject)
 
     # call the method
     if not task:
@@ -94,7 +95,7 @@ def notify_hook(**kwargs):
 
     log_dict = kwargs.get('log_dict', None)
 
-    if not type(to) in [list, tuple]:
+    if not type(to) in [list, tuple, set]:
         to = [to]
 
     if log_dict:
@@ -105,6 +106,7 @@ def notify_hook(**kwargs):
             'action': ['email_log'],
             'html': html,
             'to': to,
+            'email_subject': subject,
         }
         notify.notification(**notify_contents)
 
