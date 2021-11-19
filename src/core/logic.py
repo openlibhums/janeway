@@ -834,3 +834,33 @@ def get_homepage_elements(request):
     homepage_element_names = [el.name for el in homepage_elements]
 
     return homepage_elements, homepage_element_names
+
+def render_nested_setting(
+        setting_name,
+        setting_group,
+        nested_settings,
+        request
+    ):
+
+    setting = setting_handler.get_setting(
+        setting_group,
+        setting_name,
+        request.journal
+    ).value
+
+    setting_context = {}
+    for name, group in nested_settings:
+        setting_context[name] = setting_handler.get_setting(
+            group,
+            name,
+            request.journal
+        ).value
+
+    rendered_string = render_template.get_message_content(
+        request,
+        setting_context,
+        setting,
+        template_is_setting=True
+    )
+
+    return rendered_string

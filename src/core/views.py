@@ -627,25 +627,11 @@ def manager_index(request):
 
     template = 'core/manager/index.html'
 
-    support_message_setting = setting_handler.get_setting(
-        'general',
+    support_message = logic.render_nested_setting(
         'support_contact_message_for_staff',
-        request.journal,
-    ).value
-
-    support_message_context = {
-        'support_email' : setting_handler.get_setting(
-            'general',
-            'support_email',
-            request.journal
-        ).value
-    }
-
-    support_message = render_template.get_message_content(
-        request,
-        support_message_context,
-        support_message_setting,
-        template_is_setting=True,
+        'general',
+        [('support_email','general')],
+        request
     )
 
     context = {
