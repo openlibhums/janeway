@@ -39,7 +39,7 @@ from production import models as production_models
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
-from utils import models as util_models, setting_handler, orcid
+from utils import models as util_models, setting_handler, orcid, render_template
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
@@ -626,19 +626,37 @@ def manager_index(request):
         return press_views.manager_index(request)
 
     template = 'core/manager/index.html'
+
+    support_message_setting = setting_handler.get_setting(
+        'general',
+        'support_contact_message_for_staff',
+        request.journal,
+    ).value,
+
+    support_message_context = {
+        'support_email' : setting_handler.get_setting(
+            'general',
+            'support_email',
+            request.journal
+        ).value
+    }
+
+    support_message = render_template.get_message_content(
+        request,
+        support_message_context,
+        support_message_setting,
+        template_is_setting=True,
+    )
+
     context = {
         'published_articles': submission_models.Article.objects.filter(
             date_published__isnull=False,
             stage=submission_models.STAGE_PUBLISHED,
             journal=request.journal
         ).select_related('section')[:25],
-        'support_message': setting_handler.get_setting(
-            'general',
-            'support_contact_message_for_staff',
-            request.journal,
-        ).value
+        'support_message': support_message,
     }
-
+    from nose.tools import set_trace; set_trace()
     return render(request, template, context)
 
 
