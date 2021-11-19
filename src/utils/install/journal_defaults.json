@@ -3139,6 +3139,21 @@
 	    "name": "general"
 	},
 	"setting": {
+	    "description": "Support email address for staff users.",
+	    "is_translatable": false,
+	    "name": "support_email",
+	    "pretty_name": "Support email",
+	    "type": "char"
+	},
+	"value": {
+	    "default": ""
+	}
+    },
+    {
+	"group": {
+	    "name": "general"
+	},
+	"setting": {
 	    "description": "Message to display to staff on journal manager page about contacting support.",
 	    "is_translatable": false,
 	    "name": "support_contact_message_for_staff",
@@ -3146,7 +3161,7 @@
 	    "type": "rich-text"
 	},
 	"value": {
-	    "default": "<p>For help with Janeway, contact <a href=\"mailto:support@openlibhums.org\">support@openlibhums.org</a>.</p>"
+	    "default": "<p>For help with Janeway, contact <a href=\"mailto{{ support_email }}\">{{ support_email }}</a>.</p>"
 	}
     }
 ]
