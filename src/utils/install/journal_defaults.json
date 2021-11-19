@@ -3146,7 +3146,7 @@
 	    "type": "char"
 	},
 	"value": {
-	    "default": ""
+	    "default": "--No support email set--"
 	}
     },
     {
