@@ -631,7 +631,7 @@ def manager_index(request):
         'general',
         'support_contact_message_for_staff',
         request.journal,
-    ).value,
+    ).value
 
     support_message_context = {
         'support_email' : setting_handler.get_setting(
@@ -656,7 +656,6 @@ def manager_index(request):
         ).select_related('section')[:25],
         'support_message': support_message,
     }
-    from nose.tools import set_trace; set_trace()
     return render(request, template, context)
 
 
