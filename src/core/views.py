@@ -636,7 +636,7 @@ def manager_index(request):
             'general',
             'support_contact_message_for_staff',
             request.journal,
-        ).processed_value
+        ).value
     }
 
     return render(request, template, context)
