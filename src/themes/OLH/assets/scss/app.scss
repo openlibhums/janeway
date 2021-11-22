@@ -1217,3 +1217,11 @@ button.list-group-item-danger.active:focus {
 .reveal {
   user-select: text;
 }
+
+.article-table {
+  display: block;
+  overflow-x: scroll;
+}
+
+table.unstriped tbody {
+    background-color: #fefefe; }
