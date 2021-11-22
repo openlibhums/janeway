@@ -457,4 +457,10 @@
             }
         });
     </script>
+    <script>
+    $('.table-expansion').each(function(){
+        var child = $(this).children(":first")
+        child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
+    });
+    </script>
 {% endblock %}
