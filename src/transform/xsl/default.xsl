@@ -3583,6 +3583,7 @@
     <xsl:template match="aff/label"/>
     <xsl:template match="app/label"/>
     <xsl:template match="fn/label"/>
+    <xsl:template match="sec/label"/>
     <xsl:template match="disp-formula/label"/>
     <xsl:template match="fn-group[@content-type='competing-interest']/title"/>
     <xsl:template match="permissions/copyright-year | permissions/copyright-holder"/>

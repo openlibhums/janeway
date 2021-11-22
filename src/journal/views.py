@@ -394,12 +394,13 @@ def article(request, identifier_type, identifier):
     """
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
-    content = None
+    content, tables_in_galley = None, None
     galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
+        tables_in_galley = logic.get_table_from_html(content)
     else:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
@@ -416,6 +417,7 @@ def article(request, identifier_type, identifier):
         'identifier_type': identifier_type,
         'identifier': identifier,
         'article_content': content,
+        'tables_in_galley': tables_in_galley,
     }
 
     return render(request, template, context)
@@ -449,7 +451,8 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = get_galley_content(article_object, galleys)
+        content = get_galley_content(article_object, galleys, recover=True)
+
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
@@ -468,7 +471,7 @@ def print_article(request, identifier_type, identifier):
         'galleys': galleys,
         'identifier_type': identifier_type,
         'identifier': identifier,
-        'article_content': content
+        'article_content': content,
     }
 
     return render(request, template, context)

@@ -1223,5 +1223,10 @@ button.list-group-item-danger.active:focus {
   overflow-x: scroll;
 }
 
-table.unstriped tbody {
-    background-color: #fefefe; }
+.article-table thead tr {
+  background-color: transparent !important;
+}
+
+.article-table tbody tr {
+  background-color:transparent !important;
+}

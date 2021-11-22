@@ -5303,15 +5303,10 @@ button.list-group-item-danger.active:focus {
 
 .article-table {
   display: block;
-  overflow-x: scroll;}
+  overflow-x: scroll; }
 
 .article-table thead tr {
-  background-color: transparent !important;
-}
+  background-color: transparent !important; }
 
 .article-table tbody tr {
-  background-color:transparent !important;
-}
-
-table.unstriped {
-  background-color: #fefefe; }
+  background-color: transparent !important; }
