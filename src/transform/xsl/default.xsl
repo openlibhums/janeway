@@ -2436,9 +2436,8 @@
   </xsl:template>
 
   <xsl:template match="comment" mode="nscitation">
-    <xsl:if test="not(self::node()='.')">
-        <xsl:apply-templates/>
-    </xsl:if>
+      <xsl:apply-templates/>
+      <xsl:apply-templates select="ext-link" mode="nscitation"/>
   </xsl:template>
 
   <xsl:template match="conf-name | conf-date" mode="conf">
