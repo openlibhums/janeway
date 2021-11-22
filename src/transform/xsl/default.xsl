@@ -826,6 +826,8 @@
     <xsl:template match="sec[not(@sec-type='datasets')]/title | boxed-text/caption/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h{count(ancestor::sec) + 1}">
+              <xsl:if test="preceding-sibling::label">
+                <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
                 <xsl:apply-templates select="@* | node()"/>
             </xsl:element>
         </xsl:if>
@@ -3344,15 +3346,6 @@
             <xsl:value-of select="node()"/>
         </h3>
     </xsl:template>
-
-    <xsl:template match="sec//title">
-        <xsl:element name="h{count(ancestor::sec) + 1}">
-            <xsl:if test="preceding-sibling::label">
-                <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
-            <xsl:value-of select="node()"/>
-        </xsl:element>
-    </xsl:template>
-
     <!-- START - general format -->
 
     <!-- list elements start-->
