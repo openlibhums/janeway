@@ -3161,7 +3161,7 @@
 	    "type": "rich-text"
 	},
 	"value": {
-	    "default": "<p>For help with Janeway, contact <a href=\"mailto{{ support_email }}\">{{ support_email }}</a>.</p>"
+	    "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
 	}
     }
 ]
