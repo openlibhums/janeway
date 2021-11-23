@@ -766,31 +766,31 @@ def edit_default_setting(request, setting_group, setting_name):
 
 @GET_language_override
 @editor_user_required
-def edit_settings_group(request, group):
+def edit_settings_group(request, display_group):
     """
     Displays a group of settings on a page for editing. If there is no request.journal we are editing from the press
     and must set a temp request.journal and then unset it.
     :param request: HttpRequest object
-    :param group: string, name of a group of settings
+    :param display_group: string, name of a group of settings
     :return: HttpResponse object
     """
     with translation.override(request.override_language):
-        settings, setting_group = logic.get_settings_to_edit(group, request.journal)
+        settings, setting_group = logic.get_settings_to_edit(display_group, request.journal)
         edit_form = forms.GeneratedSettingForm(settings=settings)
         attr_form_object, attr_form, display_tabs, fire_redirect = None, None, True, True
 
-        if group == 'journal':
+        if display_group == 'journal':
             attr_form_object = forms.JournalAttributeForm
-        elif group == 'images':
+        elif display_group == 'images':
             attr_form_object = forms.JournalImageForm
             display_tabs = False
-        elif group == 'article':
+        elif display_group == 'article':
             attr_form_object = forms.JournalArticleForm
             display_tabs = False
-        elif group == 'styling':
+        elif display_group == 'styling':
             attr_form_object = forms.JournalStylingForm
             display_tabs = False
-        elif group == 'submission':
+        elif display_group == 'submission':
             attr_form_object = forms.JournalSubmissionForm
 
         if attr_form_object:
@@ -822,7 +822,7 @@ def edit_settings_group(request, group):
                 if attr_form.is_valid():
                     attr_form.save()
 
-                    if group == 'images':
+                    if display_group == 'images':
                         logic.handle_default_thumbnail(request, request.journal, attr_form)
                         logic.handle_press_override_image(request, request.journal, attr_form)
                 else:
@@ -834,12 +834,12 @@ def edit_settings_group(request, group):
                 return language_override_redirect(
                     request,
                     'core_edit_settings_group',
-                    {'group': group},
+                    {'display_group': display_group},
                 )
 
         template = 'admin/core/manager/settings/group.html'
         context = {
-            'group': group,
+            'group': display_group,
             'settings_list': settings,
             'edit_form': edit_form,
             'attr_form': attr_form,
