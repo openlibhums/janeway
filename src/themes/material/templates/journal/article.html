@@ -430,6 +430,9 @@
 
     </div>
     {% include "elements/summary_modal.html" %}
+    {% for table in tables_in_galley %}
+        {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
+    {% endfor %}
 {% endblock %}
 
 {% block js %}
@@ -460,7 +463,7 @@
     <script>
     $('.table-expansion').each(function(){
         var child = $(this).children(":first")
-        child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
+        child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
     });
     </script>
 {% endblock %}

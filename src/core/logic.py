@@ -353,6 +353,11 @@ def get_settings_to_edit(group, journal):
         settings = process_setting_list(xref_settings, 'Identifiers', journal)
         setting_group = 'Identifiers'
 
+    elif group == 'support':
+        support_settings = ['dsfsfesf', 'aeesfsefesf']
+        settings = process_setting_list(support_settings, 'general', journal)
+        setting_group = 'general'
+
     elif group == 'crosscheck':
         xref_settings = [
             'enable', 'username', 'password'
