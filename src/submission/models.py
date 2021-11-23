@@ -15,18 +15,14 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from django.db.models.signals import pre_delete
 from django.db.models.signals import pre_delete, m2m_changed
-from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
 
-from core import workflow
 from core.file_system import JanewayFileSystemStorage
-from core import workflow, model_utils
 from core.model_utils import M2MOrderedThroughField
-from core import workflow, model_utils
+from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
 from repository import models as repository_models
@@ -673,7 +669,7 @@ class Article(models.Model):
             return self.render_galley
 
         ret = self.galley_set.filter(
-            file__mime_type="application/xml"
+            file__mime_type__in=files.XML_MIMETYPES,
         ).order_by(
             "sequence",
         )
@@ -685,7 +681,7 @@ class Article(models.Model):
 
     @property
     def xml_galleys(self):
-        ret = self.galley_set.filter(file__mime_type="application/xml").order_by(
+        ret = self.galley_set.filter(file__mime_type__in=files.XML_MIMETYPES).order_by(
             "sequence")
 
         return ret
