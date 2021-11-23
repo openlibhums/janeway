@@ -353,3 +353,7 @@ footer svg {
 .article-table {
   display: block;
   overflow-x: scroll;}
+
+.table-caption {
+    margin-bottom: 8px;
+}
