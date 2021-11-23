@@ -369,6 +369,7 @@ def get_settings_to_edit(display_group, journal):
             'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
             'display_login_page_notice', 'login_page_notice',
+            'support_email', 'support_contact_message_for_staff',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)

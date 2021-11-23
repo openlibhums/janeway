@@ -50,6 +50,15 @@
 </div>
 
 <div class="title-area">
+    <h2>{% trans 'Support' %}</h2>
+</div>
+<div class="content">
+    <p>{% trans 'How should editors and staff members get help with Janeway?' %}</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.support_email %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.support_contact_message_for_staff %}
+</div>
+
+<div class="title-area">
     <h2>Other</h2>
 </div>
 <div class="content">

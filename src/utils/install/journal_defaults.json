@@ -3139,10 +3139,10 @@
 	    "name": "general"
 	},
 	"setting": {
-	    "description": "Support email address for staff users.",
+	    "description": "Support email address for editors and staff users.",
 	    "is_translatable": false,
 	    "name": "support_email",
-	    "pretty_name": "Support email",
+	    "pretty_name": "Support Email",
 	    "type": "char"
 	},
 	"value": {
@@ -3154,7 +3154,7 @@
 	    "name": "general"
 	},
 	"setting": {
-	    "description": "Message to display to staff on journal manager page about contacting support.",
+	    "description": "Support message to display to editors and staff on Manager page.",
 	    "is_translatable": false,
 	    "name": "support_contact_message_for_staff",
 	    "pretty_name": "Janeway Support Contact for Staff",
