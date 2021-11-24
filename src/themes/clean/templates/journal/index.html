@@ -1,13 +1,16 @@
 {% extends "core/base.html" %}
-{% load truncate %}
+{% load truncate dict %}
 
 {% block body %}
 
     {% for element in homepage_elements %}
-        {% include element.template_path %}
-        <hr>
+        {% if element.template_path == 'get_from_context' %}
+            {% context_get element.name %}
+        {% elif element.template_path %}
+            {% include element.template_path %}
+        {% endif %}
+        <hr />
     {% endfor %}
-
 {% endblock body %}
 {% block js %}
 <script type="text/javascript">

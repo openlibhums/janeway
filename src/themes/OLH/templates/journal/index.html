@@ -1,6 +1,5 @@
 {% extends "core/base.html" %}
-
-{% load truncate %}
+{% load truncate dict %}
 
 
 {% block page_title %}Journal Home{% endblock %}
@@ -10,9 +9,18 @@
 {% block body %}
 
     {% for element in homepage_elements %}
-        {% include element.template_path %}
+        {% if element.template_path == 'get_from_context' %}
+            <section>
+                <div class="row">
+                    <div class="large-12 columns">
+                        {% context_get element.name %}
+                    </div>
+                </div>
+            </section>
+        {% elif element.template_path %}
+            {% include element.template_path %}
+        {% endif %}
     {% endfor %}
-
 {% endblock body %}
 
 {% block js %}
