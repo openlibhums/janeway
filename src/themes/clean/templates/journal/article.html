@@ -242,6 +242,9 @@
     {% if journal_settings.general.submission_summary %}
         {% include "elements/journal/summary_modal.html" %}
     {% endif %}
+    {% for table in tables_in_galley %}
+        {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
+    {% endfor %}
 
 {% endblock body %}
 
@@ -252,7 +255,7 @@
      <script>
     $('.table-expansion').each(function(){
         var child = $(this).children(":first")
-        child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
+        child.append('<br /><button type="button" class="btn btn-link" data-toggle="modal" data-target="#table-'+ $(this).attr('id') +'">View Larger Table</button>')
     });
     </script>
 {% endblock js %}
