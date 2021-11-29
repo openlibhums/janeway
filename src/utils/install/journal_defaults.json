@@ -3133,5 +3133,35 @@
         "value": {
             "default": "en"
         }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email send to an article's correspondence author when revisions are completed.",
+            "is_translatable": true,
+            "name": "revisions_complete_receipt",
+            "pretty_name": "Revisions Complete Receipt",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ revision.article.correspondence_author.full_name }},</p><p>Thank you for submitting your revisions for \"{{ revision.article.title }}\". We will be in touch with further information about your submission soon.</p><p>Best wishes,</p><p>{{ revision.editor.full_name }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Revisions Complete Receipt",
+            "is_translatable": true,
+            "name": "subject_revisions_complete_receipt",
+            "pretty_name": "Subject Revisions Complete Receipt",
+            "type": "text"
+        },
+        "value": {
+            "default": "Article Revisions Complete"
+        }
     }
 ]
