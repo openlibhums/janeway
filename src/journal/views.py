@@ -400,7 +400,7 @@ def article(request, identifier_type, identifier):
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
-        tables_in_galley = logic.get_table_from_html(content)
+        tables_in_galley = logic.get_all_tables_from_html(content)
     else:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
