@@ -16,16 +16,15 @@
     <div class="row expanded" data-equalizer>
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
-                <div class="title-area">
+							  <div class="title-area">
                     <h2>Journal Settings</h2>
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'home_settings_index' %}">Journal Home Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">Journal Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "images" %}">Images Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "styling" %}">Styling Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">General</a>
+                        <a class="button" href="{% url 'home_settings_index' %}">Home Page</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "images" %}">Images</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' "styling" %}">Styling</a>
                         <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
                     </div>
                 </div>
@@ -41,7 +40,7 @@
                 </div>
 
                 <div class="title-area">
-                    <h2>Submission Setup</h2>
+                    <h2>Submission</h2>
                 </div>
 
                 <div class="content">
@@ -98,9 +97,10 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display</a>
                         <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
                         <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
-                        <a class="button" href="{% url 'core_manager_sections' %}">Article Sections</a>
+                        <a class="button" href="{% url 'core_manager_sections' %}">Sections (Article Types)</a>
                         <a class="button" href="{% url 'submission_licenses' %}">Licence Manager</a>
                     </div>
                 </div>

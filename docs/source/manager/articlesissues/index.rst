@@ -1,6 +1,17 @@
 Articles and Issues
 ===================
 
+Article Display Settings
+------------------------
+The Article Display Settings page has settings for controlling the way articles look and for deciding how metrics are displayed.
+
+- Display Guest Editors
+- Suppress How to Cite
+- View PDF Option
+- Disable Metrics Display
+- Suppress Citation Metrics
+
+
 Article Images Manager
 ----------------------
 The article images manager pulls is an interface for editing all of the images for a given article.
