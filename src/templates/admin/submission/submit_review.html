@@ -41,7 +41,7 @@
                             <th colspan="3">{% trans "Abstract" %}</th>
                         </tr>
                         <tr>
-                            <td colspan="3">{{ article.abstract }}</td>
+                            <td colspan="3">{{ article.abstract|safe }}</td>
                         </tr>
                         {% endif %}
 
