@@ -79,19 +79,66 @@ class Journal(AbstractSiteModel):
     current_issue = models.ForeignKey('Issue', related_name='current_issue', null=True, blank=True,
                                       on_delete=models.SET_NULL)
     carousel = models.OneToOneField('carousel.Carousel', related_name='journal', null=True, blank=True)
-    thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='thumbnail_image',
-                                        on_delete=models.SET_NULL)
-    press_image_override = models.ForeignKey('core.File', null=True, blank=True, related_name='press_image_override')
-    default_cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    default_large_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    header_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
+    thumbnail_image = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='thumbnail_image',
+        on_delete=models.SET_NULL,
+        help_text=ugettext('The default thumbnail for articles, not to be '
+                           'confused with \'Default cover image\'.'),
+    )
+    press_image_override = models.ForeignKey(
+        'core.File',
+        null=True,
+        blank=True,
+        related_name='press_image_override',
+        help_text=ugettext('Replaces the press logo in the footer. Must be an '
+                           'SVG file.'),
+    )
+    default_cover_image = models.ImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The default cover image for journal issues and for '
+                           'the journal\'s listing on the press-level website'),
+    )
+    default_large_image = models.ImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The default background image for article openers '
+                           'and carousel items.'),
+    )
+    header_image = models.ImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The logo-sized image at the top of all pages, '
+                           'typically used for journal logos.'),
+    )
+    favicon = models.ImageField(
+        upload_to=cover_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        help_text=ugettext('The tiny round or square image appearing in browser '
+                           'tabs before the webpage title'),
+    )
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
     keywords = models.ManyToManyField("submission.Keyword", blank=True, null=True)
 
     disable_metrics_display = models.BooleanField(default=False)
-    disable_article_images = models.BooleanField(default=False)
+    disable_article_images = models.BooleanField(
+        default=False,
+        help_text=ugettext('When checked, articles will not have header images'
+                           'or thumbnail images. Does not affect figures and'
+                           'tables within an article.'),
+    )
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(default=False)
     full_width_navbar = models.BooleanField(default=False)

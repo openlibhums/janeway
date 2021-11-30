@@ -8,7 +8,7 @@ General
 -------
 The general journal settings page is home to various configuration settings for the journal. You will find an explanation with each setting on this page.
 
-- Journal information (title, ISSN, description, keywords, website theme)
+- Journal information (title, ISSN, description, keywords, design theme)
 - Publisher information (name, website, contact)
 - Remote website settings
 - Language settings
@@ -20,6 +20,7 @@ Here you can activate features for your journal home page.
 
 .. image:: ../../nstatic/journal_home_settings.png
    :alt: The Journal Home Settings page
+   :class: screenshot
 
 To add a homepage element, select **Add** under **Add Home Page Features** and then select **configure** to see options for that element. You can reorder elements by dragging and dropping them.
 
@@ -61,27 +62,36 @@ Images
 
 .. image:: ../../nstatic/images/Home_page_screenshot.png
    :alt: Header image in top left in OLH theme
+   :class: screenshot
 
 Header image
-    Typically the journal logo goes here. It always appears on the top left of the OLH theme. We recommend a width-to-height ratio of about 1 to 3 or 1 to 4. If not set, defaults to Janeway logo (220 x 60 pixels).
+    Typically the journal logo goes here. It appears in the top left corner on desktop or laptop screens, and at the top of the page on mobile devices. We recommend a width-to-height ratio of about 1 to 3 or 1 to 4. If not set, defaults to Janeway logo (220 x 60 pixels).
 
 Default large image
-    This will show up at the top of articles in the OLH theme.
+    This image shows up in several places, depending on how your theme and home page are configured:
+
+    - At the top of the article page if no article image is set specifically (see Article Images Manager) and article images are set to display (see Article Display Settings). If not set *and* article images are set to display, article metadata may not show up properly.
+
+    - In the carousel on the home page for any items that don't have associated images. (In this spot it replaces the press-level "Default carousel image")
+
+    Use a wide image (about 4 parts width to 1 part height) with good resolution when set at 300 or 400 pixels tall.
 
 Press override image
-    This can be set to replace the press logo in the footer when using the OLH theme (the footer image does not appear in the material or clean theme). However, it must be an SVG file or the default will remain in place.
+    This can be set to replace the press logo that appears in the footer when using the OLH theme or the clean theme. (In the material theme, no footer image appears.) However, it must be an `SVG file`_ or the default will remain in place.
 
 .. image:: ../../nstatic/images/Issues.png
    :alt: Default cover image for issues in OLH theme
+   :class: screenshot
 
 Default cover image
     The default image for issue covers when no image is set specifically for that issue. We recommend a width-to-height ratio of about 3 to 4.
 
 .. image:: ../../nstatic/images/Articles_screenshot.png
-    :alt: Default thumbnail in article list in OLH theme
+   :alt: Default thumbnail in article list in OLH theme
+   :class: screenshot
 
 Default thumbnail
-    The default image for each article when viewing an article list. A width-to-height ratio of about 3 to 4 is recommended. If none, defaults to the Janeway logo.
+    The default image for each article when viewing an article list. A width-to-height ratio of about 3 to 4 is recommended. If no thumbnail is set, this defaults to the Janeway logo.
 
 Favicon
     The tiny little image you often see in the browser tab before the name of a webpage. Use a very small image of equal width and height. If not set, no Favicon will appear.
@@ -110,9 +120,9 @@ The all settings page lists every under-lying journal-level setting within Janew
 
 This is a fallback area for editing a setting when you can't find it in the interface or for editing settings introduced into your instance.
 
-.. figure:: ../../nstatic/all_settings.png
-
-    The new All Settings page.
+.. image:: ../../nstatic/all_settings.png
+   :alt: The new All Settings page
+   :class: screenshot
 
 Accessing Settings in Templates and Code
 ----------------------------------------
@@ -127,5 +137,7 @@ Setting values can be accessed inside templates using **{{ journal_settings.grou
 In Django they can be accessed with **get_setting**::
 
     request.journal.get_setting('group_name', 'setting_name')
+
+.. _`SVG file`: http://web.simmons.edu/~grovesd/comm328/modules/svg/creating-svgs
 
 
