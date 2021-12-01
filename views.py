@@ -736,6 +736,7 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
 
     if (
         file in assignment.files_to_typeset.all()
+        or file in assignment.round.article.data_figure_files.all()
         or assignment.proofing_assignments_for_corrections().filter(
             annotated_files__id=file_id)
         or file.pk in assignment.round.article.supplementary_files.values_list(
