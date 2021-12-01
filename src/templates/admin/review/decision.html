@@ -19,14 +19,20 @@
             </div>
             <div class="content">
                 <p>Are you sure you want to {{ decision }} {{ article.title }}? You can provide some information to the Authors below: </p>
-                {% if article.hidden_completed_reviews %}
+                {% if article.hidden_completed_reviews or journal_settings.general.accept_article_warning %}
                     <div class="bs-callout bs-callout-danger">
+                        {% if journal_settings.general.accept_article_warning %}
+                            {{ journal_settings.general.accept_article_warning|safe }}
+                        {% endif %}
+
+                        {% if article.hidden_completed_reviews %}
                         <p>{% trans 'Note: This article has completed reviews that have not been made available to the author:' %}</p>
                         <ul>
                             {% for review in article.hidden_completed_reviews %}
                                 <li><a target="_blank" href="{% url 'review_view_review' article.pk review.pk %}">#{{ review.pk }} - {{ review.reviewer.full_name }}</a></li>
                             {% endfor %}
                         </ul>
+                        {% endif %}
                     </div>
                     <br />
                 {% endif %}

@@ -340,6 +340,10 @@ def get_settings_to_edit(group, journal):
                 'name': 'hide_review_metadata_from_authors',
                 'object': setting_handler.get_setting('general', 'hide_review_metadata_from_authors', journal),
             },
+            {
+                'name': 'accept_article_warning',
+                'object': setting_handler.get_setting('general', 'accept_article_warning', journal),
+            },
         ]
         setting_group = 'general'
 
