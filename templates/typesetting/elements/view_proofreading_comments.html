@@ -8,7 +8,6 @@
             <p><strong>Annotated files:</strong></p>
               {% for f in proof.annotated_files.all %}
                {% if typesetting_assignment %}
-               HEREREE
               <a href="{% url 'typesetting_typesetter_download_file' typesetting_assignment.pk f.pk %}"><i class="fa fa-download">&nbsp;</i> {{ f }}</a>
                {% else %}
               <a href="{% url 'typesetting_download_file' article.pk f.pk %}"><i class="fa fa-download">&nbsp;</i> {{ f }}</a>
