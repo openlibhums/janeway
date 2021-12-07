@@ -1,0 +1,72 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>PDF Proofing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.6.319/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.6.319/pdf_viewer.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static "common/css/pdf.css" %}">
+</head>
+<body>
+    <div id="viewerContainer">
+  <div id="viewer" class="pdfViewer"></div>
+</div>
+
+  <script>
+    /* Copyright 2014 Mozilla Foundation
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+
+    'use strict';
+
+    if (!PDFJS.PDFViewer || !PDFJS.getDocument) {
+      alert('Please build the library and components using\n' +
+            '  `gulp generic components`');
+    }
+
+    // The workerSrc property shall be specified.
+    //
+    PDFJS.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.6.319/pdf.worker.min.js';
+
+    // Some PDFs need external cmaps.
+    //
+    // PDFJS.cMapUrl = '../../external/bcmaps/';
+    // PDFJS.cMapPacked = true;
+
+    var DEFAULT_URL = '{{ pdf_url }}?embed=True';
+
+    var container = document.getElementById('viewerContainer');
+
+    var pdfViewer = new PDFJS.PDFViewer({
+      container: container,
+    });
+
+    container.addEventListener('pagesinit', function () {
+      // We can use pdfViewer now, e.g. let's change default scale.
+      pdfViewer.currentScaleValue = 'page-width';
+    });
+
+    // Loading document.
+    PDFJS.getDocument(DEFAULT_URL).then(function (pdfDocument) {
+      // Document loaded, specifying document for the viewer and
+      // the (optional) linkService.
+      pdfViewer.setDocument(pdfDocument);
+    });
+
+  </script>
+</body>
+</html>

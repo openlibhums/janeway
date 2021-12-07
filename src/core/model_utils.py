@@ -154,6 +154,7 @@ class JanewayMultilingualManager(MultilingualManager):
     def get_queryset(self):
         return JanewayMultilingualQuerySet(self.model)
 
+
 class M2MOrderedThroughField(ManyToManyField):
     """ Orders m2m related objects by their 'through' Model
 

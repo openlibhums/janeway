@@ -29,7 +29,7 @@ from core.model_utils import M2MOrderedThroughField
 from core import workflow, model_utils
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
-from preprint import models as preprint_models
+from repository import models as repository_models
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -333,22 +333,11 @@ class KeywordArticle(models.Model):
         return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
 
 
-class AllArticleManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return super(AllArticleManager, self).get_queryset().all()
-
-
 class ArticleManager(models.Manager):
     use_in_migrations = True
-    def get_queryset(self):
-        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
 
-
-class PreprintManager(models.Manager):
     def get_queryset(self):
-        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+        return super(ArticleManager, self).get_queryset().all()
 
 
 class DynamicChoiceField(models.CharField):
@@ -546,13 +535,7 @@ class Article(models.Model):
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
-    is_preprint = models.BooleanField(default=False)
-    preprint_decision_notification = models.BooleanField(default=False)
     preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
-
-    allarticles = AllArticleManager()
-    objects = ArticleManager()
-    preprints = PreprintManager()
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
@@ -835,7 +818,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(id=identifier, journal=journal)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -857,7 +840,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier)[0]
+                article = Article.objects.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -938,7 +921,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            current_object = Article.allarticles.get(pk=self.pk)
+            current_object = Article.objects.get(pk=self.pk)
             if current_object.stage != self.stage:
                 ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
                                                stage_to=self.stage)
@@ -1222,13 +1205,6 @@ class Article(models.Model):
             return 0
         else:
             return max(current_orders) + 1
-
-    def next_preprint_version(self):
-        versions = [version.version for version in preprint_models.PreprintVersion.objects.filter(preprint=self)]
-        if not versions:
-            return 1
-        else:
-            return max(versions) + 1
 
     def subject_editors(self):
         editors = list()

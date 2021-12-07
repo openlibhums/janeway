@@ -469,6 +469,117 @@ th {
     word-break: break-all;
 }
 
+.formset-form>.columns {
+    padding-bottom: 25px;
+}
+
+.table-subjects {
+    table-layout: fixed;
+}
+
+.table-subjects th:first-child {
+    width: 55%;
+}
+
+.thread-callout {
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.thread-callout h2 {
+    font-size: 1.4rem;
+    text-decoration: underline;
+}
+
+.thread-callout h3 {
+    font-size: 1.3rem;
+}
+
+.thread-callout p {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.thread-box {
+    height: 100%;
+}
+
+.thread-avatar {
+    width: 3.5rem;
+}
+
+.avatar-column {
+    padding-left: 0;
+}
+
+.thread-dark {
+    background-color: rgb(68,71,83);
+    color: white !important;
+}
+
+.thread-dark .subheader {
+    color: white;
+}
+
+.thread-dark a {
+    color: white;
+}
+
+.thread-box-left {
+    padding-right: 0;
+}
+
+.thread-box-right {
+    padding-left: 0;
+}
+
+.post-callout {
+    padding:10px;
+    border-radius: 5px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.post-user-callout {
+    background-color: rgb(148,194,237);
+}
+
+.post-other-callout {
+    background-color: rgb(134,187,113)
+}
+
+.post-callout .subheader{
+    color: white;
+}
+
+.post-callout p {
+    margin-bottom: 2px;
+}
+
+.post-callout small {
+    font-size: 0.8rem;
+}
+
+.thread-inner {
+    max-height: 500px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.post-button {
+    height: 100%;
+}
+
+.post-callout blockquote, blockquote p {
+    line-height: 1.6;
+    color: white;
+}
+
+.post-callout blockquote {
+    margin: 0 0 1rem;
+    padding: 0 1rem 0 1rem;
+    border-left: 2px solid white;
+}
 .no-pad td {
     padding: 0.1rem;
 }

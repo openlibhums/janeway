@@ -44,10 +44,11 @@ class KeywordModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        current_keywords = self.instance.keywords.values_list(
-            "word", flat=True)
-        field = self.fields["keywords"]
-        field.initial = ",".join(current_keywords)
+        if self.instance.pk:
+            current_keywords = self.instance.keywords.values_list(
+                "word", flat=True)
+            field = self.fields["keywords"]
+            field.initial = ",".join(current_keywords)
 
     def save(self, commit=True, *args, **kwargs):
         instance = super().save(commit=commit, *args, **kwargs)

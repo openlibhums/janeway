@@ -36,7 +36,6 @@ The Makefile can be configured with a number of variables to change the way in w
 If you want to install custom python libraries for development, you can drop them into the dev_requirements.txt file and run ``make rebuild``. Rebuilding the container takes some time, so it is also possible to install python libraries in development mode. When installed in this manner, the library is mounted as a volume into the janeway container when you first run `make rebuild` and  you will be able to make changes to the library without having to run ``make rebuild``. In order to install a library in development mode, copy the code to ``/path/to/janeway/lib/`` and run ``make rebuild`` once.
 
 
-
 Using Lando for a development environment (optional)
 -----------------------------------------------------------------
 
