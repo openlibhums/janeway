@@ -685,6 +685,6 @@ ol.gloss-word {
     font-size: 1rem;
 }
 
-table tr td .wrap-long-text{
+.wrap-long-text{
     word-wrap: anywhere;
 }
