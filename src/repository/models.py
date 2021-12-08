@@ -55,6 +55,12 @@ def width_choices():
     )
 
 
+def roles():
+    return (
+        ('author', 'Author'),
+    )
+
+
 fs_path = os.path.join('files/')
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
 preprint_media_store = JanewayFileSystemStorage()
@@ -172,6 +178,7 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Article',
         blank=True,
     )
+    limit_access
 
     class Meta:
         verbose_name_plural = 'repositories'
@@ -232,6 +239,25 @@ class Repository(model_utils.AbstractSiteModel):
             return request.build_absolute_uri(path)
         else:
             return request.press.repository_path_url(self, path)
+
+
+class RepositoryRole(models.Model):
+    repository = models.ForeignKey(Repository)
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.CASCADE,
+    )
+    role = models.CharField(
+        max_length=20,
+        choices=roles(),
+    )
+
+    def __str__(self):
+        return 'User {} registered as {} on Repo {}'.format(
+            self.user.full_name,
+            self.get_role_display(),
+            self.repository.name,
+        )
 
 
 class RepositoryField(models.Model):
