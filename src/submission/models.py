@@ -1386,7 +1386,7 @@ class FrozenAuthor(models.Model):
 
     institution = models.CharField(max_length=1000)
     department = models.CharField(max_length=300, null=True, blank=True)
-    frozen_biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
+    frozen_biography = models.TextField(null=True, blank=True, verbose_name=_('Frozen Biography'))
     country = models.ForeignKey('core.Country', null=True, blank=True)
 
     order = models.PositiveIntegerField(default=1)
