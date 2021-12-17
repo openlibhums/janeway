@@ -178,7 +178,10 @@ class Repository(model_utils.AbstractSiteModel):
         'submission.Article',
         blank=True,
     )
-    limit_access
+    limit_access_to_submission = models.BooleanField(
+        default=False,
+        help_text='If enabled, users need to request access to submit preprints.',
+    )
 
     class Meta:
         verbose_name_plural = 'repositories'

@@ -2008,3 +2008,23 @@ def set_session_timezone(request):
             content_type='application/json',
             status=200,
     )
+
+
+@login_required
+def request_submission_access(request):
+    from repository import models as rm
+    if request.repository:
+        check = rm.RepositoryRole.objects.filter(
+            repository=request.repository,
+            user=request.user,
+            role='author',
+        ).exists()
+    elif request.journal:
+        check = request.user.is_author(request)
+    else:
+        raise Http404('Page is only accessible on Repository and Journal sites.')
+
+    template = 'admin/core/request_submission_access.html'
+    context = {
+
+    }

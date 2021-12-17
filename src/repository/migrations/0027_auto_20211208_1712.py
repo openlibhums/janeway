@@ -35,4 +35,10 @@ class Migration(migrations.Migration):
             name='title',
             field=models.CharField(help_text='Your article title', max_length=300),
         ),
+        migrations.AddField(
+            model_name='repository',
+            name='limit_access_to_submission',
+            field=models.BooleanField(default=False,
+                                      help_text='If enabled, users need to request access to submit preprints.'),
+        ),
     ]

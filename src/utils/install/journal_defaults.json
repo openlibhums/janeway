@@ -3133,5 +3133,20 @@
         "value": {
             "default": "en"
         }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "If enabled users must request the author role before they are allowed to submit.",
+            "is_translatable": false,
+            "name": "limit_access_to_submission",
+            "pretty_name": "Limit Access to Submission",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
     }
 ]
