@@ -61,9 +61,9 @@
                     <div class="row expanded">
                         <div class="large-6 columns">
                             <ul class="list-group">
-                                {% for author in article.authors.all %}
+                                {% for order in article.articleauthororder_set.all %}
                                     <li class="list-group-item">
-                                        {{ author.full_name }} - {{ author.email }}
+                                        {{ order.author.full_name }} - {{ order.author.email }}
                                     </li>
                                     {% empty %}
                                     <li class="list-group-item">
