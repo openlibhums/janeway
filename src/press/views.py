@@ -162,7 +162,7 @@ def manager_index(request):
                         path=reverse(
                             'core_edit_settings_group',
                             kwargs={
-                                'group': 'journal',
+                                'display_group': 'journal',
                             }
                         )
                     )

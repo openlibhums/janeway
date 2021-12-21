@@ -207,7 +207,7 @@ def process_setting_list(settings_to_get, type, journal):
     return settings
 
 
-def get_settings_to_edit(group, journal):
+def get_settings_to_edit(display_group, journal):
     review_form_choices = list()
     for form in review_models.ReviewForm.objects.filter(
         journal=journal,
@@ -215,7 +215,7 @@ def get_settings_to_edit(group, journal):
     ):
         review_form_choices.append([form.pk, form])
 
-    if group == 'submission':
+    if display_group == 'submission':
         settings = [
             {'name': 'disable_journal_submission',
              'object': setting_handler.get_setting('general', 'disable_journal_submission', journal)
@@ -280,7 +280,7 @@ def get_settings_to_edit(group, journal):
         ]
         setting_group = 'general'
 
-    elif group == 'review':
+    elif display_group == 'review':
         settings = [
             {
                 'name': 'reviewer_guidelines',
@@ -343,7 +343,7 @@ def get_settings_to_edit(group, journal):
         ]
         setting_group = 'general'
 
-    elif group == 'crossref':
+    elif display_group == 'crossref':
         xref_settings = [
             'use_crossref', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
             'crossref_name', 'crossref_prefix', 'crossref_registrant', 'doi_display_prefix', 'doi_display_suffix',
@@ -353,7 +353,7 @@ def get_settings_to_edit(group, journal):
         settings = process_setting_list(xref_settings, 'Identifiers', journal)
         setting_group = 'Identifiers'
 
-    elif group == 'crosscheck':
+    elif display_group == 'crosscheck':
         xref_settings = [
             'enable', 'username', 'password'
         ]
@@ -361,7 +361,7 @@ def get_settings_to_edit(group, journal):
         settings = process_setting_list(xref_settings, 'crosscheck', journal)
         setting_group = 'crosscheck'
 
-    elif group == 'journal':
+    elif display_group == 'journal':
         journal_settings = [
             'journal_name', 'journal_issn', 'print_issn', 'journal_theme',
             'journal_description', 'main_contact', 'publisher_name',
@@ -369,6 +369,7 @@ def get_settings_to_edit(group, journal):
             'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
             'display_login_page_notice', 'login_page_notice',
+            'support_email', 'support_contact_message_for_staff',
         ]
 
         settings = process_setting_list(journal_settings, 'general', journal)
@@ -379,13 +380,13 @@ def get_settings_to_edit(group, journal):
             'object': setting_handler.get_setting('general', 'from_address', journal),
         })
 
-    elif group == 'proofing':
+    elif display_group == 'proofing':
         proofing_settings = [
             'max_proofreaders'
         ]
         settings = process_setting_list(proofing_settings, 'general', journal)
         setting_group = 'general'
-    elif group == 'article':
+    elif display_group == 'article':
         article_settings = [
             'suppress_how_to_cite',
             'display_guest_editors',
@@ -396,7 +397,7 @@ def get_settings_to_edit(group, journal):
         ]
         settings = process_setting_list(article_settings, 'article', journal)
         setting_group = 'article'
-    elif group == 'styling':
+    elif display_group == 'styling':
         settings = [
             {
                 'name': 'enable_editorial_images',
@@ -412,7 +413,7 @@ def get_settings_to_edit(group, journal):
             }
         ]
         setting_group = 'general'
-    elif group == 'news':
+    elif display_group == 'news':
         settings = [
             {
                 'name': 'news_title',
@@ -834,3 +835,33 @@ def get_homepage_elements(request):
     homepage_element_names = [el.name for el in homepage_elements]
 
     return homepage_elements, homepage_element_names
+
+def render_nested_setting(
+        setting_name,
+        setting_group,
+        nested_settings,
+        request
+    ):
+
+    setting = setting_handler.get_setting(
+        setting_group,
+        setting_name,
+        request.journal
+    ).value
+
+    setting_context = {}
+    for name, group in nested_settings:
+        setting_context[name] = setting_handler.get_setting(
+            group,
+            name,
+            request.journal
+        ).value
+
+    rendered_string = render_template.get_message_content(
+        request,
+        setting_context,
+        setting,
+        template_is_setting=True
+    )
+
+    return rendered_string
