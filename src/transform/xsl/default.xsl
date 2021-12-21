@@ -3322,6 +3322,12 @@
         <img src="{$graphics}" class="responsive-img" />
     </xsl:template>
 
+    <xsl:template match="bio//title">
+        <h2>
+            <xsl:value-of select="node()"/>
+        </h2>
+    </xsl:template>
+
     <xsl:template name="appendices-main-text">
         <xsl:apply-templates select="//back/app-group/app" mode="testing"/>
     </xsl:template>
