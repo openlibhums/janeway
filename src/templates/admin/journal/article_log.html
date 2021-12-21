@@ -13,11 +13,12 @@
             {% if return %}<a href="{{ return }}" class="button"><i class="fa fa-arrow-left"> </i>Back</a>{% endif %}
         </div>
         <div class="content">
-            <table id="log" class="scroll">
+            <table id="log" class="scroll small">
                 <thead>
                     <tr>
                         <th>Entry Type</th>
                         <th>To (if email)</th>
+                        <th>Subject (if email)</th>
                         <th>Date</th>
                         <th>Actor</th>
                         <th>Level</th>
@@ -30,6 +31,7 @@
                         <tr>
                             <td>{{ entry.types }}</td>
                             <td>{% if entry.is_email %}{% for email in entry.to %}{{ email }}{% if not forloop.last %}; {% endif %}{% endfor %}{% else %}---{% endif %}</td>
+                            <td>{{ entry.email_subject }}</td>
                             <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
                             <td>{% if entry.actor %}{{ entry.actor.full_name }}{% else %}Janeway System{% endif %}</td>
                             <td>{{ entry.get_level_display|capfirst }}</td>
@@ -80,5 +82,5 @@
 {% block js %}
     <script type="text/javascript" src="{% static 'admin/js/resolution.js' %}"></script>
     <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
-    {% include "elements/datatables.html" with target="#log" order='desc' sort=2 %}
+    {% include "elements/datatables.html" with target="#log" order='desc' sort=3 %}
 {% endblock %}
