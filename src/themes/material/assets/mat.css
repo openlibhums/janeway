@@ -608,6 +608,10 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
     color: #616161;
 }
 
+
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+
 .article-table {
   display: block;
   overflow-x: scroll;}

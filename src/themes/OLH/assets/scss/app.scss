@@ -1218,15 +1218,21 @@ button.list-group-item-danger.active:focus {
   user-select: text;
 }
 
+
+.table-foot .table-footnotes li.fn {
+    list-style-type: none;
+}
+
 .article-table {
   display: block;
   overflow-x: scroll;
 }
 
 .article-table thead tr {
-  background-color: transparent !important;
+  background-color: transparent;
 }
 
 .article-table tbody tr {
-  background-color:transparent !important;
+  background-color:transparent;
 }
+
