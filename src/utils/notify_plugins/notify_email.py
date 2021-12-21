@@ -23,6 +23,10 @@ def send_email(subject, to, html, journal, request, bcc=None, cc=None, attachmen
         subject_setting = setting_handler.get_email_subject_setting('email_subject', subject, journal)
         subject = "[{0}] {1}".format(journal.code, subject_setting if subject_setting else subject)
         html = "{0}<br />{1}".format(html, journal.name)
+    elif request.repository:
+        # fetches the default setting for this email.
+        subject = setting_handler.get_email_subject_setting('email_subject', subject, journal=None)
+        from_email = request.press.main_contact
     else:
         from_email = request.press.main_contact
 

@@ -39,6 +39,7 @@
                             {% include "admin/elements/forms/group_review.html" %}
                         {% elif group == 'news' %}
                             {% include "admin/elements/forms/group_journal_news.html" with form=edit_form %}
+                        {% elif group == 'support' %}
                         {% else %}
                             {% include "admin/elements/forms/submission.html" with form=edit_form %}
                         {% endif %}

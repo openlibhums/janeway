@@ -12,7 +12,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% else %}{{ request.press.name }}
+    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}
     {% endif %}{% endblock title %}</title>
 
     {% block head %}{% endblock head %}
@@ -30,6 +30,8 @@
 
     {% if journal.favicon %}
         <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% elif request.repository.favicon %}
+        <link rel="icon" href="{{ request.repository.favicon.url }}" type="image/vnd.microsoft.icon"/>
     {% elif press.favicon %}
         <link rel="icon" href="{{ press.favicon.url }}" type="image/vnd.microsoft.icon"/>
     {% endif %}
@@ -65,7 +67,7 @@
                 </ul>
             </nav>
             {% if article.pk %}
-                {% if not article.is_preprint %}{% include "elements/article_jump.html" %}{% endif %}
+                {% include "admin/elements/article_jump.html" %}
             {% endif %}
         </div>
     </div>

@@ -7,6 +7,7 @@ from django.utils import translation
 from django.conf import settings as django_settings
 from django.core.exceptions import FieldError
 
+
 OLD_VALUE = "Dear {{ review_assignment.reviewer.full_name  }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title  }}\" in {{ article.journal.name  }}.<br/><br/>We woul       d be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to under       take the review: {{ review_url  }} <br/><br/>Regards,<br/>{{ request.user.signature|safe  }}"
 NEW_VALUE = "Dear {{ review_assignment.reviewer.full_name  }},<br/><br/>We are requesting that you undertake a review of \"{{ article.title  }}\" in {{ article.journal.name  }}.<br/><br/>We woul       d be most grateful for your time as the feedback from our reviewers is of the utmost importance to our editorial decision-making processes.<br/><br/>You can let us know your decision or decline to under       take the review: {{ review_url  }} <br/><br/>{{ article_details  }}<br/><br/>Regards,<br/>{{ request.user.signature|safe  }}"
 

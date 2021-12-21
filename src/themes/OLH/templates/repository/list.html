@@ -1,0 +1,101 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}
+{% endif %}{% endblock %}
+
+
+{% block body %}
+
+    <section id="content">
+        <div class="row">
+            <div class="large-8 columns border-right">
+                <h4>{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}{% endif %}</h4>
+                {% for preprint in preprints %}
+                    <div class="box article">
+                        <a href="{% url 'preprints_preprint' preprint.pk %}"
+                           class="box-link"></a>
+                        <div class="clearfix">
+                            <div class="large-12s columns end">
+                                <h2>{{ preprint.title|safe }}</h2>
+                                <p>{% for author in preprint.authors.all %}{% if forloop.last %}
+                                    {% if preprint.authors.all|length > 1 %} and
+                                    {% endif %}{% endif %}{{ author.full_name }}
+                                    {% if not forloop.last %}
+                                        {% if not forloop.counter == preprint.authors.all|length|add:-1 %},
+                                        {% endif %}{% endif %}{% endfor %}</p>
+                                <p><span class="date"><i
+                                        class="fa fa-calendar"></i> {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;<i
+                                        class="fa fa-paperclip"></i> {{ preprint.get_subject_area }}</span></p>
+                            </div>
+                        </div>
+                    <hr />
+                    </div>
+                {% endfor %}
+                <div class="pagination-block">
+                    <ul class="pagination">
+                        {% if preprints.has_previous %}
+                            <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a>
+                            </li>{% endif %}
+                        {{ preprints.page.page_range }}
+                        {% for page in preprints.paginator.page_range %}
+                            <li class="{% if preprints.number == page %}current{% endif %}"><a
+                                    href="?page={{ page }}">{{ page }}</a></li>
+                        {% endfor %}
+                        {% if preprints.has_next %}
+                            <li class="arrow"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
+                            </li>{% endif %}
+                    </ul>
+                </div>
+            </div>
+            <aside class="large-4 columns" data-sticky-container>
+                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                    <div class="section">
+                        <form method="POST" action="{% url 'preprints_search' %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <input class="input-group-field" type="search" name="search_term"
+                                       placeholder="{% trans "Search preprints" %}"
+                                       {% if search_term %}value="{{ search_term }}"{% endif %}>
+                            </div>
+                            <input type="submit" style="visibility: hidden;"/>
+                            <h5>{% trans "Searching by" %}:</h5>
+                            <ul>
+                                <li>{% trans "Title" %}</li>
+                                <li>{% trans "Keywords" %}</li>
+                                <li>{% trans "Author Name" %}</li>
+                                <li>{% trans "Author Affiliation" %}</li>
+                            </ul>
+                        </form>
+                    </div>
+                    {% if subject %}
+                        <div class="section">
+                            <h5>{{ subject.name }} {% trans "Editors" %}</h5>
+                            <ul>
+                                {% for editor in subject.editors.all %}
+                                    <li>{{ editor.full_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    {% if subjects %}
+                        <div class="section">
+                        <h5>{% trans "Filter by Subject" %}</h5>
+                        <ul>
+                            {% for list_subject in subjects %}
+                                {% if not list_subject == subject %}<li><a href="{% url 'preprints_list_subject' request.repository.short_name list_subject.slug %}">{{ list_subject }}</a></li>{% endif %}
+                            {% endfor %}
+                        </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </aside>
+        </div>
+
+    </section>
+
+{% endblock body %}

@@ -813,7 +813,7 @@
 
     <!-- No need to proceed sec-type="additional-information", sec-type="supplementary-material" and sec-type="datasets"-->
     <xsl:template match="sec[not(@sec-type='additional-information')][not(@sec-type='datasets')][not(@sec-type='supplementary-material')]">
-        <div>
+        <div class="article-section">
             <xsl:if test="@sec-type">
                 <xsl:attribute name="class">
                     <xsl:value-of select="concat('section ', ./@sec-type)"/>
@@ -826,6 +826,8 @@
     <xsl:template match="sec[not(@sec-type='datasets')]/title | boxed-text/caption/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h{count(ancestor::sec) + 1}">
+              <xsl:if test="preceding-sibling::label">
+                <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
                 <xsl:apply-templates select="@* | node()"/>
             </xsl:element>
         </xsl:if>
@@ -995,7 +997,7 @@
             </xsl:attribute>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:attribute name="class">striped</xsl:attribute>
+            <xsl:attribute name="class">article-table unstriped</xsl:attribute>
           </xsl:otherwise>
          </xsl:choose>
          <xsl:apply-templates/>
@@ -1037,6 +1039,9 @@
             <xsl:variable name="class">
                 <xsl:if test="@align">
                     <xsl:value-of select="concat(' table-', @align)"/>
+                </xsl:if>
+                <xsl:if test="@valign">
+                    <xsl:value-of select="concat(' table-', @valign)"/>
                 </xsl:if>
                 <xsl:if test="@style and starts-with(@style, 'author-callout-style-b')">
                     <xsl:value-of select="concat(' ', @style)"/>
@@ -3341,7 +3346,6 @@
             <xsl:value-of select="node()"/>
         </h3>
     </xsl:template>
-
     <!-- START - general format -->
 
     <!-- list elements start-->
@@ -3571,8 +3575,8 @@
     <!-- nodes to remove -->
     <xsl:template match="aff/label"/>
     <xsl:template match="app/label"/>
-    <xsl:template match="sec/label"/>
     <xsl:template match="fn/label"/>
+    <xsl:template match="sec/label"/>
     <xsl:template match="disp-formula/label"/>
     <xsl:template match="fn-group[@content-type='competing-interest']/title"/>
     <xsl:template match="permissions/copyright-year | permissions/copyright-holder"/>
@@ -4194,7 +4198,7 @@
         <div>
           <xsl:call-template name="a-id"/>
           <div>
-            <table class="striped">
+            <table class="article-table unstriped">
               <xsl:if test="string(tei:head)">
                 <xsl:call-template name="tableHead"/>
               </xsl:if>
@@ -4268,7 +4272,7 @@
       <xsl:call-template name="a-id"/>
       <!-- Type only changes if a project needs different formatting-->
       <div>
-        <table class="striped">
+        <table class="article-table unstriped">
           <xsl:if test="string(tei:head)">
             <xsl:call-template name="tableHead"/>
           </xsl:if>

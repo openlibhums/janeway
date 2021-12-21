@@ -23,6 +23,7 @@ from utils import models as util_models, setting_handler
 from utils.logger import get_logger
 from core import models as core_models
 from journal import models as journal_models
+from repository import models as repository_models
 
 logger = get_logger(__name__)
 
@@ -34,7 +35,7 @@ def get_site_resources(request):
     :param request: A Django HttpRequest
     :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
     """
-    journal = press = redirect_obj = None
+    journal = repository = press = redirect_obj = None
     try:  # try journal site
         if settings.URL_CONFIG == 'path':
             code = request.path.split('/')[1]
@@ -49,27 +50,46 @@ def get_site_resources(request):
                     "" % settings.URL_CONFIG
             )
     except (journal_models.Journal.DoesNotExist, IndexError):
-        try: # try press site
-            press = press_models.Press.get_by_request(request)
-        except press_models.Press.DoesNotExist:
-            try: # try alias
-                alias = core_models.DomainAlias.get_by_request(request)
-                if alias.redirect:
-                    logger.debug("Matched a redirect: %s" % alias.redirect_url)
-                    redirect_obj = redirect(
-                        alias.build_redirect_url(path=request.path))
-                else:
-                    journal = alias.journal
-                    press = journal.press if journal else alias.press
-            except core_models.DomainAlias.DoesNotExist:
-                # Give up
-                logger.warning(
-                    "Couldn't match a resource for %s, redirecting to %s"
-                    "" % (request.path, settings.DEFAULT_HOST)
+        try: # try repository site
+            if settings.URL_CONFIG == 'path':
+                short_name = request.path.split('/')[1]
+                repository = repository_models.Repository.objects.get(
+                    short_name=short_name,
+                    live=True,
                 )
-                redirect_obj = redirect(settings.DEFAULT_HOST)
+                press = repository.press
+            elif settings.URL_CONFIG == 'domain':
+                repository = repository_models.Repository.get_by_request(
+                    request,
+                )
+                press = repository.press
+            else:
+                raise ImproperlyConfigured(
+                        "'%s' is not a valid value for settings.URL_CONFIG"
+                        "" % settings.URL_CONFIG
+                )
+        except (repository_models.Repository.DoesNotExist, IndexError):
+            try: # try press site
+                press = press_models.Press.get_by_request(request)
+            except press_models.Press.DoesNotExist:
+                try: # try alias
+                    alias = core_models.DomainAlias.get_by_request(request)
+                    if alias.redirect:
+                        logger.debug("Matched a redirect: %s" % alias.redirect_url)
+                        redirect_obj = redirect(
+                            alias.build_redirect_url(path=request.path))
+                    else:
+                        journal = alias.journal
+                        press = journal.press if journal else alias.press
+                except core_models.DomainAlias.DoesNotExist:
+                    # Give up
+                    logger.warning(
+                        "Couldn't match a resource for %s, redirecting to %s"
+                        "" % (request.path, settings.DEFAULT_HOST)
+                        )
+                    redirect_obj = redirect(settings.DEFAULT_HOST)
 
-    return journal, press, redirect_obj
+    return journal, repository, press, redirect_obj
 
 
 class SiteSettingsMiddleware(object):
@@ -89,7 +109,8 @@ class SiteSettingsMiddleware(object):
         :return: None or an http 404 error in the event of catastrophic failure
         """
 
-        journal, press, redirect_obj = get_site_resources(request)
+        journal, repository, press, redirect_obj = get_site_resources(request)
+
         if redirect_obj is not None:
             return redirect_obj
 
@@ -104,6 +125,7 @@ class SiteSettingsMiddleware(object):
             request.site_type = journal
             request.model_content_type = ContentType.objects.get_for_model(
                     journal)
+            request.repository = None
 
             if settings.URL_CONFIG == 'path':
                 prefix = "/" + journal.code
@@ -111,9 +133,25 @@ class SiteSettingsMiddleware(object):
                 set_script_prefix(prefix)
                 request.path_info = request.path_info[len(prefix):]
 
+        elif repository is not None:
+            logger.set_prefix(repository.short_name)
+            request.repository = repository
+            request.journal = None
+            request.site_type = repository
+            request.model_content_type = ContentType.objects.get_for_model(
+                repository,
+            )
+
+            if settings.URL_CONFIG == 'path':
+                prefix = "/" + repository.short_name
+                logger.debug("Setting script prefix to %s" % prefix)
+                set_script_prefix(prefix)
+                request.path_info = request.path_info[len(prefix):]
+
         elif press is not None:
             logger.set_prefix("press")
             request.journal = None
+            request.repository = None
             request.site_type = press
             request.model_content_type = ContentType.objects.get_for_model(press)
             request.press_base_url = press.site_url()

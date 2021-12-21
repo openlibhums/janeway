@@ -1,0 +1,24 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>Manage Supplementary Files</li>
+{% endblock %}
+
+{% block body %}
+{% include "admin/repository/supp_files_body.html" %}
+{% endblock %}
+
+{% block js %}
+{% include "admin/repository/supp_files_js.html" %}
+{% endblock %}

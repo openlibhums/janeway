@@ -349,3 +349,11 @@ footer svg {
     width: 16px;
     display: inline-block;
 }
+
+.article-table {
+  display: block;
+  overflow-x: scroll;}
+
+.table-caption {
+    margin-bottom: 8px;
+}

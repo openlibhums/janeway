@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }} - Metadata{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>Edit Metadata</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Metadata</h2>
+                    <a class="button" href="{% url 'repository_manager_article' preprint.pk %}">< Back</a>
+                </div>
+                <div class="content">
+                    <div class="row expanded">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {% include "admin/elements/repository/metadata_form.html" with form=metadata_form %}
+                            <button name="metadata" class="button"><span class="fa fa-save" aria-hidden="true">&nbsp;</span> Save Metadata</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+    <script type="text/javascript" src="{% static 'common/js/tree.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+            $('#add_more').click(function () {
+                console.log('test')
+                var form_idx = $('#id_form-TOTAL_FORMS').val();
+                $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, form_idx));
+                $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+            });
+        });
+    </script>
+{% endblock %}

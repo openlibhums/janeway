@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}{% trans "Search Preprints" %}{% endblock %}
+
+
+{% block body %}
+
+    <section id="content">
+        <div class="row">
+            <div class="large-8 columns border-right">
+                <h4>{% trans "Search Preprints" %}</h4>
+                {% for article in articles %}
+                    <div class="box article">
+                        <a href="{% if article.is_remote %}https://doi.org/{{ article.identifier.identifier }}{% else %}{% url 'repository_article' article.pk %}{% endif %}"
+                           class="box-link"></a>
+                        <div class="clearfix">
+                            <div class="large-12 columns end">
+                                <h2>{{ article.title|safe }}</h2>
+                                <p>{% for author in article.authors.all %}{% if forloop.last %}
+                                    {% if article.authors.all|length > 1 %} and
+                                    {% endif %}{% endif %}{{ author.full_name }}
+                                    {% if not forloop.last %}
+                                        {% if not forloop.counter == article.authors.all|length|add:-1 %},
+                                        {% endif %}{% endif %}{% endfor %}</p>
+                                <p><span class="date"><i
+                                        class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span>&nbsp;&nbsp;<i
+                                        class="fa fa-paperclip"></i> {{ article.get_subject_area }}</p>
+                            </div>
+                        </div>
+                        <hr/>
+                    </div>
+                {% endfor %}
+
+            </div>
+            <aside class="large-4 columns" data-sticky-container>
+                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+                    <div class="section">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <input class="input-group-field" type="search" name="search_term"
+                                       placeholder="{% trans "Search preprints" %}"
+                                       {% if search_term %}value="{{ search_term }}"{% endif %}>
+                            </div>
+                            <input type="submit" style="visibility: hidden;"/>
+                            <h5>{% trans "Searching by" %}:</h5>
+                            <ul>
+                                <li>{% trans "Title" %}</li>
+                                <li>{% trans "Keywords" %}</li>
+                                <li>{% trans "Author Name" %}</li>
+                                <li>{% trans "Author Affiliation" %}</li>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+    </section>
+
+{% endblock body %}

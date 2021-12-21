@@ -47,7 +47,7 @@
                             <th>Name</th>
                             <th>Code</th>
                             <th>Domain</th>
-                            <th></th>
+                            <th>Edit</th>
                         </tr>
                         <tbody id="sortable">
                             {% for journal in journals %}
@@ -62,7 +62,30 @@
                         </tbody>
                     </table>
                 </div>
-
+                {% if request.press.enable_preprints %}
+                <div class="title-area">
+                    <h2>Repositories</h2>
+                    <a class="button" href="{% url 'repository_wizard' %}">Add New Repository</a>
+                </div>
+                <div class="content">
+                    <table class="small scroll">
+                        <tr>
+                            <th>Name</th>
+                            <th>Short Name</th>
+                            <th>Domain</th>
+                            <th>Wizard</th>
+                        </tr>
+                        {% for repo in repositories %}
+                        <tr>
+                            <td>{{ repo.name }}</td>
+                            <td>{{ repo.short_name }}</td>
+                            <td><a href="{% if settings.URL_CONFIG == 'domain' %}{{ repo.domain }}{% else %}{{ repo.site_url }}{% endif %}">{% if settings.URL_CONFIG == 'domain' %}{{ repo.domain }}{% else %}{{ repo.site_url }}{% endif %}</a></td>
+                            <td><a href="{% url 'repository_wizard_with_id' repo.short_name '1' %}">Setup Wizard</a></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

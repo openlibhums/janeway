@@ -114,6 +114,11 @@ class Press(AbstractSiteModel):
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField('submission.Article')
 
+    disable_journals = models.BooleanField(
+        default=False,
+        help_text='If enabled, the journals page will no longer render.'
+    )
+
     def __str__(self):
         return u'%s' % self.name
 
@@ -165,6 +170,25 @@ class Press(AbstractSiteModel):
         """ Returns a Journal's path mode url relative to its press """
 
         _path = journal.code
+        request = logic.get_current_request()
+        if settings.DEBUG and request:
+            port = request.get_port()
+        else:
+            port = None
+        if path is not None:
+            _path += path
+
+        return logic.build_url(
+            netloc=self.domain,
+            scheme=self.SCHEMES[self.is_secure],
+            port=port,
+            path=_path,
+        )
+
+    def repository_path_url(self, repository, path=None):
+        """ Returns a Repo's path mode url relative to its press """
+
+        _path = repository.short_name
         request = logic.get_current_request()
         if settings.DEBUG and request:
             port = request.get_port()
@@ -262,10 +286,17 @@ class Press(AbstractSiteModel):
         return self.journals(is_conference=False).count() > 0
 
     @cache(600)
+    def live_repositories(self):
+        from repository import models as repository_models
+        return repository_models.Repository.objects.filter(
+            live=True,
+        )
+
+    @cache(600)
     def preprint_editors(self):
-        from preprint import models as pp_models
+        from repository import models as repository_models
         editors = list()
-        subjects = pp_models.Subject.objects.all()
+        subjects = repository_models.Subject.objects.all()
 
         for subject in subjects:
             for editor in subject.editors.all():

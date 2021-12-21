@@ -13,15 +13,15 @@ import re
 from functools import reduce
 
 from django.conf import settings
-from django.utils.translation import get_language
 from django.contrib.auth import logout
 from django.contrib import messages
-from django.utils import timezone
 from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
+from django.utils import timezone
+from django.utils.translation import get_language, ugettext_lazy as _
 
 from core import models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -698,14 +698,14 @@ def password_policy_check(request):
     password = request.POST.get('password_1')
 
     rules = [
-        lambda s: len(password) >= request.press.password_length or 'length'
+        lambda s: len(password) >= request.press.password_length or _('Your password must be {} characters long').format(request.press.password_length)
     ]
 
     if request.press.password_upper:
-        rules.append(lambda password: any(x.isupper() for x in password) or 'upper')
+        rules.append(lambda password: any(x.isupper() for x in password) or _('An uppercase character is required'))
 
     if request.press.password_number:
-        rules.append(lambda password: any(x.isdigit() for x in password) or 'digit')
+        rules.append(lambda password: any(x.isdigit() for x in password) or _('A number is required'))
 
     problems = [p for p in [r(password) for r in rules] if p != True]
 

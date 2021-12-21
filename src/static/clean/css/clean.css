@@ -253,7 +253,6 @@ main a:hover {
 .card-block {
     padding: 20px;
 }
-
 #carousel-buttons {
     margin-left: 100px;
     position: absolute;
@@ -332,7 +331,6 @@ footer svg {
 .article-img {
     filter: brightness(50%);
 }
-
 .journal-name {
     font-size: 2.5rem;
     margin-bottom: .5rem;
@@ -348,4 +346,12 @@ footer svg {
     height: 16px;
     width: 16px;
     display: inline-block;
+}
+
+.article-table {
+  display: block;
+  overflow-x: scroll;}
+
+.table-caption {
+    margin-bottom: 5px;
 }

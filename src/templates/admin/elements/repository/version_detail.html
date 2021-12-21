@@ -1,0 +1,60 @@
+<div class="reveal large" id="detail-{{ version.pk }}" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{{ preprint.title|safe }} Version Detail</h4>
+        </div>
+    </div>
+    <div class="card-section">
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <div class="row expanded">
+            <p>The current and updated metadata are displayed below. This has been marked as a <strong>{{ version.get_update_type_display }}</strong>. Where Title and Abstract are blank in the New Metadata section this means no change will be made.</p>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Current Metadata</h2>
+                </div>
+                <div class="content">
+                    <p><strong>Title</strong></p>
+                    <p>{{ version.preprint.title|safe }}</p>
+                    <p><strong>Abstract</strong></p>
+                    <p>{{ version.preprint.abstract|safe|linebreaksbr }}</p>
+                    <p><strong>Published DOI</strong></p>
+                    <p>{{ version.preprint.doi }}</p>
+                    <p><strong>File</strong></p>
+                    {% if version.preprint.current_version.file %}
+                    <p><a href="{% url 'repository_file_download' version.preprint.id version.preprint.current_version.file.id %}"><i class="fa fa-download"></i> Download</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>New Metadata</h2>
+                </div>
+                <div class="content">
+                    <p><strong>Title{% if version.title and version.title != version.preprint.title %} (changed){% endif %}</strong></p>
+                    <p>{% if version.title == version.preprint.title %}Unchanged{% else %} {{ version.title }}{% endif %}</p>
+                    <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
+                    <p>{% if version.abstract == version.preprint.abstract %}Unchanged{% else %}{{ version.abstract|safe|linebreaksbr }}{% endif %}</p>
+
+                    <p><strong>Published DOI{% if version.published_doi and version.published_doi != version.preprint.doi %} (changed){% endif %}</strong></p>
+                    <p>{% if version.published_doi == version.preprint.doi %}Unchanged{% else %}{{ version.published_doi }}{% endif %}</p>
+                    <p><strong>File</strong></p>
+                    <p>{% if version.file %}<a href="{{ version.file.download_url }}"><i class="fa fa-download"></i> Download</a>{% else %}No File{% endif %}</p>
+                </div>
+            </div>
+            <div class="large-12 columns">
+                <div class="title-area">
+                    <h2>Decision</h2>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <p>You can approve or decline this update. Declining will give you the opportunity to explain why to the Authors.</p>
+                    <button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i> Approve</button>
+                    <a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> Decline</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

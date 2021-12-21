@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "About" %} {{ request.repository.name }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col m12 spacer">
+            <h4 class="text-center">{% trans "About" %} {{ request.repository.name }}</h4>
+        </div>
+
+        <div class="col m12 spacer">
+            {{ request.repository.about|safe }}
+        </div>
+    </div>
+
+{% endblock %}

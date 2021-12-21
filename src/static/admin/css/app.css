@@ -5119,6 +5119,44 @@ ul.actions li a {
   padding-bottom: 25px !important;
 }
 
+/* Remove default bullets */
+.tree {
+  list-style-type: none !important;
+  margin-left: 30px;
+}
+
+/* Remove margins and padding from the parent ul */
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+  margin-left: -20px;
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.nested {
+  display: none;
+  margin-left: 30px;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
 .padded-group-item {
   padding-top: 20px;
   padding-bottom: 20px;

@@ -10,24 +10,30 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
+    <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-
+    {% if request.journal %}
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
     <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate"
           title="News Feed for Journal">
-    {% if journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>{% endif %}
+    {% endif %}
+    {% if request.journal.favicon %}
+        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% elif request.repository.favicon %}
+        <link rel="icon" href="{{ request.repository.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% endif %}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
     <link rel="stylesheet" href="{% static "material/mat.css" %}">
 
     {% if request.journal %}
         <link href="{% static "material/css/journal" %}{{ request.journal.id }}_override.css" rel="stylesheet">
-   {% else %}
+    {% elif request.repository %}
+        <link href="{% static "common/css/repo.css" %}" rel="stylesheet">
+    {% else %}
         <link href="{% static "material/css/press_override.css" %}" rel="stylesheet">
     {% endif %}
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
@@ -38,10 +44,12 @@
 <body>
 
 {% block navbar %}
-    {% if not request.journal %}
-        {% include "press/nav.html" %}
-    {% else %}
+    {% if request.journal %}
         {% include "core/nav.html" %}
+    {% elif request.repository %}
+        {% include "repository/nav.html" %}
+    {% else %}
+        {% include "press/nav.html" %}
     {% endif %}
 {% endblock navbar %}
 
@@ -55,6 +63,8 @@
         <div class="container">
             {% if request.journal %}
                 {% include "elements/journal_footer.html" %}
+            {% elif request.repository %}
+                {{ request.repository.footer|safe }}
             {% else %}
                 {% include "press/elements/press_footer.html" %}
             {% endif %}
@@ -92,6 +102,12 @@
 {% endif %}
 
 {% block js %}{% endblock %}
+
+{% if request.repository and request.repository.custom_js_code %}
+<script>
+  {{ request.repository.custom_js_code|safe }}
+</script>
+{% endif %}
 
 </body>
 </html>
