@@ -3133,5 +3133,36 @@
         "value": {
             "default": "en"
         }
+    },
+    {
+	    "group": {
+	        "name": "general"
+    	},
+        "setting": {
+    	    "description": "Support email address for editors and staff users.",
+    	    "is_translatable": false,
+    	    "name": "support_email",
+    	    "pretty_name": "Support Email",
+    	    "type": "char"
+    	},
+    	"value": {
+    	    "default": "--No support email set--"
+    	}
+    },
+    {
+    	"group": {
+    	    "name": "general"
+    	},
+    	"setting": {
+    	    "description": "Support message to display to editors and staff on Manager page.",
+    	    "is_translatable": false,
+    	    "name": "support_contact_message_for_staff",
+    	    "pretty_name": "Janeway Support Contact for Staff",
+    	    "type": "rich-text"
+    	},
+    	"value": {
+    	    "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+    	}
     }
 ]
+

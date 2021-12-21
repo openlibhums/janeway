@@ -7,7 +7,7 @@ from contextlib import ContextDecorator
 import sys
 
 from django.core.management import call_command
-from django.utils import translation
+from django.utils import translation, timezone
 from django.utils.six import StringIO
 
 from core import (
@@ -18,6 +18,7 @@ from core import (
 from journal import models as journal_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
+from repository import models as repo_models
 
 
 def create_user(username, roles=None, journal=None):
@@ -120,6 +121,60 @@ def create_test_file(test_case, file):
     test_case.files.append(file)
 
     return file, path_parts
+
+
+def create_repository(press, managers, subject_editors):
+    repository, c = repo_models.Repository.objects.get_or_create(
+        press=press,
+        name='Test Repository',
+        short_name='testrepo',
+        object_name='Preprint',
+        object_name_plural='Preprints',
+        publisher='Test Publisher',
+        live=True,
+    )
+    repository.managers.add(*managers)
+
+    subject, c = repo_models.Subject.objects.get_or_create(
+        repository=repository,
+        name='Repo Subject',
+        slug='repo-subject',
+        enabled=True,
+    )
+    subject.editors.add(
+        *subject_editors,
+    )
+
+    return repository, subject
+
+
+def create_preprint(repository, author, subject):
+    preprint = repo_models.Preprint.objects.create(
+        repository=repository,
+        owner=author,
+        stage=repo_models.STAGE_PREPRINT_REVIEW,
+        title='This is a Test Preprint',
+        abstract='This is a fake abstract.',
+        comments_editor='',
+        date_submitted=timezone.now(),
+    )
+    preprint.subject.add(
+        subject,
+    )
+    file = repo_models.PreprintFile.objects.create(
+        preprint=preprint,
+        original_filename='fake_file.pdf',
+        mime_type='application/pdf',
+        size=100,
+    )
+    preprint.submission_file = file
+    repo_models.PreprintAuthor.objects.create(
+        preprint=preprint,
+        account=author,
+        order=1,
+        affiliation='Made Up University',
+    )
+    return preprint
 
 
 class Request(object):

@@ -1,0 +1,20 @@
+{% load static from staticfiles %}
+
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script>
+    $("#sortable").sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            console.log(data);
+            // POST to server using $.post or $.ajax
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{% url 'repository_order_supplementary_files' preprint.pk %}'
+            });
+        }
+    });
+    $("#sortable").disableSelection();
+</script>
+<script type="text/javascript" src="{% static "common/js/confirm.js" %}"></script>

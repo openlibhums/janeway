@@ -1,0 +1,23 @@
+{% load bool_fa %}
+{% for subject in subjects %}
+    <tr>
+        <td>
+            <a href="{% url 'repository_subjects_with_id' subject.pk %}">{{ subject.name|safe }}</a>
+        </td>
+        <td>{{ subject.enabled|bool_fa }}</td>
+        <td>
+            <form method="POST">{% csrf_token %}
+                <button name="delete" value="{{ subject.pk }}" class="delete control-button"><i
+                        class="fa fa-trash"></i></button>
+            </form>
+        </td>
+        <td>
+            <a href="?parent={{ subject.slug }}">
+                <span class="fa fa-plus-square"></span>
+            </a>
+        </td>
+    </tr>
+    {% if subject.children.count > 0 %}
+        {% include "admin/elements/repository/table_row.html" with subjects=subject.children.all %}
+    {% endif %}
+{% endfor %}

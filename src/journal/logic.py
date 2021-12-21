@@ -549,6 +549,25 @@ def get_table_from_html(table_name, content):
     return table
 
 
+def get_all_tables_from_html(content):
+    """
+    Uses BS4 to fetch all tables in html.
+    :param content: HTML content
+    """
+    soup = BeautifulSoup(str(content), 'lxml')
+    tables = []
+
+    for table in soup.findAll('div', attrs={'class': 'table-expansion'}):
+        tables.append(
+            {
+                'id': table.get('id'),
+                'content': str(table)
+            }
+        )
+
+    return tables
+
+
 def parse_html_table_to_csv(table, table_name):
     filepath = files.get_temp_file_path_from_name('{0}.csv'.format(table_name))
     headers = [th.text for th in table.select("tr th")]

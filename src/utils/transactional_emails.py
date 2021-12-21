@@ -1212,81 +1212,202 @@ def send_author_copyedit_complete(**kwargs):
 
 def preprint_submission(**kwargs):
     """
-    Called by events.Event.ON_PRPINT_SUBMISSIONS, logs and emails the author and preprint editor.
+    Called by events.Event.ON_PRePINT_SUBMISSIONS, logs and emails the author
+    and preprint editor.
     :param kwargs: Dictionary containing article and request objects
     :return: None
     """
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
 
-    description = '{author} has submitted a new preprint titled {title}.'.format(author=request.user.full_name(),
-                                                                                 title=article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Submission',
-                'target': article}
+    description = '{author} has submitted a new {obj} titled {title}.'.format(
+        author=request.user.full_name(),
+        obj=request.repository.object_name,
+        title=preprint.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Submission',
+        'target': preprint,
+    }
 
     # Send an email to the user
-    context = {'article': article}
-    template = request.press.preprint_submission
-    email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', request.user.email, email_text,
-                                                  log_dict=log_dict)
+    context = {'preprint': preprint}
+    template = request.repository.submission
+    email_text = render_template.get_message_content(
+        request,
+        context,
+        template,
+        template_is_setting=True,
+    )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Submission'.format(request.repository.object_name),
+        request.user.email,
+        email_text,
+        log_dict=log_dict,
+    )
 
     # Send an email to the preprint editor
-    url = request.press_base_url + reverse('preprints_manager_article', kwargs={'article_id': article.pk})
-    editor_email_text = 'A new preprint has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
+    url = request.repository.site_url() + reverse(
+        'repository_manager_article',
+        kwargs={'preprint_id': preprint.pk},
+    )
+    editor_email_text = 'A new {object} has been submitted to {press}: <a href="{url}">{title}</a>.'.format(
+        object=request.repository.object_name,
         press=request.press.name,
         url=url,
-        title=article.title
+        title=preprint.title
     )
     for editor in request.press.preprint_editors():
-        notify_helpers.send_email_with_body_from_user(request, 'Preprint Submission', editor.email,
-                                                      editor_email_text, log_dict=log_dict)
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Submission'.format(request.repository.object_name),
+            editor.email,
+            editor_email_text,
+            log_dict=log_dict,
+        )
 
 
-def preprint_publication(**kwargs):
+def preprint_notification(**kwargs):
     """
-    Called by events.Event.ON_PREPRINT_PUBLICATIONS handles logging and emails.
-    :param kwargs: Dictionary containing article and request objects
+    Called by events.Event.ON_PREPRINT_NOTIFICATION handles logging and emails.
+    :param kwargs: Dict with preprint, content and request objects
     :return: None
     """
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
+    content = kwargs.get('email_content')
+    skip = kwargs.get('skip')
 
-    description = '{editor} has published a preprint titled {title}.'.format(editor=request.user.full_name(),
-                                                                             title=article.title)
+    if preprint.date_declined:
+        types = 'Rejected'
+        description = '<p>{editor} has rejected \'{title}\'. Moderator reason:</p><p>{reason}</p>'.format(
+            editor=request.user.full_name(),
+            title=preprint.title,
+            reason=preprint.preprint_decline_note,
+        )
+    else:
+        types = 'Accepted'
+        description = '{editor} has published \'{title}\'.'.format(
+            editor=request.user.full_name(),
+            title=preprint.title,
+        )
 
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Publication',
-                'target': article}
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': types,
+        'target': preprint,
+    }
 
-    util_models.LogEntry.add_entry('Publication', description, 'Info', request.user, request, article)
+    util_models.LogEntry.add_entry(
+        types,
+        description,
+        'Info',
+        request.user,
+        request,
+        preprint,
+    )
 
-    # Send an email to the article owner.
-    context = {'article': article}
-    template = request.press.preprint_publication
-    email_text = render_template.get_message_content(request, context, template, template_is_setting=True)
-    notify_helpers.send_email_with_body_from_user(request, ' Preprint Submission Decision', article.owner.email,
-                                                  email_text, log_dict=log_dict)
+    if not skip:
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            '{} Submission Decision'.format(preprint.title),
+            preprint.owner.email,
+            content,
+            log_dict=log_dict,
+        )
 
-    # Stops this notification being sent multiple times.c
-    article.preprint_decision_notification = True
-    article.save()
+        # Stops this notification being sent multiple times.c
+        preprint.preprint_decision_notification = True
+        preprint.save()
 
 
 def preprint_comment(**kwargs):
     request = kwargs.get('request')
-    article = kwargs.get('article')
+    preprint = kwargs.get('preprint')
 
-    email_text = 'A comment has been made on your article {article}, you can moderate comments ' \
-                 '<a href="{base_url}{url}">on the journal site</a>.'.format(
-                     article=article.title, base_url=request.press_base_url, url=reverse('preprints_comments',
-                                                                                         kwargs={'article_id': article.pk}))
+    path = reverse(
+        'repository_comments',
+        kwargs={'preprint_id': preprint.pk},
+    )
+    url = request.repository.site_url(path)
 
-    description = '{author} commented on {article}'.format(author=request.user.full_name(), article=article.title)
-    log_dict = {'level': 'Info', 'action_text': description, 'types': 'Preprint Comment',
-                'target': article}
+    email_text = 'A comment has been made on your article {title}, you can moderate comments ' \
+                 '<a href="{url}">on the journal site</a>.'.format(
+        title=preprint.title,
+        url=url,
+    )
 
-    notify_helpers.send_email_with_body_from_user(request, ' Preprint Comment', article.owner.email,
-                                                  email_text, log_dict=log_dict)
+    description = '{author} commented on {title}'.format(
+        author=request.user.full_name(),
+        title=preprint.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Comment',
+        'target': preprint,
+    }
+
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        'Preprint Comment',
+        preprint.owner.email,
+        email_text,
+        log_dict=log_dict,
+    )
+
+
+def preprint_version_update(**kwargs):
+    request = kwargs.get('request')
+    pending_update = kwargs.get('pending_update')
+    action = kwargs.get('action')
+    reason = kwargs.get('reason')
+
+    description = '{object} Pending Version {pk}: Decision: {decision}'.format(
+        object=request.repository.object_name,
+        pk=pending_update.pk,
+        decision=action,
+    )
+
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Preprint Publication',
+        'target': pending_update.preprint,
+    }
+
+    context = {
+        'pending_update': pending_update,
+        'reason': reason,
+    }
+
+    if action == 'accept':
+        template = request.repository.accept_version
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            template,
+            template_is_setting=True,
+        )
+    else:
+        template = request.repository.decline_version
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            template,
+            template_is_setting=True,
+        )
+    notify_helpers.send_email_with_body_from_user(
+        request,
+        '{} Version Update'.format(pending_update.preprint.title),
+        pending_update.preprint.owner.email,
+        email_text,
+        log_dict=log_dict,
+    )
 
 
 def send_cancel_corrections(**kwargs):

@@ -5300,3 +5300,13 @@ button.list-group-item-danger.active:focus {
 
 .reveal {
   user-select: text; }
+
+.article-table {
+  display: block;
+  overflow-x: scroll; }
+
+.article-table thead tr {
+  background-color: transparent !important; }
+
+.article-table tbody tr {
+  background-color: transparent !important; }

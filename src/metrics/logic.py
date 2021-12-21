@@ -287,6 +287,8 @@ def get_view_and_download_totals(articles):
 
 
 def iso_to_country_object(code):
+    if settings.DEBUG:
+        code = 'GB'
     try:
         return core_models.Country.objects.get(code=code)
     except core_models.Country.DoesNotExist:

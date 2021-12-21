@@ -1,0 +1,24 @@
+{% load markdown_deux_tags %}
+
+<div class="row expanded">
+    <div class="small-2 columns">
+        {% include "admin/discussion/avatar.html" with user=post.owner %}
+    </div>
+    <div class="small-10 columns">
+        {% if post.owner == request.user %}
+            <div class="post-callout post-user-callout">
+                <p class="subheader">
+                    <small>{{ post.owner.full_name }} {{ post.posted|date:"H:i" }} {{ post.display_date }}</small>
+                </p>
+                <p>{{ post.body|safe }}</p>
+            </div>
+        {% else %}
+            <div class="post-callout post-other-callout">
+                <p class="subheader">
+                    <small>{{ post.owner.full_name }} {{ post.posted|date:"H:i" }} {{ post.display_date }}</small>
+                </p>
+                <p>{{ post.body|markdown }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,61 @@
+{% load foundation %}
+{% load i18n %}
+
+<div class="box">
+    <div class="row expanded">
+        <div class="large-8 medium-12 columns">
+            <div class="title-area">
+                <h2>Current Supplementary Files</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>
+                        You can reorder files by dragging and dropping the table rows.
+                    </small>
+                </p>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Label</th>
+                        <th>URL</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
+                    {% for file in supplementary_files %}
+                        <tr id="contact-{{ file.pk }}">
+                            <td><i class="fa fa-sort"></i> {{ file.label }}</td>
+                            <td>{{ file.url }}</td>
+                            <td>
+                                <form method="POST"
+                                      action="{% url 'repository_delete_supplementary_files' preprint.pk %}">{% csrf_token %}
+                                    <button name="delete" value="{{ file.pk }}" class="tiny alert button del"><i
+                                            class="fa fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="large-4 medium-12 columns">
+            <div class="title-area">
+                <h2>Add New File</h2>
+            </div>
+            <div class="content">
+                {% include "admin/elements/forms/errors.html" %}
+                <form method="POST" action="{% url 'repository_new_supplementary_files' preprint.pk %}">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <button type="submit" name="form"
+                                    class="button">{% trans 'Add New Supplementary File' %}</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
