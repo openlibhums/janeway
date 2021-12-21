@@ -148,10 +148,12 @@
             </div>
         </div>
         {% block navbar %}
-            {% if not request.journal %}
-                {% include "press/nav.html" %}
-            {% else %}
+            {% if request.journal %}
                 {% include "core/nav.html" %}
+            {% elif request.repository %}
+                {% include "repository/nav.html" %}
+            {% else %}
+                {% include "press/nav.html" %}
             {% endif %}
         {% endblock navbar %}
     </header>

@@ -390,6 +390,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_proofing_manager(self, request):
         return self.check_role(request.journal, 'proofing_manager')
 
+    def is_repository_manager(self, repository):
+        if self in repository.managers.all():
+            return True
+
+        return False
+
     def is_preprint_editor(self, request):
         if self in request.press.preprint_editors():
             return True
@@ -463,8 +469,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def preprint_subjects(self):
         "Returns a list of preprint subjects this user is an editor for"
-        from preprint import models as preprint_models
-        subjects = preprint_models.Subject.objects.filter(editors__exact=self)
+        from repository import models as repository_models
+        subjects = repository_models.Subject.objects.filter(
+            editors__exact=self,
+        )
         return subjects
 
     @property

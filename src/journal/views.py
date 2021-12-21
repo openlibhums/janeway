@@ -545,7 +545,7 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article.allarticles,
+    article = get_object_or_404(submission_models.Article,
                                 pk=article_id,
                                 journal=request.journal,
                                 date_published__lte=timezone.now(),
@@ -578,7 +578,7 @@ def view_galley(request, article_id, galley_id):
     :return: an HttpResponse with a PDF attachment
     """
     article_to_serve = get_object_or_404(
-        submission_models.Article.allarticles,
+        submission_models.Article,
         pk=article_id,
         journal=request.journal,
         date_published__lte=timezone.now(),
@@ -750,7 +750,7 @@ def submit_files_info(request, article_id, file_id):
     :param file_id: the file ID for which to submit information
     :return: a rendered template to submit file information
     """
-    article_object = get_object_or_404(submission_models.Article.allarticlesd, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     form = review_forms.ReplacementFileDetails(instance=file_object)
@@ -786,7 +786,7 @@ def file_history(request, article_id, file_id):
     if request.POST:
         return redirect(request.GET['return'])
 
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     template = "journal/file_history.html"
@@ -827,7 +827,7 @@ def file_delete(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     file_object.delete()
@@ -845,7 +845,7 @@ def article_file_make_galley(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     logic.create_galley_from_file(file_object, article_object, owner=request.user)
@@ -2119,7 +2119,7 @@ def download_table(request, identifier_type, identifier, table_name):
 
 
 def download_supp_file(request, article_id, supp_file_id):
-    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id,
+    article = get_object_or_404(submission_models.Article, pk=article_id,
                                 stage=submission_models.STAGE_PUBLISHED)
     supp_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
 

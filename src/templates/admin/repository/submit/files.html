@@ -1,0 +1,139 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+{% load field %}
+
+{% block title-section %}
+    {% trans 'Upload Files for' %} {{ preprint.title }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
+        Dashboard</a></li>
+    <li>Start Submission</li>
+    <li>Add Authors</li>
+    <li>Upload Files</li>
+{% endblock %}
+
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Information</h2>
+                </div>
+                <div class="content">
+                    <p>
+                        {% trans 'You can use the form below to select and upload your manuscript file.' %}
+                    </p>
+                    {% if request.repository.limit_upload_to_pdf %}
+                        <p>{{ request.repository.name }} {% trans 'requires that all author uploads be PDF files.' %}</p>
+                    {% else %}
+                        <p>{% trans 'You can upload a file in any format though PDF is recommended.' %}</p>
+                    {% endif %}
+                </div>
+                {% include "elements/forms/errors.html" with form=form %}
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.file }}
+                    <button class="button"><span class="fa fa-cloud-upload"> </span> Upload File</button>
+                </form>
+                <div class="title-area">
+                    <h2>{% trans 'Supplementary files' %}</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans 'Optional links to externaly hosted supplementary files.' %}</p>
+                    <a href="#" data-open="newsupplementaryfile" class="button" aria-controls="new-supplementary-file" aria-haspopup="true" tabindex="0">{% trans 'Add New Supplementary File' %}</a>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Uploaded File</h2>
+                </div>
+                <div class="content">
+                    {% if preprint.submission_file %}
+                        <p>{% trans 'If you want to change this file you can upload a new one and it will be overwritten.' %}</p>
+                    {% endif %}
+                    <table class="table">
+                        <tr>
+                            <th>Original Filename</th>
+                            <th>Size</th>
+                        </tr>
+                        {% if preprint.submission_file %}
+                            <tr>
+                                <td>{{ preprint.submission_file.original_filename }}</td>
+                                <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="2">No file uploaded.</td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Supplementary File</h2>
+                </div>
+                <div class="content">
+                    <ul>
+                    {% for link in preprint.supplementaryfiles %}
+                        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                    {% empty %}
+                        <li>No Supplementary File</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="complete" class="button">{% trans 'Complete Step 3 of 3' %}</button>
+                    </form>
+            </div>
+        </div>
+    </div>
+    <div class="reveal small" id="newsupplementaryfile" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-plus">&nbsp;</i>{% trans 'Add New Supplementary File' %}</h4>
+            </div>
+            <div class="card-section">
+                {% include "admin/elements/forms/errors.html" %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ supplementary|foundation }}
+                    <button type="submit" name="form" class="button">{% trans 'Add New Supplementary File' %}</button>
+                </form>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_keywords").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+
+    <script type="text/javascript">
+        var toggler = document.getElementsByClassName("caret");
+        var i;
+
+        for (i = 0; i < toggler.length; i++) {
+            toggler[i].addEventListener("click", function () {
+                this.parentElement.querySelector(".nested").classList.toggle("active");
+                this.classList.toggle("caret-down");
+            });
+        }
+
+    </script>
+{% endblock %}

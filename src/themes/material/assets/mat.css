@@ -401,6 +401,24 @@ h5 {
     font-variant: small-caps
 }
 
+/* Remove default bullets */
+.tree {
+    margin-left: 20px;
+}
+.tree li {
+    list-style-type: disc !important;
+  }
+  
+  
+  /* Hide the nested list */
+  .nested {
+    margin-left: 30px;
+  }
+  
+  /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+  #subjects .tree .active {
+    display: block;
+  }
 .header-overrides {
     background-color: #fafafa;
     color: #616161;

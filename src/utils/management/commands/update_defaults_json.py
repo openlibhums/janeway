@@ -33,7 +33,6 @@ class Command(BaseCommand):
                 else:
                     item['setting']['is_translatable'] = False
 
-            print(default_data)
             write_path = os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json')
             with open(write_path, 'w+', encoding="utf-8") as f:
                 f.write(json.dumps(default_data, indent=4, sort_keys=True))

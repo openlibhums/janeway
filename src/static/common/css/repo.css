@@ -1,0 +1,128 @@
+.header-overrides {
+    background-color: #fafafa;
+    color: #616161 !important;
+    height: 90px !important;
+}
+
+.page-footer {
+    background-color: #fafafa;
+    color: #616161;
+}
+
+.footer-copyright p {
+    color: #616161;
+}
+
+.brand-logo {
+    color: #616161 !important;
+}
+
+nav ul a {
+    color: #616161 !important;
+}
+
+nav ul li {
+    line-height: 90px !important;
+}
+
+nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
+    line-height: 90px;
+}
+
+.header-override-image {
+    padding: 5px;
+    max-height: 90px;
+}
+
+.card .card-content p {
+    padding-bottom: 15px;
+}
+
+.carousel-text-wrapper {
+    opacity: 0.9 !important;
+}
+
+.carousel-text-wrapper a {
+    color: white;
+}
+
+.button-collapse {
+    color: #616161;
+}
+
+.card .card-image img {
+    height: 260px;
+    object-fit: cover;
+}
+
+.card .card-content p {
+    padding-bottom: 15px;
+}
+
+.small-card-title {
+    font-size: 18px !important;
+}
+
+#logo-container img {
+    max-height: 70px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.preprint-home-card {
+    min-height: 100%;
+}
+
+.no-padding-top {
+    margin-top: 0;
+}
+
+.listing-title {
+    font-weight: 300;
+    font-size: 1.6rem;
+    margin-bottom: 0.625rem !important;
+}
+
+.listing-title a {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.preprint-card {
+    max-height: 250px;
+}
+
+.preprint-card img {
+    max-height: 250px;
+    opacity: 0.9;
+}
+
+p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding-bottom: 0.6rem !important;
+}
+
+h5 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-top: 0.5rem;
+}
+
+.comment-scroll {
+    max-height: 400px;
+    overflow-y: paged-y;
+    overflow-x: hidden;
+}
+
+.eq-height-col {
+    margin-bottom: 20px;
+}
+
+.homepage-hr {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.pagination li.active {
+    background-color: #0c4d78;
+}

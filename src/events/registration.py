@@ -122,11 +122,15 @@ event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_ACCEPTED,
 event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_SUBMISSION,
                                       transactional_emails.preprint_submission)
 
-event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_PUBLICATION,
-                                      transactional_emails.preprint_publication)
+event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_NOTIFICATION,
+                                      transactional_emails.preprint_notification)
 
 event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_COMMENT,
                                       transactional_emails.preprint_comment)
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_PREPRINT_VERSION_UPDATE,
+    transactional_emails.preprint_version_update,
+)
 
 # wire up task-creation events
 event_logic.Events.register_for_event(event_logic.Events.ON_ARTICLE_SUBMITTED,
