@@ -226,13 +226,18 @@ class TestSVGImageFormField(TestCase):
 
     def test_upload_image_to_svg_image_form_field(self):
         svg_data = ""
-        svg_file = SimpleUploadedFile(
-            "file.png",
-            svg_data.encode("utf-8"),
+        image_data = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        image_file = SimpleUploadedFile(
+            "file.gif",
+            image_data,
         )
         TestForm = type(
             "TestFormForm", (Form,),
             {"file": SVGImageFieldForm()}
         )
-        form = TestForm({}, {"file": svg_file})
+        form = TestForm({}, {"file": image_file})
         self.assertTrue(form.is_valid())
