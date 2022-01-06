@@ -6,7 +6,12 @@ __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from contextlib import contextmanager
+from io import BytesIO
+import sys
 
+from django import forms
+from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models, IntegrityError, transaction
 from django.db.models import fields
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
@@ -18,9 +23,10 @@ from django.http.request import split_domain_port
 from django.utils.functional import cached_property
 from django.utils import translation
 from django.conf import settings
-
 from modeltranslation.manager import MultilingualManager, MultilingualQuerySet
 from modeltranslation.utils import auto_populate
+from PIL import Image
+import xml.etree.cElementTree as et
 
 from utils import logic
 
@@ -265,3 +271,72 @@ class JanewayMultilingualQuerySet(MultilingualQuerySet):
 class JanewayMultilingualManager(MultilingualManager):
     def get_queryset(self):
         return JanewayMultilingualQuerySet(self.model)
+
+
+class SVGImageField(models.ImageField):
+    def formfield(self, **kwargs):
+        defaults = {'form_class': SVGImageFieldForm}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
+
+
+def validate_image_or_svg_file_extension(value):
+    allowed_extensions = get_available_image_extensions() + ["svg"]
+    return FileExtensionValidator(allowed_extensions=allowed_extensions)(value)
+
+
+class SVGImageFieldForm(forms.ImageField):
+    default_validators = [validate_image_or_svg_file_extension]
+
+    def to_python(self, data):
+        """
+        Checks that the file-upload field data contains a valid image or SVG.
+        """
+        # We call the grand-parent and re-implement the parent checking for SVG
+        super_result = super(forms.ImageField, self).to_python(data)
+        if super_result is None:
+            return None
+
+        # Data can be a readable object, a templfile or a filepath
+        if hasattr(data, 'temporary_file_path'):
+            file_obj = data.temporary_file_path()
+        else:
+            if hasattr(data, 'read'):
+                file_obj = BytesIO(data.read())
+            else:
+                file_obj = BytesIO(data['content'])
+
+        try:
+            # load() could spot a truncated JPEG, but it loads the entire
+            # image in memory, which is a DoS vector. See #3848 and #18520.
+            image = Image.open(file_obj)
+            image.verify()
+
+            # Annotating so subclasses can reuse it for their own validation
+            super_result.image = image
+            super_result.content_type = Image.MIME[image.format]
+        except Exception as e:
+            # Handle SVG here
+            if not is_svg(file_obj):
+                raise ValidationError(
+                    self.error_messages['invalid_image'],
+                    code='invalid_image',
+                ).with_traceback(sys.exc_info()[2])
+        if hasattr(super_result, 'seek') and callable(super_result.seek):
+            super_result.seek(0)
+        return super_result
+
+
+def is_svg(f):
+    """
+    Check if provided file is svg
+    """
+    f.seek(0)
+    tag = None
+    try:
+        for event, el in et.iterparse(f, ('start',)):
+            tag = el.tag
+            break
+    except et.ParseError:
+        pass
+    return tag == '{http://www.w3.org/2000/svg}svg'
