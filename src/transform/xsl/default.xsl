@@ -437,7 +437,7 @@
 
     <xsl:template match="fn-group/fn/p">
         <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+            <xsl:number level="any" count="fn[not(ancestor::front | ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
         </xsl:variable>
         <span class="footnotemarker" id="fn{$fn-number}"></span>
         <xsl:apply-templates/>
