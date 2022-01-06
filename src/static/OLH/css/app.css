@@ -4530,6 +4530,7 @@ header #main-menu {
     background-color: var(--topbar-background-color); }
   header .top-bar-image {
     max-height: 90px;
+    min-height: 90px;
     max-width: 330px;
     padding: 5px;
     margin-top: -20px; } }
@@ -5301,12 +5302,15 @@ button.list-group-item-danger.active:focus {
 .reveal {
   user-select: text; }
 
+.table-foot .table-footnotes li.fn {
+  list-style-type: none; }
+
 .article-table {
   display: block;
   overflow-x: scroll; }
 
 .article-table thead tr {
-  background-color: transparent !important; }
+  background-color: transparent; }
 
 .article-table tbody tr {
-  background-color: transparent !important; }
+  background-color: transparent; }

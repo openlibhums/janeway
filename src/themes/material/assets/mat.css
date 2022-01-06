@@ -438,6 +438,10 @@ h5 {
     color: #616161;
 }
 
+.brand-logo img {
+    min-height: 75px;
+}
+
 nav ul a {
     color: #616161;
 }
@@ -611,10 +615,12 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
+}
 
 .article-table {
   display: block;
-  overflow-x: scroll;}
+  overflow-x: scroll;
+}
 
 .modal-large {
     width: 75%;

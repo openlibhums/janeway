@@ -1,6 +1,7 @@
 {% load static from staticfiles %}
 {% load press_url from press_url %}
 {% load svg from press_url %}
+{% load svg_or_image from press_url %}
 {% load i18n %}
 {% load roles %}
 {% load hooks %}
@@ -55,11 +56,9 @@
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
                     {% if request.journal.header_image %}
-                        {% if 'svg' in request.journal.header_image.path %}
-                          <a href="{{ request.journal.site_url }}">{% svg request.journal.header_image.path %}</a>
-                        {% else %}
-                          <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image"></a>
-                        {% endif %}
+                    <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
+                        {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
+                    </a>
                     {% else %}
                         <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
                     {% endif %}
