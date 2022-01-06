@@ -15,6 +15,10 @@ from django.core.exceptions import ValidationError
 from django.db import models, IntegrityError, transaction
 from django.db.models import fields
 from django.db.models.fields.related import ForeignObjectRel, ManyToManyField
+from django.core.validators import (
+    FileExtensionValidator,
+    get_available_image_extensions,
+)
 from django.db.models.fields.related_descriptors import (
     create_forward_many_to_many_manager,
     ManyToManyDescriptor,
