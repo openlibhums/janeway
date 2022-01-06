@@ -97,7 +97,7 @@ class Repository(model_utils.AbstractSiteModel):
         help_text='eg. preprints or articles',
     )
     managers = models.ManyToManyField('core.Account', blank=True)
-    logo = models.ImageField(
+    logo = model_utils.SVGImageField(
         blank=True,
         null=True,
         storage=preprint_media_store,
@@ -109,7 +109,7 @@ class Repository(model_utils.AbstractSiteModel):
         storage=preprint_media_store,
         upload_to=repo_media_upload,
     )
-    hero_background = models.ImageField(
+    hero_background = model_utils.SVGImageField(
         blank=True,
         null=True,
         storage=preprint_media_store,

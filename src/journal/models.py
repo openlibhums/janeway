@@ -26,7 +26,7 @@ from core import (
         workflow,
 )
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import AbstractSiteModel
+from core.model_utils import AbstractSiteModel, SVGImageField
 from press import models as press_models
 from submission import models as submission_models
 from utils import setting_handler, logic, install
@@ -82,9 +82,9 @@ class Journal(AbstractSiteModel):
     thumbnail_image = models.ForeignKey('core.File', null=True, blank=True, related_name='thumbnail_image',
                                         on_delete=models.SET_NULL)
     press_image_override = models.ForeignKey('core.File', null=True, blank=True, related_name='press_image_override')
-    default_cover_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    default_large_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    header_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
+    default_cover_image = SVGImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
+    default_large_image = SVGImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
+    header_image = SVGImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
     description = models.TextField(null=True, blank=True, verbose_name="Journal Description")
     contact_info = models.TextField(null=True, blank=True, verbose_name="Contact Information")
@@ -434,13 +434,13 @@ class Issue(models.Model):
     issue_description = models.TextField(blank=True, null=True)
     short_description = models.CharField(max_length=600, blank=True, null=True)
 
-    cover_image = models.ImageField(
+    cover_image = SVGImageField(
         upload_to=cover_images_upload_path, null=True, blank=True, storage=fs,
         help_text=ugettext(
             "Image representing the the cover of a printed issue or volume",
         )
     )
-    large_image = models.ImageField(
+    large_image = SVGImageField(
         upload_to=issue_large_image_path, null=True, blank=True, storage=fs,
         help_text=ugettext(
             "landscape hero image used in the carousel and issue page"
