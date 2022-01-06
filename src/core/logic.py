@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import uuid
 from importlib import import_module
 from datetime import timedelta
@@ -120,7 +120,14 @@ def resize_and_crop(img_path, size, crop_type='middle'):
     """
 
     # If height is higher we resize vertically, if not we resize horizontally
-    img = Image.open(img_path)
+    try:
+        img = Image.open(img_path)
+    except FileNotFoundError:
+        logger.warning("File not found, can't resize: %s" % img_path)
+        return
+    except UnidentifiedImageError:
+        # Could be an SVG
+        return
 
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
