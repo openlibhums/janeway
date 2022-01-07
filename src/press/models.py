@@ -158,14 +158,6 @@ class Press(AbstractSiteModel):
     def users():
         return core_models.Account.objects.all()
 
-    @staticmethod
-    def press_url(request):
-        logger.warning("Using press.press_url is deprecated")
-        return 'http{0}://{1}{2}{3}'.format('s' if request.is_secure() else '',
-                                            Press.get_press(request).domain,
-                                            ':{0}'.format(request.port) if request != 80 or request.port == 443 else '',
-                                            '/press' if settings.URL_CONFIG == 'path' else '')
-
     def journal_path_url(self, journal, path=None):
         """ Returns a Journal's path mode url relative to its press """
         return self.site_path_url(journal, path)
