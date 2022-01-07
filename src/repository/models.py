@@ -219,6 +219,10 @@ class Repository(model_utils.AbstractSiteModel):
         else:
             return self.press.site_path_url(self, path)
 
+    @property
+    def code(self):
+        return self.short_name
+
 
 class RepositoryField(models.Model):
     repository = models.ForeignKey(Repository)
