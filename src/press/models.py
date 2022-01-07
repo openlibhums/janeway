@@ -168,27 +168,15 @@ class Press(AbstractSiteModel):
 
     def journal_path_url(self, journal, path=None):
         """ Returns a Journal's path mode url relative to its press """
-
-        _path = journal.code
-        request = logic.get_current_request()
-        if settings.DEBUG and request:
-            port = request.get_port()
-        else:
-            port = None
-        if path is not None:
-            _path += path
-
-        return logic.build_url(
-            netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
-            port=port,
-            path=_path,
-        )
+        return self.site_path_url(journal, path)
 
     def repository_path_url(self, repository, path=None):
         """ Returns a Repo's path mode url relative to its press """
+        return self.site_path_url(repository, path)
 
-        _path = repository.short_name
+    def site_path_url(self, child_site, path=None):
+        """Returns the path mode URL of a site relative to its press"""
+        _path = child_site.code
         request = logic.get_current_request()
         if settings.DEBUG and request:
             port = request.get_port()

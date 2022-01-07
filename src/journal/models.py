@@ -236,34 +236,28 @@ class Journal(AbstractSiteModel):
         press = press_models.Press.objects.all()[0]
         return press
 
+    @classmethod
+    def get_by_request(cls, request):
+        obj = super().get_by_request(request)
+        if not obj:
+            # Lookup by code
+            try:
+                code = request.path.split('/')[1]
+                obj = cls.objects.get(code=code)
+            except (IndexError, cls.ObjectDoesNotExist):
+                pass
+        return obj
+
     def site_url(self, path=""):
-        if settings.URL_CONFIG == "path":
-            return self._site_path_url(path)
-
-        return logic.build_url(
-                netloc=self.domain,
-                scheme=self.SCHEMES[self.is_secure],
-                port=None,
-                path=path,
-        )
-
-    def _site_path_url(self, path=None):
-        request = logic.get_current_request()
-        if request and request.journal == self:
-            if not path:
-                path = "/{}".format(self.code)
-            return request.build_absolute_uri(path)
+        if self.domain and not settings.DOMAIN_MODE == 'path':
+            return logic.build_url(
+                    netloc=self.domain,
+                    scheme=self.SCHEMES[self.is_secure],
+                    port=None,
+                    path=path,
+            )
         else:
-            return self.press.journal_path_url(self, path)
-
-    def full_url(self, request=None):
-        logger.warning("Using journal.full_url is deprecated")
-        return self.site_url()
-
-    def full_reverse(self, request, url_name, kwargs):
-        base_url = self.full_url(request)
-        url_path = reverse(url_name, kwargs=kwargs)
-        return "{0}{1}".format(base_url, url_path)
+            return self.press.site_path_url(self, path)
 
     def next_issue_order(self):
         issue_orders = [issue.order for issue in Issue.objects.filter(journal=self)]
