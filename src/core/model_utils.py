@@ -44,12 +44,18 @@ class AbstractSiteModel(models.Model):
 
     @classmethod
     def get_by_request(cls, request):
+        """ Returns the site object relevant for the given request
+        :param request: A Django Request object
+        :return: The site object and the path under which the object was matched
+        """
+        path = None
         domain = request.get_host()
         # Lookup by domain
         try:
-            return cls.get_by_domain(domain)
+            obj = cls.get_by_domain(domain)
         except cls.DoesNotExist:
-            return None
+            obj = None
+        return obj, path
 
     @classmethod
     def get_by_domain(cls, domain):

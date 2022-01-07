@@ -238,18 +238,19 @@ class Journal(AbstractSiteModel):
 
     @classmethod
     def get_by_request(cls, request):
-        obj = super().get_by_request(request)
+        obj, path = super().get_by_request(request)
         if not obj:
             # Lookup by code
             try:
                 code = request.path.split('/')[1]
                 obj = cls.objects.get(code=code)
-            except (IndexError, cls.ObjectDoesNotExist):
+                path = code
+            except (IndexError, cls.DoesNotExist):
                 pass
-        return obj
+        return obj, path
 
     def site_url(self, path=""):
-        if self.domain and not settings.DOMAIN_MODE == 'path':
+        if self.domain and not settings.URL_CONFIG == 'path':
             return logic.build_url(
                     netloc=self.domain,
                     scheme=self.SCHEMES[self.is_secure],
