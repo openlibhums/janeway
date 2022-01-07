@@ -178,20 +178,14 @@ class Repository(model_utils.AbstractSiteModel):
 
     @classmethod
     def get_by_request(cls, request):
-        domain = request.get_host()
-        # Lookup by domain with/without port
-        try:
-            obj = cls.objects.get(
-                domain=domain,
-                live=True,
-            )
-        except cls.DoesNotExist:
-            # Lookup without port
-            domain, _port = split_domain_port(domain)
-            obj = cls.objects.get(
-                domain=domain,
-                live=True
-            )
+        obj = super().get_by_request(request)
+        if not obj:
+            # Lookup by short_name
+            try:
+                short_name = request.path.split('/')[1]
+                obj = cls.objects.get(short_name=short_name)
+            except (IndexError, cls.ObjectDoesNotExist):
+                pass
         return obj
 
     def __str__(self):

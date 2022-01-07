@@ -43,7 +43,7 @@ class AbstractSiteModel(models.Model):
     }
 
     domain = models.CharField(
-        max_length=255, default="www.example.com", unique=True)
+        max_length=255, unique=True, blank=True, null=True)
     is_secure = models.BooleanField(
         default=False,
         help_text="If the site should redirect to HTTPS, mark this.",
@@ -55,6 +55,14 @@ class AbstractSiteModel(models.Model):
     @classmethod
     def get_by_request(cls, request):
         domain = request.get_host()
+        # Lookup by domain
+        try:
+            return cls.get_by_domain(domain)
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_by_domain(cls, domain):
         # Lookup by domain with/without port
         try:
             obj = cls.objects.get(domain=domain)
