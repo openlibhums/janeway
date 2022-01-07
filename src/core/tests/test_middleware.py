@@ -51,6 +51,19 @@ class TestSiteMiddleware(TestCase):
         self.assertEqual(expected_press, request.press)
         self.assertEqual(expected_site_type, request.site_type)
 
+    @override_settings(URL_CONFIG="domain", DEBUG=False)
+    def test_journal_site_with_path_in_domain_mode(self):
+        # expect
+        expected_journal = self.journal
+        # do
+        request = self.request_factory.get("http://press.org/test/")
+        _ = self.middleware.process_request(request)
+
+        # assert
+        self.assertEqual(expected_journal, request.journal)
+
+    @override_settings(URL_CONFIG="path")
+
     @override_settings(URL_CONFIG="path")
     def test_press_site_in_path_mode(self):
         #expect
