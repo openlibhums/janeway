@@ -92,6 +92,43 @@ def get_site_resources(request):
     return journal, repository, press, redirect_obj
 
 
+def get_site_resources(request):
+    """ Attempts to match the relevant resources for the request url
+
+    Result depends on the value of settings.URL_CONFIG
+    :param request: A Django HttpRequest
+    :return: press.models.Press,journal.models.Journal,HttpResponseRedirect
+    """
+    journal = repository = press = redirect_obj = site_path = None
+    journal, site_path = journal_models.Journal.get_by_request(request)
+    if journal:
+        press = journal.press
+    else:
+        repository, site_path = repository_models.Repository.get_by_request(request)
+        if repository:
+            press = repository.press
+        else:
+            press, path_mode = press_models.Press.get_by_request(request)
+
+    if not press:
+        alias, site_path = core_models.DomainAlias.get_by_request(request)
+        if alias.redirect:
+            logger.debug("Matched a redirect: %s" % alias.redirect_url)
+            redirect_obj = redirect(
+                alias.build_redirect_url(path=request.path))
+        else:
+            journal = alias.journal
+            press = journal.press if journal else alias.press
+    if not press:
+        logger.warning(
+            "Couldn't match a resource for %s, redirecting to %s"
+            "" % (request.path, settings.DEFAULT_HOST)
+            )
+        redirect_obj = redirect(settings.DEFAULT_HOST)
+
+    return journal, repository, press, redirect_obj, site_path
+
+
 class SiteSettingsMiddleware(object):
     @staticmethod
     def process_request(request):
@@ -109,7 +146,8 @@ class SiteSettingsMiddleware(object):
         :return: None or an http 404 error in the event of catastrophic failure
         """
 
-        journal, repository, press, redirect_obj = get_site_resources(request)
+        journal, repository, press, redirect_obj, site_path = get_site_resources(
+            request)
 
         if redirect_obj is not None:
             return redirect_obj
@@ -127,12 +165,6 @@ class SiteSettingsMiddleware(object):
                     journal)
             request.repository = None
 
-            if settings.URL_CONFIG == 'path':
-                prefix = "/" + journal.code
-                logger.debug("Setting script prefix to %s" % prefix)
-                set_script_prefix(prefix)
-                request.path_info = request.path_info[len(prefix):]
-
         elif repository is not None:
             logger.set_prefix(repository.short_name)
             request.repository = repository
@@ -141,12 +173,6 @@ class SiteSettingsMiddleware(object):
             request.model_content_type = ContentType.objects.get_for_model(
                 repository,
             )
-
-            if settings.URL_CONFIG == 'path':
-                prefix = "/" + repository.short_name
-                logger.debug("Setting script prefix to %s" % prefix)
-                set_script_prefix(prefix)
-                request.path_info = request.path_info[len(prefix):]
 
         elif press is not None:
             logger.set_prefix("press")
@@ -158,15 +184,20 @@ class SiteSettingsMiddleware(object):
         else:
             raise Http404()
 
+        # Set the script prefix if the site is in path mode
+        if site_path:
+            prefix = "/" + site_path
+            logger.debug("Setting script prefix to %s" % prefix)
+            set_script_prefix(prefix)
+            request.path_info = request.path_info[len(prefix):]
+
         # We check if the journal and press are set to be secure and redirect if the current request is not secure.
         if not request.is_secure():
             if (
-                    request.journal
-                    and request.journal.is_secure
+                    request.site_type
+                    and request.site_type.is_secure
                     and not settings.DEBUG
             ):
-                return redirect("https://{0}{1}".format(request.get_host(), request.path))
-            elif request.press.is_secure and not settings.DEBUG:
                 return redirect("https://{0}{1}".format(request.get_host(), request.path))
 
 

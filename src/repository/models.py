@@ -178,15 +178,16 @@ class Repository(model_utils.AbstractSiteModel):
 
     @classmethod
     def get_by_request(cls, request):
-        obj = super().get_by_request(request)
+        obj, path = super().get_by_request(request)
         if not obj:
             # Lookup by short_name
             try:
                 short_name = request.path.split('/')[1]
                 obj = cls.objects.get(short_name=short_name)
-            except (IndexError, cls.ObjectDoesNotExist):
+                path = short_name
+            except (IndexError, cls.DoesNotExist):
                 pass
-        return obj
+        return obj, path
 
     def __str__(self):
         return '[{}] {}'.format(
@@ -208,24 +209,15 @@ class Repository(model_utils.AbstractSiteModel):
         )
 
     def site_url(self, path=""):
-        if settings.URL_CONFIG == "path":
-            return self._site_path_url(path)
-
-        return logic.build_url(
-            netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
-            port=None,
-            path=path,
-        )
-
-    def _site_path_url(self, path=None):
-        request = logic.get_current_request()
-        if request and request.repository == self:
-            if not path:
-                path = "/{}".format(self.short_name)
-            return request.build_absolute_uri(path)
+        if self.domain and not settings.URL_CONFIG == 'path':
+            return logic.build_url(
+                    netloc=self.domain,
+                    scheme=self.SCHEMES[self.is_secure],
+                    port=None,
+                    path=path,
+            )
         else:
-            return request.press.repository_path_url(self, path)
+            return self.press.site_path_url(self, path)
 
 
 class RepositoryField(models.Model):
