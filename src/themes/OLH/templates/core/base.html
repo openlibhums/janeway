@@ -70,7 +70,7 @@
                         <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
                     {% endif %}
                 {% endif %}
-            {% if request.journal %}
+            {% if request.journal  and journal_settings.styling.display_journal_title %}
             <div class="hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="journal-title">
                 <h1 class="menu-text">{{ request.journal.name }}</h1>
             </div>

@@ -5326,7 +5326,7 @@ button.list-group-item-danger.active:focus {
   @media screen and (max-width: 63.9375em) {
     #journal-title {
       max-width: 80%;
-      padding-top: 0.7 rem; }
+      padding-top: 0.7rem; }
       #journal-title h1 {
         font-size: 100%; } }
   @media screen and (min-width: 64em) {
