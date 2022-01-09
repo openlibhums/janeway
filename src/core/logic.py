@@ -180,7 +180,7 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ['general', 'crosscheck', 'article', 'news']
+    setting_groups = ['general', 'crosscheck', 'article', 'news', 'styling']
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
@@ -192,7 +192,6 @@ def cached_settings_for_context(journal, language):
                 setting.name,
                 journal,
             ).processed_value
-
     return _dict
 
 
