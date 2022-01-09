@@ -1236,3 +1236,43 @@ button.list-group-item-danger.active:focus {
   background-color:transparent;
 }
 
+#journal-title {
+    padding: 0px;
+    height:100%;
+    @include breakpoint(large down){
+      max-width: 550px;
+      h1 {
+        padding-top: 0px;
+        font-size:1.5vw;
+      }
+    }
+    @include breakpoint(medium down){
+      max-width:80%; // Avoid running over the search and burger menus
+      padding-top: 0.7rem;
+      h1 {
+        font-size: 100%;
+      }
+    }
+    @include breakpoint(large){
+      float: right; // Aligns title to the right of the logo
+    }
+    @include breakpoint(xlarge){
+      max-width: 800px;
+      h1 {
+        padding-top: 0px;
+        font-size:1.6vw;
+      }
+    }
+    @include breakpoint(xxlarge){
+      max-width: 1000px;
+      h1 {
+        padding-top: 0px;
+        font-size:1.70rem;
+      }
+    }
+}
+
+#search-menu {
+  max-width: 200px;
+  float:right;
+}
