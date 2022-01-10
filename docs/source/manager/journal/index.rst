@@ -1,12 +1,15 @@
-Journal Settings
-================
 .. _journal_settings:
 
-With journal settings, you can set basic information about the journal, configure home page elements, upload logos and banner images, and adjust some display elements.
+Journal Settings
+================
+
+In journal settings, you can set basic information about the journal, configure home page elements, upload logos and banner images, and adjust some display elements.
+
+If you have the Janeway role Editor or Staff, you can access Journal Settings by selecting **Manager** under **Staff**.
 
 General
 -------
-The general journal settings page is home to various configuration settings for the journal. You will find an explanation with each setting on this page.
+The general journal settings page is home to various configuration settings for the journal. Each field is explained in Janeway.
 
 - Journal information (title, ISSN, description, keywords, design theme)
 - Publisher information (name, website, contact)
@@ -18,16 +21,18 @@ Home Page
 ---------
 Here you can activate features for your journal home page.
 
-.. image:: ../../nstatic/journal_home_settings.png
+.. figure:: ../../nstatic/journal_home_settings.png
    :alt: The Journal Home Settings page
    :class: screenshot
+
+   The Journal Home Settings page
 
 To add a homepage element, select **Add** under **Add Home Page Features** and then select **configure** to see options for that element. You can reorder elements by dragging and dropping them.
 
 About
     Displays the journal description. If you edit the description here, it will also change in the other places it appears.
 
-Carousel 
+Carousel
     .. _carouselanchor:
 
     A rotating banner that can be configured to display one of the following:
@@ -56,16 +61,19 @@ Popular Articles
 
 Images
 ------
+Below are explanations of the fields you see in Settings. See also the :ref:`Styling section<imageguidelines>`.
 
 .. tip::
     Janeway will automatically resize images to fit the designated spots it has for them, but it won't change the proportions of width to height.
 
-.. image:: ../../nstatic/images/Home_page_screenshot.png
-   :alt: Header image in top left in OLH theme
+.. figure:: ../../nstatic/images/Home_page_screenshot.png
+   :alt: Header image in top left and large image in center, with OLH theme
    :class: screenshot
 
+   Header image in top left and large image in center, with OLH theme
+
 Header image
-    Typically the journal logo goes here. It appears in the top left corner on desktop or laptop screens, and at the top of the page on mobile devices. We recommend a width-to-height ratio of about 1 to 3 or 1 to 4. If not set, defaults to Janeway logo (220 x 60 pixels).
+    Typically the journal logo goes here. It appears in the top left corner on desktop or laptop screens, and at the top of the page on mobile devices.
 
 Default large image
     This image shows up in several places, depending on how your theme and home page are configured:
@@ -84,7 +92,7 @@ Press override image
    :class: screenshot
 
 Default cover image
-    The default image for issue covers when no image is set specifically for that issue. We recommend a width-to-height ratio of about 3 to 4.
+    The default image for issue covers when no image is set specifically for that issue.
 
 .. image:: ../../nstatic/images/Articles_screenshot.png
    :alt: Default thumbnail in article list in OLH theme
@@ -139,5 +147,3 @@ In Django they can be accessed with **get_setting**::
     request.journal.get_setting('group_name', 'setting_name')
 
 .. _`SVG file`: http://web.simmons.edu/~grovesd/comm328/modules/svg/creating-svgs
-
-
