@@ -9,8 +9,10 @@ from operator import itemgetter
 import collections
 import uuid
 import os
+import re
 
 from django.conf import settings
+from django.core import validators
 from django.db import models, transaction
 from django.db.models import OuterRef, Subquery, Value
 from django.db.models.signals import post_save, m2m_changed
@@ -413,6 +415,9 @@ class PinnedArticle(models.Model):
         return '{0}, {1}: {2}'.format(self.sequence, self.journal.code, self.article.title)
 
 
+ISSUE_CODE_RE = re.compile("^[a-zA-Z0-9-_]+$")
+
+
 class Issue(models.Model):
     journal = models.ForeignKey(Journal)
 
@@ -452,6 +457,14 @@ class Issue(models.Model):
         null=True,
         related_name='guest_editors',
         through='IssueEditor',
+    )
+
+    code = models.SlugField(
+        max_length=999, null=True, blank=True,
+        help_text=ugettext(
+            "An optional alphanumeric code (Slug) used to generate a verbose "
+            " url for this issue. e.g: 'winter-special-issue'."
+        ),
     )
 
     @property
@@ -759,6 +772,7 @@ class Issue(models.Model):
 
     class Meta:
         ordering = ("order", "-date")
+        unique_together = ("journal", "code")
 
 
 class IssueType(models.Model):

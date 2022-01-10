@@ -381,6 +381,29 @@ def collection(request, collection_id, show_sidebar=True):
     return issue(request, collection_id, show_sidebar)
 
 
+@has_journal
+@decorators.frontend_enabled
+def collection_by_code(request, collection_code):
+    """
+    A proxy view for an issue or collection by its code
+    :param request: request object
+    :param collection_code: alphanumeric string matching an Issue.code
+    :return: a rendered template
+    """
+    issue = get_object_or_404(
+        models.Issue,
+        code=collection_code,
+        journal=request.journal,
+    )
+    if issue.issue_type.code == "issue":
+        return redirect(reverse(
+            'journal_issue', kwargs={'issue_id': issue.pk},
+        ))
+    return redirect(reverse(
+        "journal_collection", kwargs={"collection_id": issue.pk},
+    ))
+
+
 @decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
