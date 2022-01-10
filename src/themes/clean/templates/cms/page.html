@@ -9,9 +9,9 @@
     <section id="content">
         <div class="row">
             <div class="col-md-12">
-                <h1>{{ page.display_name }}</h1>
+                <h1 id="cms-title">{{ page.display_name }}</h1>
                 <hr/>
-                {{ page.content|safe }}
+                <div id="cms">{{ page.content|safe }}</div>
             </div>
         </div>
     </section>
