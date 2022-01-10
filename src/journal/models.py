@@ -464,11 +464,10 @@ class Issue(models.Model):
         through='IssueEditor',
     )
 
-    code = models.CharField(
+    code = models.SlugField(
         max_length=999, null=True, blank=True,
-        validators=[validators.RegexValidator(ISSUE_CODE_RE)],
         help_text=ugettext(
-            "An optional alphanumeric code used to generate a verbose "
+            "An optional alphanumeric code (Slug) used to generate a verbose "
             " url for this issue. e.g: 'winter-special-issue'."
         ),
     )
