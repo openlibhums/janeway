@@ -1186,6 +1186,21 @@
     },
     {
         "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "If checked, the journal title will be displayed on the top bar of the site (not supported on Material theme)",
+            "is_translatable": false,
+            "name": "display_journal_title",
+            "pretty_name": "Enable Journal title in Navbar",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {

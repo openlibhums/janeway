@@ -46,9 +46,11 @@
                                                               class="img-fluid header-image top-bar-image" alt="{{ request.journal.name }} logo"></a>
                 </div>
                 {% endif %}
+                {% if journal_settings.styling.display_journal_title %}
                 <div class="col-md-10">
                     <p class="journal-name">{{ request.journal.name }}</p>
                 </div>
+                {% endif %}
             </div>
 
         </div>

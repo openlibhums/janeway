@@ -5314,3 +5314,38 @@ button.list-group-item-danger.active:focus {
 
 .article-table tbody tr {
   background-color: transparent; }
+
+#journal-title {
+  padding: 0px;
+  height: 100%; }
+  @media screen and (max-width: 74.9375em) {
+    #journal-title {
+      max-width: 550px; }
+      #journal-title h1 {
+        padding-top: 0px;
+        font-size: 1.5vw; } }
+  @media screen and (max-width: 63.9375em) {
+    #journal-title {
+      max-width: 80%;
+      padding-top: 0.7rem; }
+      #journal-title h1 {
+        font-size: 100%; } }
+  @media screen and (min-width: 64em) {
+    #journal-title {
+      float: right; } }
+  @media screen and (min-width: 75em) {
+    #journal-title {
+      max-width: 800px; }
+      #journal-title h1 {
+        padding-top: 0px;
+        font-size: 1.6vw; } }
+  @media screen and (min-width: 90em) {
+    #journal-title {
+      max-width: 1000px; }
+      #journal-title h1 {
+        padding-top: 0px;
+        font-size: 1.70rem; } }
+
+#search-menu {
+  max-width: 200px;
+  float: right; }

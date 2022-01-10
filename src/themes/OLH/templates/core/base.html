@@ -69,6 +69,11 @@
                         <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
                     {% endif %}
                 {% endif %}
+            {% if request.journal  and journal_settings.styling.display_journal_title %}
+            <div class="hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="journal-title">
+                <h1 class="menu-text">{{ request.journal.name }}</h1>
+            </div>
+            {% endif %}
 
                 <div class="title-bar toggle">
                     <div data-responsive-toggle="main-menu" data-hide-for="medium">
@@ -84,23 +89,6 @@
                 </div>
             </div>
 
-            {% if request.journal %}
-            <div class="top-bar-left hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="search-menu">
-                <ul class="menu global-search">
-                    <li>
-                        <form method="POST" action="{% url 'search' %}">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <span class="input-group-label"><i class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="article_search">
-                                <input type="hidden" name="sort" value="title">
-
-                            </div><input type="submit" style="visibility: hidden;" />
-                        </form>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
             {% if journal_settings.general.switch_language %}
                 <div class="top-bar-left">
                 <ul class="menu language-menu">
@@ -145,6 +133,23 @@
                     {% endif %}
                 </ul>
             </div>
+            {% if request.journal %}
+            <div class="top-bar-right hide-for-medium-only" id="search-menu">
+                <ul class="menu global-search">
+                    <li>
+                        <form method="POST" action="{% url 'search' %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
+                                <input type="hidden" name="sort" value="title">
+
+                            </div><input type="submit" style="visibility: hidden;" />
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
         {% block navbar %}
             {% if request.journal %}

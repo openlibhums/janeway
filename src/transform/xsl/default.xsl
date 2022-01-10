@@ -947,6 +947,14 @@
     </xsl:template>
     <!-- END handling citation objects -->
 
+    <!-- START Array handling -->
+    <xsl:template match="array">
+        <table class="array-table">
+            <xsl:apply-templates/>
+        </table>
+    </xsl:template>
+    <!-- END Array handling -->
+
     <!-- START Table Handling -->
     <xsl:template match="table-wrap">
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
@@ -1016,7 +1024,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="tbody">
+    <xsl:template match="tbody" name="tbody">
         <xsl:copy>
             <xsl:apply-templates/>
         </xsl:copy>
@@ -2433,12 +2441,8 @@
   </xsl:template>
 
   <xsl:template match="comment" mode="nscitation">
-    <xsl:if test="not(self::node()='.')">
-      <br/>
-      <small>
-        <xsl:apply-templates/>
-      </small>
-    </xsl:if>
+      <xsl:apply-templates/>
+      <xsl:apply-templates select="ext-link" mode="nscitation"/>
   </xsl:template>
 
   <xsl:template match="conf-name | conf-date" mode="conf">
@@ -3339,7 +3343,7 @@
     </xsl:template>
 
     <xsl:template match="app//title">
-        <h2>
+        <h2 id="{@id}">
             <xsl:if test="preceding-sibling::label">
                 <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
             <xsl:value-of select="node()"/>

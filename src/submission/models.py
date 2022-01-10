@@ -1386,6 +1386,17 @@ class FrozenAuthor(models.Model):
 
     institution = models.CharField(max_length=1000)
     department = models.CharField(max_length=300, null=True, blank=True)
+    frozen_biography = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Frozen Biography'),
+        help_text=_("The author's biography at the time they published"
+                    " the linked article. For this article only, it overrides"
+                    " any main biography attached to the author's account."
+                    " If Frozen Biography is left blank, any main biography"
+                    " for the account will be populated instead."
+                   ),
+    )
     country = models.ForeignKey('core.Country', null=True, blank=True)
 
     order = models.PositiveIntegerField(default=1)
@@ -1473,6 +1484,15 @@ class FrozenAuthor(models.Model):
         if self.department:
             name = "{}, {}".format(self.department, name)
         return name
+
+    @property
+    def biography(self):
+        if self.frozen_biography:
+            return self.frozen_biography
+        elif self.author:
+            return self.author.biography
+        return None
+
 
     def citation_name(self):
         if self.is_corporate:
