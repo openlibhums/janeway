@@ -268,6 +268,14 @@ class Journal(AbstractSiteModel):
     def issues(self):
         return Issue.objects.filter(journal=self)
 
+    @property
+    def issue_type_plural_name(self):
+        try:
+            issue_type = IssueType.objects.get(journal=self, code="issue")
+            return issue_type.plural_name
+        except IssueType.DoesNotExist:
+            return None
+
     def serial_issues(self):
         return Issue.objects.filter(journal=self, issue_type__code='issue')
 
