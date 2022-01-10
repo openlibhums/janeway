@@ -168,13 +168,16 @@ class Press(AbstractSiteModel):
 
     def site_path_url(self, child_site, path=None):
         """Returns the path mode URL of a site relative to its press"""
-        _path = child_site.code
+        _path = "/" + child_site.code
         request = logic.get_current_request()
         if settings.DEBUG and request:
             port = request.get_port()
         else:
             port = None
         if path is not None:
+            # Ignore duplicate site code if provided in code
+            if path.startswith(_path):
+                path = path[len(_path):]
             _path += path
 
         return logic.build_url(
