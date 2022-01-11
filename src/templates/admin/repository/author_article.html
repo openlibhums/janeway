@@ -47,7 +47,7 @@
                             <th>Published DOI</th>
                         </tr>
                         <tr>
-                            <td>{% if preprint.preprint_doi %}<a target="_blank" href="{{ preprint.preprint_doi }}">{{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
+                            <td>{% if preprint.preprint_doi %}<a target="_blank" href="https://doi.org/{{ preprint.preprint_doi }}">{{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
                             <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
                         </tr>
                         <tr>
