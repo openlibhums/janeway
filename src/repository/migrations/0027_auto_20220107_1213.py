@@ -9,7 +9,7 @@ from django.conf import settings
 
 def remove_stale_domains(apps, schema_editor):
     if hasattr(settings, 'URL_CONFIG') and settings.URL_CONFIG == 'path':
-        Repository = apps.get_model('repository', 'Respository')
+        Repository = apps.get_model('repository', 'Repository')
         Repository.objects.all().update(domain=None)
 
 
