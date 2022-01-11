@@ -85,16 +85,16 @@ Default large image
     Use a wide image (about 4 parts width to 1 part height) with good resolution when set at 300 or 400 pixels tall.
 
 Press override image
-    This can be set to replace the press logo that appears in the footer when using the OLH theme or the clean theme. (In the material theme, no footer image appears.) However, it must be an `SVG file`_ or the default will remain in place.
+    This can be set to replace the press logo that appears in the footer when using the OLH theme or the clean theme.
 
-.. image:: ../../nstatic/images/Issues.png
+.. figure:: ../../nstatic/images/Issues.png
    :alt: Default cover image for issues in OLH theme
    :class: screenshot
 
 Default cover image
     The default image for issue covers when no image is set specifically for that issue.
 
-.. image:: ../../nstatic/images/Articles_screenshot.png
+.. figure:: ../../nstatic/images/Articles_screenshot.png
    :alt: Default thumbnail in article list in OLH theme
    :class: screenshot
 
@@ -128,7 +128,7 @@ The all settings page lists every under-lying journal-level setting within Janew
 
 This is a fallback area for editing a setting when you can't find it in the interface or for editing settings introduced into your instance.
 
-.. image:: ../../nstatic/all_settings.png
+.. figure:: ../../nstatic/all_settings.png
    :alt: The new All Settings page
    :class: screenshot
 
@@ -145,5 +145,3 @@ Setting values can be accessed inside templates using **{{ journal_settings.grou
 In Django they can be accessed with **get_setting**::
 
     request.journal.get_setting('group_name', 'setting_name')
-
-.. _`SVG file`: http://web.simmons.edu/~grovesd/comm328/modules/svg/creating-svgs
