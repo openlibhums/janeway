@@ -52,11 +52,11 @@ def get_site_resources(request):
     # Match a Domain Alias
     if not press:
         alias, site_path = core_models.DomainAlias.get_by_request(request)
-        if alias.redirect:
+        if alias and alias.redirect:
             logger.debug("Matched a redirect: %s" % alias.redirect_url)
             redirect_obj = redirect(
                 alias.build_redirect_url(path=request.path))
-        else:
+        elif alias:
             journal = alias.journal
             press = journal.press if journal else alias.press
 
