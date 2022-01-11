@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -16,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from core import files, models as core_models
-from preprint import models as preprint_models
+from repository import models as preprint_models
 from security.decorators import (
     article_edit_user_required,
     production_user_or_editor_required,
@@ -34,7 +33,8 @@ from utils.shared import create_language_override_redirect
 @decorators.submission_is_enabled
 def start(request, type=None):
     """
-    Starts the submission process, presents various checkboxes and then creates a new article.
+    Starts the submission process, presents various checkboxes
+    and then creates a new article.
     :param request: HttpRequest object
     :param type: string, None or 'preprint'
     :return: HttpRedirect or HttpResponse
@@ -518,6 +518,14 @@ def submit_review(request, article_id):
         article.snapshot_authors(article)
         article.save()
 
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
+            **{'handshake_url': 'submit_review',
+               'request': request,
+               'article': article,
+               'switch_stage': False}
+        )
+
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -532,14 +540,6 @@ def submit_review(request, article_id):
             event_logic.Events.ON_ARTICLE_SUBMITTED,
             task_object=article,
             **kwargs
-        )
-
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_WORKFLOW_ELEMENT_COMPLETE,
-            **{'handshake_url': 'submit_review',
-               'request': request,
-               'article': article,
-               'switch_stage': False}
         )
 
         return redirect(reverse('core_dashboard'))

@@ -1,0 +1,95 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static from staticfiles %}
+
+{% block title %}{% if request.repository %}Edit Repository{% else %}Create New Repository{% endif %}{% endblock %}
+{% block title-section %}Repository Wizard &#x1F9D9; {% endblock %}
+
+{% block nav %}
+    {% include "admin/press/nav.html" %}
+{% endblock nav %}
+
+{% block body %}
+    <section>
+        <div class="row expanded" data-equalizer>
+            {% if repository %}
+            <div class="large-12 columns">
+                <div class="expanded button-group">
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '1' %}" class="{% if not step == '1' %}hollow{% endif %} secondary button">Repository Details 1</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '2' %}" class="{% if not step == '2' %}hollow{% endif %} secondary button">Repository Details 2</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '3' %}" class="{% if not step == '3' %}hollow{% endif %} secondary button">Submission Details</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '4' %}" class="{% if not step == '4' %}hollow{% endif %} secondary button">Email Templates</a>
+                    <a href="{% url 'repository_wizard_with_id' repository.short_name '5' %}" class="{% if not step == '5' %}hollow{% endif %} secondary button">Live</a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="large-8 columns end">
+                <div class="box" data-equalizer-watch>
+                    <div class="title-area">
+                        <h2>
+                            {% if step == '1' %}
+                            Repository Details 1
+                            {% elif step == '2' %}
+                            Repository Details 2
+                            {% elif step == '3' %}
+                            Submission Details
+                            {% else %}
+                            Email Templates
+                            {% endif %}
+                        </h2>
+                    </div>
+                    <div class="content">
+                        {% include "elements/forms/errors.html" with form=form %}
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form|foundation }}
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <button type="submit" name="save_press" class="success button">{% if step == 1 %}
+                                        Create{% else %}Save{% endif %} Repository
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="large-4 columns end">
+                <div class="box" data-equalizer-watch>
+                    <div class="title-area">
+                        <h2>Help</h2>
+                    </div>
+                    <div class="content">
+                        {% if not request.repository %}
+                        <p>
+                            This Wizard will guide you through setting up your Repository. You are currently on <strong>Step
+                            {{ step }} of 5</strong>.
+                        </p>
+                        {% else %}
+                            <p>
+                                You can use this Wizard to edit your repository's details.
+                            </p>
+                        {% endif %}
+                        {% include help_template %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block js %}
+    {% if step == '3' %}
+        <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
+        <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/SelectBox.js" %}"></script>
+        <script type="text/javascript" src="{% static "admin/js/SelectFilter2.js" %}"></script>
+
+        <link rel="stylesheet" type="text/css" href="{% static "admin/js/forms.css" %}" >
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}" >
+    {% endif %}
+{% endblock %}

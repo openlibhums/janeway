@@ -47,7 +47,7 @@ class ArticleAdmin(admin.ModelAdmin):
     )
 
     def get_queryset(self, request):
-        return self.model.allarticles.get_queryset()
+        return self.model.objects.get_queryset()
 
 
 class ArticleLogAdmin(admin.ModelAdmin):

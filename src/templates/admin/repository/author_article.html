@@ -1,0 +1,354 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-sub %}You can view the metadata of your article, its recent views and downloads and upload new versions
+    of the preprint.{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>
+    <li>{{ preprint.title|safe }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-8 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Metadata</h2>
+                    {% if preprint.is_published %}
+                        <a href="{% url 'repository_preprint' preprint.pk %}" class="button">View Live
+                            Article</a>{% endif %}
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th colspan="2">Title</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ preprint.title }}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Keywords</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Abstract</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><small>{{ preprint.abstract }}</small></td>
+                        </tr>
+                        <tr>
+                            <th>Preprint DOI</th>
+                            <th>Published DOI</th>
+                        </tr>
+                        <tr>
+                            <td>{% if preprint.preprint_doi %}<a target="_blank" href="{{ preprint.preprint_doi }}">{{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
+                            <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">{{ preprint.doi }}{% else %}No Published DOI{% endif %}</a></td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">
+                                Subjects
+                            </th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                {% include "repository/elements/subject_display.html" %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">License</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ preprint.license }}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Comments to the Editor</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><small>{{ preprint.comments_editor }}</small></td>
+                        </tr>
+                        {% for field_answer in preprint.additional_field_answers %}
+                        <tr>
+                            <th colspan="2">{{ field_answer.field.name }}</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2">{{ field_answer.answer }}</td>
+                        </tr>
+                    {% endfor %}
+                    </table>
+                </div>
+                 <div class="title-area">
+                    <h2>Authors</h2>
+                </div>
+                <div class="content">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Email' %}</th>
+                            <th>{% trans 'Affiliation' %}</th>
+                        </tr>
+                        {% for author in preprint.preprintauthor_set.all %}
+                            <tr id="authors-{{ author.pk }}">
+                                <td>{{ author.account.full_name }}</td>
+                                <td>{{ author.account.email }}</td>
+                                <td>{{ author.display_affiliation }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="large-4 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Dates</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>Submitted</th>
+                            <td>{{ preprint.date_submitted }}</td>
+                        </tr>
+                        <tr>
+                            <th>Decision ({% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Rejected{% else %}Under Consideration{% endif %})
+                            </th>
+                            <td>{% if preprint.date_accepted %}
+                                {{ preprint.date_accepted }}{% elif preprint.date_declined %}
+                                {{ preprint.date_declined }}{% else %}N/a{% endif %}</td>
+                        </tr>
+                        {% if not preprint.date_declined %}
+                        <tr>
+                            <th>Date Published</th>
+                            <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}No date
+                                set{% endif %}</td>
+                        </tr>
+                        {% else %}
+                            <tr>
+                                <th colspan="2">Rejection Reason</th>
+                            </tr>
+                            <tr>
+                                <td colspan="2">{{ preprint.preprint_decline_note }}</td>
+                            </tr>
+                        {% endif %}
+                        {% for version in preprint.preprintversion_set.all %}
+                            <tr>
+                                <th>Version #{{ version.version }} (<a
+                                        href="{{ version.file.download_url }}"><i
+                                        class="fa fa-download"></i></a>)
+                                </th>
+                                <td>{{ version.date_time }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Comments</h2>
+                </div>
+                <div class="content">
+                    <a href="{% url 'repository_comments' preprint.pk %}" class="success button"><i
+                            class="fa fa-comment"></i> Manage Comments</a>
+                    <a class="button" href="#" data-open="uploadbox">
+                        <span class="fa fa-upload">&nbsp;</span>Update {{ request.repository.object_name }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-8 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Files</h2>
+                </div>
+                <div class="content">
+                    <table class="small scroll">
+                        <tr>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Uploaded</th>
+                            <th>Download</th>
+                        </tr>
+                        {% for file in preprint.preprintfile_set.all %}
+                            <tr>
+                                <td>{{ file.original_filename }}</td>
+                                <td>{{ file.mime_type }}</td>
+                                <td>{{ file.size|filesizeformat }}</td>
+                                <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
+                                        class="fa fa-download">&nbsp;</i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Pending Updates</h2>
+                    <a href="#" class="button" data-open="uploadbox">Upload New Version</a>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Date Submitted</th>
+                            <th>Filename</th>
+                            <th>Status</th>
+                        </tr>
+                        {% for update in pending_updates %}
+                            <tr>
+                                <td>{{ update.pk }}</td>
+                                <td>{{ update.get_update_type_display }}</td>
+                                <td>{{ update.date_submitted }}</td>
+                                <td>{{ update.file.original_filename|truncatechars:40 }}</td>
+                                <td>{{ update.status }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">
+                                    You have no pending updates.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="title-area">
+                    <h2>Supplementary Files</h2>
+                    <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">Manage Supplementary Files</a>
+                </div>
+                <div class="content">
+                    <ul>
+                    {% for link in preprint.supplementaryfiles %}
+                        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                    {% empty %}
+                        <li>No Supplementary File</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+
+                {% if preprint.date_accepted %}
+                <div class="title-area">
+                    <h2>Submit to Journal</h2>
+                </div>
+                <div class="content">
+                    {% if preprint.preprint_journal_article %}
+                        <p>This preprint has already been submitted to <i>{{ preprint.preprint_journal_article.journal.name }}</i>
+                            with ID <a href="{% journal_base_url preprint.preprint_journal_article.journal %}{% url 'core_dashboard' %}">{{ preprint.preprint_journal_article.pk }}</a>.</p>
+                    {% elif preprint_journals %}
+                        <p>Select a journal to submit your article to.</p>
+                        <form method="POST">
+                        {% csrf_token %}
+                        <select name="submit_to_journal">
+                            {% for journal in preprint_journals %}
+                                <option value="{{ journal.pk }}">{{ journal.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button name="submit" class="success button">Submit</button>
+                        </form>
+                    {% else %}
+                        <p>No journals currently accept preprints for full submission.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+        <div class="large-4 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Metrics Summary</h2>
+                </div>
+                <div class="content">
+                    <canvas id="metrics_chart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
+         data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-upload">&nbsp;</i>Update {{ request.repository.object_name }}</h4>
+            </div>
+        </div>
+        <div class="card-section">
+            {% if error %}
+                <div class="alert alert-warning" role="alert">{{ error }}</div>
+            {% endif %}
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="upload" value="upload">
+                <div class="clearfix">
+                    <p>
+                        There are three types of update you can select from. Click on of the links to get started.
+                    </p>
+                    <ol>
+                        <li><a href="{% url 'repository_submit_update' preprint.pk 'correction' %}">Correction</a> - This is a small update. You can update the metadata.</li>
+                        <li><a href="{% url 'repository_submit_update' preprint.pk 'version' %}">New Version</a> - A large update. You can update the medadata.</li>
+                        <li><a href="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">Metadata Correction</a> - You can only make changes to the metadata.</li>
+                    </ol>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+
+{% block js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+    <script>
+        var ctx = document.getElementById("metrics_chart");
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Accesses this Month", "Accesses Last Month"],
+                datasets: [{
+                    label: 'Preprint Metrics',
+                    data: [{{ metrics_summary.accesses_this_month }}, {{ metrics_summary.accesses_last_month }}],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255,99,132,1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
+{% endblock %}

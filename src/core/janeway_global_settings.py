@@ -63,16 +63,17 @@ INSTALLED_APPS = [
     'core',
     'copyediting',
     'cron',
+    'discussion',
     'events',
     'identifiers',
     'journal',
     'metrics',
     'comms',
-    'preprint',
     'press',
     'production',
     'proofing',
     'review',
+    'repository',
     'reports',
     'security',
     'submission',
@@ -80,6 +81,7 @@ INSTALLED_APPS = [
     'utils',
     'install',
     'workflow',
+
 
     # 3rd Party
     'django_summernote',

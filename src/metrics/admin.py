@@ -35,7 +35,7 @@ class ArticleAccessAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(ArticleAccessAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['article'].queryset = submission_models.Article.allarticles.all()
+        form.base_fields['article'].queryset = submission_models.Article.objects.all()
         return form
 
 

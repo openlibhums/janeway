@@ -15,7 +15,7 @@
             <div class="title-area">
                 Article #{{ article.pk }} {{ article.title }} Files
             </div>
-            <table id="files" class="scroll">
+            <table id="files" class="small files">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -40,10 +40,10 @@
                     {% can_view_file_history file article as can_view_file_history_flag %}
                     <tr>
                         <td>{{ file.pk }}</td>
-                        <td>{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
+                        <td class="wrap-long-text">{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
                         <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                         <td>{{ file.date_modified|date:"Y-m-d G:i" }}</td>
-                        <td>{{ file }}</td>
+                        <td class="wrap-long-text">{{ file }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
                                     class="fa fa-download">

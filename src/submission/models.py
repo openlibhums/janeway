@@ -15,21 +15,17 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-from django.db.models.signals import pre_delete
 from django.db.models.signals import pre_delete, m2m_changed
-from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.html import mark_safe
 
-from core import workflow
 from core.file_system import JanewayFileSystemStorage
-from core import workflow, model_utils
 from core.model_utils import M2MOrderedThroughField
-from core import workflow, model_utils
+from core import workflow, model_utils, files
 from identifiers import logic as id_logic
 from metrics.logic import ArticleMetrics
-from preprint import models as preprint_models
+from repository import models as repository_models
 from review import models as review_models
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -333,22 +329,11 @@ class KeywordArticle(models.Model):
         return "KeywordArticle(%s, %d)" % (self.keyword.word, self.article.id)
 
 
-class AllArticleManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return super(AllArticleManager, self).get_queryset().all()
-
-
 class ArticleManager(models.Manager):
     use_in_migrations = True
-    def get_queryset(self):
-        return super(ArticleManager, self).get_queryset().filter(is_preprint=False)
 
-
-class PreprintManager(models.Manager):
     def get_queryset(self):
-        return super(PreprintManager, self).get_queryset().filter(is_preprint=True)
+        return super(ArticleManager, self).get_queryset().all()
 
 
 class DynamicChoiceField(models.CharField):
@@ -546,13 +531,7 @@ class Article(models.Model):
     # Meta
     meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
 
-    is_preprint = models.BooleanField(default=False)
-    preprint_decision_notification = models.BooleanField(default=False)
     preprint_journal_article = models.ForeignKey('submission.Article', blank=True, null=True)
-
-    allarticles = AllArticleManager()
-    objects = ArticleManager()
-    preprints = PreprintManager()
 
     # funding
     funders = models.ManyToManyField('Funder', blank=True)
@@ -690,7 +669,7 @@ class Article(models.Model):
             return self.render_galley
 
         ret = self.galley_set.filter(
-            file__mime_type="application/xml"
+            file__mime_type__in=files.XML_MIMETYPES,
         ).order_by(
             "sequence",
         )
@@ -702,7 +681,7 @@ class Article(models.Model):
 
     @property
     def xml_galleys(self):
-        ret = self.galley_set.filter(file__mime_type="application/xml").order_by(
+        ret = self.galley_set.filter(file__mime_type__in=files.XML_MIMETYPES).order_by(
             "sequence")
 
         return ret
@@ -835,7 +814,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier, journal=journal)[0]
+                article = Article.objects.filter(id=identifier, journal=journal)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -857,7 +836,7 @@ class Article(models.Model):
             # resolve an article from an identifier type and an identifier
             if identifier_type.lower() == 'id':
                 # this is the hardcoded fallback type: using built-in id
-                article = Article.allarticles.filter(id=identifier)[0]
+                article = Article.objects.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
@@ -938,7 +917,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            current_object = Article.allarticles.get(pk=self.pk)
+            current_object = Article.objects.get(pk=self.pk)
             if current_object.stage != self.stage:
                 ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
                                                stage_to=self.stage)
@@ -1223,13 +1202,6 @@ class Article(models.Model):
         else:
             return max(current_orders) + 1
 
-    def next_preprint_version(self):
-        versions = [version.version for version in preprint_models.PreprintVersion.objects.filter(preprint=self)]
-        if not versions:
-            return 1
-        else:
-            return max(versions) + 1
-
     def subject_editors(self):
         editors = list()
         subjects = self.subject_set.all().prefetch_related('editors')
@@ -1414,6 +1386,17 @@ class FrozenAuthor(models.Model):
 
     institution = models.CharField(max_length=1000)
     department = models.CharField(max_length=300, null=True, blank=True)
+    frozen_biography = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Frozen Biography'),
+        help_text=_("The author's biography at the time they published"
+                    " the linked article. For this article only, it overrides"
+                    " any main biography attached to the author's account."
+                    " If Frozen Biography is left blank, any main biography"
+                    " for the account will be populated instead."
+                   ),
+    )
     country = models.ForeignKey('core.Country', null=True, blank=True)
 
     order = models.PositiveIntegerField(default=1)
@@ -1501,6 +1484,15 @@ class FrozenAuthor(models.Model):
         if self.department:
             name = "{}, {}".format(self.department, name)
         return name
+
+    @property
+    def biography(self):
+        if self.frozen_biography:
+            return self.frozen_biography
+        elif self.author:
+            return self.author.biography
+        return None
+
 
     def citation_name(self):
         if self.is_corporate:

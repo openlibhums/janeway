@@ -67,6 +67,7 @@ urlpatterns = [
     url(r'^collections/$', views.collections, name='journal_collections_type'),
     url(r'^collections/(?P<issue_type_code>[a-zA-Z]+)/$', views.collections, name='journal_collections'),
     url(r'^collections/(?P<collection_id>\d+)/$', views.collection, name='journal_collection'),
+    url(r'^collection/(?P<collection_code>[a-zA-Z-_]+)/$', views.collection_by_code, name='journal_collection_by_code'),
     url(r'^cover/$', views.serve_journal_cover, name='journal_cover_download'),
     url(r'^volume/(?P<volume_number>\d+)/issue/(?P<issue_number>\d+)/$', views.volume, name='journal_volume'),
 

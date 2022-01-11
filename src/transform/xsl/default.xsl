@@ -437,7 +437,7 @@
 
     <xsl:template match="fn-group/fn/p">
         <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+            <xsl:number level="any" count="fn[not(ancestor::front | ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
         </xsl:variable>
         <span class="footnotemarker" id="fn{$fn-number}"></span>
         <xsl:apply-templates/>
@@ -947,6 +947,14 @@
     </xsl:template>
     <!-- END handling citation objects -->
 
+    <!-- START Array handling -->
+    <xsl:template match="array">
+        <table class="array-table">
+            <xsl:apply-templates/>
+        </table>
+    </xsl:template>
+    <!-- END Array handling -->
+
     <!-- START Table Handling -->
     <xsl:template match="table-wrap">
         <xsl:variable name="data-doi" select="child::object-id[@pub-id-type='doi']/text()"/>
@@ -1016,7 +1024,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="tbody">
+    <xsl:template match="tbody" name="tbody">
         <xsl:copy>
             <xsl:apply-templates/>
         </xsl:copy>
@@ -2433,12 +2441,8 @@
   </xsl:template>
 
   <xsl:template match="comment" mode="nscitation">
-    <xsl:if test="not(self::node()='.')">
-      <br/>
-      <small>
-        <xsl:apply-templates/>
-      </small>
-    </xsl:if>
+      <xsl:apply-templates/>
+      <xsl:apply-templates select="ext-link" mode="nscitation"/>
   </xsl:template>
 
   <xsl:template match="conf-name | conf-date" mode="conf">
@@ -3322,6 +3326,12 @@
         <img src="{$graphics}" class="responsive-img" />
     </xsl:template>
 
+    <xsl:template match="bio//title">
+        <h2>
+            <xsl:value-of select="node()"/>
+        </h2>
+    </xsl:template>
+
     <xsl:template name="appendices-main-text">
         <xsl:apply-templates select="//back/app-group/app" mode="testing"/>
     </xsl:template>
@@ -3333,7 +3343,7 @@
     </xsl:template>
 
     <xsl:template match="app//title">
-        <h2>
+        <h2 id="{@id}">
             <xsl:if test="preceding-sibling::label">
                 <xsl:value-of select="preceding-sibling::label"/>&#160;</xsl:if>
             <xsl:value-of select="node()"/>

@@ -7,6 +7,7 @@ from django.db import migrations
 from django.conf import settings as django_settings
 from django.core.exceptions import FieldError
 
+
 FROM_RE = re.compile("{{ ?do_review_url ?}}")
 TO = "{{ review_url }}"
 

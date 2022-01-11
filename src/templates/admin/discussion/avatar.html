@@ -1,0 +1,10 @@
+<span class="avatar thread-avatar" {% if tooltip != "off" %}data-tooltip aria-haspopup="true" class="has-tip"
+      tabindex="1"
+      title="{{ user.full_name }}"{% endif %}>
+                {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}"
+                         alt="{{ user.full_name }}">
+                {% else %}
+                    {{ user.initials }}
+                {% endif %}
+            </span>
