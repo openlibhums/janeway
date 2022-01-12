@@ -2,9 +2,7 @@
 {% load press_url from press_url %}
 {% load svg from press_url %}
 
-{% if settings.DEBUG %}
-    {% load hijack %}
-{% endif %}
+{% load hijack %}
 
 <!doctype html>
 <html lang="en">
@@ -36,15 +34,11 @@
         <link rel="icon" href="{{ press.favicon.url }}" type="image/vnd.microsoft.icon"/>
     {% endif %}
 
-    {% if settings.DEBUG %}
-        <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
-    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
 </head>
 <body>
 
-{% if settings.DEBUG %}
-    {% janeway_hijack_notification %}
-{% endif %}
+{% janeway_hijack_notification %}
 
 {% block nav %}
     {% if request.journal %}
