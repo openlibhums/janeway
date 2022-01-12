@@ -17,4 +17,9 @@ class Migration(migrations.Migration):
             name='frozen_biography',
             field=models.TextField(blank=True, help_text="The author's biography at the time they published the linked article. For this article only, it overrides any main biography attached to the author's account. If Frozen Biography is left blank, any main biography for the account will be populated instead.", null=True, verbose_name='Frozen Biography'),
         ),
+        migrations.AlterModelManagers(
+            name='article',
+            managers=[
+            ],
+        ),
     ]
