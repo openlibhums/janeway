@@ -1595,17 +1595,17 @@
   <xsl:template match="ref">
     <xsl:choose>
       <xsl:when test="count(element-citation)=1">
-          <p id="{@id}">
+          <p id="{parent::*/@id}">
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{@id}">
-            <xsl:if test="parent::ref/label">
-              <xsl:apply-templates select="parent::ref/label"/>
-            </xsl:if>
-            <xsl:apply-templates select="."/>
+            <p id="{parent::*/@id}">
+                <xsl:if test="parent::ref/label">
+                  <xsl:apply-templates select="parent::ref/label"/>
+                </xsl:if>
+                <xsl:apply-templates select="."/>
             </p>
         </xsl:for-each>
       </xsl:otherwise>
@@ -1652,12 +1652,10 @@
   </xsl:template>
 
   <xsl:template match="mixed-citation">
-    <p id="{parent::*/@id}">
       <!-- Render each mixed-citation as-is https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/mixed-citation.html -->
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
       <xsl:apply-templates select="ext-link"/>
-    </p>
   </xsl:template>
 
 
