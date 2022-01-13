@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('copyediting', '0007_auto_20210120_1145'),
+        ('core', '0053_auto_20210629_0641'),
     ]
 
     operations = [

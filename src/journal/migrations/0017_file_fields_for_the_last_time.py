@@ -17,22 +17,22 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='issue',
             name='cover_image',
-            field=models.ImageField(blank=True, help_text='Image representing the the cover of a printed issue or volume', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            field=core.model_utils.SVGImageField(blank=True, help_text='Image representing the the cover of a printed issue or volume', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
         ),
         migrations.AlterField(
             model_name='issue',
             name='large_image',
-            field=models.ImageField(blank=True, help_text='landscape hero image used in the carousel and issue page', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.issue_large_image_path),
+            field=core.model_utils.SVGImageField(blank=True, help_text='landscape hero image used in the carousel and issue page', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.issue_large_image_path),
         ),
         migrations.AlterField(
             model_name='journal',
             name='default_cover_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
         ),
         migrations.AlterField(
             model_name='journal',
             name='default_large_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
         ),
         migrations.AlterField(
             model_name='journal',
@@ -42,6 +42,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='journal',
             name='header_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
         ),
     ]

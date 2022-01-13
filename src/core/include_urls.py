@@ -38,10 +38,10 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^news/', include('comms.urls')),
     url(r'^reports/', include('reports.urls')),
-    url(r'^preprints/', include('preprint.urls')),
-    url(r'^repository/', include('preprint.urls')),
+    url(r'^repository/', include('repository.urls')),
     url(r'^utils/', include('utils.urls')),
     url(r'^workflow/', include('workflow.urls')),
+    url(r'^discussion/', include('discussion.urls')),
 
     # Root Site URLS
     url(r'^$', press_views.index, name='website_index'),
@@ -85,7 +85,7 @@ urlpatterns = [
     url(r'^manager/settings/group/(?P<setting_group>[-\w.: ]+)/default_setting/(?P<setting_name>[-\w.]+)/$',
         core_views.edit_setting,
         name='core_edit_default_setting'),
-    url(r'^manager/settings/(?P<group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
+    url(r'^manager/settings/(?P<display_group>[-\w.]+)/$', core_views.edit_settings_group, name='core_edit_settings_group'),
     url(r'^manager/settings/(?P<plugin>[-\w.:]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$',
         core_views.edit_plugin_settings_groups, name='core_edit_plugin_settings_groups'),
 
@@ -191,7 +191,7 @@ urlpatterns = [
     # Public Profiles
     url(r'profile/(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/$', core_views.public_profile, name='core_public_profile'),
 
-    url(r'^sitemap/$', journal_views.sitemap, name='journal_sitemap'),
+    url(r'^sitemap/$', press_views.sitemap, name='website_sitemap'),
 
     url(r'^download/file/(?P<file_id>\d+)/$', journal_views.download_journal_file, name='journal_file'),
 

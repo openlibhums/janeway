@@ -195,13 +195,14 @@ class GeneratedForm(forms.Form):
             if answer:
                 self.fields[str(element.pk)].initial = answer.edited_answer if answer.edited_answer else answer.answer
 
-            answers = review_assignment.review_form_answers()
-            if answers:
-                try:
-                    answer = answers.get(original_element=element)
-                    self.fields[str(element.pk)].initial = answer.answer
-                except models.ReviewFormAnswer.DoesNotExist:
-                    pass
+            if review_assignment:
+                answers = review_assignment.review_form_answers()
+                if answers:
+                    try:
+                        answer = answers.get(original_element=element)
+                        self.fields[str(element.pk)].initial = answer.answer
+                    except (models.ReviewFormAnswer.DoesNotExist, models.ReviewAssignmentAnswer.DoesNotExist):
+                        pass
 
 
 class NewForm(forms.ModelForm):

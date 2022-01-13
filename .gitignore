@@ -70,6 +70,8 @@ src/core/settings.py
 /src/files/import_cache
 /src/files/data_backup
 /src/files/xsl
+/src/files/preprints
+/src/files/repos
 /src/media/django-summernote
 /src/media/*
 /src/collected-static
@@ -122,6 +124,10 @@ venv/**
 src/.DS_Store
 .DS_Store
 
+src/static/superhero/
+src/themes/superhero
+
 # Lando
-dockerfiles/lando_local.env
+local.env
 .lando.local.yml
+dockerfiles/lando_local.env

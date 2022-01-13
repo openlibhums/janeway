@@ -1,0 +1,116 @@
+{% extends "core/base.html" %}
+
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{% trans "Preprint Authors" %}{% endblock title %}
+
+
+{% block body %}
+    <article>
+        <form method="POST">
+            <div class="row column">
+                {% csrf_token %}
+                <h2 class="title-area">{% trans "Preprint Authors" %}</h2>
+                <p>{% trans "Add authors to" %} {{ article.title }}.</p>
+            </div>
+            <div class="row">
+                {% include "elements/forms/errors.html" with form=form %}
+
+                <div class="large-7 columns">
+                    <h4>{% trans "Search for Existing Authors" %}</h4>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <p>{% trans "Search for a user using email address or ORCiD. If a user is matched, they will be automatically added as an author. This search only returns exact matches." %}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="large-8 columns">
+                                <input class="form-control" name="author_search_text" style="width: 100%;" value=""
+                                       placeholder="{% trans "Search by email address or ORCiD" %}.">
+                            </div>
+                            <div class="large-4 columns">
+                                <button class="tiny success button" name="search_authors"><i class="fa fa-search">
+                                    &nbsp;</i>{% trans "Search" %}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <h4>{% trans "Add New Author" %}</h4>
+                    <p>{% trans "If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details." %}</p>
+                    <a href="#" data-open="author" class="small success button">{% trans "Add New Author" %}</a>
+                    {% include "elements/submit/author.html" %}
+                </div>
+
+                <div class="large-5 columns">
+                    <h4>{% trans "Current Authors" %}</h4>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Email" %}</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="sortable">
+                                {% for order in article.articleauthororder_set.all %}
+                                    <tr id="authors-{{ order.author.pk }}">
+                                        <td><i class="fa fa-sort"></i></td>
+                                        <td>{{ order.author.full_name }}</td>
+                                        <td>{{ order.author.email }}</td>
+                                        <td><form method="POST">{% csrf_token %}<button name="delete_author" value="{{ order.author.pk }}"><i
+                                                class="fa fa-trash">
+                                            &nbsp;</i></button></form></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3">{% trans "No authors yet, add one!" %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                            <hr/>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <p>{% trans "When you've added all the authors, select Save and Continue to move to the next step of your submission." %}</p>
+                                <br/>
+                                <button class="success button pull-right" type="submit" name="save_continue"><i
+                                        class="fa fa-check">&nbsp;</i>{% trans "Save and Continue" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </article>
+
+{% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "elements/open_modal.html" with target=modal %}
+    {% endif %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'repository_authors' article.pk %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+    </script>
+{% endblock %}

@@ -66,8 +66,13 @@
                                                     {% endif %}
                                                     <a href="{% journal_base_url current_journal %}"
                                                        class="button"><span>{% trans 'View' %}</span></a>
+                                                    {% if current_journal.current_issue %}
                                                     <a href="{% journal_base_url current_journal %}{% url 'current_issue' %}"
                                                        class="button"><span>{% trans 'Current Issue' %}</span></a>
+                                                    {% elif current_journal.serial_issues.count > 0 %}
+                                                    <a href="{% journal_base_url current_journal %}{% url 'journal_issues' %}"
+                                                       class="button"><span>{{ current_journal.issue_type_plural_name }}</span></a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>

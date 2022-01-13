@@ -1186,6 +1186,21 @@
     },
     {
         "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "If checked, the journal title will be displayed on the top bar of the site (not supported on Material theme)",
+            "is_translatable": false,
+            "name": "display_journal_title",
+            "pretty_name": "Enable Journal title in Navbar",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -3133,5 +3148,36 @@
         "value": {
             "default": "en"
         }
+    },
+    {
+	    "group": {
+	        "name": "general"
+    	},
+        "setting": {
+    	    "description": "Support email address for editors and staff users.",
+    	    "is_translatable": false,
+    	    "name": "support_email",
+    	    "pretty_name": "Support Email",
+    	    "type": "char"
+    	},
+    	"value": {
+    	    "default": "--No support email set--"
+    	}
+    },
+    {
+    	"group": {
+    	    "name": "general"
+    	},
+    	"setting": {
+    	    "description": "Support message to display to editors and staff on Manager page.",
+    	    "is_translatable": false,
+    	    "name": "support_contact_message_for_staff",
+    	    "pretty_name": "Janeway Support Contact for Staff",
+    	    "type": "rich-text"
+    	},
+    	"value": {
+    	    "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+    	}
     }
 ]
+

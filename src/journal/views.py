@@ -381,6 +381,29 @@ def collection(request, collection_id, show_sidebar=True):
     return issue(request, collection_id, show_sidebar)
 
 
+@has_journal
+@decorators.frontend_enabled
+def collection_by_code(request, collection_code):
+    """
+    A proxy view for an issue or collection by its code
+    :param request: request object
+    :param collection_code: alphanumeric string matching an Issue.code
+    :return: a rendered template
+    """
+    issue = get_object_or_404(
+        models.Issue,
+        code=collection_code,
+        journal=request.journal,
+    )
+    if issue.issue_type.code == "issue":
+        return redirect(reverse(
+            'journal_issue', kwargs={'issue_id': issue.pk},
+        ))
+    return redirect(reverse(
+        "journal_collection", kwargs={"collection_id": issue.pk},
+    ))
+
+
 @decorators.frontend_enabled
 @article_exists
 @article_stage_accepted_or_later_required
@@ -394,12 +417,13 @@ def article(request, identifier_type, identifier):
     """
     article_object = submission_models.Article.get_article(request.journal, identifier_type, identifier)
 
-    content = None
+    content, tables_in_galley = None, None
     galleys = article_object.galley_set.filter(public=True)
 
     # check if there is a galley file attached that needs rendering
     if article_object.is_published:
         content = get_galley_content(article_object, galleys, recover=True)
+        tables_in_galley = logic.get_all_tables_from_html(content)
     else:
         article_object.abstract = (
             "<p><strong>This is an accepted article with a DOI pre-assigned"
@@ -416,6 +440,7 @@ def article(request, identifier_type, identifier):
         'identifier_type': identifier_type,
         'identifier': identifier,
         'article_content': content,
+        'tables_in_galley': tables_in_galley,
     }
 
     return render(request, template, context)
@@ -449,7 +474,8 @@ def print_article(request, identifier_type, identifier):
 
     # check if there is a galley file attached that needs rendering
     if article_object.stage == submission_models.STAGE_PUBLISHED:
-        content = get_galley_content(article_object, galleys)
+        content = get_galley_content(article_object, galleys, recover=True)
+
     else:
         article_object.abstract = "This is an accepted article with a DOI pre-assigned that is not yet published."
 
@@ -468,7 +494,7 @@ def print_article(request, identifier_type, identifier):
         'galleys': galleys,
         'identifier_type': identifier_type,
         'identifier': identifier,
-        'article_content': content
+        'article_content': content,
     }
 
     return render(request, template, context)
@@ -542,7 +568,7 @@ def download_galley(request, article_id, galley_id):
     :param galley_id: an Galley object PK
     :return: a streaming response of the requested file or a 404.
     """
-    article = get_object_or_404(submission_models.Article.allarticles,
+    article = get_object_or_404(submission_models.Article,
                                 pk=article_id,
                                 journal=request.journal,
                                 date_published__lte=timezone.now(),
@@ -575,7 +601,7 @@ def view_galley(request, article_id, galley_id):
     :return: an HttpResponse with a PDF attachment
     """
     article_to_serve = get_object_or_404(
-        submission_models.Article.allarticles,
+        submission_models.Article,
         pk=article_id,
         journal=request.journal,
         date_published__lte=timezone.now(),
@@ -747,7 +773,7 @@ def submit_files_info(request, article_id, file_id):
     :param file_id: the file ID for which to submit information
     :return: a rendered template to submit file information
     """
-    article_object = get_object_or_404(submission_models.Article.allarticlesd, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     form = review_forms.ReplacementFileDetails(instance=file_object)
@@ -783,7 +809,7 @@ def file_history(request, article_id, file_id):
     if request.POST:
         return redirect(request.GET['return'])
 
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     template = "journal/file_history.html"
@@ -824,7 +850,7 @@ def file_delete(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     file_object.delete()
@@ -842,7 +868,7 @@ def article_file_make_galley(request, article_id, file_id):
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(submission_models.Article.allarticles, pk=article_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
     logic.create_galley_from_file(file_object, article_object, owner=request.user)
@@ -2118,7 +2144,7 @@ def download_table(request, identifier_type, identifier, table_name):
 
 
 def download_supp_file(request, article_id, supp_file_id):
-    article = get_object_or_404(submission_models.Article.allarticles, pk=article_id,
+    article = get_object_or_404(submission_models.Article, pk=article_id,
                                 stage=submission_models.STAGE_PUBLISHED)
     supp_file = get_object_or_404(core_models.SupplementaryFile, pk=supp_file_id)
 

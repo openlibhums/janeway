@@ -1,0 +1,155 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+{% load field %}
+
+{% block title-section %}
+    {% trans 'Add Authors to' %} {{ preprint.title }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
+        Dashboard</a></li>
+    <li>Start Submission</li>
+    <li>Add Authors</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>{% trans 'Information' %}</h2>
+                </div>
+                <div class="content">
+                    <ol>
+                        <li>{% trans 'You can add yourself as an author using the button below. This will copy metadata from your profile to create a' %} {{ request.repository.object_name }} {% trans 'author record.' %}</li>
+                        <li>{% trans 'You can search the database of existing authors and add them as authors.' %}</li>
+                        <li>{% trans 'You can create a new record for an author using the form below.' %}</li>
+                    </ol>
+                </div>
+                {% if not user_is_author %}
+                <div class="title-area">
+                    <h2>{% trans 'Add Self as Author' %}</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans 'By default, your account is the owner of this submission, but is not an Author on record. You can add yourself using the button below.' %}</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button class="button" name="self">Add Self as Author</button>
+                    </form>
+                </div>
+                {% endif %}
+                <div class="title-area">
+                    <h2>{% trans 'Search for an Author' %}</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans 'You can search by email or ORCiD. eg. person@example.com or 0000-0003-2126-266X.' %}</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <span class="input-group-label">Search</span>
+                            <input class="input-group-field" type="text" name="search">
+                            <div class="input-group-button">
+                                <button type="submit" class="button" value="Submit"><span class="fa fa-search"></span></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="title-area">
+                    <h2>{% trans 'Add an Author' %}</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans 'If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details.' %}</p>
+                    <a href="#" data-open="newauthor" class="button" aria-controls="new-author" aria-haspopup="true" tabindex="0">{% trans 'Add New Author' %}</a>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>{% trans 'Authors' %}</h2>
+                </div>
+                <div class="content">
+                    <p>{% trans 'You can reorder the authors by dragging and dropping rows in the table below.' %}</p>
+                    <form method="POST" action="{% url 'repository_delete_author' preprint.pk 'submission'  %}">
+                        {% csrf_token %}
+                        <table class="small">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Name' %}</th>
+                                    <th>{% trans 'Email' %}</th>
+                                    <th>{% trans 'Affiliation' %}</th>
+                                    <th>{% trans 'Delete' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sortable">
+                                {% for author in preprint.preprintauthor_set.all %}
+                                <tr id="authors-{{ author.pk }}">
+                                    <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
+                                    <td>{{ author.account.email }}</td>
+                                    <td>{{ author.display_affiliation }}</td>
+                                    <td>
+                                        <button name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span></button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3">{% trans 'No authors added.' %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </form>
+                    <p>{% trans 'Once you have added all of your authors you can complete this stage.' %}</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="complete" class="button">{% trans 'Complete Step 2 of 3' %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal small" id="newauthor" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+        <div class="card">
+            <div class="card-divider">
+                <h4><i class="fa fa-plus">&nbsp;</i>{% trans 'Add New Author' %}</h4>
+            </div>
+            <div class="card-section">
+                {% include "admin/elements/forms/errors.html" %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" name="form" class="button">{% trans 'Add New Author' %}</button>
+                </form>
+            </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
+        <script src="{% static "admin/js/csrf.js" %}"></script>
+    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $("#sortable").sortable({
+            update: function (event, ui) {
+                var data = $(this).sortable('serialize');
+                console.log(data);
+                // POST to server using $.post or $.ajax
+                $.ajax({
+                    data: data,
+                    type: 'POST',
+                    url: '{% url 'preprints_author_order' preprint.pk %}'
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+        </script>
+{% endblock %}

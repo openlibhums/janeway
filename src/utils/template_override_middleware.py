@@ -50,6 +50,9 @@ class Loader(BaseLoader):
                     theme_setting = self.query_theme_dirs(_local.request.journal)
                 except Exception:
                     theme_setting = 'clean'
+
+            elif _local.request.repository:
+                theme_setting = 'material'
             else:
                 # this is the press site
                 theme_setting = _local.request.press.theme

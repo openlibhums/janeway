@@ -1,0 +1,43 @@
+{% extends "admin/core/base.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
+{% load foundation %}
+{% load field %}
+
+{% block title-section %}
+    {{ preprint.title }} {% trans 'Submission Complete' %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.name }}
+        Dashboard</a></li>
+    <li>Start Submission</li>
+    <li>Add Authors</li>
+    <li>Upload Files</li>
+    <li>Submission Complete</li>
+{% endblock %}
+
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+
+                <div class="title-area">
+                    <h2>Submission Complete</h2>
+                </div>
+                <p>Thank you for submitting your {{ request.repository.object_name }} to {{ request.repository.name }}.</p>
+
+                <div class="title-area">
+                    <h2>Next Steps</h2>
+                </div>
+                <p>One of our team will review your submission and will be in touch. You can close the submission system using the button below, you will be taken to the dashboard.</p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <button name="complete" class="button">Close Submission System</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

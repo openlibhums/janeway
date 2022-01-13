@@ -1,0 +1,32 @@
+<div class="reveal" id="decline_preprint" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-file-pdf-o">&nbsp;</i>Reject Preprint</h4>
+        </div>
+    </div>
+    <div class="card-section">
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                        <div class="large-12 columns">
+                            <p>
+                                <small>
+                                    You can supply a note to the author when rejecting this {{ request.repository.object_name }}.
+                                </small>
+                            </p>
+                            <label for="date">Note</label>
+                            <textarea name="decline_note"></textarea>
+                        </div>
+                        <div class="large-12 columns">
+                            <button type="submit" name="decline" class="small alert button">Reject {{ request.repository.object_name }}</button>
+                        </div>
+                    </div>
+            <small></small>
+        </form>
+    </div>
+</div>
