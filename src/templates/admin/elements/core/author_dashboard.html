@@ -3,7 +3,9 @@
         <div class="box">
             <div class="title-area">
                 <h2>Incomplete Articles</h2>
+                {% if not journal_settings.general.disable_journal_submission %}
                 <a class="tiny button" href="{% url 'submission_start' %}">Submit New Article</a>
+                {% endif %}
             </div>
             <div class="content">
                 <table class="scroll">

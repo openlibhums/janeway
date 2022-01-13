@@ -53,7 +53,7 @@
                             {% for journal in journals %}
                             <tr id="journal-{{ journal.pk }}">
                                 <td><i class="fa fa-sort"></i></td>
-                                <td><a href="{% journal_base_url journal %}">{{ journal.name }}</a></td>
+                                <td><a href="{{ journal.site_url }}">{{ journal.name }}</a></td>
                                 <td>{{ journal.code }}</td>
                                 <td><a href="{% url 'press_journal_domain' journal.pk %}"><i class="fa fa-edit">&nbsp;</i> {{ journal.domain }}</a></td>
                                 <td><a class="" href="{% journal_base_url journal %}{% url 'core_manager_index' %}">Edit Settings</a></td>
@@ -79,7 +79,7 @@
                         <tr>
                             <td>{{ repo.name }}</td>
                             <td>{{ repo.short_name }}</td>
-                            <td><a href="{% if settings.URL_CONFIG == 'domain' %}{{ repo.domain }}{% else %}{{ repo.site_url }}{% endif %}">{% if settings.URL_CONFIG == 'domain' %}{{ repo.domain }}{% else %}{{ repo.site_url }}{% endif %}</a></td>
+                            <td><a href="{{ repo.site_url }}">{{ repo.site_url }}</a></td>
                             <td><a href="{% url 'repository_wizard_with_id' repo.short_name '1' %}">Setup Wizard</a></td>
                         </tr>
                         {% endfor %}

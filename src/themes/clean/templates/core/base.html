@@ -13,6 +13,7 @@
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% else %}{{ request.press.name }}
     {% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'journal_sitemap' %}">
 
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
@@ -46,9 +47,11 @@
                                                               class="img-fluid header-image top-bar-image" alt="{{ request.journal.name }} logo"></a>
                 </div>
                 {% endif %}
+                {% if journal_settings.styling.display_journal_title %}
                 <div class="col-md-10">
                     <p class="journal-name">{{ request.journal.name }}</p>
                 </div>
+                {% endif %}
             </div>
 
         </div>

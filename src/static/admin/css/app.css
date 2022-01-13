@@ -3509,7 +3509,7 @@ html.is-reveal-open body {
     margin-bottom: 0; }
   @media print, screen and (min-width: 40em) {
     .reveal {
-      width: 600px;
+      min-width: 600px;
       max-width: 75rem; } }
   @media print, screen and (min-width: 40em) {
     .reveal .reveal {

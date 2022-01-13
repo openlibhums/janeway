@@ -1,6 +1,7 @@
 {% load static from staticfiles %}
 {% load press_url from press_url %}
 {% load svg from press_url %}
+{% load svg_or_image from press_url %}
 {% load i18n %}
 {% load roles %}
 {% load hooks %}
@@ -13,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
     {% block head %}{% endblock head %}
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'journal_sitemap' %}">
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
@@ -55,11 +57,9 @@
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
                     {% if request.journal.header_image %}
-                        {% if 'svg' in request.journal.header_image.path %}
-                          <a href="{{ request.journal.site_url }}">{% svg request.journal.header_image.path %}</a>
-                        {% else %}
-                          <a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="header-image top-bar-image"></a>
-                        {% endif %}
+                    <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
+                        {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
+                    </a>
                     {% else %}
                         <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
                     {% endif %}
@@ -70,6 +70,11 @@
                         <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
                     {% endif %}
                 {% endif %}
+            {% if request.journal  and journal_settings.styling.display_journal_title %}
+            <div class="hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="journal-title">
+                <h1 class="menu-text">{{ request.journal.name }}</h1>
+            </div>
+            {% endif %}
 
                 <div class="title-bar toggle">
                     <div data-responsive-toggle="main-menu" data-hide-for="medium">
@@ -85,23 +90,6 @@
                 </div>
             </div>
 
-            {% if request.journal %}
-            <div class="top-bar-left hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="search-menu">
-                <ul class="menu global-search">
-                    <li>
-                        <form method="POST" action="{% url 'search' %}">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <span class="input-group-label"><i class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="article_search">
-                                <input type="hidden" name="sort" value="title">
-
-                            </div><input type="submit" style="visibility: hidden;" />
-                        </form>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
             {% if journal_settings.general.switch_language %}
                 <div class="top-bar-left">
                 <ul class="menu language-menu">
@@ -146,6 +134,23 @@
                     {% endif %}
                 </ul>
             </div>
+            {% if request.journal %}
+            <div class="top-bar-right hide-for-medium-only" id="search-menu">
+                <ul class="menu global-search">
+                    <li>
+                        <form method="POST" action="{% url 'search' %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
+                                <input type="hidden" name="sort" value="title">
+
+                            </div><input type="submit" style="visibility: hidden;" />
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
         {% block navbar %}
             {% if request.journal %}

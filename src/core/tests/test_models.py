@@ -1,8 +1,10 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
+from django.forms import Form
 from django.test import TestCase
 
 from core import forms, models
-from core.model_utils import merge_models
+from core.model_utils import merge_models, SVGImageFieldForm
 from journal import models as journal_models
 from utils.testing import helpers
 
@@ -185,3 +187,57 @@ class TestAccount(TestCase):
             unique_violation in to_account.accountrole_set.all(),
             msg="Failed to merge user models",
         )
+
+
+class TestSVGImageFormField(TestCase):
+    def test_upload_svg_to_svg_image_form_field(self):
+        svg_data = """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="50"></circle>
+            </svg>
+        """
+        svg_file = SimpleUploadedFile(
+            "file.svg",
+            svg_data.encode("utf-8"),
+        )
+        TestForm = type(
+            "TestFormForm", (Form,),
+            {"file": SVGImageFieldForm()}
+        )
+        form = TestForm({}, {"file": svg_file})
+        self.assertTrue(form.is_valid())
+
+    def test_upload_corrupt_svg_to_svg_image_form_field(self):
+        svg_data = """
+            <svg">
+                corrupt data here
+            </svg>
+        """
+        svg_file = SimpleUploadedFile(
+            "file.svg",
+            svg_data.encode("utf-8"),
+        )
+        TestForm = type(
+            "TestFormForm", (Form,),
+            {"file": SVGImageFieldForm()}
+        )
+        form = TestForm({}, {"file": svg_file})
+        self.assertFalse(form.is_valid())
+
+    def test_upload_image_to_svg_image_form_field(self):
+        svg_data = ""
+        image_data = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        image_file = SimpleUploadedFile(
+            "file.gif",
+            image_data,
+        )
+        TestForm = type(
+            "TestFormForm", (Form,),
+            {"file": SVGImageFieldForm()}
+        )
+        form = TestForm({}, {"file": image_file})
+        self.assertTrue(form.is_valid())

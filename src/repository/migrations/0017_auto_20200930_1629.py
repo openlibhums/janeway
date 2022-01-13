@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import core.file_system
+import core.model_utils
 from django.db import migrations, models
 import repository.models
 
@@ -27,11 +28,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='repository',
             name='hero_background',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
+            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
         ),
         migrations.AlterField(
             model_name='repository',
             name='logo',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
+            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
         ),
     ]

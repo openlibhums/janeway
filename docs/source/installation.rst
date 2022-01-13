@@ -3,7 +3,7 @@ Installation Guide
 There are a number of ways to get Janeway up and running. For development we recommend you use Docker with Postgres as the DB_VENDOR. A Lando configuration is also included.
 
 Running Janeway with Docker and docker-compose
----------
+----------------------------------------------
 1. Install ``docker``, ``docker-compose`` and ``GNU Make``.
 2. From the /path/to/janeway directory run ``make install``.
 3. A docker environment will be provisioned, and shortly after the janeway isntall script will run. Follow the instructions on screen to complete the installation.

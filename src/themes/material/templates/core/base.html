@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'journal_sitemap' %}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     {% if request.journal %}

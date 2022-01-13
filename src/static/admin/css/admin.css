@@ -684,3 +684,25 @@ ol.gloss-word {
     margin-top: 25px;
     font-size: 1rem;
 }
+
+
+.title-area .button {
+    font-size: 0.9rem;
+    margin-top: -5px;
+}
+
+button.expanded{
+    width: 100%;
+    text-align: left;
+}
+
+ul.actions li button {
+    cursor: pointer;
+}
+
+ul.menu {
+    font-weight: 400;
+
+.wrap-long-text{
+    word-wrap: anywhere;
+}

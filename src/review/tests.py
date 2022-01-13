@@ -264,6 +264,14 @@ class ReviewTests(TestCase):
             required=True,
         )
         self.review_form.elements.add(self.review_form_element)
+        self.second_review_form_element, c = review_models.ReviewFormElement.objects.get_or_create(
+            name='Second Review Form Element',
+            kind='text',
+            order=2,
+            width='full',
+            required=True,
+        )
+        self.review_form.elements.add(self.second_review_form_element)
         setting_handler.save_setting(
             'general',
             'enable_save_review_progress',
