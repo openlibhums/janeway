@@ -1582,13 +1582,13 @@
   <xsl:template match="ref">
     <xsl:choose>
       <xsl:when test="count(element-citation)=1">
-          <p id="{@id}">
+          <p id="{parent::*/@id}">
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{@id}">
+            <p id="{parent::*/@id}">
                 <xsl:if test="parent::ref/label">
                   <xsl:apply-templates select="parent::ref/label"/>
                 </xsl:if>
