@@ -1779,7 +1779,6 @@ def become_reviewer(request):
     return render(request, template, context)
 
 
-@decorators.frontend_enabled
 def contact(request):
     """
     Displays a form that allows a user to contact admins or editors.
@@ -1810,7 +1809,10 @@ def contact(request):
             )
             return redirect(reverse('contact'))
 
-    template = 'journal/contact.html'
+    if request.journal.disable_front_end:
+        template = 'admin/journal/contact.html'
+    else:
+        template = 'journal/contact.html'
     context = {
         'contact_form': contact_form,
         'contacts': contacts,
