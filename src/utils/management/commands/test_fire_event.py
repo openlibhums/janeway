@@ -46,6 +46,24 @@ class Command(BaseCommand):
         Usage examples:
         JSON string: python3 src/manage.py test_fire_event olh 1 on_revisions_complete --json_string "[{\"type\": \"model\", \"context_name\": \"revision\", \"app\": \"review\", \"model\": \"RevisionRequest\", \"pk\": 1}]"
         JSON path: python3 src/manage.py test_fire_event olh 1 on_revisions_complete --json_path src/files/test_event.json
+        JSON file/string format: model type will attempt to fetch the object with the given PK.
+                                variable type just adds a variable to the context with the name and value provided.
+
+        [
+          {
+            "type": "model",
+            "context_name": "revision",
+            "app": "review",
+            "model": "RevisionRequest",
+            "pk": 1
+          },
+          {
+            "type": "variable",
+            "context_name": "a_template_variable",
+            "var": "Lorem Ipsum"
+          }
+        ]
+
         """
         journal_code = options.get('journal_code')
         user_id = options.get('user_id')
