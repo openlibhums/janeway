@@ -38,13 +38,23 @@ class Command(BaseCommand):
         parser.add_argument('journal_code')
         parser.add_argument('user_id')
         parser.add_argument('event_name')
-        parser.add_argument('json_path')
+        parser.add_argument('--json_path',  nargs='?')
+        parser.add_argument('--json_string', nargs='?')
 
     def handle(self, *args, **options):
+        """
+        Usage examples:
+        JSON string: python3 src/manage.py test_fire_event olh 1 on_revisions_complete --json_string "[{\"type\": \"model\", \"context_name\": \"revision\", \"app\": \"review\", \"model\": \"RevisionRequest\", \"pk\": 1}]"
+        JSON path: python3 src/manage.py test_fire_event olh 1 on_revisions_complete --json_path src/files/test_event.json
+        """
         journal_code = options.get('journal_code')
         user_id = options.get('user_id')
         event_name = options.get('event_name')
         json_path = options.get('json_path')
+        json_string = options.get('json_string', None)
+
+        if not json_path and not json_string:
+            exit('You must provide a json_path or json_string')
 
         user = core_models.Account.objects.get(pk=user_id)
         journal = models.Journal.objects.get(code=journal_code)
@@ -54,11 +64,14 @@ class Command(BaseCommand):
             'request': request,
         }
 
-        if not os.path.isfile(json_path):
-            exit('File does not exist.')
+        if not json_string:
+            # Check the file exists, exit if not.
+            if not os.path.isfile(json_path):
+                exit('File does not exist.')
 
-        file = open(json_path, 'r')
-        json_string = file.read()
+            file = open(json_path, 'r')
+            json_string = file.read()
+
         json_dict = json.loads(json_string)
 
         for row in json_dict:
