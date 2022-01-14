@@ -3139,7 +3139,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email send to an article's correspondence author when revisions are completed.",
+            "description": "Email sent to an article's correspondence author when revisions are completed.",
             "is_translatable": true,
             "name": "revisions_complete_receipt",
             "pretty_name": "Revisions Complete Receipt",
