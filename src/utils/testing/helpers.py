@@ -19,6 +19,7 @@ from journal import models as journal_models
 from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from repository import models as repo_models
+from utils.logic import get_aware_datetime
 
 
 def create_user(username, roles=None, journal=None):
@@ -105,6 +106,48 @@ def create_author(journal):
     author.save()
     return author
 
+
+def create_article(journal):
+    from submission import models as submission_models
+
+    article = submission_models.Article.objects.create(
+        journal=journal,
+        title='Test Article from Utils Testing Helpers',
+        article_agreement='Test Article',
+        section=create_section(journal),
+    )
+    article.save()
+    return article
+
+def create_section(journal):
+    from submission import models as submission_models
+
+    section, created = submission_models.Section.objects.get_or_create(
+        journal=journal,
+        number_of_reviewers=2,
+        name='Article',
+        plural='Articles'
+    )
+    return section
+
+def create_issue(journal):
+
+    issue_type, created = journal_models.IssueType.objects.get_or_create(
+        code="issue",
+        journal=journal,
+    )
+    issue_datetime = get_aware_datetime('2022-01-01')
+    issue, created = journal_models.Issue.objects.get_or_create(
+        journal=journal,
+        volume=5,
+        issue=3,
+        defaults={
+            'issue_title': ('Test Issue from Utils Testing Helpers'),
+            'issue_type': issue_type,
+            'date': issue_datetime,
+        }
+    )
+    return issue
 
 def create_test_file(test_case, file):
     label = 'Test File'

@@ -102,55 +102,52 @@ def register_crossref_component(article, xml, supp_file):
         util_models.LogEntry.add_entry('Submission', "Deposited DOI.", 'Info', target=article)
 
 
-def create_crossref_context(identifier):
-    timestamp_suffix = identifier.article.journal.get_setting(
+def create_crossref_context(article, identifier=None):
+    timestamp_suffix = article.journal.get_setting(
         'crossref',
         'crossref_date_suffix',
     )
 
     from utils import setting_handler
     template_context = {
+        'article_title': '{0}{1}{2}'.format(
+            article.title,
+            ' ' if article.subtitle is not None else '',
+            article.subtitle if article.subtitle is not None else ''),
+        'doi': identifier.identifier if identifier else render_doi_from_pattern(article),
+        'article_url': article.url,
+        'authors': article.frozenauthor_set.all(),
+        'abstract': strip_tags(article.abstract or ''),
+        'date_accepted': article.date_accepted,
+        'date_published': article.date_published,
+        'license': article.license.url if article.license else '',
+        'pages': article.page_numbers,
+        'issue': article.issue,
+        'journal_title': (
+            article.publication_title
+            or article.journal.name
+        ),
+        'journal_issn': article.journal.issn,
+        'print_issn': article.journal.print_issn or '',
         'batch_id': uuid4(),
         'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
-        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
-                                                      identifier.article.journal).processed_value,
-        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
-                                                       identifier.article.journal).processed_value,
-        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
-                                                  identifier.article.journal).processed_value,
-        'journal_title': (
-                identifier.article.publication_title
-                or identifier.article.journal.name
-        ),
-        'abstract': strip_tags(identifier.article.abstract or ''),
-        'journal_issn': identifier.article.journal.issn,
-        'print_issn': identifier.article.journal.print_issn or None,
-        'date_published': identifier.article.date_published,
-        'date_accepted': identifier.article.date_accepted,
-        'pages': identifier.article.page_numbers,
-        'issue': identifier.article.issue,
-        'article_title': '{0}{1}{2}'.format(
-            identifier.article.title,
-            ' ' if identifier.article.subtitle is not None else '',
-            identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.frozenauthor_set.all(),
-        'doi': identifier.identifier,
-        'article_url': identifier.article.url,
         'now': timezone.now(),
         'timestamp_suffix': timestamp_suffix,
+        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
+                                                      article.journal).processed_value,
+        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
+                                                       article.journal).processed_value,
+        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
+                                                  article.journal).processed_value,
     }
 
     # append citations for i4oc compatibility
-    template_context["citation_list"] = extract_citations_for_crossref(
-        identifier.article)
+    template_context["citation_list"] = extract_citations_for_crossref(article)
 
     # append PDFs for similarity check compatibility
-    pdfs = identifier.article.pdfs
+    pdfs = article.pdfs
     if len(pdfs) > 0:
-        template_context['pdf_url'] = identifier.article.pdf_url
-
-    if identifier.article.license:
-        template_context["license"] = identifier.article.license.url
+        template_context['pdf_url'] = article.pdf_url
 
     return template_context
 
@@ -214,7 +211,7 @@ def send_crossref_deposit(test_mode, identifier):
     error = False
 
     template = get_crossref_template(article)
-    template_context = create_crossref_context(identifier)
+    template_context = create_crossref_context(article, identifier)
     rendered = render_to_string(template, template_context)
 
     logger.debug(rendered)
@@ -342,6 +339,49 @@ def render_doi_from_pattern(article):
                                                          group_name='Identifiers')
 
     return '{0}/{1}'.format(doi_prefix, doi_suffix)
+
+
+def preview_registration_information(article):
+    """
+    Generates a rudimentary printout of metadata
+    for proofing by the end user before attempting
+    to register the DOI with Crossref.
+    """
+    if article.journal.use_crossref:
+        crossref_context = create_crossref_context(article)
+
+        # FrozenAuthors do not exist yet
+        # crossref_context['authors'] = article.authors.all()
+
+        exclude = ['batch_id', 'timestamp', 'depositor_email', 'registrant',
+                   'now', 'timestamp_suffix', 'print_issn', 'citation_list']
+        for k in exclude:
+            crossref_context.pop(k)
+
+        metadata_printout = 'We will try to send the following ' \
+                            'provisional metadata to Crossref:<br><br>'
+
+        for k, v in crossref_context.items():
+            if k == 'authors':
+                i = 0
+                for author in crossref_context['authors']:
+                    i += 1
+                    for prop in ['first_name', 'middle_name', 'last_name',
+                                 'department', 'institution', 'orcid']:
+                        if hasattr(author, prop) and getattr(author, prop) != None:
+                            val = getattr(author, prop)
+                        else:
+                            val = ''
+                        metadata_printout += f'author{str(i)}_{prop}: {val}<br>'
+            else:
+                metadata_printout += f'{k}: {"" if v == None else v}<br>'
+        metadata_printout += '<br>If you update metadata after acceptance, ' \
+                             'we will resend it to Crossref on publication.'
+        return metadata_printout
+
+    else:
+        return f'Crossref settings not configured -- ' \
+                'no metadata will be registered.'
 
 
 def get_preprint_tempate_context(request, identifier):

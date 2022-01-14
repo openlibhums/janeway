@@ -843,8 +843,9 @@ def get_homepage_elements(request):
 def render_nested_setting(
         setting_name,
         setting_group,
-        nested_settings,
-        request
+        request,
+        article=None,
+        nested_settings=[],
     ):
 
     setting = setting_handler.get_setting(
@@ -854,6 +855,10 @@ def render_nested_setting(
     ).value
 
     setting_context = {}
+
+    if article:
+        setting_context['article'] = article
+
     for name, group in nested_settings:
         setting_context[name] = setting_handler.get_setting(
             group,
