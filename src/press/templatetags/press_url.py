@@ -16,7 +16,7 @@ register = template.Library()
 
 @register.simple_tag
 def press_url(request):
-    return press_models.Press.get_press(request).press_url(request)
+    return press_models.Press.get_press(request).site_url()
 
 
 @register.simple_tag
