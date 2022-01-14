@@ -58,6 +58,7 @@ class LogEntry(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     is_email = models.BooleanField(default=False)
+    email_subject = models.TextField(blank=True, null=True)
     message_id = models.TextField(blank=True, null=True)
     message_status = models.CharField(max_length=255, choices=MESSAGE_STATUS, default='no_information')
     number_status_checks = models.IntegerField(default=0)
@@ -96,6 +97,7 @@ class LogEntry(models.Model):
             to=None,
             message_id=None,
             subject=None,
+            email_subject=None,
     ):
 
         if actor is not None and callable(getattr(actor, "is_anonymous", None)):
@@ -113,6 +115,7 @@ class LogEntry(models.Model):
             'is_email': is_email,
             'message_id': message_id,
             'subject': subject,
+            'email_subject': email_subject,
         }
         new_entry = LogEntry.objects.create(**kwargs)
 

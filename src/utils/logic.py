@@ -3,6 +3,7 @@ import hmac
 from urllib.parse import SplitResult, quote_plus, urlencode
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from core.middleware import GlobalRequestMiddleware
 from cron.models import Request
@@ -142,6 +143,7 @@ def get_current_request():
     except (KeyError, AttributeError):
         return None
 
+
 @cache(seconds=None)
 def get_janeway_version():
     """ Returns the installed version of janeway
@@ -149,3 +151,11 @@ def get_janeway_version():
     """
     v = models.Version.objects.filter(rollback=None).order_by("-pk")[0]
     return v.number
+
+
+def get_log_entries(object):
+    content_type = ContentType.objects.get_for_model(object)
+    return models.LogEntry.objects.filter(
+        content_type=content_type,
+        object_id=object.pk,
+    )

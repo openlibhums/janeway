@@ -30,22 +30,10 @@ class JournalForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = ('code', 'domain')
-
-    def __init__(self, *args, **kwargs):
-        super(JournalForm, self).__init__(*args, **kwargs)
-        if settings.URL_CONFIG == 'path':
-            self.fields.pop('domain')
-
-    def save(self, commit=True, request=None):
-        journal = super(JournalForm, self).save(commit=False)
-
-        if settings.URL_CONFIG == 'path':
-            journal.domain = '{press_domain}/{path}'.format(press_domain=request.press.domain, path=journal.code)
-
-        if commit:
-            journal.save()
-
-        return journal
+        help_texts = {
+            'domain': 'Using a custom domain requires configuring DNS. '
+                'The journal will always be available under the /code path',
+        }
 
 
 class ContactForm(forms.ModelForm):

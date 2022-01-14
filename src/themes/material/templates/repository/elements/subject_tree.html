@@ -1,0 +1,8 @@
+{% for subject in subjects %}
+    <li><a href="{% url 'preprints_list_subject' subject.slug %}">{{ subject }} ({{ subject.published_preprints_count }})</a></li>
+    {% if subject.children.count > 0 %}
+        <ul class="nested tree">
+            {% include "repository/elements/subject_tree.html" with subjects=subject.children.all %}
+        </ul>
+    {% endif %}
+{% endfor %}
