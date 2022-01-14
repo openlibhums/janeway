@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block title %}{{ request.repository.name }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col m12 spacer">
+            <h1 class="center">{{ request.repository.name }}</h1>
+        </div>
+
+
+        <div class="input-field col s12 m6 offset-m3 spacer">
+            <form method="POST" action="{% url 'repository_search' %}">
+                {% csrf_token %}
+
+                <i class="material-icons prefix">search</i>
+                <input id="icon_prefix" type="text" class="validate" name="search_term">
+                <label for="icon_prefix">Search {{ request.repository.object_name_plural }}</label>
+                <p class="help-text center">Type your query and press enter to search.</p>
+            </form>
+        </div>
+
+        <div class="input-field col s10 offset-m1 spacer">
+            <hr class="homepage-hr" />
+        </div>
+
+         <div class="input-field col s12 m6 offset-m3 spacer">
+
+            <div class="center spacer">
+                <a class="btn waves-effect waves-light"
+                   href="{% url 'repository_submit' %}">{% trans 'Start New Submission' %}</a>
+            </div>
+
+            <p class="center">{% trans "Read about" %} <a href="{% url 'repository_about' %}">{{ request.repository.name }}</a>
+                {% trans "or view list of" %} <a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a>.
+            </p>
+        </div>
+
+        {% if preprints %}
+        <div class="col m12 spacer">
+            <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
+        </div>
+
+        {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static "common/js/material-eq-height.js" %}"></script>
+{% endblock %}

@@ -1,0 +1,27 @@
+<div class="reveal" id="decline-{{ version.pk }}" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-file-pdf-o">&nbsp;</i>Decline Update</h4>
+        </div>
+    </div>
+    <div class="card-section">
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                        <div class="large-12 columns">
+                            <label for="reason">Reason</label>
+                            <textarea rows="10" name="reason" placeholder="You can add an optional not to let the author know the reason you declined this update." name="reason"></textarea>
+                        </div>
+                        <div class="large-12 columns">
+                            <button class="button alert" name="decline" value="{{ version.pk }}"><i class="fa fa-times"> </i> Decline Update</button>
+                        </div>
+                    </div>
+            <small></small>
+        </form>
+    </div>
+</div>

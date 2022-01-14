@@ -19,6 +19,9 @@
                     <span class="card-title">
                         {% trans "Register for an" %}  {{ request.press.name }} {% trans "account" %}.
                     </span>
+                     {% if request.repository and request.repository.login_text %}
+                        {{ request.repository.login_text|safe }}
+                    {% endif %}
                     <p>Password Rules:</p>
                     <ul class="no-top-margin">
                         <li>- {% trans "Your password should be" %} {{ request.press.password_length }} {% trans "characters long" %}.</li>
@@ -29,6 +32,7 @@
                         <a href="#passwordmodal" class="modal-trigger">password guide</a>
                         .{% endblocktrans %}</p>
                     <form method="POST">
+                        {% include "elements/forms/errors.html" %}
                         {% csrf_token %}
                         {% materialize_form form=form %}
                         <p>{% trans "By registering an account you agree to our" %}

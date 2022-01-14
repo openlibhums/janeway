@@ -1,0 +1,70 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load static from staticfiles %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% load files %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>Log</li>
+{% endblock %}
+
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Log Entries</h2>
+            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<form method="POST">{% csrf_token %}<button class="button" id="run" name="run" onclick="run_resolution()">Refresh Email Status</button></form>{% endif %}
+            {% if return %}<a href="{{ return }}" class="button"><i class="fa fa-arrow-left"> </i>Back</a>{% endif %}
+        </div>
+        <div class="content">
+            <table id="log" class="scroll small">
+                <thead>
+                    <tr>
+                        <th>Entry Type</th>
+                        <td>To</td>
+                        <th>Information</th>
+                        <th>Date</th>
+                        <th>Actor</th>
+                        {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<th>Email Status</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in log_entries %}
+                        <tr>
+                            <td>{{ entry.types }}</td>
+                            <td>
+                                {% if entry.is_email %}{{ entry.to }}{% else %}N/a{% endif %}
+                            </td>
+                            <td>
+                                {{ entry.description|safe }}
+                            </td>
+                            <td>{{ entry.date|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ entry.actor.full_name }}</td>
+                            {% if settings.ENABLE_ENHANCED_MAILGUN_FEATURES %}<td>
+                                {% if entry.is_email %}
+                                <i class="fa fa-circle {{ entry.message_status_class }}" aria-hidden="true"></i>
+                                {{ entry.get_message_status_display }}
+                                {% endif %}
+                            </td>{% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="{% static 'admin/js/resolution.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
+    {% include "elements/datatables.html" with target="#log" order='desc' sort=3 %}
+{% endblock %}

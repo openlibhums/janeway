@@ -100,19 +100,30 @@ When uploading a new Galley (now referred to as 'Typeset Files'), there is now a
 
    Screenshot of the new file upload box
 
-When uploading an XML or HTML file with image files, Janeway will detect them and prompt the typesetter to upload them.
+Image Files
+^^^^^^^^^^^
+
+When a typeset file in the XML or HTML format is uploaded that has image links Janeway will detect them and prompt the typesetter to upload them. Image filenames should match those within the XML or HTML.
 
 .. figure:: nstatic/typesetting/images_missing.png
 
-At this point, just hit the edit button and upload each image on the box matching the filename from the XML/HTML file:
+At this point, press the edit button and upload each image on the box matching the filename from the XML/HTML file:
 
 .. figure:: nstatic/typesetting/typesetter_images.png
+
+If an XML or HTML file has a large number of images it is often faster to use the zip uploader. Create a .zip archive file and within it place each of the image files. The image filename must match the link in the typeset file otherwise it will not import them.
+
+Source Files
+^^^^^^^^^^^^
 
 If any intermiadate files have been used for the production of the Files (such as Adobe In Design files), they can be uploaded under the 'Source Files' section
 
 .. figure:: nstatic/typesetting/source_files.png
 
    Screenshot of the source files form
+
+Finishing Up
+^^^^^^^^^^^^
 
 Before you can complete the task, Janeway will warn you of any potential problems it detects with your files, such as potential missing images on the XML/HTML files or Typeset Files that have not yet been corrected.
 

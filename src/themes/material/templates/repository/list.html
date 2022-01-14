@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load pages %}
+
+{% block title %}{{ request.repository.name }} {{ request.repository.object_name_plural }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col m8 spacer">
+            <h1>{{ request.repository.object_name_plural }}</h1>
+            <p>
+                {% if search_term %}
+                    Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)
+                {% elif subject %}
+                    Filtering by Subject: {{ subject }}
+                {% else %}
+                    There {% if preprints.paginator.count > 1 %}are {{ preprints.paginator.count }} {{ request.repository.object_name_plural }} listed.{% elif preprints.paginator.count == 1 %}is 1 {{ request.repository.object_name }}{% else %}are 0 {{ request.repository.object_name }} listed.{% endif %}
+                {% endif %}
+            </p>
+            {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+            <div class="pagination-block">
+                <ul class="pagination">
+                    {% if preprints.has_previous %}
+                        <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a></li>
+                        &nbsp;{% endif %}
+                    {{ preprints.page.page_range }}
+                    {% for page in preprints|slice_pages:3 %}
+                        <li class="waves-effect {% if preprints.number == page.number %}active{% endif %}"><a
+                                href="?page={{ page.number }}">{{ page.number }}</a>&nbsp;
+                        </li>
+                    {% endfor %}
+                    {% if preprints.has_next %}
+                        <li class="waves-effect"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="col m4 columns" data-sticky-container>
+            <div class="card">
+                <div class="card-content">
+                    <div class="input-group">
+                        <form class="form-horizontal" method="POST" action="{% url 'repository_search' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+
+                                <div class="input-field">
+                                    <i class="material-icons prefix">search</i>
+                                    <input id="icon_prefix" type="text" class="validate"
+                                           {% if search_term %}value="{{ search_term }}"{% endif %} name="search_term">
+                                    <label for="icon_prefix" class="">{% trans "Search Preprints" %}</label>
+                                </div>
+                                <p>
+                                    <small>{% trans "You can search by:" %}</small>
+                                </p>
+                                <small>
+                                    <ul>
+                                        <li>{% trans "Title" %}</li>
+                                        <li>{% trans "Keywords" %}</li>
+                                        <li>{% trans "Author Name" %}</li>
+                                        <li>{% trans "Author Affiliation" %}</li>
+                                    </ul>
+                                </small>
+                            </div>
+                            <input type="submit" style="visibility: hidden;"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

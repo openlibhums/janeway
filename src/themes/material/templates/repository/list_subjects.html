@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load pages %}
+
+{% block title %}{{ request.repository.name }} Subjects{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <h1>{{ request.repository.name }} Subjects</h1>
+        <p>Select a subject to view {{ request.repository.object_name_plural }} in that subject.</p>
+        <ul id="subjects" class="tree">
+        {% include "repository/elements/subject_tree.html" with subjects=top_level_subjects %}
+        </ul>
+    </div>
+{% endblock %}

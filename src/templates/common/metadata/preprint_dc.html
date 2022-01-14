@@ -1,0 +1,14 @@
+    {% if preprint.date_published %}<meta name="DC.Date.created" scheme="ISO8601" content="{{ preprint.date_published }}"/>{% endif %}
+    {% if preprint.date_submitted %}<meta name="DC.Date.dateSubmitted" scheme="ISO8601" content="{{ preprint.date_submitted }}"/>{% endif %}
+    {% if preprint.date_published %}<meta name="DC.Date.issued" scheme="ISO8601" content="{{ preprint.date_published }}"/>{% endif %}
+    {% if preprint.current_version %}<meta name="DC.Date.modified" scheme="ISO8601" content="{{ preprint.current_version.date_time }}"/>{% endif %}
+    <meta name="DC.Description" xml:lang="en" content="{{ preprint.abstract|striptags }}"/>
+    {% if preprint.current_version_file_type == 'pdf' %}<meta name="DC.Format" scheme="IMT" content="pdf"/>{% elif preprint.current_version_file_type == 'html' %}<meta name="DC.Format" scheme="IMT" content="html"/>{% endif %}
+    <meta name="DC.Source.URI" content="{% journal_url 'website_index' %}"/>
+    <meta name="DC.Identifier.URI" content="{% site_url 'repository_preprint' preprint.pk %}"/>
+    <meta name="DC.Rights" content="{{ preprint.license.name | striptags }}"/>
+    <meta name="DC.Publisher" content="{{ request.repository.name }}"/>
+    <meta name="DC.Title" content="{{ preperint.title|striptags }}"/>
+    {% for author in preprint.authors %}<meta name="DC.Creator" content="{{ author.full_name }}"/>
+    {% endfor %}
+

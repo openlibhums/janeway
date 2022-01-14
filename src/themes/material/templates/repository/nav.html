@@ -1,0 +1,70 @@
+{% load static from staticfiles %}
+{% load svg from press_url %}
+{% load roles %}
+{% load i18n %}
+{% load hooks %}
+
+
+<nav class="header-overrides" role="navigation">
+    <div class="nav-wrapper{% if not request.journal.full_width_navbar %} container{% endif %}">
+        <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo">
+            {% if request.repository.logo %}
+            <img src="{{ request.repository.logo.url }}" class="responsive-img" />
+            {% else %}
+            {{ request.repository.name }}
+            {% endif %}
+        </a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
+            <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a>
+            <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural | capfirst }}</a></li>
+            <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
+            <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
+
+            {% hook 'nav_block' %}
+            {% if request.user.is_authenticated %}
+                <li><a class="dropdown-button" href="#!" data-activates="account">Account<i
+                        class="material-icons right">arrow_drop_down</i></a></li>
+            {% else %}
+                <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
+                <li><a href="{% url 'core_register' %}">Register</a></li>
+            {% endif %}
+        </ul>
+
+        <ul class="side-nav" id="nav-mobile">
+            <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
+            <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a></li>
+            <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a></li>
+            <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
+            <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
+
+            {% if request.user.is_authenticated %}
+                <li><a class="dropdown-button" href="#!" data-activates="dropdown1">{% trans "Account" %}<i
+                        class="material-icons right">arrow_drop_down</i></a></li>
+            {% else %}
+                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
+                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+            {% endif %}
+        </ul>
+        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+    </div>
+</nav>
+
+{% if request.user.is_authenticated %}
+    {% user_has_role request 'editor' as user_is_editor %}
+    <ul id="dropdown1" class="dropdown-content">
+         <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
+        {% if request.user.is_staff %}
+            <li><a class="dropdown-item" href="/admin/repository/">{% trans "Admin" %}</a></li>
+        {% endif %}
+       <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
+    </ul>
+
+    <ul id="account" class="dropdown-content">
+        <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
+        {% if request.user.is_staff %}
+            <li><a class="dropdown-item" href="/admin/repository/">{% trans "Admin" %}</a></li>
+        {% endif %}
+        <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
+    </ul>
+{% endif %}

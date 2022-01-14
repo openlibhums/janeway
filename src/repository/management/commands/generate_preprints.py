@@ -1,0 +1,118 @@
+import random
+from uuid import uuid4
+from faker import Faker
+
+from django.utils.text import slugify
+from django.utils import timezone
+from django.core.management.base import BaseCommand
+
+from core import models as core_models
+from repository import models
+
+
+class Command(BaseCommand):
+    """A management command to generate random preprints."""
+
+    help = "Allows an admin to generate random preprints."
+
+    def add_arguments(self, parser):
+        """ Adds arguments to Django's management command-line parser.
+
+        :param parser: the parser to which the required arguments will be added
+        :return: None
+        """
+        parser.add_argument('short_name')
+        parser.add_argument('number', nargs='?', default=1, type=int)
+        parser.add_argument('owner', nargs='?', default=None)
+
+    def handle(self, *args, **options):
+        """Allows an admin to generate random preprints"
+
+        :param args: None
+        :param options: None
+        :return: None
+        """
+        short_name = options.get('short_name')
+        number = options.get('number')
+        owner = options.get('owner')
+        fake = Faker()
+
+        try:
+            repo = models.Repository.objects.get(
+                short_name=short_name,
+            )
+        except models.Repository.DoesNotExist:
+            exit('No repository found.')
+
+        if owner:
+            try:
+                owner = core_models.Account.objects.get(pk=owner)
+            except core_models.Account.DoesNotExist:
+                exit('Owner not found.')
+        else:
+            owner = core_models.Account.objects.all().first()
+
+        subjects = [
+            'Computing',
+            'Software Engineering',
+            'Web Development',
+        ]
+
+        for subject in subjects:
+            models.Subject.objects.create(
+                repository=repo,
+                name=subject,
+                slug=slugify(subject),
+                enabled=True,
+            )
+
+        subjects = models.Subject.objects.all()
+
+        stages = [
+            models.STAGE_PREPRINT_REVIEW,
+            models.STAGE_PREPRINT_PUBLISHED,
+        ]
+
+        for x in range(0,number):
+            preprint = models.Preprint.objects.create(
+                repository=repo,
+                owner=owner,
+                stage=random.choice(stages),
+                title=fake.sentence(),
+                abstract=fake.text(),
+                comments_editor=fake.text(),
+                date_submitted=timezone.now(),
+            )
+
+            preprint.subject.add(
+                random.choice(subjects),
+            )
+
+            file = models.PreprintFile.objects.create(
+                preprint=preprint,
+                original_filename='fake_file.pdf',
+                mime_type='application/pdf',
+                size=100,
+            )
+
+            preprint.submission_file = file
+
+            for y in range (0,2):
+                author = models.Author.objects.create(
+                    first_name=fake.first_name(),
+                    last_name=fake.last_name(),
+                    email_address='{uuid}@example.com'.format(uuid=uuid4()),
+                    affiliation=fake.sentence(),
+                )
+
+                models.PreprintAuthor.objects.create(
+                    preprint=preprint,
+                    author=author,
+                    order=y,
+                )
+
+            if preprint.stage == models.STAGE_PREPRINT_PUBLISHED:
+                preprint.date_accepted = timezone.now()
+                preprint.date_published = timezone.now()
+
+            preprint.save()

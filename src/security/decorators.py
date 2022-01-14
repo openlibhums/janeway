@@ -20,6 +20,7 @@ from proofing import models as proofing_models
 from security.logic import can_edit_file, can_view_file_history, can_view_file, is_data_figure_file
 from utils import setting_handler
 from utils.logger import get_logger
+from repository import models as preprint_models
 
 logger = get_logger(__name__)
 
@@ -106,6 +107,24 @@ def senior_editor_user_required(func):
 
         else:
             deny_access(request)
+
+    return wrapper
+
+
+def editor_or_manager(func):
+    """
+    Checks that a user is either an editor or manager for the current journal or repo.
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        if request.journal and request.user in request.journal.editor_list():
+            return func(request, *args, **kwargs)
+
+        if request.repository and request.user in request.repository.managers.all():
+            return func(request, *args, **kwargs)
+
+        deny_access(request)
 
     return wrapper
 
@@ -995,7 +1014,7 @@ def press_only(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal:
+        if request.journal or request.repository:
             messages.add_message(request, messages.INFO, 'This is a press only page.')
             return redirect(reverse('core_manager_index'))
 
@@ -1014,12 +1033,19 @@ def preprint_editor_or_author_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
 
-        article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
+        preprint = get_object_or_404(
+            preprint_models.Preprint,
+            pk=kwargs['preprint_id'],
+            repository=request.repository
+        )
 
-        if request.user in article.authors.all() or request.user.is_staff:
+        if request.user == preprint.owner or request.user.is_staff:
             return func(request, *args, **kwargs)
 
-        if request.user in article.subject_editors():
+        if request.user in preprint.subject_editors():
+            return func(request, *args, **kwargs)
+
+        if request.user in request.repository.managers.all():
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1036,9 +1062,16 @@ def is_article_preprint_editor(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article = get_object_or_404(models.Article.preprints, pk=kwargs['article_id'])
+        if not base_check(request):
+            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
 
-        if request.user in article.subject_editors() or request.user.is_staff:
+        preprint = get_object_or_404(
+            preprint_models.Preprint,
+            pk=kwargs['preprint_id'],
+            repository=request.repository
+        )
+
+        if request.user in preprint.subject_editors() or request.user.is_staff or request.user.is_repository_manager(request.repository):
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1046,22 +1079,23 @@ def is_article_preprint_editor(func):
     return wrapper
 
 
-def is_preprint_editor(func):
+def is_repository_manager(func):
     """
-    Checks that the current user is a preprint editor
+    Checks that the current user is a repository manager
     :param func:
     :return:
     """
 
     @base_check_required
-    def wrapper(request, *args, **kwargs):
+    def preprint_manager_wrapper(request, *args, **kwargs):
 
-        if request.user in request.press.preprint_editors() or request.user.is_staff:
-            return func(request, *args, **kwargs)
+        if request.repository and request.user:
+            if request.user.is_staff or request.user in request.repository.managers.all():
+                return func(request, *args, **kwargs)
 
         deny_access(request)
 
-    return wrapper
+    return preprint_manager_wrapper
 
 
 def deny_access(request, *args, **kwargs):

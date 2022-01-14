@@ -19,21 +19,19 @@
                 <li><a href="{% if not item.is_external %}/{% endif %}{{ item.link }}">{{ item.link_name }}</a></li>
             {% endif %}
         {% endfor %}
-        {% if request.press.publishes_journals %}
-        <li><a href="{% url 'press_journals' %}">{% trans 'Journals' %}</a></li>
+        {% if request.press.publishes_journals and not request.press.disable_journals %}
+        <li><a href="{% url 'press_journals' %}">Journals</a></li>
         {% endif %}
         {% if request.press.publishes_conferences%}
         <li><a href="{% url 'press_conferences' %}">{% trans 'Conferences' %}</a></li>
         {% endif %}
         {% if request.press.enable_preprints %}
-            <li class=".is-dropdown-submenu-parent"><a href="{% url 'preprints_home' %}"
-                                                       data-options="is_hover:true; hover_timeout:5000">{% trans 'Preprints' %}</a>
+            <li class=".is-dropdown-submenu-parent"><a href="#"
+                                                       data-options="is_hover:true; hover_timeout:5000">Repositories</a>
                 <ul class="menu vertical medium-horizontal">
-                    <li><a href="{% url 'preprints_home' %}">{% trans 'Preprints Home' %}</a></li>
-                    <li><a href="{% url 'preprints_list' %}">{% trans 'All Preprints' %}</a></li>
-                    <li><a href="{% url 'preprints_about' %}">{% trans 'About Preprints' %}</a></li>
-                    {% if display_preprint_editors == 'On' %}<li><a href="{% url 'preprints_editors' %}">{% trans 'Preprint Editors' %}</a></li>{% endif %}
-                    <li><a href="{% url 'preprints_submit' %}">{% trans 'Submit a Preprint' %}</a></li>
+                    {% for repo in request.press.live_repositories %}
+                        <li><a href="{{ repo.site_url }}">{{ repo.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </li>
         {% endif %}

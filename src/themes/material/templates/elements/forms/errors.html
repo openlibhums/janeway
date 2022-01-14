@@ -1,0 +1,17 @@
+{% if form.errors %}
+            <p>Form errors:</p>
+            <ul>
+                {% if form.non_field_errors %}
+                    <li>Non Field Errors</li>
+                    <ul>
+                        {{ form.non_field_errors }}
+                    </ul>
+                {% endif %}
+                {% for field in form %}
+                    {% if field.errors %}
+                        <li>{{ field.label }}</li>
+                        {{ field.errors }}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+{% endif %}

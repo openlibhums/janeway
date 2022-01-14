@@ -1,0 +1,19 @@
+<div class="reveal small" id="new_file" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4><i class="fa fa-upload">&nbsp;</i>Upload File</h4>
+        </div>
+        <div class="card-section">
+            {% include "elements/forms/errors.html" with form=file_form %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ file_form.file }}
+                <button name="upload" class="button"><span class="fa fa-cloud-upload"> </span> Upload File</button>
+            </form>
+        </div>
+    </div>
+    <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

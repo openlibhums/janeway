@@ -1,0 +1,5 @@
+<meta name="citation_title" content="{{ preprint.title|safe }}">{% for author in preprint.authors %}
+<meta name="citation_author" content="{{ author.full_name }}"/>{% endfor %}
+{% if preprint.date_published %}<meta name="citation_publication_date" content="{{ preprint.date_published|date:"Y-m-d" }}">{% endif %}
+{% if preprint.current_version_file_type == 'pdf' %}<meta name="citation_pdf_url" content="{% site_url 'repository_file_download' preprint.id preprint.current_version.file.id %}">{% endif %}
+<meta name="citation_abstract" lang="en" content="{{ preprint.abstract|safe }}">

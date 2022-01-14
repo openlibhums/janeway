@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load static from staticfiles %}
+{% load svg_or_image from press_url %}
 {% load hooks %}
 {% load i18n %}
 
@@ -18,8 +19,13 @@
                 <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
                     <div class="box issue">
                         <a href="{% url 'journal_issue' issue.id %}" class="box-link"></a>
-                        <img src="{% if issue.cover_image %}{{ issue.cover_image.url }}{% elif journal.default_cover_image %}{{ journal.default_cover_image.url }}{% else %}{% static "common/img/sample/issue_cover.png" %}{% endif %}"
-                             alt="{{ issue.title }}">
+                        {% if issue.cover_image %}
+                            {% svg_or_image issue.cover_image alt_text=issue.title %}
+                        {% elif journal.default_cover_image %}
+                            {% svg_or_image journal.default_cover_image alt_text=issue.title %}
+                        {% else %}
+                            {% static "common/img/sample/issue_cover.png" %}
+                        {% endif %}
 
                         <div class="info-bar">
                             <p>{{ issue.display_title }}<br />{{ issue.get_sorted_articles.count }} {% trans "items" %}
