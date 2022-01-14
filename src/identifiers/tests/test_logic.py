@@ -83,14 +83,10 @@ class TestLogic(TestCase):
 
     def test_preview_registration_information_when_prefix_specified(self):
         clear_cache()
-        # save_setting('Identifiers', 'use_crossref', self.journal_one, True)
-        save_setting(
-            'Identifiers', 'crossref_prefix', self.journal_one, '10.0000')
+        save_setting('Identifiers', 'use_crossref', self.journal_one, True)
         self.assertTrue('We will try' in self.article_one.registration_preview)
 
     def test_preview_registration_information_no_prefix(self):
         clear_cache()
-        # save_setting('Identifiers', 'use_crossref', self.journal_one, False)
-        save_setting(
-            'Identifiers', 'crossref_prefix', self.journal_one, '')
+        save_setting('Identifiers', 'use_crossref', self.journal_one, False)
         self.assertTrue('settings not configured' in self.article_one.registration_preview)
