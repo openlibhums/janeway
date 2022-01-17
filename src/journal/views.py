@@ -1809,7 +1809,7 @@ def contact(request):
             )
             return redirect(reverse('contact'))
 
-    if request.journal.disable_front_end:
+    if request.journal and request.journal.disable_front_end:
         template = 'admin/journal/contact.html'
     else:
         template = 'journal/contact.html'
