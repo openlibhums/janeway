@@ -1114,19 +1114,24 @@ def send_author_publication_notification(**kwargs):
     # Check for SEs and PRs and notify them as well
     if section_editors:
         for editor in article.section_editors():
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'section_editor_pub_notification',
-                                                                      'Article set for publication',
-                                                                      editor.email,
-                                                                      {'article': article, 'editor': editor})
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'section_editor_pub_notification',
+                'Article set for publication',
+                editor.email,
+                {'article': article, 'editor': editor},
+            )
 
     if peer_reviewers:
-        for reviewer in article.peer_reviewers():
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'peer_reviewer_pub_notification',
-                                                                      'Article set for publication',
-                                                                      reviewer.email,
-                                                                      {'article': article, 'reviewer': reviewer})
+        reviewers = {review_assignment.reviewer for review_assignment in article.completed_reviews_with_decision}
+        for reviewer in reviewers:
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                'peer_reviewer_pub_notification',
+                'Article set for publication',
+                reviewer.email,
+                {'article': article, 'reviewer': reviewer},
+            )
 
 
 def review_sec_override_notification(**kwargs):
