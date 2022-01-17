@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
     {% block head %}{% endblock head %}
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'journal_sitemap' %}">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
     <link href="{% static "common/css/common.css" %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
@@ -175,7 +175,7 @@
             {% if request.journal.press_image_override %}
                 {% svg request.journal_cover %}
             {% elif 'svg' in request.press_cover %}
-                <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
+                <a href="{% press_url request %}">{% svg request.press_cover %}</a>
             {% else %}
                 <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
             {% endif %}

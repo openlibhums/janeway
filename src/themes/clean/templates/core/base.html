@@ -13,7 +13,7 @@
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% else %}{{ request.press.name }}
     {% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'journal_sitemap' %}">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
 
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
