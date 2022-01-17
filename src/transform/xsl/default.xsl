@@ -434,9 +434,9 @@
             <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
         </xsl:variable>
         <li id="fn{$fn-number}">
-            <span class="footnotemarker" id="n{$fn-number}"></span>
+            <span id="n{$fn-number}"></span>
             <xsl:apply-templates/>
-            [<a href="#nm{$fn-number}"><sup>^</sup></a>]
+            [<a class="footnotemarker"  href="#nm{$fn-number}"><sup>^</sup></a>]
         </li>
     </xsl:template>
 
