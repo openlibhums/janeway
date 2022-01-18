@@ -859,6 +859,7 @@ def get_homepage_elements(request):
 
     return homepage_elements, homepage_element_names
 
+
 def render_nested_setting(
         setting_name,
         setting_group,
@@ -871,7 +872,7 @@ def render_nested_setting(
         setting_group,
         setting_name,
         request.journal,
-    ).value
+    ).processed_value
 
     setting_context = {}
 
@@ -885,7 +886,7 @@ def render_nested_setting(
             group,
             name,
             request.journal
-        ).value
+        ).processed_value
 
     rendered_string = render_template.get_message_content(
         request,
