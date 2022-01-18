@@ -1186,6 +1186,21 @@
     },
     {
         "group": {
+            "name": "styling"
+        },
+        "setting": {
+            "description": "If checked, the journal title will be displayed on the top bar of the site (not supported on Material theme)",
+            "is_translatable": false,
+            "name": "display_journal_title",
+            "pretty_name": "Enable Journal title in Navbar",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        }
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -3139,21 +3154,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "A warning displayed warning Editors what will happen when they accept an article.",
-            "is_translatable": true,
-            "name": "accept_article_warning",
-            "pretty_name": "Accept Article Warning",
-            "type": "rich-text"
-        },
-        "value": {
-            "default": "{{ article.registration_preview|safe }}"
-        }
-    },
-    {
-        "group": {
-            "name": "general"
-        },
-        "setting": {
+
             "description": "Support email address for editors and staff users.",
             "is_translatable": false,
             "name": "support_email",
@@ -3166,17 +3167,77 @@
     },
     {
         "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to an article's correspondence author when revisions are completed.",
+            "is_translatable": true,
+            "name": "revisions_complete_receipt",
+            "pretty_name": "Revisions Complete Receipt",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ revision.article.correspondence_author.full_name }},</p><p>Thank you for submitting your revisions for \"{{ revision.article.title }}\". We will be in touch with further information about your submission soon.</p><p>Best wishes,</p><p>{{ revision.editor.full_name }}</p>"
+        }
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
             "description": "Support message to display to editors and staff on Manager page.",
-            "is_translatable": false,
+            "is_translatable": true,
             "name": "support_contact_message_for_staff",
             "pretty_name": "Janeway Support Contact for Staff",
             "type": "rich-text"
         },
         "value": {
             "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Describe what files you expect at the time of submission.",
+            "is_translatable": true,
+            "name": "file_submission_guidelines",
+            "pretty_name": "File Submission Guidelines",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Please upload the latest manuscript file. Separately upload any figures or data files needed during peer review.</p>"
+        }
+    },
+    {
+          "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Revisions Complete Receipt",
+            "is_translatable": true,
+            "name": "subject_revisions_complete_receipt",
+            "pretty_name": "Subject Revisions Complete Receipt",
+            "type": "text"
+        },
+        "value": {
+            "default": "Article Revisions Complete"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "A warning displayed warning Editors what will happen when they accept an article.",
+            "is_translatable": true,
+            "name": "accept_article_warning",
+            "pretty_name": "Accept Article Warning",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "{{ article.registration_preview|safe }}"
         }
     }
 ]

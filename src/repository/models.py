@@ -97,7 +97,7 @@ class Repository(model_utils.AbstractSiteModel):
         help_text='eg. preprints or articles',
     )
     managers = models.ManyToManyField('core.Account', blank=True)
-    logo = models.ImageField(
+    logo = model_utils.SVGImageField(
         blank=True,
         null=True,
         storage=preprint_media_store,
@@ -109,7 +109,7 @@ class Repository(model_utils.AbstractSiteModel):
         storage=preprint_media_store,
         upload_to=repo_media_upload,
     )
-    hero_background = models.ImageField(
+    hero_background = model_utils.SVGImageField(
         blank=True,
         null=True,
         storage=preprint_media_store,
@@ -178,21 +178,16 @@ class Repository(model_utils.AbstractSiteModel):
 
     @classmethod
     def get_by_request(cls, request):
-        domain = request.get_host()
-        # Lookup by domain with/without port
-        try:
-            obj = cls.objects.get(
-                domain=domain,
-                live=True,
-            )
-        except cls.DoesNotExist:
-            # Lookup without port
-            domain, _port = split_domain_port(domain)
-            obj = cls.objects.get(
-                domain=domain,
-                live=True
-            )
-        return obj
+        obj, path = super().get_by_request(request)
+        if not obj:
+            # Lookup by short_name
+            try:
+                short_name = request.path.split('/')[1]
+                obj = cls.objects.get(short_name=short_name)
+                path = short_name
+            except (IndexError, cls.DoesNotExist):
+                pass
+        return obj, path
 
     def __str__(self):
         return '[{}] {}'.format(
@@ -214,24 +209,19 @@ class Repository(model_utils.AbstractSiteModel):
         )
 
     def site_url(self, path=""):
-        if settings.URL_CONFIG == "path":
-            return self._site_path_url(path)
-
-        return logic.build_url(
-            netloc=self.domain,
-            scheme=self.SCHEMES[self.is_secure],
-            port=None,
-            path=path,
-        )
-
-    def _site_path_url(self, path=None):
-        request = logic.get_current_request()
-        if request and request.repository == self:
-            if not path:
-                path = "/{}".format(self.short_name)
-            return request.build_absolute_uri(path)
+        if self.domain and not settings.URL_CONFIG == 'path':
+            return logic.build_url(
+                    netloc=self.domain,
+                    scheme=self.SCHEMES[self.is_secure],
+                    port=None,
+                    path=path,
+            )
         else:
-            return request.press.repository_path_url(self, path)
+            return self.press.site_path_url(self, path)
+
+    @property
+    def code(self):
+        return self.short_name
 
 
 class RepositoryField(models.Model):

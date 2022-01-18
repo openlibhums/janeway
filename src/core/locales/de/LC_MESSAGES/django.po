@@ -814,9 +814,7 @@ msgstr ""
 #: src/templates/admin/elements/submit/file.html:15
 #: src/themes/OLH/templates/elements/submit/file.html:11
 msgid ""
-"Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X "
-"format. LaTeX may be accepted later in the process but a simple, readable "
-"file is required at this stage."
+"File types limited to Doc, Docx, RTF, and ODT."
 msgstr ""
 "Bitte laden Sie Ihre Manuskriptdatei hoch. Sie sollte im PDF-, RTF-, ODT- "
 "oder DOC/X-Format vorliegen. LaTeX kann später im Prozess akzeptiert werden, "
