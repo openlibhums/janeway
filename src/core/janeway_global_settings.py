@@ -291,6 +291,8 @@ SUMMERNOTE_CONFIG = {
     'attachment_filesize_limit': 2056 * 2056,
 }
 
+SUMMERNOTE_SENTINEL = '<p><br></p>'
+
 # 1.9 appears confused about where null and blank are required for many to
 # many fields, so we're hiding these warning from the console
 SILENCED_SYSTEM_CHECKS = (
