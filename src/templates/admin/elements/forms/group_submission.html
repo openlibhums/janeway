@@ -50,5 +50,6 @@
     <h2>Files</h2>
 </div>
 <div class="content">
+    {% include "admin/elements/forms/field.html" with field=edit_form.file_submission_guidelines %}
     {% include "admin/elements/forms/field.html" with field=edit_form.limit_manuscript_types %}
 </div>
