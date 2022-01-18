@@ -430,18 +430,18 @@
     </xsl:template>
 
     <xsl:template match="fn-group/fn">
-        <li>
+        <xsl:variable name="fn-number">
+            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+        </xsl:variable>
+        <li id="fn{$fn-number}">
+            <span id="n{$fn-number}"></span>
             <xsl:apply-templates/>
+            [<a class="footnotemarker"  href="#nm{$fn-number}"><sup>^</sup></a>]
         </li>
     </xsl:template>
 
     <xsl:template match="fn-group/fn/p">
-        <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front | ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
-        </xsl:variable>
-        <span class="footnotemarker" id="fn{$fn-number}"></span>
         <xsl:apply-templates/>
-        [<span class="footnotemarker" id="n{$fn-number}"><a href="#nm{$fn-number}"><sup>^</sup></a></span>]
     </xsl:template>
 
     <xsl:template match="author-notes/fn[@fn-type='con']/p">
@@ -1595,17 +1595,17 @@
   <xsl:template match="ref">
     <xsl:choose>
       <xsl:when test="count(element-citation)=1">
-          <p id="{@id}">
+          <p id="{parent::*/@id}">
             <xsl:apply-templates select="element-citation | nlm-citation"/>
           </p>
       </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{@id}">
-            <xsl:if test="parent::ref/label">
-              <xsl:apply-templates select="parent::ref/label"/>
-            </xsl:if>
-            <xsl:apply-templates select="."/>
+            <p id="{parent::*/@id}">
+                <xsl:if test="parent::ref/label">
+                  <xsl:apply-templates select="parent::ref/label"/>
+                </xsl:if>
+                <xsl:apply-templates select="."/>
             </p>
         </xsl:for-each>
       </xsl:otherwise>
@@ -1652,12 +1652,10 @@
   </xsl:template>
 
   <xsl:template match="mixed-citation">
-    <p id="{parent::*/@id}">
       <!-- Render each mixed-citation as-is https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/mixed-citation.html -->
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
       <xsl:apply-templates select="ext-link"/>
-    </p>
   </xsl:template>
 
 

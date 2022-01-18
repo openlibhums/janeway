@@ -858,7 +858,7 @@ def render_nested_setting(
     setting = setting_handler.get_setting(
         setting_group,
         setting_name,
-        request.journal
+        request.journal,
     ).value
 
     setting_context = {}
