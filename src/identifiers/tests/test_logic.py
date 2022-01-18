@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from identifiers import logic
+from identifiers import logic, models
 from core.models import SettingGroup
 from submission import models as submission_models
 from utils.testing import helpers
@@ -81,12 +81,23 @@ class TestLogic(TestCase):
 
         self.assertEqual(expected_data, context)
 
-    def test_preview_registration_information_when_prefix_specified(self):
+    def test_preview_registration_information_when_use_crossref_on(self):
         clear_cache()
         save_setting('Identifiers', 'use_crossref', self.journal_one, True)
-        self.assertTrue('We will try' in self.article_one.registration_preview)
+        self.assertTrue('Current metadata to send to Crossref' in self.article_one.registration_preview)
 
-    def test_preview_registration_information_no_prefix(self):
+    def test_preview_registration_information_when_use_crossref_off(self):
         clear_cache()
         save_setting('Identifiers', 'use_crossref', self.journal_one, False)
-        self.assertTrue('settings not configured' in self.article_one.registration_preview)
+        self.assertFalse(self.article_one.registration_preview)
+
+    def test_preview_registration_information_when_custom_doi(self):
+        clear_cache()
+        save_setting('Identifiers', 'use_crossref', self.journal_one, True)
+        doi_options = {
+            'id_type': 'doi',
+            'identifier': 'https://doi.org/10.1234/custom',
+            'article': self.article_one,
+        }
+        doi = models.Identifier.objects.create(**doi_options)
+        self.assertTrue(doi_options['identifier'] in self.article_one.registration_preview)

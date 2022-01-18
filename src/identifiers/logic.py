@@ -348,41 +348,33 @@ def preview_registration_information(article):
     to register the DOI with Crossref.
     """
     if article.journal.use_crossref:
-        crossref_context = create_crossref_context(article)
-
-        # FrozenAuthors do not exist yet
-        # crossref_context['authors'] = article.authors.all()
+        from identifiers import models as identifier_models
+        try:
+            doi = identifier_models.Identifier.objects.get(id_type='doi', article=article)
+        except identifier_models.Identifier.DoesNotExist:
+            doi = None
+        crossref_context = create_crossref_context(article, doi)
 
         exclude = ['batch_id', 'timestamp', 'depositor_email', 'registrant',
                    'now', 'timestamp_suffix', 'print_issn', 'citation_list']
         for k in exclude:
             crossref_context.pop(k)
 
-        metadata_printout = 'We will try to send the following ' \
-                            'provisional metadata to Crossref:<br><br>'
+        metadata_printout = 'Current metadata to send to Crossref:<br>'
 
         for k, v in crossref_context.items():
             if k == 'authors':
-                i = 0
-                for author in crossref_context['authors']:
-                    i += 1
+                for idx, author in enumerate(crossref_context['authors'], start=1):
                     for prop in ['first_name', 'middle_name', 'last_name',
                                  'department', 'institution', 'orcid']:
-                        if hasattr(author, prop) and getattr(author, prop) != None:
-                            val = getattr(author, prop)
-                        else:
-                            val = ''
-                        metadata_printout += f'author{str(i)}_{prop}: {val}<br>'
+                        val = getattr(author, prop) or ''
+                        metadata_printout += f'<br>author{str(idx)}_{prop}: {val}'
             else:
-                metadata_printout += f'{k}: {"" if v == None else v}<br>'
-        metadata_printout += '<br>If you update metadata after acceptance, ' \
-                             'we will resend it to Crossref on publication.'
+                metadata_printout += f'<br>{k}: {"" if v == None else v}'
         return metadata_printout
 
     else:
-        return f'Crossref settings not configured -- ' \
-                'no metadata will be registered.'
-
+        return ''
 
 def get_preprint_tempate_context(request, identifier):
     article = identifier.article

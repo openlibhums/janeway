@@ -845,7 +845,7 @@ def render_nested_setting(
         setting_group,
         request,
         article=None,
-        nested_settings=[],
+        nested_settings=None,
     ):
 
     setting = setting_handler.get_setting(
@@ -859,6 +859,8 @@ def render_nested_setting(
     if article:
         setting_context['article'] = article
 
+    if not nested_settings:
+        nested_settings=[]
     for name, group in nested_settings:
         setting_context[name] = setting_handler.get_setting(
             group,

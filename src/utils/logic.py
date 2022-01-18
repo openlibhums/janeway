@@ -179,10 +179,7 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
     ):
         unparsed_string += ' 12:00'
 
-    try:
-        parsed_datetime = dateparser.parse(unparsed_string)
-    except ValueError:
-        raise
+    parsed_datetime = dateparser.parse(unparsed_string)
 
     if is_aware(parsed_datetime):
         return parsed_datetime

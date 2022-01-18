@@ -20,6 +20,15 @@
             <div class="content">
                 <p>Are you sure you want to {{ decision }} {{ article.title }}?</p>
                 {% if decision == 'accept' %}
+                    {% if article.journal.use_crossref %}
+                        <div class="bs-callout">
+                        <p>This journal is set to use Crossref for DOI registration. Article metadata is sent upon acceptance and resent upon publication.</p>
+                        </div>
+                    {% else %}
+                        <div class="bs-callout bs-callout-danger">
+                        <p>Note: DOI registration is not configured.</p>
+                        </div>
+                    {% endif %}
                     {% if accept_article_warning %}
                         <div class="bs-callout">
                         {{ accept_article_warning|safe }}
