@@ -32,6 +32,7 @@ from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
+from core.janeway_global_settings import SUMMERNOTE_SENTINEL
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -667,6 +668,11 @@ class SettingValue(models.Model):
                 return 0
         elif self.setting.types == 'json' and self.value:
             return json.loads(self.value)
+        elif self.setting.types == 'rich-text' and self.value:
+            if self.value == SUMMERNOTE_SENTINEL:
+                return ''
+            else:
+                return self.value
         else:
             return self.value
 
