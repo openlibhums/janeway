@@ -1048,10 +1048,11 @@ class Article(models.Model):
 
     @property
     def completed_reviews_with_decision(self):
-        return self.reviewassignment_set.filter(is_complete=True,
-                                                date_declined__isnull=True,
-                                                review_round=self.current_review_round_object()
-                                                ).exclude(decision='withdrawn')
+        return self.reviewassignment_set.filter(
+            is_complete=True,
+            date_declined__isnull=True,
+            decision__isnull=False,
+        ).exclude(decision='withdrawn')
 
     def active_review_request_for_user(self, user):
         try:

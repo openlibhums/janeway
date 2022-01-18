@@ -221,14 +221,13 @@ def get_email_subject_setting(
         setting_group,
         setting_name,
         journal,
-        create=False,
+        default=True,
 ):
     try:
         setting = core_models.Setting.objects.get(name=setting_name)
         lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
-
-        return get_setting(setting_group, setting, journal, lang, create).value
-    except core_models.Setting.DoesNotExist:
+        return get_setting(setting_group, setting, journal, lang, default=True).value
+    except (core_models.Setting.DoesNotExist, AttributeError):
         return setting_name
 
 

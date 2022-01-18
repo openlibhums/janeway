@@ -430,18 +430,18 @@
     </xsl:template>
 
     <xsl:template match="fn-group/fn">
-        <li>
+        <xsl:variable name="fn-number">
+            <xsl:number level="any" count="fn[not(ancestor::front)]" from="article | sub-article | response"/>
+        </xsl:variable>
+        <li id="fn{$fn-number}">
+            <span id="n{$fn-number}"></span>
             <xsl:apply-templates/>
+            [<a class="footnotemarker"  href="#nm{$fn-number}"><sup>^</sup></a>]
         </li>
     </xsl:template>
 
     <xsl:template match="fn-group/fn/p">
-        <xsl:variable name="fn-number">
-            <xsl:number level="any" count="fn[not(ancestor::front | ancestor::table-wrap-foot)]" from="article | sub-article | response"/>
-        </xsl:variable>
-        <span class="footnotemarker" id="fn{$fn-number}"></span>
         <xsl:apply-templates/>
-        [<span class="footnotemarker" id="n{$fn-number}"><a href="#nm{$fn-number}"><sup>^</sup></a></span>]
     </xsl:template>
 
     <xsl:template match="author-notes/fn[@fn-type='con']/p">
