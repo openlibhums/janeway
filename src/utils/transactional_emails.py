@@ -464,7 +464,8 @@ def send_revisions_request(**kwargs):
         )
         notify_helpers.send_slack(
             request,
-            description,['slack_editors'],
+            description,
+            ['slack_editors'],
         )
 
 
@@ -490,6 +491,38 @@ def send_revisions_complete(**kwargs):
     util_models.LogEntry.add_entry(
         types='Revisions Complete', description=action_text, level='Info',
         request=request, target=revision.article,
+    )
+
+
+def send_revisions_author_receipt(**kwargs):
+    request = kwargs['request']
+    revision = kwargs['revision']
+
+    description = '{0} has completed revisions for {1}'.format(
+        request.user.full_name(),
+        revision.article.title,
+    )
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Revisions Complete',
+        'target': revision.article,
+    }
+    context = {
+        'revision': revision,
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        'revisions_complete_receipt',
+        'subject_revisions_complete_receipt',
+        revision.article.correspondence_author.email,
+        context,
+        log_dict=log_dict,
+    )
+    notify_helpers.send_slack(
+        request,
+        description,
+        ['slack_editors'],
     )
 
 
