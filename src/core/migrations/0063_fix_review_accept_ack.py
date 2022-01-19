@@ -26,8 +26,8 @@ def update_review_accept_acknowledgement(apps, schema_editor):
                 if old_string:
 
                     for replacement in (
-                        ('{{ request.user.signature }}', '{{review_assignment.editor.signature|safe}}'),
-                        ('{{ request.user.signature|safe }}', '{{review_assignment.editor.signature|safe}}')
+                        ('{{ request.user.signature }}', '{{ review_assignment.editor.signature|safe }}'),
+                        ('{{ request.user.signature|safe }}', '{{ review_assignment.editor.signature|safe }}')
                     ):
                         old_string = old_string.replace(*replacement)
 
