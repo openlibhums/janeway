@@ -32,7 +32,6 @@ from copyediting import models as copyediting_models
 from submission import models as submission_models
 from utils.logger import get_logger
 from utils import logic as utils_logic
-from core.janeway_global_settings import SUMMERNOTE_SENTINEL
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -133,6 +132,7 @@ COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL'
 
 TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
+SUMMERNOTE_SENTINEL = '<p><br></p>'
 
 class Country(models.Model):
     code = models.TextField(max_length=5)
