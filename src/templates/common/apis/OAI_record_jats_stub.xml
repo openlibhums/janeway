@@ -5,13 +5,13 @@
 <article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <front>
         <journal-meta>
-            <journal-id journal-id-type="issn">{{ journal.issn }}</journal-id>
+            <journal-id journal-id-type="issn">{{ article.journal.issn }}</journal-id>
             <journal-title-group>
-                <journal-title>{{ journal.name }}</journal-title>
+                <journal-title>{{ article.journal.name }}</journal-title>
             </journal-title-group>
-            <issn pub-type="epub">{{ journal.issn }}</issn>
+            <issn pub-type="epub">{{ article.journal.issn }}</issn>
             <publisher>
-                <publisher-name>{{ journal|setting:'publisher_name' }}</publisher-name>
+                <publisher-name>{{ article.journal|setting:'publisher_name' }}</publisher-name>
             </publisher>
         </journal-meta>
         <article-meta>
@@ -22,7 +22,7 @@
                 </subj-group>
             </article-categories>
             <title-group>
-                <article-title>{{ article.title|safe }}</article-title>
+                <article-title>{{ article.title }}</article-title>
             </title-group>
             <contrib-group>
             {% for author in article.frozen_authors.all %}
