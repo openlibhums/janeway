@@ -1,0 +1,10 @@
+{% extends "apis/OAI_base.xml" %}
+{% block body %}
+<GetRecord>
+    {% if not stub %}
+        {{ jats|safe }}
+    {% else %}
+        {% include "apis/OAI_record_jats_stub.xml" with article=article %}
+    {% endif %}
+</GetRecord>
+{% endblock body %}

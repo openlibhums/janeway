@@ -8,6 +8,7 @@ from api.oai import exceptions
 from api.oai.base import OAIPagedModelView, metadata_formats
 from identifiers.models import Identifier
 from submission import models as submission_models
+from xml.dom import minidom
 
 # We default `verb` to ListRecords for backwards compatibility.
 DEFAULT_ENDPOINT = "ListRecords"
@@ -64,15 +65,65 @@ class OAIListRecords(OAIPagedModelView):
             date_published__lte=timezone.now(),
         )
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix")
+        return context
+
 
 class OAIGetRecord(TemplateView):
     template_name = "apis/OAI_GetRecord.xml"
     content_type = "application/xml"
 
+    def get_template_names(self):
+        """
+        This is the ridiculous way that you have to override template
+        selection in CBVs
+        @return: the correct template
+        """
+        if self.request.GET.get('metadataPrefix') == 'oai_jats':
+            # OAI_JATS output
+            return "apis/OAI_GetRecordJats.xml"
+        else:
+            # default to OAI_DC
+            return "apis/OAI_GetRecord.xml"
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["article"] = self.get_article()
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix")
+        context["jats"], context["stub"] = self.get_jats(context["article"])
         return context
+
+    def get_jats(self, article):
+        """
+        Fetches either JATS from the article or a stub
+        @param article: the article on which to operate
+        @return: JATS XML or a metadata stub, True or False for whether this is
+        a stub (False = full JATS, True = stub only)
+        """
+        render_galley = article.get_render_galley
+
+        # check if this is a JATS XML file
+        try:
+            if render_galley:
+                with open(render_galley.file.get_file_path(article),
+                          'r') as galley:
+                    contents = galley.read()
+
+                    if 'DTD JATS' in contents:
+                        # assume this is a JATS XML file
+                        # we need to strip the XML header, though
+                        domified_xml = minidom.parseString(contents)
+                        return domified_xml.documentElement.toxml('utf-8'), \
+                               False
+        except:
+            # a broad catch that lets us generate a stub if anything goes wrong
+            pass
+
+        return None, True
 
     def get_article(self):
         id_param = self.request.GET.get("identifier")
@@ -112,6 +163,8 @@ class OAIListMetadataFormats(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["metadata_formats"] = metadata_formats
+        context["verb"] = self.request.GET.get("verb")
+        context["metadataPrefix"] = self.request.GET.get("metadataPrefix")
         return context
 
 
