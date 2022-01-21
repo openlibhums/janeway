@@ -17,15 +17,11 @@
                 <div class="hide-for-large">
                     <ul class="accordion" data-accordion data-allow-all-closed="true">
                         <li class="accordion-item" data-accordion-item>
-                            <!-- Accordion tab title -->
                             <a href="#" class="accordion-title">Show Filter Options</a>
-
-                            <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
-                            <div class="accordion-content" data-tab-content>
+                             <div class="accordion-content" data-tab-content>
                                 {% include "elements/journal/article_filter_form.html" %}
                             </div>
                         </li>
-                        <!-- ... -->
                     </ul>
                 </div>
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
