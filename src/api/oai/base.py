@@ -29,6 +29,8 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
     """ Base class for OAI views generated from model Querysets """
     content_type = "application/xml"
 
+    metadata_prefix = 'oai_dc'
+
     metadata_formats_set = {
         format.get('prefix') for format in metadata_formats
     }
@@ -49,13 +51,14 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
         return qs
 
     def validate_metadata_format(self):
-        prefix = self.request.GET.get("metadataPrefix")
-        if prefix and prefix not in self.metadata_formats_set:
+        if self.metadata_prefix \
+                and self.metadata_prefix not in self.metadata_formats_set:
             raise exceptions.OAIUnsupportedMetadataFormat()
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["prefix"] = self.request.GET.get("metadataPrefix")
+        context["metadata_prefix"] = self.request.GET.get("metadataPrefix",
+                                                          "oai_dc")
         return context
 
 
