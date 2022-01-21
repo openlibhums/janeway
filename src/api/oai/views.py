@@ -67,7 +67,7 @@ class OAIListRecords(OAIPagedModelView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["verb"] = self.request.GET.get("verb")
+        context["verb"] = self.request.GET.get("verb", "ListRecords")
         context["metadataPrefix"] = self.request.GET.get("metadataPrefix")
         return context
 
