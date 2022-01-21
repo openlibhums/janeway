@@ -34,9 +34,24 @@ def oai_view_factory(request, *args, **kwargs):
 
 
 class OAIListRecords(OAIPagedModelView):
+
+    # default is OAI_DC
     template_name = "apis/OAI_ListRecords.xml"
     queryset = submission_models.Article.objects.all()
     paginate_by = 50
+
+    def get_template_names(self):
+        """
+        This is the ridiculous way that you have to override template
+        selection in CBVs
+        @return: the correct template
+        """
+        if self.request.GET.get('metadataPrefix') == 'oai_jats':
+            # OAI_JATS output
+            return "apis/OAI_ListRecordsJats.xml"
+        else:
+            # default to OAI_DC
+            return "apis/OAI_ListRecords.xml"
 
     def filter_by_journal(self, qs):
         if self.request.journal:
