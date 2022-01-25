@@ -8,6 +8,7 @@ from api.oai import exceptions
 from api.oai.base import OAIPagedModelView, metadata_formats
 from identifiers.models import Identifier
 from submission import models as submission_models
+from utils.upgrade import shared
 from xml.dom import minidom
 
 # We default `verb` to ListRecords for backwards compatibility.
@@ -168,6 +169,26 @@ class OAIListMetadataFormats(TemplateView):
         return context
 
 
+class OAIIdentify(TemplateView):
+    template_name = "apis/OAI_Identify.xml"
+    content_type = "application/xml"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['version'] = shared.current_version()
+
+        articles = submission_models.Article.objects.all()
+
+        if self.request.journal:
+            articles = articles.filter(
+                journal=self.request.journal
+            )
+
+        context['earliest_article'] = articles.earliest('date_published')
+
+        return context
+
+
 class OAIErrorResponse(TemplateView):
     """ Base Error response returned for raised OAI API errors
 
@@ -190,4 +211,5 @@ ROUTES = {
     "ListRecords": OAIListRecords.as_view(),
     "ListIdentifiers": OAIListIdentifiers.as_view(),
     "ListMetadataFormats": OAIListMetadataFormats.as_view(),
+    "Identify": OAIIdentify.as_view(),
 }
