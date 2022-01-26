@@ -4,7 +4,9 @@
 {% block body %}
 
     {% for element in homepage_elements %}
+    <div class="homepage-element-wrapper homepage-element-{{ element.name|slugify }}">
         {% include element.template_path %}
+    </div>
         <hr>
     {% endfor %}
 
