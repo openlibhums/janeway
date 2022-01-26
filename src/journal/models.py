@@ -523,8 +523,7 @@ class Issue(models.Model):
 
         return mark_safe(" &bull; ".join((filter(None, title_list))))
 
-    @property
-    def pretty_issue_identifier(self):
+    def issue_title_parts(self):
         journal = self.journal
         volume = issue = year = ''
 
@@ -535,9 +534,15 @@ class Issue(models.Model):
         if journal.display_issue_year and self.date:
             year = "{}".format(self.date.year)
 
-        parts = [volume, issue, year]
+        return [volume, issue, year]
 
-        return mark_safe(" &bull; ".join((filter(None, parts))))
+    @property
+    def pretty_issue_identifier(self):
+        return mark_safe(" &bull; ".join((filter(None, self.issue_title_parts()))))
+
+    @property
+    def non_pretty_issue_identifier(self):
+        return " ".join((filter(None, self.issue_title_parts())))
 
 
     @property
