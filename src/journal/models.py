@@ -97,7 +97,7 @@ class Journal(AbstractSiteModel):
         related_name='press_image_override',
         help_text=ugettext('Replaces the press logo in the footer.'),
     )
-    default_cover_image = models.SVGImageField(
+    default_cover_image = SVGImageField(
         upload_to=cover_images_upload_path,
         null=True,
         blank=True,
@@ -105,7 +105,7 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('The default cover image for journal issues and for '
                            'the journal\'s listing on the press-level website.'),
     )
-    default_large_image = models.SVGImageField(
+    default_large_image = SVGImageField(
         upload_to=cover_images_upload_path,
         null=True,
         blank=True,
@@ -113,7 +113,7 @@ class Journal(AbstractSiteModel):
         help_text=ugettext('The default background image for article openers '
                            'and carousel items.'),
     )
-    header_image = models.SVGImageField(
+    header_image = SVGImageField(
         upload_to=cover_images_upload_path,
         null=True,
         blank=True,
