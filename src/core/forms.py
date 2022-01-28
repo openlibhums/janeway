@@ -345,7 +345,6 @@ class JournalImageForm(forms.ModelForm):
         fields = (
            'header_image', 'default_cover_image',
            'default_large_image', 'favicon',
-           'disable_article_images',
         )
 
 
@@ -371,6 +370,7 @@ class JournalArticleForm(forms.ModelForm):
         fields = (
             'view_pdf_button',
             'disable_metrics_display',
+            'disable_article_images',
         )
 
 
