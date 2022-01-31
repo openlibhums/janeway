@@ -668,11 +668,8 @@ class SettingValue(models.Model):
                 return 0
         elif self.setting.types == 'json' and self.value:
             return json.loads(self.value)
-        elif self.setting.types == 'rich-text' and self.value:
-            if self.value == SUMMERNOTE_SENTINEL:
-                return ''
-            else:
-                return self.value
+        elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
+            return ''
         else:
             return self.value
 
