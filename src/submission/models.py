@@ -657,7 +657,7 @@ class Article(AbstractLastModifiedModel):
                 idx = 1
                 carousel_text += ', '
 
-            if author.institution != '':
+            if author.institution:
                 carousel_text += author.full_name() + " ({0})".format(author.institution)
             else:
                 carousel_text += author.full_name()
@@ -1419,7 +1419,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     middle_name = models.CharField(max_length=300, null=True, blank=True)
     last_name = models.CharField(max_length=300, null=True, blank=True)
 
-    institution = models.CharField(max_length=1000)
+    institution = models.CharField(max_length=1000, null=True, blank=True)
     department = models.CharField(max_length=300, null=True, blank=True)
     frozen_biography = models.TextField(
         null=True,
@@ -1516,10 +1516,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def corporate_name(self):
-        name = self.institution
-        if self.department:
-            name = "{}, {}".format(self.department, name)
-        return name
+        return self.affiliation()
 
     @property
     def biography(self):
@@ -1553,10 +1550,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.first_name
 
     def affiliation(self):
-        if self.department:
-            return '{inst} {dept}'.format(inst=self.institution, dept=self.department)
-        else:
+        if self.institution and self.department:
+            return "{}, {}".format(self.department, self.institution)
+        elif self.institution:
             return self.institution
+        else:
+            return ''
 
     @property
     def is_correspondence_author(self):
