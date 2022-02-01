@@ -197,7 +197,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                   verbose_name=_('Salutation'))
     biography = models.TextField(null=True, blank=True, verbose_name=_('Biography'))
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    institution = models.CharField(max_length=1000, verbose_name=_('Institution'))
+    institution = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Institution'))
     department = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Department'))
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Handle")
@@ -303,10 +303,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return 'N/A'
 
     def affiliation(self):
-        if self.department:
-            return "{0}, {1}".format(self.department, self.institution)
-
-        return self.institution
+        if self.institution and self.department:
+            return "{}, {}".format(self.department, self.institution)
+        elif self.institution:
+            return self.institution
+        else:
+            return ''
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
