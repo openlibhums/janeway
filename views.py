@@ -1326,14 +1326,16 @@ def typesetting_preview_galley(
     else:
         template = 'typesetting/preview_embedded.html'
 
+    article_content = galley.file_content()
+
     context = {
         'proofing_task': proofing_task,
         'galley': galley,
         'article': article if article else proofing_task.round.article,
         'identifier_type': 'id',
         'identifier': article.pk if article else proofing_task.round.article.pk,
-        'article_content': galley.file_content(),
-        'tables_in_galley': journal_logic.get_all_tables_from_html(galley.file_content()),
+        'article_content': article_content,
+        'tables_in_galley': journal_logic.get_all_tables_from_html(article_content),
     }
 
     return render(request, template, context)
