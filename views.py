@@ -1333,6 +1333,7 @@ def typesetting_preview_galley(
         'identifier_type': 'id',
         'identifier': article.pk if article else proofing_task.round.article.pk,
         'article_content': galley.file_content(),
+        'tables_in_galley': journal_logic.get_all_tables_from_html(galley.file_content()),
     }
 
     return render(request, template, context)
