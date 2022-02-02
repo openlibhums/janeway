@@ -88,8 +88,13 @@
                         <div class="large-3 columns end">
                             {{ info_form.primary_issue|foundation }}
                         </div>
-                     </div>
-                    <div class="large-12 columns">
+                    </div>
+                    {% if journal_settings.general.submission_competing_interests %}
+                        <div class="large-10 columns">
+                            {{ info_form.competing_interests|foundation }}
+                        </div>
+                    {% endif %}
+                    <div class="large-10 columns">
                         {{ info_form.custom_how_to_cite|foundation }}
                     </div>
                     <div class="large-12 columns">
