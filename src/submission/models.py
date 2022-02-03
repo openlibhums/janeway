@@ -369,8 +369,13 @@ class Article(models.Model):
     # Metadata
     owner = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=999, help_text=_('Your article title'))
-    subtitle = models.CharField(max_length=999, blank=True, null=True,
-                                help_text=_('Subtitle of the article display format; Title: Subtitle'))
+    subtitle = models.CharField(
+        # Note: subtitle is deprecated as of version 1.4.2
+        max_length=999,
+        blank=True,
+        null=True,
+        help_text=_('Subtitle of the article display format; Title: Subtitle')
+    )
     abstract = models.TextField(
         blank=True,
         null=True,
