@@ -65,11 +65,33 @@ Once the reviewer is assigned they will be able to access the system and let you
 
 Making Reviews Available to Authors
 -----------------------------------
-Once a reviewer has completed their review, you can mark the review as available for author consumption. When you make an Accept, Reject or Revision decision the author will gain access to view these reviews within the system.
+Once a round of Peer Review is complete, you can choose whether to ‘Hide’ or ‘Make Visible’ the different elements of the review from authors.
 
-.. figure:: ../nstatic/review_author_consumption.gif
+**Allow Author to See**
 
-You can also edit review form answers to ensure they do not identify the reviewer. The author will see the edited version, the system will retain the original.
+Click through to ‘View’ a completed review: 
+
+The first "Allow Author to See" button pertains to the review assignment itself. If this says ‘Allow Author to See’, the author cannot currently see this report.
+
+If this button reads ‘Hide from Author’, the author can see the report.
+
+.. figure:: ../nstatic/review_visibility_1.png
+
+The "Allow Author to See" checkbox pertains to the ‘Summary of Review’ field or individual elements of the review form, if enabled. The default here is "Allow Author to See". If this box is checked, the author can see review text input into Janeway. If this field has been changed by an editor, the author only sees the edited version (but editors can see both versions on their screen). If this box is unchecked, the author cannot see the review text (if a review form with multiple elements, editors can check some and uncheck others on a per-field basis).
+
+.. figure:: ../nstatic/review_visibility_2.png
+
+If you make a change to the Summary of Review visibility options, click ‘Update Individual View Options’ to save.  
+
+The third "Allow Author to See" button pertains to a review file, if uploaded. The default here is "Hide from Author". If this button appears as ‘Allow Author to View File’, the author cannot currently see the review file. Note: the editor must check and anonymise this file before making available to the author if working on a blinded basis. If this button reads "Hide File", the author can see the review file.
+
+.. figure:: ../nstatic/review_visibility_3.png
+
+Once you have adjusted the visibility of Peer Review reports, and have clicked through to ‘Make a Decision’, you will see a summary of the Peer Reviews and what is and what is not revealed to authors before sending your Decision.
+
+.. figure:: ../nstatic/review_visibility_4.png
+
+
 
 Decision Helper
 -----------------
